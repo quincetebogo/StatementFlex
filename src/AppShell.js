@@ -92,7 +92,7 @@ export class AppShell extends Shell {
 			applicationName: { type: String },
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
-			callWaitingView: { type: String }
+
 		};
 	}
 

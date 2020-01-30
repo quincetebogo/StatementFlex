@@ -2,6 +2,7 @@ import { View, html, css } from 'platform/elements';
 import '../components/HorizonClient';
 import 'platform/components/buttons/Button';
 
+
 export class LandingPage extends View {
 
 
@@ -22,6 +23,7 @@ export class LandingPage extends View {
 				.left {
 					grid-area: left;
 					width: 440px;
+					background-color: gainsboro;
 				}
 
 				.middle {
@@ -40,7 +42,7 @@ export class LandingPage extends View {
 					width: 440px;
 					height: 920px;
 					padding: 0px 0px 0px 0px;
-			
+					
 				
 				}
 				.call-waiting{
@@ -74,9 +76,23 @@ export class LandingPage extends View {
 				}
 
 				.insights{
-					width: 256.66px;
+					width: 320px;
 					height: 920px;
 					padding: 0px 0px 0px 0px;
+				}
+			
+				img{
+					width:320px;
+					height: 920px;
+				}
+				capitec-button-bar{
+					padding: 8px 0px 8px 0px;
+					background-color: gainsboro;
+				}
+
+				#buttons{
+					width: 440px;
+				
 				}
 				`];
 	}
@@ -93,28 +109,24 @@ export class LandingPage extends View {
 						</capitec-card>	
 					</div>		
 
-					<div class="product-buttons">
+				<capitec-card class="products">
+					<!-- <div class="product-buttons"> -->
 						<capitec-button-bar>
-							<capitec-icon class="style-scope view-icon" icon="product/transact" size="medium"></capitec-icon>
-							<capitec-button type="clear" label="Savings Account"></capitec-button>
-							<capitec-label label="Know what you get, know what you pay"></capitec-label>
+							<capitec-button id="buttons" type="primary" label="Savings Account"></capitec-button>
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-icon class="style-scope view-icon" icon="product/save" size="medium"></capitec-icon>	
-							<capitec-button type="clear" label="Savings Plan"></capitec-button>	
-							<capitec-label label="Let your money make money"></capitec-label>	
+							<capitec-button id="buttons" type="primary" label="Savings Plan"></capitec-button>	
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-icon class="style-scope view-icon" icon="product/insure" size="medium"></capitec-icon>	
-							<capitec-button type="clear" label="Insure"></capitec-button>	
-							<capitec-label label="One plan, more cover"></capitec-label>			
+							<capitec-button id="buttons" type="primary" label="Insure"></capitec-button>	
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-icon class="style-scope view-icon" icon="product/credit" size="medium"></capitec-icon>
-							<capitec-button type="clear" label="Credit"></capitec-button>
-							<capitec-label label="Rethink credit, realise dreams"></capitec-label>	
+							<!-- <capitec-icon class="style-scope view-icon" icon="product/credit" size="medium"></capitec-icon> -->
+							<capitec-button id="buttons" type="primary" label="Credit"></capitec-button>
+							<!-- <capitec-label label="Rethink credit, realise dreams"></capitec-label>	 -->
 						</capitec-button-bar>
-					</div>
+					<!-- </div> -->
+				</capitec-card>
 					</capitec-card>
 				</div>
 		
@@ -129,7 +141,7 @@ export class LandingPage extends View {
 
 				<div class="right">
 					<capitec-card class="insights">
-						
+						<img src="../images/LandingPageImages/Banner.png" alt="banner" />
 					</capitec-card>
 				</div>
 			</section>		
