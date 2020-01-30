@@ -21,24 +21,23 @@ export class LandingPage extends View {
 
 				.left {
 					grid-area: left;
-					width: 100%;
-					
+					width: 440px;
 				}
 
 				.middle {
 					grid-area: middle;
-					width: 100%;
-					height: 400px;
+					width: 1064px;
 					text-align: justify-center;
 				}
 
 				.right {
 					grid-area: right;
 					justify-self: center;
-					width: 100%;
+					width: 320px;
 				}
-				.hello-client{
-					width: 352px;
+
+				.left-card {
+					width: 440px;
 					height: 920px;
 					padding: 0px 0px 0px 0px;
 			
@@ -56,9 +55,24 @@ export class LandingPage extends View {
 					border-radius: none;
 
 				}
-				capitec-label{
-					border: white;
+
+				.hello-card {
+					width: 440px;
+					height: 192px;
 				}
+
+				#hello-id {
+					color: #003652;
+					line-height: 72px;
+					font-size: 48px;
+					text-align: center;
+				}
+
+				#name-id {
+					color: #003652;
+					text-align: center;
+				}
+
 				.insights{
 					width: 256.66px;
 					height: 920px;
@@ -71,11 +85,15 @@ export class LandingPage extends View {
 		return html`
 			<section class="grid-container">
 				<div class="left">
-					<capitec-card class="hello-client">
-						
+					<capitec-card class="left-card">
+					<div>	
+						<capitec-card class="hello-card">
+							<capitec-label id="hello-id" type="title" label="Hello"></capitec-label>
+							<capitec-label id="name-id" type="title" label="Jeffrey Anderson"></capitec-label>
+						</capitec-card>	
+					</div>		
 
 					<div class="product-buttons">
-
 						<capitec-button-bar>
 							<capitec-icon class="style-scope view-icon" icon="product/transact" size="medium"></capitec-icon>
 							<capitec-button type="clear" label="Savings Account"></capitec-button>

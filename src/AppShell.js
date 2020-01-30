@@ -199,8 +199,10 @@ export class AppShell extends Shell {
 					height: 32px;
 					width: 193px;
 				}
+
 				.title-bar{
-					height: 80px;
+					height: 72px;
+					width: 1920px;
 					background-color: #009DE0;
 					background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
 					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
@@ -208,24 +210,11 @@ export class AppShell extends Shell {
 					grid-row-gap: 8px;
 				}
 			
+				.status-bar{
+					height: 60px;
+					width: 1920px;
+				}
 
-
-				.example {
-					display: grid; 
-					grid-template-columns: 200px 1fr;
-					border-bottom: 1px solid #EEEEEE;
-					padding: 12px 0px 12px 0px;
-				
-				}
-				
-				.example:first-child {
-					padding: 0px 0px 12px 0px;
-				}
-				
-				.example:last-child {
-					border-bottom: none;
-					padding: 12px 0px 0px 0px;
-				}
 				capitec-content-box{
 					background: gainsboro;
 				}
