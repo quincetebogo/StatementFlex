@@ -47,7 +47,7 @@ export class LandingPage extends View {
 				}
 				.call-waiting{
 					display:flex;
-					width: 853.41px;
+					width: 1052px;
 					height: 920px;
 					padding: 0px 0px 0px 0px;
 					text-align:center;
@@ -94,6 +94,11 @@ export class LandingPage extends View {
 					width: 440px;
 				
 				}
+				.needimage{
+					height: 120px;
+					width: 170px;
+					margin: 24px 24px 18px 24px;
+				}
 				`];
 	}
 
@@ -133,6 +138,9 @@ export class LandingPage extends View {
 				<div class="middle">
 					<capitec-card class="call-waiting">
 					
+							<div>
+								<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+							</div>
 							<capitec-label type="title" label="Waiting for your next call..." ></capitec-label>
 							<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
 						
