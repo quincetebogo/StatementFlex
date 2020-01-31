@@ -1,0 +1,13 @@
+{
+  "version": "0.16.0",
+  "framework": "WebComponents",
+  "type": "desktop",
+  "application": {
+    "name": "horizon",
+    "title": "horizon",
+    "version": "0.0.1",
+    "idp": {
+      "client": "ocwp-test-client"
+    }
+  }
+}
