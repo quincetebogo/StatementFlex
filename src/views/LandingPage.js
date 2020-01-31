@@ -47,7 +47,7 @@ export class LandingPage extends View {
 				}
 				.call-waiting{
 					display:flex;
-					width: 1052px;
+					width: 1064px;
 					height: 920px;
 					padding: 0px 0px 0px 0px;
 					text-align:center;
