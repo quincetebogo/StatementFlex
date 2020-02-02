@@ -7,10 +7,13 @@ import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
 
+
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
+//import utils to tranform user role
+import './utils/TransformAgentRole';
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -202,7 +205,7 @@ export class AppShell extends Shell {
 
 				.title-bar{
 					height: 72px;
-					width: 1920px;
+					width: 1903px;
 					background-color: #009DE0;
 					background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
 					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
@@ -212,13 +215,16 @@ export class AppShell extends Shell {
 			
 				.status-bar{
 					height: 60px;
-					width: 1920px;
+					width: 1903px;
 				}
 
 				capitec-content-box{
 					background: gainsboro;
+					width:1903px;
 				}
-
+				.userrole{
+					color: #003652;
+				}
 
 			`
 		];
@@ -257,15 +263,18 @@ export class AppShell extends Shell {
 
 		return html`
          
-                <capitec-card>
+                <capitec-card class="content">
 
 					<capitec-title-bar class="title-bar">
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
-						<div></div>
+						<div class="userrole">
+							<capitec-label label="${this.securityContext.fullName}"></capitec-label>
+							<capitec-label label="${TransformAgentRole(this.roles)}"></capitec-label>
+						</div>
 					</capitec-title-bar>
 
-                    <capitec-content-box>
+                    <capitec-content-box >
 						<capitec-app-router></capitec-app-router>
                     </capitec-content-box>
 	
