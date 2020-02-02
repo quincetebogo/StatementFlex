@@ -77,6 +77,30 @@ export class AppShell extends Shell {
 		})
 
 		this.router.addRoute({
+			name: `product-flexible-savings-plan`,
+			title: `FlexibleSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/flexible`,
+			//load: () => import(`./views/FlexibleSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-fixed-term-savings-plan`,
+			title: `FixedTermSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/fixed-term`,
+			//load: () => import(`./views/FixedTermSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `tax-free-savings-plan`,
+			title: `TaxFreeSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/tax-free`,
+			//load: () => import(`./views/TaxFreeSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
 			name: `product-insure`,
 			title: `InsureProductView`,
 			icon: null,
