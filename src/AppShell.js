@@ -262,6 +262,10 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
+				.content{
+					width:1913px;
+					height:860px;
+				}
 				.branding-logo-white{
 					height: 32px;
 					width: 193px;
@@ -269,7 +273,7 @@ export class AppShell extends Shell {
 
 				.title-bar{
 					height: 72px;
-					width: 1903px;
+					width: 1913px;
 					background-color: #009DE0;
 					background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
 					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
@@ -279,12 +283,13 @@ export class AppShell extends Shell {
 			
 				.status-bar{
 					height: 60px;
-					width: 1903px;
+					width: 1913px;
 				}
 
 				capitec-content-box{
 					background: gainsboro;
-					width:1903px;
+					width:1913px;
+					height:804px;
 				}
 				.userrole{
 					color: #003652;
