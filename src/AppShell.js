@@ -49,18 +49,82 @@ export class AppShell extends Shell {
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
 
-		//Route for landing page 
+		// URL Routing Table
 		this.router.addRoute({
 			name: `landing-page`,
 			title: `LandingPageView`,
 			icon: null,
 			path: `/landingpage`,
 			load: () => import(`./views/LandingPage`),
-			isDeafult: true,
+			isDefault: true,
 			isFallback: true,
 		});
 
-		//Route for client view
+		this.router.addRoute({
+			name: `product-savings-account`,
+			title: `SavingsAccountProductView`,
+			icon: null,
+			path: `/product/savings-account/`,
+			//load: () => import(`./views/SavingsAccountProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-savings-plan`,
+			title: `SavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/`,
+			//load: () => import(`./views/SavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-flexible-savings-plan`,
+			title: `FlexibleSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/flexible`,
+			//load: () => import(`./views/FlexibleSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-fixed-term-savings-plan`,
+			title: `FixedTermSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/fixed-term`,
+			//load: () => import(`./views/FixedTermSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `tax-free-savings-plan`,
+			title: `TaxFreeSavingsPlanProductView`,
+			icon: null,
+			path: `/product/savings-plan/tax-free`,
+			//load: () => import(`./views/TaxFreeSavingsPlanProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-insure`,
+			title: `InsureProductView`,
+			icon: null,
+			path: `/product/insure/`,
+			//load: () => import(`./views/InsureProduct`),
+		})
+
+		this.router.addRoute({
+			name: `product-credit`,
+			title: `CreditProductView`,
+			icon: null,
+			path: `/product/credit/`,
+			//load: () => import(`./views/CreditProduct`),
+		})
+
+		this.router.addRoute({
+			name: `confirm-caller-details`,
+			title: `ConfirmCallerDetailsView`,
+			icon: null,
+			path: `/confirm-caller-details/`,
+			//load: () => import(`./views/ConfirmCallerDetails`),
+		})
+
+
 
 		//Event Aggregator
 		EventAggregator
