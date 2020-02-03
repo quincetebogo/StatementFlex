@@ -1,9 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import '../components/HorizonClient';
-import '../components/HorizonLeftUI';
+import '../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/HorizonRightUI';
-import '../components/HorizonMiddleUI';
+import '../components/LandingPageMarketing';
+import '../components/LandingPageWaitForCall';
 
 export class LandingPage extends View {
 
@@ -61,17 +60,17 @@ export class LandingPage extends View {
 
 	renderleftUI() {
 		return html`
-			<horizon-user></horizon-user>
+			<landingpage-welcome></landingpage-welcome>
 		`;
 	}
 	renderRightImage() {
 		return html`
-			<horizon-rightuser></horizon-rightuser>
+			<landingpage-marketing></landingpage-marketing>
 		`;
 	}
 	renderMiddleSection() {
 		return html`
-			<horizon-middle-section></horizon-middle-section>
+			<landingpage-waitforcall></landingpage-waitforcall>
 		`;
 	}
 

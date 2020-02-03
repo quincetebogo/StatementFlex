@@ -1,9 +1,9 @@
 //import { LitElemnt, html, css } from 'lit-element';
 import { View, html, css } from 'platform/elements';
 //import all UI components
-import 'platform/components/navigation/AppRouter';
+//import 'platform/components/navigation/AppRouter';
 
-export class HorizonUser extends View {
+export class LandingPageWelcome extends View {
 
 	constructor() {
 		super();
@@ -102,4 +102,4 @@ export class HorizonUser extends View {
 
 }
 
-window.customElements.define(`horizon-user`, HorizonUser);
+window.customElements.define(`landingpage-welcome`, LandingPageWelcome);

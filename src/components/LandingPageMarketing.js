@@ -1,8 +1,8 @@
 import { View, html, css } from 'platform/elements';
 //import all UI components
-import 'platform/components/navigation/AppRouter';
+//import 'platform/components/navigation/AppRouter';
 
-export class HorizonRightUI extends View {
+export class LandingPageMarketing extends View {
 
 	constructor() {
 		super();
@@ -44,4 +44,4 @@ export class HorizonRightUI extends View {
 
 }
 
-window.customElements.define(`horizon-rightuser`, HorizonRightUI);
+window.customElements.define(`landingpage-marketing`, LandingPageMarketing);

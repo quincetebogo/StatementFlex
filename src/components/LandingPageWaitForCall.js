@@ -1,8 +1,8 @@
 import { View, html, css } from 'platform/elements';
 //import all UI components
-import 'platform/components/navigation/AppRouter';
+//import 'platform/components/navigation/AppRouter';
 
-export class HorizonMiddleUI extends View {
+export class LandigPageWaitForCall extends View {
 
 	constructor() {
 		super();
@@ -62,4 +62,4 @@ export class HorizonMiddleUI extends View {
 
 }
 
-window.customElements.define(`horizon-middle-section`, HorizonMiddleUI);
+window.customElements.define(`landingpage-waitforcall`, LandigPageWaitForCall);
