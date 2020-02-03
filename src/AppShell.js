@@ -112,8 +112,8 @@ export class AppShell extends Shell {
 			name: `product-credit`,
 			title: `CreditProductView`,
 			icon: null,
-			path: `/product/credit/`,
-			//load: () => import(`./views/CreditProduct`),
+			path: `/product/credit`,
+			load: () => import(`./views/CreditProduct`),
 		})
 
 		this.router.addRoute({

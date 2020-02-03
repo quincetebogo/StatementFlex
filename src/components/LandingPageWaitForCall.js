@@ -1,6 +1,4 @@
 import { View, html, css } from 'platform/elements';
-//import all UI components
-//import 'platform/components/navigation/AppRouter';
 
 export class LandigPageWaitForCall extends View {
 

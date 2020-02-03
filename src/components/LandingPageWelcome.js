@@ -1,7 +1,5 @@
-//import { LitElemnt, html, css } from 'lit-element';
 import { View, html, css } from 'platform/elements';
-//import all UI components
-//import 'platform/components/navigation/AppRouter';
+import { Router } from 'platform/Router';
 
 export class LandingPageWelcome extends View {
 
@@ -9,6 +7,7 @@ export class LandingPageWelcome extends View {
 		super();
 
 		this.userDetails = null;
+		this.router = Router.getInstance();
 	}
 
 	static get properties() {
@@ -94,7 +93,7 @@ export class LandingPageWelcome extends View {
 							<capitec-button id="buttons" type="primary" label="Insure"></capitec-button>	
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-button id="buttons" type="primary" label="Credit"></capitec-button>
+							<capitec-button id="buttons" type="primary" label="Credit" @click="${() => this.router.navigateByPath(`/product/credit`)}"></capitec-button>
 						</capitec-button-bar>
 				</capitec-card>
 			`;
