@@ -36,12 +36,13 @@ export class LandingPageWelcome extends View {
 				line-height: 72px;
 				font-size: 48px;
 				text-align: center;
-			
+				font: bold 38px/64px Hind Vadodara;
 			}
 
 			#name-id {
-				color: #003652;
+				color: #57595d;
 				text-align: center;
+				font: bold 18px/30px Hind Vadodara;
 			}
 
 			#buttons{
@@ -77,7 +78,7 @@ export class LandingPageWelcome extends View {
 								<div></div>
 								<div>
 									<capitec-label id="hello-id" type="title" label="Hello"></capitec-label>
- 									<capitec-label  id="name-id" label="Jeffrey Anderson"></capitec-label>
+ 									<capitec-label  id="name-id" label="Jeffrey Anderson" type="subtitle"></capitec-label>
 								</div>
 								</capitec-group>
 						</capitec-card>	
