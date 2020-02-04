@@ -3,6 +3,7 @@ import '../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
 import '../components/LandingPageMarketing';
 import '../components/LandingPageWaitForCall';
+import '../components/CreditProductDetails';
 
 export class CreditProduct extends View {
 
