@@ -20,6 +20,10 @@ export class AppRouter {
 		this.router.navigateByPath(`/landingPage`);
 	}
 
+	navigateToCreditProduct() {
+		this.router.navigateByPath(`/product/credit`);
+	}
+
 	navigateToCallWait(docType, id) {
 		this.router.navigateByPath(`/callWaiting`);
 	}
