@@ -21,7 +21,7 @@ export class LandingPage extends View {
 					grid-gap: 24px;
 					background-color: gainsboro;
 					height: 770px;
-					width: 1903px;
+					width: 1890px;
 				}
 
 				.left {

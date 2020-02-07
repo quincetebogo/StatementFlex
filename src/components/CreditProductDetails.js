@@ -120,8 +120,14 @@ export class CreditProductDetails extends View {
 					<p id="doc-text">
 					Documents you need when applying
 					</p>
+					<ul class="list-items">
+						<li>Original identification document (must be 18 years or older). If your name and/or surname differs from your identification document, a marriage
+                            certificate, divorce court order or name change letter will be required.
+                       </li>
+						<li>Latest salary slip</li>
+						<li>Any original bank statment showing your latest 3 consecutive salary deposits into an account in your name (an over-the-counter bank statement must be stamped)</li>
+					</ul>
 				</p>
-
 				</capitec-content-box>
 			</capitec-card>
 		`;
