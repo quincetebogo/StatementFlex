@@ -90,7 +90,7 @@ export class LandingPageWelcome extends View {
 							<capitec-button id="buttons" type="primary" label="Savings Plan"></capitec-button>	
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-button id="buttons" type="primary" label="Insure"></capitec-button>	
+							<capitec-button id="buttons" type="primary" label="Insure" @click="${() => this.router.navigateByPath(`/product/insure`)}"></capitec-button>	
 						</capitec-button-bar>
 						<capitec-button-bar>
 							<capitec-button id="buttons" type="primary" label="Credit" @click="${() => this.router.navigateByPath(`/product/credit`)}"></capitec-button>
