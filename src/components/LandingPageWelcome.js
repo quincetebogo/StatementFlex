@@ -85,7 +85,7 @@ export class LandingPageWelcome extends View {
 
 				<capitec-card class="products">
 						<capitec-button-bar>
-							<capitec-button id="buttons" type="primary" label="Savings Account"></capitec-button>
+							<capitec-button id="buttons" type="primary" label="Savings Account" @click="${() => this.router.navigateByPath(`/product/savings-account`)}"></capitec-button>
 						</capitec-button-bar>
 						<capitec-button-bar>
 							<capitec-button id="buttons" type="primary" label="Savings Plan"></capitec-button>	
