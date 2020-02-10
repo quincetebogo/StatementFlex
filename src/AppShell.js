@@ -121,7 +121,7 @@ export class AppShell extends Shell {
 			title: `ConfirmCallerDetailsView`,
 			icon: null,
 			path: `/confirm-caller-details/`,
-			//load: () => import(`./views/ConfirmCallerDetails`),
+			load: () => import(`./views/ConfirmCallerDetails`),
 		})
 
 

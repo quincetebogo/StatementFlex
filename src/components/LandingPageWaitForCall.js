@@ -1,9 +1,16 @@
 import { View, html, css } from 'platform/elements';
+//Added for navigation to the modal
+import { Router } from 'platform/Router';
+
 
 export class LandigPageWaitForCall extends View {
 
 	constructor() {
 		super();
+
+		//Added for navigation to the modal
+		this.router = Router.getInstance();
+
 	}
 
 	static get styles() {
@@ -45,13 +52,16 @@ export class LandigPageWaitForCall extends View {
 		return html`
 			<capitec-card class="call-waiting">
 				<div>
-				<capitec-group class="userwaiting" layout="absolute">
-				<div></div>
-				<div>
-					<img src="../images/LandingPageImages/need.svg" class="needimage"/>
-					<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
-					<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
-				</div>
+					<capitec-group class="userwaiting" layout="absolute">
+						<div></div>
+						<div>
+							<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+							<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
+							<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+						</div>
+						<div>
+						<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.router.navigateByPath(`/confirm-caller-details/`)}"></capitec-button>
+						</div>
 					</capitec-group>
 				</div>
 			</capitec-card>
