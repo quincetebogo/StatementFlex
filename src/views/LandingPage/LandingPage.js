@@ -1,8 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import '../components/LandingPageWelcome';
+import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/LandingPageMarketing';
-import '../components/LandingPageWaitForCall';
+import '../../components/LandingPageMarketing';
+import '../../components/LandingPageWaitForCall';
 
 export class LandingPage extends View {
 
@@ -16,46 +16,30 @@ export class LandingPage extends View {
 			css`
 				.grid-container {
 					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
+					grid-template-columns: 28% 53% 16%;
 					grid-template-areas: "left middle right";
-					grid-gap: 24px;
+					grid-gap: 20px;
 					background-color: gainsboro;
-					height: 770px;
-					width: 1903px;
+					height: 100%;
+					width: 100%;
 				}
-
 				.left {
 					grid-area: left;
-					width: 440px;
+					width: 100%;
 					background-color: gainsboro;
 				}
-
 				.middle {
 					grid-area: middle;
-					width: 1064px;
+					width: 100%;
 					text-align: center;
 				}
-
 				.right {
 					grid-area: right;
 					justify-self: center;
-					width: 320px;
-					height:770px;
+					width: 100%;
+					height: 100%;
 				}
-				
-				horizon-user{
-					width: 440px;
-					height: 770px;
-					padding: 0px 0px 0px 0px;
-				}
-			
-				horizon-rightuser{
-					width: 320px;
-					height: 770px;
-				}
-				
-	
-				`];
+			`];
 	}
 
 	renderleftUI() {
@@ -78,19 +62,16 @@ export class LandingPage extends View {
 		return html`
 			<section class="grid-container">
 				<div class="left">
-				${this.renderleftUI()}
+					${this.renderleftUI()}
 				</div>
-		
 				<div class="middle">
 					${this.renderMiddleSection()}
 				</div>
-
 				<div class="right">
 					${this.renderRightImage()}
 				</div>
-			</section>		
+			</section>
 		`;
-
 	}
 }
 console.log('On the landing page');
