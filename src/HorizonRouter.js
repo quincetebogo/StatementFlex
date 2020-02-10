@@ -1,6 +1,6 @@
 import { Router } from 'platform/Router';
 
-export class AppRouter {
+export class HorizonRouter {
 
 	constructor() {
 		this.router = Router.getInstance();

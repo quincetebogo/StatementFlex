@@ -104,8 +104,8 @@ export class AppShell extends Shell {
 			name: `product-insure`,
 			title: `InsureProductView`,
 			icon: null,
-			path: `/product/insure/`,
-			//load: () => import(`./views/InsureProduct`),
+			path: `/product/insure`,
+			load: () => import(`./views/LandingPage/InsureProduct`),
 		})
 
 		this.router.addRoute({

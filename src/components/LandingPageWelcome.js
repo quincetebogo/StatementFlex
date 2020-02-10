@@ -1,5 +1,6 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
+import { SecurityContext } from 'platform/SecurityContext';
 
 import '../components/Common/HorizonProductTile';
 
@@ -10,6 +11,7 @@ export class LandingPageWelcome extends View {
 
 		this.userDetails = null;
 		this.router = Router.getInstance();
+		this.securityContext = SecurityContext.getInstance();
 	}
 
 	static get properties() {
@@ -27,6 +29,7 @@ export class LandingPageWelcome extends View {
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 			}
+
 			.hello-card {
 				width: 440px;
 				height: 192px;
@@ -46,11 +49,10 @@ export class LandingPageWelcome extends View {
 				font: bold 18px/30px Hind Vadodara;
 			}
 
-			#buttons{
+			.buttons{
 				width: 440px;
-			
-			
 			}
+
 			.userrole{
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
@@ -58,10 +60,12 @@ export class LandingPageWelcome extends View {
 				width:440px;
 				height:192px;
 			}
+
 			capitec-button-bar{
 				background-color: gainsboro;
 				padding: 8px 0px 0px 0px;
 			}
+
 			.products{
 				padding: 0px 0px 8px 0px;
 				background-color: gainsboro;
@@ -83,7 +87,7 @@ export class LandingPageWelcome extends View {
 								<div></div>
 								<div>
 									<capitec-label id="hello-id" type="title" label="Hello"></capitec-label>
- 									<capitec-label  id="name-id" label="Jeffrey Anderson"></capitec-label>
+ 									<capitec-label  id="name-id" label="${this.securityContext.fullName}" type="subtitle"></capitec-label>
 								</div>
 								</capitec-group>
 						</capitec-card>	
@@ -105,7 +109,8 @@ export class LandingPageWelcome extends View {
 						<horizon-product-tile type="insure" 
 											  label="Insure"
 											  subtitle="One plan, more cover"
-											  icon="product/insure-white">
+											  icon="product/insure-white"
+											  @click="${() => this.router.navigateByPath(`/product/insure`)}">
 						</horizon-product-tile>
 						<horizon-product-tile type="credit" 
 											  label="Credit" 
