@@ -95,7 +95,7 @@ export class LandingPageWelcome extends View {
 							<capitec-product-tile class="buttons" type="save" label="Savings Plan" subtitle="Let your money make money"></capitec-product-tile>	
 						</capitec-button-bar>
 						<capitec-button-bar>
-							<capitec-product-tile class="buttons" type="insure" label="Insure" subtitle="One plan, more cover"></capitec-product-tile>	
+							<capitec-product-tile class="buttons" type="insure" label="Insure" subtitle="One plan, more cover" @click="${() => this.router.navigateByPath(`/product/insure`)}"></capitec-product-tile>	  
 						</capitec-button-bar>
 						<capitec-button-bar>
 							<capitec-product-tile class="buttons" type="credit" label="Credit" subtitle="Rethink credit, realize dreams" @click="${() => this.router.navigateByPath(`/product/credit`)}"></capitec-product-tile>
