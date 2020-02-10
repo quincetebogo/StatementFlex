@@ -37,12 +37,13 @@ export class LandingPageWelcome extends View {
 				line-height: 72px;
 				font-size: 48px;
 				text-align: center;
-			
+				font: bold 38px/64px Hind Vadodara;
 			}
 
 			#name-id {
-				color: #003652;
+				color: #57595d;
 				text-align: center;
+				font: bold 18px/30px Hind Vadodara;
 			}
 
 			#buttons{
@@ -92,7 +93,8 @@ export class LandingPageWelcome extends View {
 						<horizon-product-tile type="transact" 
 											  label="Savings Account" 
 											  subtitle="Know what you get, know what you pay"
-											  icon="product/transact-white">
+											  icon="product/transact-white"
+											  @click="${() => this.router.navigateByPath(`/product/savings-account`)}">
 						</horizon-product-tile>
 						<horizon-product-tile type="save" 
 											  label="Savings Plan"

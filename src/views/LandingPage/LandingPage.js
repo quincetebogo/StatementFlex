@@ -1,8 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import '../components/LandingPageWelcome';
+import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/LandingPageMarketing';
-import '../components/LandingPageWaitForCall';
+import '../../components/LandingPageMarketing';
+import '../../components/LandingPageWaitForCall';
 
 export class LandingPage extends View {
 

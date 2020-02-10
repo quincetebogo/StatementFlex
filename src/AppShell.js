@@ -65,7 +65,7 @@ export class AppShell extends Shell {
 			title: `SavingsAccountProductView`,
 			icon: null,
 			path: `/product/savings-account`,
-			load: () => import(`./views/SavingsAccountProduct`),
+			load: () => import(`./views/LandingPage/SavingsAccountProduct`),
 		})
 
 		this.router.addRoute({

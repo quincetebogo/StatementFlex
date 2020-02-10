@@ -1,9 +1,9 @@
 import { View, html, css } from 'platform/elements';
-import '../components/LandingPageWelcome';
+import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/LandingPageMarketing';
-import '../components/LandingPageWaitForCall';
-import '../components/SavingsAccountproductDetails';
+import '../../components/LandingPageMarketing';
+import '../../components/LandingPageWaitForCall';
+import '../../components/SavingsAccountproductDetails';
 
 export class SavingsAccountProduct extends View {
 
