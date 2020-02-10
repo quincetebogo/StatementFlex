@@ -1,11 +1,11 @@
 import { View, html, css } from 'platform/elements';
-import '../components/LandingPageWelcome';
+import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/LandingPageMarketing';
-import '../components/LandingPageWaitForCall';
-import '../components/InsureProductDetails';
+import '../../components/LandingPageMarketing';
+import '../../components/LandingPageWaitForCall';
+import '../../components/SavingsAccountproductDetails';
 
-export class InsureProduct extends View {
+export class SavingsAccountProduct extends View {
 
 	constructor() {
 		super();
@@ -70,7 +70,7 @@ export class InsureProduct extends View {
 		`;
 	}
 	renderMiddleSection() {
-		return html`<insureproduct-details></insureproduct-details>`;
+		return html`<savingsaccountproduct-details></savingsaccountproduct-details>`;
 	}
 
 	render() {
@@ -93,4 +93,4 @@ export class InsureProduct extends View {
 	}
 }
 
-customElements.define(`product-insure`, InsureProduct);
+customElements.define(`product-savings-account`, SavingsAccountProduct);

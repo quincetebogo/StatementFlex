@@ -55,7 +55,7 @@ export class AppShell extends Shell {
 			title: `LandingPageView`,
 			icon: null,
 			path: `/landingpage`,
-			load: () => import(`./views/LandingPage`),
+			load: () => import(`./views/LandingPage/LandingPage`),
 			isDefault: true,
 			isFallback: true,
 		});
@@ -65,15 +65,15 @@ export class AppShell extends Shell {
 			title: `SavingsAccountProductView`,
 			icon: null,
 			path: `/product/savings-account`,
-			load: () => import(`./views/SavingsAccountProduct`),
+			load: () => import(`./views/LandingPage/SavingsAccountProduct`),
 		})
 
 		this.router.addRoute({
 			name: `product-savings-plan`,
 			title: `SavingsPlanProductView`,
 			icon: null,
-			path: `/product/savings-plan/`,
-			//load: () => import(`./views/SavingsPlanProduct`),
+			path: `/product/savings-plan`,
+			load: () => import(`./views/LandingPage/SavingsPlanProduct/SavingsPlanProduct`),
 		})
 
 		this.router.addRoute({
@@ -81,7 +81,7 @@ export class AppShell extends Shell {
 			title: `FlexibleSavingsPlanProductView`,
 			icon: null,
 			path: `/product/savings-plan/flexible`,
-			//load: () => import(`./views/FlexibleSavingsPlanProduct`),
+			load: () => import(`./views/LandingPage/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
 		})
 
 		this.router.addRoute({
@@ -89,15 +89,15 @@ export class AppShell extends Shell {
 			title: `FixedTermSavingsPlanProductView`,
 			icon: null,
 			path: `/product/savings-plan/fixed-term`,
-			//load: () => import(`./views/FixedTermSavingsPlanProduct`),
+			load: () => import(`./views/LandingPage/SavingsPlanProduct/FixedTermSavingsProduct`),
 		})
 
 		this.router.addRoute({
-			name: `tax-free-savings-plan`,
+			name: `product-taxfree-savings-plan`,
 			title: `TaxFreeSavingsPlanProductView`,
 			icon: null,
 			path: `/product/savings-plan/tax-free`,
-			//load: () => import(`./views/TaxFreeSavingsPlanProduct`),
+			load: () => import(`./views/LandingPage/SavingsPlanProduct/TaxFreeSavingsProduct`),
 		})
 
 		this.router.addRoute({
@@ -105,7 +105,7 @@ export class AppShell extends Shell {
 			title: `InsureProductView`,
 			icon: null,
 			path: `/product/insure`,
-			load: () => import(`./views/InsureProduct`),
+			load: () => import(`./views/LandingPage/InsureProduct`),
 		})
 
 		this.router.addRoute({
@@ -113,7 +113,7 @@ export class AppShell extends Shell {
 			title: `CreditProductView`,
 			icon: null,
 			path: `/product/credit`,
-			load: () => import(`./views/CreditProduct`),
+			load: () => import(`./views/LandingPage/CreditProduct`),
 		})
 
 		this.router.addRoute({
