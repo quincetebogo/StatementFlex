@@ -64,8 +64,8 @@ export class AppShell extends Shell {
 			name: `product-savings-account`,
 			title: `SavingsAccountProductView`,
 			icon: null,
-			path: `/product/savings-account/`,
-			//load: () => import(`./views/SavingsAccountProduct`),
+			path: `/product/savings-account`,
+			load: () => import(`./views/SavingsAccountProduct`),
 		})
 
 		this.router.addRoute({
@@ -264,7 +264,7 @@ export class AppShell extends Shell {
 			css`
 				.content{
 					width:1913px;
-					height:860px;
+					height:936.5px;
 				}
 				.branding-logo-white{
 					height: 32px;
@@ -274,8 +274,8 @@ export class AppShell extends Shell {
 				.title-bar{
 					height: 72px;
 					width: 1913px;
-					background-color: #009DE0;
-					background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
+					// background-color: #009DE0;
+					// background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
 					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
 					grid-template-columns: 1fr;
 					grid-row-gap: 8px;
@@ -289,7 +289,7 @@ export class AppShell extends Shell {
 				capitec-content-box{
 					background: gainsboro;
 					width:1913px;
-					height:804px;
+					height:760px;
 				}
 				.userrole{
 					color: #003652;
@@ -334,7 +334,7 @@ export class AppShell extends Shell {
          
                 <capitec-card class="content">
 
-					<capitec-title-bar class="title-bar">
+					<capitec-title-bar class="title-bar" type="clear">
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
