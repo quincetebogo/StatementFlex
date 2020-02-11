@@ -1,6 +1,7 @@
 import { View, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
+import '../components/HorizonSpacer';
 
 class ConfirmCallerDetailsComponent extends View {
 
@@ -76,6 +77,8 @@ class ConfirmCallerDetailsComponent extends View {
 					grid-template-columns: 2fr;
 					grid-template-rows: 1fr;
 					text-align: ;
+					color: #57595d;
+					font: bold 18px/30px Hind Vadodara;
 				}
 				.incoming-call{
 					border-style: solid;
@@ -89,6 +92,31 @@ class ConfirmCallerDetailsComponent extends View {
 					width: 200px;
 					height: 200px;
 					align: left;
+				}
+				#label-value{
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 20px;	
+					font-weight: 600;	
+					line-height: 30px;
+				}
+				#label-text{
+					height: 30px;	width: 123px;	
+					color: #404040;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;
+					line-height: 30px;
+				}
+				#action-bar{
+					background: #BCF1ED;
+					height: 56px;	
+					width: 650px;
+					margin: 16px 16px 16px 16px;
+					align:center;
+				}
+				p{
+					margin: 5px 0px 0px 0px;
 				}
 			`];
 	}
@@ -106,7 +134,7 @@ class ConfirmCallerDetailsComponent extends View {
 										<capitec-label id="label-value" label="${this.referenceNumber}"> </capitec-label>
 									  </div>
 									  <div class="incoming-call">
-										<capitec-select
+										<capitec-select  id="label-value"
  										label="IVR Option Selected" .items="${this.selectDataObjects}" display-field="text">
 										</capitec-select>
 									  </div>
@@ -117,9 +145,9 @@ class ConfirmCallerDetailsComponent extends View {
 							 		 </capitec-group>
 									</capitec-action-bar>
 
-									<capitec-action-bar>
+									<capitec-action-bar id="action-bar">
 										<capitec-icon type="info"></capitec-icon>
-										<capitec-hyperlink label="Add Caller Details"></capitec-hyperlink>
+										<u>	<capitec-label label="Add Caller Details"></capitec-label> </u>
 										<p>if the caller is calling on another client's behalf</p>
 									</capitec-action-bar>
 				
@@ -129,44 +157,49 @@ class ConfirmCallerDetailsComponent extends View {
   								<capitec-avatar class="image" shape="square" value="Client"></capitec-avatar>	
 									
 
-								  <capitec-group class="client-info" layout="grid">
-								 <capitec-group class="client-fullname" layout="grid">
-								 			 <div>
-											<capitec-label label="${this.fullName}"></capitec-label>
-								  			</div>
-								 		 </capitec-group>
+								<capitec-group class="client-info" layout="grid">
+								
+									<div>
+									<capitec-label  id="label-value" label="${this.fullName}"></capitec-label>
+									</div>
 								  	
-								  <div>
-								  <capitec-label label="ID Number"></capitec-label>
- 									<capitec-label label="${this.idNumber}"></capitec-label>
-								  </div>
-								  <div>
-								  	<capitec-label label="Lives In"></capitec-label>
-									 <capitec-label label="${this.livesIn}"></capitec-label>
-								  </div>
-								  <div>
+									<div>
+										<capitec-label label="ID Number"></capitec-label>
+ 										<capitec-label  id="label-text" label="${this.idNumber}"></capitec-label>
+								 	 </div>
+
+								 	 <div>
+								 	 	<capitec-label label="Lives In"></capitec-label>
+										 <capitec-label  id="label-text" label="${this.livesIn}"></capitec-label>
+								  	</div>
+
+									<div>
 									  <capitec-label label="Birthday"></capitec-label>	
-									 <capitec-label label="${this.birthday}"></capitec-label>	
-								  </div>
-								  <div>
-								 	 <capitec-label label="Verified Cellphone Numbre"></capitec-label>
-									 <capitec-label label="${this.verifiedCellphone}"></capitec-label>
-								  </div>
-								  <div>
+									 <capitec-label  id="label-text" label="${this.birthday}"></capitec-label>	
+									</div>
+
+									<div>
+								 		<capitec-label label="Verified Cellphone Numbre"></capitec-label>
+										<capitec-label  id="label-text" label="${this.verifiedCellphone}"></capitec-label>
+									</div>
+									
+									<div>
 									<capitec-label label="Language"></capitec-label>		
-									 <capitec-label label="${this.language}"></capitec-label>		
+									 <capitec-label  id="label-text" label="${this.language}"></capitec-label>		
 								  </div>						 
 								  </capitec-group>
 								</capitec-group>
 						</capitec-group>
   					</div>
 		
-					<capitec-button slot="footer" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
-					<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>
-					 <capitec-button slot="footer" type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-  					<capitec-button slot="footer" type="primary" label="Search" @click="${this.onDoneClick}"></capitec-button>
+				<capitec-button-bar slot="footer">
+					<capitec-button type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 
+					<horizon-modal-spacer></horizon-modal-spacer>
+		
+					 <capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
+  					<capitec-button type="primary" label="Search" @click="${this.onDoneClick}"></capitec-button>
+				</capitec-button-bar>
 			</capitec-modal>
 		</capitec-card>
 		`;
