@@ -52,15 +52,37 @@ class ConfirmCallerDetailsComponent extends View {
 			css`
 
 				capitec-card{
-					width: 690px;
+					width: 750px;
 					height: 530px;
+				}
+				.grid-container{
+					grid-row-gap: 0px;
 				}
 				.populatedText{
 					padding: 8px;
+					width: 752px;
+					height: 62px;	
+					border-bottom: 1px solid #dfdfdf;
 				}
 				.horizon-call{
-					display: absolute;
+					//display: dock;
 					grid-template-columns: 1fr 1fr 1fr;
+					grid-gap: 0px 0px;+
+					// grid-template-columns: repeat(auto-fill, minmax(300px, 1fr) );
+				
+					margin: 0px;
+					width: 730px;
+				}	
+				.ref-call{
+					text-align:left;
+					padding: 8px;
+				}
+				.incoming-call{
+					text-align:left;
+					width: 246.667px;
+					height: 66px; 
+					border-left: 1px solid #dfdfdf;
+					padding: 8px;
 				}
 				.client-avatar{
 					display: absolute;
@@ -72,18 +94,17 @@ class ConfirmCallerDetailsComponent extends View {
 					grid-template-rows: 1fr 1fr 1fr 1fr;
 					text-align: left;
 				}
-				.client-fullname{
-					display:grid;
-					grid-template-columns: 2fr;
-					grid-template-rows: 1fr;
-					text-align: ;
-					color: #57595d;
-					font: bold 18px/30px Hind Vadodara;
-				}
-				.incoming-call{
-					border-style: solid;
-					text-align:left;
-				}
+				// .client-fullname{
+				// 	display:grid;
+				// 	grid-gap: 0px 0px;
+				// 	grid-template-columns: 1.5fr 1.5fr 1.5fr;
+				// 	grid-template-rows: 1fr;
+				// 	text-align: ;
+				// 	color: #57595d;
+				// 	// font: bold 18px/30px Hind Vadodara;
+				// 	padding: 0px;
+				// }
+			
 				.add-caller{
 				background-color: #4330;
 				}
@@ -111,7 +132,7 @@ class ConfirmCallerDetailsComponent extends View {
 				#action-bar{
 					background: #BCF1ED;
 					height: 56px;	
-					width: 650px;
+					width: 720px;
 					margin: 16px 16px 16px 16px;
 					align:center;
 				}
@@ -126,10 +147,16 @@ class ConfirmCallerDetailsComponent extends View {
 			<capitec-card>
 				<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
   					<div slot="body">
-						 <capitec-group layout="grid"> 
+						 <capitec-group layout="grid" class="grid-container"> 
 							  <capitec-action-bar class="populatedText">
-					 			 <capitec-group class="horizon-call" layout="grid"> 
-					 				 <div class="incoming-call">
+
+							 <!-- 	<capitec-table>
+							  <capitec-table-column type="text" label="Reference Number" field="referenceNumber"></capitec-table-column>
+							
+							</capitec-table> -->
+
+					 		<capitec-group class="horizon-call" layout="grid"> 
+					 				 <div class="ref-call">
 										<capitec-label label="Reference Number"></capitec-label>	
 										<capitec-label id="label-value" label="${this.referenceNumber}"> </capitec-label>
 									  </div>
@@ -142,7 +169,7 @@ class ConfirmCallerDetailsComponent extends View {
 									  <capitec-label label="Incoming Number"></capitec-label>
 										<capitec-label  id="label-value" label="${this.incomingNumber}"></capitec-label>
 									  </div>
-							 		 </capitec-group>
+							 	</capitec-group>
 									</capitec-action-bar>
 
 									<capitec-action-bar id="action-bar">
