@@ -6,7 +6,6 @@ import { SecurityContext } from 'platform/SecurityContext';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
-import { Configuration } from 'platform/Configuration';
 
 
 // Import all UI Components. 
@@ -152,9 +151,6 @@ export class AppShell extends Shell {
 		this.callWaitingView = false;
 	}
 
-	async _getEventSourceURI() {
-		return await Configuration.getInstance().getSetting("EventSourceURI");
-	}
 
 	// ----------
 	// PROPERTIES
