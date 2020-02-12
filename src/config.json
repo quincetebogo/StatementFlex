@@ -1,3 +1,4 @@
 {
-    "myKey": "MyValue"
+	"myKey": "MyValue",
+	"EventSourceURI": "http://localhost:8888/subscribe"
 }

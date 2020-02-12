@@ -6,6 +6,7 @@ import { SecurityContext } from 'platform/SecurityContext';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Configuration } from 'platform/Configuration';
 
 
 // Import all UI Components. 
@@ -125,6 +126,13 @@ export class AppShell extends Shell {
 		})
 
 
+		// Listening for SSE events from the Desktop Agent
+		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		this.eventSource.addEventListener("new-call", (event) => {
+			console.log("Received 'new-call' event: ", event);
+		})
+
+
 
 		//Event Aggregator
 		EventAggregator
@@ -142,6 +150,10 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.landingPageView = true;
 		this.callWaitingView = false;
+	}
+
+	async _getEventSourceURI() {
+		return await Configuration.getInstance().getSetting("EventSourceURI");
 	}
 
 	// ----------
