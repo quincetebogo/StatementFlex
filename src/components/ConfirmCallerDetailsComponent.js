@@ -75,7 +75,7 @@ class ConfirmCallerDetailsComponent extends View {
 				}	
 				.ref-call{
 					text-align:left;
-					padding: 8px;
+					padding: 8px 8px 8px 24px;
 				}
 				.incoming-call{
 					text-align:left;
@@ -87,24 +87,15 @@ class ConfirmCallerDetailsComponent extends View {
 				.client-avatar{
 					display: absolute;
 					grid-template-columns: 0.5fr 1fr ;
+					height: 240px; 
 				}
 				.client-info{
 					display: grid;
 					grid-template-columns: 1fr 1fr;
 					grid-template-rows: 1fr 1fr 1fr 1fr;
 					text-align: left;
+					height: 240px; 
 				}
-				// .client-fullname{
-				// 	display:grid;
-				// 	grid-gap: 0px 0px;
-				// 	grid-template-columns: 1.5fr 1.5fr 1.5fr;
-				// 	grid-template-rows: 1fr;
-				// 	text-align: ;
-				// 	color: #57595d;
-				// 	// font: bold 18px/30px Hind Vadodara;
-				// 	padding: 0px;
-				// }
-			
 				.add-caller{
 				background-color: #4330;
 				}
@@ -113,6 +104,16 @@ class ConfirmCallerDetailsComponent extends View {
 					width: 200px;
 					height: 200px;
 					align: left;
+					padding: 0px 0px 0px 24px;
+					
+				}
+				.fullname{
+					//  width: 200px;
+					//  margin: 0px;
+					text-align: center;
+					padding: 0px 0px 16px 0px ;
+					vertical-align: middle;
+					transform: translate(-8.0%);
 				}
 				#label-value{
 					color: #003652;	
@@ -133,11 +134,35 @@ class ConfirmCallerDetailsComponent extends View {
 					background: #BCF1ED;
 					height: 56px;	
 					width: 720px;
-					margin: 16px 16px 16px 16px;
-					align:center;
+					margin: 16px 16px 16px 24px;
+					align: center;
 				}
-				p{
+				#action-icon{
 					margin: 5px 0px 0px 0px;
+					color: #008B8B;
+					font-family: "Hind Vadodara";	
+					font-weight: 600;
+					align: center;
+					padding: 18px 0px 18px 24px;
+				}
+				#action-label{
+					margin: 0px 0px 0px 0px;
+					color: #008B8B;
+					font-family: "Hind Vadodara";	
+					font-weight: 600;
+					align: center;
+					padding: 18px 0px 18px 0px;
+				}
+				#action-display{
+					margin: 5px 0px 0px 0px;
+					color: #008B8B;
+					font-family: "Hind Vadodara";	
+					font-weight: 600;
+					align: center;
+					padding: 18px 18px 18px 0px;
+				}
+				.footer{
+					width: 742px;
 				}
 			`];
 	}
@@ -149,11 +174,6 @@ class ConfirmCallerDetailsComponent extends View {
   					<div slot="body">
 						 <capitec-group layout="grid" class="grid-container"> 
 							  <capitec-action-bar class="populatedText">
-
-							 <!-- 	<capitec-table>
-							  <capitec-table-column type="text" label="Reference Number" field="referenceNumber"></capitec-table-column>
-							
-							</capitec-table> -->
 
 					 		<capitec-group class="horizon-call" layout="grid"> 
 					 				 <div class="ref-call">
@@ -173,60 +193,64 @@ class ConfirmCallerDetailsComponent extends View {
 									</capitec-action-bar>
 
 									<capitec-action-bar id="action-bar">
-										<capitec-icon type="info"></capitec-icon>
-										<u>	<capitec-label label="Add Caller Details"></capitec-label> </u>
-										<p>if the caller is calling on another client's behalf</p>
-									</capitec-action-bar>
-				
-					<br>  			
-					
+										<capitec-icon id="action-icon" type="info"></capitec-icon> &nbsp;
+										<u>	<capitec-label id="action-label" label="Add Caller Details"></capitec-label> </u>
+										<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+									</capitec-action-bar>  	
+
+								<div>
+									<capitec-label class="fullname" id="label-value" label="${this.fullName}"></capitec-label>
+								</div>
+								  	
 							<capitec-group class="client-avatar" layout="grid">
+							
   								<capitec-avatar class="image" shape="square" value="Client"></capitec-avatar>	
 									
 
 								<capitec-group class="client-info" layout="grid">
 								
-									<div>
-									<capitec-label  id="label-value" label="${this.fullName}"></capitec-label>
-									</div>
-								  	
+									
 									<div>
 										<capitec-label label="ID Number"></capitec-label>
  										<capitec-label  id="label-text" label="${this.idNumber}"></capitec-label>
 								 	 </div>
 
-								 	 <div>
-								 	 	<capitec-label label="Lives In"></capitec-label>
-										 <capitec-label  id="label-text" label="${this.livesIn}"></capitec-label>
-								  	</div>
-
-									<div>
-									  <capitec-label label="Birthday"></capitec-label>	
-									 <capitec-label  id="label-text" label="${this.birthday}"></capitec-label>	
-									</div>
-
-									<div>
+										<div>
 								 		<capitec-label label="Verified Cellphone Numbre"></capitec-label>
 										<capitec-label  id="label-text" label="${this.verifiedCellphone}"></capitec-label>
 									</div>
 									
+
+										
+								 	 <div>
+								 	 	<capitec-label label="Lives In"></capitec-label>
+										 <capitec-label  id="label-text" label="${this.livesIn}"></capitec-label>
+								  	</div>
 									<div>
-									<capitec-label label="Language"></capitec-label>		
+									<capitec-label label="Language Preference"></capitec-label>		
 									 <capitec-label  id="label-text" label="${this.language}"></capitec-label>		
-								  </div>						 
+									</div>	
+								
+								  <div>
+									  <capitec-label label="Birthday"></capitec-label>	
+									 <capitec-label  id="label-text" label="${this.birthday}"></capitec-label>	
+									</div>				 
 								  </capitec-group>
 								</capitec-group>
 						</capitec-group>
   					</div>
 		
-				<capitec-button-bar slot="footer">
+
+		<div slot="footer">
+				<capitec-button-bar slot="footer" class="bottom">
 					<capitec-button type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 
 					<horizon-modal-spacer></horizon-modal-spacer>
 		
 					 <capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-  					<capitec-button type="primary" label="Search" @click="${this.onDoneClick}"></capitec-button>
+  					<capitec-button type="primary" label="Confirm" @click="${this.onDoneClick}"></capitec-button>
 				</capitec-button-bar>
+		</div>
 			</capitec-modal>
 		</capitec-card>
 		`;
