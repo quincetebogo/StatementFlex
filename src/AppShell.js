@@ -125,6 +125,13 @@ export class AppShell extends Shell {
 		})
 
 
+		// Listening for SSE events from the Desktop Agent
+		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		this.eventSource.addEventListener("new-call", (event) => {
+			console.log("Received 'new-call' event: ", event);
+		})
+
+
 
 		//Event Aggregator
 		EventAggregator
@@ -143,6 +150,7 @@ export class AppShell extends Shell {
 		this.landingPageView = true;
 		this.callWaitingView = false;
 	}
+
 
 	// ----------
 	// PROPERTIES
