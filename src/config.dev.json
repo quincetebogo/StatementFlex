@@ -1,6 +1,6 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizon-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-dev.int.capinet"
 	},
 	"bancsUser": {
 		"branchCode": "2000",

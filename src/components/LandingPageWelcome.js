@@ -1,6 +1,5 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
-import { SecurityContext } from 'platform/SecurityContext';
 
 import '../components/Common/HorizonProductTile';
 
@@ -9,15 +8,14 @@ export class LandingPageWelcome extends View {
 	constructor() {
 		super();
 
-		this.clientProfile = null;
+		this.fullname = ``;
 		this.router = Router.getInstance();
-		this.securityContext = SecurityContext.getInstance();
 	}
 
 	static get properties() {
 		return {
 			//to extract client details from the service
-			clientProfile: { type: Object }
+			fullname: { type: String }
 		}
 	}
 
@@ -88,7 +86,7 @@ export class LandingPageWelcome extends View {
 								<div></div>
 								<div>
 									<capitec-label id="hello-id" type="title" label="Hello"></capitec-label>
- 									<capitec-label  id="name-id" label="${this.securityContext.fullName}" type="subtitle"></capitec-label>
+ 									<capitec-label  id="name-id" label="${this.fullname}" type="subtitle"></capitec-label>
 								</div>
 								</capitec-group>
 						</capitec-card>	

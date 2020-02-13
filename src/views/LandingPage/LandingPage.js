@@ -3,11 +3,34 @@ import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
 import '../../components/LandingPageMarketing';
 import '../../components/LandingPageWaitForCall';
+import { EventAggregator } from 'platform/EventAggregator';
 
 export class LandingPage extends View {
 
 	constructor() {
 		super();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.fullname = ``;
+	}
+
+	async connectedCallback() {
+		super.connectedCallback();
+
+		// IMPLEMENT WEB SERVICE CALL PROPERLY
+		// let landingPageData = await StopCardService.getInstance().initialise();
+
+
+		let landingPageData = { fullname: 'Jeffrey Anderson', role: `contact centre agent` };
+
+		this.eventAggregator.publish('horizon-top-bar-data', { fullname: landingPageData.fullname, role: landingPageData.role });
+		this.fullname = landingPageData.fullname;
+	}
+
+	static get properties() {
+		return {
+			fullname: { type: String },
+		}
 	}
 
 	static get styles() {
@@ -60,7 +83,7 @@ export class LandingPage extends View {
 
 	renderleftUI() {
 		return html`
-			<landingpage-welcome></landingpage-welcome>
+			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
 		`;
 	}
 	renderRightImage() {

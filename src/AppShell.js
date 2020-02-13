@@ -138,6 +138,10 @@ export class AppShell extends Shell {
 			.getInstance()
 			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
 
+		EventAggregator
+			.getInstance()
+			.subscribe(`horizon-top-bar-data`, (topBarData) => this.onTopBarUpdated(topBarData));
+
 		// Property defaults.
 		this.isBusy = true;
 		this.isSuccess = false;
@@ -149,6 +153,8 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.landingPageView = true;
 		this.callWaitingView = false;
+		this.fullname = ``;
+		this.role = ``;
 	}
 
 
@@ -167,7 +173,8 @@ export class AppShell extends Shell {
 			applicationName: { type: String },
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
-
+			fullname: { type: String },
+			role: { type: String }
 		};
 	}
 
@@ -242,6 +249,12 @@ export class AppShell extends Shell {
 	onNavigationContextUpdated() {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
+
+	onTopBarUpdated(topBarData) {
+		this.fullName = topBarData.fullname;
+		this.role = topBarData.role;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -346,8 +359,8 @@ export class AppShell extends Shell {
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
-							<capitec-label label="${this.securityContext.fullName}"></capitec-label>
-							<capitec-label label="${TransformAgentRole(this.roles)}"></capitec-label>
+							<capitec-label label="${this.fullName}"></capitec-label>
+							<capitec-label label="${this.role}"></capitec-label>
 						</div>
 					</capitec-title-bar>
 
