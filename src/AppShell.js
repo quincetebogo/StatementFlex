@@ -14,6 +14,9 @@ import 'platform/components/navigation/AppRouter';
 
 //import utils to tranform user role
 import './utils/TransformAgentRole';
+
+//Import Horizon Routes
+import horizonRoutes from './HorizonRoutes';
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -49,80 +52,8 @@ export class AppShell extends Shell {
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
 
-		// URL Routing Table
-		this.router.addRoute({
-			name: `landing-page`,
-			title: `LandingPageView`,
-			icon: null,
-			path: `/landingpage`,
-			load: () => import(`./views/LandingPage/LandingPage`),
-			isDefault: true,
-			isFallback: true,
-		});
-
-		this.router.addRoute({
-			name: `product-savings-account`,
-			title: `SavingsAccountProductView`,
-			icon: null,
-			path: `/product/savings-account`,
-			load: () => import(`./views/LandingPage/SavingsAccountProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-savings-plan`,
-			title: `SavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/SavingsPlanProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-flexible-savings-plan`,
-			title: `FlexibleSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/flexible`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-fixed-term-savings-plan`,
-			title: `FixedTermSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/fixed-term`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/FixedTermSavingsProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-taxfree-savings-plan`,
-			title: `TaxFreeSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/tax-free`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-insure`,
-			title: `InsureProductView`,
-			icon: null,
-			path: `/product/insure`,
-			load: () => import(`./views/LandingPage/InsureProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-credit`,
-			title: `CreditProductView`,
-			icon: null,
-			path: `/product/credit`,
-			load: () => import(`./views/LandingPage/CreditProduct`),
-		})
-
-		this.router.addRoute({
-			name: `confirm-caller-details`,
-			title: `ConfirmCallerDetailsView`,
-			icon: null,
-			path: `/confirm-caller-details/`,
-			//load: () => import(`./views/ConfirmCallerDetails`),
-		})
+		// Adding routes to URL Routing Table
+		horizonRoutes.map(route => this.router.addRoute(route));
 
 
 		// Listening for SSE events from the Desktop Agent
