@@ -1,10 +1,11 @@
 import { View, html, css } from 'platform/elements';
-import '../components/LandingPageWelcome';
+import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../components/LandingPageMarketing';
-import '../components/LandingPageWaitForCall';
+import '../../components/LandingPageMarketing';
+import '../../components/LandingPageWaitForCall';
+import '../../components/SavingsAccountproductDetails';
 
-export class LandingPage extends View {
+export class SavingsAccountProduct extends View {
 
 	constructor() {
 		super();
@@ -21,7 +22,7 @@ export class LandingPage extends View {
 					grid-gap: 24px;
 					background-color: gainsboro;
 					height: 770px;
-					width: 1890px;
+					width: 1903px;
 				}
 
 				.left {
@@ -69,9 +70,7 @@ export class LandingPage extends View {
 		`;
 	}
 	renderMiddleSection() {
-		return html`
-			<landingpage-waitforcall></landingpage-waitforcall>
-		`;
+		return html`<savingsaccountproduct-details></savingsaccountproduct-details>`;
 	}
 
 	render() {
@@ -93,5 +92,5 @@ export class LandingPage extends View {
 
 	}
 }
-console.log('On the landing page');
-customElements.define(`landing-page`, LandingPage);
+
+customElements.define(`product-savings-account`, SavingsAccountProduct);
