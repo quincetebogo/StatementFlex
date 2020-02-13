@@ -1,13 +1,13 @@
 {
-  "version": "0.17.1",
-  "framework": "WebComponents",
-  "type": "desktop",
-  "application": {
-    "name": "horizon",
-    "title": "horizon",
-    "version": "0.0.1",
-    "idp": {
-      "client": "ocwp-test-client"
-    }
-  }
+	"version": "0.17.1",
+	"framework": "WebComponents",
+	"type": "desktop",
+	"application": {
+		"name": "horizon",
+		"title": "horizon",
+		"version": "0.0.14",
+		"idp": {
+			"client": "Horizon"
+		}
+	}
 }
