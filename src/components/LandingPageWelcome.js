@@ -7,14 +7,15 @@ export class LandingPageWelcome extends View {
 	constructor() {
 		super();
 
-		this.userDetails = null;
+		this.clientProfile = null;
 		this.router = Router.getInstance();
 		this.securityContext = SecurityContext.getInstance();
 	}
 
 	static get properties() {
 		return {
-			userDetails: { type: Object }
+			//to extract client details from the service
+			clientProfile: { type: Object }
 		}
 	}
 
