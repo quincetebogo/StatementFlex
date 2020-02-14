@@ -105,15 +105,16 @@ class ConfirmCallerDetailsComponent extends View {
 					height: 200px;
 					align: left;
 					padding: 0px 0px 0px 24px;
-					
+					margin: 0px 0px 0px 24px;
+					background: gainsboro;
 				}
 				.fullname{
 					//  width: 200px;
 					//  margin: 0px;
-					text-align: center;
+					text-align: left;
 					padding: 0px 0px 16px 0px ;
 					vertical-align: middle;
-					transform: translate(-8.0%);
+					//transform: translate(-8.0%);
 				}
 				#label-value{
 					color: #003652;	
@@ -124,14 +125,14 @@ class ConfirmCallerDetailsComponent extends View {
 				}
 				#label-text{
 					height: 30px;	width: 123px;	
-					color: #404040;	
+					color: #003652;	
 					font-family: "Hind Vadodara";	
 					font-size: 18px;	
 					font-weight: 600;
 					line-height: 30px;
 				}
 				#action-bar{
-					background: #BCF1ED;
+					background: #DAF5F3;
 					height: 56px;	
 					width: 720px;
 					margin: 16px 16px 16px 24px;
@@ -139,7 +140,7 @@ class ConfirmCallerDetailsComponent extends View {
 				}
 				#action-icon{
 					margin: 5px 0px 0px 0px;
-					color: #008B8B;
+					color: #08A6B5;
 					font-family: "Hind Vadodara";	
 					font-weight: 600;
 					align: center;
@@ -147,7 +148,7 @@ class ConfirmCallerDetailsComponent extends View {
 				}
 				#action-label{
 					margin: 0px 0px 0px 0px;
-					color: #008B8B;
+					color: #08A6B5;
 					font-family: "Hind Vadodara";	
 					font-weight: 600;
 					align: center;
@@ -155,7 +156,7 @@ class ConfirmCallerDetailsComponent extends View {
 				}
 				#action-display{
 					margin: 5px 0px 0px 0px;
-					color: #008B8B;
+					color: #08A6B5;
 					font-family: "Hind Vadodara";	
 					font-weight: 600;
 					align: center;
@@ -163,6 +164,9 @@ class ConfirmCallerDetailsComponent extends View {
 				}
 				.footer{
 					width: 742px;
+				}
+				u{
+					color: #08A6B5;
 				}
 			`];
 	}
@@ -198,17 +202,19 @@ class ConfirmCallerDetailsComponent extends View {
 										<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 									</capitec-action-bar>  	
 
-								<div>
-									<capitec-label class="fullname" id="label-value" label="${this.fullName}"></capitec-label>
-								</div>
+							
 								  	
 							<capitec-group class="client-avatar" layout="grid">
 							
-  								<capitec-avatar class="image" shape="square" value="Client"></capitec-avatar>	
+  								<capitec-avatar class="image" shape="none" value=""></capitec-avatar>	
 									
 
 								<capitec-group class="client-info" layout="grid">
-								
+									
+									<div>
+									<capitec-label class="fullname" id="label-value" label="${this.fullName}"></capitec-label>
+									</div>
+									<div></div>
 									
 									<div>
 										<capitec-label label="ID Number"></capitec-label>
