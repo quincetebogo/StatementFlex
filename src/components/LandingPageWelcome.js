@@ -2,6 +2,8 @@ import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 import { SecurityContext } from 'platform/SecurityContext';
 
+import '../components/Common/HorizonProductTile';
+
 export class LandingPageWelcome extends View {
 
 	constructor() {
@@ -68,6 +70,10 @@ export class LandingPageWelcome extends View {
 				padding: 0px 0px 8px 0px;
 				background-color: gainsboro;
 			}
+            horizon-product-tile{
+                padding: 10px 0px 0px 8px;
+                width: 98%;
+            }
 
 			`];
 	}
@@ -87,23 +93,34 @@ export class LandingPageWelcome extends View {
 						</capitec-card>	
 					</div>		
 
-				<capitec-card class="products">
-						<capitec-button-bar>
-							<capitec-product-tile class="buttons" type="transact" label="Savings Account" subtitle="Know what you get, know what you pay" @click="${() => this.router.navigateByPath(`/product/savings-account`)}"></capitec-product-tile>
-						</capitec-button-bar>
-						<capitec-button-bar>
-							<capitec-product-tile class="buttons" type="save" label="Savings Plan" subtitle="Let your money make money"></capitec-product-tile>	
-						</capitec-button-bar>
-						<capitec-button-bar>
-							<capitec-product-tile class="buttons" type="insure" label="Insure" subtitle="One plan, more cover"></capitec-product-tile>	
-						</capitec-button-bar>
-						<capitec-button-bar>
-							<capitec-product-tile class="buttons" type="credit" label="Credit" subtitle="Rethink credit, realize dreams" @click="${() => this.router.navigateByPath(`/product/credit`)}"></capitec-product-tile>
-						</capitec-button-bar>
-				</capitec-card>
+					<capitec-card class="products">
+						<horizon-product-tile type="transact" 
+											  label="Savings Account" 
+											  subtitle="Know what you get, know what you pay"
+											  icon="product/transact-white"
+											  @click="${() => this.router.navigateByPath(`/product/savings-account`)}">
+						</horizon-product-tile>
+						<horizon-product-tile type="save" 
+											  label="Savings Plan"
+											  subtitle="Let your money make money"
+											  icon="product/save-white"
+											  @click="${() => this.router.navigateByPath(`/product/savings-plan`)}">
+						</horizon-product-tile>
+						<horizon-product-tile type="insure" 
+											  label="Insure"
+											  subtitle="One plan, more cover"
+											  icon="product/insure-white"
+											  @click="${() => this.router.navigateByPath(`/product/insure`)}">
+						</horizon-product-tile>
+						<horizon-product-tile type="credit" 
+											  label="Credit" 
+											  subtitle="Rethink credit, realise dreams"
+											  icon="product/credit-white"
+											  @click="${() => this.router.navigateByPath(`/product/credit`)}">
+						</horizon-product-tile>
+					</capitec-card>
 			`;
 	}
-
 }
 
 window.customElements.define(`landingpage-welcome`, LandingPageWelcome);
