@@ -1,6 +1,7 @@
 import { View, html, css } from 'platform/elements';
 //Added for navigation to the modal
 import { Router } from 'platform/Router';
+import './ConfirmCallerDetailsComponent';
 
 
 export class LandigPageWaitForCall extends View {
@@ -10,7 +11,14 @@ export class LandigPageWaitForCall extends View {
 
 		//Added for navigation to the modal
 		this.router = Router.getInstance();
+		this.displayConfirmedCaller = false;
 
+	}
+
+	static get properties() {
+		return {
+			displayConfirmedCaller: { type: Boolean }
+		}
 	}
 
 	static get styles() {
@@ -55,19 +63,47 @@ export class LandigPageWaitForCall extends View {
 					<capitec-group class="userwaiting" layout="absolute">
 						<div></div>
 						<div>
-							<img src="../images/LandingPageImages/need.svg" class="needimage"/>
-							<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
-							<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+							${this.renderWaitingForCall()}
+							${this.renderConfirmedUser()}
 						</div>
-						<div>
-						<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.router.navigateByPath(`/confirm-caller-details/`)}"></capitec-button>
-						</div>
+						${this.renderShowConfirmButton()};
 					</capitec-group>
 				</div>
 			</capitec-card>
+
 		`;
 	}
 
+	renderWaitingForCall() {
+		if (this.displayConfirmedCaller != true) {
+			return html`
+				<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+				<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
+				<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+			`;
+		}
+
+		return html``;
+	}
+
+	renderConfirmedUser() {
+		if (this.displayConfirmedCaller) {
+			return html`<confirm-caller-component></confirm-caller-component>`;
+		}
+
+		return html``;
+	}
+
+	renderShowConfirmButton() {
+		if (this.displayConfirmedCaller != true) {
+			return html`
+				<div>
+					<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.displayConfirmedCaller = true}"></capitec-button>
+				</div>`;
+		}
+
+		return html``;
+	}
 }
 
 window.customElements.define(`landingpage-waitforcall`, LandigPageWaitForCall);

@@ -116,15 +116,6 @@ export class AppShell extends Shell {
 			load: () => import(`./views/LandingPage/CreditProduct`),
 		})
 
-		this.router.addRoute({
-			name: `confirm-caller-details`,
-			title: `ConfirmCallerDetailsView`,
-			icon: null,
-			path: `/confirm-caller-details/`,
-			load: () => import(`./views/ConfirmCallerDetails`),
-		})
-
-
 		// Listening for SSE events from the Desktop Agent
 		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
 		this.eventSource.addEventListener("new-call", (event) => {
