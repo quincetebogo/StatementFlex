@@ -317,7 +317,7 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	renderFooter() {
 		return html`
-			<capitec-action-bar slot="footer" class="bottom-bar">
+			<capitec-action-bar slot="footer" class="footer-bar">
 				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
