@@ -5,6 +5,8 @@ import '../../components/LandingPageMarketing';
 import '../../components/LandingPageWaitForCall';
 import { EventAggregator } from 'platform/EventAggregator';
 
+//import { StopCardService } from `../../services/StopCardService`;
+import { StopCardService } from '../../services/StopCardService';
 export class LandingPage extends View {
 
 	constructor() {
@@ -17,13 +19,10 @@ export class LandingPage extends View {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		// IMPLEMENT WEB SERVICE CALL PROPERLY
-		// let landingPageData = await StopCardService.getInstance().initialise();
 
+		let landingPageData = await StopCardService.getInstance().initialise();
 
-		let landingPageData = { fullname: 'Jeffrey Anderson', role: `contact centre agent` };
-
-		this.eventAggregator.publish('horizon-top-bar-data', { fullname: landingPageData.fullname, role: landingPageData.role });
+		this.eventAggregator.publish('horizon-top-bar-data', { fullname: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgennt.employeeId });
 		this.fullname = landingPageData.fullname;
 	}
 
@@ -83,7 +82,7 @@ export class LandingPage extends View {
 
 	renderleftUI() {
 		return html`
-			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
+			<landingpage-welcome .fullname="${this.agentFullName}"></landingpage-welcome>
 		`;
 	}
 	renderRightImage() {

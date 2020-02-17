@@ -16,7 +16,9 @@ export class StopCardService {
 
 	async _getChannelUrl() {
 		//getting the channel url setting from URIs
-		return await Configuration.getInstance().getSetting(this.channelUrlSetting);
+		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
+		console.log(url);
+		return url;
 	}
 
 	_getClient() {
@@ -25,7 +27,11 @@ export class StopCardService {
 
 	//for hello box component
 	async initialise() {
-		return await this._getClient().get(`/horizon/initialise/${this.version}`);
+		let tmp = this._getClient().get(`/horizon/initialise/${this.version}`);
+
+		console.log(tmp);
+
+		return await tmp;
 	}
 
 	async acceptCall() {

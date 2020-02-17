@@ -7,7 +7,6 @@ import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
 
-
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
@@ -140,7 +139,7 @@ export class AppShell extends Shell {
 
 		EventAggregator
 			.getInstance()
-			.subscribe(`horizon-top-bar-data`, (topBarData) => this.onTopBarUpdated(topBarData));
+			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
 
 		// Property defaults.
 		this.isBusy = true;
@@ -154,7 +153,7 @@ export class AppShell extends Shell {
 		this.landingPageView = true;
 		this.callWaitingView = false;
 		this.fullname = ``;
-		this.role = ``;
+		this.employeeId = ``;
 	}
 
 
@@ -174,7 +173,7 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
 			fullname: { type: String },
-			role: { type: String }
+			employeeId: { type: String }
 		};
 	}
 
@@ -250,9 +249,9 @@ export class AppShell extends Shell {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
-	onTopBarUpdated(topBarData) {
-		this.fullName = topBarData.fullname;
-		this.role = topBarData.role;
+	onTopBarUpdated(event) {
+		this.fullName = event.agentFullName;
+		this.employeeId = event.employeeId;
 	}
 
 	// --------------
@@ -360,7 +359,7 @@ export class AppShell extends Shell {
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
 							<capitec-label label="${this.fullName}"></capitec-label>
-							<capitec-label label="${this.role}"></capitec-label>
+							<capitec-label label="${this.employeeId}"></capitec-label>
 						</div>
 					</capitec-title-bar>
 
