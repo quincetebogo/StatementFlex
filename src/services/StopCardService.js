@@ -27,14 +27,18 @@ export class StopCardService {
 
 	//for hello box component
 	async initialise() {
-		let tmp = this._getClient().get(`/horizon/initialise/${this.version}`);
+		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
 		console.log(tmp);
 
-		return await tmp;
+		return tmp;
 	}
 
 	async acceptCall() {
-		return await this._getClient().get(`/horizon/acceptcall/${this.version}/caller`);
+		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`);
+	}
+
+	async search() {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`);
 	}
 }

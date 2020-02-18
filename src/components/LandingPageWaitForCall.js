@@ -3,7 +3,6 @@ import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 import './ConfirmCallerDetailsComponent';
 
-
 export class LandigPageWaitForCall extends View {
 
 	constructor() {
@@ -12,12 +11,13 @@ export class LandigPageWaitForCall extends View {
 		//Added for navigation to the modal
 		this.router = Router.getInstance();
 		this.displayConfirmedCaller = false;
-
+		this.confirmedCaller = null;
 	}
 
 	static get properties() {
 		return {
-			displayConfirmedCaller: { type: Boolean }
+			displayConfirmedCaller: { type: Boolean },
+			confirmedCaller: { type: Object }
 		}
 	}
 
@@ -64,9 +64,9 @@ export class LandigPageWaitForCall extends View {
 						<div></div>
 						<div>
 							${this.renderWaitingForCall()}
-							${this.renderConfirmedUser()}
+							${this.renderShowConfirmButton()}
 						</div>
-						${this.renderShowConfirmButton()};
+						${this.renderConfirmedUser()}
 					</capitec-group>
 				</div>
 			</capitec-card>
@@ -101,7 +101,6 @@ export class LandigPageWaitForCall extends View {
 					<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.displayConfirmedCaller = true}"></capitec-button>
 				</div>`;
 		}
-
 		return html``;
 	}
 }

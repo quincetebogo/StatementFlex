@@ -27,6 +27,8 @@ class ConfirmCallerDetailsComponent extends Component {
 		this.birthday = "12 July";
 		this.verifiedCellphone = "082 555 9090";
 		this.language = "English";
+
+		this.confirmedCaller = null;
 	}
 
 	static get properties() {
@@ -41,7 +43,9 @@ class ConfirmCallerDetailsComponent extends Component {
 			livesIn: { type: String },
 			birthday: { type: String },
 			verifiedCellphone: { type: String },
-			language: { type: String }
+			language: { type: String },
+
+			confirmedCaller: { Object }
 		}
 	}
 
@@ -290,7 +294,7 @@ class ConfirmCallerDetailsComponent extends Component {
 					<capitec-label  id="label-text" label="${this.idNumber}"></capitec-label>
 				</div>
 				<div>
-	  				<capitec-label label="Verified Cellphone Numbre"></capitec-label>
+	  				<capitec-label label="Verified Cellphone Number"></capitec-label>
 	  				<capitec-label  id="label-text" label="${this.verifiedCellphone}"></capitec-label>
   				</div>
 
