@@ -50,7 +50,7 @@ export class AccessComponent extends View {
 			.access-card{
 				height:320px;
 				width:320px;
-				background-color: gainsboro;
+				background-color: #F5F5F5;
 				padding: 20px 0px 0px 0px;
 			}
 			.access-header{

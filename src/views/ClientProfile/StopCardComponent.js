@@ -9,9 +9,9 @@ export class StopCardComponent extends View {
 		super();
 
 		this.cards = [
-			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: true },
-			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: false },
-			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322", selected: false }
+			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322" },
+			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322" },
+			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322" }
 		];
 	}
 
@@ -19,7 +19,7 @@ export class StopCardComponent extends View {
 		return [
 			super.styles,
 			css`
-				.savingsproduct-info{
+				.stop-card{
 					width: 1067.8px;
 					height: 770px;
 					padding: 0px 0px 0px 0px;
@@ -38,17 +38,21 @@ export class StopCardComponent extends View {
 				}
 				table{
 					width: 100%;
+					border-collapse: collapse;
 				}
 				table > thead > tr{
 					width: 100%;
 				}
-				table > thead > tr > td{
+				table > thead > tr > th{
 					text-align: left;
 					background-color: gainsboro;
 					color: #003652;
 					font: bold 20px/50px Hind Vadodara;
 					width: auto;
 					padding: 5px 0px 0px 20px;
+				}
+				table > tbody > tr {
+					border-bottom: 1px ridge #ddd;
 				}
 				table > tbody > tr > td{
 					text-align: left;
@@ -57,29 +61,39 @@ export class StopCardComponent extends View {
 					width: auto;
 					padding: 5px 0px 0px 20px;
 				}
-				.group{
-					background-color: gainsboro;
-				}
-				.group > td{
-					text-align: left;
-					font: bold 18px/50px Hind Vadodara;
-				}
-				.row-input{
-					width: 6%;
-				}
 			`];
+	}
+
+	renderTableBody() {
+		return html`${this.cards.map(item => {
+			return html`<tr>
+								<td>
+									${item.cardType}
+								</td>
+								<td>
+									${item.cardNumber}
+								</td>
+							</tr>`;
+		})}`;
 	}
 
 	render() {
 		return html`
-			<capitec-card class="savingsproduct-info">
+			<capitec-card class="stop-card">
 				<capitec-title-bar type="clear" label="Stop Card"></capitec-title-bar>
 				<capitec-alert-banner type="info" label="Notify client that once stopped, they will need to visit a branch for a new card.">
 				</capitec-alert-banner>
-				<capitec-table fixed="${true}" .items="${this.cards}">
-					<capitec-table-column label="Card Type" field="cardType" align="left"></capitec-table-column>
-  					<capitec-table-column label="Card Number" field="cardNumber" align="left"></capitec-table-column>
-				</capitec-table>
+				<table>
+					<thead>
+						<tr>
+							<th>Card Type</th>
+							<th>Card Number</th>
+						</tr>
+					</thead>
+					<tbody>
+						${this.renderTableBody()}
+					</tbody>
+				</table>
 			</capitec-card>
 		`;
 	}
