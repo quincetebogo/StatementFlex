@@ -57,7 +57,7 @@ export class AppShell extends Shell {
 			path: `/landingpage`,
 			load: () => import(`./views/LandingPage/LandingPage`),
 			isDefault: true,
-			isFallback: true,
+			isFallback: true
 		});
 
 		this.router.addRoute({
@@ -124,7 +124,13 @@ export class AppShell extends Shell {
 			//load: () => import(`./views/ConfirmCallerDetails`),
 		})
 
-
+		this.router.addRoute({
+			name: `client-profile`,
+			title: `ClientProfile`,
+			icon: null,
+			path: `/clientprofile`,
+			load: () => import(`./views/ClientProfile/ClientProfile`)
+		});
 
 		//Event Aggregator
 		EventAggregator
@@ -272,9 +278,9 @@ export class AppShell extends Shell {
 				}
 
 				.title-bar{
-					height: 72px;
+					height: 100%;
 					width: 1913px;
-					// background-color: #009DE0;
+					background-color: #ffffff;
 					// background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
 					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
 					grid-template-columns: 1fr;
@@ -287,7 +293,7 @@ export class AppShell extends Shell {
 				}
 
 				capitec-content-box{
-					background: gainsboro;
+					background: none;
 					width:1913px;
 					height:760px;
 				}
@@ -332,9 +338,9 @@ export class AppShell extends Shell {
 
 		return html`
          
-                <capitec-card class="content">
+                <capitec-group class="content" layout="grid" gap="none" columns="auto" rows="auto">
 
-					<capitec-title-bar class="title-bar" type="clear">
+					<capitec-title-bar class="title-bar" type="clear" row="1">
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
@@ -343,13 +349,13 @@ export class AppShell extends Shell {
 						</div>
 					</capitec-title-bar>
 
-                    <capitec-content-box >
+                    <capitec-content-box nopadding row="2">
 						<capitec-app-router></capitec-app-router>
                     </capitec-content-box>
 	
-					<capitec-status-bar class="status-bar" status="success" label=""></capitec-status-bar>
+					<capitec-status-bar class="status-bar" status="success" label="" row="3"></capitec-status-bar>
 
-                </capitec-card>
+                </capitec-group>
         `;
 	}
 
