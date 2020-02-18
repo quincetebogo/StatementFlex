@@ -19,11 +19,23 @@ export class LandingPage extends View {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		let landingPageData = null;
 
-		let landingPageData = await StopCardService.getInstance().initialise();
+		try {
+			landingPageData = await StopCardService.getInstance().initialise();
+		}
+		catch (ex) {
+			console.log(ex);
+		}
 
-		this.eventAggregator.publish('horizon-top-bar-data', { fullname: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgennt.employeeId });
-		this.fullname = landingPageData.fullname;
+		if (landingPageData != null) {
+			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
+			this.fullname = landingPageData.fullname;
+		}
+		else {
+			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
+			this.fullname = `unknown`;
+		}
 	}
 
 	static get properties() {
@@ -82,7 +94,7 @@ export class LandingPage extends View {
 
 	renderleftUI() {
 		return html`
-			<landingpage-welcome .fullname="${this.agentFullName}"></landingpage-welcome>
+			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
 		`;
 	}
 	renderRightImage() {

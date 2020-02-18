@@ -154,6 +154,7 @@ export class AppShell extends Shell {
 		this.callWaitingView = false;
 		this.fullname = ``;
 		this.employeeId = ``;
+		this.cardStop = [];
 	}
 
 
@@ -173,7 +174,8 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
 			fullname: { type: String },
-			employeeId: { type: String }
+			employeeId: { type: String },
+			cardStop: { type: Array }
 		};
 	}
 
@@ -197,6 +199,9 @@ export class AppShell extends Shell {
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
 		this.clientIp = this.executionContext.clientIp;
+
+
+
 	}
 
 	_onUserLoginError() {
