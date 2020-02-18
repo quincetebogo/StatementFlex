@@ -7,7 +7,6 @@ import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
 
-
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
@@ -138,6 +137,10 @@ export class AppShell extends Shell {
 			.getInstance()
 			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
 
+		EventAggregator
+			.getInstance()
+			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
+
 		// Property defaults.
 		this.isBusy = true;
 		this.isSuccess = false;
@@ -149,6 +152,9 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.landingPageView = true;
 		this.callWaitingView = false;
+		this.fullname = ``;
+		this.employeeId = ``;
+		this.cardStop = [];
 	}
 
 
@@ -167,7 +173,9 @@ export class AppShell extends Shell {
 			applicationName: { type: String },
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
-
+			fullname: { type: String },
+			employeeId: { type: String },
+			cardStop: { type: Array }
 		};
 	}
 
@@ -191,6 +199,9 @@ export class AppShell extends Shell {
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
 		this.clientIp = this.executionContext.clientIp;
+
+
+
 	}
 
 	_onUserLoginError() {
@@ -242,6 +253,12 @@ export class AppShell extends Shell {
 	onNavigationContextUpdated() {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
+
+	onTopBarUpdated(event) {
+		this.fullName = event.agentFullName;
+		this.employeeId = event.employeeId;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -346,8 +363,8 @@ export class AppShell extends Shell {
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
-							<capitec-label label="${this.securityContext.fullName}"></capitec-label>
-							<capitec-label label="${TransformAgentRole(this.roles)}"></capitec-label>
+							<capitec-label label="${this.fullName}"></capitec-label>
+							<capitec-label label="${this.employeeId}"></capitec-label>
 						</div>
 					</capitec-title-bar>
 
