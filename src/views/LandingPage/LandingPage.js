@@ -1,12 +1,14 @@
 import { View, html, css } from 'platform/elements';
-import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../../components/LandingPageMarketing';
-import '../../components/LandingPageWaitForCall';
 import { EventAggregator } from 'platform/EventAggregator';
 
-//import { StopCardService } from `../../services/StopCardService`;
+import '../../components/LandingPageWelcome';
+import '../../components/LandingPageWaitForCall';
+import '../../components/LandingPageMarketing';
+import '../../components/ConfirmCallerDetailsComponent';
+
 import { StopCardService } from '../../services/StopCardService';
+
 export class LandingPage extends View {
 
 	constructor() {
@@ -15,6 +17,9 @@ export class LandingPage extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.fullname = ``;
 		this.displayConfirmedCaller = false;
+
+		/// Temporary event to catch temporary button trigger to invoke comfirmed call dialog
+		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
 	}
 
 	async connectedCallback() {
@@ -24,9 +29,9 @@ export class LandingPage extends View {
 		let confirmedCaller = null;
 		try {
 			landingPageData = await StopCardService.getInstance().initialise();
-			//confirmedCaller = await StopCardService.getInstance().acceptCall();
 		}
 		catch (ex) {
+			// TODO: better handling must come here
 			console.log(ex);
 		}
 
@@ -41,23 +46,71 @@ export class LandingPage extends View {
 			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
 			this.fullname = `unknown`;
 		}
+	}
 
-		// --StopCardService call to get confirmed suer detials
-		// if it woerks set displayConfirmedCaller = true
-		// initialize confirmedCaller with data...
+	async onTempButtonPressed(event) {
+		console.log("Temp button presssed received");
+		// this.fullName = "Mr I. Makatini";
+		// this.idNumber = "8807120371081";
+		// this.livesIn = "Somerset West";
+		// this.birthday = "12 July";
+		// this.verifiedCellphone = "082 555 9090";
+		// this.language = "English";
 
-		// let confirmedCaller = await StopCardService.getInstance().acceptCall();
-		// this.eventAggregator.publish('horizon-call-popup', {
-		// 	referenceNumber: confirmedCaller.voiceReferenceNumber, ivrOption: confirmedCaller.ivrOptionCode,
-		// 	incomingNumber: confirmedCaller.incomingTelephoneNumber,
-		// });
+		///TODO: Replace this with data that comes from the POP
+		let incomingCallData = {
+			incomingNumber: "082 555 9090",
+			voiceReference: "34562783",
+			ivrOption: 'Stop Card', // TODO: fix this to whatever is right
+			incidentNo: '1234567',
+			agentPhoneNumber: '021 8523086'
+		};
 
-		//call identify caller 
-		// let identifyCaller = await StopCardService.getInstance().search();
-		// this.eventAggregator.publish(`horizon-confirm-caller`, {
-		// 	idNumber: identifyCaller.southAfricanIDNumber, verifiedNumber: identifyCaller.verifiedCellphoneNumber,
-		// 	livesIn: identifyCaller.livesIn, language: identifyCaller.languagePreference, birthday: identifyCaller.birthdate,
-		// });
+
+		// Web service calls - must still handle errors
+		try {
+			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
+
+			// should initialise from acceptedCall and other sources (Add Caller Details info)
+			let incomingCallerData = {
+				incomingNumber: incomingCallData.incomingNumber,
+				voiceReference: incomingCallData.voiceReference,
+				ivrOption: incomingCallData.ivrOption,
+				incidentNo: incomingCallData.incidentNo,
+				agentPhoneNumber: incomingCallData.agentFullName,
+				nonClientFullName: '',
+				nonClientCellPhone: '',
+				nonClientIDNumber: '',
+				nonClientRelationship: ''
+			}
+
+			let identifiedCaller = await StopCardService.getInstance().identifyCaller(incomingCallerData);
+
+			// Initialize from the results of the above web service calls.
+			// this will be passed into the confirmed caller dialog
+			this.confirmedCaller = {
+				referenceNumber: identifiedCaller.voiceReferenceNumber,
+				ivrOptions: [
+					{ id: 'IVR', text: 'Stop Card' }
+				],
+				incomingNumber: '',
+				fullName: '',
+				idNumber: '',
+				verifiedCellphone: '',
+				livesIn: '',
+				language: '',
+				birthday: ''
+			}
+
+			this.displayConfirmedCaller = true;
+		}
+		catch (error) {
+			console.log(error);
+			/*
+				IF acceptedCall succeeded but identifiedCaller failed then 
+					we must invoke the search dialog (which must still be built)
+			*/
+		}
 	}
 
 	static get properties() {
@@ -159,16 +212,6 @@ export class LandingPage extends View {
 
 		return html``;
 	}
-	renderShowConfirmButton() {
-		if (this.displayConfirmedCaller != true) {
-			return html`
-				<div>
-					<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.displayConfirmedCaller = true}"></capitec-button>
-				</div>`;
-		}
-
-		return html``;
-	}
 }
-console.log('On the landing page');
+
 customElements.define(`landing-page`, LandingPage);

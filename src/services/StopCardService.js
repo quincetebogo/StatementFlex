@@ -34,11 +34,27 @@ export class StopCardService {
 		return tmp;
 	}
 
-	async acceptCall() {
-		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`);
+	async acceptCall(incomingCallData) {
+		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
+			'incomingTelephoneNumber': incomingCallData.incomingNumber,
+			'voiceReferenceNumber': incomingCallData.voiceReference,
+			'ivrOptionCode': incomingCallData.ivrOption,
+			'incidentReferenceNumber': incomingCallData.incidentNo,
+			'agentTelephoneNumber': incomingCallData.agentPhoneNumber
+		});
 	}
 
-	async search() {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`);
+	async identifyCaller(callerData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
+			'incomingTelephoneNumber': callerData.incomingNumber,
+			'voiceReferenceNumber': callerData.voiceReference,
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentNo,
+			'agentTelephoneNumber': callerData.agentPhoneNumber,
+			'nonClientFullName': callerData.nonClientFullName,
+			'nonClientCellPhone': callerData.nonClientCellPhone,
+			'nonClientIDNumber': callerData.nonClientIDNumber,
+			'nonClientRelationship': callerData.nonClientRelationship
+		});
 	}
 }

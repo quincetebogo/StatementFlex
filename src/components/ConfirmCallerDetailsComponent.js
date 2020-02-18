@@ -8,44 +8,56 @@ class ConfirmCallerDetailsComponent extends Component {
 	constructor() {
 		super();
 
-		this.incomingNumber = "082 555 9090";
-		this.referenceNumber = "34562783";
+		// this.incomingNumber = "082 555 9090";
+		// this.referenceNumber = "34562783";
 
-		this.selectObject = { id: 'IVR', text: 'Stop Card' };
+		// this.selectObject = { id: 'IVR', text: 'Stop Card' };
 
-		this.selectDataObjects = [
-			this.selectObject,
-			{ id: 'CR', text: 'Credit Enquiry' },
-			{ id: 'PR', text: 'Product Enquiry' },
-			{ id: 'SR', text: 'Savings Account' },
-			{ id: 'IR', text: 'Internet or Cellphone Banking' }
-		];
+		// this.selectDataObjects = [
+		// 	this.selectObject,
+		// 	{ id: 'CR', text: 'Credit Enquiry' },
+		// 	{ id: 'PR', text: 'Product Enquiry' },
+		// 	{ id: 'SR', text: 'Savings Account' },
+		// 	{ id: 'IR', text: 'Internet or Cellphone Banking' }
+		// ];
 
-		this.fullName = "Mr I. Makatini";
-		this.idNumber = "8807120371081";
-		this.livesIn = "Somerset West";
-		this.birthday = "12 July";
-		this.verifiedCellphone = "082 555 9090";
-		this.language = "English";
+		// this.fullName = "Mr I. Makatini";
+		// this.idNumber = "8807120371081";
+		// this.livesIn = "Somerset West";
+		// this.birthday = "12 July";
+		// this.verifiedCellphone = "082 555 9090";
+		// this.language = "English";
 
-		this.confirmedCaller = null;
+		this.confirmedCaller = {
+			referenceNumber: '',
+			ivrOptions: [
+				{ id: 'IVR', text: 'Stop Card' }
+			],
+			incomingNumber: '',
+			fullName: '',
+			idNumber: '',
+			verifiedCellphone: '',
+			livesIn: '',
+			language: '',
+			birthday: ''
+		}
 	}
 
 	static get properties() {
 		return {
-			userDetails: { type: Object },
-			referenceNumber: { type: String },
-			ivrOption: { type: String },
-			incomingNumber: { type: String },
-
-			fullName: { type: String },
-			idNumber: { type: String },
-			livesIn: { type: String },
-			birthday: { type: String },
-			verifiedCellphone: { type: String },
-			language: { type: String },
-
 			confirmedCaller: { Object }
+
+			// userDetails: { type: Object },
+			// referenceNumber: { type: String },
+			// ivrOption: { type: String },
+			// incomingNumber: { type: String },
+
+			// fullName: { type: String },
+			// idNumber: { type: String },
+			// livesIn: { type: String },
+			// birthday: { type: String },
+			// verifiedCellphone: { type: String },
+			// language: { type: String },
 		}
 	}
 
@@ -256,15 +268,15 @@ class ConfirmCallerDetailsComponent extends Component {
 					<div class="horizon-call"> 
 						<div class="ref-call">
 							<capitec-label label="Reference Number"></capitec-label>	
-							<capitec-label id="label-value" label="${this.referenceNumber}"> </capitec-label>
+							<capitec-label id="label-value" label="${this.confirmedCaller.referenceNumber}"> </capitec-label>
 						</div>
 						<div class="ivr-option">
-							<capitec-select  id="label-value" label="IVR Option Selected" .items="${this.selectDataObjects}" display-field="text">
+							<capitec-select  id="label-value" label="IVR Option Selected" .items="${this.confirmedCaller.ivrOptions}" display-field="text">
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
 							<capitec-label label="Incoming Number"></capitec-label>
-							<capitec-label  id="label-value" label="${this.incomingNumber}"></capitec-label>
+							<capitec-label  id="label-value" label="${this.confirmedCaller.incomingNumber}"></capitec-label>
 						</div>
 					</div>
 				</capitec-action-bar>
@@ -286,30 +298,30 @@ class ConfirmCallerDetailsComponent extends Component {
 		<div class="client-avatar">
 			<capitec-avatar class="image" shape="none" value=""></capitec-avatar>										 
 			<div class="client-info">
-				<capitec-label class="fullname" id="label-value" label="${this.fullName}"></capitec-label>
+				<capitec-label class="fullname" id="label-value" label="${this.confirmedCaller.fullName}"></capitec-label>
 				<div></div>
 
 				<div>
 					<capitec-label label="ID Number"></capitec-label>
-					<capitec-label  id="label-text" label="${this.idNumber}"></capitec-label>
+					<capitec-label  id="label-text" label="${this.confirmedCaller.idNumber}"></capitec-label>
 				</div>
 				<div>
 	  				<capitec-label label="Verified Cellphone Number"></capitec-label>
-	  				<capitec-label  id="label-text" label="${this.verifiedCellphone}"></capitec-label>
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.verifiedCellphone}"></capitec-label>
   				</div>
 
 				<div>
 	  				<capitec-label label="Lives In"></capitec-label>
-	  				<capitec-label  id="label-text" label="${this.livesIn}"></capitec-label>
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.livesIn}"></capitec-label>
   				</div>
 				<div>
 	  				<capitec-label label="Language Preference"></capitec-label>		
-	  				<capitec-label  id="label-text" label="${this.language}"></capitec-label>		
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.language}"></capitec-label>		
   				</div>	
 
 				<div>
 	  				<capitec-label label="Birthday"></capitec-label>	
-	  				<capitec-label  id="label-text" label="${this.birthday}"></capitec-label>	
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.birthday}"></capitec-label>	
   				</div>				 
 				  <div></div>
 	

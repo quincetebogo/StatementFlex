@@ -1,24 +1,12 @@
-import { View, html, css } from 'platform/elements';
-//Added for navigation to the modal
-import { Router } from 'platform/Router';
-import './ConfirmCallerDetailsComponent';
+import { Component, html, css } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 
-export class LandigPageWaitForCall extends View {
+export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
 
-		//Added for navigation to the modal
-		this.router = Router.getInstance();
-		this.displayConfirmedCaller = false;
-		this.confirmedCaller = null;
-	}
-
-	static get properties() {
-		return {
-			displayConfirmedCaller: { type: Boolean },
-			confirmedCaller: { type: Object }
-		}
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	static get styles() {
@@ -66,7 +54,6 @@ export class LandigPageWaitForCall extends View {
 							${this.renderWaitingForCall()}
 							${this.renderShowConfirmButton()}
 						</div>
-						${this.renderConfirmedUser()}
 					</capitec-group>
 				</div>
 			</capitec-card>
@@ -86,23 +73,24 @@ export class LandigPageWaitForCall extends View {
 		return html``;
 	}
 
-	renderConfirmedUser() {
-		if (this.displayConfirmedCaller) {
-			return html`<confirm-caller-component></confirm-caller-component>`;
-		}
-
-		return html``;
+	triggerConfirmDialog() {
+		this.eventAggregator.publish('horizon-temp-button', {});
+		console.log('triggering dialog');
 	}
 
+	/// temporary button trigger until the incoming call pop is working
 	renderShowConfirmButton() {
-		if (this.displayConfirmedCaller != true) {
-			return html`
+		return html`
 				<div>
-					<capitec-button class="buttons" type="credit" label="Click to see modal" @click="${() => this.displayConfirmedCaller = true}"></capitec-button>
+					<capitec-button 
+						class="buttons" 
+						type="credit" 
+						label="Click to see modal" 
+						@click="${() => this.triggerConfirmDialog()}"> 
+					</capitec-button>
 				</div>`;
-		}
 		return html``;
 	}
 }
 
-window.customElements.define(`landingpage-waitforcall`, LandigPageWaitForCall);
+window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall);
