@@ -1,10 +1,9 @@
 import { View, html, css } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
-import '../../components/LandingPageWelcome';
-import '../../components/LandingPageMarketing';
-import '../../components/LandingPageWaitForCall';
+import './ClientProfileDetails';
 import './StopCardComponent';
+import './AccessComponent';
 
 export class ClientProfile extends View {
 
@@ -39,7 +38,7 @@ export class ClientProfile extends View {
 	}
 
 	renderLeftUI() {
-		return html`<landingpage-welcome></landingpage-welcome>`;
+		return html`<client-details></client-details>`;
 	}
 
 	renderMiddleUI() {
@@ -47,7 +46,7 @@ export class ClientProfile extends View {
 	}
 
 	renderRightUI() {
-		return html`<landingpage-marketing></landingpage-marketing>`;
+		return html`<access-component></access-component>`;
 	}
 
 	render() {
