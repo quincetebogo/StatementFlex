@@ -45,7 +45,6 @@ class ConfirmCallerDetailsComponent extends Component {
 		}
 	}
 
-
 	static get styles() {
 		return [
 			super.styles,
@@ -198,7 +197,6 @@ class ConfirmCallerDetailsComponent extends Component {
 					align: center;
 					padding: 18px 0px 18px 24px;
 				}
-
 				#action-label{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;

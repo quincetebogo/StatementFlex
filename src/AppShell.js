@@ -7,13 +7,15 @@ import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
 
-
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
 //import utils to tranform user role
 import './utils/TransformAgentRole';
+
+//Import Horizon Routes
+import horizonRoutes from './HorizonRoutes';
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -49,72 +51,9 @@ export class AppShell extends Shell {
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
 
-		// URL Routing Table
-		this.router.addRoute({
-			name: `landing-page`,
-			title: `LandingPageView`,
-			icon: null,
-			path: `/landingpage`,
-			load: () => import(`./views/LandingPage/LandingPage`),
-			isDefault: true,
-			isFallback: true,
-		});
+		// Adding routes to URL Routing Table
+		horizonRoutes.map(route => this.router.addRoute(route));
 
-		this.router.addRoute({
-			name: `product-savings-account`,
-			title: `SavingsAccountProductView`,
-			icon: null,
-			path: `/product/savings-account`,
-			load: () => import(`./views/LandingPage/SavingsAccountProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-savings-plan`,
-			title: `SavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/SavingsPlanProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-flexible-savings-plan`,
-			title: `FlexibleSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/flexible`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-fixed-term-savings-plan`,
-			title: `FixedTermSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/fixed-term`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/FixedTermSavingsProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-taxfree-savings-plan`,
-			title: `TaxFreeSavingsPlanProductView`,
-			icon: null,
-			path: `/product/savings-plan/tax-free`,
-			load: () => import(`./views/LandingPage/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-insure`,
-			title: `InsureProductView`,
-			icon: null,
-			path: `/product/insure`,
-			load: () => import(`./views/LandingPage/InsureProduct`),
-		})
-
-		this.router.addRoute({
-			name: `product-credit`,
-			title: `CreditProductView`,
-			icon: null,
-			path: `/product/credit`,
-			load: () => import(`./views/LandingPage/CreditProduct`),
-		})
 
 		// Listening for SSE events from the Desktop Agent
 		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
@@ -129,6 +68,10 @@ export class AppShell extends Shell {
 			.getInstance()
 			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
 
+		EventAggregator
+			.getInstance()
+			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
+
 		// Property defaults.
 		this.isBusy = true;
 		this.isSuccess = false;
@@ -140,6 +83,9 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.landingPageView = true;
 		this.callWaitingView = false;
+		this.fullname = ``;
+		this.employeeId = ``;
+		this.cardStop = [];
 	}
 
 
@@ -158,7 +104,9 @@ export class AppShell extends Shell {
 			applicationName: { type: String },
 			applicationVersion: { type: String },
 			landingPageView: { type: String },
-
+			fullname: { type: String },
+			employeeId: { type: String },
+			cardStop: { type: Array }
 		};
 	}
 
@@ -182,6 +130,9 @@ export class AppShell extends Shell {
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
 		this.clientIp = this.executionContext.clientIp;
+
+
+
 	}
 
 	_onUserLoginError() {
@@ -233,6 +184,12 @@ export class AppShell extends Shell {
 	onNavigationContextUpdated() {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
+
+	onTopBarUpdated(event) {
+		this.fullName = event.agentFullName;
+		this.employeeId = event.employeeId;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -337,8 +294,8 @@ export class AppShell extends Shell {
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
-							<capitec-label label="${this.securityContext.fullName}"></capitec-label>
-							<capitec-label label="${TransformAgentRole(this.roles)}"></capitec-label>
+							<capitec-label label="${this.fullName}"></capitec-label>
+							<capitec-label label="${this.employeeId}"></capitec-label>
 						</div>
 					</capitec-title-bar>
 
