@@ -93,13 +93,13 @@ export class LandingPage extends View {
 				ivrOptions: [
 					{ id: 'IVR', text: 'Stop Card' }
 				],
-				incomingNumber: '',
-				fullName: '',
-				idNumber: '',
-				verifiedCellphone: '',
-				livesIn: '',
-				language: '',
-				birthday: ''
+				incomingNumber: identifiedCaller.incomingTelephoneNumber,
+				fullName: identifiedCaller.clientPersonalInformation.value.name.value,
+				idNumber: identifiedCaller.clientPersonalInformation.value.southAfricanIDNumber.value,
+				verifiedCellphone: identifiedCaller.clientPersonalInformation.value.verifiedTelephoneNumber.value,
+				livesIn: identifiedCaller.clientPersonalInformation.value.livesIn.value,
+				language: identifiedCaller.clientPersonalInformation.value.languagePreference.value,
+				birthday: identifiedCaller.clientPersonalInformation.value.birthdate.value
 			}
 
 			this.displayConfirmedCaller = true;
