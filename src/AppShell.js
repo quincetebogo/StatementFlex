@@ -124,6 +124,22 @@ export class AppShell extends Shell {
 			//load: () => import(`./views/ConfirmCallerDetails`),
 		})
 
+		this.router.addRoute({
+			name: `addcaller-popup`,
+			title: `AddCaller`,
+			icon: null,
+			path: `/addcaller-popup`,
+			load: () => import(`./views/LandingPage/AddCallerPopup`),
+		})
+
+		this.router.addRoute({
+			name: `confirm-caller-component`,
+			title: `Confirm`,
+			icon: null,
+			path: `/confirm-caller-component`,
+			load: () => import(`./components/ConfirmCallerDetailsComponent`),
+		})
+
 
 
 		//Event Aggregator
