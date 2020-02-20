@@ -1,42 +1,36 @@
 import { View, html, css } from 'platform/elements';
+import { StopCardService } from '../services/StopCardService';
 
 export class AddCallerDetailsComponent extends View {
 
 	constructor() {
 		super();
-		this.someObject = { id: 'SP', text: 'Spouse' };
-		this.dataObjects = [
-			this.someObject,
-			{ id: 'SI', text: 'Sibling' },
-			{ id: 'CH', text: 'Child' },
-			{ id: 'FR', text: 'Friend' },
-			{ id: 'OT', text: 'Other' }
-		];
-		this.incomingNumber = "082 555 9090";
-		this.referenceNumber = "34562783";
 
 		this.userDetails = {
+			incomingNumber: "082 555 9090",
+			voiceReference: "34562783",
+			ivrOption: [
+				{ id: 'IVR', text: 'Stop Card' }
+			],
+			incidentNo: "",
+			agentPhoneNumber: "",
 			Name: "",
 			Surname: "",
 			Cellphone: "",
-			Relationship: ""
+			nonClientIDNumber: "",
+			Relationship: [
+				{ id: 'SP', text: 'Spouse' },
+				{ id: 'SI', text: 'Sibling' },
+				{ id: 'CH', text: 'Child' },
+				{ id: 'FR', text: 'Friend' },
+				{ id: 'OT', text: 'Other' }
+			]
 		};
 
 		this.errorMessage = {
 			errName: "",
 			errSurname: ""
 		};
-
-		this.selectObject = { id: 'IVR', text: 'Stop Card' };
-
-		this.selectDataObjects = [
-			this.selectObject,
-			{ id: 'CR', text: 'Credit Enquiry' },
-			{ id: 'PR', text: 'Product Enquiry' },
-			{ id: 'SR', text: 'Savings Account' },
-			{ id: 'IR', text: 'Internet or Cellphone Banking' }
-		];
-
 	}
 
 	static get properties() {
@@ -190,15 +184,15 @@ export class AddCallerDetailsComponent extends View {
 					<div class="horizon-call"> 
 						<div class="ref-call">
 							<capitec-label label="Reference Number"></capitec-label>	
-							<capitec-label id="label-value" label="${this.referenceNumber}"></capitec-label>
+							<capitec-label id="label-value" label="${this.userDetails.voiceReference}"></capitec-label>
 						</div>
 						<div class="ivr-option">
-							<capitec-select id="label-value" label="IVR Option Selected" .items="${this.selectDataObjects}" display-field="text">
+							<capitec-select id="label-value" label="IVR Option Selected" .items="${this.userDetails.ivrOption}" display-field="text">
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
 							<capitec-label label="Incoming Number"></capitec-label>
-							<capitec-label id="label-value" label="${this.incomingNumber}"></capitec-label>
+							<capitec-label id="label-value" label="${this.userDetails.incomingNumber}"></capitec-label>
 						</div>
 					</div>
 				</capitec-action-bar>
@@ -219,7 +213,7 @@ export class AddCallerDetailsComponent extends View {
 				<capitec-text-field type="number" id="Cellphone" label="Cellphone Number" @value-changed="${(e) => this._valueChanged(e)}"></capitec-text-field><br>
 			</div>
 			<div style="margin:-20px 0px 0px 0px;">
-				<capitec-select id="Relationship" label="Choose relationship type (Optional)" .items="${this.dataObjects}" display-field="text" @value-changed="${(e) => this._valueChanged(e)}"></capitec-select>
+				<capitec-select id="Relationship" label="Choose relationship type (Optional)" .items="${this.userDetails.Relationship}" display-field="text" @value-changed="${(e) => this._valueChanged(e)}"></capitec-select>
 			</div>
 		</capitec-content-box>
 		`;
@@ -250,6 +244,13 @@ export class AddCallerDetailsComponent extends View {
 		if (this.userDetails.Name == "") {
 			this.errorMessage.errName = "Required Field";
 			console.log(this.errorMessage.errName);
+		}
+		else if (this.userDetails.Surname == "") {
+			this.errorMessage.errSurname = "Required Field";
+			console.log(this.errorMessage.errSurname);
+		}
+		else {
+			StopCardService.getInstance().identifyCaller(this.userDetails);
 		}
 	}
 
