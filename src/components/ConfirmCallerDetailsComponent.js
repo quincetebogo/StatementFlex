@@ -1,13 +1,15 @@
 import { Component, html, css } from 'platform/elements';
+import { Router } from 'platform/Router';
+
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
-import { Router } from 'platform/Router';
 
 class ConfirmCallerDetailsComponent extends Component {
 
 	constructor() {
 		super();
+		this.router = Router.getInstance();
 
 		// this.incomingNumber = "082 555 9090";
 		// this.referenceNumber = "34562783";
@@ -28,8 +30,6 @@ class ConfirmCallerDetailsComponent extends Component {
 		// this.birthday = "12 July";
 		// this.verifiedCellphone = "082 555 9090";
 		// this.language = "English";
-
-		this.router = Router.getInstance();
 
 		this.confirmedCaller = {
 			referenceNumber: '',
@@ -298,8 +298,12 @@ class ConfirmCallerDetailsComponent extends Component {
 	renderAddCallerDetails() {
 		return html`
 		<div class="horizon-add-caller-details-div">					
-		<u><capitec-label id="action-label" label="Add Caller Details"></capitec-label></u>
-		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+			<u>
+				<capitec-label id="action-label" label="Add Caller Details"
+								@click="${() => this.router.navigateByPath(`/client/add-caller`)}">
+				</capitec-label>
+			</u>
+			<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 		</div>
 		`;
 	}
@@ -346,7 +350,11 @@ class ConfirmCallerDetailsComponent extends Component {
 				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-		  		<capitec-button id="id-confirm-button" type="primary" label="Confirm" @click="${this.onConfirmClick}"></capitec-button>
+		  		<capitec-button id="id-confirm-button" 
+				  				type="primary" 
+								label="Confirm" 
+								@click="${() => this.router.navigateByPath(`/client/profile`)}">
+				</capitec-button>
 			</capitec-action-bar>
 		`;
 	}

@@ -1,6 +1,5 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
-import { SecurityContext } from 'platform/SecurityContext';
 
 import '../../components/Common/HorizonProductTile';
 
@@ -18,7 +17,6 @@ export class ClientProfileDetails extends View {
 			Birthday: "12th July 1988",
 		};
 		this.router = Router.getInstance();
-		this.securityContext = SecurityContext.getInstance();
 	}
 
 	static get properties() {
@@ -79,7 +77,7 @@ export class ClientProfileDetails extends View {
 			}
 			.products{
 				padding: 0px 0px 8px 0px;
-				background-color: gainsboro;
+				background-color: #F5F5F5;
 			}
             horizon-product-tile{
                 padding: 10px 0px 0px 8px;
@@ -128,7 +126,7 @@ export class ClientProfileDetails extends View {
 						</capitec-content-box> 
 					</capitec-button>
 
-					<capitec-button class"document-button">
+					<capitec-button class="document-button">
 						<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 							<capitec-icon size="small" icon="system/documents"></capitec-icon>
 							<capitec-label label="document"></capitec-label>
