@@ -167,7 +167,7 @@ export class AddCallerDetailsComponent extends View {
 
 	render() {
 		return html`
-			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
+			<capitec-modal type="free" header="Add Caller Details" header-align="left" >
 				<div slot="body">
 					${this.renderCallInformation()}
 					${this.renderAddCallerDetails()}

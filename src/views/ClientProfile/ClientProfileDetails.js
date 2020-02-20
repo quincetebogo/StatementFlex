@@ -1,6 +1,5 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
-import { SecurityContext } from 'platform/SecurityContext';
 
 import '../../components/Common/HorizonProductTile';
 
@@ -18,7 +17,6 @@ export class ClientProfileDetails extends View {
 			Birthday: "12th July 1988",
 		};
 		this.router = Router.getInstance();
-		this.securityContext = SecurityContext.getInstance();
 	}
 
 	static get properties() {
@@ -79,7 +77,7 @@ export class ClientProfileDetails extends View {
 			}
 			.products{
 				padding: 0px 0px 8px 0px;
-				background-color: gainsboro;
+				background-color: #F5F5F5;
 			}
             horizon-product-tile{
                 padding: 10px 0px 0px 8px;
@@ -128,7 +126,7 @@ export class ClientProfileDetails extends View {
 						</capitec-content-box> 
 					</capitec-button>
 
-					<capitec-button class"document-button">
+					<capitec-button class="document-button">
 						<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 							<capitec-icon size="small" icon="system/documents"></capitec-icon>
 							<capitec-label label="document"></capitec-label>
@@ -144,32 +142,30 @@ export class ClientProfileDetails extends View {
 			`;
 	}
 
+	/// Product Button Details must be disabled on this page as the agent must not be able to navigate away from
+	/// the card stop page while servicing the client.
 	renderProductDetails() {
 		return html`
 			<capitec-card class="products">
 				<horizon-product-tile type="transact" 
 								label="Savings Account" 
 								subtitle="Know what you get, know what you pay"
-								icon="product/transact-white"
-								@click="${() => this.router.navigateByPath(`/product/savings-account`)}">
+								icon="product/transact-white">
 				</horizon-product-tile>
 				<horizon-product-tile type="save" 
 								label="Savings Plan"
 								subtitle="Let your money make money"
-								icon="product/save-white"
-								@click="${() => this.router.navigateByPath(`/product/savings-plan`)}">
+								icon="product/save-white">
 				</horizon-product-tile>
 				<horizon-product-tile type="insure" 
 								label="Insure"
 								subtitle="One plan, more cover"
-								icon="product/insure-white"
-								@click="${() => this.router.navigateByPath(`/product/insure`)}">
+								icon="product/insure-white">
 				</horizon-product-tile>
 				<horizon-product-tile type="credit" 
 								label="Credit" 
 								subtitle="Rethink credit, realise dreams"
-								icon="product/credit-white"
-								@click="${() => this.router.navigateByPath(`/product/credit`)}">
+								icon="product/credit-white">
 				</horizon-product-tile>
 			</capitec-card>	
 			`;

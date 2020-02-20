@@ -8,11 +8,18 @@ export class StopCardComponent extends View {
 	constructor() {
 		super();
 
+		this.groupByField = "cardCategory";
+		this.rowInputType = "Checkbox";
 		this.cards = [
-			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322" },
-			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322" },
-			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322" }
+			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: true },
+			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: false },
+			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322", selected: false }
 		];
+		this.headers = [
+			{ "key": "cardType", "value": "Card Type" },
+			{ "key": "cardNumber", "value": "Card Number" }
+		];
+		this.items = this._customGroupByHandler();
 	}
 
 	static get styles() {
@@ -45,7 +52,7 @@ export class StopCardComponent extends View {
 				}
 				table > thead > tr > th{
 					text-align: left;
-					background-color: gainsboro;
+					background-color: #F5F5F5;
 					color: #003652;
 					font: bold 20px/50px Hind Vadodara;
 					width: auto;
@@ -61,20 +68,92 @@ export class StopCardComponent extends View {
 					width: auto;
 					padding: 5px 0px 0px 20px;
 				}
+				table tr:hover{
+					background-color: rgba(0,131,187,0.1);
+				}
+				.group{
+					background-color: #F5F5F5;
+				}
+				.group > td{
+					text-align: left;
+					font: bold 18px/50px Hind Vadodara;
+				}
+				.row-input{
+					width: 6%;
+				}
 			`];
 	}
 
+	_customGroupByHandler() {
+		const groupedValues = Utilities.groupBy(this.cards, this.groupByField);
+		const newRows = [];
+
+		for (const key in groupedValues) {
+			if (groupedValues.hasOwnProperty(key)) {
+
+				let groupName = key;
+
+				if (groupName && groupName != "undefined") {
+					newRows.push({
+						group: groupName
+					});
+				}
+				const rows = groupedValues[key];
+				newRows.push(...rows);
+			}
+		}
+		return newRows;
+	}
+
+	renderTableHeader() {
+		return html`
+			${this.rowInputType ? html`<th class="row-input"></th>` : ``}
+			${this.headers.map(header => html`
+				<th>
+					${header.value}
+				</th>`)}
+		`;
+	}
+
 	renderTableBody() {
-		return html`${this.cards.map(item => {
-			return html`<tr>
-								<td>
-									${item.cardType}
-								</td>
-								<td>
-									${item.cardNumber}
+		return html`${this.items.map((item) => {
+			if (item.group) {
+				return html`<tr class="group">
+								<td colspan="${this.rowInputType ? this.headers.length + 1 : this.headers.length}">
+									${item.group}
 								</td>
 							</tr>`;
+			}
+			else {
+				return html`<tr>
+								${this.renderRowInput()}
+								${this.headers.map(header => html`
+								<td>
+									${item[header.key]}
+								</td>`)}
+							</tr>`;
+			}
 		})}`;
+	}
+
+	renderRowInput() {
+		if (this.rowInputType == "Checkbox") {
+			return html`
+				<td>
+					<capitec-check label=""></capitec-check>
+				</td>
+			`;
+		}
+		else if (this.rowInputType == "Radio") {
+			return html`
+				<td>
+					<capitec-radio label=""></capitec-radio>
+				</td>
+			`;
+		}
+		else {
+			return html``;
+		}
 	}
 
 	render() {
@@ -86,8 +165,7 @@ export class StopCardComponent extends View {
 				<table>
 					<thead>
 						<tr>
-							<th>Card Type</th>
-							<th>Card Number</th>
+							${this.renderTableHeader()}
 						</tr>
 					</thead>
 					<tbody>

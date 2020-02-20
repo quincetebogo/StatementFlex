@@ -134,10 +134,12 @@ export class AppShell extends Shell {
 	}
 
 	_onUserLoginError() {
+		console.log('onUserLoginError');
 		// Put your logic here to handle a login error.
 	}
 
 	_onUserLoggedOut() {
+		console.log('onUserLoggedOut');
 		// Put your logic here, e.g. to inform the user that he / she
 		// is now logged out and that the application will now perform a hard reload.
 	}
