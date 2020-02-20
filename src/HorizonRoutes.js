@@ -66,6 +66,13 @@ export default horizonRoutes = [
 		//load: () => import(`./views/ConfirmCallerDetails`),
 	},
 	{
+		name: `client-add-caller`,
+		title: `AddCallerDetailsView`,
+		icon: null,
+		path: `/client/add-caller`,
+		//load: () => import(`./views/ClientProfile/ClientProfile`)
+	},
+	{
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
