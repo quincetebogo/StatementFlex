@@ -1,3 +1,9 @@
 {
-    "myKey": "MyValue"
+	"serviceURIs": {
+		"channelServiceUrl": "https://horizoncs-dev.int.capinet"
+	},
+	"bancsUser": {
+		"branchCode": "2000",
+		"tellerNumber": "22312"
+	}
 }
