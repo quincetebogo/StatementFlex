@@ -12,7 +12,7 @@ export class SavingsAccountProductDetails extends View {
 			super.styles,
 			css`
 			.savingsaccountproduct-info{
-				width: 1067.8px;
+				width: 100%;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
@@ -22,7 +22,8 @@ export class SavingsAccountProductDetails extends View {
 				border-radius: none;
 			}
 			.content{
-				height:705px;
+				width: 100%;
+				height: 770px;
 			}
 			#label{
 				text-align:left;

@@ -31,12 +31,12 @@ export class SavingsPlanProduct extends View {
 				}
 				.left {
 					grid-area: left;
-					width: 440px;
+					width: 100%;
 					background-color: gainsboro;
 				}
 				.middle {
 					grid-area: middle;
-					width: 1064px;
+					width: 100%;
 					text-align: center;
 				}
 				.right {
@@ -46,7 +46,7 @@ export class SavingsPlanProduct extends View {
 					height:770px;
 				}
 				.savingsproduct-info{
-					width: 1067.8px;
+					width: 100%;
 					height: 770px;
 					padding: 0px 0px 0px 0px;
 					text-align: center;

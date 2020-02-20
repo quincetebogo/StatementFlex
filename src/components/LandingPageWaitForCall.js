@@ -14,7 +14,7 @@ export class LandingPageWaitForCall extends Component {
 			super.styles,
 			css`
 			.call-waiting{
-				width: 1067.8px;
+				width: 1073px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
@@ -37,7 +37,7 @@ export class LandingPageWaitForCall extends Component {
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
 				text-align: center;
-				width: 1067.8px;
+				width: 1073px;
 				height: 770px;
 			}
 			`];

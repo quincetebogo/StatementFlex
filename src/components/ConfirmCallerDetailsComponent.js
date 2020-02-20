@@ -296,9 +296,9 @@ class ConfirmCallerDetailsComponent extends Component {
 					color:  #08A6B5;
 				}
 			`];
-   }
-	
-  onConfirmClick() {
+	}
+
+	onConfirmClick() {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
