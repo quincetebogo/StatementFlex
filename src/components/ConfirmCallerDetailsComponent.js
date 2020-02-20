@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
+import { Router } from 'platform/Router';
 
 class ConfirmCallerDetailsComponent extends Component {
 
@@ -27,6 +28,8 @@ class ConfirmCallerDetailsComponent extends Component {
 		// this.birthday = "12 July";
 		// this.verifiedCellphone = "082 555 9090";
 		// this.language = "English";
+
+		this.router = Router.getInstance();
 
 		this.confirmedCaller = {
 			referenceNumber: '',
@@ -83,7 +86,7 @@ class ConfirmCallerDetailsComponent extends Component {
 				.footer-bar{
 					width: 678px;
 					height: 64px;
-					margin: 0px;
+					margin: 5px;
 					padding: 0px;
 					border-top: : 1px solid #dfdfdf;
 				}
@@ -235,6 +238,10 @@ class ConfirmCallerDetailsComponent extends Component {
 					width: 105px;
 				}
 
+				#id-search-client-button {
+					margin-left : 12px;
+				}
+
 				.footer{
 					width: 742px;
 					margin:0px;
@@ -245,6 +252,10 @@ class ConfirmCallerDetailsComponent extends Component {
 					color: #08A6B5;
 				}
 			`];
+	}
+
+	onConfirmClick() {
+		this.router.navigateByPath(`/client/profile`);
 	}
 
 	render() {
@@ -335,7 +346,7 @@ class ConfirmCallerDetailsComponent extends Component {
 				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-		  		<capitec-button id="id-confirm-button" type="primary" label="Confirm" @click="${this.onDoneClick}"></capitec-button>
+		  		<capitec-button id="id-confirm-button" type="primary" label="Confirm" @click="${this.onConfirmClick}"></capitec-button>
 			</capitec-action-bar>
 		`;
 	}
