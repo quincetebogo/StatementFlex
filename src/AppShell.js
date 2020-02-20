@@ -61,24 +61,6 @@ export class AppShell extends Shell {
 			console.log("Received 'new-call' event: ", event);
 		})
 
-		this.router.addRoute({
-			name: `addcaller-popup`,
-			title: `AddCaller`,
-			icon: null,
-			path: `/client/add-caller`,
-			load: () => import(`./views/LandingPage/AddCallerPopup`),
-		})
-
-		this.router.addRoute({
-			name: `confirm-caller-component`,
-			title: `Confirm`,
-			icon: null,
-			path: `/confirm-caller-component`,
-			load: () => import(`./components/ConfirmCallerDetailsComponent`),
-		})
-
-
-
 		//Event Aggregator
 		EventAggregator
 			.getInstance()

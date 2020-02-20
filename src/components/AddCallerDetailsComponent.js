@@ -1,6 +1,6 @@
 import { View, html, css } from 'platform/elements';
 
-export class AddCallerPopupDetails extends View {
+export class AddCallerDetailsComponent extends View {
 
 	constructor() {
 		super();
@@ -255,4 +255,4 @@ export class AddCallerPopupDetails extends View {
 
 }
 
-window.customElements.define(`addcaller-popupdetails`, AddCallerPopupDetails);
+window.customElements.define(`client-add-caller`, AddCallerDetailsComponent);
