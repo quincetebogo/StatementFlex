@@ -27,6 +27,7 @@ export class LandingPage extends View {
 
 		let landingPageData = null;
 		let confirmedCaller = null;
+
 		try {
 			landingPageData = await StopCardService.getInstance().initialise();
 		}

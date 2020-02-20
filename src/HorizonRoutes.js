@@ -59,31 +59,10 @@ export default horizonRoutes = [
 		load: () => import(`./views/LandingPage/CreditProduct`),
 	},
 	{
-		name: `confirm-caller-details`,
-		title: `ConfirmCallerDetailsView`,
-		icon: null,
-		path: `/confirm-caller-details/`,
-		//load: () => import(`./views/ConfirmCallerDetails`),
-	},
-	{
-		name: `client-add-caller`,
-		title: `AddCallerDetailsView`,
-		icon: null,
-		path: `/client/add-caller`,
-		//load: () => import(`./views/ClientProfile/ClientProfile`)
-	},
-	{
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
 		path: `/client/profile`,
 		load: () => import(`./views/ClientProfile/ClientProfile`)
-	},
-	{
-		name: `client-add-caller`,
-		title: `AddCallerDetailsView`,
-		icon: null,
-		path: `/client/add-caller`,
-		load: () => import(`./components/AddCallerDetailsComponent`)
 	}
 ]
