@@ -1,9 +1,12 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 
-export class LandigPageWaitForCall extends View {
+export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
+
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	static get styles() {
@@ -45,19 +48,49 @@ export class LandigPageWaitForCall extends View {
 		return html`
 			<capitec-card class="call-waiting">
 				<div>
-				<capitec-group class="userwaiting" layout="absolute">
-				<div></div>
-				<div>
-					<img src="../images/LandingPageImages/need.svg" class="needimage"/>
-					<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
-					<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
-				</div>
+					<capitec-group class="userwaiting" layout="absolute">
+						<div></div>
+						<div>
+							${this.renderWaitingForCall()}
+							${this.renderShowConfirmButton()}
+						</div>
 					</capitec-group>
 				</div>
 			</capitec-card>
+
 		`;
 	}
 
+	renderWaitingForCall() {
+		if (this.displayConfirmedCaller != true) {
+			return html`
+				<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+				<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
+				<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+			`;
+		}
+
+		return html``;
+	}
+
+	triggerConfirmDialog() {
+		this.eventAggregator.publish('horizon-temp-button', {});
+		console.log('triggering dialog');
+	}
+
+	/// temporary button trigger until the incoming call pop is working
+	renderShowConfirmButton() {
+		return html`
+				<div>
+					<capitec-button 
+						class="buttons" 
+						type="credit" 
+						label="Click to see modal" 
+						@click="${() => this.triggerConfirmDialog()}"> 
+					</capitec-button>
+				</div>`;
+		return html``;
+	}
 }
 
-window.customElements.define(`landingpage-waitforcall`, LandigPageWaitForCall);
+window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall);

@@ -7,7 +7,7 @@
 		"title": "horizon",
 		"version": "0.0.14",
 		"idp": {
-			"client": "Horizon"
+			"client": "axon"
 		}
 	}
 }

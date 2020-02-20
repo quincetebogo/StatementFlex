@@ -133,6 +133,4 @@ export class CreditProductDetails extends View {
 		`;
 	}
 }
-console.log('on thr credit view');
-
 window.customElements.define(`creditproduct-details`, CreditProductDetails);

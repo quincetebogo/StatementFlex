@@ -17,6 +17,9 @@ export class SavingsPlanProduct extends View {
 		return [
 			super.styles,
 			css`
+				:host{
+					padding: 20px 0px 0px 20px;
+				}
 				.grid-container {
 					display: grid;
 					grid-template-columns: 0.413534fr 1fr 0.300752fr;
