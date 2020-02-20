@@ -21,13 +21,13 @@ export class LandingPageMarketing extends View {
 			super.styles,
 			css`
 			.insights{
-				width: 320px;
+				width: 320.5px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 			}
 		
 			img{
-				width:320px;
+				width:320.5px;
 				height: 770px;
 			}
 			`];

@@ -1,47 +1,60 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
+import { Router } from 'platform/Router';
+
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
-import '../components/HorizonSpacer';
+import 'platform/components/layouts/Spacer';
+import 'platform/components/core/Icon';
 
-class ConfirmCallerDetailsComponent extends View {
+import './AddCallerDetailsComponent';
+
+class ConfirmCallerDetailsComponent extends Component {
 
 	constructor() {
 		super();
+		this.router = Router.getInstance();
 
-		this.incomingNumber = "082 555 9090";
-		this.referenceNumber = "34562783";
+		// this.incomingNumber = "082 555 9090";
+		// this.referenceNumber = "34562783";
 
-		this.selectObject = { id: 'IVR', text: 'Stop Card' };
+		// this.selectObject = { id: 'IVR', text: 'Stop Card' };
 
-		this.selectDataObjects = [
-			this.selectObject,
-			{ id: 'CR', text: 'Credit Enquiry' },
-			{ id: 'PR', text: 'Product Enquiry' },
-			{ id: 'SR', text: 'Savings Account' },
-			{ id: 'IR', text: 'Internet or Cellphone Banking' }
-		];
+		// this.selectDataObjects = [
+		// 	this.selectObject,
+		// 	{ id: 'CR', text: 'Credit Enquiry' },
+		// 	{ id: 'PR', text: 'Product Enquiry' },
+		// 	{ id: 'SR', text: 'Savings Account' },
+		// 	{ id: 'IR', text: 'Internet or Cellphone Banking' }
+		// ];
 
-		this.fullName = "Mr I. Makatini";
-		this.idNumber = "8807120371081";
-		this.livesIn = "Somerset West";
-		this.birthday = "12 July";
-		this.verifiedCellphone = "082 555 9090";
-		this.language = "English";
+		// this.fullName = "Mr I. Makatini";
+		// this.idNumber = "8807120371081";
+		// this.livesIn = "Somerset West";
+		// this.birthday = "12 July";
+		// this.verifiedCellphone = "082 555 9090";
+		// this.language = "English";
+
+		this.confirmedCaller = {
+			referenceNumber: '',
+			ivrOptions: [
+				{ id: 'IVR', text: 'Stop Card' }
+			],
+			incomingNumber: '',
+			fullName: '',
+			idNumber: '',
+			verifiedCellphone: '',
+			livesIn: '',
+			language: '',
+			birthday: ''
+		}
+
+		this.addCallerDetails = false;
 	}
 
 	static get properties() {
 		return {
-			userDetails: { type: Object },
-			referenceNumber: { type: String },
-			ivrOption: { type: String },
-			incomingNumber: { type: String },
-
-			fullName: { type: String },
-			idNumber: { type: String },
-			livesIn: { type: String },
-			birthday: { type: String },
-			verifiedCellphone: { type: String },
-			language: { type: String }
+			confirmedCaller: { type: Object },
+			addCallerDetails: { type: Boolean }
 		}
 	}
 
@@ -49,58 +62,104 @@ class ConfirmCallerDetailsComponent extends View {
 		return [
 			super.styles,
 			css`
-
-				capitec-card{
-					width: 690px;
-					height: 530px;
-				}
-				slot:header{
-					width: 690px;
-				}
 				.grid-container{
 					grid-row-gap: 0px;
-					width: 690px;
-					height: 400px;
+					grid-column-gap: 0px;
+					width:690;
+					margin:0px;
+					padding:0px;
+				}
+				.main{
+					height: 375px;
 				}
 				.populatedText{
-					height: 64px;
-					width: 690px;
-					padding: 8px;	
+					padding: 8px;
+					height: 64px;	
+					width: 690x;
 					border-bottom: 1px solid #dfdfdf;
 				}
-				.horizon-call{
-					//display: dock;
-					grid-template-columns: 1fr 1fr 1fr;
-					grid-gap: 0px 0px;+
-					// grid-template-columns: repeat(auto-fill, minmax(300px, 1fr) );
-				
+
+				.footer-bar{
+					width: 678px;
+					height: 64px;
 					margin: 0px;
-					width: 730px;
-				}	
+					padding: 0px;
+					border-top: : 1px solid #dfdfdf;
+				}
+
+				.horizon-call{
+					display: flex;
+					flex-direction: row;
+					margin: 0px;					
+				}
+
+				.horizon-add-caller-details-div{
+					display: flex;					
+					flex-direction: row;
+					width: 648px;
+					height: 56px;
+					margin-top: 24px;
+					margin-left:21.6px;
+					margin-right:18.6px;
+					background: #DAF5F3;
+				}
+
 				.ref-call{
 					text-align:left;
-					padding: 8px 8px 8px 24px;
-						height: 64px;
-					width: 232px;
+					padding-left: 24px;
+					padding-top: 8px;
+					padding-bottom: 8px;
+					width:232px;
+					height:64px;
+					border: 0px;
+					margin: 0px;
 				}
-				.incoming-call{
+
+				.ivr-option{
+					width: 223px;
+					height: 64px; 
 					text-align:left;
-					width: 246.667px;
-					height: 66px; 
-					border-left: 1px solid #dfdfdf;
+					border: 0px;
 					padding: 8px;
+					border-left: 1px solid #dfdfdf;
+					border-right: 0px;
+					border-top: 0px;
+					border-bottom: 0px;
+					margin: 0px;
 				}
+
+				.incoming-call{
+					width:232px;
+					height:64px;
+					text-align:left;
+					padding-left: 24px;
+					padding-top: 8px;
+					padding-bottom: 8px;
+					border-left: 1px solid #dfdfdf;
+					border-right: 0px;
+					border-top: 0px;
+					border-bottom: 0px;
+					margin: 0px;
+				}
+
 				.client-avatar{
-					display: absolute;
-					grid-template-columns: 0.5fr 1fr ;
-					height: 240px; 
+					display: grid;
+					grid: 'avatar clientdetails';
+					height: 200px; 
+					width: 433px;
+					border: 0px 0px 1px 0px;
+					margin-top: 24px;
+					margin-bottom: 0px;
+					margin-right: 0px;
 				}
+
 				.client-info{
 					display: grid;
-					grid-template-columns: 1fr 1fr;
-					grid-template-rows: 1fr 1fr 1fr 1fr;
+					grid-template-columns: 213px 213px;
+					padding-left: 20px;
 					text-align: left;
-					height: 240px; 
+					height: 200px;
+					width: 400px; 
 				}
 				.add-caller{
 				background-color: #4330;
@@ -114,23 +173,59 @@ class ConfirmCallerDetailsComponent extends View {
 					margin: 0px 0px 0px 24px;
 					background: gainsboro;
 				}
+        
 				.fullname{
 					//  width: 200px;
 					//  margin: 0px;
 					text-align: left;
 					padding: 0px 0px 16px 0px ;
 					vertical-align: middle;
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
 					//transform: translate(-8.0%);
 				}
+
+				#ref-number{
+					height: 21px;
+					width: 112px;
+					color: #4E6066;	
+					font-family: "Hind Vadodara";	
+					font-size: 14px;	
+					line-height: 21px;
+				}
+        
+				#incoming-num{
+					height: 27px;	
+					width: 104px;	
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
+				}
+        
 				#label-value{
 					color: #003652;	
 					font-family: "Hind Vadodara";	
-					font-size: 20px;	
+					font-size: 18px;	
 					font-weight: 600;	
-					line-height: 30px;
+					line-height: 27px;
+				}
+        
+				#label-ivr{
+					width: 192x;
+					//height: 64px;
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
 				}
 				#label-text{
-					height: 30px;	
+					height: 30px;
 					width: 123px;	
 					color: #003652;	
 					font-family: "Hind Vadodara";	
@@ -138,136 +233,188 @@ class ConfirmCallerDetailsComponent extends View {
 					font-weight: 600;
 					line-height: 30px;
 				}
+
 				#action-bar{
 					background: #DAF5F3;
 					height: 56px;	
-					width: 642px;
+					width: 690px;
 					margin: 16px 16px 16px 24px;
 					align: center;
 				}
+
 				#action-icon{
-					margin: 5px 0px 0px 0px;
+					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
-					font-family: "Hind Vadodara";	
-					font-weight: 600;
 					align: center;
-					padding: 18px 0px 18px 24px;
+					padding: 18px 4px 18px 32px;
 				}
 				#action-label{
+					margin:1px 0px 0px 0px;
+					color: #08A6B5;
+					font-family: "Hind Vadodara";	
+					font-weight: 800;
+					align: center;
+					padding: 18px 0px 18px 8px;
+				}
+
+				#action-display{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
 					font-family: "Hind Vadodara";	
-					font-weight: 600;
+					font-weight: 500;
 					align: center;
 					padding: 18px 0px 18px 0px;
 				}
-				#action-display{
-					margin: 5px 0px 0px 0px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";	
-					font-weight: 600;
-					align: center;
-					padding: 18px 18px 18px 0px;
+
+				#id-confirm-button {
+					width: 105px;
 				}
+
+				#id-search-client-button {
+					margin-left : 12px;
+				}
+
 				.footer{
 					width: 742px;
+					margin:0px;
+					padding:0px;
+					border-top: 1px solid #dfdfdf; 
 				}
 				u{
 					color: #08A6B5;
 				}
+				.icon{
+					align: center;
+					padding: 18px 0px 18px 48px;
+					color:  #08A6B5;
+				}
 			`];
 	}
 
+	onConfirmClick() {
+		this.router.navigateByPath(`/client/profile`);
+	}
+
+	renderAddCallerDetailsModal() {
+		if (this.addCallerDetails) {
+			return html`
+			<client-add-caller></client-add-caller>
+		 `;
+		}
+
+		return ``;
+	}
+
 	render() {
-		return html`
-			<capitec-card>
-				<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
-  					<div slot="body">
-						 <capitec-group layout="grid" class="grid-container"> 
-							  <capitec-action-bar class="populatedText">
-
-					 		<capitec-group class="horizon-call" layout="grid"> 
-					 				 <div class="ref-call">
-										<capitec-label label="Reference Number"></capitec-label>	
-										<capitec-label id="label-value" label="${this.referenceNumber}"> </capitec-label>
-									  </div>
-									  <div class="incoming-call">
-										<capitec-select  id="label-value"
- 										label="IVR Option Selected" .items="${this.selectDataObjects}" display-field="text">
-										</capitec-select>
-									  </div>
-									  <div class="incoming-call">
-									  <capitec-label label="Incoming Number"></capitec-label>
-										<capitec-label  id="label-value" label="${this.incomingNumber}"></capitec-label>
-									  </div>
-							 	</capitec-group>
-									</capitec-action-bar>
-
-									<capitec-action-bar id="action-bar">
-										<capitec-icon id="action-icon" type="info"></capitec-icon> &nbsp;
-										<u>	<capitec-label id="action-label" label="Add Caller Details"></capitec-label> </u>
-										<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-									</capitec-action-bar>  	
-
-							
-								  	
-							<capitec-group class="client-avatar" layout="grid">
-							
-  								<capitec-avatar class="image" shape="none" value=""></capitec-avatar>	
-									
-
-								<capitec-group class="client-info" layout="grid">
-									
-									<div>
-									<capitec-label class="fullname" id="label-value" label="${this.fullName}"></capitec-label>
-									</div>
-									<div></div>
-									
-									<div>
-										<capitec-label label="ID Number"></capitec-label>
- 										<capitec-label  id="label-text" label="${this.idNumber}"></capitec-label>
-								 	 </div>
-
-										<div>
-								 		<capitec-label label="Verified Cellphone Numbre"></capitec-label>
-										<capitec-label  id="label-text" label="${this.verifiedCellphone}"></capitec-label>
-									</div>
-									
-
-										
-								 	 <div>
-								 	 	<capitec-label label="Lives In"></capitec-label>
-										 <capitec-label  id="label-text" label="${this.livesIn}"></capitec-label>
-								  	</div>
-									<div>
-									<capitec-label label="Language Preference"></capitec-label>		
-									 <capitec-label  id="label-text" label="${this.language}"></capitec-label>		
-									</div>	
-								
-								  <div>
-									  <capitec-label label="Birthday"></capitec-label>	
-									 <capitec-label  id="label-text" label="${this.birthday}"></capitec-label>	
-									</div>				 
-								  </capitec-group>
-								</capitec-group>
-						</capitec-group>
-  					</div>
-		
-
-		<div slot="footer">
-				<capitec-button-bar slot="footer" class="bottom">
-					<capitec-button type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
-
-					<horizon-modal-spacer></horizon-modal-spacer>
-		
-					 <capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-  					<capitec-button type="primary" label="Confirm" @click="${this.onDoneClick}"></capitec-button>
-				</capitec-button-bar>
-		</div>
+		if (this.addCallerDetails != true) {
+			return html`
+			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
+  				<div slot="body" class="main">
+					${this.renderCallInformation()}
+					${this.renderAddCallerDetails()}
+					${this.renderConfirmedCaller()}
+				</div>
+				${this.renderFooter()}
 			</capitec-modal>
-		</capitec-card>
+		`;
+		}
+		else {
+			return html`
+			${this.renderAddCallerDetailsModal()}
+		`;
+		}
+	}
+
+	renderCallInformation() {
+		return html`
+			<capitec-group layout="grid" class="grid-container"> 
+				<capitec-action-bar class="populatedText">
+					<div class="horizon-call"> 
+						<div class="ref-call">
+							<capitec-label id="ref-number" label="Reference Number"></capitec-label>	
+							<capitec-label id="label-value" label="${this.confirmedCaller.referenceNumber}"> </capitec-label>
+						</div>
+						<div class="ivr-option">
+							<capitec-select  id="label-ivr" label="IVR Option Selected" .items="${this.confirmedCaller.ivrOptions}" display-field="text">
+							</capitec-select>
+						</div>
+						<div class="incoming-call">
+							<capitec-label id="ref-number" label="Incoming Number"></capitec-label>
+							<capitec-label  id="incoming-num" label="${this.confirmedCaller.incomingNumber}"></capitec-label>
+						</div>
+					</div>
+				</capitec-action-bar>
+			</capitec-group>
+ 		`;
+	}
+
+	renderAddCallerDetails() {
+		return html`
+		<div class="horizon-add-caller-details-div">		
+		   <capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
+       	
+		   <u>
+          <capitec-label 
+		  		id="action-label" 
+				label="Add Caller Details"
+				@click="${() => this.addCallerDetails = true}">
+			</capitec-label>
+			</u>
+		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+		</div>
 		`;
 	}
 
+	renderConfirmedCaller() {
+		return html`
+		<div class="client-avatar">
+			<capitec-avatar class="image" shape="none" value=""></capitec-avatar>										 
+			<div class="client-info">
+				<capitec-label class="fullname" id="label-value" label="${this.confirmedCaller.fullName}"></capitec-label>
+				<div></div>
+
+				<div>
+					<capitec-label label="ID Number"></capitec-label>
+					<capitec-label  id="label-text" label="${this.confirmedCaller.idNumber}"></capitec-label>
+				</div>
+				<div>
+	  				<capitec-label label="Verified Cellphone Number"></capitec-label>
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.verifiedCellphone}"></capitec-label>
+  				</div>
+
+				<div>
+	  				<capitec-label label="Lives In"></capitec-label>
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.livesIn}"></capitec-label>
+  				</div>
+				<div>
+	  				<capitec-label label="Language Preference"></capitec-label>		
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.language}"></capitec-label>		
+  				</div>	
+
+				<div>
+	  				<capitec-label label="Birthday"></capitec-label>	
+	  				<capitec-label  id="label-text" label="${this.confirmedCaller.birthday}"></capitec-label>	
+  				</div>				 
+				  <div></div>
+	
+			</div>
+		</div>`;
+	}
+
+	renderFooter() {
+		return html`
+			<capitec-action-bar slot="footer" class="footer-bar">
+				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
+				<capitec-spacer></capitec-spacer>
+				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
+		  		<capitec-button id="id-confirm-button" 
+				  				type="primary" 
+								label="Confirm" 
+								@click="${() => this.router.navigateByPath(`/client/profile`)}">
+				</capitec-button>
+			</capitec-action-bar>
+		`;
+	}
 }
+
 window.customElements.define(`confirm-caller-component`, ConfirmCallerDetailsComponent)
