@@ -1,4 +1,5 @@
 import { View, html, css } from 'platform/elements';
+import { StopCardService } from '../services/StopCardService';
 
 export class AddCallerDetailsComponent extends View {
 
@@ -250,6 +251,13 @@ export class AddCallerDetailsComponent extends View {
 		if (this.userDetails.Name == "") {
 			this.errorMessage.errName = "Required Field";
 			console.log(this.errorMessage.errName);
+		}
+		else if (this.userDetails.Surname == "") {
+			this.errorMessage.errSurname = "Required Field";
+			console.log(this.errorMessage.errSurname);
+		}
+		else {
+			StopCardService.getInstance().identifyCaller(incomingCallerData);
 		}
 	}
 
