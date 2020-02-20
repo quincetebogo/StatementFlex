@@ -61,8 +61,6 @@ export class AppShell extends Shell {
 			console.log("Received 'new-call' event: ", event);
 		})
 
-
-
 		//Event Aggregator
 		EventAggregator
 			.getInstance()
