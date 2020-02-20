@@ -45,7 +45,6 @@ export class StopCardService {
 	}
 
 	async identifyCaller(callerData) {
-		debugger;
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
