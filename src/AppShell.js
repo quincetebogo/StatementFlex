@@ -128,7 +128,7 @@ export class AppShell extends Shell {
 			name: `addcaller-popup`,
 			title: `AddCaller`,
 			icon: null,
-			path: `/addcaller-popup`,
+			path: `/client/add-caller`,
 			load: () => import(`./views/LandingPage/AddCallerPopup`),
 		})
 
