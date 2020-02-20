@@ -11,7 +11,7 @@ export class LandigPageWaitForCall extends View {
 			super.styles,
 			css`
 			.call-waiting{
-				width: 1067.8px;
+				width: 1073.5px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
@@ -34,7 +34,7 @@ export class LandigPageWaitForCall extends View {
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
 				text-align: center;
-				width: 1067.8px;
+				width: 1073.5px;
 				height: 770px;
 			}
 			`];

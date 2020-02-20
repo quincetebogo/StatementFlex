@@ -24,13 +24,14 @@ export class LandingPageWelcome extends View {
 			super.styles,
 			css`
 			.left-card {
-				width: 440px;
+				width: 443px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
+				background-color: gainsboro;
 			}
 
 			.hello-card {
-				width: 440px;
+				width: 443px;
 				height: 192px;
 			}
 
@@ -56,7 +57,7 @@ export class LandingPageWelcome extends View {
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
 				text-align: center;
-				width:440px;
+				// width:440px;
 				height:192px;
 			}
 
@@ -66,7 +67,7 @@ export class LandingPageWelcome extends View {
 			}
 
 			.products{
-				padding: 0px 0px 8px 0px;
+				padding: 0px;
 				background-color: gainsboro;
 			}
             horizon-product-tile{
