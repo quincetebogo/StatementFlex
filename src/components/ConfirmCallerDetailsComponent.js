@@ -69,20 +69,23 @@ class ConfirmCallerDetailsComponent extends Component {
 				.grid-container{
 					grid-row-gap: 0px;
 					grid-column-gap: 0px;
-					width:690px;
+					width:704;
 					margin:0px;
 					padding:0px;
 				}
-
+				.main{
+					width:701px;
+					height:400px;
+				}
 				.populatedText{
 					padding: 8px;
 					height: 64px;	
-					width: 678px;
+					width: 702px;
 					border-bottom: 1px solid #dfdfdf;
 				}
 
 				.footer-bar{
-					width: 678px;
+					width: 690px;
 					height: 64px;
 					margin: 0px;
 					padding: 0px;
@@ -152,6 +155,7 @@ class ConfirmCallerDetailsComponent extends Component {
 					border: 0px 0px 1px 0px;
 					margin-top: 24px;
 					margin-bottom: 0px;
+					margin-right: 0px;
 				}
 
 				.client-info{
@@ -236,7 +240,7 @@ class ConfirmCallerDetailsComponent extends Component {
 				#action-bar{
 					background: #DAF5F3;
 					height: 56px;	
-					width: 690px;
+					width: 704px;
 					margin: 16px 16px 16px 24px;
 					align: center;
 				}
@@ -289,7 +293,7 @@ class ConfirmCallerDetailsComponent extends Component {
 	render() {
 		return html`
 			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
-  				<div slot="body">
+  				<div slot="body" class="main">
 					${this.renderCallInformation()}
 					${this.renderAddCallerDetails()}
 					${this.renderConfirmedCaller()}
