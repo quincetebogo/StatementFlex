@@ -4,6 +4,7 @@ import { Router } from 'platform/Router';
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
+import 'platform/components/core/Icon';
 
 class ConfirmCallerDetailsComponent extends Component {
 
@@ -71,22 +72,24 @@ class ConfirmCallerDetailsComponent extends Component {
 				.grid-container{
 					grid-row-gap: 0px;
 					grid-column-gap: 0px;
-					width:678px;
+					width:690;
 					margin:0px;
 					padding:0px;
 				}
-
+				.main{
+					height: 375px;
+				}
 				.populatedText{
 					padding: 8px;
 					height: 64px;	
-					width: 678px;
+					width: 690x;
 					border-bottom: 1px solid #dfdfdf;
 				}
 
 				.footer-bar{
 					width: 678px;
 					height: 64px;
-					margin: 5px;
+					margin: 0px;
 					padding: 0px;
 					border-top: : 1px solid #dfdfdf;
 				}
@@ -100,11 +103,11 @@ class ConfirmCallerDetailsComponent extends Component {
 				.horizon-add-caller-details-div{
 					display: flex;					
 					flex-direction: row;
-					width: 642px;
+					width: 648px;
 					height: 56px;
 					margin-top: 24px;
-					margin-left:auto;
-					margin-right:auto;
+					margin-left:21.6px;
+					margin-right:18.6px;
 					background: #DAF5F3;
 				}
 
@@ -150,14 +153,17 @@ class ConfirmCallerDetailsComponent extends Component {
 					display: grid;
 					grid: 'avatar clientdetails';
 					height: 200px; 
+					width: 433px;
 					border: 0px 0px 1px 0px;
 					margin-top: 24px;
 					margin-bottom: 0px;
+					margin-right: 0px;
 				}
 
 				.client-info{
 					display: grid;
-					grid-template-columns: auto auto;
+					grid-template-columns: 213px 213px;
+					padding-left: 20px;
 					text-align: left;
 					height: 200px;
 					width: 400px; 
@@ -174,25 +180,60 @@ class ConfirmCallerDetailsComponent extends Component {
 					margin: 0px 0px 0px 24px;
 					background: gainsboro;
 				}
+        
 				.fullname{
 					//  width: 200px;
 					//  margin: 0px;
 					text-align: left;
 					padding: 0px 0px 16px 0px ;
 					vertical-align: middle;
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
 					//transform: translate(-8.0%);
 				}
 
-
+				#ref-number{
+					height: 21px;
+					width: 112px;
+					color: #4E6066;	
+					font-family: "Hind Vadodara";	
+					font-size: 14px;	
+					line-height: 21px;
+				}
+        
+				#incoming-num{
+					height: 27px;	
+					width: 104px;	
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
+				}
+        
 				#label-value{
 					color: #003652;	
 					font-family: "Hind Vadodara";	
-					font-size: 20px;	
+					font-size: 18px;	
 					font-weight: 600;	
-					line-height: 30px;
+					line-height: 27px;
+				}
+        
+				#label-ivr{
+					width: 192x;
+					//height: 64px;
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
 				}
 				#label-text{
-					height: 30px;	width: 123px;	
+					height: 30px;
+					width: 123px;	
 					color: #003652;	
 					font-family: "Hind Vadodara";	
 					font-size: 18px;	
@@ -209,27 +250,25 @@ class ConfirmCallerDetailsComponent extends Component {
 				}
 
 				#action-icon{
-					margin: 5px 0px 0px 0px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";	
-					font-weight: 600;
-					align: center;
-					padding: 18px 0px 18px 24px;
-				}
-				#action-label{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
-					font-family: "Hind Vadodara";	
-					font-weight: 600;
 					align: center;
-					padding: 18px 0px 18px 48px;
+					padding: 18px 4px 18px 32px;
+				}
+				#action-label{
+					margin:1px 0px 0px 0px;
+					color: #08A6B5;
+					font-family: "Hind Vadodara";	
+					font-weight: 800;
+					align: center;
+					padding: 18px 0px 18px 8px;
 				}
 
 				#action-display{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
 					font-family: "Hind Vadodara";	
-					font-weight: 600;
+					font-weight: 500;
 					align: center;
 					padding: 18px 0px 18px 0px;
 				}
@@ -251,17 +290,22 @@ class ConfirmCallerDetailsComponent extends Component {
 				u{
 					color: #08A6B5;
 				}
+				.icon{
+					align: center;
+					padding: 18px 0px 18px 48px;
+					color:  #08A6B5;
+				}
 			`];
-	}
-
-	onConfirmClick() {
+   }
+	
+  onConfirmClick() {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
 	render() {
 		return html`
 			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
-  				<div slot="body">
+  				<div slot="body" class="main">
 					${this.renderCallInformation()}
 					${this.renderAddCallerDetails()}
 					${this.renderConfirmedCaller()}
@@ -278,16 +322,16 @@ class ConfirmCallerDetailsComponent extends Component {
 				<capitec-action-bar class="populatedText">
 					<div class="horizon-call"> 
 						<div class="ref-call">
-							<capitec-label label="Reference Number"></capitec-label>	
+							<capitec-label id="ref-number" label="Reference Number"></capitec-label>	
 							<capitec-label id="label-value" label="${this.confirmedCaller.referenceNumber}"> </capitec-label>
 						</div>
 						<div class="ivr-option">
-							<capitec-select  id="label-value" label="IVR Option Selected" .items="${this.confirmedCaller.ivrOptions}" display-field="text">
+							<capitec-select  id="label-ivr" label="IVR Option Selected" .items="${this.confirmedCaller.ivrOptions}" display-field="text">
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
-							<capitec-label label="Incoming Number"></capitec-label>
-							<capitec-label  id="label-value" label="${this.confirmedCaller.incomingNumber}"></capitec-label>
+							<capitec-label id="ref-number" label="Incoming Number"></capitec-label>
+							<capitec-label  id="incoming-num" label="${this.confirmedCaller.incomingNumber}"></capitec-label>
 						</div>
 					</div>
 				</capitec-action-bar>
@@ -297,13 +341,15 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-		<div class="horizon-add-caller-details-div">					
-			<u>
-				<capitec-label id="action-label" label="Add Caller Details"
+		<div class="horizon-add-caller-details-div">		
+		   <capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
+       	
+		   <u>
+          <capitec-label id="action-label" label="Add Caller Details"
 								@click="${() => this.router.navigateByPath(`/client/add-caller`)}">
-				</capitec-label>
+				  </capitec-label>
 			</u>
-			<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 		</div>
 		`;
 	}
