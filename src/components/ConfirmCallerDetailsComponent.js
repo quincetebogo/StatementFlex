@@ -1,6 +1,4 @@
 import { Component, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
-
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
@@ -10,7 +8,6 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	constructor() {
 		super();
-		this.router = Router.getInstance();
 
 		// this.incomingNumber = "082 555 9090";
 		// this.referenceNumber = "34562783";
@@ -72,25 +69,24 @@ class ConfirmCallerDetailsComponent extends Component {
 				.grid-container{
 					grid-row-gap: 0px;
 					grid-column-gap: 0px;
-					width:704;
+					width:690;
 					margin:0px;
 					padding:0px;
 				}
 				.main{
-					width:701px;
-					height:400px;
+					height: 375px;
 				}
 				.populatedText{
 					padding: 8px;
 					height: 64px;	
-					width: 702px;
+					width: 690x;
 					border-bottom: 1px solid #dfdfdf;
 				}
 
 				.footer-bar{
-					width: 690px;
+					width: 678px;
 					height: 64px;
-					margin: 5px;
+					margin: 0px;
 					padding: 0px;
 					border-top: : 1px solid #dfdfdf;
 				}
@@ -243,7 +239,7 @@ class ConfirmCallerDetailsComponent extends Component {
 				#action-bar{
 					background: #DAF5F3;
 					height: 56px;	
-					width: 704px;
+					width: 690px;
 					margin: 16px 16px 16px 24px;
 					align: center;
 				}
@@ -276,10 +272,6 @@ class ConfirmCallerDetailsComponent extends Component {
 					width: 105px;
 				}
 
-				#id-search-client-button {
-					margin-left : 12px;
-				}
-
 				.footer{
 					width: 742px;
 					margin:0px;
@@ -295,10 +287,6 @@ class ConfirmCallerDetailsComponent extends Component {
 					color:  #08A6B5;
 				}
 			`];
-	}
-
-	onConfirmClick() {
-		this.router.navigateByPath(`/client/profile`);
 	}
 
 	render() {
@@ -340,13 +328,10 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-		<div class="horizon-add-caller-details-div">					
-			<u>
-				<capitec-label id="action-label" label="Add Caller Details"
-								@click="${() => this.router.navigateByPath(`/client/add-caller`)}">
-				</capitec-label>
-			</u>
-			<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+		<div class="horizon-add-caller-details-div">		
+		<capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon></capitec-label>			
+		<u><capitec-label id="action-label" label="Add Caller Details"></capitec-label></u>
+		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 		</div>
 		`;
 	}
@@ -393,11 +378,7 @@ class ConfirmCallerDetailsComponent extends Component {
 				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
-		  		<capitec-button id="id-confirm-button" 
-				  				type="primary" 
-								label="Confirm" 
-								@click="${() => this.router.navigateByPath(`/client/profile`)}">
-				</capitec-button>
+		  		<capitec-button id="id-confirm-button" type="primary" label="Confirm" @click="${this.onDoneClick}"></capitec-button>
 			</capitec-action-bar>
 		`;
 	}
