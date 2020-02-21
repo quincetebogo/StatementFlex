@@ -6,6 +6,8 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
+import './AddCallerDetailsComponent';
+
 class ConfirmCallerDetailsComponent extends Component {
 
 	constructor() {
@@ -45,23 +47,14 @@ class ConfirmCallerDetailsComponent extends Component {
 			language: '',
 			birthday: ''
 		}
+
+		this.addCallerDetails = false;
 	}
 
 	static get properties() {
 		return {
-			confirmedCaller: { Object }
-
-			// userDetails: { type: Object },
-			// referenceNumber: { type: String },
-			// ivrOption: { type: String },
-			// incomingNumber: { type: String },
-
-			// fullName: { type: String },
-			// idNumber: { type: String },
-			// livesIn: { type: String },
-			// birthday: { type: String },
-			// verifiedCellphone: { type: String },
-			// language: { type: String },
+			confirmedCaller: { type: Object },
+			addCallerDetails: { type: Boolean }
 		}
 	}
 
@@ -302,18 +295,34 @@ class ConfirmCallerDetailsComponent extends Component {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
+	renderAddCallerDetailsModal() {
+		if (this.addCallerDetails) {
+			return html`
+			<client-add-caller></client-add-caller>
+		 `;
+		}
+
+		return ``;
+	}
+
 	render() {
-		return html`
+		if (this.addCallerDetails != true) {
+			return html`
 			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
   				<div slot="body" class="main">
 					${this.renderCallInformation()}
 					${this.renderAddCallerDetails()}
 					${this.renderConfirmedCaller()}
 				</div>
-
 				${this.renderFooter()}
 			</capitec-modal>
 		`;
+		}
+		else {
+			return html`
+			${this.renderAddCallerDetailsModal()}
+		`;
+		}
 	}
 
 	renderCallInformation() {
@@ -345,9 +354,11 @@ class ConfirmCallerDetailsComponent extends Component {
 		   <capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
        	
 		   <u>
-          <capitec-label id="action-label" label="Add Caller Details"
-								@click="${() => this.router.navigateByPath(`/client/add-caller`)}">
-				  </capitec-label>
+          <capitec-label 
+		  		id="action-label" 
+				label="Add Caller Details"
+				@click="${() => this.addCallerDetails = true}">
+			</capitec-label>
 			</u>
 		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 		</div>

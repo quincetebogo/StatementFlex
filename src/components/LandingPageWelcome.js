@@ -67,7 +67,7 @@ export class LandingPageWelcome extends View {
 			}
 
 			.products{
-				padding: 0px 0px 8px 0px;
+				padding: 0px;
 				background-color: gainsboro;
 			}
             horizon-product-tile{

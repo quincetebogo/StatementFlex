@@ -6,11 +6,49 @@ import '../../../components/LandingPageWelcome';
 import '../../../components/LandingPageMarketing';
 import '../../../components/Common/HorizonProductTile';
 
+import { EventAggregator } from 'platform/EventAggregator';
+
+import { StopCardService } from '../../../services/StopCardService';
+
 export class SavingsPlanProduct extends View {
 
 	constructor() {
 		super();
 		this.router = Router.getInstance();
+		this.fullname = ``;
+		this.eventAggregator = EventAggregator.getInstance();
+	}
+
+	async connectedCallback() {
+		super.connectedCallback();
+
+		let landingPageData = null;
+
+		try {
+			landingPageData = await StopCardService.getInstance().initialise();
+		}
+		catch (ex) {
+			// TODO: better handling must come here
+			console.log(ex);
+		}
+
+		if (landingPageData != null) {
+			this.eventAggregator.publish('horizon-top-bar-data', {
+				agentFullName: landingPageData.agentFullName,
+				employeeId: landingPageData.loggedInAgent.employeeId
+			});
+			this.fullname = landingPageData.loggedInAgent.fullName;
+		}
+		else {
+			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
+			this.fullname = `unknown`;
+		}
+	}
+
+	static get properties() {
+		return {
+			fullname: { type: String },
+		}
 	}
 
 	static get styles() {
@@ -64,7 +102,7 @@ export class SavingsPlanProduct extends View {
 
 	renderleftUI() {
 		return html`
-			<landingpage-welcome></landingpage-welcome>
+			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
 		`;
 	}
 
