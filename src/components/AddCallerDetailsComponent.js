@@ -219,10 +219,25 @@ export class AddCallerDetailsComponent extends View {
 		`;
 	}
 
+	raiseBackEvent() {
+		console.log('raise event');
+		this.dispatchEvent(new CustomEvent('on-back', {
+			detail: {
+				message: 'Something important happened'
+			}
+		}));
+	}
+
+
 	renderFooter() {
 		return html`
 			<capitec-action-bar slot="footer" class="footer-bar">
-				<capitec-button id="id-search-client-button" type="clear" label="Back"></capitec-button>
+				<capitec-button 
+					id="id-search-client-button" 
+					type="clear" 
+					label="Back"
+					@click="${(e) => this.raiseBackEvent()}">
+				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button type="clear" label="End Call Session" ></capitec-button>
 				<capitec-button id="id-confirm-button" type="primary" label="Confirm" @click="${(e) => this.validateData(e)}""></capitec-button>

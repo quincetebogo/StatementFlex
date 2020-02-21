@@ -298,7 +298,14 @@ class ConfirmCallerDetailsComponent extends Component {
 	renderAddCallerDetailsModal() {
 		if (this.addCallerDetails) {
 			return html`
-			<client-add-caller></client-add-caller>
+			<client-add-caller
+			
+			@on-back="${() => {
+					console.log('on back received');
+					this.addCallerDetails = false
+				}
+				}">
+			</client-add-caller>
 		 `;
 		}
 
@@ -350,18 +357,18 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-		<div class="horizon-add-caller-details-div">		
-		   <capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
+			<div class="horizon-add-caller-details-div">		
+				<capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
        	
-		   <u>
-          <capitec-label 
-		  		id="action-label" 
-				label="Add Caller Details"
-				@click="${() => this.addCallerDetails = true}">
-			</capitec-label>
-			</u>
-		<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-		</div>
+				<u>
+          			<capitec-label 
+		  				id="action-label" 
+						label="Add Caller Details"
+						@click="${() => this.addCallerDetails = true}">
+					</capitec-label>
+				</u>
+				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+			</div>
 		`;
 	}
 
