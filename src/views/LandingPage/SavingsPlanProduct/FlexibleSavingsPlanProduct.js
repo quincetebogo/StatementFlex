@@ -26,16 +26,16 @@ export class FlexibleSavingsPlanProduct extends View {
 					grid-gap: 24px;
 					background-color: gainsboro;
 					height: 770px;
-					width: 1903px;
+					width: 1918px;
 				}
 				.left {
 					grid-area: left;
-					width: 440px;
+					width: 100%;
 					background-color: gainsboro;
 				}
 				.middle {
 					grid-area: middle;
-					width: 1064px;
+					width: 100%;
 					text-align: center;
 				}
 				.right {
@@ -45,7 +45,7 @@ export class FlexibleSavingsPlanProduct extends View {
 					height:770px;
 				}
 				.savingsproduct-info{
-					width: 1067.8px;
+					width: 100%;
 					height: 770px;
 					padding: 0px 0px 0px 0px;
 					text-align: center;
@@ -55,6 +55,7 @@ export class FlexibleSavingsPlanProduct extends View {
 					border-radius: none;
 				}
 				.content{
+					width: 100%;
 					height:705px;
 					padding: 0px 0px 0px 0px;
 				}

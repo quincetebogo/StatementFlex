@@ -140,31 +140,31 @@ export class LandingPage extends View {
 
 				.left {
 					grid-area: left;
-					width: 440px;
+					width: 445px;
 					background-color: gainsboro;
 				}
 
 				.middle {
 					grid-area: middle;
-					width: 1064px;
+					width: 1070px;
 					text-align: center;
 				}
 
 				.right {
 					grid-area: right;
 					justify-self: center;
-					width: 320px;
+					width: 321px;
 					height:770px;
 				}
 				
 				horizon-user{
-					width: 440px;
+					width: 444px;
 					height: 770px;
 					padding: 0px 0px 0px 0px;
 				}
 			
 				horizon-rightuser{
-					width: 320px;
+					width: 321px;
 					height: 770px;
 				}
 				

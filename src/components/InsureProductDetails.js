@@ -12,7 +12,7 @@ export class InsureProductDetails extends View {
 			super.styles,
 			css`
 			.insureproduct-info{
-				width: 1067.8px;
+				width:  1082px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 				text-align: left;
@@ -22,6 +22,7 @@ export class InsureProductDetails extends View {
 				border-radius: none;
 			}
 			.content{
+				width:  100%;
 				height:705px;
 			}
 			#label{

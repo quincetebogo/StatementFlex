@@ -12,7 +12,7 @@ export class CreditProductDetails extends View {
 			super.styles,
 			css`
 			.creditproduct-info{
-				width: 1067.8px;
+				width:  100%;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
