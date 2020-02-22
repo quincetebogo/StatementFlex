@@ -1,8 +1,8 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 //import all UI components
 //import 'platform/components/navigation/AppRouter';
 
-export class LandingPageMarketing extends View {
+export class LandingPageMarketing extends Component {
 
 	constructor() {
 		super();
