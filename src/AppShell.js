@@ -231,7 +231,7 @@ export class AppShell extends Shell {
 			css`
 				.screen-size{
 					width : 1920px;
-					height : 1000px;
+					height : 1080px;
 					display: flex;
 					flex-direction: column;
 				}
@@ -274,7 +274,7 @@ export class AppShell extends Shell {
 
 				.grid-container {
 					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
+					grid-template-columns: 440px auto 370px;
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
@@ -347,7 +347,9 @@ export class AppShell extends Shell {
 							<div class="middle">
 								<capitec-app-router></capitec-app-router> 
 							</div>
-							<div class="right"></div>
+							<div class="right">
+								${this.renderRightUI()}
+							</div>
 						</div>	
                     </capitec-content-box>
 	
@@ -377,6 +379,12 @@ export class AppShell extends Shell {
 		else if (this.leftDisplay === HORIZON_VIEWS.CARD_STOP) {
 			return html`<client-details></client-details>`;
 		}
+	}
+
+	renderRightUI() {
+		return html`
+			<landingpage-marketing></landingpage-marketing>
+		`;
 	}
 
 	renderSuccessModel() {
