@@ -1,7 +1,7 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../services/StopCardService';
 
-export class AddCallerDetailsComponent extends View {
+export class AddCallerDetailsComponent extends Component {
 
 	constructor() {
 		super();

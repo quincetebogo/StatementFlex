@@ -1,7 +1,7 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
-export class CreditProductDetails extends View {
+export class CreditProductDetails extends Component {
 
 	constructor() {
 		super();
