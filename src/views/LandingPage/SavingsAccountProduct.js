@@ -53,40 +53,10 @@ export class SavingsAccountProduct extends View {
 		return [
 			super.styles,
 			css`
-				:host{
-					padding: 20px 0px 0px 20px;
-				}
-				.grid-container {
-					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
-					grid-template-areas: "left middle right";
-					grid-gap: 24px;
-					background-color: gainsboro;
-					height: 770px;
-					width: 1903px;
-				}
-
-				.left {
-					grid-area: left;
-					width: 100%;
-					background-color: gainsboro;
-				}
-
-				.middle {
-					grid-area: middle;
-					width: 100%;
-					text-align: center;
-				}
-
-				.right {
-					grid-area: right;
-					justify-self: center;
-					width: 100%;
-					height:770px;
-				}
-				
-
-	
+				.savings-details{
+					width:100%;
+					height:100%;
+				}					
 				`];
 	}
 
@@ -101,24 +71,24 @@ export class SavingsAccountProduct extends View {
 		`;
 	}
 	renderMiddleSection() {
-		return html`<savingsaccountproduct-details></savingsaccountproduct-details>`;
+		return html`<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>`;
 	}
 
 	render() {
 		return html`
-			<section class="grid-container">
+			<!-- <section class="grid-container">
 				<div class="left">
 				${this.renderleftUI()}
 				</div>
-		
-				<div class="middle">
+		 -->
+				<!-- <div class="middle"> -->
 					${this.renderMiddleSection()}
-				</div>
-
+				<!-- </div> -->
+<!-- 
 				<div class="right">
 					${this.renderRightImage()}
 				</div>
-			</section>		
+			</section>		 -->
 		`;
 
 	}

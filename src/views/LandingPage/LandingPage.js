@@ -107,6 +107,21 @@ export class LandingPage extends View {
 		}
 		catch (error) {
 			console.log(error);
+			this.confirmedCaller = {
+				referenceNumber: '2345',
+				ivrOptions: [
+					{ id: 'IVR', text: 'Stop Card' }
+				],
+				incomingNumber: '021 8523086',
+				fullName: 'jeff',
+				idNumber: '6712075142087',
+				verifiedCellphone: '084 6161747',
+				livesIn: 'SW',
+				language: 'ENG',
+				birthday: 'DEC'
+			}
+
+			this.displayConfirmedCaller = true; //TODO: remove debug
 			/*
 				IF acceptedCall succeeded but identifiedCaller failed then 
 					we must invoke the search dialog (which must still be built)
@@ -125,50 +140,10 @@ export class LandingPage extends View {
 		return [
 			super.styles,
 			css`
-				:host{
-					padding: 20px 0px 0px 20px;
-				}
-				.grid-container {
-					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
-					grid-template-areas: "left middle right";
-					grid-gap: 24px;
-					background-color: gainsboro;
-					height: 770px;
-					width: 1890px;
-				}
-
-				.left {
-					grid-area: left;
-					width: 445px;
-					background-color: gainsboro;
-				}
-
-				.middle {
-					grid-area: middle;
-					width: 1070px;
-					text-align: center;
-				}
-
-				.right {
-					grid-area: right;
-					justify-self: center;
-					width: 321px;
-					height:770px;
-				}
-				
-				horizon-user{
-					width: 444px;
-					height: 770px;
-					padding: 0px 0px 0px 0px;
-				}
-			
-				horizon-rightuser{
-					width: 321px;
-					height: 770px;
-				}
-				
-	
+				.wait-for-call{
+					width:100%;
+					height:100%;
+				}					
 				`];
 	}
 
@@ -184,26 +159,13 @@ export class LandingPage extends View {
 	}
 	renderMiddleSection() {
 		return html`
-			<landingpage-waitforcall></landingpage-waitforcall>
+			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
 		`;
 	}
 
 	render() {
 		return html`
-			<section class="grid-container">
-				<div class="left">
-				${this.renderleftUI()}
-				</div>
-		
-				<div class="middle">
-					${this.renderMiddleSection()}
-				</div>
-
-				<div class="right">
-					${this.renderRightImage()}
-				</div>
-			</section>		
-
+			${this.renderMiddleSection()}
 			${this.renderConfirmedUser()}
 		`;
 

@@ -117,19 +117,19 @@ export class InsureProduct extends View {
 
 	render() {
 		return html`
-			<section class="grid-container">
+			<!-- <section class="grid-container">
 				<div class="left">
 				${this.renderleftUI()}
 				</div>
 		
-				<div class="middle">
+				<div class="middle"> -->
 					${this.renderMiddleSection()}
-				</div>
+				<!-- </div>
 
 				<div class="right">
 					${this.renderRightImage()}
 				</div>
-			</section>		
+			</section>		 -->
 		`;
 
 	}

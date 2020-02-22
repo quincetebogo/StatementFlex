@@ -16,6 +16,8 @@ import './utils/TransformAgentRole';
 
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
+
+import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -51,15 +53,18 @@ export class AppShell extends Shell {
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
 
+
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
 
 
 		// Listening for SSE events from the Desktop Agent
-		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
-		this.eventSource.addEventListener("new-call", (event) => {
-			console.log("Received 'new-call' event: ", event);
-		})
+		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		// this.eventSource.addEventListener("new-call", (event) => {
+		// 	console.log("Received 'new-call' event: ", event);
+		// })
+
+		this.showClientProfile = false;
 
 		//Event Aggregator
 		EventAggregator
@@ -70,8 +75,10 @@ export class AppShell extends Shell {
 			.getInstance()
 			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
 
+		this.test = 'test';
+
 		// Property defaults.
-		this.isBusy = true;
+		this.isBusy = false;
 		this.isSuccess = false;
 		this.isError = false;
 		this.errorMessage = null;
@@ -84,6 +91,8 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.leftDisplay = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
 	}
 
 
@@ -104,7 +113,8 @@ export class AppShell extends Shell {
 			landingPageView: { type: String },
 			fullname: { type: String },
 			employeeId: { type: String },
-			cardStop: { type: Array }
+			cardStop: { type: Array },
+			leftDisplay: { type: String }
 		};
 	}
 
@@ -182,6 +192,7 @@ export class AppShell extends Shell {
 	}
 
 	onNavigationContextUpdated() {
+		this.leftDisplay = this.horizonViewManager.getNextView();
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
@@ -218,39 +229,68 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
-				.content{
-					width:1918px;
-					height:936.5px;
+				.screen-size{
+					width : 1920px;
+					height : 1000px;
+					display: flex;
+					flex-direction: column;
 				}
+
+				.title-bar{
+					width: 100%;
+					height: 72px;
+					background-color: #ffffff;
+					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
+					grid-template-columns: 1fr;
+					grid-row-gap: 8px;
+				}
+
+				.additional-bar{
+					width: 100%;
+					height: 72px;
+					margin: 0px 0px 0px 0px;
+					background: yellow;
+				}
+
+				.screen-content {
+					width : 100%;
+					height: auto;
+					background : red;
+				}
+
+				.status-bar{
+					width: 100%;
+					height: 64px;
+				}
+
 				.branding-logo-white{
 					height: 32px;
 					width: 193px;
 				}
 
-				.title-bar{
-					height: 100%;
-					width: 1918px;
-					background-color: #ffffff;
-					// background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
-					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
-					grid-template-columns: 1fr;
-					grid-row-gap: 8px;
-				}
-			
-				.status-bar{
-					height: 60px;
-					width: 1918px;
-				}
-
-				capitec-content-box{
-					background: none;
-					width:1918px;
-					height:805.5px;
-				}
 				.userrole{
 					color: #003652;
 				}
 
+				.grid-container {
+					display: grid;
+					grid-template-columns: 0.413534fr 1fr 0.300752fr;
+					grid-template-areas: "left middle right";
+					grid-gap: 24px;
+					background-color: #F4F4F4;
+					height: inherit;
+					width: 100%;
+					margin-top: 24px;
+					background: red;
+				}
+
+				.left{
+					width:440px;
+				}
+
+				.right{
+					width:370px;
+				}
 			`
 		];
 	}
@@ -282,15 +322,13 @@ export class AppShell extends Shell {
 
 	renderContent() {
 
-		if (this.isBusy) {
-			return html``;
-		}
+		// if (this.isBusy) {
+		// 	return html``;
+		// }
 
-		return html`
-         
-                <capitec-group class="content" layout="grid" gap="none" columns="auto" rows="auto">
-
-					<capitec-title-bar class="title-bar" type="clear" row="1">
+		return html`         
+                <div class="screen-size">
+					<capitec-title-bar class="title-bar" type="clear" row=1>
 						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 						<capitec-spacer></capitec-spacer>
 						<div class="userrole">
@@ -299,14 +337,46 @@ export class AppShell extends Shell {
 						</div>
 					</capitec-title-bar>
 
-                    <capitec-content-box nopadding row="2">
-						<capitec-app-router></capitec-app-router>
+					${this.renderAddionalBar()}
+
+                    <capitec-content-box class="screen-content" nopadding>
+						<div class="grid-container">
+							<div class="left">
+								${this.renderleftUI()}
+							</div>	
+							<div class="middle">
+								<capitec-app-router></capitec-app-router> 
+							</div>
+							<div class="right"></div>
+						</div>	
                     </capitec-content-box>
 	
-					<capitec-status-bar class="status-bar" status="success" label="" row="3"></capitec-status-bar>
-
-                </capitec-group>
+					<capitec-status-bar class="status-bar" status="success" label=""></capitec-status-bar>
+                </div>
         `;
+	}
+
+	renderAddionalBar() {
+		if (this.leftDisplay !== HORIZON_VIEWS.LANDING_PAGE) {
+			return html`
+				<div class="additional-bar">
+				</div>`
+		}
+	}
+
+	renderleftUI() {
+		console.log('render left');
+		console.log(this.leftDisplay);
+
+		if (this.leftDisplay === HORIZON_VIEWS.LANDING_PAGE) {
+			return html`
+				<landingpage-welcome 
+					.fullname="${this.fullName}">
+				</landingpage-welcome>`;
+		}
+		else if (this.leftDisplay === HORIZON_VIEWS.CARD_STOP) {
+			return html`<client-details></client-details>`;
+		}
 	}
 
 	renderSuccessModel() {

@@ -50,6 +50,7 @@ export class ClientProfile extends View {
 	}
 
 	render() {
+		console.log('render client profile');
 		return html`
 			<capitec-action-bar row="1" colspan="3">
 				<capitec-label type="title" label="Reference Number: 5678532"></capitec-label>
@@ -60,9 +61,9 @@ export class ClientProfile extends View {
 				<capitec-button label="End Call Session" type="primary"></capitec-button>
 			</capitec-action-bar>
 			<capitec-group layout="grid" columns="auto" rows="auto" gap="clear">
-				<div class="left" row="1" column="1">
+				<!-- <div class="left" row="1" column="1">
 					${this.renderLeftUI()}
-				</div>
+				</div> -->
 			
 				<div class="middle" row="1" column="2">
 					${this.renderMiddleUI()}
