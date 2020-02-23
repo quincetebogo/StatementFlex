@@ -1,7 +1,7 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import 'platform/components';
 
-export class AccessComponent extends View {
+export class AccessComponent extends Component {
 
 	constructor() {
 		super();

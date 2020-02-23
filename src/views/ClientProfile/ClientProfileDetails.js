@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
 import '../../components/Common/HorizonProductTile';
 
-export class ClientProfileDetails extends View {
+export class ClientProfileDetails extends Component {
 
 	constructor() {
 		super();

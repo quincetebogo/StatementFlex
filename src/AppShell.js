@@ -11,13 +11,11 @@ import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
-//import utils to tranform user role
-import './utils/TransformAgentRole';
-
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
 
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -58,6 +56,8 @@ export class AppShell extends Shell {
 		horizonRoutes.map(route => this.router.addRoute(route));
 
 
+		/// TODO: MOVE INTO A SINGLETON CLASS
+
 		// Listening for SSE events from the Desktop Agent
 		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
 		// this.eventSource.addEventListener("new-call", (event) => {
@@ -92,7 +92,7 @@ export class AppShell extends Shell {
 		this.employeeId = ``;
 		this.cardStop = [];
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.leftDisplay = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
+		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
 	}
 
 
@@ -114,7 +114,7 @@ export class AppShell extends Shell {
 			fullname: { type: String },
 			employeeId: { type: String },
 			cardStop: { type: Array },
-			leftDisplay: { type: String }
+			currentView: { type: String }
 		};
 	}
 
@@ -138,9 +138,6 @@ export class AppShell extends Shell {
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
 		this.clientIp = this.executionContext.clientIp;
-
-
-
 	}
 
 	_onUserLoginError() {
@@ -192,7 +189,7 @@ export class AppShell extends Shell {
 	}
 
 	onNavigationContextUpdated() {
-		this.leftDisplay = this.horizonViewManager.getNextView();
+		this.currentView = this.horizonViewManager.getNextView();
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
@@ -229,8 +226,9 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
+				/* TRY TO MAINLY CONTROL THE SCREEN SIZE FROM HERE. LIMIT FIXED SIZES FURTHER WHERE POSSIBLE */
 				.screen-size{
-					width : 1920px;
+					width : 1920px; 
 					height : 1080px;
 					display: flex;
 					flex-direction: column;
@@ -249,13 +247,13 @@ export class AppShell extends Shell {
 					width: 100%;
 					height: 72px;
 					margin: 0px 0px 0px 0px;
-					background: yellow;
+					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
 
 				.screen-content {
 					width : 100%;
 					height: auto;
-					background : red;
+					background : red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
 
 				.status-bar{
@@ -268,7 +266,7 @@ export class AppShell extends Shell {
 					width: 193px;
 				}
 
-				.userrole{
+				.logged-in-user{
 					color: #003652;
 				}
 
@@ -281,15 +279,15 @@ export class AppShell extends Shell {
 					height: inherit;
 					width: 100%;
 					margin-top: 24px;
-					background: red;
+					background: red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
 
 				.left{
-					width:440px;
+					width:440px; /* TODO: RE-CHECK AGAINST INVISION */
 				}
 
 				.right{
-					width:370px;
+					width:370px; /* TODO: RECHECK AGAINST INVISION */
 				}
 			`
 		];
@@ -320,6 +318,18 @@ export class AppShell extends Shell {
         `;
 	}
 
+	/*
+	 * The following defines the screen framework in which various components will be displayed.
+	 * The platforms App Router will switch the main display (class middle) 
+	 * The Horizon View Manager will be responsible for switching other components
+	 *
+	 *		- Any additional button/toolbars
+	 *		- Left and Right hand display components
+	 *
+	 *	The View manager will also facilitate communication between view components (i.e. between the main
+	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
+	 * 
+	 */
 	renderContent() {
 
 		// if (this.isBusy) {
@@ -328,15 +338,7 @@ export class AppShell extends Shell {
 
 		return html`         
                 <div class="screen-size">
-					<capitec-title-bar class="title-bar" type="clear" row=1>
-						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
-						<capitec-spacer></capitec-spacer>
-						<div class="userrole">
-							<capitec-label label="${this.fullName}"></capitec-label>
-							<capitec-label label="${this.employeeId}"></capitec-label>
-						</div>
-					</capitec-title-bar>
-
+				    ${this.renderTitleBar()}
 					${this.renderAddionalBar()}
 
                     <capitec-content-box class="screen-content" nopadding>
@@ -358,33 +360,75 @@ export class AppShell extends Shell {
         `;
 	}
 
+
+
+
+	/*
+	*			TODO: MUCH OF THE LOGIC BELOW SHOULD MOVE INTO THE VIEW MANAGER OR BE ACCESSED FROM THE VIEW MANAGER
+	*
+	*			Components need to be created for the title bar, additional bar (action bar) so that they can be styled properly
+	*			within the component
+	*
+	*/
+
+
+	renderTitleBar() {
+		return html`
+			<capitec-title-bar class="title-bar" type="clear" row=1>
+				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
+				<capitec-spacer></capitec-spacer>
+				<div class="logged-in-user">
+					<capitec-label label="${this.fullName}"></capitec-label>
+					<capitec-label label="${this.employeeId}"></capitec-label>
+				</div>
+			</capitec-title-bar>
+		`;
+	}
+
 	renderAddionalBar() {
-		if (this.leftDisplay !== HORIZON_VIEWS.LANDING_PAGE) {
+		if (this.currentView !== HORIZON_VIEWS.LANDING_PAGE) {
 			return html`
 				<div class="additional-bar">
+					<capitec-action-bar row="1" colspan="3">
+						<capitec-label type="title" label="Reference Number: 5678532"></capitec-label>
+						<div></div>
+						<capitec-icon size="small" icon="system/phone-escalation"></capitec-icon>
+						<capitec-label type="title" label="082 555 9090"></capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-button label="End Call Session" type="primary"></capitec-button>
+					</capitec-action-bar>
 				</div>`
 		}
+
+		return html``;
 	}
 
 	renderleftUI() {
 		console.log('render left');
 		console.log(this.leftDisplay);
 
-		if (this.leftDisplay === HORIZON_VIEWS.LANDING_PAGE) {
+		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
 			return html`
 				<landingpage-welcome 
 					.fullname="${this.fullName}">
 				</landingpage-welcome>`;
 		}
-		else if (this.leftDisplay === HORIZON_VIEWS.CARD_STOP) {
+		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
 			return html`<client-details></client-details>`;
 		}
+
+		return html``;
 	}
 
 	renderRightUI() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
+		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
+			return html`
+				<landingpage-marketing></landingpage-marketing>
+			`;
+		}
+		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
+			return html`<access-component></access-component>`;
+		}
 	}
 
 	renderSuccessModel() {
