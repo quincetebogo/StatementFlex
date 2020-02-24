@@ -16,6 +16,8 @@ import horizonRoutes from './HorizonRoutes';
 
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
 
+//TODO: On all pages and views - consider how to handle page refreshes.
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -78,7 +80,7 @@ export class AppShell extends Shell {
 		this.test = 'test';
 
 		// Property defaults.
-		this.isBusy = false;
+		this.isBusy = true;
 		this.isSuccess = false;
 		this.isError = false;
 		this.errorMessage = null;
@@ -91,6 +93,7 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
+
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
 	}
@@ -100,6 +103,7 @@ export class AppShell extends Shell {
 	// PROPERTIES
 	// ----------
 
+	// TODO: Document properties
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
@@ -122,7 +126,13 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	// n/a
+	async connectedCallback() {
+		super.connectedCallback();
+
+		console.log(`Appshell: ConnectedCallback`);
+
+		this.currentView = this.horizonViewManager.getNextView();
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -253,7 +263,7 @@ export class AppShell extends Shell {
 				.screen-content {
 					width : 100%;
 					height: auto;
-					background : red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+					background : blue; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
 
 				.status-bar{
@@ -276,7 +286,7 @@ export class AppShell extends Shell {
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
-					height: inherit;
+					height: inherit; /* TODO: check this style - maybe revert */
 					width: 100%;
 					margin-top: 24px;
 					background: red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
@@ -332,9 +342,9 @@ export class AppShell extends Shell {
 	 */
 	renderContent() {
 
-		// if (this.isBusy) {
-		// 	return html``;
-		// }
+		if (this.isBusy) {
+			return html``;
+		}
 
 		return html`         
                 <div class="screen-size">
@@ -404,19 +414,31 @@ export class AppShell extends Shell {
 	}
 
 	renderleftUI() {
-		console.log('render left');
-		console.log(this.leftDisplay);
+		console.log('renderleftUI', this.currentView);
 
 		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
+			console.log('rendering', this.currentView);
+			if (this.fullName !== 'Jeff') {
+				this.fullName = 'Jeff';
+			}
+			else {
+				this.fullName = 'Me';
+			}
+
+			console.log('renderding with name', this.fullName);
+
 			return html`
 				<landingpage-welcome 
 					.fullname="${this.fullName}">
 				</landingpage-welcome>`;
 		}
 		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
+			console.log('rendering', this.currentView);
+
 			return html`<client-details></client-details>`;
 		}
 
+		console.log('rendering blank');
 		return html``;
 	}
 

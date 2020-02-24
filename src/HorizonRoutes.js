@@ -25,7 +25,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`./views/LandingPage/SavingsAccountProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-savings-plan`,
@@ -33,7 +35,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/savings-plan`,
 		load: () => import(`./views/LandingPage/SavingsPlanProduct/SavingsPlanProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-flexible-savings-plan`,
@@ -41,7 +45,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/savings-plan/flexible`,
 		load: () => import(`./views/LandingPage/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-fixed-term-savings-plan`,
@@ -49,7 +55,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/savings-plan/fixed-term`,
 		load: () => import(`./views/LandingPage/SavingsPlanProduct/FixedTermSavingsProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-taxfree-savings-plan`,
@@ -57,7 +65,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/savings-plan/tax-free`,
 		load: () => import(`./views/LandingPage/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-insure`,
@@ -65,7 +75,9 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/insure`,
 		load: () => import(`./views/LandingPage/InsureProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `product-credit`,
@@ -73,16 +85,18 @@ export default horizonRoutes = [
 		icon: null,
 		path: `/product/credit`,
 		load: () => import(`./views/LandingPage/CreditProduct`),
-		onPostNavigate: () => { showClientProfile = false },
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
 	},
 	{
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
 		path: CLIENT_PROFILE_PAGE,
+		load: () => import(`./views/ClientProfile/ClientProfile`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
-		},
-		load: () => import(`./views/ClientProfile/ClientProfile`)
+		}
 	}
 ]

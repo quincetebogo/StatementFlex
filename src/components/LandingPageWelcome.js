@@ -12,6 +12,18 @@ export class LandingPageWelcome extends Component {
 		this.router = Router.getInstance();
 	}
 
+	async connectedCallback() {
+		super.connectedCallback();
+
+		console.log(`LandingPageWelcome: connectedCallback`);
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+
+		console.log(`LandingPageWelcome: disconnectedCallback`);
+	}
+
 	static get properties() {
 		return {
 			//to extract client details from the service
@@ -79,6 +91,8 @@ export class LandingPageWelcome extends Component {
 	}
 
 	render() {
+		console.log(`rendering landing page welcome`);
+
 		return html`
 				<capitec-card class="left-card">
 					<div>	

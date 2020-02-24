@@ -1,6 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
+// TODO: Review styling (fonts, sizes etc. on page) against Invision
+
 export class SavingsAccountProductDetails extends Component {
 
 	constructor() {
@@ -84,6 +86,5 @@ export class SavingsAccountProductDetails extends Component {
 		`;
 	}
 }
-console.log('on the savingsaccount view');
 
 window.customElements.define(`savingsaccountproduct-details`, SavingsAccountProductDetails);

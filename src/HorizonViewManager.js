@@ -47,6 +47,7 @@ export class HorizonViewManager {
 
 	/// Usually set fron the OnPreNavigate event in the routing table
 	transitionToView(nextView) {
+		console.log('transitioning to view', nextView);
 		this.transitionTo = nextView;
 	}
 

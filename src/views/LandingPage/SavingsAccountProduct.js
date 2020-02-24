@@ -1,12 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import '../../components/LandingPageWelcome';
 import 'platform/components/buttons/Button';
-import '../../components/LandingPageMarketing';
-import '../../components/LandingPageWaitForCall';
-import '../../components/SavingsAccountproductDetails';
-
 import { EventAggregator } from 'platform/EventAggregator';
 
+import '../../components/SavingsAccountproductDetails';
 import { StopCardService } from '../../services/StopCardService';
 
 export class SavingsAccountProduct extends View {
@@ -20,6 +16,12 @@ export class SavingsAccountProduct extends View {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		// TODO: Centralize this service logic. Each product page reproduces it...
+
+		// Also the full name needs to be send to the Left UI via the view manager now
+
+
+		/*
 		let landingPageData = null;
 
 		try {
@@ -41,6 +43,8 @@ export class SavingsAccountProduct extends View {
 			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
 			this.fullname = `unknown`;
 		}
+
+		*/
 	}
 
 	static get properties() {
@@ -60,37 +64,8 @@ export class SavingsAccountProduct extends View {
 				`];
 	}
 
-	renderleftUI() {
-		return html`
-			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
-		`;
-	}
-	renderRightImage() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
-	}
-	renderMiddleSection() {
-		return html`<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>`;
-	}
-
 	render() {
-		return html`
-			<!-- <section class="grid-container">
-				<div class="left">
-				${this.renderleftUI()}
-				</div>
-		 -->
-				<!-- <div class="middle"> -->
-					${this.renderMiddleSection()}
-				<!-- </div> -->
-<!-- 
-				<div class="right">
-					${this.renderRightImage()}
-				</div>
-			</section>		 -->
-		`;
-
+		return html`<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>`;
 	}
 }
 
