@@ -23,7 +23,6 @@ export class LandingPageWaitForCall extends Component {
 				background-color: white;
 				border-radius: none;
 			}
-
 			.call-waiting-group {
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
@@ -41,7 +40,6 @@ export class LandingPageWaitForCall extends Component {
 			#waiting-text{
 				color: #003652;
 			}
-		
 			`];
 	}
 

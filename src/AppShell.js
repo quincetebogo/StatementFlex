@@ -282,13 +282,15 @@ export class AppShell extends Shell {
 
 				.grid-container {
 					display: grid;
-					grid-template-columns: 440px auto 370px;
+					grid-template-columns: 440px 1064px 320px;
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
 					height: inherit; /* TODO: check this style - maybe revert */
 					width: 100%;
 					margin-top: 24px;
+					margin-left: 24px;
+					margin-right: 24px;
 					background: red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
 

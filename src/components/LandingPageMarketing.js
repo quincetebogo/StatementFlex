@@ -21,7 +21,7 @@ export class LandingPageMarketing extends Component {
 			super.styles,
 			css`
 			.insights{
-				width: 100%;
+				width: 320px;
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 			}
