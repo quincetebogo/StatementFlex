@@ -16,6 +16,8 @@ import horizonRoutes from './HorizonRoutes';
 
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
 
+import { HorizonActionBar } from './components/HorizonActionBar';
+
 //TODO: On all pages and views - consider how to handle page refreshes.
 
 /**
@@ -399,17 +401,7 @@ export class AppShell extends Shell {
 
 	renderAddionalBar() {
 		if (this.currentView !== HORIZON_VIEWS.LANDING_PAGE) {
-			return html`
-				<div class="additional-bar">
-					<capitec-action-bar row="1" colspan="3">
-						<capitec-label type="title" label="Reference Number: 5678532"></capitec-label>
-						<div></div>
-						<capitec-icon size="small" icon="system/phone-escalation"></capitec-icon>
-						<capitec-label type="title" label="082 555 9090"></capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button label="End Call Session" type="primary"></capitec-button>
-					</capitec-action-bar>
-				</div>`
+			return html`<horizon-actionbar></horizon-actionbar>`
 		}
 
 		return html``;
@@ -448,7 +440,7 @@ export class AppShell extends Shell {
 		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
 			return html`
 				<landingpage-marketing></landingpage-marketing>
-			`;
+					`;
 		}
 		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
 			return html`<access-component></access-component>`;
@@ -466,7 +458,7 @@ export class AppShell extends Shell {
 				<capitec-label slot="body" label="Logged via channel service."></capitec-label>
                 <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleSuccess}"></capitec-button>
             </capitec-modal>
-        `;
+				`;
 	}
 
 	renderErrorModal() {
@@ -480,7 +472,7 @@ export class AppShell extends Shell {
 				<capitec-label slot="body" label="Unable to log via channel service."></capitec-label>
                 <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
             </capitec-modal>
-        `;
+		`;
 	}
 }
 
