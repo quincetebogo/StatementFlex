@@ -22,13 +22,13 @@ export class LandingPageMarketing extends Component {
 			css`
 			.insights{
 				width: 320px;
-				height: 770px;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 			}
 		
 			img{
 				width:100%;
-				height: 770px;
+				height: 100%;
 			}
 			`];
 	}

@@ -37,9 +37,10 @@ export class LandingPageWelcome extends Component {
 			css`
 			.left-card {
 				width: 100%;
-				height: 770px;
+				height: 100%;
 				padding: 0px 0px 0px 0px;
-				background-color: gainsboro;
+				background-color: #f4f4f4;
+				border:none;
 			}
 
 			.hello-card {
@@ -61,10 +62,6 @@ export class LandingPageWelcome extends Component {
 				font: bold 18px/30px Hind Vadodara;
 			}
 
-			.buttons{
-				width: 440px;
-			}
-
 			.userrole{
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
@@ -73,20 +70,18 @@ export class LandingPageWelcome extends Component {
 				height:192px;
 			}
 
-			capitec-button-bar{
-				background-color: gainsboro;
-				padding: 8px 0px 0px 0px;
-			}
-
-			.products{
+			.products-card{
 				padding: 0px;
-				background-color: gainsboro;
+				background-color: #f4f4f4;
+				border: 0px;
 			}
-            horizon-product-tile{
-                padding: 10px 0px 0px 8px;
-                width: 98%;
-            }
 
+            .product-button{
+				height:80px;
+                padding: 0px 0px 0px 0px;
+				width: 440px;
+				margin-top:24px;
+			}
 			`];
 	}
 
@@ -94,7 +89,7 @@ export class LandingPageWelcome extends Component {
 		console.log(`rendering landing page welcome`);
 
 		return html`
-				<capitec-card class="left-card">
+				<div class="left-card">
 					<div>	
 						<capitec-card class="hello-card">
 								<capitec-group class="userrole" layout="absolute">
@@ -107,32 +102,37 @@ export class LandingPageWelcome extends Component {
 						</capitec-card>	
 					</div>		
 
-					<capitec-card class="products">
-						<horizon-product-tile type="transact" 
+					<div class="products-card">
+						<horizon-product-tile class="product-button"
+											  type="transact" 
 											  label="Savings Account" 
 											  subtitle="Know what you get, know what you pay"
 											  icon="product/transact-white"
 											  @click="${() => this.router.navigateByPath(`/product/savings-account`)}">
 						</horizon-product-tile>
-						<horizon-product-tile type="save" 
+						<horizon-product-tile class="product-button"
+											  type="save" 
 											  label="Savings Plan"
 											  subtitle="Let your money make money"
 											  icon="product/save-white"
 											  @click="${() => this.router.navigateByPath(`/product/savings-plan`)}">
 						</horizon-product-tile>
-						<horizon-product-tile type="insure" 
+						<horizon-product-tile class="product-button"
+											  type="insure" 
 											  label="Insure"
 											  subtitle="One plan, more cover"
 											  icon="product/insure-white"
 											  @click="${() => this.router.navigateByPath(`/product/insure`)}">
 						</horizon-product-tile>
-						<horizon-product-tile type="credit" 
+						<horizon-product-tile class="product-button"
+											  type="credit" 
 											  label="Credit" 
 											  subtitle="Rethink credit, realise dreams"
 											  icon="product/credit-white"
 											  @click="${() => this.router.navigateByPath(`/product/credit`)}">
 						</horizon-product-tile>
-					</capitec-card>
+					</div>
+				</div>
 			`;
 	}
 }

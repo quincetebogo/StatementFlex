@@ -255,7 +255,7 @@ export class AppShell extends Shell {
 
 				.additional-bar{
 					width: 100%;
-					height: 72px;
+					height: 56px;
 					margin: 0px 0px 0px 0px;
 					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
 				}
@@ -263,12 +263,12 @@ export class AppShell extends Shell {
 				.screen-content {
 					width : 100%;
 					height: auto;
-					background : blue; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+					background : #f4f4f4; 
 				}
 
 				.status-bar{
 					width: 100%;
-					height: 64px;
+					height: 72px;
 				}
 
 				.branding-logo-white{
@@ -286,20 +286,20 @@ export class AppShell extends Shell {
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
-					height: inherit; /* TODO: check this style - maybe revert */
-					width: 100%;
+					height: 823px;
+					width: 1872px;
 					margin-top: 24px;
 					margin-left: 24px;
 					margin-right: 24px;
-					background: red; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+					background: #f4f4f4; 
 				}
 
 				.left{
-					width:440px; /* TODO: RE-CHECK AGAINST INVISION */
+					width:440px; 
 				}
 
 				.right{
-					width:370px; /* TODO: RECHECK AGAINST INVISION */
+					width:320px; 
 				}
 			`
 		];

@@ -15,7 +15,7 @@ export class LandingPageWaitForCall extends Component {
 			css`
 			.call-waiting-card {
 				width: 100%;
-				height: 100%;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;
@@ -23,12 +23,13 @@ export class LandingPageWaitForCall extends Component {
 				background-color: white;
 				border-radius: none;
 			}
+
 			.call-waiting-group {
 				display: grid;
 				grid-template-rows: 1fr 1fr 1fr;
 				text-align: center;
 				width: 100%;
-				height: 770px;
+				height: 100%;
 			}
 			
 			.needimage{
