@@ -2,9 +2,6 @@ import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
 import 'platform/components';
-import '../../../components/LandingPageWelcome';
-import '../../../components/LandingPageMarketing';
-import '../../../components/Common/HorizonProductTile';
 
 import { EventAggregator } from 'platform/EventAggregator';
 
@@ -100,18 +97,6 @@ export class SavingsPlanProduct extends View {
 			`];
 	}
 
-	renderleftUI() {
-		return html`
-			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
-		`;
-	}
-
-	renderRightImage() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
-	}
-
 	renderMiddleSection() {
 		return html`
 			<capitec-card class="savingsproduct-info">
@@ -141,17 +126,7 @@ export class SavingsPlanProduct extends View {
 
 	render() {
 		return html`
-			<!-- <section class="grid-container">
-				<div class="left">
-					${this.renderleftUI()}
-				</div>
-				<div class="middle"> -->
 					${this.renderMiddleSection()}
-				<!-- </div>
-				<div class="right">
-					${this.renderRightImage()}
-				</div>
-			</section> -->
 		`;
 	}
 }
