@@ -55,17 +55,32 @@ export class HorizonViewManager {
 	}
 
 	// -----------------------------------------------------------------------------
+	// METHODS THAT ALLOW SHELL COMPONENTS TO REGISTER FOR UPDATES VIA A CALLBACK
+	// OR EVENT OR SOME SUCH MECHANISM. THIS IS STILL TOO DO
+	// -----------------------------------------------------------------------------
+
+
+	// -----------------------------------------------------------------------------
 	// METHODS THAT UPDATE THE APPLICATION SHELL (TOOBARS, RIGHT AND LEFT-HAND BARS)
 	// -----------------------------------------------------------------------------
 
+	/// Used from the Landing Page & Product Pages to update the toolbar and the 
+	/// welcome box on the left hand user interface. 
 	UpdateLoggedInUser(userData) {
 		if (this.transitionTo === HORIZON_VIEWS.LANDING_PAGE) {
-			if (userData != undefined && userData != null)
+			if (userData != undefined && userData != null) {
+
+				// We may replace the event publishing mechanism below with a registered callback
+
 				this.eventAggregator.publish('horizon-top-bar-data', {
 					agentFullName: userData.agentFullName,
 					employeeId: userData.employeeId
 				})
+			}
 			else {
+
+				// We may replace the event publishing mechanism below with a registered callback
+
 				this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
 				this.fullname = `unknown`;
 			}

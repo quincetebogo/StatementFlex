@@ -2,6 +2,9 @@ import { View, html, css } from 'platform/elements';
 
 import '../../components/SavingsAccountproductDetails';
 
+import { StopCardService } from '../../services/StopCardService';
+import { HorizonViewManager } from '../../HorizonViewManager';
+
 export class SavingsAccountProduct extends View {
 
 	constructor() {
@@ -10,6 +13,23 @@ export class SavingsAccountProduct extends View {
 
 	async connectedCallback() {
 		super.connectedCallback();
+
+		let landingPageData = null;
+
+		landingPageData = await this.GetLandingPageData(landingPageData);
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+	}
+
+	async GetLandingPageData(landingPageData) {
+		try {
+			landingPageData = await StopCardService.getInstance().initialise();
+		}
+		catch (ex) {
+			// TODO: better handling must come here
+			console.log(ex);
+		}
+
+		return landingPageData;
 	}
 
 	static get styles() {
