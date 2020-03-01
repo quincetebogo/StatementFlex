@@ -2,21 +2,20 @@ import { View, html, css } from 'platform/elements';
 import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import '../../components/LandingPageWelcome';
 import '../../components/LandingPageWaitForCall';
-import '../../components/LandingPageMarketing';
 import '../../components/ConfirmCallerDetailsComponent';
 
 import { StopCardService } from '../../services/StopCardService';
+import { HorizonViewManager } from '../../HorizonViewManager';
 
 export class LandingPage extends View {
 
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.fullname = ``;
 		this.displayConfirmedCaller = false;
+
+		this.eventAggregator = EventAggregator.getInstance();
 
 		/// Temporary event to catch temporary button trigger to invoke comfirmed call dialog
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
@@ -26,8 +25,12 @@ export class LandingPage extends View {
 		super.connectedCallback();
 
 		let landingPageData = null;
-		let confirmedCaller = null;
 
+		landingPageData = await this.GetLandingPageData(landingPageData);
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+	}
+
+	async GetLandingPageData(landingPageData) {
 		try {
 			landingPageData = await StopCardService.getInstance().initialise();
 		}
@@ -36,17 +39,7 @@ export class LandingPage extends View {
 			console.log(ex);
 		}
 
-		if (landingPageData != null) {
-			this.eventAggregator.publish('horizon-top-bar-data', {
-				agentFullName: landingPageData.agentFullName,
-				employeeId: landingPageData.loggedInAgent.employeeId
-			});
-			this.fullname = landingPageData.loggedInAgent.fullName;
-		}
-		else {
-			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
-			this.fullname = `unknown`;
-		}
+		return landingPageData;
 	}
 
 	async onTempButtonPressed(event) {
@@ -147,16 +140,6 @@ export class LandingPage extends View {
 				`];
 	}
 
-	renderleftUI() {
-		return html`
-			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
-		`;
-	}
-	renderRightImage() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
-	}
 	renderMiddleSection() {
 		return html`
 			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>

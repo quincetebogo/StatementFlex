@@ -12,8 +12,8 @@ export class InsureProductDetails extends Component {
 			super.styles,
 			css`
 			.insureproduct-info{
-				width:  1082px;
-				height: 770px;
+				width:  100%;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: left;
 				line-height: 40px;

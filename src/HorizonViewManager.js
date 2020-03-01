@@ -24,6 +24,8 @@
 	This class uses the view state to guide the switching of UI components that map to the given
 	state.
 */
+import { EventAggregator } from 'platform/EventAggregator';
+
 export const HORIZON_VIEWS = {
 	LANDING_PAGE: 'LANDING PAGE',
 	CARD_STOP: `CARD STOP`
@@ -38,6 +40,7 @@ export class HorizonViewManager {
 
 	constructor() {
 		this.transitionTo = HORIZON_VIEWS.LANDING_PAGE;
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	/// TODO: At the moment this is called, the view is actually current so perhaps the name needs to change
@@ -51,5 +54,21 @@ export class HorizonViewManager {
 		this.transitionTo = nextView;
 	}
 
-	/// TODO: Move rendering functions and import of non-central components into this class.
+	// -----------------------------------------------------------------------------
+	// METHODS THAT UPDATE THE APPLICATION SHELL (TOOBARS, RIGHT AND LEFT-HAND BARS)
+	// -----------------------------------------------------------------------------
+
+	UpdateLoggedInUser(userData) {
+		if (this.transitionTo === HORIZON_VIEWS.LANDING_PAGE) {
+			if (userData != undefined && userData != null)
+				this.eventAggregator.publish('horizon-top-bar-data', {
+					agentFullName: userData.agentFullName,
+					employeeId: userData.employeeId
+				})
+			else {
+				this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
+				this.fullname = `unknown`;
+			}
+		}
+	}
 }

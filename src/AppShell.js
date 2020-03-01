@@ -16,9 +16,10 @@ import horizonRoutes from './HorizonRoutes';
 
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
 
+//TODO: Move these out of the shell
+import { LandingPageWelcome } from './components/LandingPageWelcome';
+import { LandingPageMarketing } from './components/LandingPageMarketing';
 import { HorizonActionBar } from './components/HorizonActionBar';
-
-//TODO: On all pages and views - consider how to handle page refreshes.
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -408,26 +409,17 @@ export class AppShell extends Shell {
 	}
 
 	renderleftUI() {
-		console.log('renderleftUI', this.currentView);
+		console.log('renderleftUI(currentView)', this.currentView);
 
 		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			console.log('rendering', this.currentView);
-			if (this.fullName !== 'Jeff') {
-				this.fullName = 'Jeff';
-			}
-			else {
-				this.fullName = 'Me';
-			}
-
-			console.log('renderding with name', this.fullName);
-
+			console.log("will now render left welcome");
 			return html`
 				<landingpage-welcome 
 					.fullname="${this.fullName}">
 				</landingpage-welcome>`;
 		}
 		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
-			console.log('rendering', this.currentView);
+			console.log("will now render client details");
 
 			return html`<client-details></client-details>`;
 		}
@@ -438,9 +430,7 @@ export class AppShell extends Shell {
 
 	renderRightUI() {
 		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			return html`
-				<landingpage-marketing></landingpage-marketing>
-					`;
+			return html`<landingpage-marketing></landingpage-marketing>`;
 		}
 		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
 			return html`<access-component></access-component>`;
