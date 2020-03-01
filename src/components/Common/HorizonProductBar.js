@@ -17,6 +17,7 @@ export class HorizonProductBar extends Component {
 		}
 	}
 
+	// TODO: remove top margin for top most button. 
 	static get styles() {
 		return [
 			super.styles,
@@ -36,6 +37,7 @@ export class HorizonProductBar extends Component {
 			`];
 	}
 
+	// TODO: Raise events and handle navigation in the client of this component
 	onSavingsAccountClick() {
 		if (!this.disableNavigation) {
 			this.router.navigateByPath(`/product/savings-account`)
