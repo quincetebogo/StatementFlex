@@ -2,8 +2,9 @@ import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
 import 'platform/components';
-import '../../../components/LandingPageWelcome';
-import '../../../components/LandingPageMarketing';
+
+import { StopCardService } from '../../../services/StopCardService';
+import { HorizonViewManager } from '../../../HorizonViewManager';
 
 export class FixedTermSavingsProduct extends View {
 
@@ -12,41 +13,34 @@ export class FixedTermSavingsProduct extends View {
 		this.router = Router.getInstance();
 	}
 
+	async connectedCallback() {
+		super.connectedCallback();
+
+		let landingPageData = null;
+
+		landingPageData = await this.GetLandingPageData(landingPageData);
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+	}
+
+	async GetLandingPageData(landingPageData) {
+		try {
+			landingPageData = await StopCardService.getInstance().initialise();
+		}
+		catch (ex) {
+			// TODO: better handling must come here
+			console.log(ex);
+		}
+
+		return landingPageData;
+	}
+
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				:host{
-					padding: 20px 0px 0px 20px;
-				}
-				.grid-container {
-					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
-					grid-template-areas: "left middle right";
-					grid-gap: 24px;
-					background-color: gainsboro;
-					height: 770px;
-					width: 1903px;
-				}
-				.left {
-					grid-area: left;
-					width: 100%;
-					background-color: gainsboro;
-				}
-				.middle {
-					grid-area: middle;
-					width: 100%;
-					text-align: center;
-				}
-				.right {
-					grid-area: right;
-					justify-self: center;
-					width: 100%;
-					height:770px;
-				}
 				.savingsproduct-info{
 					width: 100%;
-					height: 770px;
+					height: 100%;
 					padding: 0px 0px 0px 0px;
 					text-align: center;
 					line-height: 40px;
@@ -102,19 +96,7 @@ export class FixedTermSavingsProduct extends View {
 			`];
 	}
 
-	renderleftUI() {
-		return html`
-			<landingpage-welcome></landingpage-welcome>
-		`;
-	}
-
-	renderRightImage() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
-	}
-
-	renderMiddleSection() {
+	render() {
 		return html`
 			<capitec-group layout="grid" rows="auto" coulmns="uniform" class="savingsproduct-info">
 					<capitec-title-bar type="save">
@@ -152,24 +134,6 @@ export class FixedTermSavingsProduct extends View {
 					</capitec-content-box>
 			</capitec-group>
 			`;
-	}
-
-	render() {
-		return html`
-			<section class="grid-container">
-				<div class="left">
-				${this.renderleftUI()}
-				</div>
-		
-				<div class="middle">
-					${this.renderMiddleSection()}
-				</div>
-
-				<div class="right">
-					${this.renderRightImage()}
-				</div>
-			</section>		
-		`;
 	}
 }
 
