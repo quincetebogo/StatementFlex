@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
 
-export class StopCardComponent extends View {
+export class StopCardComponent extends Component {
 
 	constructor() {
 		super();

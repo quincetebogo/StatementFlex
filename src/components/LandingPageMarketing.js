@@ -1,8 +1,8 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 //import all UI components
 //import 'platform/components/navigation/AppRouter';
 
-export class LandingPageMarketing extends View {
+export class LandingPageMarketing extends Component {
 
 	constructor() {
 		super();
@@ -21,14 +21,14 @@ export class LandingPageMarketing extends View {
 			super.styles,
 			css`
 			.insights{
-				width: 100%;
-				height: 770px;
+				width: 320px;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 			}
 		
 			img{
 				width:100%;
-				height: 770px;
+				height: 100%;
 			}
 			`];
 	}

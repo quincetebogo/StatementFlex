@@ -1,7 +1,7 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
-export class InsureProductDetails extends View {
+export class InsureProductDetails extends Component {
 
 	constructor() {
 		super();
@@ -12,8 +12,8 @@ export class InsureProductDetails extends View {
 			super.styles,
 			css`
 			.insureproduct-info{
-				width:  1082px;
-				height: 770px;
+				width:  100%;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: left;
 				line-height: 40px;

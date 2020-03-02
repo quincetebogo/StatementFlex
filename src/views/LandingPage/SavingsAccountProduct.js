@@ -1,20 +1,14 @@
 import { View, html, css } from 'platform/elements';
-import '../../components/LandingPageWelcome';
-import 'platform/components/buttons/Button';
-import '../../components/LandingPageMarketing';
-import '../../components/LandingPageWaitForCall';
+
 import '../../components/SavingsAccountproductDetails';
 
-import { EventAggregator } from 'platform/EventAggregator';
-
 import { StopCardService } from '../../services/StopCardService';
+import { HorizonViewManager } from '../../HorizonViewManager';
 
 export class SavingsAccountProduct extends View {
 
 	constructor() {
 		super();
-		this.fullname = ``;
-		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	async connectedCallback() {
@@ -22,6 +16,11 @@ export class SavingsAccountProduct extends View {
 
 		let landingPageData = null;
 
+		landingPageData = await this.GetLandingPageData(landingPageData);
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+	}
+
+	async GetLandingPageData(landingPageData) {
 		try {
 			landingPageData = await StopCardService.getInstance().initialise();
 		}
@@ -30,97 +29,22 @@ export class SavingsAccountProduct extends View {
 			console.log(ex);
 		}
 
-		if (landingPageData != null) {
-			this.eventAggregator.publish('horizon-top-bar-data', {
-				agentFullName: landingPageData.agentFullName,
-				employeeId: landingPageData.loggedInAgent.employeeId
-			});
-			this.fullname = landingPageData.loggedInAgent.fullName;
-		}
-		else {
-			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
-			this.fullname = `unknown`;
-		}
-	}
-
-	static get properties() {
-		return {
-			fullname: { type: String },
-		}
+		return landingPageData;
 	}
 
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				:host{
-					padding: 20px 0px 0px 20px;
-				}
-				.grid-container {
-					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
-					grid-template-areas: "left middle right";
-					grid-gap: 24px;
-					background-color: gainsboro;
-					height: 770px;
-					width: 1903px;
-				}
-
-				.left {
-					grid-area: left;
-					width: 100%;
-					background-color: gainsboro;
-				}
-
-				.middle {
-					grid-area: middle;
-					width: 100%;
-					text-align: center;
-				}
-
-				.right {
-					grid-area: right;
-					justify-self: center;
-					width: 100%;
-					height:770px;
-				}
-				
-
-	
+				.savings-details{
+					width:100%;
+					height:100%;
+				}					
 				`];
 	}
 
-	renderleftUI() {
-		return html`
-			<landingpage-welcome .fullname="${this.fullname}"></landingpage-welcome>
-		`;
-	}
-	renderRightImage() {
-		return html`
-			<landingpage-marketing></landingpage-marketing>
-		`;
-	}
-	renderMiddleSection() {
-		return html`<savingsaccountproduct-details></savingsaccountproduct-details>`;
-	}
-
 	render() {
-		return html`
-			<section class="grid-container">
-				<div class="left">
-				${this.renderleftUI()}
-				</div>
-		
-				<div class="middle">
-					${this.renderMiddleSection()}
-				</div>
-
-				<div class="right">
-					${this.renderRightImage()}
-				</div>
-			</section>		
-		`;
-
+		return html`<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>`;
 	}
 }
 

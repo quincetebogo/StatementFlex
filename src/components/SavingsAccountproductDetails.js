@@ -1,7 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
-export class SavingsAccountProductDetails extends View {
+// TODO: Review styling (fonts, sizes etc. on page) against Invision
+
+export class SavingsAccountProductDetails extends Component {
 
 	constructor() {
 		super();
@@ -13,7 +15,7 @@ export class SavingsAccountProductDetails extends View {
 			css`
 			.savingsaccountproduct-info{
 				width: 100%;
-				height: 770px;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;
@@ -84,6 +86,5 @@ export class SavingsAccountProductDetails extends View {
 		`;
 	}
 }
-console.log('on the savingsaccount view');
 
 window.customElements.define(`savingsaccountproduct-details`, SavingsAccountProductDetails);

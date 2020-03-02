@@ -1,7 +1,7 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
-export class CreditProductDetails extends View {
+export class CreditProductDetails extends Component {
 
 	constructor() {
 		super();
@@ -13,7 +13,7 @@ export class CreditProductDetails extends View {
 			css`
 			.creditproduct-info{
 				width:  100%;
-				height: 770px;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;

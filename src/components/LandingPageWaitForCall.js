@@ -13,9 +13,9 @@ export class LandingPageWaitForCall extends Component {
 		return [
 			super.styles,
 			css`
-			.call-waiting{
-				width: 1073px;
-				height: 770px;
+			.call-waiting-card {
+				width: 100%;
+				height: 823px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;
@@ -23,22 +23,23 @@ export class LandingPageWaitForCall extends Component {
 				background-color: white;
 				border-radius: none;
 			}
+
+			.call-waiting-group {
+				display: grid;
+				grid-template-rows: 1fr 1fr 1fr;
+				text-align: center;
+				width: 100%;
+				height: 100%;
+			}
 			
 			.needimage{
 				height: 120px;
 				width: 170px;
 				margin: 24px 24px 18px 24px;
 			}
+
 			#waiting-text{
 				color: #003652;
-			}
-		
-			.userwaiting{
-				display: grid;
-				grid-template-rows: 1fr 1fr 1fr;
-				text-align: center;
-				width: 1073px;
-				height: 770px;
 			}
 			`];
 	}
@@ -46,9 +47,9 @@ export class LandingPageWaitForCall extends Component {
 
 	render() {
 		return html`
-			<capitec-card class="call-waiting">
+			<capitec-card class="call-waiting-card">
 				<div>
-					<capitec-group class="userwaiting" layout="absolute">
+					<capitec-group class="call-waiting-group" layout="absolute">
 						<div></div>
 						<div>
 							${this.renderWaitingForCall()}

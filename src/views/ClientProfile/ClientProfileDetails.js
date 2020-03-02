@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
-import '../../components/Common/HorizonProductTile';
+import 'platform/components/buttons/ProductTile';
 
-export class ClientProfileDetails extends View {
+export class ClientProfileDetails extends Component {
 
 	constructor() {
 		super();
@@ -75,14 +75,7 @@ export class ClientProfileDetails extends View {
 				width: 440px;
 				height: 370px;
 			}
-			.products{
-				padding: 0px 0px 8px 0px;
-				background-color: #F5F5F5;
-			}
-            horizon-product-tile{
-                padding: 10px 0px 0px 8px;
-                width: 98%;
-			}
+
 			b{
 				font: bold 20px/30px Hind Vadodara;
 				color: #003652;
@@ -142,35 +135,6 @@ export class ClientProfileDetails extends View {
 			`;
 	}
 
-	/// Product Button Details must be disabled on this page as the agent must not be able to navigate away from
-	/// the card stop page while servicing the client.
-	renderProductDetails() {
-		return html`
-			<capitec-card class="products">
-				<horizon-product-tile type="transact" 
-								label="Savings Account" 
-								subtitle="Know what you get, know what you pay"
-								icon="product/transact-white">
-				</horizon-product-tile>
-				<horizon-product-tile type="save" 
-								label="Savings Plan"
-								subtitle="Let your money make money"
-								icon="product/save-white">
-				</horizon-product-tile>
-				<horizon-product-tile type="insure" 
-								label="Insure"
-								subtitle="One plan, more cover"
-								icon="product/insure-white">
-				</horizon-product-tile>
-				<horizon-product-tile type="credit" 
-								label="Credit" 
-								subtitle="Rethink credit, realise dreams"
-								icon="product/credit-white">
-				</horizon-product-tile>
-			</capitec-card>	
-			`;
-	}
-
 	render() {
 		return html`
 		
@@ -178,9 +142,7 @@ export class ClientProfileDetails extends View {
 			<div>
 				${this.renderClientDetails()}
 			</div>
-			<div>
-				${this.renderProductDetails()}
-			</div>
+			<horizon-product-bar disableNavigation=true></horizon-product-bar>
 		</section>
 			`;
 	}

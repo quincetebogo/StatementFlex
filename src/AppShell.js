@@ -11,11 +11,16 @@ import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
-//import utils to tranform user role
-import './utils/TransformAgentRole';
-
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
+
+import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+
+//TODO: Move these out of the shell
+import { LandingPageWelcome } from './components/LandingPageWelcome';
+import { LandingPageMarketing } from './components/LandingPageMarketing';
+import { HorizonActionBar } from './components/HorizonActionBar';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -51,15 +56,20 @@ export class AppShell extends Shell {
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
 
+
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
 
 
+		/// TODO: MOVE INTO A SINGLETON CLASS
+
 		// Listening for SSE events from the Desktop Agent
-		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
-		this.eventSource.addEventListener("new-call", (event) => {
-			console.log("Received 'new-call' event: ", event);
-		})
+		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		// this.eventSource.addEventListener("new-call", (event) => {
+		// 	console.log("Received 'new-call' event: ", event);
+		// })
+
+		this.showClientProfile = false;
 
 		//Event Aggregator
 		EventAggregator
@@ -69,6 +79,8 @@ export class AppShell extends Shell {
 		EventAggregator
 			.getInstance()
 			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
+
+		this.test = 'test';
 
 		// Property defaults.
 		this.isBusy = true;
@@ -84,6 +96,9 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
+
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
 	}
 
 
@@ -91,6 +106,7 @@ export class AppShell extends Shell {
 	// PROPERTIES
 	// ----------
 
+	// TODO: Document properties
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
@@ -104,7 +120,8 @@ export class AppShell extends Shell {
 			landingPageView: { type: String },
 			fullname: { type: String },
 			employeeId: { type: String },
-			cardStop: { type: Array }
+			cardStop: { type: Array },
+			currentView: { type: String }
 		};
 	}
 
@@ -112,7 +129,13 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	// n/a
+	async connectedCallback() {
+		super.connectedCallback();
+
+		console.log(`Appshell: ConnectedCallback`);
+
+		this.currentView = this.horizonViewManager.getNextView();
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -128,9 +151,6 @@ export class AppShell extends Shell {
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
 		this.clientIp = this.executionContext.clientIp;
-
-
-
 	}
 
 	_onUserLoginError() {
@@ -182,6 +202,7 @@ export class AppShell extends Shell {
 	}
 
 	onNavigationContextUpdated() {
+		this.currentView = this.horizonViewManager.getNextView();
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
@@ -218,39 +239,71 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
-				.content{
-					width:1918px;
-					height:936.5px;
+				/* TRY TO MAINLY CONTROL THE SCREEN SIZE FROM HERE. LIMIT FIXED SIZES FURTHER WHERE POSSIBLE */
+				.screen-size{
+					width : 1920px; 
+					height : 1080px;
+					display: flex;
+					flex-direction: column;
 				}
+
+				.title-bar{
+					width: 100%;
+					height: 72px;
+					background-color: #ffffff;
+					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
+					grid-template-columns: 1fr;
+					grid-row-gap: 8px;
+				}
+
+				.additional-bar{
+					width: 100%;
+					height: 56px;
+					margin: 0px 0px 0px 0px;
+					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+				}
+
+				.screen-content {
+					width : 100%;
+					height: auto;
+					background : #f4f4f4; 
+				}
+
+				.status-bar{
+					width: 100%;
+					height: 72px;
+				}
+
 				.branding-logo-white{
 					height: 32px;
 					width: 193px;
 				}
 
-				.title-bar{
-					height: 100%;
-					width: 1918px;
-					background-color: #ffffff;
-					// background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%), linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
-					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
-					grid-template-columns: 1fr;
-					grid-row-gap: 8px;
-				}
-			
-				.status-bar{
-					height: 60px;
-					width: 1918px;
-				}
-
-				capitec-content-box{
-					background: none;
-					width:1918px;
-					height:805.5px;
-				}
-				.userrole{
+				.logged-in-user{
 					color: #003652;
 				}
 
+				.grid-container {
+					display: grid;
+					grid-template-columns: 440px 1064px 320px;
+					grid-template-areas: "left middle right";
+					grid-gap: 24px;
+					background-color: #F4F4F4;
+					height: 823px;
+					width: 1872px;
+					margin-top: 24px;
+					margin-left: 24px;
+					margin-right: 24px;
+					background: #f4f4f4; 
+				}
+
+				.left{
+					width:440px; 
+				}
+
+				.right{
+					width:320px; 
+				}
 			`
 		];
 	}
@@ -280,33 +333,108 @@ export class AppShell extends Shell {
         `;
 	}
 
+	/*
+	 * The following defines the screen framework in which various components will be displayed.
+	 * The platforms App Router will switch the main display (class middle) 
+	 * The Horizon View Manager will be responsible for switching other components
+	 *
+	 *		- Any additional button/toolbars
+	 *		- Left and Right hand display components
+	 *
+	 *	The View manager will also facilitate communication between view components (i.e. between the main
+	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
+	 * 
+	 */
 	renderContent() {
 
 		if (this.isBusy) {
 			return html``;
 		}
 
-		return html`
-         
-                <capitec-group class="content" layout="grid" gap="none" columns="auto" rows="auto">
+		return html`         
+                <div class="screen-size">
+				    ${this.renderTitleBar()}
+					${this.renderAddionalBar()}
 
-					<capitec-title-bar class="title-bar" type="clear" row="1">
-						<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
-						<capitec-spacer></capitec-spacer>
-						<div class="userrole">
-							<capitec-label label="${this.fullName}"></capitec-label>
-							<capitec-label label="${this.employeeId}"></capitec-label>
-						</div>
-					</capitec-title-bar>
-
-                    <capitec-content-box nopadding row="2">
-						<capitec-app-router></capitec-app-router>
+                    <capitec-content-box class="screen-content" nopadding>
+						<div class="grid-container">
+							<div class="left">
+								${this.renderleftUI()}
+							</div>	
+							<div class="middle">
+								<capitec-app-router></capitec-app-router> 
+							</div>
+							<div class="right">
+								${this.renderRightUI()}
+							</div>
+						</div>	
                     </capitec-content-box>
 	
-					<capitec-status-bar class="status-bar" status="success" label="" row="3"></capitec-status-bar>
-
-                </capitec-group>
+					<capitec-status-bar class="status-bar" status="success" label=""></capitec-status-bar>
+                </div>
         `;
+	}
+
+
+
+
+	/*
+	*			TODO: MUCH OF THE LOGIC BELOW SHOULD MOVE INTO THE VIEW MANAGER OR BE ACCESSED FROM THE VIEW MANAGER
+	*
+	*			Components need to be created for the title bar, additional bar (action bar) so that they can be styled properly
+	*			within the component
+	*
+	*/
+
+
+	renderTitleBar() {
+		return html`
+			<capitec-title-bar class="title-bar" type="clear" row=1>
+				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
+				<capitec-spacer></capitec-spacer>
+				<div class="logged-in-user">
+					<capitec-label label="${this.fullName}"></capitec-label>
+					<capitec-label label="${this.employeeId}"></capitec-label>
+				</div>
+			</capitec-title-bar>
+		`;
+	}
+
+	renderAddionalBar() {
+		if (this.currentView !== HORIZON_VIEWS.LANDING_PAGE) {
+			return html`<horizon-actionbar></horizon-actionbar>`
+		}
+
+		return html``;
+	}
+
+	renderleftUI() {
+		console.log('renderleftUI(currentView)', this.currentView);
+
+		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
+			console.log("will now render left welcome");
+			return html`
+				<landingpage-welcome 
+					.fullname="${this.fullName}">
+				</landingpage-welcome>`;
+		}
+		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
+			console.log("will now render client details");
+
+			return html`<client-details></client-details>`;
+		}
+
+		console.log('rendering blank');
+		return html``;
+	}
+
+	renderRightUI() {
+		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
+			return html`<landingpage-marketing></landingpage-marketing>`;
+		}
+		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
+			return html`<access-component></access-component>`;
+		}
 	}
 
 	renderSuccessModel() {
@@ -320,7 +448,7 @@ export class AppShell extends Shell {
 				<capitec-label slot="body" label="Logged via channel service."></capitec-label>
                 <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleSuccess}"></capitec-button>
             </capitec-modal>
-        `;
+				`;
 	}
 
 	renderErrorModal() {
@@ -334,7 +462,7 @@ export class AppShell extends Shell {
 				<capitec-label slot="body" label="Unable to log via channel service."></capitec-label>
                 <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
             </capitec-modal>
-        `;
+		`;
 	}
 }
 
