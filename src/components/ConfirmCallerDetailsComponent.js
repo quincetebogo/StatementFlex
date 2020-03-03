@@ -34,20 +34,7 @@ class ConfirmCallerDetailsComponent extends Component {
 		// this.verifiedCellphone = "082 555 9090";
 		// this.language = "English";
 
-		this.confirmedCaller = {
-			referenceNumber: '',
-			ivrOptions: [
-				{ id: 'IVR', text: 'Stop Card' }
-			],
-			incomingNumber: '',
-			fullName: '',
-			idNumber: '',
-			verifiedCellphone: '',
-			livesIn: '',
-			language: '',
-			birthday: ''
-		}
-
+		this.confirmedCaller = null;
 		this.addCallerDetails = false;
 	}
 
@@ -216,10 +203,15 @@ class ConfirmCallerDetailsComponent extends Component {
 				}
         
 				#label-ivr{
-					width: 192x;
+					width: 192px;
 					//height: 64px;
 					color: #003652;	
 					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;	
+					line-height: 27px;
+				}
+				.items{
 					font-size: 18px;	
 					font-weight: 600;	
 					line-height: 27px;
@@ -291,6 +283,12 @@ class ConfirmCallerDetailsComponent extends Component {
 			`];
 	}
 
+	//are we suppose to publish caller details in the component
+	triggerConfirmCaller() {
+		this.eventAggregator.publish('horizon-confirm-popup', {});
+		console.log('triggering dialog');
+	}
+
 	onConfirmClick() {
 		this.router.navigateByPath(`/client/profile`);
 	}
@@ -313,6 +311,13 @@ class ConfirmCallerDetailsComponent extends Component {
 	}
 
 	render() {
+
+		this.ButtonEnabled = true; //this.confirmedCaller.searchClientButton.enabled;
+		this.ButtonVisible = true; //this.confirmedCaller.searchClientButton.visible;
+		this.labelEnabled = false;
+		this.labelVisisble = true;
+
+
 		if (this.addCallerDetails != true) {
 			return html`
 			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
@@ -339,15 +344,30 @@ class ConfirmCallerDetailsComponent extends Component {
 					<div class="horizon-call"> 
 						<div class="ref-call">
 							<capitec-label id="ref-number" label="Reference Number"></capitec-label>	
-							<capitec-label id="label-value" label="${this.confirmedCaller.referenceNumber}"> </capitec-label>
+							<capitec-label id="label-value" 
+								label="${this.confirmedCaller.voiceReferenceNumber.value}"
+								disabled=${this.labelEnabled}
+								visible = ${this.labelVisible}>
+							</capitec-label>
 						</div>
 						<div class="ivr-option">
-							<capitec-select  id="label-ivr" label="IVR Option Selected" .items="${this.confirmedCaller.ivrOptions}" display-field="text">
+							<capitec-select 
+								id="label-ivr" 
+								label="ivr option selected" 
+								.items="${[this.confirmedCaller.ivrOption.value]}" 
+								.value="${this.confirmedCaller.ivrOption.value}"
+								enabled = "${this.ButtonEnabled}";
+								visible = ${this.ButtonVisible}
+								>
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
 							<capitec-label id="ref-number" label="Incoming Number"></capitec-label>
-							<capitec-label  id="incoming-num" label="${this.confirmedCaller.incomingNumber}"></capitec-label>
+							<capitec-label  id="incoming-num" 
+									label="${this.confirmedCaller.incomingTelephoneNumber.value}"
+									disabled=${this.labelEnabled}
+									visible = ${this.labelVisible}>
+							</capitec-label>
 						</div>
 					</div>
 				</capitec-action-bar>
@@ -359,12 +379,14 @@ class ConfirmCallerDetailsComponent extends Component {
 		return html`
 			<div class="horizon-add-caller-details-div">		
 				<capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
-       	
+
 				<u>
-          			<capitec-label 
+		  			<capitec-label 
 		  				id="action-label" 
 						label="Add Caller Details"
-						@click="${() => this.addCallerDetails = true}">
+						@click="${() => this.addCallerDetails = true}"
+						enabled = ${this.ButtonEnabled}
+						visible = ${this.ButtonVisible}>
 					</capitec-label>
 				</u>
 				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
@@ -372,35 +394,79 @@ class ConfirmCallerDetailsComponent extends Component {
 		`;
 	}
 
+	getLanguagePreference() {
+		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
+		if (languagePreference === null) {
+			languagePreference = '';
+		}
+		return languagePreference;
+	}
+	getVerifiedTelephoneNumber() {
+		let verifiedCellphone = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
+
+
+		if (verifiedCellphone === null) {
+			verifiedCellphone = '';
+		}
+		return verifiedCellphone;
+
+	}
+
 	renderConfirmedCaller() {
+
+
 		return html`
 		<div class="client-avatar">
 			<capitec-avatar class="image" shape="none" value=""></capitec-avatar>										 
 			<div class="client-info">
-				<capitec-label class="fullname" id="label-value" label="${this.confirmedCaller.fullName}"></capitec-label>
+				<capitec-label class="fullname" 
+								id="label-value" 
+								label="${this.confirmedCaller.callerInformation.name.value}" 
+								disabled=${this.labelEnabled}
+								visible = ${this.labelVisible}>
+				</capitec-label>
 				<div></div>
 
 				<div>
 					<capitec-label label="ID Number"></capitec-label>
-					<capitec-label  id="label-text" label="${this.confirmedCaller.idNumber}"></capitec-label>
+					<capitec-label  id="label-text" 
+							label="${this.confirmedCaller.callerInformation.southAfricanIDNumber.value}"
+							disabled=${this.labelEnabled}
+							visible = ${this.labelVisible}>
+					</capitec-label>
 				</div>
 				<div>
 	  				<capitec-label label="Verified Cellphone Number"></capitec-label>
-	  				<capitec-label  id="label-text" label="${this.confirmedCaller.verifiedCellphone}"></capitec-label>
+	  				<capitec-label  id="label-text" 
+					  		label="${this.getVerifiedTelephoneNumber()}"
+							disabled=${this.labelEnabled}
+							visible = ${this.labelVisible}>
+					</capitec-label>
   				</div>
 
 				<div>
 	  				<capitec-label label="Lives In"></capitec-label>
-	  				<capitec-label  id="label-text" label="${this.confirmedCaller.livesIn}"></capitec-label>
+	  				<capitec-label  id="label-text" 
+							label="${this.confirmedCaller.callerInformation.livesIn.value}"
+							disabled=${this.labelEnabled}
+							visible = ${this.labelVisible}>
+					</capitec-label>
   				</div>
 				<div>
 	  				<capitec-label label="Language Preference"></capitec-label>		
-	  				<capitec-label  id="label-text" label="${this.confirmedCaller.language}"></capitec-label>		
+	  				<capitec-label  id="label-text" label="${this.getLanguagePreference()}"
+							disabled=${this.labelEnabled}
+							visible = ${this.labelVisible}>
+					  </capitec-label>		
   				</div>	
 
 				<div>
 	  				<capitec-label label="Birthday"></capitec-label>	
-	  				<capitec-label  id="label-text" label="${this.confirmedCaller.birthday}"></capitec-label>	
+	  				<capitec-label  id="label-text" 
+					  		label="${this.confirmedCaller.callerInformation.birthdate.value}"
+							disabled=${this.labelEnabled}
+							visible = ${this.labelVisible}>
+					</capitec-label>	
   				</div>				 
 				  <div></div>
 	
@@ -411,13 +477,26 @@ class ConfirmCallerDetailsComponent extends Component {
 	renderFooter() {
 		return html`
 			<capitec-action-bar slot="footer" class="footer-bar">
-				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
+				<capitec-button 
+					id="id-search-client-button" 
+					type="clear" 
+					label="Search Client" 
+					@click="${this.onDoneClick}"
+					enabled = ${this.ButtonEnabled}
+					visible = ${this.ButtonVisible}>
+					</capitec-button>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
+				<capitec-button  type="clear" 
+						label="End Call Session" 
+						@click="${this.onDoneClick}"
+						enabled = ${this.ButtonEnabled}
+						visible = ${this.ButtonVisible}></capitec-button>
 		  		<capitec-button id="id-confirm-button" 
 				  				type="primary" 
 								label="Confirm" 
-								@click="${() => this.router.navigateByPath(`/client/profile`)}">
+								@click="${() => this.router.navigateByPath(`/client/profile`)}"
+								enabled = ${this.ButtonEnabled}
+								visible = ${this.ButtonVisible}>
 				</capitec-button>
 			</capitec-action-bar>
 		`;
