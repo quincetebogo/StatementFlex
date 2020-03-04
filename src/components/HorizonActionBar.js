@@ -50,7 +50,6 @@ export class HorizonActionBar extends Component {
 	}
 	endCallSession() {
 		this.eventAggregator.publish('toggle-endcall-session', {});
-		console.log('button clicked');
 	}
 }
 

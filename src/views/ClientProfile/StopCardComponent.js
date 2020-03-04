@@ -10,7 +10,7 @@ export class StopCardComponent extends Component {
 	constructor() {
 		super();
 
-		this.varEndCallSession = false;
+		this.toggleEndCallModal = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, (event) => this.toggleEndCall(event));
@@ -93,7 +93,7 @@ export class StopCardComponent extends Component {
 
 	static get properties() {
 		return {
-			varEndCallSession: { type: Boolean }
+			toggleEndCallModal: { type: Boolean }
 		}
 	}
 
@@ -170,8 +170,7 @@ export class StopCardComponent extends Component {
 	}
 
 	async toggleEndCall(event) {
-		debugger;
-		this.varEndCallSession = !this.varEndCallSession;
+		this.toggleEndCallModal = !this.toggleEndCallModal;
 	}
 
 	render() {
@@ -195,16 +194,8 @@ export class StopCardComponent extends Component {
 		`;
 	}
 
-	/*render() {
-		return html`
-			${this.renderMiddleSection()}
-			${this.renderConfirmedUser()}
-		`;
-
-	}*/
-
 	renderConfirmedUser() {
-		if (this.varEndCallSession) {
+		if (this.toggleEndCallModal) {
 			return html`<end-call-session></end-call-session>`;
 		}
 
