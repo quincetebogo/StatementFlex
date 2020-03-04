@@ -37,6 +37,7 @@ export class AddCallerDetailsComponent extends Component {
 		return {
 			referenceNumber: { type: String },
 			incomingNumber: { type: String },
+			errorMessage: { type: Object }
 		}
 	}
 
@@ -204,16 +205,32 @@ export class AddCallerDetailsComponent extends Component {
 		return html`
 		<capitec-content-box style="width:98%;">
 			<div>
-				<capitec-text-field label="Name" id="Name" error="${this.errorMessage.errName}" @value-changed="${(e) => this._valueChanged(e)}"></capitec-text-field>
+				<capitec-text-field label="Name" id="Name" 
+									error="${this.errorMessage.errName}" 
+									@value-changed="${(e) => this._valueChanged(e)}" 
+									@key-input="${(e) => this._onKeyPress(e)}">
+				</capitec-text-field>
 			</div>
 			<div>
-				<capitec-text-field label="Surname" id="Surname" error="${this.errorMessage.errSurname}" @value-changed="${(e) => this._valueChanged(e)}"></capitec-text-field>
+				<capitec-text-field label="Surname" id="Surname" 
+									error="${this.errorMessage.errSurname}" 
+									@value-changed="${(e) => this._valueChanged(e)}" 
+									@key-input="${(e) => this._onKeyPress(e)}">
+				</capitec-text-field>
 			</div>
 			<div>
-				<capitec-text-field type="number" id="Cellphone" label="Cellphone Number" @value-changed="${(e) => this._valueChanged(e)}"></capitec-text-field><br>
+				<capitec-text-field type="number" id="Cellphone" 
+									label="Cellphone Number" 
+									@value-changed="${(e) => this._valueChanged(e)}">
+				</capitec-text-field><br>
 			</div>
 			<div style="margin:-20px 0px 0px 0px;">
-				<capitec-select id="Relationship" label="Choose relationship type (Optional)" .items="${this.userDetails.Relationship}" display-field="text" @value-changed="${(e) => this._valueChanged(e)}"></capitec-select>
+				<capitec-select id="Relationship" 
+									label="Choose relationship type (Optional)" 
+									.items="${this.userDetails.Relationship}" 
+									display-field="text" 
+									@value-changed="${(e) => this._valueChanged(e)}">
+				</capitec-select>
 			</div>
 		</capitec-content-box>
 		`;
@@ -252,21 +269,23 @@ export class AddCallerDetailsComponent extends Component {
 		else {
 			this.userDetails[e.currentTarget.id] = e.detail.new;
 		}
-		console.log(this.userDetails[e.currentTarget.id]);
 	}
 
 	validateData(e) {
-		if (this.userDetails.Name == "") {
-			this.errorMessage.errName = "Required Field";
-			console.log(this.errorMessage.errName);
+		this.errorMessage.errName = this.userDetails.Name == "" ? "Required Field" : ""
+		this.errorMessage.errSurname = this.userDetails.Surname == "" ? "Required Field" : ""
+
+		if (this.userDetails.Name != "" && this.userDetails.Surname != "") {
+			StopCardService.getInstance().addCaller(this.userDetails);
 		}
-		else if (this.userDetails.Surname == "") {
-			this.errorMessage.errSurname = "Required Field";
-			console.log(this.errorMessage.errSurname);
+		this.requestUpdate();
+	}
+
+	_onKeyPress(e) {
+		if (e.detail.new != "") {
+			this.errorMessage[`err${e.currentTarget.id}`] = "";
 		}
-		else {
-			StopCardService.getInstance().identifyCaller(this.userDetails);
-		}
+		this.requestUpdate();
 	}
 
 }
