@@ -283,10 +283,9 @@ class ConfirmCallerDetailsComponent extends Component {
 			`];
 	}
 
-	//are we suppose to publish caller details in the component
-	triggerConfirmCaller() {
-		this.eventAggregator.publish('horizon-confirm-popup', {});
-		console.log('triggering dialog');
+	onStopCardSelect() {
+		let cardStop = document.getElementById("label-ivr");
+		console.log(cardStop.childNodes.length);
 	}
 
 	onConfirmClick() {
@@ -338,6 +337,8 @@ class ConfirmCallerDetailsComponent extends Component {
 	}
 
 	renderCallInformation() {
+
+
 		return html`
 			<capitec-group layout="grid" class="grid-container"> 
 				<capitec-action-bar class="populatedText">
@@ -357,8 +358,8 @@ class ConfirmCallerDetailsComponent extends Component {
 								.items="${[this.confirmedCaller.ivrOption.value]}" 
 								.value="${this.confirmedCaller.ivrOption.value}"
 								enabled = "${this.ButtonEnabled}";
-								visible = ${this.ButtonVisible}
-								>
+								visible = ${this.ButtonVisible}>
+							
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
