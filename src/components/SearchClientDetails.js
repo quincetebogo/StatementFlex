@@ -6,9 +6,10 @@ export class SearchClientDetailsComponent extends View {
 	constructor() {
 		super();
 		RegExp();
-
-		this.IdMethodValidation = "";
-		this.searchValidation = "";
+		this.validationMessage = {
+			IdMethodValidation: "",
+			searchValidation: ""
+		}
 		this.userDetails = {
 			incomingNumber: "Private Number",
 			voiceReference: "34562783",
@@ -21,17 +22,6 @@ export class SearchClientDetailsComponent extends View {
 			],
 			incidentNo: "",
 			agentPhoneNumber: "",
-			Name: "",
-			Surname: "",
-			Cellphone: "",
-			nonClientIDNumber: "",
-			Relationship: [
-				{ id: 'SP', text: 'Spouse' },
-				{ id: 'SI', text: 'Sibling' },
-				{ id: 'CH', text: 'Child' },
-				{ id: 'FR', text: 'Friend' },
-				{ id: 'OT', text: 'Other' }
-			],
 			IdentificationMethod: [
 				{ id: 'PN', text: 'ID/Passport number' },
 				{ id: 'FN', text: 'Foreign passport number' },
@@ -40,12 +30,6 @@ export class SearchClientDetailsComponent extends View {
 				{ id: 'CN', text: 'Verified cellphone Number' }
 			],
 			SearchFieldText: ""
-
-		};
-
-		this.errorMessage = {
-			errName: "",
-			errSurname: ""
 		};
 	}
 
@@ -53,9 +37,7 @@ export class SearchClientDetailsComponent extends View {
 		return {
 			referenceNumber: { type: String },
 			incomingNumber: { type: String },
-			IdMethodValidation: { type: String },
-			searchValidation: { type: String }
-
+			validationMessage: { type: String }
 		}
 	}
 
@@ -63,60 +45,16 @@ export class SearchClientDetailsComponent extends View {
 		return [
 			super.styles,
 			css`
-			.call-waiting{
-				width: 1067.8px;
-				height: 770px;
-				padding: 0px 0px 0px 0px;
-				text-align: center;
-				line-height: 40px;
-				align-items: center;
-				background-color: white;
-				border-radius: none;
-			}
-
 			.needimage{
 				height: 120px;
 				width: 170px;
 				margin: 24px 24px 18px 24px;
 			}
-
-			#waiting-text{
-				color: #003652;
-			}
-
-			.userwaiting{
-				display: grid;
-				grid-template-rows: 1fr 1fr 1fr;
-				text-align: center;
-				width: 1067.8px;
-				height: 770px;
-			}
-
-			.buttonalign{
-				text-align: left;
-			}
-
-			
-			.grid-container{
-				grid-row-gap: 0px;
-				grid-column-gap: 0px;
-				width:678px;
-				margin:0px;
-				padding:0px;
-			}
-			.populatedText{
-				padding: 8px;
-				height: 64px;
-				width: 678px;
-				border-bottom: 1px solid #dfdfdf;
-			}
-
 			.horizon-call{
 				display: flex;
 				flex-direction: row;
 				margin: 0px;
 			}
-
 			.ref-call{
 				text-align:left;
 				padding-left: 24px;
@@ -127,24 +65,12 @@ export class SearchClientDetailsComponent extends View {
 				border: 0px;
 				margin: 0px;
 			}
-
 			.footer-bar{
 				width: 678px;
-				
 				margin: 0px;
 				padding: 10px 0px 0px 0px;
 				border-top: 1px solid #dfdfdf;
 			}
-
-			#label-text{
-				height: 30px;	width: 123px;	
-				color: #003652;	
-				font-family: "Hind Vadodara";	
-				font-size: 18px;	
-				font-weight: 600;
-				line-height: 30px;
-			}
-
 			#label-value{
 				color: #003652;
 				font-family: "Hind Vadodara";
@@ -152,7 +78,6 @@ export class SearchClientDetailsComponent extends View {
 				font-weight: 800;
 				line-height: 20px;
 			}
-
 			.ivr-option{
 				width: 223px;
 				height: 64px; 
@@ -177,6 +102,22 @@ export class SearchClientDetailsComponent extends View {
 				border-top: 0px;
 				border-bottom: 0px;
 				margin: 0px;
+			}
+			.searchBox{
+				width:98%;
+				height:360px
+			}
+			.searchLable{
+				text-align:left;
+				font-size:20px;
+				font-weight:1000;
+				height:20px
+			}
+			.idMethodSelectBox{
+				margin:20px 0px 0px 0px;
+			}
+			.searchFieldBox{
+				margin:40px 0px 0px 0px;
 			}
 			`];
 
@@ -219,42 +160,34 @@ export class SearchClientDetailsComponent extends View {
 
 	renderSearchClientDetails() {
 		return html`
-		<capitec-content-box style="width:98%;height:360px;">
-	<div style="text-align:left;font-size:20px;font-weight:1000;height:20px" >
-		Search existing client
-	</div>
-	
-	<div style="margin:20px 0px 0px 0px;">
-		<capitec-select id="IdentificationMethod" error="${this.IdMethodValidation}" label="Choose identification method" style="text-align:justify;line-height:normal;" .items="${this.userDetails.IdentificationMethod}" display-field="text" @value-changed="${(e) => this._valueChanged(e)}"></capitec-select>
-	</div>
-	
-	<div style="margin:40px 0px 0px 0px;">
-		<capitec-search-field id="SearchFieldText" keyboardMode ="" label="Search" error="${this.searchValidation}" focussed="true" hint=""  @value-changed="${(e) => this._valueChanged(e)}" value=""></capitec-search-field>
-	</div>
-	</capitec-content-box>
+		<capitec-content-box class="searchBox">
+			<div class="searchLable">
+				Search existing client
+			</div>
+			<div class="idMethodSelectBox">
+				<capitec-select id="IdentificationMethod" error="${this.validationMessage.IdMethodValidation}" label="Choose identification method" style="text-align:justify;line-height:normal;" .items="${this.userDetails.IdentificationMethod}" display-field="text" @value-changed="${(e) => this._valueChanged(e)}"></capitec-select>
+			</div>
+			<div class="searchFieldBox">
+				<capitec-search-field id="SearchFieldText" keyboardMode ="" label="Search" error="${this.validationMessage.searchValidation}" focussed="true" hint=""  @value-changed="${(e) => this._valueChanged(e)}" @key-input="${(event) => this._onKeyBoardValue(event)}" value=""></capitec-search-field>
+			</div>
+		</capitec-content-box>
 		`;
 	}
-
 
 	renderFooter() {
 		return html`
 		<capitec-action-bar slot="footer" class="footer-bar">
-		<capitec-spacer></capitec-spacer>
-		<capitec-button type="clear" label="End Call Session" ></capitec-button>
-		<capitec-button type="primary" @click="${(e) => this.validateData(e)}" label="Search Client"></capitec-button>
+			<capitec-spacer></capitec-spacer>
+			<capitec-button type="clear" label="End Call Session" ></capitec-button>
+			<capitec-button type="primary" @click="${(e) => this.validateData(e)}" label="Search Client"></capitec-button>
 		</capitec-action-bar>
 		`;
 	}
 
-
-	raiseBackEvent() {
-		console.log('raise event');
-		this.dispatchEvent(new CustomEvent('on-back', {
-			detail: {
-				message: 'Something important happened'
-			}
-		}));
+	_onKeyBoardValue(event) {
+		this.validationMessage.searchValidation = "";
 	}
+
 	_valueChanged(e) {
 		if (typeof e.detail.new == "object") {
 			this.userDetails[e.currentTarget.id] = e.detail.new.text;
@@ -268,40 +201,42 @@ export class SearchClientDetailsComponent extends View {
 	validateData(e) {
 		debugger;
 		if (this.userDetails.SearchFieldText == "") {
-			this.searchValidation = "This is a Required field";
+			this.validationMessage.searchValidation = "This is a Required field";
 		}
 		switch (this.userDetails.IdentificationMethod) {
 			case 'ID/Passport number':
 				if (RegExp('[a-zA-Z]', 'g').test(this.userDetails.SearchFieldText) == true || this.userDetails.SearchFieldText.length != 13) {
-					this.searchValidation = "ID Number must be 13 characters long";
+					this.validationMessage.searchValidation = "ID Number must be 13 characters long";
 				}
 				break;
 			case 'Foreign passport number':
 				break;
 			case 'Account number':
 				if (RegExp('[a-zA-Z]', 'g').test(this.userDetails.SearchFieldText) == true || this.userDetails.SearchFieldText.length != 10) {
-					this.searchValidation = "Account number must be 10 characters long";
+					this.validationMessage.searchValidation = "Account number must be 10 characters long";
 				}
 				break;
 			case 'Reference number':
 				if (RegExp('[a-zA-Z]', 'g').test(this.userDetails.SearchFieldText) == true || this.userDetails.SearchFieldText.length != 8) {
-					this.searchValidation = "Either it is Alphanumeric or not equal to 8 digits";
+					this.validationMessage.searchValidation = "Either it is Alphanumeric or not equal to 8 digits";
 				}
 				break;
 			case 'Verified cellphone Number':
 				if (RegExp('[a-zA-Z]', 'g').test(this.userDetails.SearchFieldText) == true || this.userDetails.SearchFieldText.length != 10) {
-					this.searchValidation = "Cellphone Number must be 10 characters long";
+					this.validationMessage.searchValidation = "Cellphone Number must be 10 characters long";
 				}
 				break;
 			default:
-				this.IdMethodValidation = "Choose an Identification Method";
+				this.validationMessage.IdMethodValidation = "Choose an Identification Method";
 				break;
 		}
 		console.log('searchvalidation');
-		if (this.IdMethodValidation == "" && this.searchValidation == "") {
+		this.requestUpdate();
+		if (this.validationMessage.IdMethodValidation == "" && this.validationMessage.searchValidation == "") {
 			console.log('serviceCall');
-			//StopCardService.getInstance().identifyCaller(this.userDetails);
+			StopCardService.getInstance().searchClientDetails(this.userDetails);
 		}
+
 	}
 
 }
