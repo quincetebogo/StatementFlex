@@ -7,6 +7,7 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import './AddCallerDetailsComponent';
+import './SearchClientDetails';
 
 class ConfirmCallerDetailsComponent extends Component {
 
@@ -49,12 +50,14 @@ class ConfirmCallerDetailsComponent extends Component {
 		}
 
 		this.addCallerDetails = false;
+		this.searchClientDetails = false;
 	}
 
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
-			addCallerDetails: { type: Boolean }
+			addCallerDetails: { type: Boolean },
+			searchClientDetails: { type: Boolean }
 		}
 	}
 
@@ -295,6 +298,27 @@ class ConfirmCallerDetailsComponent extends Component {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
+	renderConfirmCallerDetailsModal() {
+		return html`<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
+		<div slot="body" class="main">
+		  ${this.renderCallInformation()}
+		  ${this.renderAddCallerDetails()}
+		  ${this.renderConfirmedCaller()}
+	  </div>
+	  ${this.renderFooter()}
+  </capitec-modal>`;
+	}
+
+	renderSearchClientDetailsModal() {
+
+		if (this.searchClientDetails) {
+			return html`
+			<search_client-details></search_client-details>
+		`;
+		}
+		return ``;
+	}
+
 	renderAddCallerDetailsModal() {
 		if (this.addCallerDetails) {
 			return html`
@@ -313,22 +337,14 @@ class ConfirmCallerDetailsComponent extends Component {
 	}
 
 	render() {
-		if (this.addCallerDetails != true) {
-			return html`
-			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
-  				<div slot="body" class="main">
-					${this.renderCallInformation()}
-					${this.renderAddCallerDetails()}
-					${this.renderConfirmedCaller()}
-				</div>
-				${this.renderFooter()}
-			</capitec-modal>
-		`;
+		if (this.addCallerDetails) {
+			return html`${this.renderAddCallerDetailsModal()}`;
+		}
+		else if (this.searchClientDetails) {
+			return html`${this.renderSearchClientDetailsModal()}`;
 		}
 		else {
-			return html`
-			${this.renderAddCallerDetailsModal()}
-		`;
+			return html`${this.renderConfirmCallerDetailsModal()}`;
 		}
 	}
 
@@ -411,7 +427,11 @@ class ConfirmCallerDetailsComponent extends Component {
 	renderFooter() {
 		return html`
 			<capitec-action-bar slot="footer" class="footer-bar">
-				<capitec-button id="id-search-client-button" type="clear" label="Search Client" @click="${this.onDoneClick}"></capitec-button>
+				<capitec-button id="id-search-client-button" 
+								type="clear" 
+								label="Search Client" 
+								@click="${() => this.searchClientDetails = true}">
+				</capitec-button>
 				<capitec-spacer></capitec-spacer>
 				<capitec-button  type="clear" label="End Call Session" @click="${this.onDoneClick}"></capitec-button>
 		  		<capitec-button id="id-confirm-button" 
