@@ -10,11 +10,10 @@ export class StopCardComponent extends Component {
 	constructor() {
 		super();
 
-		this.toggleEndCallModal = false;
-
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`toggle-endcall-session`, (event) => this.toggleEndCall(event));
+		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 
+		this.toggleEndCallModal = false;
 		this.groupByField = "cardCategory";
 		this.rowInputType = "Checkbox";
 		this.cards = [
@@ -169,7 +168,7 @@ export class StopCardComponent extends Component {
 		}
 	}
 
-	async toggleEndCall(event) {
+	toggleEndCall() {
 		this.toggleEndCallModal = !this.toggleEndCallModal;
 	}
 
