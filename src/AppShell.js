@@ -13,8 +13,9 @@ import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
-
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
+
 
 //TODO: Move these out of the shell
 import { LandingPageWelcome } from './components/LandingPageWelcome';
@@ -68,6 +69,8 @@ export class AppShell extends Shell {
 		// this.eventSource.addEventListener("new-call", (event) => {
 		// 	console.log("Received 'new-call' event: ", event);
 		// })
+		this.desktopAgent = DesktopAgentService.getInstance();
+
 
 		this.showClientProfile = false;
 
