@@ -17,6 +17,8 @@ export class LandingPage extends View {
 
 		this.eventAggregator = EventAggregator.getInstance();
 
+
+		this.isBusy = false;
 		/// Temporary event to catch temporary button trigger to invoke comfirmed call dialog
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
 
@@ -28,11 +30,15 @@ export class LandingPage extends View {
 
 	static get properties() {
 		return {
+			fullname: { type: String },
+			displayConfirmedCaller: { type: Boolean },
+			isBusy: { type: Boolean },
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
 			ivrOption: { type: String },
 		}
 	}
+
 	async connectedCallback() {
 		super.connectedCallback();
 
@@ -71,7 +77,10 @@ export class LandingPage extends View {
 
 		// Web service calls - must still handle errors
 		try {
+			this.isBusy = true;
+
 			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
+			// this.isBusy = false;
 
 			// should initialise from acceptedCall and other sources (Add Caller Details info)
 
@@ -81,10 +90,10 @@ export class LandingPage extends View {
 			// this will be passed into the confirmed caller dialog
 			this.confirmedCaller = acceptedCall;
 
-
 			this.displayConfirmedCaller = true;
 		}
 		catch (error) {
+
 			console.log(error);
 			this.confirmedCaller = null;
 
@@ -97,14 +106,11 @@ export class LandingPage extends View {
 					we must invoke the search dialog (which must still be built)
 			*/
 		}
-	}
-
-	static get properties() {
-		return {
-			fullname: { type: String },
-			displayConfirmedCaller: { type: Boolean }
+		finally {
+			this.isBusy = false;
 		}
 	}
+
 
 	static get styles() {
 		return [
@@ -126,9 +132,22 @@ export class LandingPage extends View {
 	render() {
 		return html`
 			${this.renderMiddleSection()}
+			${this.renderLoadingIndicator()}
 			${this.renderConfirmedUser()}
+
 		`;
 
+	}
+
+	renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
 	}
 
 	renderConfirmedUser() {
