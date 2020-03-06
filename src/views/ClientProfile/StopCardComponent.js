@@ -1,5 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
+import { EventAggregator } from 'platform/EventAggregator';
+import '../../components/EndCallSessionReason';
 
 import 'platform/components';
 
@@ -8,6 +10,10 @@ export class StopCardComponent extends Component {
 	constructor() {
 		super();
 
+		this.eventAggregator = EventAggregator.getInstance();
+		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
+
+		this.toggleEndCallModal = false;
 		this.groupByField = "cardCategory";
 		this.rowInputType = "Checkbox";
 		this.cards = [
@@ -84,6 +90,12 @@ export class StopCardComponent extends Component {
 			`];
 	}
 
+	static get properties() {
+		return {
+			toggleEndCallModal: { type: Boolean }
+		}
+	}
+
 	_customGroupByHandler() {
 		const groupedValues = Utilities.groupBy(this.cards, this.groupByField);
 		const newRows = [];
@@ -156,6 +168,10 @@ export class StopCardComponent extends Component {
 		}
 	}
 
+	toggleEndCall() {
+		this.toggleEndCallModal = !this.toggleEndCallModal;
+	}
+
 	render() {
 		return html`
 			<capitec-card class="stop-card">
@@ -173,7 +189,16 @@ export class StopCardComponent extends Component {
 					</tbody>
 				</table>
 			</capitec-card>
+			${this.renderConfirmedUser()}
 		`;
+	}
+
+	renderConfirmedUser() {
+		if (this.toggleEndCallModal) {
+			return html`<end-call-session></end-call-session>`;
+		}
+
+		return html``;
 	}
 }
 
