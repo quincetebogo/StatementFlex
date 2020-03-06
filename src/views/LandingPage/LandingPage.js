@@ -53,11 +53,11 @@ export class LandingPage extends View {
 
 		///TODO: Replace this with data that comes from the POP
 		let incomingCallData = {
-			incomingNumber: "082 555 9090",
-			voiceReference: "34562783",
-			ivrOption: 'Stop Card', // TODO: fix this to whatever is right
+			incomingNumber: "0631152973",
+			voiceReference: "123456",
+			ivrOption: 'StopCard', // TODO: fix this to whatever is right
 			incidentNo: '1234567',
-			agentPhoneNumber: '021 8523086'
+			agentPhoneNumber: '0219412557'
 		};
 
 
