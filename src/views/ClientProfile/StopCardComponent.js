@@ -26,6 +26,8 @@ export class StopCardComponent extends Component {
 			{ "key": "cardNumber", "value": "Card Number" }
 		];
 		this.items = this._customGroupByHandler();
+
+		this.confirmedCaller = null;
 	}
 
 	static get styles() {
@@ -92,7 +94,8 @@ export class StopCardComponent extends Component {
 
 	static get properties() {
 		return {
-			toggleEndCallModal: { type: Boolean }
+			toggleEndCallModal: { type: Boolean },
+			confirmedCaller: { type: Object }
 		}
 	}
 

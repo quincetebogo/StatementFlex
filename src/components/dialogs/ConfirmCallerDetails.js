@@ -1,23 +1,29 @@
 import { Component, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import './AddCallerDetailsComponent';
-import { isDisabled, isHidden, getTabIndex } from '../utils/channelServiceUtilities';
+import '../AddCallerDetailsComponent';
+import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
-class ConfirmCallerDetailsComponent extends Component {
+class ConfirmCallerDetails extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
-		this.router = Router.getInstance();
 
 		this.confirmedCaller = null;
 		this.addCallerDetails = false;
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -25,6 +31,76 @@ class ConfirmCallerDetailsComponent extends Component {
 			addCallerDetails: { type: Boolean }
 		}
 	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		// Set up some short hand references for reaching into the incoming model
+		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
+		this.ivrOption = this.confirmedCaller.ivrOption;
+		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
+		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
+		this.callerInformation = this.confirmedCaller.callerInformation;
+		this.callerFullName = this.confirmedCaller.callerInformation.name;
+		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
+		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
+		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
+		this.searchClientButton = this.confirmedCaller.searchClientButton;
+		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
+		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
+		this.confirmButton = this.confirmedCaller.confirmButton;
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	onStopCardSelect() {
+		let cardStop = document.getElementById("label-ivr");
+		console.log(cardStop.childNodes.length);
+	}
+
+	onConfirmClick() {
+		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: this.confirmedCaller } }));
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	getLanguagePreference() {
+		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
+
+		if (languagePreference === null) {
+			languagePreference = '';
+		}
+		return languagePreference;
+	}
+
+	getVerifiedTelephoneNumber() {
+		let verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
+
+		if (verifiedTelephoneNumber === null) {
+			verifiedTelephoneNumber = '';
+		}
+		return verifiedTelephoneNumber;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// n/a
+
+	// ---------
+	// RENDERING
+	// ---------	
 
 	static get styles() {
 		return [
@@ -156,6 +232,16 @@ class ConfirmCallerDetailsComponent extends Component {
 					//transform: translate(-8.0%);
 				}
 
+				.label-text{
+					height: 30px;
+					width: 123px;	
+					color: #003652;	
+					font-family: "Hind Vadodara";	
+					font-size: 18px;	
+					font-weight: 600;
+					line-height: 30px;
+				}
+
 				#ref-number{
 					height: 21px;
 					width: 112px;
@@ -196,15 +282,6 @@ class ConfirmCallerDetailsComponent extends Component {
 					font-size: 18px;	
 					font-weight: 600;	
 					line-height: 27px;
-				}
-				#label-text{
-					height: 30px;
-					width: 123px;	
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
-					font-weight: 600;
-					line-height: 30px;
 				}
 
 				#action-bar{
@@ -264,33 +341,6 @@ class ConfirmCallerDetailsComponent extends Component {
 			`];
 	}
 
-	onStopCardSelect() {
-		let cardStop = document.getElementById("label-ivr");
-		console.log(cardStop.childNodes.length);
-	}
-
-	onConfirmClick() {
-		this.router.navigateByPath(`/client/profile`);
-	}
-
-	getLanguagePreference() {
-		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
-		if (languagePreference === null) {
-			languagePreference = '';
-		}
-		return languagePreference;
-	}
-	getVerifiedTelephoneNumber() {
-		let verifiedCellphone = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
-
-
-		if (verifiedCellphone === null) {
-			verifiedCellphone = '';
-		}
-		return verifiedCellphone;
-
-	}
-
 	render() {
 		if (this.addCallerDetails != true) {
 			return html`
@@ -324,9 +374,9 @@ class ConfirmCallerDetailsComponent extends Component {
 								tabindex="-1">
 							</capitec-label>
 							<capitec-label id="label-value"
-								label="${this.confirmedCaller.voiceReferenceNumber.value}"
-								tabindex="${getTabIndex(this.confirmedCaller.voiceReferenceNumber)}"
-								?hidden=${isHidden(this.confirmedCaller.voiceReferenceNumber)}>
+								label="${this.voiceReferenceNumber.value}"
+								tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+								?hidden=${isHidden(this.voiceReferenceNumber)}>
 							</capitec-label>
 						</div>
 						<div class="ivr-option">
@@ -334,10 +384,10 @@ class ConfirmCallerDetailsComponent extends Component {
 								id="label-ivr"
 								label="ivr option selected" 
 								display-field="value"
-								.items="${this.confirmedCaller.ivrOption.possibleValues}"
-								.value="${this.confirmedCaller.ivrOption.possibleValues[0]}"
-								tabindex="${getTabIndex(this.confirmedCaller.ivrOption)}"
-								?hidden=${isHidden(this.confirmedCaller.ivrOption)}>
+								.items="${this.ivrOption.possibleValues}"
+								.value="${this.ivrOption.possibleValues[0]}"
+								tabindex="${getTabIndex(this.ivrOption)}"
+								?hidden=${isHidden(this.ivrOption)}>
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
@@ -347,9 +397,9 @@ class ConfirmCallerDetailsComponent extends Component {
 								tabindex="-1">
 							</capitec-label>
 							<capitec-label id="incoming-num"
-								label="${this.confirmedCaller.incomingTelephoneNumber.value}"
-								tabindex="${getTabIndex(this.confirmedCaller.incomingTelephoneNumber)}"
-								?hidden=${isHidden(this.confirmedCaller.incomingTelephoneNumber)}>
+								label="${this.incomingTelephoneNumber.value}"
+								tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+								?hidden=${isHidden(this.incomingTelephoneNumber)}>
 							</capitec-label>
 						</div>
 					</div >
@@ -370,8 +420,8 @@ class ConfirmCallerDetailsComponent extends Component {
 					<capitec-label
 						id="action-label"
 						label="Add Caller Details"
-						tabindex="${getTabIndex(this.confirmedCaller.addCallerDetailsButton)}"
-						?hidden=${isHidden(this.confirmedCaller.addCallerDetailsButton)}
+						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
+						?hidden=${isHidden(this.addCallerDetailsButton)}
 						@click="${() => this.addCallerDetails = true}">
 				</u>
 				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
@@ -390,72 +440,72 @@ class ConfirmCallerDetailsComponent extends Component {
 				<div class="client-info">
 					<capitec-label class="fullname"
 						id="label-value"
-						label="${this.confirmedCaller.callerInformation.name.value}" 
-						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.name)}"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.name)}>
+						label="${this.callerFullName.value}" 
+						tabindex="${getTabIndex(this.callerFullName)}"
+						?hidden=${isHidden(this.callerFullName)}>
 					</capitec-label>
 					<div></div>
 					<div>
 						<capitec-label 
 							label="ID Number"
 							tabindex="-1"
-							?hidden=${isHidden(this.confirmedCaller.callerInformation.southAfricanIDNumber)}>
+							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</capitec-label>
 						<capitec-label 
-							id="label-text"
-							label="${this.confirmedCaller.callerInformation.southAfricanIDNumber.value}"
-							tabindex="${getTabIndex(this.confirmedCaller.callerInformation.southAfricanIDNumber)}"
-							?hidden=${isHidden(this.confirmedCaller.callerInformation.southAfricanIDNumber)}>
+							class="label-text"
+							label="${this.southAfricanIDNumber.value}"
+							tabindex="${getTabIndex(this.southAfricanIDNumber)}"
+							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</capitec-label>
 						</div><div>
 						<capitec-label 
 							label="Verified Cellphone Number"
 							tabindex="-1"
-							?hidden=${isHidden(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}>
+							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</capitec-label>
 						<capitec-label 
-							id="label-text"
+							class="label-text"
 							label="${this.getVerifiedTelephoneNumber()}"
-							tabindex="${getTabIndex(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}"
-							?hidden=${isHidden(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}>
+							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
+							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</capitec-label>
 					</div>
 				<div>
 					<capitec-label 
 						label="Lives In"
-						tabindex="-1">
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.livesIn)}>
+						tabindex="-1"
+						?hidden=${isHidden(this.livesIn)}>
 					</capitec-label>
 					<capitec-label 
-						id="label-text"
-						label="${this.confirmedCaller.callerInformation.livesIn.value}"
-						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.livesIn)}"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.livesIn)}>
+						class="label-text"
+						label="${this.livesIn.value}"
+						tabindex="${getTabIndex(this.livesIn)}"
+						?hidden=${isHidden(this.livesIn)}>
 					</capitec-label>
 				</div>
 				<div>
 					<capitec-label 
 						label="Language Preference"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.languagePreference)}>
 						tabindex="-1">
+						?hidden=${isHidden(this.languagePreference)}
 					</capitec-label>
 					<capitec-label 
-						id="label-text" 
+						class="label-text" 
 						label="${this.getLanguagePreference()}"
-						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.languagePreference)}"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.languagePreference)}>
+						tabindex="${getTabIndex(this.languagePreference)}"
+						?hidden=${isHidden(this.languagePreference)}>
 					</capitec-label>
 				</div>
 				<div>
 					<capitec-label 
 						label="Birthday"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.birthdate)}>
 						tabindex="-1">
+						?hidden=${isHidden(this.birthdate)}
 					</capitec-label>
 					<capitec-label id="label-text"
-						label="${this.confirmedCaller.callerInformation.birthdate.value}"
-						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.birthdate)}"
-						?hidden=${isHidden(this.confirmedCaller.callerInformation.birthdate)}>
+						label="${this.birthdate.value}"
+						tabindex="${getTabIndex(this.birthdate)}"
+						?hidden=${isHidden(this.birthdate)}>
 					</capitec-label>
 				</div>
 				<div>
@@ -473,41 +523,38 @@ class ConfirmCallerDetailsComponent extends Component {
 					id="id-search-client-button"
 					type="clear"
 					label="Search Client"
-					?hidden=${isHidden(this.confirmedCaller.searchClientButton)}
-					.disabled="${isDisabled(this.confirmedCaller.searchClientButton)}"
-					tabindex="${getTabIndex(this.confirmedCaller.searchClientButton)}"
+					?hidden=${isHidden(this.searchClientButton)}
+					.disabled="${isDisabled(this.searchClientButton)}"
+					tabindex="${getTabIndex(this.searchClientButton)}"
 					@click="${() => console.log('on clicked search client')}">
 				</capitec-button>				
 				<capitec-spacer tabindex="-1"></capitec-spacer>
 				<capitec-button 
 					type="clear"
 					label="End Call Session" 
-					?hidden=${isHidden(this.confirmedCaller.endCallSessionButton)}
-					.disabled="${isDisabled(this.confirmedCaller.endCallSessionButton)}"
-					tabindex="${getTabIndex(this.confirmedCaller.endCallSessionButton)}"
+					?hidden=${isHidden(this.endCallSessionButton)}
+					.disabled="${isDisabled(this.endCallSessionButton)}"
+					tabindex="${getTabIndex(this.endCallSessionButton)}"
 					@click="${() => console.log('on end call button')}">
 				</capitec-button>	
 				<capitec-button 
 					id="id-confirm-button"
 					type="primary"
 					label="Confirm" 
-					?hidden=${isHidden(this.confirmedCaller.confirmButton)}
-					.disabled="${isDisabled(this.confirmedCaller.confirmButton)}"
-					tabindex="${getTabIndex(this.confirmedCaller.confirmButton)}"
+					?hidden=${isHidden(this.confirmButton)}
+					.disabled="${isDisabled(this.confirmButton)}"
+					tabindex="${getTabIndex(this.confirmButton)}"
 					@click="${() => this.onConfirmClick()}">
 				</capitec-button>
 			</capitec-action-bar>`;
 	}
 
 	renderAddCallerDetailsModal() {
+		// TODO: We may need to pass confirmedCaller into addCallerDetails
 		if (this.addCallerDetails) {
 			return html`
 				<client-add-caller
-					@on-back="${() => {
-					console.log('on back received');
-					this.addCallerDetails = false
-				}
-				}">
+					@on-back="${() => { this.addCallerDetails = false }}">
 				</client-add-caller>
 		 `;
 		}
@@ -516,4 +563,4 @@ class ConfirmCallerDetailsComponent extends Component {
 	}
 }
 
-window.customElements.define(`confirm-caller-component`, ConfirmCallerDetailsComponent)
+window.customElements.define(`confirm-caller`, ConfirmCallerDetails)
