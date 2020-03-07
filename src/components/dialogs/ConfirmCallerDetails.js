@@ -1,3 +1,7 @@
+/*
+ *		Horizon Confirm Caller Details Dialog
+ * 			
+ */
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
@@ -17,6 +21,7 @@ class ConfirmCallerDetails extends Component {
 	constructor() {
 		super();
 
+		// Property initialization
 		this.confirmedCaller = null;
 		this.addCallerDetails = false;
 	}
@@ -25,6 +30,12 @@ class ConfirmCallerDetails extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 *
+	 * confirmedCaller	: Dialog input - the result of the web service call to retrieve the confirmed caller.
+	 * addCallerDetails	: Flag - controls whether to show the AddCallerDetails dialog
+	 */
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
@@ -39,7 +50,7 @@ class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Set up some short hand references for reaching into the incoming model
+		// Short hand references for reaching into the incoming data model
 		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
 		this.ivrOption = this.confirmedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
@@ -61,13 +72,26 @@ class ConfirmCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	onStopCardSelect() {
-		let cardStop = document.getElementById("label-ivr");
-		console.log(cardStop.childNodes.length);
-	}
-
+	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	onConfirmClick() {
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: this.confirmedCaller } }));
+		let confirmedCaller = {
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: this.ivrOption.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			callerFullName: this.callerFullName.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			livesIn: this.livesIn.value,
+			languagePreference: this.languagePreference.value,
+			birthdate: this.birthdate.value
+			/*
+				TODO: should added Caller Details go here?
+
+				probably not but we should perhaps add the fields and initialize them to null
+			*/
+		}
+
+		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
 	}
 
 	// --------------
