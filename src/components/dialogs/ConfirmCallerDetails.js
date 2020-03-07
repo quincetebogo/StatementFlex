@@ -10,9 +10,17 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import '../AddCallerDetailsComponent';
+import '../EndCallSessionReason';
+
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
-class ConfirmCallerDetails extends Component {
+const RENDER_MODE = {
+	CONFIRM_CALLER: 0,
+	ADD_CALLER_DETAILS: 1,
+	END_CALL: 2
+};
+
+export class ConfirmCallerDetails extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -23,7 +31,7 @@ class ConfirmCallerDetails extends Component {
 
 		// Property initialization
 		this.confirmedCaller = null;
-		this.addCallerDetails = false;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
 	// ----------
@@ -31,15 +39,13 @@ class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * Registry of all properties defined by the component.
-	 *
 	 * confirmedCaller	: Dialog input - the result of the web service call to retrieve the confirmed caller.
-	 * addCallerDetails	: Flag - controls whether to show the AddCallerDetails dialog
+	 * renderMode	: Flag - controls whether to show the AddCallerDetails dialog
 	 */
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
-			addCallerDetails: { type: Boolean }
+			renderMode: { type: Number },
 		}
 	}
 
@@ -92,6 +98,22 @@ class ConfirmCallerDetails extends Component {
 		}
 
 		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+	}
+
+	onCallCancelled(reason) {
+		let confirmedCaller = {
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: this.ivrOption.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			callerFullName: this.callerFullName.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			livesIn: this.livesIn.value,
+			languagePreference: this.languagePreference.value,
+			birthdate: this.birthdate.value
+		}
+
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	// --------------
@@ -366,23 +388,26 @@ class ConfirmCallerDetails extends Component {
 	}
 
 	render() {
-		if (this.addCallerDetails != true) {
-			return html`
-			<capitec-modal 
-					type="free" 
-					header="Confirm Caller Details" 
-					header-align="left">
-  				<div slot="body" class="main">
-					${this.renderCallInformation()}
-					${this.renderAddCallerDetails()}
-					${this.renderConfirmedCaller()}
-				</div>
-				${this.renderFooter()}
-			</capitec-modal>
-		`;
-		}
-		else {
-			return html`${this.renderAddCallerDetailsModal()}`;
+		switch (this.renderMode) {
+			case RENDER_MODE.CONFIRM_CALLER:
+				return html`
+				<capitec-modal 
+						type="free" 
+						header="Confirm Caller Details" 
+						header-align="left">
+					  <div slot="body" class="main">
+						${this.renderCallInformation()}
+						${this.renderAddCallerDetails()}
+						${this.renderConfirmedCaller()}
+					</div>
+					${this.renderFooter()}
+				</capitec-modal>`;
+
+			case RENDER_MODE.ADD_CALLER_DETAILS:
+				return html`${this.renderAddCallerDetailsModal()}`;
+
+			case RENDER_MODE.END_CALL:
+				return html`${this.renderEndCallModal()}`;
 		}
 	}
 
@@ -446,7 +471,7 @@ class ConfirmCallerDetails extends Component {
 						label="Add Caller Details"
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
 						?hidden=${isHidden(this.addCallerDetailsButton)}
-						@click="${() => this.addCallerDetails = true}">
+						@click="${() => this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS}">
 				</u>
 				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 			</div>`;
@@ -559,7 +584,7 @@ class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.endCallSessionButton)}
 					.disabled="${isDisabled(this.endCallSessionButton)}"
 					tabindex="${getTabIndex(this.endCallSessionButton)}"
-					@click="${() => console.log('on end call button')}">
+					@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>	
 				<capitec-button 
 					id="id-confirm-button"
@@ -575,16 +600,19 @@ class ConfirmCallerDetails extends Component {
 
 	renderAddCallerDetailsModal() {
 		// TODO: We may need to pass confirmedCaller into addCallerDetails
-		if (this.addCallerDetails) {
-			return html`
-				<client-add-caller
-					@on-back="${() => { this.addCallerDetails = false }}">
-				</client-add-caller>
-		 `;
-		}
+		return html`
+			<client-add-caller
+				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
+			</client-add-caller>`;
+	}
 
-		return html``;
+	renderEndCallModal() {
+		return html`
+			<end-call-session
+				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
+				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+			</end-call-session>`;
 	}
 }
 
-window.customElements.define(`confirm-caller`, ConfirmCallerDetails)
+window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails)

@@ -113,6 +113,12 @@ export class LandingPage extends View {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
+	onCallEnded(data) {
+		console.log(data.detail);
+		this.displayConfirmedCaller = false;
+		//		this.router.navigateByPath(`/landingpage`);
+	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -154,10 +160,11 @@ export class LandingPage extends View {
 	renderConfirmedUser() {
 		if (this.displayConfirmedCaller) {
 			return html`
-				<confirm-caller 
+				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
-					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}">
-				</confirm-caller>`;
+					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
+					@call-ended="${(data) => this.onCallEnded(data)}">
+				</horizon-confirm-caller>`;
 		}
 
 		return html``;

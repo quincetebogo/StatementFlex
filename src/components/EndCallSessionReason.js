@@ -1,16 +1,12 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
-import './HorizonActionBar';
-import '../views/ClientProfile/StopCardComponent';
-import { Router } from 'platform/Router';
-import '../views/ClientProfile/StopCardComponent';
 
-export class EndCallSessionComponent extends View {
+export class EndCallSessionReason extends View {
 
 	constructor() {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.router = Router.getInstance();
+		this.endCallReason = null;
 	}
 
 	static get styles() {
@@ -21,7 +17,8 @@ export class EndCallSessionComponent extends View {
 
 	static get properties() {
 		return {
-			toggleEndCallModal: { type: Boolean }
+			toggleEndCallModal: { type: Boolean },
+			endCallReason: { type: String },
 		}
 	}
 
@@ -39,10 +36,22 @@ export class EndCallSessionComponent extends View {
 	renderCallSessionReason() {
 		return html`
 				<capitec-radio-group>
-					<capitec-radio label="Need fulfilled"></capitec-radio>
-					<capitec-radio label="Need incomplete, bad connection"></capitec-radio>
-					<capitec-radio label="Incident escalated"></capitec-radio>
-					<capitec-radio label="Incident hand-off"></capitec-radio>
+					<capitec-radio 
+						label="Need fulfilled" 
+						@value-changed="${(e) => { e.detail.selected = "needFulfilled"; this.onValueChanged(e) }}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Need incomplete, bad connection" 
+						@value-changed="${(e) => { e.detail.selected = "badConnection"; this.onValueChanged(e) }}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Incident escalated" 
+						@value-changed="${(e) => { e.detail.selected = "incidentEscalated"; this.onValueChanged(e) }}">
+					</capitec-radio>
+					<capitec-radio 
+						label="Incident hand-off" 
+						@value-changed="${(e) => { e.detail.selected = "incidentHandoff"; this.onValueChanged(e) }}">
+					</capitec-radio>
 				</capitec-radio-group>
 				`;
 	}
@@ -51,15 +60,33 @@ export class EndCallSessionComponent extends View {
 		return html`
 			<capitec-action-bar slot="footer">
 				<capitec-spacer></capitec-spacer>
-				<capitec-button type="clear" label="Cancel" @click="${() => this.cancelpopup()}"></capitec-button>
-				<capitec-button type="clear" label="End Call Session" @click="${() => this.router.navigateByPath(`/landingpage`)}"></capitec-button>
+				<capitec-button type="clear" label="Cancel" @click="${() => this.onCancelpopup()}"></capitec-button>
+				<capitec-button 
+					type="clear" 
+					label="End Call Session"
+					?disabled="${this.endCallReason === null}"
+					 @click="${() => this.onReasonSelected()}">
+				</capitec-button>
 			</capitec-action-bar>
 		`;
 	}
 
-	cancelpopup() {
+	onValueChanged(e) {
+		if (e.detail.new) {
+			this.endCallReason = e.detail.selected
+		};
+	}
+
+	onReasonSelected() {
+		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
+	}
+
+	onCancelpopup() {
+		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+
+		// TODO: Keep for compatibility with current code. To remove
 		this.eventAggregator.publish('toggle-endcall-session', {});
 	}
 }
 
-window.customElements.define(`end-call-session`, EndCallSessionComponent);
+window.customElements.define(`end-call-session`, EndCallSessionReason);
