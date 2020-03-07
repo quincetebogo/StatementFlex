@@ -7,32 +7,13 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import './AddCallerDetailsComponent';
+import { isDisabled, isHidden, getTabIndex } from '../utils/channelServiceUtilities';
 
 class ConfirmCallerDetailsComponent extends Component {
 
 	constructor() {
 		super();
 		this.router = Router.getInstance();
-
-		// this.incomingNumber = "082 555 9090";
-		// this.referenceNumber = "34562783";
-
-		// this.selectObject = { id: 'IVR', text: 'Stop Card' };
-
-		// this.selectDataObjects = [
-		// 	this.selectObject,
-		// 	{ id: 'CR', text: 'Credit Enquiry' },
-		// 	{ id: 'PR', text: 'Product Enquiry' },
-		// 	{ id: 'SR', text: 'Savings Account' },
-		// 	{ id: 'IR', text: 'Internet or Cellphone Banking' }
-		// ];
-
-		// this.fullName = "Mr I. Makatini";
-		// this.idNumber = "8807120371081";
-		// this.livesIn = "Somerset West";
-		// this.birthday = "12 July";
-		// this.verifiedCellphone = "082 555 9090";
-		// this.language = "English";
 
 		this.confirmedCaller = null;
 		this.addCallerDetails = false;
@@ -292,109 +273,6 @@ class ConfirmCallerDetailsComponent extends Component {
 		this.router.navigateByPath(`/client/profile`);
 	}
 
-	renderAddCallerDetailsModal() {
-		if (this.addCallerDetails) {
-			return html`
-			<client-add-caller
-			
-			@on-back="${() => {
-					console.log('on back received');
-					this.addCallerDetails = false
-				}
-				}">
-			</client-add-caller>
-		 `;
-		}
-
-		return ``;
-	}
-
-	render() {
-
-		this.ButtonEnabled = true; //this.confirmedCaller.searchClientButton.enabled;
-		this.ButtonVisible = true; //this.confirmedCaller.searchClientButton.visible;
-		this.labelEnabled = false;
-		this.labelVisisble = true;
-
-
-		if (this.addCallerDetails != true) {
-			return html`
-			<capitec-modal type="free" header="Confirm Caller Details" header-align="left" >
-  				<div slot="body" class="main">
-					${this.renderCallInformation()}
-					${this.renderAddCallerDetails()}
-					${this.renderConfirmedCaller()}
-				</div>
-				${this.renderFooter()}
-			</capitec-modal>
-		`;
-		}
-		else {
-			return html`
-			${this.renderAddCallerDetailsModal()}
-		`;
-		}
-	}
-
-	renderCallInformation() {
-
-
-		return html`
-			<capitec-group layout="grid" class="grid-container"> 
-				<capitec-action-bar class="populatedText">
-					<div class="horizon-call"> 
-						<div class="ref-call">
-							<capitec-label id="ref-number" label="Reference Number"></capitec-label>	
-							<capitec-label id="label-value" 
-								label="${this.confirmedCaller.voiceReferenceNumber.value}"
-								disabled=${this.labelEnabled}
-								visible = ${this.labelVisible}>
-							</capitec-label>
-						</div>
-						<div class="ivr-option">
-							<capitec-select 
-								id="label-ivr" 
-								label="ivr option selected" 
-								.items="${[this.confirmedCaller.ivrOption.value]}" 
-								.value="${this.confirmedCaller.ivrOption.value}"
-								enabled = "${this.ButtonEnabled}";
-								visible = ${this.ButtonVisible}>
-							
-							</capitec-select>
-						</div>
-						<div class="incoming-call">
-							<capitec-label id="ref-number" label="Incoming Number"></capitec-label>
-							<capitec-label  id="incoming-num" 
-									label="${this.confirmedCaller.incomingTelephoneNumber.value}"
-									disabled=${this.labelEnabled}
-									visible = ${this.labelVisible}>
-							</capitec-label>
-						</div>
-					</div>
-				</capitec-action-bar>
-			</capitec-group>
- 		`;
-	}
-
-	renderAddCallerDetails() {
-		return html`
-			<div class="horizon-add-caller-details-div">		
-				<capitec-icon size="default" icon="system/info" id="action-icon"></capitec-icon>		
-
-				<u>
-		  			<capitec-label 
-		  				id="action-label" 
-						label="Add Caller Details"
-						@click="${() => this.addCallerDetails = true}"
-						enabled = ${this.ButtonEnabled}
-						visible = ${this.ButtonVisible}>
-					</capitec-label>
-				</u>
-				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-			</div>
-		`;
-	}
-
 	getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 		if (languagePreference === null) {
@@ -413,94 +291,228 @@ class ConfirmCallerDetailsComponent extends Component {
 
 	}
 
-	renderConfirmedCaller() {
+	render() {
+		if (this.addCallerDetails != true) {
+			return html`
+			<capitec-modal 
+					type="free" 
+					header="Confirm Caller Details" 
+					header-align="left">
+  				<div slot="body" class="main">
+					${this.renderCallInformation()}
+					${this.renderAddCallerDetails()}
+					${this.renderConfirmedCaller()}
+				</div>
+				${this.renderFooter()}
+			</capitec-modal>
+		`;
+		}
+		else {
+			return html`${this.renderAddCallerDetailsModal()}`;
+		}
+	}
 
-
+	renderCallInformation() {
 		return html`
-		<div class="client-avatar">
-			<capitec-avatar class="image" shape="none" value=""></capitec-avatar>										 
-			<div class="client-info">
-				<capitec-label class="fullname" 
-								id="label-value" 
-								label="${this.confirmedCaller.callerInformation.name.value}" 
-								disabled=${this.labelEnabled}
-								visible = ${this.labelVisible}>
-				</capitec-label>
-				<div></div>
+			<capitec-group layout = "grid" class="grid-container" >
+				<capitec-action-bar class="populatedText" tabindex="-1">
+					<div class="horizon-call">
+						<div class="ref-call">
+							<capitec-label 
+								id="ref-number" 
+								label="Reference Number"
+								tabindex="-1">
+							</capitec-label>
+							<capitec-label id="label-value"
+								label="${this.confirmedCaller.voiceReferenceNumber.value}"
+								tabindex="${getTabIndex(this.confirmedCaller.voiceReferenceNumber)}"
+								?hidden=${isHidden(this.confirmedCaller.voiceReferenceNumber)}>
+							</capitec-label>
+						</div>
+						<div class="ivr-option">
+							<capitec-select
+								id="label-ivr"
+								label="ivr option selected" 
+								display-field="value"
+								.items="${this.confirmedCaller.ivrOption.possibleValues}"
+								.value="${this.confirmedCaller.ivrOption.possibleValues[0]}"
+								tabindex="${getTabIndex(this.confirmedCaller.ivrOption)}"
+								?hidden=${isHidden(this.confirmedCaller.ivrOption)}>
+							</capitec-select>
+						</div>
+						<div class="incoming-call">
+							<capitec-label 
+								id="ref-number" 
+								label="Incoming Number"
+								tabindex="-1">
+							</capitec-label>
+							<capitec-label id="incoming-num"
+								label="${this.confirmedCaller.incomingTelephoneNumber.value}"
+								tabindex="${getTabIndex(this.confirmedCaller.incomingTelephoneNumber)}"
+								?hidden=${isHidden(this.confirmedCaller.incomingTelephoneNumber)}>
+							</capitec-label>
+						</div>
+					</div >
+				</capitec-action-bar >
+			</capitec-group >`;
+	}
 
-				<div>
-					<capitec-label label="ID Number"></capitec-label>
-					<capitec-label  id="label-text" 
+	renderAddCallerDetails() {
+		return html`
+			<div class="horizon-add-caller-details-div">
+				<capitec-icon 
+					size="default" 
+					icon="system/info" 
+					id="action-icon"
+					tabindex="-1">
+				</capitec-icon>
+				<u>
+					<capitec-label
+						id="action-label"
+						label="Add Caller Details"
+						tabindex="${getTabIndex(this.confirmedCaller.addCallerDetailsButton)}"
+						?hidden=${isHidden(this.confirmedCaller.addCallerDetailsButton)}
+						@click="${() => this.addCallerDetails = true}">
+				</u>
+				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
+			</div>`;
+	}
+
+	renderConfirmedCaller() {
+		return html`
+			<div class="client-avatar">
+				<capitec-avatar 
+					class="image" 
+					shape = "none" 
+					value = ""
+					tabindex="-1">
+				</capitec-avatar>
+				<div class="client-info">
+					<capitec-label class="fullname"
+						id="label-value"
+						label="${this.confirmedCaller.callerInformation.name.value}" 
+						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.name)}"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.name)}>
+					</capitec-label>
+					<div></div>
+					<div>
+						<capitec-label 
+							label="ID Number"
+							tabindex="-1"
+							?hidden=${isHidden(this.confirmedCaller.callerInformation.southAfricanIDNumber)}>
+						</capitec-label>
+						<capitec-label 
+							id="label-text"
 							label="${this.confirmedCaller.callerInformation.southAfricanIDNumber.value}"
-							disabled=${this.labelEnabled}
-							visible = ${this.labelVisible}>
+							tabindex="${getTabIndex(this.confirmedCaller.callerInformation.southAfricanIDNumber)}"
+							?hidden=${isHidden(this.confirmedCaller.callerInformation.southAfricanIDNumber)}>
+						</capitec-label>
+						</div><div>
+						<capitec-label 
+							label="Verified Cellphone Number"
+							tabindex="-1"
+							?hidden=${isHidden(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}>
+						</capitec-label>
+						<capitec-label 
+							id="label-text"
+							label="${this.getVerifiedTelephoneNumber()}"
+							tabindex="${getTabIndex(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}"
+							?hidden=${isHidden(this.confirmedCaller.callerInformation.verifiedTelephoneNumber)}>
+						</capitec-label>
+					</div>
+				<div>
+					<capitec-label 
+						label="Lives In"
+						tabindex="-1">
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.livesIn)}>
+					</capitec-label>
+					<capitec-label 
+						id="label-text"
+						label="${this.confirmedCaller.callerInformation.livesIn.value}"
+						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.livesIn)}"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.livesIn)}>
 					</capitec-label>
 				</div>
 				<div>
-	  				<capitec-label label="Verified Cellphone Number"></capitec-label>
-	  				<capitec-label  id="label-text" 
-					  		label="${this.getVerifiedTelephoneNumber()}"
-							disabled=${this.labelEnabled}
-							visible = ${this.labelVisible}>
+					<capitec-label 
+						label="Language Preference"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.languagePreference)}>
+						tabindex="-1">
 					</capitec-label>
-  				</div>
-
-				<div>
-	  				<capitec-label label="Lives In"></capitec-label>
-	  				<capitec-label  id="label-text" 
-							label="${this.confirmedCaller.callerInformation.livesIn.value}"
-							disabled=${this.labelEnabled}
-							visible = ${this.labelVisible}>
+					<capitec-label 
+						id="label-text" 
+						label="${this.getLanguagePreference()}"
+						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.languagePreference)}"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.languagePreference)}>
 					</capitec-label>
-  				</div>
+				</div>
 				<div>
-	  				<capitec-label label="Language Preference"></capitec-label>		
-	  				<capitec-label  id="label-text" label="${this.getLanguagePreference()}"
-							disabled=${this.labelEnabled}
-							visible = ${this.labelVisible}>
-					  </capitec-label>		
-  				</div>	
-
+					<capitec-label 
+						label="Birthday"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.birthdate)}>
+						tabindex="-1">
+					</capitec-label>
+					<capitec-label id="label-text"
+						label="${this.confirmedCaller.callerInformation.birthdate.value}"
+						tabindex="${getTabIndex(this.confirmedCaller.callerInformation.birthdate)}"
+						?hidden=${isHidden(this.confirmedCaller.callerInformation.birthdate)}>
+					</capitec-label>
+				</div>
 				<div>
-	  				<capitec-label label="Birthday"></capitec-label>	
-	  				<capitec-label  id="label-text" 
-					  		label="${this.confirmedCaller.callerInformation.birthdate.value}"
-							disabled=${this.labelEnabled}
-							visible = ${this.labelVisible}>
-					</capitec-label>	
-  				</div>				 
-				  <div></div>
-	
-			</div>
-		</div>`;
+				</div>
+			</div >
+		</div > `;
 	}
 
 	renderFooter() {
 		return html`
-			<capitec-action-bar slot="footer" class="footer-bar">
+			<capitec-action-bar 
+					slot = "footer" 
+					class="footer-bar" >
+				<capitec-button
+					id="id-search-client-button"
+					type="clear"
+					label="Search Client"
+					?hidden=${isHidden(this.confirmedCaller.searchClientButton)}
+					.disabled="${isDisabled(this.confirmedCaller.searchClientButton)}"
+					tabindex="${getTabIndex(this.confirmedCaller.searchClientButton)}"
+					@click="${() => console.log('on clicked search client')}">
+				</capitec-button>				
+				<capitec-spacer tabindex="-1"></capitec-spacer>
 				<capitec-button 
-					id="id-search-client-button" 
-					type="clear" 
-					label="Search Client" 
-					@click="${this.onDoneClick}"
-					enabled = ${this.ButtonEnabled}
-					visible = ${this.ButtonVisible}>
-					</capitec-button>
-				<capitec-spacer></capitec-spacer>
-				<capitec-button  type="clear" 
-						label="End Call Session" 
-						@click="${this.onDoneClick}"
-						enabled = ${this.ButtonEnabled}
-						visible = ${this.ButtonVisible}></capitec-button>
-		  		<capitec-button id="id-confirm-button" 
-				  				type="primary" 
-								label="Confirm" 
-								@click="${() => this.router.navigateByPath(`/client/profile`)}"
-								enabled = ${this.ButtonEnabled}
-								visible = ${this.ButtonVisible}>
+					type="clear"
+					label="End Call Session" 
+					?hidden=${isHidden(this.confirmedCaller.endCallSessionButton)}
+					.disabled="${isDisabled(this.confirmedCaller.endCallSessionButton)}"
+					tabindex="${getTabIndex(this.confirmedCaller.endCallSessionButton)}"
+					@click="${() => console.log('on end call button')}">
+				</capitec-button>	
+				<capitec-button 
+					id="id-confirm-button"
+					type="primary"
+					label="Confirm" 
+					?hidden=${isHidden(this.confirmedCaller.confirmButton)}
+					.disabled="${isDisabled(this.confirmedCaller.confirmButton)}"
+					tabindex="${getTabIndex(this.confirmedCaller.confirmButton)}"
+					@click="${() => this.onConfirmClick()}">
 				</capitec-button>
-			</capitec-action-bar>
-		`;
+			</capitec-action-bar>`;
+	}
+
+	renderAddCallerDetailsModal() {
+		if (this.addCallerDetails) {
+			return html`
+				<client-add-caller
+					@on-back="${() => {
+					console.log('on back received');
+					this.addCallerDetails = false
+				}
+				}">
+				</client-add-caller>
+		 `;
+		}
+
+		return html``;
 	}
 }
 

@@ -80,11 +80,6 @@ export class LandingPage extends View {
 			this.isBusy = true;
 
 			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
-			// this.isBusy = false;
-
-			// should initialise from acceptedCall and other sources (Add Caller Details info)
-
-			// let identifiedCaller = await StopCardService.getInstance().identifyCaller(incomingCallerData);
 
 			// Initialize from the results of the above web service calls.
 			// this will be passed into the confirmed caller dialog
