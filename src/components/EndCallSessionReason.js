@@ -3,17 +3,19 @@ import { View, html, css } from 'platform/elements';
 
 export class EndCallSessionReason extends View {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.endCallReason = null;
 	}
 
-	static get styles() {
-		return [
-			super.styles,
-		]
-	}
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -21,6 +23,49 @@ export class EndCallSessionReason extends View {
 			endCallReason: { type: String },
 		}
 	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	onValueChanged(e) {
+		if (e.detail.new) {
+			this.endCallReason = e.detail.selected
+		};
+	}
+
+	onReasonSelected() {
+		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
+	}
+
+	onCancelpopup() {
+		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// n/a
+
+	// ---------
+	// RENDERING
+	// ---------	
+
+	static get styles() {
+		return [
+			super.styles,
+		]
+	}
+
 
 	render() {
 		return html`
@@ -69,23 +114,6 @@ export class EndCallSessionReason extends View {
 				</capitec-button>
 			</capitec-action-bar>
 		`;
-	}
-
-	onValueChanged(e) {
-		if (e.detail.new) {
-			this.endCallReason = e.detail.selected
-		};
-	}
-
-	onReasonSelected() {
-		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
-	}
-
-	onCancelpopup() {
-		this.dispatchEvent(new CustomEvent('on-cancel', {}));
-
-		// TODO: Keep for compatibility with current code. To remove
-		this.eventAggregator.publish('toggle-endcall-session', {});
 	}
 }
 
