@@ -53,11 +53,11 @@ export class LandingPage extends View {
 
 		///TODO: Replace this with data that comes from the POP
 		let incomingCallData = {
-			incomingNumber: "082 555 9090",
-			voiceReference: "34562783",
-			ivrOption: 'Stop Card', // TODO: fix this to whatever is right
-			incidentNo: '1234567',
-			agentPhoneNumber: '021 8523086'
+			incomingNumber: "0631152973",
+			voiceReference: "123456",
+			ivrOption: 'StopCard', // TODO: fix this to whatever is right
+			incidentNo: '123456',
+			agentPhoneNumber: '0219412557'
 		};
 
 
@@ -67,11 +67,11 @@ export class LandingPage extends View {
 
 			// should initialise from acceptedCall and other sources (Add Caller Details info)
 			let incomingCallerData = {
-				incomingNumber: incomingCallData.incomingNumber,
-				voiceReference: incomingCallData.voiceReference,
-				ivrOption: incomingCallData.ivrOption,
-				incidentNo: incomingCallData.incidentNo,
-				agentPhoneNumber: incomingCallData.agentFullName,
+				incomingNumber: acceptedCall.incomingTelephoneNumber.value,
+				voiceReference: acceptedCall.voiceReferenceNumber.value,
+				ivrOption: acceptedCall.ivrOption.value,
+				incidentNo: acceptedCall.incidentReferenceNumber,
+				agentPhoneNumber: incomingCallData.agentPhoneNumber,
 				nonClientFullName: '',
 				nonClientCellPhone: '',
 				nonClientIDNumber: '',
@@ -93,7 +93,8 @@ export class LandingPage extends View {
 				verifiedCellphone: identifiedCaller.clientPersonalInformation.value.verifiedTelephoneNumber.value,
 				livesIn: identifiedCaller.clientPersonalInformation.value.livesIn.value,
 				language: identifiedCaller.clientPersonalInformation.value.languagePreference.value,
-				birthday: identifiedCaller.clientPersonalInformation.value.birthdate.value
+				birthday: identifiedCaller.clientPersonalInformation.value.birthdate.value,
+				incidentNo: incomingCallerData.incidentNo
 			}
 
 			this.displayConfirmedCaller = true;
@@ -101,17 +102,19 @@ export class LandingPage extends View {
 		catch (error) {
 			console.log(error);
 			this.confirmedCaller = {
-				referenceNumber: '2345',
+				referenceNumber: '123456',
 				ivrOptions: [
 					{ id: 'IVR', text: 'Stop Card' }
 				],
-				incomingNumber: '021 8523086',
+				incomingNumber: '0631152973',
 				fullName: 'jeff',
 				idNumber: '6712075142087',
 				verifiedCellphone: '084 6161747',
 				livesIn: 'SW',
 				language: 'ENG',
-				birthday: 'DEC'
+				birthday: 'DEC',
+				incidentNo: '123456',
+				agentPhoneNumber: "0219412557"
 			}
 
 			this.displayConfirmedCaller = true; //TODO: remove debug

@@ -51,10 +51,10 @@ export class StopCardService {
 			'ivrOptionCode': callerData.ivrOption,
 			'incidentReferenceNumber': callerData.incidentNo,
 			'agentTelephoneNumber': callerData.agentPhoneNumber,
-			'nonClientFullName': callerData.Name + '' + callerData.Surname,
-			'nonClientCellPhone': callerData.CellPhone,
+			'nonClientFullName': callerData.nonClientFullName,
+			'nonClientCellPhone': callerData.nonClientCellPhone,
 			'nonClientIDNumber': callerData.nonClientIDNumber,
-			'nonClientRelationship': callerData.Relationship
+			'nonClientRelationship': callerData.nonClientRelationship
 		});
 	}
 }

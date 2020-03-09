@@ -7,6 +7,7 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import './AddCallerDetailsComponent';
+import { StopCardService } from '../services/StopCardService';
 
 class ConfirmCallerDetailsComponent extends Component {
 
@@ -45,7 +46,8 @@ class ConfirmCallerDetailsComponent extends Component {
 			verifiedCellphone: '',
 			livesIn: '',
 			language: '',
-			birthday: ''
+			birthday: '',
+			incidentNo: ''
 		}
 
 		this.addCallerDetails = false;
@@ -292,7 +294,27 @@ class ConfirmCallerDetailsComponent extends Component {
 	}
 
 	onConfirmClick() {
-		this.router.navigateByPath(`/client/profile`);
+
+		let incomingCallerData = {
+			incomingNumber: this.confirmedCaller.incomingNumber,
+			voiceReference: this.confirmedCaller.referenceNumber,
+			ivrOption: "StopCard",
+			incidentNo: this.confirmedCaller.incidentNo,
+			agentPhoneNumber: this.confirmedCaller.agentPhoneNumber,
+			nonClientFullName: '',
+			nonClientCellPhone: '',
+			nonClientIDNumber: '',
+			nonClientRelationship: ''
+		}
+
+		let res = StopCardService.getInstance().identifyCaller(incomingCallerData);
+		res.then(() => {
+			this.router.navigateByPath(`/client/profile`);
+		},
+			(error) => {
+				console.log("Error in fetching data from IdentifyCaller");
+				this.router.navigateByPath(`/client/profile`);
+			});
 	}
 
 	renderAddCallerDetailsModal() {
@@ -417,7 +439,7 @@ class ConfirmCallerDetailsComponent extends Component {
 		  		<capitec-button id="id-confirm-button" 
 				  				type="primary" 
 								label="Confirm" 
-								@click="${() => this.router.navigateByPath(`/client/profile`)}">
+								@click="${() => this.onConfirmClick()}">
 				</capitec-button>
 			</capitec-action-bar>
 		`;
