@@ -114,9 +114,8 @@ export class FixedTermSavingsProduct extends View {
 						<hr>
 						<ul class="list-items">
 							<li>You choose how long you want to invest (6 - 60 months)</li>
-							<li>Deposit a single amoutn up to a maximum of R20 million to invest over the term you choose</li>
+							<li>Deposit a single amount up to a maximum of R20 million to invest over the term you choose</li>
 							<li>Minimum deposit amount of R10 000</li>
-							<li>Earn up to 8.55% interest (nominal interest rate)</li>
 						</ul>
 						<hr class="hr-top">
 							<capitec-label id="label" label="Benefits" type="strong"></capitec-label>
@@ -127,8 +126,8 @@ export class FixedTermSavingsProduct extends View {
 						<ul class="list-items">
 							<li>Reinvest the interest or transfer it to your main savings account</li>
 							<li>Interest rate fixed for the full term</li>
-							<li>Money availabel on the maturity date</li>
-							<li>After maturity, the acount becomes a flexible savings plan which you can refix</li>
+							<li>Money available on the maturity date</li>
+							<li>After maturity, the account becomes a flexible savings plan, which you can refix</li>
 							<li>No monthly admin fee</li>
 						</ul>
 					</capitec-content-box>
