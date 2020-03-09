@@ -117,7 +117,7 @@ export class AppShell extends Shell {
 			platformVersion: { type: String },
 			applicationName: { type: String },
 			applicationVersion: { type: String },
-			landingPageView: { type: String },
+			landingPageView: { type: Boolean },
 			fullname: { type: String },
 			employeeId: { type: String },
 			cardStop: { type: Array },

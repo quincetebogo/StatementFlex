@@ -121,9 +121,8 @@ export class FlexibleSavingsPlanProduct extends View {
 							The benefits of our flexible savings plans:
 						</p>
 						<ul class="list-items">
-							<li>Earn from 4.50% interest per year on your daily balances</li>
 							<li>Choose your deposit amount and the frequency of your deposits</li>
-							<li>Choose a name of your plan</li>
+							<li>Choose a name for your plan</li>
 							<li>Access your plan any time through Remote Banking or our ATMs</li>
 							<li>No monthly admin fee or minimum balance</li>
 						</ul>

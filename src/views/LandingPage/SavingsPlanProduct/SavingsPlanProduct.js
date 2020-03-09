@@ -1,9 +1,9 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
-import 'platform/components/buttons/ProductTile';
 
 import { StopCardService } from '../../../services/StopCardService';
 import { HorizonViewManager } from '../../../HorizonViewManager';
+import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
 
@@ -51,7 +51,7 @@ export class SavingsPlanProduct extends View {
 					width:auto;
 					margin: 0px 24px 0px 24px;
 				}				
-				capitec-product-tile{
+				horizon-product-tile{
 					width : 100%;
 					margin: 24px 0px 0px 0px;
 				}
@@ -63,24 +63,24 @@ export class SavingsPlanProduct extends View {
 			<capitec-card class="savingsproduct-info">
 			<capitec-title-bar type="save" label="Savings Plan"></capitec-title-bar>
 				<div class="margin-wrapper">
-					<capitec-product-tile type="save" 
+					<horizon-product-tile type="save" 
 										  label="Flexible Savings" 
 										  subtitle="Earn from 5.1% interest per year on your daily balances. You have immediate access to your money."
 										  navigational="true"
 										  @click="${() => this.router.navigateByPath(`/product/savings-plan/flexible`)}">
-					</capitec-product-tile>
-					<capitec-product-tile type="save" 
+					</horizon-product-tile>
+					<horizon-product-tile type="save" 
 										  label="Fixed-term Savings" 
 										  subtitle="Earn up to 9.25% interest when you fix your savings plan for 6 - 60 months. You can calculate your estimated payout."
 										  navigational="true"
 										  @click="${() => this.router.navigateByPath(`/product/savings-plan/fixed-term`)}">
-					</capitec-product-tile>
-					<capitec-product-tile type="save" 
+					</horizon-product-tile>
+					<horizon-product-tile type="save" 
 										  label="Tax-free Savings" 
 										  subtitle="Save up to R33 000 per year for 12 - 24 months and pay no tax on your interest earned."
 										  navigational="true"
 										  @click="${() => this.router.navigateByPath(`/product/savings-plan/tax-free`)}">
-					</capitec-product-tile>
+					</horizon-product-tile>
 					</div>
 			</capitec-card>
 		`;
