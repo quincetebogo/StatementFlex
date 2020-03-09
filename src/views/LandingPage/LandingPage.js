@@ -1,9 +1,10 @@
 import { View, html, css } from 'platform/elements';
 import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
 
 import '../../components/LandingPageWaitForCall';
-import '../../components/ConfirmCallerDetailsComponent';
+import '../../components/dialogs/ConfirmCallerDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { HorizonViewManager } from '../../HorizonViewManager';
@@ -16,11 +17,11 @@ export class LandingPage extends View {
 		this.displayConfirmedCaller = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
-
+		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.router = Router.getInstance();
 
 		this.isBusy = false;
-		/// Temporary event to catch temporary button trigger to invoke comfirmed call dialog
-		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
 
 		this.voiceReferenceNumber = ``;
 		this.incomingTelephoneNumber = ``;
@@ -45,7 +46,7 @@ export class LandingPage extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
 	}
 
 	async GetLandingPageData(landingPageData) {
@@ -80,11 +81,6 @@ export class LandingPage extends View {
 			this.isBusy = true;
 
 			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
-			// this.isBusy = false;
-
-			// should initialise from acceptedCall and other sources (Add Caller Details info)
-
-			// let identifiedCaller = await StopCardService.getInstance().identifyCaller(incomingCallerData);
 
 			// Initialize from the results of the above web service calls.
 			// this will be passed into the confirmed caller dialog
@@ -111,6 +107,17 @@ export class LandingPage extends View {
 		}
 	}
 
+	onCallerConfirmed(data) {
+		this.horizonViewManager.saveState(data.detail.confirmedCaller);
+		this.displayConfirmedCaller = false;
+		this.router.navigateByPath(`/client/profile`);
+	}
+
+	onCallEnded(data) {
+		console.log(data.detail);
+		this.displayConfirmedCaller = false;
+		//		this.router.navigateByPath(`/landingpage`);
+	}
 
 	static get styles() {
 		return [
@@ -152,7 +159,12 @@ export class LandingPage extends View {
 
 	renderConfirmedUser() {
 		if (this.displayConfirmedCaller) {
-			return html`<confirm-caller-component .confirmedCaller="${this.confirmedCaller}"></confirm-caller-component>`;
+			return html`
+				<horizon-confirm-caller 
+					.confirmedCaller="${this.confirmedCaller}"
+					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
+					@call-ended="${(data) => this.onCallEnded(data)}">
+				</horizon-confirm-caller>`;
 		}
 
 		return html``;

@@ -7,6 +7,10 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 	}
 
+
+	endCallSession() {
+	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -47,9 +51,6 @@ export class HorizonActionBar extends Component {
 			</capitec-action-bar>
 		</div>
 		`;
-	}
-	endCallSession() {
-		this.eventAggregator.publish('toggle-endcall-session', {});
 	}
 }
 
