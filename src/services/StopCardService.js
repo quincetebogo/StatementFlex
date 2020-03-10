@@ -57,4 +57,27 @@ export class StopCardService {
 			'nonClientRelationship': callerData.Relationship
 		});
 	}
+
+	async searchOptions(incomingCallData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search/options`, {
+			"incomingTelephoneNumber": incomingCallData.incomingNumber,
+			"voiceReferenceNumber": incomingCallData.voiceReference,
+			"ivrOptionCode": incomingCallData.ivrOptionSelected,
+			"incidentReferenceNumber": incomingCallData.incidentNo,
+			"agentTelephoneNumber": incomingCallData.agentPhoneNumber
+		});
+	}
+
+	async searchCaller(clientInfo) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`, {
+			"incomingTelephoneNumber": clientInfo.incomingNumber,
+			"voiceReferenceNumber": clientInfo.voiceReference,
+			"ivrOptionCode": clientInfo.ivrOptionSelected,
+			"incidentReferenceNumber": clientInfo.incidentNo,
+			"agentTelephoneNumber": clientInfo.agentPhoneNumber,
+			"identificationMethod": parseInt(clientInfo.identificationMethod),
+			"value": clientInfo.searchValue
+		});
+	}
+
 }

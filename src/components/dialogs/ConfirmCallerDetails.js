@@ -11,13 +11,16 @@ import 'platform/components/core/Icon';
 
 import '../AddCallerDetailsComponent';
 import '../EndCallSessionReason';
+import './SearchClientDetails';
 
+import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
-	END_CALL: 2
+	END_CALL: 2,
+	SEARCH_CALLER: 3
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -114,6 +117,25 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+	}
+
+	onSearchClick() {
+
+		let callerDetails = {
+			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
+			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
+			incidentNo: this.confirmedCaller.incidentReferenceNumber,
+			agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber,
+			ivrOptionSelected: 'StopCard'
+		}
+		let searchOptions = StopCardService.getInstance().searchOptions(callerDetails);
+
+		searchOptions.then((response) => {
+			this.confirmedCaller.identificationMethods = response.identificationMethods;
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		}, (error) => {
+			console.log("Error in fething search options.");
+		});
 	}
 
 	// --------------
@@ -408,6 +430,8 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`${this.renderSearchCallerModal()}`;
 		}
 	}
 
@@ -575,7 +599,7 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.searchClientButton)}
 					.disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => console.log('on clicked search client')}">
+					@click="${() => this.onSearchClick()}">
 				</capitec-button>				
 				<capitec-spacer tabindex="-1"></capitec-spacer>
 				<capitec-button 
@@ -612,6 +636,13 @@ export class ConfirmCallerDetails extends Component {
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
 				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
 			</end-call-session>`;
+	}
+
+	renderSearchCallerModal() {
+		return html`
+			<search_client-details 
+				.confirmedCaller="${this.confirmedCaller}">	
+			</search_client-details>`;
 	}
 }
 
