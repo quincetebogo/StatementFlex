@@ -11,13 +11,15 @@ import 'platform/components/core/Icon';
 
 import '../AddCallerDetailsComponent';
 import '../EndCallSessionReason';
+import '../SearchClientDetails';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
-	END_CALL: 2
+	END_CALL: 2,
+	SEARCH_CLIENT: 3
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -408,6 +410,8 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+			case RENDER_MODE.SEARCH_CLIENT:
+				return html`${this.renderSearchClientModal()}`;
 		}
 	}
 
@@ -575,7 +579,7 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.searchClientButton)}
 					.disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => console.log('on clicked search client')}">
+					@click="${() => this.renderMode = RENDER_MODE.SEARCH_CLIENT}">
 				</capitec-button>				
 				<capitec-spacer tabindex="-1"></capitec-spacer>
 				<capitec-button 
@@ -604,6 +608,13 @@ export class ConfirmCallerDetails extends Component {
 			<client-add-caller
 				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
 			</client-add-caller>`;
+	}
+
+	renderSearchClientModal() {
+		return html`
+			<search_client-details>
+			</search_client-details>	
+		`;
 	}
 
 	renderEndCallModal() {
