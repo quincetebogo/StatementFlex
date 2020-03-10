@@ -1,8 +1,14 @@
 import { Component, html, css } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 
 export class HorizonActionBar extends Component {
 	constructor() {
 		super();
+		this.eventAggregator = EventAggregator.getInstance();
+	}
+
+
+	endCallSession() {
 	}
 
 	static get styles() {
@@ -41,9 +47,10 @@ export class HorizonActionBar extends Component {
 				<capitec-icon size="small" icon="system/phone-escalation"></capitec-icon>
 				<capitec-label type="title" label="082 555 9090"></capitec-label>
 				<capitec-spacer></capitec-spacer>
-				<capitec-button label="End Call Session" type="primary"></capitec-button>
+				<capitec-button label="End Call Session" type="primary" @click="${() => this.endCallSession()}"></capitec-button>
 			</capitec-action-bar>
-		</div>`
+		</div>
+		`;
 	}
 }
 

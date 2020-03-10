@@ -1,19 +1,15 @@
 import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
-import 'platform/components';
-
-import { EventAggregator } from 'platform/EventAggregator';
-
 import { StopCardService } from '../../../services/StopCardService';
+import { HorizonViewManager } from '../../../HorizonViewManager';
+import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
 
 	constructor() {
 		super();
 		this.router = Router.getInstance();
-		this.fullname = ``;
-		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	async connectedCallback() {
@@ -21,6 +17,11 @@ export class SavingsPlanProduct extends View {
 
 		let landingPageData = null;
 
+		landingPageData = await this.GetLandingPageData(landingPageData);
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+	}
+
+	async GetLandingPageData(landingPageData) {
 		try {
 			landingPageData = await StopCardService.getInstance().initialise();
 		}
@@ -29,60 +30,16 @@ export class SavingsPlanProduct extends View {
 			console.log(ex);
 		}
 
-		if (landingPageData != null) {
-			this.eventAggregator.publish('horizon-top-bar-data', {
-				agentFullName: landingPageData.agentFullName,
-				employeeId: landingPageData.loggedInAgent.employeeId
-			});
-			this.fullname = landingPageData.loggedInAgent.fullName;
-		}
-		else {
-			this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
-			this.fullname = `unknown`;
-		}
-	}
-
-	static get properties() {
-		return {
-			fullname: { type: String },
-		}
+		return landingPageData;
 	}
 
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				:host{
-					padding: 20px 0px 0px 20px;
-				}
-				.grid-container {
-					display: grid;
-					grid-template-columns: 0.413534fr 1fr 0.300752fr;
-					grid-template-areas: "left middle right";
-					grid-gap: 24px;
-					background-color: gainsboro;
-					height: 770px;
-					width: 1903px;
-				}
-				.left {
-					grid-area: left;
-					width: 100%;
-					background-color: gainsboro;
-				}
-				.middle {
-					grid-area: middle;
-					width: 100%;
-					text-align: center;
-				}
-				.right {
-					grid-area: right;
-					justify-self: center;
-					width: 320px;
-					height:770px;
-				}
 				.savingsproduct-info{
-					width: 100%;
-					height: 770px;
+					width:100%;
+					height:100%;
 					padding: 0px 0px 0px 0px;
 					text-align: center;
 					line-height: 40px;
@@ -90,18 +47,22 @@ export class SavingsPlanProduct extends View {
 					background-color: white;
 					border-radius: none;
 				}
+				.margin-wrapper{
+					width:auto;
+					margin: 0px 24px 0px 24px;
+				}				
 				horizon-product-tile{
-					width: 97%;
-					margin: 15px 0px 15px 15px;
+					width : 100%;
+					margin: 24px 0px 0px 0px;
 				}
 			`];
 	}
 
-	renderMiddleSection() {
+	render() {
 		return html`
 			<capitec-card class="savingsproduct-info">
-				<capitec-title-bar type="save" label="Savings Plan"></capitec-title-bar>
-
+			<capitec-title-bar type="save" label="Savings Plan"></capitec-title-bar>
+				<div class="margin-wrapper">
 					<horizon-product-tile type="save" 
 										  label="Flexible Savings" 
 										  subtitle="Earn from 5.1% interest per year on your daily balances. You have immediate access to your money."
@@ -120,13 +81,8 @@ export class SavingsPlanProduct extends View {
 										  navigational="true"
 										  @click="${() => this.router.navigateByPath(`/product/savings-plan/tax-free`)}">
 					</horizon-product-tile>
+					</div>
 			</capitec-card>
-		`;
-	}
-
-	render() {
-		return html`
-					${this.renderMiddleSection()}
 		`;
 	}
 }

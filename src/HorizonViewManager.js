@@ -41,6 +41,7 @@ export class HorizonViewManager {
 	constructor() {
 		this.transitionTo = HORIZON_VIEWS.LANDING_PAGE;
 		this.eventAggregator = EventAggregator.getInstance();
+		this.state = null;
 	}
 
 	/// TODO: At the moment this is called, the view is actually current so perhaps the name needs to change
@@ -85,5 +86,24 @@ export class HorizonViewManager {
 				this.fullname = `unknown`;
 			}
 		}
+	}
+
+	//=======================
+	// CHEAP STATE MANAGE<ENT
+	//=======================
+
+	// Before navigating to another view, save any state information the next view may require 
+	// by calling this method (replace with Redux or something later)
+	saveState(stateToSave) {
+		this.state = stateToSave;
+	}
+
+	// Recover state information saved by the previous view.
+	// Recovering clears the saved state. If the new view wishes to 
+	// save state it must do so explicity.
+	recoverState() {
+		let tmpState = this.state;
+		this.state = null;
+		return tmpState;;
 	}
 }
