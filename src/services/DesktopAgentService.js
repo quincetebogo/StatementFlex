@@ -1,4 +1,7 @@
 
+import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
+
 export class NewCallEvent { };
 
 
@@ -40,6 +43,9 @@ export class DesktopAgentService {
 
 			this.queueEvent(newCallEvent);
 		})
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.router = Router.getInstance();
 	}
 
 	queueEvent(event) {
@@ -58,7 +64,19 @@ export class DesktopAgentService {
 	processEventQueue() {
 		// Business logic on how to respond to events comes here
 
+		let event = this.getNextEvent();
+		if (event.event === 'new-call') {
+			// 1. Get current view from router
+			if (NavigationContext.getInstance().current.route.name === 'landing-page') {
+				// 1.1 If Landing Page => publish event ('horizon-temp-button' for now)
+				this.eventAggregator.publish(`horizon-temp-button`, {});
+			}
 
+			// 1.2   If NOT on Landing Page => Wait for Landing Page (by listening for landing-page-loaded event)
+			// 1.2.1 When landing-page-loaded event received, check if a end-call event was received to cancel the new-call
+			// 1.2.2 If not, proceed to publish event
+
+		}
 	}
 
 }
