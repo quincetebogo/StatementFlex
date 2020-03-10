@@ -52,7 +52,7 @@ export class AppShell extends Shell {
 		Platform.onUserLoggedOut(() => this._onUserLoggedOut());
 
 		// Platform Non-UI Components.
-		this.securityContext = SecurityContext.getInstance();
+		// this.securityContext = SecurityContext.getInstance();
 		this.executionContext = ExecutionContext.getInstance();
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
@@ -62,14 +62,8 @@ export class AppShell extends Shell {
 		horizonRoutes.map(route => this.router.addRoute(route));
 
 
-		/// TODO: MOVE INTO A SINGLETON CLASS
-
-		// Listening for SSE events from the Desktop Agent
-		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
-		// this.eventSource.addEventListener("new-call", (event) => {
-		// 	console.log("Received 'new-call' event: ", event);
-		// })
-		this.desktopAgent = DesktopAgentService.getInstance();
+		// Listening for events from the Desktop Agent
+		DesktopAgentService.getInstance();
 
 
 		this.showClientProfile = false;

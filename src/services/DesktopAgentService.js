@@ -42,9 +42,12 @@ export class DesktopAgentService {
 			console.log(newCallEvent);
 
 			this.queueEvent(newCallEvent);
+			this.processEventQueue();
 		})
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
+
 		this.router = Router.getInstance();
 	}
 
@@ -55,28 +58,41 @@ export class DesktopAgentService {
 		}
 	}
 
-	getNextEvent() {
-		let event = this.eventQueue.shift();
+	dequeueNextEvent() {
+		return this.eventQueue.shift();
+	}
 
-		return event;
+	peekNextEvent() {
+		return this.eventQueue[0];
+	}
+
+	eventQueueContains(event) {
+		return this.eventQueue.includes(event);
 	}
 
 	processEventQueue() {
 		// Business logic on how to respond to events comes here
 
-		let event = this.getNextEvent();
-		if (event.event === 'new-call') {
-			// 1. Get current view from router
+		// If NOT on Landing Page => Wait for Landing Page (by listening for landing-page-loaded event)
+		// When landing-page-loaded event received, check if a end-call event was received to cancel the new-call
+		// If not, proceed to publish event
+
+		console.log("Processing Desktop Agent event queue...");
+
+		if (this.peekNextEvent() instanceof NewCallEvent) {
+			console.log("Processing New Call Event");
+
+			// Get current view from router
 			if (NavigationContext.getInstance().current.route.name === 'landing-page') {
-				// 1.1 If Landing Page => publish event ('horizon-temp-button' for now)
-				this.eventAggregator.publish(`horizon-temp-button`, {});
+				// If Landing Page => publish event
+				console.log("Publishing new-call event");
+				this.eventAggregator.publish(`new-call`, this.dequeueNextEvent());
 			}
+			else {
+				// TODO: should we forcefully route to landing page?
 
-			// 1.2   If NOT on Landing Page => Wait for Landing Page (by listening for landing-page-loaded event)
-			// 1.2.1 When landing-page-loaded event received, check if a end-call event was received to cancel the new-call
-			// 1.2.2 If not, proceed to publish event
-
+				console.log("Not on landing page, waiting for agent to end the call...");
+			}
 		}
 	}
-
 }
