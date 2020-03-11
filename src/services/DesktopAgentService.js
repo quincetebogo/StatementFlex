@@ -1,8 +1,25 @@
 
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
+import { NavigationContext } from 'platform/NavigationContext';
 
-export class NewCallEvent { };
+
+export class NewCallEvent {
+	constructor(
+		incomingTelephoneNumber,
+		voiceReferenceNumber,
+		ivrOptionCode,
+		incidentReferenceNumber,
+		agentTelephoneNumber,
+		date) {
+		this.IncomingTelephoneNumber = incomingTelephoneNumber;
+		this.VoiceReferenceNumber = voiceReferenceNumber;
+		this.IVROptionCode = ivrOptionCode;
+		this.IncidentReferenceNumber = incidentReferenceNumber;
+		this.AgentTelephoneNumber = agentTelephoneNumber;
+		this.Date = date;
+	}
+};
 
 
 // Scenario 1 - Call center NOT busy, call ends, and user have enough time to click on "end call" 

@@ -1,5 +1,6 @@
 import { HttpClient } from 'platform/HttpClient';
 import { Configuration } from 'platform/Configuration';
+import { NewCallEvent } from './DesktopAgentService';
 
 export class StopCardService {
 
@@ -36,11 +37,11 @@ export class StopCardService {
 
 	async acceptCall(incomingCallData) {
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
-			'incomingTelephoneNumber': incomingCallData.incomingNumber,
-			'voiceReferenceNumber': incomingCallData.voiceReference,
-			'ivrOptionCode': incomingCallData.ivrOption,
-			'incidentReferenceNumber': incomingCallData.incidentNo,
-			'agentTelephoneNumber': incomingCallData.agentPhoneNumber
+			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
+			'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
+			'ivrOptionCode': incomingCallData.IVROptionCode,
+			'incidentReferenceNumber': incomingCallData.IncidentReferenceNumber,
+			'agentTelephoneNumber': incomingCallData.AgentTelephoneNumber
 		});
 	}
 

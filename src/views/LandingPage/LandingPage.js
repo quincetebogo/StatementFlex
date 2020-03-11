@@ -17,7 +17,7 @@ export class LandingPage extends View {
 		this.displayConfirmedCaller = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ incomingNumber: "0631152973", voiceReference: "123456", ivrOption: 'StopCard', incidentNo: '1234567', agentPhoneNumber: '0219412557' }));
+		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ Date: "2020-03-11T16:05:44.5173009+02:00", IncomingTelephoneNumber: "0631152973", VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard', IncidentReferenceNumber: '1234567' }));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
@@ -94,7 +94,7 @@ export class LandingPage extends View {
 		}
 		catch (error) {
 
-			console.log("Error trying to handle new call event", error);
+			console.log("Error trying to handle new call event:", error);
 			this.confirmedCaller = null;
 
 			this.displayConfirmedCaller = false;
