@@ -106,12 +106,12 @@ export class ConfirmCallerDetails extends Component {
 		let identifyCaller = StopCardService.getInstance().identifyCaller(confirmedCaller);
 
 		identifyCaller.then((response) => {
-			confirmedCaller.cards = response.data.cards;
-			confirmedCaller.clientPersonalInfo = response.data.clientPersonalInformation;
-			confirmedCaller.notAuthorizedLink = response.data.notAuthorizedLink;
-			confirmedCaller.authorized = response.data.authorized;
-			confirmedCaller.clientInsights = response.data.clientInsights;
-			confirmedCaller.clientAccess = response.data.clientAccess;
+			confirmedCaller.cards = response.cards;
+			confirmedCaller.clientPersonalInfo = response.clientPersonalInformation;
+			confirmedCaller.notAuthorizedLink = response.notAuthorizedLink;
+			confirmedCaller.authorized = response.authorized;
+			confirmedCaller.clientInsights = response.clientInsights;
+			confirmedCaller.clientAccess = response.clientAccess;
 
 			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
 		}, (error) => {
