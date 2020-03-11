@@ -13,6 +13,7 @@ import '../AddCallerDetailsComponent';
 import '../EndCallSessionReason';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import { StopCardService } from '../../services/StopCardService';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -72,6 +73,8 @@ export class ConfirmCallerDetails extends Component {
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -81,15 +84,18 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	onConfirmClick() {
 		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentReferenceNumber: this.incidentReferenceNumber,
+			agentTelephoneNumber: this.agentTelephoneNumber,
 			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			livesIn: this.livesIn.value,
 			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
+			birthdate: this.birthdate.value,
+			relationship: ''
 			/*
 				TODO: should added Caller Details go here?
 
@@ -97,7 +103,245 @@ export class ConfirmCallerDetails extends Component {
 			*/
 		}
 
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+		let identifyCaller = StopCardService.getInstance().identifyCaller(confirmedCaller);
+
+		identifyCaller.then((response) => {
+			confirmedCaller.cards = response.data.cards;
+			confirmedCaller.clientPersonalInfo = response.data.clientPersonalInformation;
+			confirmedCaller.notAuthorizedLink = response.data.notAuthorizedLink;
+			confirmedCaller.authorized = response.data.authorized;
+			confirmedCaller.clientInsights = response.data.clientInsights;
+			confirmedCaller.clientAccess = response.data.clientAccess;
+
+			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+		}, (error) => {
+			/**
+			 * Need to removed this hard coded values, when Identify Caller is ready
+			 */
+			confirmedCaller.cards = [
+				{
+					"accountNumber": "5284 **** **** 1322",
+					"cardType": "Debit Card",
+					"cardStatus": "Active",
+					"stopCard": {
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					}
+				},
+				{
+					"accountNumber": "5284 **** **** 1222",
+					"cardType": "Credit Card",
+					"cardStatus": "Active",
+					"stopCard": {
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					}
+				}
+			];
+			confirmedCaller.clientPersonalInfo = {
+				"required": true,
+				"value": {
+					"name": {
+						"required": true,
+						"value": this.callerFullName.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"southAfricanIDNumber": {
+						"required": true,
+						"value": this.southAfricanIDNumber.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"verifiedTelephoneNumber": {
+						"required": true,
+						"value": this.verifiedTelephoneNumber.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"livesIn": {
+						"required": true,
+						"value": this.livesIn.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"languagePreference": {
+						"required": true,
+						"value": this.languagePreference.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"birthdate": {
+						"required": true,
+						"value": this.birthdate.value,
+						"inputValidationOption": {
+							"validationEnabled": true,
+							"inputRegexValidation": "",
+							"validationFailedMessage": ""
+						},
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"viewProfileButton": {
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					},
+					"documentsButton": {
+						"enabled": true,
+						"tabIndex": 0,
+						"visible": true
+					}
+				},
+				"inputValidationOption": {
+					"validationEnabled": true,
+					"inputRegexValidation": "",
+					"validationFailedMessage": ""
+				},
+				"enabled": true,
+				"tabIndex": 0,
+				"visible": true
+			};
+			confirmedCaller.notAuthorizedLink = {
+				"enabled": true,
+				"tabIndex": 0,
+				"visible": true
+			};
+			confirmedCaller.authorized = true;
+			confirmedCaller.clientInsights = [];
+			confirmedCaller.clientAccess = {
+				"App": {
+					"possibleValues": [
+						{
+							"key": 0,
+							"value": "Update cellphone number/Network"
+						},
+						{
+							"key": 1,
+							"value": "Replace/Update remote banking"
+						}
+					],
+					"required": true,
+					"value": "",
+					"inputValidationOption": {
+						"validationEnabled": true,
+						"inputRegexValidation": "",
+						"validationFailedMessage": ""
+					},
+					"enabled": true,
+					"tabIndex": 0,
+					"visible": true
+				},
+				"USSD": {
+					"possibleValues": [
+						{
+							"key": 0,
+							"value": "Update"
+						}
+					],
+					"required": true,
+					"value": "string",
+					"inputValidationOption": {
+						"validationEnabled": true,
+						"inputRegexValidation": "string",
+						"validationFailedMessage": "string"
+					},
+					"enabled": true,
+					"tabIndex": 0,
+					"visible": true
+				},
+				"SMS Notifications": {
+					"possibleValues": [
+						{
+							"key": 0,
+							"value": "Update"
+						},
+						{
+							"key": 1,
+							"value": "Cancel"
+						}
+					],
+					"required": true,
+					"value": "",
+					"inputValidationOption": {
+						"validationEnabled": true,
+						"inputRegexValidation": "",
+						"validationFailedMessage": ""
+					},
+					"enabled": true,
+					"tabIndex": 0,
+					"visible": true
+				},
+				"Cards": {
+					"possibleValues": [
+						{
+							"key": 0,
+							"value": "Stop Card"
+						},
+						{
+							"key": 1,
+							"value": "Card Status"
+						},
+						{
+							"key": 2,
+							"value": "Replace Card"
+						},
+						{
+							"key": 3,
+							"value": "Change PIN"
+						},
+						{
+							"key": 4,
+							"value": "Change Daily Limits"
+						}
+					],
+					"required": true,
+					"value": "",
+					"inputValidationOption": {
+						"validationEnabled": true,
+						"inputRegexValidation": "",
+						"validationFailedMessage": ""
+					},
+					"enabled": true,
+					"tabIndex": 0,
+					"visible": true
+				}
+			};
+			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+		});
 	}
 
 	onCallCancelled(reason) {

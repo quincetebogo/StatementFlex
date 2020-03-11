@@ -85,6 +85,8 @@ export class LandingPage extends View {
 			// Initialize from the results of the above web service calls.
 			// this will be passed into the confirmed caller dialog
 			this.confirmedCaller = acceptedCall;
+			this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
+			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
 
 			this.displayConfirmedCaller = true;
 		}
