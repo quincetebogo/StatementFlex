@@ -52,7 +52,7 @@ export class AppShell extends Shell {
 		Platform.onUserLoggedOut(() => this._onUserLoggedOut());
 
 		// Platform Non-UI Components.
-		// this.securityContext = SecurityContext.getInstance();
+		this.securityContext = SecurityContext.getInstance();
 		this.executionContext = ExecutionContext.getInstance();
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();

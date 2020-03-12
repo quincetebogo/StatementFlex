@@ -1,6 +1,5 @@
 import { HttpClient } from 'platform/HttpClient';
 import { Configuration } from 'platform/Configuration';
-import { NewCallEvent } from './DesktopAgentService';
 
 export class StopCardService {
 
