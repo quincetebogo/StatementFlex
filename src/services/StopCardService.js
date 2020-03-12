@@ -80,4 +80,14 @@ export class StopCardService {
 		});
 	}
 
+	async addCaller(callerData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
+			'incomingTelephoneNumber': callerData.incomingNumber,
+			'voiceReferenceNumber': callerData.voiceReference,
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentNo,
+			'agentTelephoneNumber': callerData.agentPhoneNumber
+		});
+		console.log("Service Called");
+	}
 }
