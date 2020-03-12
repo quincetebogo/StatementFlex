@@ -15,6 +15,7 @@ import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import StopCardHelper from '../../helpers/StopCardHelper';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -77,6 +78,8 @@ export class ConfirmCallerDetails extends Component {
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -86,15 +89,18 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	onConfirmClick() {
 		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentReferenceNumber: this.incidentReferenceNumber,
+			agentTelephoneNumber: this.agentTelephoneNumber,
 			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			livesIn: this.livesIn.value,
 			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
+			birthdate: this.birthdate.value,
+			relationship: ''
 			/*
 				TODO: should added Caller Details go here?
 
@@ -102,7 +108,16 @@ export class ConfirmCallerDetails extends Component {
 			*/
 		}
 
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+		let identifyCallerPromise = StopCardHelper.getInstance().identifyCaller(confirmedCaller);
+
+		identifyCallerPromise.then((response) => {
+
+			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
+		}, (error) => {
+
+			console.log('Error in fetching Client Info.');
+			console.log(error);
+		});
 	}
 
 	onCallCancelled(reason) {

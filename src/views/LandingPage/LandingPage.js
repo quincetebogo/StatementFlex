@@ -73,7 +73,7 @@ export class LandingPage extends View {
 
 		///TODO: Replace this with data that comes from the POP
 		let incomingCallData = {
-			incomingNumber: "0631152977",
+			incomingNumber: "0631152973",
 			voiceReference: "123456",
 			ivrOption: 'StopCard', // TODO: fix this to whatever is right
 			incidentNo: '1234567',
@@ -92,8 +92,10 @@ export class LandingPage extends View {
 			this.confirmedCaller = acceptedCall;
 			this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
 			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
-			this.renderMode = this.confirmedCaller.identificationMethods ? RENDER_MODE.SEARCH_CALLER : RENDER_MODE.CONFIRM_CALLER;
-			this.confirmedCaller.isUnverifiedNumber = this.renderMode == RENDER_MODE.SEARCH_CALLER;
+			this.renderMode = /*this.confirmedCaller.identificationMethods ? RENDER_MODE.SEARCH_CALLER :*/ RENDER_MODE.CONFIRM_CALLER;
+			//this.confirmedCaller.isUnverifiedNumber = this.renderMode == RENDER_MODE.SEARCH_CALLER;
+
+			this.displayConfirmedCaller = true;
 		}
 		catch (error) {
 
