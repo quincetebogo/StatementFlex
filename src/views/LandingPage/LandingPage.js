@@ -94,8 +94,6 @@ export class LandingPage extends View {
 			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
 			this.renderMode = /*this.confirmedCaller.identificationMethods ? RENDER_MODE.SEARCH_CALLER :*/ RENDER_MODE.CONFIRM_CALLER;
 			//this.confirmedCaller.isUnverifiedNumber = this.renderMode == RENDER_MODE.SEARCH_CALLER;
-
-			this.displayConfirmedCaller = true;
 		}
 		catch (error) {
 
@@ -137,12 +135,6 @@ export class LandingPage extends View {
 				`];
 	}
 
-	renderMiddleSection() {
-		return html`
-			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
-		`;
-	}
-
 	render() {
 
 		return html`
@@ -152,6 +144,12 @@ export class LandingPage extends View {
 		${this.renderUnverifiedUser()}
 		`;
 
+	}
+
+	renderMiddleSection() {
+		return html`
+			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
+		`;
 	}
 
 	renderLoadingIndicator() {
@@ -166,7 +164,7 @@ export class LandingPage extends View {
 	}
 
 	renderConfirmedUser() {
-		if (this.renderMode == RENDER_MODE.CONFIRM_CALLER) {
+		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
@@ -177,7 +175,7 @@ export class LandingPage extends View {
 	}
 
 	renderUnverifiedUser() {
-		if (this.renderMode == RENDER_MODE.SEARCH_CALLER) {
+		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
 					.confirmedCaller="${this.confirmedCaller}">

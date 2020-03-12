@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 import StopcardHelper from '../../helpers/StopCardHelper';
 import { EventAggregator } from 'platform/EventAggregator';
 
-export class SearchClientDetailsComponent extends View {
+export class SearchClientDetailsComponent extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -47,8 +47,12 @@ export class SearchClientDetailsComponent extends View {
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 
 		// For verified number service will not retrn IDMethods, for now we are explicitly making call to SearchOptions
-		this.identificationMethods = this.extractIdentificationMethods(this.confirmedCaller.identificationMethods);
-		this.searchFieldText = null;
+		if (this.identificationMethods != undefined) {
+			this.identificationMethods = this.extractIdentificationMethods(this.confirmedCaller.identificationMethods);
+			this.searchFieldText = null;
+
+		}
+
 		this.isUnverifiedNumber = this.confirmedCaller.isUnverifiedNumber;
 	}
 
@@ -242,7 +246,7 @@ export class SearchClientDetailsComponent extends View {
 								error="${this.errMessage.identificationMethods}" 
 								label="Choose identification method" 
 								style="text-align:justify;line-height:normal;"
-								.items="${this.identificationMethods.possibleValues}"
+								.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
 								@value-changed="${(e) => this._valueChanged(e)}"
 								display-field="displayText">
 				</capitec-select>

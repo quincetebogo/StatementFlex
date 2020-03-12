@@ -91,8 +91,6 @@ export class AppShell extends Shell {
 		this.platformVersion = null;
 		this.applicationName = null;
 		this.applicationVersion = null;
-		this.landingPageView = true;
-		this.callWaitingView = false;
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
@@ -117,10 +115,8 @@ export class AppShell extends Shell {
 			platformVersion: { type: String },
 			applicationName: { type: String },
 			applicationVersion: { type: String },
-			landingPageView: { type: Boolean },
 			fullname: { type: String },
 			employeeId: { type: String },
-			cardStop: { type: Array },
 			currentView: { type: String }
 		};
 	}
@@ -134,7 +130,11 @@ export class AppShell extends Shell {
 
 		console.log(`Appshell: ConnectedCallback`);
 
-		this.currentView = this.horizonViewManager.getNextView();
+		let nextView = this.horizonViewManager.getNextView();
+
+		if (this.currentView !== nextView) {
+			this.currentView = nextView;
+		}
 	}
 
 	// --------------
@@ -202,7 +202,11 @@ export class AppShell extends Shell {
 	}
 
 	onNavigationContextUpdated() {
-		this.currentView = this.horizonViewManager.getNextView();
+		let nextView = this.horizonViewManager.getNextView();
+		if (nextView !== this.currentView) {
+			this.currentView = nextView;
+		}
+
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
