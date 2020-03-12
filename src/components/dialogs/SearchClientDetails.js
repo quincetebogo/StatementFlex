@@ -94,12 +94,12 @@ export class SearchClientDetailsComponent extends View {
 
 			identifyCallerPromise.then((response) => {
 
-                this.eventAggregator.publish('confirmed-caller', { detail: { confirmedCaller: response } });
-                this.isBusy = false;
+				this.eventAggregator.publish('confirmed-caller', { detail: { confirmedCaller: response } });
+				this.isBusy = false;
 			}, (error) => {
 
-                console.log('Error in fetching Client Info.');
-                this.isBusy = false;
+				console.log('Error in fetching Client Info.');
+				this.isBusy = false;
 			});
 		}
 		else {
