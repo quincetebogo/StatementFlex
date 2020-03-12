@@ -135,11 +135,11 @@ export class ConfirmCallerDetails extends Component {
 
 		searchOptions.then((response) => {
 			this.confirmedCaller.identificationMethods = response.identificationMethods;
-            this.renderMode = RENDER_MODE.SEARCH_CALLER;
-            this.isBusy = false;
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			this.isBusy = false;
 		}, (error) => {
-            console.log("Error in fething search options.");
-            this.isBusy = false;
+			console.log("Error in fething search options.");
+			this.isBusy = false;
 		});
 	}
 
@@ -615,8 +615,8 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.searchClientButton)}
 					.disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => this.onSearchClick()}">
-				</capitec-button>
+					@click="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
+				</capitec-button>				
 				<capitec-spacer tabindex="-1"></capitec-spacer>
 				<capitec-button
 					type="clear"
