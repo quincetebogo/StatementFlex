@@ -1,5 +1,7 @@
 import { View, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
+import StopcardHelper from '../../helpers/StopCardHelper';
+import { EventAggregator } from 'platform/EventAggregator';
 
 export class SearchClientDetailsComponent extends View {
 
@@ -11,7 +13,9 @@ export class SearchClientDetailsComponent extends View {
 		super();
 
 		RegExp();
+		this.eventAggregator = EventAggregator.getInstance();
 
+		this.isBusy = false;
 		this.errMessage = {
 			identificationMethods: "",
 			searchFieldText: ""
@@ -24,7 +28,8 @@ export class SearchClientDetailsComponent extends View {
 
 	static get properties() {
 		return {
-			errMessage: { type: String },
+			isBusy: { type: Boolean },
+			errMessage: { type: Object },
 			confirmedCaller: { type: Object }
 		}
 	}
@@ -44,6 +49,7 @@ export class SearchClientDetailsComponent extends View {
 		// For verified number service will not retrn IDMethods, for now we are explicitly making call to SearchOptions
 		this.identificationMethods = this.extractIdentificationMethods(this.confirmedCaller.identificationMethods);
 		this.searchFieldText = null;
+		this.isUnverifiedNumber = this.confirmedCaller.isUnverifiedNumber;
 	}
 
 	// --------------
@@ -61,7 +67,7 @@ export class SearchClientDetailsComponent extends View {
 		this.requestUpdate();
 	}
 
-	_onSearchClick(e) {
+	async _onSearchClick(e) {
 		if (!this.validateData()) {
 			console.log("service call");
 
@@ -75,7 +81,26 @@ export class SearchClientDetailsComponent extends View {
 				searchValue: this.searchFieldText
 			}
 
-			let SearchResponse = StopCardService.getInstance().searchCaller(callerDetails);
+			this.isBusy = true;
+
+			let searchResponse = await StopCardService.getInstance().searchCaller(callerDetails);
+
+			callerDetails.callerFullName = searchResponse.callerInformation.name.value;
+			callerDetails.verifiedTelephoneNumber = searchResponse.callerInformation.verifiedTelephoneNumber.value;
+			callerDetails.southAfricanIDNumber = searchResponse.callerInformation.southAfricanIDNumber.value;
+			callerDetails.relationship = "Sister";
+
+			let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(callerDetails);
+
+			identifyCallerPromise.then((response) => {
+
+                this.eventAggregator.publish('confirmed-caller', { detail: { confirmedCaller: response } });
+                this.isBusy = false;
+			}, (error) => {
+
+                console.log('Error in fetching Client Info.');
+                this.isBusy = false;
+			});
 		}
 		else {
 			console.log("Validation failed");
@@ -129,7 +154,7 @@ export class SearchClientDetailsComponent extends View {
 				this.errMessage.identificationMethods = "Choose an Identification Method";
 				break;
 		}
-		return this.errMessage.identificationMethods && this.errMessage.searchFieldText;
+		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
 
 	// ---------
@@ -147,6 +172,7 @@ export class SearchClientDetailsComponent extends View {
 
 	render() {
 		return html`
+		${this.renderLoadingIndicator()}
 			<capitec-modal type="free" header="Search Client Details" header-align="left" >
 				<div slot="body">
 					${this.renderCallInformation()}
@@ -154,6 +180,17 @@ export class SearchClientDetailsComponent extends View {
 				</div>
 				${this.renderFooter()}
 			</capitec-modal>`;
+	}
+
+	renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
 	}
 
 	renderCallInformation() {
@@ -182,7 +219,7 @@ export class SearchClientDetailsComponent extends View {
 					<capitec-group layout="horizontal" gap="clear">
 						<div>
 							<b>Incoming Number</b>
-							<capitec-label label="${this.incomingTelephoneNumber.value}"></capitec-label>
+							<capitec-label label="${this.isUnverifiedNumber ? 'Private Number' : this.incomingTelephoneNumber.value}"></capitec-label>
 						</div>
 						<capitec-spacer></capitec-spacer>
 						<capitec-spacer></capitec-spacer>
@@ -205,7 +242,6 @@ export class SearchClientDetailsComponent extends View {
 								error="${this.errMessage.identificationMethods}" 
 								label="Choose identification method" 
 								style="text-align:justify;line-height:normal;"
-								.value="${this.identificationMethods.value}"
 								.items="${this.identificationMethods.possibleValues}"
 								@value-changed="${(e) => this._valueChanged(e)}"
 								display-field="displayText">
@@ -244,4 +280,4 @@ export class SearchClientDetailsComponent extends View {
 }
 
 
-window.customElements.define(`search_client-details`, SearchClientDetailsComponent);
+window.customElements.define(`horizon-search-client`, SearchClientDetailsComponent);
