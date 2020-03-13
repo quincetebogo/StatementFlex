@@ -9,10 +9,11 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import '../AddCallerDetailsComponent';
+import './AddCallerDetailsComponent';
 import '../EndCallSessionReason';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import { StopCardService } from '../../services/StopCardService';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -471,10 +472,29 @@ export class ConfirmCallerDetails extends Component {
 						label="Add Caller Details"
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
 						?hidden=${isHidden(this.addCallerDetailsButton)}
-						@click="${() => this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS}">
+						@click="${() => this.onAddCallerClick()}">
 				</u>
 				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 			</div>`;
+	}
+
+	onAddCallerClick() {
+		let addcall = {
+			incomingTelephoneNumber: this.confirmedCaller.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.confirmedCaller.voiceReferenceNumber.value,
+			ivrOptionCode: 'StopCard',
+			incidentReferenceNumber: this.confirmedCaller.incidentReferenceNumber,
+			agentTelephoneNumber: this.confirmedCaller.agentTelephoneNumber
+		}
+
+		let addedcall = StopCardService.getInstance().addCaller(addcall);
+
+		addedcall.then((response) => {
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}, (error) => {
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+			console.log("error");
+		});
 	}
 
 	renderConfirmedCaller() {
@@ -601,9 +621,11 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		// TODO: We may need to pass confirmedCaller into addCallerDetails
 		return html`
-			<client-add-caller
+			<horizon-add-caller
+				.confirmedCaller="${this.confirmedCaller}"
+				@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
 				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
-			</client-add-caller>`;
+			</horizon-add-caller>`;
 	}
 
 	renderEndCallModal() {

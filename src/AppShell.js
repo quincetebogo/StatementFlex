@@ -112,7 +112,7 @@ export class AppShell extends Shell {
 			isBusy: { type: Boolean },
 			isError: { type: Boolean },
 			isSuccess: { type: Boolean },
-			securityContext: { type: SecurityContext },
+			//securityContext: { type: SecurityContext },
 			roles: { type: Array },
 			platformVersion: { type: String },
 			applicationName: { type: String },
