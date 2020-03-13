@@ -11,6 +11,9 @@ import 'platform/components/core/Icon';
 
 import './AddCallerDetailsComponent';
 import '../EndCallSessionReason';
+import { HorizonViewManager } from '../../HorizonViewManager';
+import { Router } from 'platform/Router';
+
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 import { StopCardService } from '../../services/StopCardService';
@@ -33,6 +36,10 @@ export class ConfirmCallerDetails extends Component {
 		// Property initialization
 		this.confirmedCaller = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
+
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.router = Router.getInstance();
 	}
 
 	// ----------
@@ -47,6 +54,7 @@ export class ConfirmCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			renderMode: { type: Number },
+			isBusy: { type: Boolean }
 		}
 	}
 
@@ -137,6 +145,12 @@ export class ConfirmCallerDetails extends Component {
 			verifiedTelephoneNumber = '';
 		}
 		return verifiedTelephoneNumber;
+	}
+
+	onCallerConfirmed(data) {
+		this.horizonViewManager.saveState(data.detail.confirmedCaller);
+		this.displayConfirmedCaller = false;
+		this.router.navigateByPath(`/client/profile`);
 	}
 
 	// ---------------
@@ -402,10 +416,13 @@ export class ConfirmCallerDetails extends Component {
 						${this.renderConfirmedCaller()}
 					</div>
 					${this.renderFooter()}
-				</capitec-modal>`;
+				</capitec-modal>
+				${this.renderLoadingIndicator()}
+			`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
-				return html`${this.renderAddCallerDetailsModal()}`;
+				return html`
+				${this.renderAddCallerDetailsModal()}`;
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
@@ -486,14 +503,17 @@ export class ConfirmCallerDetails extends Component {
 			incidentReferenceNumber: this.confirmedCaller.incidentReferenceNumber,
 			agentTelephoneNumber: this.confirmedCaller.agentTelephoneNumber
 		}
+		this.isBusy = true;
 
 		let addedcall = StopCardService.getInstance().addCaller(addcall);
 
 		addedcall.then((response) => {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+			this.isBusy = false;
 		}, (error) => {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 			console.log("error");
+			this.isBusy = false;
 		});
 	}
 
@@ -616,6 +636,17 @@ export class ConfirmCallerDetails extends Component {
 					@click="${() => this.onConfirmClick()}">
 				</capitec-button>
 			</capitec-action-bar>`;
+	}
+
+	renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+				<capitec-loading-indicator></capitec-loading-indicator>
+		`;
 	}
 
 	renderAddCallerDetailsModal() {

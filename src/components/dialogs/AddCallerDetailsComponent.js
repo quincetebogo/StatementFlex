@@ -18,6 +18,8 @@ export class AddCallerDetailsComponent extends Component {
 		this.confirmedCaller = null;
 		this.showEndCallModal = false;
 
+		this.isBusy = false;
+
 		this.userDetails = {
 			incomingNumber: "082 555 9090",
 			voiceReference: "34562783",
@@ -53,6 +55,7 @@ export class AddCallerDetailsComponent extends Component {
 		return {
 			errorMessage: { type: Object },
 			confirmedCaller: { type: Object },
+			isBusy: { type: Boolean },
 			showEndCallModal: { type: Boolean }
 		}
 	}
@@ -105,15 +108,18 @@ export class AddCallerDetailsComponent extends Component {
 				nonClientIDNumber: '',
 				nonClientRelationship: ''
 			}
+			this.isBusy = true;
 
 			let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(confirmedCaller);
 
 			identifyCallerPromise.then((response) => {
 
 				this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
+				this.isBusy = false;
 			}, (error) => {
 
 				console.log('Error in fetching Client Info.');
+				this.isBusy = false;
 			});
 			this.requestUpdate();
 		}
@@ -124,10 +130,10 @@ export class AddCallerDetailsComponent extends Component {
 		this.errorMessage.errName = this.userDetails.Name == "" ? "Required Field" : "";
 		this.errorMessage.errSurname = this.userDetails.Surname == "" ? "Required Field" : "";
 
+		this.requestUpdate();
 		if (this.userDetails.Name != "" && this.userDetails.Surname != "") {
 			return true;
 		}
-
 		return this.userDetails.Name;
 	}
 
@@ -278,13 +284,27 @@ export class AddCallerDetailsComponent extends Component {
 			return html`<end-call-session @on-cancel="${() => this.showEndCallModal = false}"></end-call-session>`;
 		}
 		return html`
+		${this.renderLoadingIndicator()}
 				<capitec-modal type="free" header="Add Caller Details" header-align="left" >
 					<div slot="body">
 						${this.renderCallInformation()}
 						${this.renderAddCallerDetails()}
 					</div>
 					${this.renderFooter()}
-				</capitec-modal>`;
+				</capitec-modal>
+				
+		`;
+	}
+
+	renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+				<capitec-loading-indicator></capitec-loading-indicator>
+		`;
 	}
 
 	renderCallInformation() {
