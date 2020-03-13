@@ -1,5 +1,3 @@
-
-
 import { Shell, css, html } from 'platform/elements';
 import { ExecutionContext } from 'platform/ExecutionContext';
 import { Logger } from 'platform/Logger';
@@ -114,7 +112,7 @@ export class AppShell extends Shell {
 			isBusy: { type: Boolean },
 			isError: { type: Boolean },
 			isSuccess: { type: Boolean },
-			//securityContext: { type: SecurityContext },
+			securityContext: { type: SecurityContext },
 			roles: { type: Array },
 			platformVersion: { type: String },
 			applicationName: { type: String },

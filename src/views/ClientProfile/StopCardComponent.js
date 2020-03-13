@@ -1,4 +1,3 @@
-
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -199,18 +198,11 @@ export class StopCardComponent extends Component {
 
 	renderConfirmedUser() {
 		if (this.toggleEndCallModal) {
-			return html`<end-call-session
-						@on-cancel="${() => this.onCancelEndCall()}">
-			</end-call-session>`;
+			return html`<end-call-session></end-call-session>`;
 		}
 
 		return html``;
 	}
-
-	onCancelEndCall() {
-		this.toggleEndCallModal = false;
-	}
-
 }
 
 customElements.define(`stop-card`, StopCardComponent);
