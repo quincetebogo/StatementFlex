@@ -5,6 +5,10 @@ import { Router } from 'platform/Router';
 
 import '../../components/LandingPageWaitForCall';
 import '../../components/dialogs/ConfirmCallerDetails';
+import '../../components/dialogs/AddCallerDetailsComponent';
+import '../../components/EndCallSessionReason';
+
+import '../../views/ClientProfile/StopCardComponent';
 
 import { StopCardService } from '../../services/StopCardService';
 import { HorizonViewManager } from '../../HorizonViewManager';
@@ -18,6 +22,7 @@ export class LandingPage extends View {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
+		this.eventAggregator.subscribe(`call-end`, () => this.onCallEnded());
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 
@@ -111,16 +116,14 @@ export class LandingPage extends View {
 	}
 
 	onCallerConfirmed(data) {
-		debugger;
 		this.horizonViewManager.saveState(data.detail.confirmedCaller);
 		this.displayConfirmedCaller = false;
 		this.router.navigateByPath(`/client/profile`);
 	}
 
-	onCallEnded(data) {
-		console.log(data.detail);
+	onCallEnded() {
 		this.displayConfirmedCaller = false;
-		//		this.router.navigateByPath(`/landingpage`);
+		this.router.navigateByPath(`/landingpage`);
 	}
 
 	static get styles() {
@@ -167,7 +170,7 @@ export class LandingPage extends View {
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
 					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
-					@call-ended="${(data) => this.onCallEnded(data)}">
+					@call-ended="${() => this.onCallEnded()}">
 				</horizon-confirm-caller>`;
 		}
 

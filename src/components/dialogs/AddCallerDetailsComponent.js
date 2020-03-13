@@ -6,6 +6,8 @@ import '../EndCallSessionReason';
 import './ConfirmCallerDetails';
 import 'platform/components/popups/Modal';
 
+import { EventAggregator } from 'platform/EventAggregator';
+
 export class AddCallerDetailsComponent extends Component {
 
 	// --------------
@@ -13,10 +15,13 @@ export class AddCallerDetailsComponent extends Component {
 	// --------------
 
 	constructor() {
+
 		super();
 
 		this.confirmedCaller = null;
 		this.showEndCallModal = false;
+
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.isBusy = false;
 
@@ -72,6 +77,12 @@ export class AddCallerDetailsComponent extends Component {
 		this.ivrOption = this.confirmedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
+		this.callerFullName = this.confirmedCaller.callerInformation.name;
+		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
+		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
+		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
 	}
 
 	// --------------
@@ -137,6 +148,23 @@ export class AddCallerDetailsComponent extends Component {
 		return this.userDetails.Name;
 	}
 
+	onCallCancelled(reason) {
+		let confirmedCaller = {
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: this.ivrOption.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			callerFullName: this.callerFullName.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			livesIn: this.livesIn.value,
+			languagePreference: this.languagePreference.value,
+			birthdate: this.birthdate.value
+		}
+
+		this.eventAggregator.publish('call-end', {});
+		//this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -149,7 +177,6 @@ export class AddCallerDetailsComponent extends Component {
 
 	// n/a
 
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -158,38 +185,6 @@ export class AddCallerDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
-			.call-waiting{
-				width: 1067.8px;
-				height: 770px;
-				padding: 0px 0px 0px 0px;
-				text-align: center;
-				line-height: 40px;
-				align-items: center;
-				background-color: white;
-				border-radius: none;
-			}
-
-			.needimage{
-				height: 120px;
-				width: 170px;
-				margin: 24px 24px 18px 24px;
-			}
-
-			#waiting-text{
-				color: #003652;
-			}
-
-			.userwaiting{
-				display: grid;
-				grid-template-rows: 1fr 1fr 1fr;
-				text-align: center;
-				width: 1067.8px;
-				height: 770px;
-			}
-
-			.buttonalign{
-				text-align: left;
-			}
 
 			.grid-container{
 				grid-row-gap: 0px;
@@ -229,15 +224,6 @@ export class AddCallerDetailsComponent extends Component {
 				margin: 0px;
 				padding: 0px;
 				border-top: : 1px solid #dfdfdf;
-			}
-
-			#label-text{
-				height: 30px;	width: 123px;	
-				color: #003652;	
-				font-family: "Hind Vadodara";	
-				font-size: 18px;	
-				font-weight: 600;
-				line-height: 30px;
 			}
 
 			#label-value{
@@ -281,7 +267,11 @@ export class AddCallerDetailsComponent extends Component {
 
 	render() {
 		if (this.showEndCallModal) {
-			return html`<end-call-session @on-cancel="${() => this.showEndCallModal = false}"></end-call-session>`;
+			return html
+				`<end-call-session 
+					@on-cancel="${() => this.showEndCallModal = false}"
+					@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				</end-call-session>`;
 		}
 		return html`
 		${this.renderLoadingIndicator()}

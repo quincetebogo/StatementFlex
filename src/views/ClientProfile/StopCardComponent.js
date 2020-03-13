@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
+import { Router } from 'platform/Router';
 
 import 'platform/components';
 
@@ -12,6 +13,7 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
+		this.router = Router.getInstance();
 
 		this.toggleEndCallModal = false;
 		this.groupByField = "cardCategory";
@@ -199,11 +201,16 @@ export class StopCardComponent extends Component {
 	renderConfirmedUser() {
 		if (this.toggleEndCallModal) {
 			return html`<end-call-session
-						@on-cancel="${() => this.onCancelEndCall()}">
+						@on-cancel="${() => this.onCancelEndCall()}"
+						@on-reason-set="${() => this.onCallCancelled()}">
 			</end-call-session>`;
 		}
 
 		return html``;
+	}
+
+	onCallCancelled() {
+		this.router.navigateByPath(`/landingpage`);
 	}
 
 	onCancelEndCall() {

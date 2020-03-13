@@ -1,6 +1,5 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
-import './HorizonActionBar';
 import '../views/ClientProfile/StopCardComponent';
 
 export class EndCallSessionReason extends View {
