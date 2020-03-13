@@ -17,7 +17,7 @@ export class LandingPage extends View {
 		this.displayConfirmedCaller = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ Date: "2020-03-11T16:05:44.5173009+02:00", IncomingTelephoneNumber: "0631152973", VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard', IncidentReferenceNumber: '1234567' }));
+		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ Date: "2020-03-11T16:05:44.5173009+02:00", IncomingTelephoneNumber: "0631152973", VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard', IncidentReferenceNumber: '1234567', AgentTelephoneNumber: '0219412557' }));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
@@ -68,6 +68,14 @@ export class LandingPage extends View {
 
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
+
+		//TODO: Remove
+		if (eventData.IVROptionCode == null) {
+			eventData.IVROptionCode = 'StopCard';
+		}
+		if (eventData.IncidentReferenceNumber == null) {
+			eventData.IncidentReferenceNumber = '1234567';
+		}
 
 
 		///TODO: Replace this with data that comes from the POP
