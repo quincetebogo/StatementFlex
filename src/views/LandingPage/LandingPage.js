@@ -1,3 +1,4 @@
+
 import { View, html, css } from 'platform/elements';
 import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -86,6 +87,9 @@ export class LandingPage extends View {
 			// this will be passed into the confirmed caller dialog
 			this.confirmedCaller = acceptedCall;
 
+			this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
+			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+
 			this.displayConfirmedCaller = true;
 		}
 		catch (error) {
@@ -108,6 +112,7 @@ export class LandingPage extends View {
 	}
 
 	onCallerConfirmed(data) {
+		debugger;
 		this.horizonViewManager.saveState(data.detail.confirmedCaller);
 		this.displayConfirmedCaller = false;
 		this.router.navigateByPath(`/client/profile`);

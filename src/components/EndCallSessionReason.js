@@ -1,5 +1,9 @@
+
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
+import './HorizonActionBar';
+import '../views/ClientProfile/StopCardComponent';
+import { Router } from 'platform/Router';
 
 export class EndCallSessionReason extends View {
 
@@ -27,6 +31,8 @@ export class EndCallSessionReason extends View {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	// N/A
 
 	// --------------
 	// EVENT HANDLERS
@@ -110,7 +116,7 @@ export class EndCallSessionReason extends View {
 					type="clear" 
 					label="End Call Session"
 					?disabled="${this.endCallReason === null}"
-					 @click="${() => this.onReasonSelected()}">
+					@click="${() => this.onReasonSelected()}">
 				</capitec-button>
 			</capitec-action-bar>
 		`;
