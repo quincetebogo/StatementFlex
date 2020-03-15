@@ -7,6 +7,7 @@ export class LandingPageWaitForCall extends Component {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.phoneNumber = "0631152973";
 	}
 
 	static get styles() {
@@ -41,6 +42,13 @@ export class LandingPageWaitForCall extends Component {
 			#waiting-text{
 				color: #003652;
 			}
+
+			.tempinput{
+				height: 48px;
+				line-height: 48px;
+				width : 150px;
+				display:inline;
+			}	
 			`];
 	}
 
@@ -75,23 +83,33 @@ export class LandingPageWaitForCall extends Component {
 	}
 
 	triggerConfirmDialog() {
-		this.eventAggregator.publish('horizon-temp-button', {});
+		this.eventAggregator.publish('horizon-temp-button', { phoneNumber: this.phoneNumber });
 		console.log('triggering dialog');
+	}
+
+	onidValueChanged(e) {
+		console.log(e);
+		this.phoneNumber = e.detail.new;
 	}
 
 	/// temporary button trigger until the incoming call pop is working
 	renderShowConfirmButton() {
 		return html`
-				<div>
-					<capitec-button 
-						class="buttons" 
-						type="credit" 
-						label="Click to see modal" 
-						@click="${() => this.triggerConfirmDialog()}"> 
-					</capitec-button>
-				</div>`;
+				<capitec-text-field
+					class="temptext"
+					label="Phone Number" 
+					value="${this.phoneNumber}"
+					@value-changed="${(e) => this.onidValueChanged(e)}">
+				</capitec-text-field>
+				<capitec-button 
+					class="buttons"
+					type="credit" 
+					label="Click to see modal" 
+					@click="${() => this.triggerConfirmDialog()}"> 
+				</capitec-button>
+			`;
 		return html``;
 	}
 }
 
-window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall);
+window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall); 

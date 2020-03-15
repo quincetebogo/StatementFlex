@@ -45,39 +45,26 @@ export class SearchClientDetailsComponent extends Component {
 		super.connectedCallback();
 
 		// We can enter this dialog in two ways
-		//
 		//    1. From the Confirm Caller Dialog that the caller is not associated with the verified phone number
 		//	  2. From the Landing Page after receiving an unverified call
-		//
+
+		// Setup references into the incoming model. The following sets up references to 
+		// fields commmon to both incoming models
 		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 
-		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
-			let clientInfo = {
-				"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
-				"voiceReferenceNumber": this.voiceReferenceNumber.value,
-				"ivrOptionCode": this.ivrOption.value,
-				"incidentReferenceNumber": this.unverifiedCaller.incidentReferenceNumber,
-				"agentTelephoneNumber": this.unverifiedCaller.agentTelephoneNumber,
-			}
+		this.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
 
-			// TODO: GETTING A CORS error at present...
-			let searchOptions = this.stopCardService.searchOptions(clientInfo)
-				.then(
-					(result) => {
-						console.log('resolved - result', result);
-						this.identificationMethodsList = searchOptions.identificationMethods;
-						if (this.identificationMethods != undefined) {
-							this.identificationMethods = this.extractIdentificationMethods(this.identificationMethods);
-						}
-					})
-				.catch(error => console.log('error', error))
-				.finally(() => console.log('finally'));
+		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
+			// We are coming from the confirmed user dialog
+			this._loadSearchOptions();
 
 			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
 		}
 		else {
+			// We are coming from the landing page/Desktop Agent event.
 			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
 			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 		}
@@ -144,6 +131,28 @@ export class SearchClientDetailsComponent extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_loadSearchOptions() {
+		let clientInfo = {
+			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
+			"voiceReferenceNumber": this.voiceReferenceNumber.value,
+			"ivrOptionCode": 'StopCard', //TODO: fix this. this must be passed correctly from the structure
+			"incidentReferenceNumber": this.incidentReferenceNumber,
+			"agentTelephoneNumber": this.agentTelephoneNumber,
+		};
+
+		this.isBusy = true;
+		this.stopCardService.searchOptions(clientInfo)
+			.then((options) => {
+				console.log('resolved - result', options);
+				this.identificationMethodsList = options.identificationMethods;
+				if (this.identificationMethods != undefined) {
+					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethods);
+				}
+			})
+			.catch(error => console.log('error', error))
+			.finally(() => this.isBusy = false);
+	}
 
 	extractIdentificationMethods(identificationMethods) {
 

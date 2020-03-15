@@ -69,11 +69,11 @@ export class LandingPage extends View {
 
 	async onTempButtonPressed(event) {
 		console.log("Temp button presssed received");
-
+		console.log(event);
 
 		///TODO: Replace this with data that comes from the POP
 		let incomingCallData = {
-			incomingNumber: "0631152973",
+			incomingNumber: event.phoneNumber,
 			voiceReference: "123456",
 			ivrOption: 'StopCard', // TODO: fix this to whatever is right
 			incidentNo: '1234567',
@@ -91,13 +91,20 @@ export class LandingPage extends View {
 			if (stopCardService.isConfirmedCaller(acceptedCall)) {
 				this.confirmedCaller = acceptedCall;
 				this.isUnverifiedCaller = null;
+
+				// TODO: injected into model. Not the best way to do this. look for an alternative
 				this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
 				this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+
 				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 			}
 			else if (stopCardService.isUnverifiedCaller(acceptedCall)) {
 				this.confirmedCaller = null;
 				this.isUnverifiedCaller = acceptedCall;
+
+				// TODO: injected into model. Not the best way to do this. look for an alternative
+				this.isUnverifiedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+
 				this.renderMode = RENDER_MODE.SEARCH_CALLER;
 			}
 		}
