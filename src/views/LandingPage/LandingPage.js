@@ -83,29 +83,30 @@ export class LandingPage extends View {
 
 		// Web service calls - must still handle errors
 		try {
+			let stopCardService = StopCardService.getInstance();
 			this.isBusy = true;
 
-			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
+			let acceptedCall = await stopCardService.acceptCall(incomingCallData);
 
-			// Initialize from the results of the above web service calls.
-			// this will be passed into the confirmed caller dialog
-			this.confirmedCaller = acceptedCall;
-			this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
-			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
-			this.renderMode = /*this.confirmedCaller.identificationMethods ? RENDER_MODE.SEARCH_CALLER :*/ RENDER_MODE.CONFIRM_CALLER;
-			//this.confirmedCaller.isUnverifiedNumber = this.renderMode == RENDER_MODE.SEARCH_CALLER;
+			if (stopCardService.isConfirmedCaller(acceptedCall)) {
+				this.confirmedCaller = acceptedCall;
+				this.isUnverifiedCaller = null;
+				this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
+				this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}
+			else if (stopCardService.isUnverifiedCaller(acceptedCall)) {
+				this.confirmedCaller = null;
+				this.isUnverifiedCaller = acceptedCall;
+				this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			}
 		}
 		catch (error) {
-
-			console.log(error);
+			console.log(`Accept Call Failed: `, error);
 			this.confirmedCaller = null;
+			this.isUnverifiedCaller = null;
 			this.renderMode = -1;
 			return null;
-
-			/*
-				IF acceptedCall succeeded but identifiedCaller failed then 
-					we must invoke the search dialog (which must still be built)
-			*/
 		}
 		finally {
 			this.isBusy = false;
@@ -178,7 +179,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
-					.confirmedCaller="${this.confirmedCaller}">
+					.unverifiedCaller="${this.isUnverifiedCaller}">
 				</horizon-search-client>`;
 		}
 	}

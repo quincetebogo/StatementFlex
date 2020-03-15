@@ -20,6 +20,9 @@ export class SearchClientDetailsComponent extends Component {
 			identificationMethods: "",
 			searchFieldText: ""
 		}
+
+		this.unverifiedCaller = null;
+		this.stopCardService = StopCardService.getInstance();
 	}
 
 	// ----------
@@ -30,7 +33,7 @@ export class SearchClientDetailsComponent extends Component {
 		return {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
-			confirmedCaller: { type: Object }
+			unverifiedCaller: { type: Object }
 		}
 	}
 
@@ -41,19 +44,45 @@ export class SearchClientDetailsComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Short hand references for reaching into the incoming data model
-		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
-		this.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
+		// We can enter this dialog in two ways
+		//
+		//    1. From the Confirm Caller Dialog that the caller is not associated with the verified phone number
+		//	  2. From the Landing Page after receiving an unverified call
+		//
+		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+		this.ivrOption = this.unverifiedCaller.ivrOption;
+		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 
-		// For verified number service will not retrn IDMethods, for now we are explicitly making call to SearchOptions
-		if (this.identificationMethods != undefined) {
-			this.identificationMethods = this.extractIdentificationMethods(this.confirmedCaller.identificationMethods);
-			this.searchFieldText = null;
+		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
+			let clientInfo = {
+				"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
+				"voiceReferenceNumber": this.voiceReferenceNumber.value,
+				"ivrOptionCode": this.ivrOption.value,
+				"incidentReferenceNumber": this.unverifiedCaller.incidentReferenceNumber,
+				"agentTelephoneNumber": this.unverifiedCaller.agentTelephoneNumber,
+			}
 
+			// TODO: GETTING A CORS error at present...
+			let searchOptions = this.stopCardService.searchOptions(clientInfo)
+				.then(
+					(result) => {
+						console.log('resolved - result', result);
+						this.identificationMethodsList = searchOptions.identificationMethods;
+						if (this.identificationMethods != undefined) {
+							this.identificationMethods = this.extractIdentificationMethods(this.identificationMethods);
+						}
+					})
+				.catch(error => console.log('error', error))
+				.finally(() => console.log('finally'));
+
+			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
+		}
+		else {
+			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
+			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 		}
 
-		this.isUnverifiedNumber = this.confirmedCaller.isUnverifiedNumber;
+		this.searchFieldText = null;
 	}
 
 	// --------------
@@ -76,10 +105,10 @@ export class SearchClientDetailsComponent extends Component {
 			console.log("service call");
 
 			let callerDetails = {
-				incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
-				voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
-				incidentNo: this.confirmedCaller.incidentReferenceNumber,
-				agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber,
+				incomingNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
+				voiceReference: this.unverifiedCaller.voiceReferenceNumber.value,
+				incidentNo: this.unverifiedCaller.incidentReferenceNumber,
+				agentPhoneNumber: this.unverifiedCaller.agentTelephoneNumber,
 				ivrOptionSelected: 'StopCard',
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText

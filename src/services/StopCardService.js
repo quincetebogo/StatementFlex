@@ -3,6 +3,10 @@ import { Configuration } from 'platform/Configuration';
 
 export class StopCardService {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	static getInstance() {
 		return this.instance || (this.instance = new StopCardService());
 	}
@@ -14,18 +18,10 @@ export class StopCardService {
 		this.version = `v1`;
 	}
 
-	async _getChannelUrl() {
-		//getting the channel url setting from URIs
-		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
-		console.log(url);
-		return url;
-	}
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
-	_getClient() {
-		return HttpClient.getInstance(this._getChannelUrl());
-	}
-
-	//for hello box component
 	async initialise() {
 		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
@@ -60,11 +56,11 @@ export class StopCardService {
 
 	async searchOptions(incomingCallData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search/options`, {
-			"incomingTelephoneNumber": incomingCallData.incomingNumber,
-			"voiceReferenceNumber": incomingCallData.voiceReference,
-			"ivrOptionCode": incomingCallData.ivrOptionSelected,
-			"incidentReferenceNumber": incomingCallData.incidentNo,
-			"agentTelephoneNumber": incomingCallData.agentPhoneNumber
+			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
+			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
+			"ivrOptionCode": incomingCallData.ivrOptionCode,
+			"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
+			"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
 		});
 	}
 
@@ -95,5 +91,29 @@ export class StopCardService {
 			'nonClientIDNumber': callerData.southAfricanIDNumber,
 			'nonClientRelationship': callerData.relationship
 		});
+	}
+
+
+	isConfirmedCaller(acceptedCall) {
+		return acceptedCall.addCallerDetailsButton !== undefined;
+	}
+
+	isUnverifiedCaller(acceptedCall) {
+		return !this.isConfirmedCaller(acceptedCall);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _getChannelUrl() {
+		//getting the channel url setting from URIs
+		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
+		console.log(url);
+		return url;
+	}
+
+	_getClient() {
+		return HttpClient.getInstance(this._getChannelUrl());
 	}
 }

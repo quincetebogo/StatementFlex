@@ -672,7 +672,7 @@ export class ConfirmCallerDetails extends Component {
 	renderSearchCallerModal() {
 		return html`
 			<horizon-search-client
-				.confirmedCaller="${this.confirmedCaller}">
+				.unverifiedCaller="${this.confirmedCaller}">
 			</horizon-search-client>`;
 	}
 }
