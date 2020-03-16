@@ -35,6 +35,10 @@ export class NewCallEvent {
 
 export class DesktopAgentService {
 
+	static setRegistrationUrl(url) {
+		DesktopAgentService.registrationUrl = url;
+	}
+
 	static getInstance() {
 		return this.instance || (this.instance = new DesktopAgentService());
 	}
@@ -51,7 +55,8 @@ export class DesktopAgentService {
 		this.eventQueue = [];
 
 		// Listening for SSE events from the Desktop Agent
-		this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
+		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
 		this.eventSource.addEventListener("new-call", (event) => {
 			console.log("Received 'new-call' event: ", event);
 
@@ -67,6 +72,8 @@ export class DesktopAgentService {
 
 		this.router = Router.getInstance();
 	}
+
+
 
 	queueEvent(event) {
 		if (event instanceof NewCallEvent) {

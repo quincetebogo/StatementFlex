@@ -6,6 +6,7 @@ import { SecurityContext } from 'platform/SecurityContext';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Configuration } from 'platform/Configuration';
 
 // Import all UI Components. 
 import 'platform/components';
@@ -62,8 +63,8 @@ export class AppShell extends Shell {
 		horizonRoutes.map(route => this.router.addRoute(route));
 
 
-		// Listening for events from the Desktop Agent
-		DesktopAgentService.getInstance();
+		// Listening for events from the Desktop Agent //TODO: delete
+		// DesktopAgentService.getInstance();
 
 
 		this.showClientProfile = false;
@@ -124,6 +125,12 @@ export class AppShell extends Shell {
 
 	async connectedCallback() {
 		super.connectedCallback();
+
+		// Listening for events from the Desktop Agent
+		let registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
+		console.log("registrationUrl: ", registrationUrl);
+		DesktopAgentService.setRegistrationUrl(registrationUrl);
+		DesktopAgentService.getInstance();
 
 		console.log(`Appshell: ConnectedCallback`);
 

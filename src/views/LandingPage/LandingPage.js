@@ -105,8 +105,8 @@ export class LandingPage extends View {
 				this.isUnverifiedCaller = null;
 
 				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
-				this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+				this.confirmedCaller.incidentReferenceNumber = eventData.incidentNo;
+				this.confirmedCaller.agentTelephoneNumber = eventData.agentPhoneNumber;
 
 				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 			}
