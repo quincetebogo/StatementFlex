@@ -62,11 +62,6 @@ export class AppShell extends Shell {
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
 
-
-		// Listening for events from the Desktop Agent //TODO: delete
-		// DesktopAgentService.getInstance();
-
-
 		this.showClientProfile = false;
 
 		//Event Aggregator

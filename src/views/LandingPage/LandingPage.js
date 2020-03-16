@@ -28,12 +28,6 @@ export class LandingPage extends View {
 		this.router = Router.getInstance();
 
 		this.isBusy = false;
-
-		//TODO: cleanup
-		//this.voiceReferenceNumber = ``;
-		//this.incomingTelephoneNumber = ``;
-		//this.ivrOption = ``;
-		//this.incidentReferenceNumber = ``;
 	}
 
 	static get properties() {
@@ -74,24 +68,13 @@ export class LandingPage extends View {
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
 
-		//TODO: Remove
+		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
 		if (eventData.IVROptionCode == null) {
 			eventData.IVROptionCode = 'StopCard';
 		}
 		if (eventData.IncidentReferenceNumber == null) {
 			eventData.IncidentReferenceNumber = '1234567';
 		}
-
-
-		///TODO: Replace this with data that comes from the POP
-		//let incomingCallData = {
-		//	incomingNumber: "0631152973",
-		//	voiceReference: "123456",
-		//	ivrOption: 'StopCard', // TODO: fix this to whatever is right
-		//	incidentNo: '1234567',
-		//	agentPhoneNumber: '0219412557'
-		//};
-
 
 		// Web service calls - must still handle errors
 		try {

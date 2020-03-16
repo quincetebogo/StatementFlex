@@ -39,14 +39,6 @@ export class StopCardService {
 			'incidentReferenceNumber': incomingCallData.IncidentReferenceNumber,
 			'agentTelephoneNumber': incomingCallData.AgentTelephoneNumber
 		});
-
-		//return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
-		//	'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
-		//	'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
-		//	'ivrOptionCode': incomingCallData.IVROptionCode,
-		//	'incidentReferenceNumber': incomingCallData.IncidentReferenceNumber,
-		//	'agentTelephoneNumber': incomingCallData.AgentTelephoneNumber
-		//});
 	}
 
 	async identifyCaller(callerData) {
