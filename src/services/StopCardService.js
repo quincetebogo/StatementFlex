@@ -3,6 +3,10 @@ import { Configuration } from 'platform/Configuration';
 
 export class StopCardService {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	static getInstance() {
 		return this.instance || (this.instance = new StopCardService());
 	}
@@ -14,18 +18,10 @@ export class StopCardService {
 		this.version = `v1`;
 	}
 
-	async _getChannelUrl() {
-		//getting the channel url setting from URIs
-		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
-		console.log(url);
-		return url;
-	}
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
-	_getClient() {
-		return HttpClient.getInstance(this._getChannelUrl());
-	}
-
-	//for hello box component
 	async initialise() {
 		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
@@ -55,15 +51,78 @@ export class StopCardService {
 
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
+			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
+			'voiceReferenceNumber': callerData.voiceReferenceNumber,
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentReferenceNumber,
+			'agentTelephoneNumber': callerData.agentTelephoneNumber,
+			'nonClientFullName': callerData.callerFullName,
+			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
+			'nonClientIDNumber': callerData.southAfricanIDNumber,
+			'nonClientRelationship': callerData.relationship
+		});
+	}
+
+	async searchOptions(incomingCallData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search/options`, {
+			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
+			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
+			"ivrOptionCode": incomingCallData.ivrOptionCode,
+			"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
+			"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
+		});
+	}
+
+	async searchCaller(clientInfo) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`, {
+			"incomingTelephoneNumber": clientInfo.incomingNumber,
+			"voiceReferenceNumber": clientInfo.voiceReference,
+			"ivrOptionCode": clientInfo.ivrOptionSelected,
+			"incidentReferenceNumber": clientInfo.incidentNo,
+			"agentTelephoneNumber": clientInfo.agentPhoneNumber,
+			"identificationMethod": parseInt(clientInfo.identificationMethod),
+			"value": clientInfo.searchValue
+		});
+	}
+
+	async addCaller(callerData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
 			'ivrOptionCode': callerData.ivrOption,
 			'incidentReferenceNumber': callerData.incidentNo,
 			'agentTelephoneNumber': callerData.agentPhoneNumber,
-			'nonClientFullName': callerData.Name + '' + callerData.Surname,
-			'nonClientCellPhone': callerData.CellPhone,
-			'nonClientIDNumber': callerData.nonClientIDNumber,
-			'nonClientRelationship': callerData.Relationship
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentReferenceNumber,
+			'agentTelephoneNumber': callerData.agentTelephoneNumber,
+			'nonClientFullName': callerData.callerFullName,
+			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
+			'nonClientIDNumber': callerData.southAfricanIDNumber,
+			'nonClientRelationship': callerData.relationship
 		});
+	}
+
+
+	isConfirmedCaller(acceptedCall) {
+		return acceptedCall.addCallerDetailsButton !== undefined;
+	}
+
+	isUnverifiedCaller(acceptedCall) {
+		return !this.isConfirmedCaller(acceptedCall);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _getChannelUrl() {
+		//getting the channel url setting from URIs
+		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
+		console.log(url);
+		return url;
+	}
+
+	_getClient() {
+		return HttpClient.getInstance(this._getChannelUrl());
 	}
 }

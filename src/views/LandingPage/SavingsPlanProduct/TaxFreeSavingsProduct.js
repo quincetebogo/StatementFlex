@@ -126,7 +126,7 @@ export class TaxFreeSavingsProduct extends View {
 						<hr>
 						<ul class="list-items">
 							<li>Contribution limits</li>
-							<li>Your combined limit for the financial year (1 March-28 February) across all tax-free savings account,
+							<li>Your combined limit for the financial year (1 March-28 February) across all tax-free savings accounts,
 							    including those at other financial services providers, is R33 000</li>
 							<li>Lifetime limit is R500 000</li>
 							<li>Interest will not be taxed</li>

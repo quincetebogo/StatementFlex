@@ -102,8 +102,8 @@ export class HorizonViewManager {
 	// Recovering clears the saved state. If the new view wishes to 
 	// save state it must do so explicity.
 	recoverState() {
-		let tmpState = this.state;
-		this.state = null;
-		return tmpState;;
+		// let tmpState = this.state;
+		// this.state = null;
+		return this.state;
 	}
 }
