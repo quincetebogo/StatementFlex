@@ -98,7 +98,7 @@ export class LandingPage extends View {
 				this.isUnverifiedCaller = acceptedCall;
 
 				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.isUnverifiedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+				this.isUnverifiedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
 
 				this.renderMode = RENDER_MODE.SEARCH_CALLER;
 			}
