@@ -1,6 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 import StopcardHelper from '../../helpers/StopCardHelper';
+import { StopCardService } from '../../services/StopCardService'
 
 import '../EndCallSessionReason';
 import './ConfirmCallerDetails';
@@ -19,32 +20,13 @@ export class AddCallerDetailsComponent extends Component {
 		super();
 
 		this.confirmedCaller = null;
+		this.callerDetails = null;
+		this.addCallerDetailsResponse = null;
 		this.showEndCallModal = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.isBusy = false;
-
-		this.userDetails = {
-			incomingNumber: "082 555 9090",
-			voiceReference: "34562783",
-			ivrOption: [
-				{ key: 'IVR', value: 'Stop Card' }
-			],
-			incidentNo: "",
-			agentPhoneNumber: "",
-			Name: "",
-			Surname: "",
-			Cellphone: "",
-			nonClientIDNumber: "",
-			Relationship: [
-				{ key: 'SP', value: 'Spouse' },
-				{ key: 'SI', value: 'Sibling' },
-				{ key: 'CH', value: 'Child' },
-				{ key: 'FR', value: 'Friend' },
-				{ key: 'OT', value: 'Other' }
-			]
-		};
 
 		this.errorMessage = {
 			errName: "",
@@ -60,6 +42,7 @@ export class AddCallerDetailsComponent extends Component {
 		return {
 			errorMessage: { type: Object },
 			confirmedCaller: { type: Object },
+			callerDetails: { type: Object },
 			isBusy: { type: Boolean },
 			showEndCallModal: { type: Boolean }
 		}
@@ -72,6 +55,8 @@ export class AddCallerDetailsComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		//TODO: Fix up to use the callerDetails incoming model
+
 		// Short hand references for reaching into the incoming data model
 		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
 		this.ivrOption = this.confirmedCaller.ivrOption;
@@ -83,6 +68,8 @@ export class AddCallerDetailsComponent extends Component {
 		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
 		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
 		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -114,11 +101,15 @@ export class AddCallerDetailsComponent extends Component {
 				ivrOption: this.ivrOption.value,
 				incidentReferenceNumber: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				nonClientFullName: '',
-				nonClientCellPhone: '',
-				nonClientIDNumber: '',
-				nonClientRelationship: ''
+				nonClientFullName: '', // TODO: Must be populated with the caller details added by this dialog
+				nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
+				nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
+				nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
 			}
+
+			this.raiseBackEvent(confirmedCaller);
+
+			/*
 			this.isBusy = true;
 
 			let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(confirmedCaller);
@@ -133,8 +124,21 @@ export class AddCallerDetailsComponent extends Component {
 				this.isBusy = false;
 			});
 			this.requestUpdate();
+			*/
 		}
 	}
+
+	raiseBackEvent(confirmedCaller) {
+		//TODO: Populate event with data to return to the confirm dialog.
+		// it will then return to the landing page
+		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
+		this.dispatchEvent(new CustomEvent('on-back', {
+			detail: {
+				confirmedCaller: confirmedCaller
+			}
+		}));
+	};
+
 
 	validateData() {
 

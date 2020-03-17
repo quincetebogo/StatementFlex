@@ -57,7 +57,7 @@ export class StopCardService {
 			'nonClientRelationship': callerData.Relationship
 		});
 	}
-	async addCaller(callerData) {
+	async addCallerDetails(callerData) {
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
@@ -65,6 +65,5 @@ export class StopCardService {
 			'incidentReferenceNumber': callerData.incidentNo,
 			'agentTelephoneNumber': callerData.agentPhoneNumber
 		});
-		console.log("Service Called");
 	}
 }

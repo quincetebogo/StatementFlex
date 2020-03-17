@@ -35,6 +35,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// Property initialization
 		this.confirmedCaller = null;
+		this.callerDetails = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this.isBusy = false;
 
@@ -489,32 +490,35 @@ export class ConfirmCallerDetails extends Component {
 						label="Add Caller Details"
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
 						?hidden=${isHidden(this.addCallerDetailsButton)}
-						@click="${() => this.onAddCallerClick()}">
+						@click="${async () => { await this.onAddCallerClick() }}">
 				</u>
 				<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 			</div>`;
 	}
 
-	onAddCallerClick() {
-		let addcall = {
-			incomingTelephoneNumber: this.confirmedCaller.incomingTelephoneNumber.value,
-			voiceReferenceNumber: this.confirmedCaller.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
-			incidentReferenceNumber: this.confirmedCaller.incidentReferenceNumber,
-			agentTelephoneNumber: this.confirmedCaller.agentTelephoneNumber
+	async onAddCallerClick() {
+		let callDetails = {
+			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
+			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentNo: this.confirmedCaller.incidentReferenceNumber,
+			agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber
 		}
+
 		this.isBusy = true;
 
-		let addedcall = StopCardService.getInstance().addCaller(addcall);
-
-		addedcall.then((response) => {
+		try {
+			this.callerDetails = await StopCardService.getInstance().addCallerDetails(callDetails);
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-			this.isBusy = false;
-		}, (error) => {
+		}
+		catch (error) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-			console.log("error");
+			console.log(error);
+			//TODO: Handle error properly
+		}
+		finally {
 			this.isBusy = false;
-		});
+		}
 	}
 
 	renderConfirmedCaller() {
@@ -654,6 +658,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
+				.callerDetails="${this.callerDetails}"
 				@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
 				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
 			</horizon-add-caller>`;
