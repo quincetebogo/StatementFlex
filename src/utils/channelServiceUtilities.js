@@ -63,3 +63,13 @@ export function getTabIndex(fieldInfo) {
 	console.log("fieldInfo in getTabIndex does not have a tabIndex property");
 	return -1;
 }
+
+
+export function validate(field, criteria) {
+	let re = RegExp(criteria);
+
+	if (re.test(field))
+		return field;
+	else
+		throw `Invalid field (${field})`;
+}

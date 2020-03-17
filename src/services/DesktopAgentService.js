@@ -2,6 +2,8 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
+import '../utils/channelServiceUtilities';
+import { validate } from '../utils/channelServiceUtilities';
 
 
 export class NewCallEvent {
@@ -56,20 +58,37 @@ export class DesktopAgentService {
 
 		// Listening for SSE events from the Desktop Agent
 		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
-		this.eventSource.addEventListener("new-call", (event) => {
-			console.log("Received 'new-call' event: ", event);
-
-			let newCallEvent = Object.assign(new NewCallEvent, JSON.parse(event.data));
-			console.log(newCallEvent);
-
-			this.queueEvent(newCallEvent);
-			this.processEventQueue();
-		})
+		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
 
 		this.router = Router.getInstance();
+	}
+
+
+	onNewCall(event) {
+		console.log("Received 'new-call' event: ", event);
+
+		let newCallEvent = new NewCallEvent();
+		//let newCallEvent = Object.assign(new NewCallEvent, JSON.parse(event.data));
+		//console.log(newCallEvent);
+
+		try {
+			//TODO: validate each field according to validation criteria received <where?>
+
+			newCallEvent.IncomingTelephoneNumber = validate(event.data.IncomingTelephoneNumber, '');
+			newCallEvent.VoiceReferenceNumber = validate(event.data.VoiceReferenceNumber, '');
+			newCallEvent.AgentTelephoneNumber = validate(event.data.AgentTelephoneNumber, '');
+			newCallEvent.IncidentReferenceNumber = validate(event.data.IncidentReferenceNumber, '');
+			newCallEvent.IVROptionCode = validate(event.data.IVROptionCode, '');
+		}
+		catch (err) {
+			console.log(err);
+		}
+
+		this.queueEvent(newCallEvent);
+		this.processEventQueue();
 	}
 
 
