@@ -21,17 +21,13 @@ export class LandingPage extends View {
 		super();
 		this.renderMode = -1;
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
+		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ Date: "2020-03-11T16:05:44.5173009+02:00", IncomingTelephoneNumber: "0631152973", VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard', IncidentReferenceNumber: '1234567', AgentTelephoneNumber: '0219412557' }));
+		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 
 		this.isBusy = false;
-
-		this.voiceReferenceNumber = ``;
-		this.incomingTelephoneNumber = ``;
-		this.ivrOption = ``;
-		this.incidentReferenceNumber = ``;
 	}
 
 	static get properties() {
@@ -51,7 +47,9 @@ export class LandingPage extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
+
+		this.eventAggregator.publish('landing-page-loaded', {});
 	}
 
 	async GetLandingPageData(landingPageData) {
@@ -67,34 +65,31 @@ export class LandingPage extends View {
 		return landingPageData;
 	}
 
-	async onTempButtonPressed(event) {
-		console.log("Temp button presssed received");
-		console.log(event);
+	async onNewCall(eventData) {
+		console.log("new call received:", eventData);
 
-		///TODO: Replace this with data that comes from the POP
-		let incomingCallData = {
-			incomingNumber: event.phoneNumber,
-			voiceReference: "123456",
-			ivrOption: 'StopCard', // TODO: fix this to whatever is right
-			incidentNo: '1234567',
-			agentPhoneNumber: '0219412557'
-		};
-
+		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
+		if (eventData.IVROptionCode == null) {
+			eventData.IVROptionCode = 'StopCard';
+		}
+		if (eventData.IncidentReferenceNumber == null) {
+			eventData.IncidentReferenceNumber = '1234567';
+		}
 
 		// Web service calls - must still handle errors
 		try {
 			let stopCardService = StopCardService.getInstance();
 			this.isBusy = true;
 
-			let acceptedCall = await stopCardService.acceptCall(incomingCallData);
+			let acceptedCall = await StopCardService.getInstance().acceptCall(eventData);
 
 			if (stopCardService.isConfirmedCaller(acceptedCall)) {
 				this.confirmedCaller = acceptedCall;
 				this.isUnverifiedCaller = null;
 
 				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
-				this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+				this.confirmedCaller.incidentReferenceNumber = eventData.incidentNo;
+				this.confirmedCaller.agentTelephoneNumber = eventData.agentPhoneNumber;
 
 				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 			}
