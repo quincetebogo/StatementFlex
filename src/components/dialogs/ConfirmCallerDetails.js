@@ -180,6 +180,17 @@ export class ConfirmCallerDetails extends Component {
 		return verifiedTelephoneNumber;
 	}
 
+	getBirthdate() {
+		let birthdate = this.confirmedCaller.callerInformation.birthdate.value;
+		console.log("Birthdate:", birthdate);
+		let dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
+		console.log("Date of birth: ", dob);
+		let months = ["January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December"];
+
+		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
+
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -607,7 +618,7 @@ export class ConfirmCallerDetails extends Component {
 						?hidden=${isHidden(this.birthdate)}
 					</capitec-label>
 					<capitec-label id="label-text"
-						label="${this.birthdate.value}"
+						label="${this.getBirthdate(this.birthdate)}"
 						tabindex="${getTabIndex(this.birthdate)}"
 						?hidden=${isHidden(this.birthdate)}>
 					</capitec-label>
