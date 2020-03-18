@@ -68,8 +68,11 @@ export function getTabIndex(fieldInfo) {
 export function validate(field, criteria) {
 	let re = RegExp(criteria);
 
-	if (re.test(field))
+	if (re.test(field)) {
 		return field;
-	else
-		throw `Invalid field (${field})`;
+	}
+	else {
+		//throw `Invalid field (${field})`; //TODO: can probably throw an object
+		return 0;
+	}
 }

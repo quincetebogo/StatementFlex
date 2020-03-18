@@ -69,12 +69,13 @@ export class LandingPage extends View {
 		console.log("new call received:", eventData);
 
 		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
-		if (eventData.IVROptionCode == null) {
-			eventData.IVROptionCode = 'StopCard';
-		}
-		if (eventData.IncidentReferenceNumber == null) {
-			eventData.IncidentReferenceNumber = '1234567';
-		}
+		// hardcoding in order to test CS calls. Contracts are misaligned
+		eventData.IVROptionCode = 'StopCard';
+		eventData.IncidentReferenceNumber = '1234567';
+		eventData.IncomingTelephoneNumber = '0631152973';
+		eventData.AgentTelephoneNumber = '0219412557';
+		eventData.VoiceReferenceNumber = '123456';
+		console.log("hardcoded data: ", eventData);
 
 		// Web service calls - must still handle errors
 		try {

@@ -41,6 +41,17 @@ export class DesktopAgentService {
 		DesktopAgentService.registrationUrl = url;
 	}
 
+	static getValidationData() {
+		// TODO: Make channel service call to retrieve validation data
+
+		//TODO: these validation criteria needs to come from the channel service
+		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[1-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
+		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
+	}
+
 	static getInstance() {
 		return this.instance || (this.instance = new DesktopAgentService());
 	}
@@ -70,26 +81,28 @@ export class DesktopAgentService {
 	onNewCall(event) {
 		console.log("Received 'new-call' event: ", event);
 
+		let eventData = JSON.parse(event.data);
 		let newCallEvent = new NewCallEvent();
-		//let newCallEvent = Object.assign(new NewCallEvent, JSON.parse(event.data));
-		//console.log(newCallEvent);
+
 
 		try {
-			//TODO: validate each field according to validation criteria received <where?>
+			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
+			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
+			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			newCallEvent.IVROptionCode = validate(eventData.IVROptionCode, DesktopAgentService.ivrOptionCodeValidation);
+			newCallEvent.Date = eventData.Date;
 
-			newCallEvent.IncomingTelephoneNumber = validate(event.data.IncomingTelephoneNumber, '');
-			newCallEvent.VoiceReferenceNumber = validate(event.data.VoiceReferenceNumber, '');
-			newCallEvent.AgentTelephoneNumber = validate(event.data.AgentTelephoneNumber, '');
-			newCallEvent.IncidentReferenceNumber = validate(event.data.IncidentReferenceNumber, '');
-			newCallEvent.IVROptionCode = validate(event.data.IVROptionCode, '');
+			console.log(newCallEvent);
+
+			this.queueEvent(newCallEvent);
+			this.processEventQueue();
 		}
 		catch (err) {
 			console.log(err);
 		}
-
-		this.queueEvent(newCallEvent);
-		this.processEventQueue();
 	}
+
 
 
 
