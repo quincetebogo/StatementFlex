@@ -617,7 +617,7 @@ export class ConfirmCallerDetails extends Component {
 						tabindex="-1">
 						?hidden=${isHidden(this.birthdate)}
 					</capitec-label>
-					<capitec-label id="label-text"
+					<capitec-label class="label-text"
 						label="${this.getBirthdate(this.birthdate)}"
 						tabindex="${getTabIndex(this.birthdate)}"
 						?hidden=${isHidden(this.birthdate)}>
