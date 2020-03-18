@@ -55,21 +55,18 @@ export class AddCallerDetailsComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		//TODO: Fix up to use the callerDetails incoming model
-
 		// Short hand references for reaching into the incoming data model
-		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
-		this.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
-		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
-		this.callerFullName = this.confirmedCaller.callerInformation.name;
-		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
-		this.verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber;
-		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
-		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
-		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
-		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
-		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+		this.voiceReferenceNumber = this.callerDetails.voiceReferenceNumber;
+		this.ivrOption = this.callerDetails.ivrOption;
+		this.incomingTelephoneNumber = this.callerDetails.incomingTelephoneNumber;
+		this.endCallSessionButton = this.callerDetails.endCallSessionButton;
+		this.firstNameTextField = this.callerDetails.nonClientInformation.firstNameTextField;
+		this.nonClientRelationship = this.callerDetails.nonClientInformation.nonClientRelationship;
+
+
+		// Continue to add field short cuts here.
+
+
 	}
 
 	// --------------
@@ -364,7 +361,7 @@ export class AddCallerDetailsComponent extends Component {
 			<div style="margin:-20px 0px 0px 0px;">
 				<capitec-select id="Relationship" 
 									label="Choose relationship type (Optional)" 
-									.items="${this.userDetails.Relationship}" 
+									.items="${this.nonClientRelationship.possibleValues}" 
 									display-field="text" 
 									@value-changed="${(e) => this._valueChanged(e)}">
 				</capitec-select>
