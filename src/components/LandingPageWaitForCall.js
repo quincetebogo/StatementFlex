@@ -83,11 +83,21 @@ export class LandingPageWaitForCall extends Component {
 	}
 
 	triggerConfirmDialog() {
-		this.eventAggregator.publish('horizon-temp-button', { phoneNumber: this.phoneNumber });
+
+		let eventData = {
+			Date: "2020-03-11T16:05:44.5173009+02:00",
+			IncomingTelephoneNumber: this.phoneNumber,
+			VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard',
+			IncidentReferenceNumber: '1234567',
+			AgentTelephoneNumber: '0219412557'
+		};
+
+
+		this.eventAggregator.publish('horizon-temp-button', eventData);
 		console.log('triggering dialog');
 	}
 
-	onidValueChanged(e) {
+	onPhoneNumberValueChanged(e) {
 		console.log(e);
 		this.phoneNumber = e.detail.new;
 	}
@@ -99,7 +109,7 @@ export class LandingPageWaitForCall extends Component {
 					class="temptext"
 					label="Phone Number" 
 					value="${this.phoneNumber}"
-					@value-changed="${(e) => this.onidValueChanged(e)}">
+					@value-changed="${(e) => this.onPhoneNumberValueChanged(e)}">
 				</capitec-text-field>
 				<capitec-button 
 					class="buttons"
