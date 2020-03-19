@@ -5,7 +5,6 @@ import { Router } from 'platform/Router';
 
 import '../../components/LandingPageWaitForCall';
 import '../../components/dialogs/ConfirmCallerDetails';
-import '../../components/dialogs/AddCallerDetailsComponent';
 import '../../components/EndCallSessionReason';
 
 import '../../views/ClientProfile/StopCardComponent';

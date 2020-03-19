@@ -9,7 +9,7 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import './AddCallerDetailsComponent';
+import './AddCallerDetails';
 import '../EndCallSessionReason';
 import { HorizonViewManager } from '../../HorizonViewManager';
 import { Router } from 'platform/Router';
@@ -180,7 +180,7 @@ export class ConfirmCallerDetails extends Component {
 				}
 				.populatedText{
 					padding: 8px;
-					height: 64px;	
+					height: 64px;
 					width: 690x;
 					border-bottom: 1px solid #dfdfdf;
 				}
@@ -196,11 +196,11 @@ export class ConfirmCallerDetails extends Component {
 				.horizon-call{
 					display: flex;
 					flex-direction: row;
-					margin: 0px;					
+					margin: 0px;
 				}
 
 				.horizon-add-caller-details-div{
-					display: flex;					
+					display: flex;
 					flex-direction: row;
 					width: 648px;
 					height: 56px;

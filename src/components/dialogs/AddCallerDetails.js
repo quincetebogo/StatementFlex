@@ -32,6 +32,11 @@ export class AddCallerDetailsComponent extends Component {
 			errName: "",
 			errSurname: ""
 		};
+
+		this.userDetails = {
+			Name: "",
+			Surname: ""
+		};
 	}
 
 	// ----------
@@ -44,7 +49,8 @@ export class AddCallerDetailsComponent extends Component {
 			confirmedCaller: { type: Object },
 			callerDetails: { type: Object },
 			isBusy: { type: Boolean },
-			showEndCallModal: { type: Boolean }
+			showEndCallModal: { type: Boolean },
+			userDetails: { type: Object }
 		}
 	}
 
@@ -90,40 +96,45 @@ export class AddCallerDetailsComponent extends Component {
 	}
 
 	onConfirmClick(e) {
-		if (this.validateData()) {
-
-			let confirmedCaller = {
-				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.voiceReferenceNumber.value,
-				ivrOption: this.ivrOption.value,
-				incidentReferenceNumber: this.incidentReferenceNumber,
-				agentTelephoneNumber: this.agentTelephoneNumber,
-				nonClientFullName: '', // TODO: Must be populated with the caller details added by this dialog
-				nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
-				nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
-				nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
-			}
-
-			this.raiseBackEvent(confirmedCaller);
-
-			/*
-			this.isBusy = true;
-
-			let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(confirmedCaller);
-
-			identifyCallerPromise.then((response) => {
-
-				this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
-				this.isBusy = false;
-			}, (error) => {
-
-				console.log('Error in fetching Client Info.');
-				this.isBusy = false;
-			});
-			this.requestUpdate();
-			*/
-		}
+		this.validateData()
 	}
+
+
+
+	// 	if (this.validateData()) {
+
+	// 		let confirmedCaller = {
+	// 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+	// 			voiceReferenceNumber: this.voiceReferenceNumber.value,
+	// 			ivrOption: this.ivrOption.value,
+	// 			incidentReferenceNumber: this.incidentReferenceNumber,
+	// 			agentTelephoneNumber: this.agentTelephoneNumber,
+	// 			nonClientFullName: '', // TODO: Must be populated with the caller details added by this dialog
+	// 			nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
+	// 			nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
+	// 			nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
+	// 		}
+
+	// 		this.raiseBackEvent(confirmedCaller);
+	// 	}
+	// }
+	/*
+	this.isBusy = true;
+
+	let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(confirmedCaller);
+
+	identifyCallerPromise.then((response) => {
+
+		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
+		this.isBusy = false;
+	}, (error) => {
+
+		console.log('Error in fetching Client Info.');
+		this.isBusy = false;
+	});
+	this.requestUpdate();
+	*/
+
 
 	raiseBackEvent(confirmedCaller) {
 		//TODO: Populate event with data to return to the confirm dialog.
@@ -370,14 +381,14 @@ export class AddCallerDetailsComponent extends Component {
 		`;
 	}
 
-	raiseBackEvent() {
-		console.log('raise event');
-		this.dispatchEvent(new CustomEvent('on-back', {
-			detail: {
-				message: 'Something important happened'
-			}
-		}));
-	}
+	// raiseBackEvent() {
+	// 	console.log('raise event');
+	// 	this.dispatchEvent(new CustomEvent('on-back', {
+	// 		detail: {
+	// 			message: 'Something important happened'
+	// 		}
+	// 	}));
+	// }
 
 	renderFooter() {
 		return html`
