@@ -1,6 +1,6 @@
 /*
  *		Horizon Confirm Caller Details Dialog
- * 			
+ *
  */
 import { Component, html, css } from 'platform/elements';
 
@@ -11,17 +11,19 @@ import 'platform/components/core/Icon';
 
 import './AddCallerDetails';
 import '../EndCallSessionReason';
+import './SearchClientDetails';
 import { HorizonViewManager } from '../../HorizonViewManager';
 import { Router } from 'platform/Router';
 
-
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 import { StopCardService } from '../../services/StopCardService';
+import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import StopCardHelper from '../../helpers/StopCardHelper';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
-	END_CALL: 2
+	END_CALL: 2,
+	SEARCH_CALLER: 3
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -35,6 +37,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// Property initialization
 		this.confirmedCaller = null;
+		this.isBusy = false;
 		this.callerDetails = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this.isBusy = false;
@@ -53,9 +56,9 @@ export class ConfirmCallerDetails extends Component {
 	 */
 	static get properties() {
 		return {
+			isBusy: { type: Boolean },
 			confirmedCaller: { type: Object },
 			renderMode: { type: Number },
-			isBusy: { type: Boolean }
 		}
 	}
 
@@ -82,6 +85,8 @@ export class ConfirmCallerDetails extends Component {
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -91,15 +96,18 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	onConfirmClick() {
 		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentReferenceNumber: this.incidentReferenceNumber,
+			agentTelephoneNumber: this.agentTelephoneNumber,
 			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			southAfricanIDNumber: this.southAfricanIDNumber.value,
 			livesIn: this.livesIn.value,
 			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
+			birthdate: this.birthdate.value,
+			relationship: ''
 			/*
 				TODO: should added Caller Details go here?
 
@@ -107,7 +115,16 @@ export class ConfirmCallerDetails extends Component {
 			*/
 		}
 
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: confirmedCaller } }));
+		let identifyCallerPromise = StopCardHelper.getInstance().identifyCaller(confirmedCaller);
+
+		identifyCallerPromise.then((response) => {
+
+			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
+		}, (error) => {
+
+			console.log('Error in fetching Client Info.');
+			console.log(error);
+		});
 	}
 
 	onCallCancelled(reason) {
@@ -124,6 +141,28 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+	}
+
+	onSearchClick() {
+
+		let callerDetails = {
+			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
+			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
+			incidentNo: this.confirmedCaller.incidentReferenceNumber,
+			agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber,
+			ivrOptionSelected: 'StopCard'
+		}
+		this.isBusy = true;
+		let searchOptions = StopCardService.getInstance().searchOptions(callerDetails);
+
+		searchOptions.then((response) => {
+			this.confirmedCaller.identificationMethods = response.identificationMethods;
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			this.isBusy = false;
+		}, (error) => {
+			console.log("Error in fething search options.");
+			this.isBusy = false;
+		});
 	}
 
 	// --------------
@@ -148,6 +187,17 @@ export class ConfirmCallerDetails extends Component {
 		return verifiedTelephoneNumber;
 	}
 
+	getBirthdate() {
+		let birthdate = this.confirmedCaller.callerInformation.birthdate.value;
+		console.log("Birthdate:", birthdate);
+		let dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
+		console.log("Date of birth: ", dob);
+		let months = ["January", "February", "March", "April", "May", "June",
+			"July", "August", "September", "October", "November", "December"];
+
+		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
+
+	}
 	onCallerConfirmed(data) {
 		this.horizonViewManager.saveState(data.detail.confirmedCaller);
 		this.displayConfirmedCaller = false;
@@ -162,7 +212,7 @@ export class ConfirmCallerDetails extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -223,7 +273,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.ivr-option{
 					width: 223px;
-					height: 64px; 
+					height: 64px;
 					text-align:left;
 					border: 0px;
 					padding: 8px;
@@ -251,7 +301,7 @@ export class ConfirmCallerDetails extends Component {
 				.client-avatar{
 					display: grid;
 					grid: 'avatar clientdetails';
-					height: 200px; 
+					height: 200px;
 					width: 433px;
 					border: 0px 0px 1px 0px;
 					margin-top: 24px;
@@ -265,12 +315,12 @@ export class ConfirmCallerDetails extends Component {
 					padding-left: 20px;
 					text-align: left;
 					height: 200px;
-					width: 400px; 
+					width: 400px;
 				}
 				.add-caller{
 				background-color: #4330;
 				}
-				
+
 				.image{
 					width: 200px;
 					height: 200px;
@@ -279,27 +329,27 @@ export class ConfirmCallerDetails extends Component {
 					margin: 0px 0px 0px 24px;
 					background: gainsboro;
 				}
-        
+
 				.fullname{
 					//  width: 200px;
 					//  margin: 0px;
 					text-align: left;
 					padding: 0px 0px 16px 0px ;
 					vertical-align: middle;
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
-					font-weight: 600;	
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
 					line-height: 27px;
 					//transform: translate(-8.0%);
 				}
 
 				.label-text{
 					height: 30px;
-					width: 123px;	
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
+					width: 123px;
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
 					font-weight: 600;
 					line-height: 30px;
 				}
@@ -307,48 +357,48 @@ export class ConfirmCallerDetails extends Component {
 				#ref-number{
 					height: 21px;
 					width: 112px;
-					color: #4E6066;	
-					font-family: "Hind Vadodara";	
-					font-size: 14px;	
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 14px;
 					line-height: 21px;
 				}
-        
+
 				#incoming-num{
-					height: 27px;	
-					width: 104px;	
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
-					font-weight: 600;	
+					height: 27px;
+					width: 104px;
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
 					line-height: 27px;
 				}
-        
+
 				#label-value{
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
-					font-weight: 600;	
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
 					line-height: 27px;
 				}
-        
+
 				#label-ivr{
 					width: 192px;
 					//height: 64px;
-					color: #003652;	
-					font-family: "Hind Vadodara";	
-					font-size: 18px;	
-					font-weight: 600;	
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
 					line-height: 27px;
 				}
 				.items{
-					font-size: 18px;	
-					font-weight: 600;	
+					font-size: 18px;
+					font-weight: 600;
 					line-height: 27px;
 				}
 
 				#action-bar{
 					background: #DAF5F3;
-					height: 56px;	
+					height: 56px;
 					width: 690px;
 					margin: 16px 16px 16px 24px;
 					align: center;
@@ -363,7 +413,7 @@ export class ConfirmCallerDetails extends Component {
 				#action-label{
 					margin:1px 0px 0px 0px;
 					color: #08A6B5;
-					font-family: "Hind Vadodara";	
+					font-family: "Hind Vadodara";
 					font-weight: 800;
 					align: center;
 					padding: 18px 0px 18px 8px;
@@ -372,7 +422,7 @@ export class ConfirmCallerDetails extends Component {
 				#action-display{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
-					font-family: "Hind Vadodara";	
+					font-family: "Hind Vadodara";
 					font-weight: 500;
 					align: center;
 					padding: 18px 0px 18px 0px;
@@ -390,7 +440,7 @@ export class ConfirmCallerDetails extends Component {
 					width: 742px;
 					margin:0px;
 					padding:0px;
-					border-top: 1px solid #dfdfdf; 
+					border-top: 1px solid #dfdfdf;
 				}
 				u{
 					color: #08A6B5;
@@ -407,9 +457,9 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-				<capitec-modal 
-						type="free" 
-						header="Confirm Caller Details" 
+				<capitec-modal
+						type="free"
+						header="Confirm Caller Details"
 						header-align="left">
 					  <div slot="body" class="main">
 						${this.renderCallInformation()}
@@ -418,8 +468,7 @@ export class ConfirmCallerDetails extends Component {
 					</div>
 					${this.renderFooter()}
 				</capitec-modal>
-				${this.renderLoadingIndicator()}
-			`;
+				${this.renderLoadingIndicator()}`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
 				return html`
@@ -427,17 +476,29 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`
+				${this.renderSearchCallerModal()}`;
 		}
 	}
+	renderLoadingIndicator() {
 
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
+	}
 	renderCallInformation() {
 		return html`
 			<capitec-group layout = "grid" class="grid-container" >
 				<capitec-action-bar class="populatedText" tabindex="-1">
 					<div class="horizon-call">
 						<div class="ref-call">
-							<capitec-label 
-								id="ref-number" 
+							<capitec-label
+								id="ref-number"
 								label="Reference Number"
 								tabindex="-1">
 							</capitec-label>
@@ -450,7 +511,7 @@ export class ConfirmCallerDetails extends Component {
 						<div class="ivr-option">
 							<capitec-select
 								id="label-ivr"
-								label="ivr option selected" 
+								label="ivr option selected"
 								display-field="value"
 								.items="${this.ivrOption.possibleValues}"
 								.value="${this.ivrOption.possibleValues[0]}"
@@ -459,8 +520,8 @@ export class ConfirmCallerDetails extends Component {
 							</capitec-select>
 						</div>
 						<div class="incoming-call">
-							<capitec-label 
-								id="ref-number" 
+							<capitec-label
+								id="ref-number"
 								label="Incoming Number"
 								tabindex="-1">
 							</capitec-label>
@@ -478,9 +539,9 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 			<div class="horizon-add-caller-details-div">
-				<capitec-icon 
-					size="default" 
-					icon="system/info" 
+				<capitec-icon
+					size="default"
+					icon="system/info"
 					id="action-icon"
 					tabindex="-1">
 				</capitec-icon>
@@ -524,39 +585,39 @@ export class ConfirmCallerDetails extends Component {
 	renderConfirmedCaller() {
 		return html`
 			<div class="client-avatar">
-				<capitec-avatar 
-					class="image" 
-					shape = "none" 
+				<capitec-avatar
+					class="image"
+					shape = "none"
 					value = ""
 					tabindex="-1">
 				</capitec-avatar>
 				<div class="client-info">
 					<capitec-label class="fullname"
 						id="label-value"
-						label="${this.callerFullName.value}" 
+						label="${this.callerFullName.value}"
 						tabindex="${getTabIndex(this.callerFullName)}"
 						?hidden=${isHidden(this.callerFullName)}>
 					</capitec-label>
 					<div></div>
 					<div>
-						<capitec-label 
+						<capitec-label
 							label="ID Number"
 							tabindex="-1"
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</capitec-label>
-						<capitec-label 
+						<capitec-label
 							class="label-text"
 							label="${this.southAfricanIDNumber.value}"
 							tabindex="${getTabIndex(this.southAfricanIDNumber)}"
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</capitec-label>
 						</div><div>
-						<capitec-label 
+						<capitec-label
 							label="Verified Cellphone Number"
 							tabindex="-1"
 							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</capitec-label>
-						<capitec-label 
+						<capitec-label
 							class="label-text"
 							label="${this.getVerifiedTelephoneNumber()}"
 							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
@@ -564,12 +625,12 @@ export class ConfirmCallerDetails extends Component {
 						</capitec-label>
 					</div>
 				<div>
-					<capitec-label 
+					<capitec-label
 						label="Lives In"
 						tabindex="-1"
 						?hidden=${isHidden(this.livesIn)}>
 					</capitec-label>
-					<capitec-label 
+					<capitec-label
 						class="label-text"
 						label="${this.livesIn.value}"
 						tabindex="${getTabIndex(this.livesIn)}"
@@ -577,26 +638,26 @@ export class ConfirmCallerDetails extends Component {
 					</capitec-label>
 				</div>
 				<div>
-					<capitec-label 
+					<capitec-label
 						label="Language Preference"
 						tabindex="-1">
 						?hidden=${isHidden(this.languagePreference)}
 					</capitec-label>
-					<capitec-label 
-						class="label-text" 
+					<capitec-label
+						class="label-text"
 						label="${this.getLanguagePreference()}"
 						tabindex="${getTabIndex(this.languagePreference)}"
 						?hidden=${isHidden(this.languagePreference)}>
 					</capitec-label>
 				</div>
 				<div>
-					<capitec-label 
+					<capitec-label
 						label="Birthday"
 						tabindex="-1">
 						?hidden=${isHidden(this.birthdate)}
 					</capitec-label>
-					<capitec-label id="label-text"
-						label="${this.birthdate.value}"
+					<capitec-label class="label-text"
+						label="${this.getBirthdate(this.birthdate)}"
 						tabindex="${getTabIndex(this.birthdate)}"
 						?hidden=${isHidden(this.birthdate)}>
 					</capitec-label>
@@ -609,8 +670,8 @@ export class ConfirmCallerDetails extends Component {
 
 	renderFooter() {
 		return html`
-			<capitec-action-bar 
-					slot = "footer" 
+			<capitec-action-bar
+					slot = "footer"
 					class="footer-bar" >
 				<capitec-button
 					id="id-search-client-button"
@@ -619,38 +680,27 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.searchClientButton)}
 					.disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => console.log('on clicked search client')}">
+					@click="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 				</capitec-button>				
 				<capitec-spacer tabindex="-1"></capitec-spacer>
-				<capitec-button 
+				<capitec-button
 					type="clear"
-					label="End Call Session" 
+					label="End Call Session"
 					?hidden=${isHidden(this.endCallSessionButton)}
 					.disabled="${isDisabled(this.endCallSessionButton)}"
 					tabindex="${getTabIndex(this.endCallSessionButton)}"
 					@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-				</capitec-button>	
-				<capitec-button 
+				</capitec-button>
+				<capitec-button
 					id="id-confirm-button"
 					type="primary"
-					label="Confirm" 
+					label="Confirm"
 					?hidden=${isHidden(this.confirmButton)}
 					.disabled="${isDisabled(this.confirmButton)}"
 					tabindex="${getTabIndex(this.confirmButton)}"
 					@click="${() => this.onConfirmClick()}">
 				</capitec-button>
 			</capitec-action-bar>`;
-	}
-
-	renderLoadingIndicator() {
-
-		if (!this.isBusy) {
-			return html``;
-		}
-		else
-			return html`
-				<capitec-loading-indicator></capitec-loading-indicator>
-		`;
 	}
 
 	renderAddCallerDetailsModal() {
@@ -670,6 +720,13 @@ export class ConfirmCallerDetails extends Component {
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
 				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
 			</end-call-session>`;
+	}
+
+	renderSearchCallerModal() {
+		return html`
+			<horizon-search-client
+				.unverifiedCaller="${this.confirmedCaller}">
+			</horizon-search-client>`;
 	}
 }
 

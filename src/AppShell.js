@@ -6,6 +6,7 @@ import { SecurityContext } from 'platform/SecurityContext';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Configuration } from 'platform/Configuration';
 
 // Import all UI Components. 
 import 'platform/components';
@@ -13,8 +14,9 @@ import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
-
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
+
 
 //TODO: Move these out of the shell
 import { LandingPageWelcome } from './components/LandingPageWelcome';
@@ -60,15 +62,6 @@ export class AppShell extends Shell {
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
 
-
-		/// TODO: MOVE INTO A SINGLETON CLASS
-
-		// Listening for SSE events from the Desktop Agent
-		// this.eventSource = new EventSource("http://localhost:8888/subscribe"); //TODO: make configurable
-		// this.eventSource.addEventListener("new-call", (event) => {
-		// 	console.log("Received 'new-call' event: ", event);
-		// })
-
 		this.showClientProfile = false;
 
 		//Event Aggregator
@@ -91,8 +84,6 @@ export class AppShell extends Shell {
 		this.platformVersion = null;
 		this.applicationName = null;
 		this.applicationVersion = null;
-		this.landingPageView = true;
-		this.callWaitingView = false;
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
@@ -117,10 +108,8 @@ export class AppShell extends Shell {
 			platformVersion: { type: String },
 			applicationName: { type: String },
 			applicationVersion: { type: String },
-			landingPageView: { type: Boolean },
 			fullname: { type: String },
 			employeeId: { type: String },
-			cardStop: { type: Array },
 			currentView: { type: String }
 		};
 	}
@@ -132,9 +121,19 @@ export class AppShell extends Shell {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		// Listening for events from the Desktop Agent
+		let registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
+		console.log("registrationUrl: ", registrationUrl);
+		DesktopAgentService.setRegistrationUrl(registrationUrl);
+		DesktopAgentService.getInstance();
+
 		console.log(`Appshell: ConnectedCallback`);
 
-		this.currentView = this.horizonViewManager.getNextView();
+		let nextView = this.horizonViewManager.getNextView();
+
+		if (this.currentView !== nextView) {
+			this.currentView = nextView;
+		}
 	}
 
 	// --------------
@@ -202,7 +201,11 @@ export class AppShell extends Shell {
 	}
 
 	onNavigationContextUpdated() {
-		this.currentView = this.horizonViewManager.getNextView();
+		let nextView = this.horizonViewManager.getNextView();
+		if (nextView !== this.currentView) {
+			this.currentView = nextView;
+		}
+
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 

@@ -5,38 +5,44 @@ import { Router } from 'platform/Router';
 
 import '../../components/LandingPageWaitForCall';
 import '../../components/dialogs/ConfirmCallerDetails';
+import '../../components/dialogs/SearchClientDetails';
 import '../../components/EndCallSessionReason';
 
 import '../../views/ClientProfile/StopCardComponent';
 
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { HorizonViewManager } from '../../HorizonViewManager';
+
+const RENDER_MODE = {
+	CONFIRM_CALLER: 0,
+	SEARCH_CALLER: 1
+};
 
 export class LandingPage extends View {
 
 	constructor() {
 		super();
-
-		this.displayConfirmedCaller = false;
-
+		this.renderMode = -1;
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
+		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
+		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onTempButtonPressed(event));
 		this.eventAggregator.subscribe(`call-end`, () => this.onCallEnded());
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(t => { this.toggleBusyFlag() });
 
 		this.isBusy = false;
-
-		this.voiceReferenceNumber = ``;
-		this.incomingTelephoneNumber = ``;
-		this.ivrOption = ``;
-		this.incidentReferenceNumber = ``;
 	}
 
 	static get properties() {
 		return {
 			fullname: { type: String },
-			displayConfirmedCaller: { type: Boolean },
+			renderMode: { type: Number },
 			isBusy: { type: Boolean },
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
@@ -50,64 +56,81 @@ export class LandingPage extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		if (landingPageData) {
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		}
+
+		this.eventAggregator.publish('landing-page-loaded', {});
 	}
 
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await StopCardService.getInstance().initialise();
+	async GetLandingPageData() {
+		return await this.serviceCallHelper.makeCall(this.stopCardService.initialise(),
+			(x) => { this.handleInitErrors(x) });
+	}
 
+	toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
+
+	handleInitErrors(ex) {
+		if (ex instanceof TypeError) {
+			// Put in something to update the status bar
+			console.log(ex.message, ": The channel service may be down");
 		}
-		catch (ex) {
-			// TODO: better handling must come here
+		else if (ex instanceof HttpStatusError) {
+			// Put in something to update the status bar
+			console.log(`Http Status: ${ex.status}`);
+		}
+		else {
+			// Put in something to update the status bar
 			console.log(ex);
 		}
-
-		return landingPageData;
 	}
 
-	async onTempButtonPressed(event) {
-		console.log("Temp button presssed received");
+	async onNewCall(eventData) {
+		console.log("new call received:", eventData);
 
-
-		///TODO: Replace this with data that comes from the POP
-		let incomingCallData = {
-			incomingNumber: "0631152973",
-			voiceReference: "123456",
-			ivrOption: 'StopCard', // TODO: fix this to whatever is right
-			incidentNo: '1234567',
-			agentPhoneNumber: '0219412557'
-		};
-
+		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
+		if (eventData.IVROptionCode == null) {
+			eventData.IVROptionCode = 'StopCard';
+		}
+		if (eventData.IncidentReferenceNumber == null) {
+			eventData.IncidentReferenceNumber = '1234567';
+		}
 
 		// Web service calls - must still handle errors
 		try {
+			let stopCardService = StopCardService.getInstance();
 			this.isBusy = true;
 
-			let acceptedCall = await StopCardService.getInstance().acceptCall(incomingCallData);
+			let acceptedCall = await StopCardService.getInstance().acceptCall(eventData);
 
-			// Initialize from the results of the above web service calls.
-			// this will be passed into the confirmed caller dialog
-			this.confirmedCaller = acceptedCall;
+			if (stopCardService.isConfirmedCaller(acceptedCall)) {
+				this.confirmedCaller = acceptedCall;
+				this.isUnverifiedCaller = null;
 
-			this.confirmedCaller.incidentReferenceNumber = incomingCallData.incidentNo;
-			this.confirmedCaller.agentTelephoneNumber = incomingCallData.agentPhoneNumber;
+				// TODO: injected into model. Not the best way to do this. look for an alternative
+				this.confirmedCaller.incidentReferenceNumber = eventData.IncidentReferenceNumber;
+				this.confirmedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
 
-			this.displayConfirmedCaller = true;
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}
+			else if (stopCardService.isUnverifiedCaller(acceptedCall)) {
+				this.confirmedCaller = null;
+				this.isUnverifiedCaller = acceptedCall;
+
+				// TODO: injected into model. Not the best way to do this. look for an alternative
+				this.isUnverifiedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
+
+				this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			}
 		}
 		catch (error) {
-
-			console.log(error);
+			console.log(`Accept Call Failed: `, error);
 			this.confirmedCaller = null;
-
-			this.displayConfirmedCaller = false;
-
+			this.isUnverifiedCaller = null;
+			this.renderMode = -1;
 			return null;
-
-			/*
-				IF acceptedCall succeeded but identifiedCaller failed then 
-					we must invoke the search dialog (which must still be built)
-			*/
 		}
 		finally {
 			this.isBusy = false;
@@ -116,13 +139,14 @@ export class LandingPage extends View {
 
 	onCallerConfirmed(data) {
 		this.horizonViewManager.saveState(data.detail.confirmedCaller);
-		this.displayConfirmedCaller = false;
+		this.renderMode = -1;
 		this.router.navigateByPath(`/client/profile`);
 	}
 
-	onCallEnded() {
-		this.displayConfirmedCaller = false;
-		this.router.navigateByPath(`/landingpage`);
+	onCallEnded(data) {
+		console.log(data.detail);
+		this.renderMode = -1;
+		//		this.router.navigateByPath(`/landingpage`);
 	}
 
 	static get styles() {
@@ -136,20 +160,21 @@ export class LandingPage extends View {
 				`];
 	}
 
+	render() {
+
+		return html`
+		${this.renderMiddleSection()}
+		${this.renderLoadingIndicator()}
+		${this.renderConfirmedUser()}
+		${this.renderUnverifiedUser()}
+		`;
+
+	}
+
 	renderMiddleSection() {
 		return html`
 			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
 		`;
-	}
-
-	render() {
-		return html`
-			${this.renderMiddleSection()}
-			${this.renderLoadingIndicator()}
-			${this.renderConfirmedUser()}
-
-		`;
-
 	}
 
 	renderLoadingIndicator() {
@@ -164,7 +189,7 @@ export class LandingPage extends View {
 	}
 
 	renderConfirmedUser() {
-		if (this.displayConfirmedCaller) {
+		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
@@ -172,8 +197,15 @@ export class LandingPage extends View {
 					@call-ended="${() => this.onCallEnded()}">
 				</horizon-confirm-caller>`;
 		}
+	}
 
-		return html``;
+	renderUnverifiedUser() {
+		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
+			return html`
+				<horizon-search-client 
+					.unverifiedCaller="${this.isUnverifiedCaller}">
+				</horizon-search-client>`;
+		}
 	}
 }
 

@@ -1,19 +1,44 @@
 import { Component, html, css } from 'platform/elements';
+import { HorizonViewManager } from '../../HorizonViewManager';
 import 'platform/components';
+import '../../components/dialogs/AccessChannelError';
 
 export class AccessComponent extends Component {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
-
-		this.userDetails = null;
+		this.confirmedCaller = null;
+		this.showAlert = false;
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
-			userDetails: { type: Object }
+			showAlert: { type: Boolean }
 		}
 	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
+		this.clientAccess = this.confirmedCaller.clientAccess;
+		this.accessChannels = Object.keys(this.clientAccess);
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -75,14 +100,28 @@ export class AccessComponent extends Component {
 			}
 			.box-icon{
 				align-self:flex-end;
-				padding:0px 30px 0px 0px
+				padding:0px 30px 0px 0px;
+				cursor:pointer;
 			}
 
 			`];
 	}
+
+	render() {
+		return html`
+			<section class="insights">
+				<div>
+					${this.renderClientInsights()}
+				</div>
+				<div>
+					${this.renderAccessExpander()}
+				</div>
+			</section>
+			${this.renderAccessChannelError()}`;
+	}
+
 	renderClientInsights() {
 		return html`
-			
 			<capitec-card class="insights-card">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
 					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
@@ -96,62 +135,46 @@ export class AccessComponent extends Component {
 					</capitec-content-box>
 					<hr>
 				</capitec-group>
-			</capitec-card>
-		
-			`;
+			</capitec-card>`;
 	}
 
 	renderAccessExpander() {
 		return html`
-		
-				<capitec-card class="access-card">
-					<capitec-card class="back-ground-card"> 
-						<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-							<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-								<capitec-icon class="header-icon" size="medium" icon="system/unlock-files-action"></capitec-icon>	
-								<capitec-label class="header-label" label="Access"></capitec-label>
-							</capitec-content-box>	
-							<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-								<capitec-label class="box-label" label="App"></capitec-label>
-								<capitec-icon class="box-icon" size="small" icon="system/more-action"></capitec-icon>
-								<capitec-label class="subtitle" label="Active"></capitec-label>
-							</capitec-content-box>
-							<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-								<capitec-label class="box-label" label="USSD"></capitec-label>
-								<capitec-icon class="box-icon" size="small" icon="system/more-action"></capitec-icon>
-								<capitec-label class="subtitle" label="Active"></capitec-label>
-							</capitec-content-box>
-							<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-								<capitec-label class="box-label" label="SMS Notifications"></capitec-label>
-								<capitec-icon class="box-icon" size="small" icon="system/more-action"></capitec-icon>
-								<capitec-label class="subtitle" label="R100.00 | 7:00 - 17:00"></capitec-label>
-							</capitec-content-box>
-							<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-								<capitec-label class="box-label" label="Cards"></capitec-label>
-								<capitec-icon class="box-icon" size="small" icon="system/more-action"></capitec-icon>
-								<capitec-label class="subtitle" label="3 Active Cards"></capitec-label>
-							</capitec-content-box>
-						</capitec-group>
-					</capitec-card>
+			<capitec-card class="access-card">
+				<capitec-card class="back-ground-card"> 
+					<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
+						<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none">
+							<capitec-icon class="header-icon" 
+										  size="medium" 
+										  icon="system/unlock-files-action">
+							</capitec-icon>	
+							<capitec-label class="header-label" label="Access"></capitec-label>
+						</capitec-content-box>
+						${this.renderAccessChannels()}
+					</capitec-group>
 				</capitec-card>
-			
-			`;
-
+			</capitec-card>`;
 	}
 
-	render() {
-		return html`
-		<section class="insights">
-		<div>
-		${this.renderClientInsights()}
-		</div>
-		<div>
-		${this.renderAccessExpander()}
-		</div>
-		</section>
-	`;
+	renderAccessChannels() {
+		return this.accessChannels.map(access => {
+			return html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+							<capitec-label class="box-label" label="${access}"></capitec-label>
+							<capitec-icon class="box-icon" 
+											size="small" 
+											icon="system/more-action"
+											@click="${() => this.showAlert = true}">
+							</capitec-icon>
+							<capitec-label class="subtitle" label="Active"></capitec-label>
+						</capitec-content-box>`
+		})
 	}
 
+	renderAccessChannelError() {
+		if (this.showAlert) {
+			return html`<horizon-access-channel-error @on-OK="${() => this.showAlert = false}"></horizon-access-channel-error>`;
+		}
+	}
 }
 
 window.customElements.define(`access-component`, AccessComponent);
