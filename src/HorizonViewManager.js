@@ -49,7 +49,7 @@ export class HorizonViewManager {
 		return this.transitionTo;
 	}
 
-	/// Usually set fron the OnPreNavigate event in the routing table
+	/// Usually set from the OnPreNavigate event in the routing table
 	transitionToView(nextView) {
 		console.log('transitioning to view', nextView);
 		this.transitionTo = nextView;
@@ -62,7 +62,7 @@ export class HorizonViewManager {
 
 
 	// -----------------------------------------------------------------------------
-	// METHODS THAT UPDATE THE APPLICATION SHELL (TOOBARS, RIGHT AND LEFT-HAND BARS)
+	// METHODS THAT UPDATE THE APPLICATION SHELL (TOOLBARS, RIGHT AND LEFT-HAND BARS)
 	// -----------------------------------------------------------------------------
 
 	/// Used from the Landing Page & Product Pages to update the toolbar and the 
@@ -102,8 +102,8 @@ export class HorizonViewManager {
 	// Recovering clears the saved state. If the new view wishes to 
 	// save state it must do so explicity.
 	recoverState() {
-		let tmpState = this.state;
-		this.state = null;
-		return tmpState;;
+		// let tmpState = this.state;
+		// this.state = null;
+		return this.state;
 	}
 }
