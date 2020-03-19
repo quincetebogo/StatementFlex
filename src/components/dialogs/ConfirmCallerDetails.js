@@ -392,11 +392,9 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#action-icon{
-					margin: 0px 0px 0px 0px;
-					color: #08A6B5;
-					align: center;
-					padding: 18px 4px 18px 32px;
+					margin-left: 24px;
 				}
+
 				#action-label{
 					margin:1px 0px 0px 0px;
 					color: #08A6B5;
@@ -525,12 +523,7 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 			<div class="horizon-add-caller-details-div">
-				<capitec-icon
-					size="default"
-					icon="system/info"
-					id="action-icon"
-					tabindex="-1">
-				</capitec-icon>
+				<img src="../images/info.svg" id="action-icon"/>
 				<u>
 					<capitec-label
 						id="action-label"
