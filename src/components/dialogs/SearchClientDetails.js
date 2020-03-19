@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 import StopcardHelper from '../../helpers/StopCardHelper';
 import { EventAggregator } from 'platform/EventAggregator';
+import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -79,11 +80,11 @@ export class SearchClientDetailsComponent extends Component {
 	_valueChanged(e) {
 		if (typeof e.detail.new == "object") {
 			this[e.currentTarget.id].value = e.detail.new.key;
-			this.errMessage[e.currentTarget.id] = "";
 		}
 		else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
+		this.errMessage[e.currentTarget.id] = "";
 		this.requestUpdate();
 	}
 
@@ -146,8 +147,8 @@ export class SearchClientDetailsComponent extends Component {
 			.then((options) => {
 				console.log('resolved - result', options);
 				this.identificationMethodsList = options.identificationMethods;
-				if (this.identificationMethods != undefined) {
-					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethods);
+				if (this.identificationMethodsList != undefined) {
+					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 				}
 			})
 			.catch(error => console.log('error', error))
@@ -243,7 +244,10 @@ export class SearchClientDetailsComponent extends Component {
 					<capitec-group layout="horizontal" gap="clear">
 						<div>
 							<b>Reference Number</b>
-							<capitec-label label="${this.voiceReferenceNumber.value}"></capitec-label>
+							<capitec-label label="${this.voiceReferenceNumber.value}"
+											tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+											?hidden=${isHidden(this.voiceReferenceNumber)}>
+							</capitec-label>
 						</div>
 						<capitec-spacer></capitec-spacer>
 						<capitec-spacer></capitec-spacer>
@@ -254,18 +258,23 @@ export class SearchClientDetailsComponent extends Component {
 					<capitec-select label="IVR Option Selected" 
 									.value="${this.ivrOption.value}"
 									.items="${this.ivrOption.possibleValues}" 
-									display-field="value">
+									display-field="value"
+									tabindex="${getTabIndex(this.ivrOption)}"
+									?hidden=${isHidden(this.ivrOption)}>
 					</capitec-select>
 				</div>
 				<div>
 					<capitec-group layout="horizontal" gap="clear">
 						<div>
 							<b>Incoming Number</b>
-							<capitec-label label="${this.isUnverifiedNumber ? 'Private Number' : this.incomingTelephoneNumber.value}"></capitec-label>
+							<capitec-label label="${this.isUnverifiedNumber ? 'Private Number' : this.incomingTelephoneNumber.value}"
+											tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+											?hidden=${isHidden(this.incomingTelephoneNumber)}>
+							</capitec-label>
 						</div>
 						<capitec-spacer></capitec-spacer>
 						<capitec-spacer></capitec-spacer>
-					<capitec-spacer></capitec-spacer>
+						<capitec-spacer></capitec-spacer>
 					</capitec-group>
 				</div>
 			</capitec-group>
@@ -286,6 +295,8 @@ export class SearchClientDetailsComponent extends Component {
 								style="text-align:justify;line-height:normal;"
 								.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
 								@value-changed="${(e) => this._valueChanged(e)}"
+								tabindex="${getTabIndex(this.identificationMethods)}"
+								?hidden=${isHidden(this.identificationMethods)}
 								display-field="displayText">
 				</capitec-select>
 			</div>
@@ -311,7 +322,11 @@ export class SearchClientDetailsComponent extends Component {
 		return html`
 		<capitec-action-bar slot="footer">
 			<capitec-spacer></capitec-spacer>
-			<capitec-button type="clear" label="End Call Session" ></capitec-button>
+			<capitec-button type="clear" label="End Call Session" 
+							?hidden=${isHidden(this.endCallSessionButton)}
+							.disabled="${isDisabled(this.endCallSessionButton)}"
+							tabindex="${getTabIndex(this.endCallSessionButton)}">
+			</capitec-button>
 			<capitec-button type="primary" 
 							@click="${(e) => this._onSearchClick(e)}" 
 							label="Search Client">
