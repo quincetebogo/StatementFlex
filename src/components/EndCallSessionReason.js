@@ -1,6 +1,7 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
 import '../views/ClientProfile/StopCardComponent';
+import { Router } from 'platform/Router';
 
 export class EndCallSessionReason extends View {
 
@@ -12,6 +13,8 @@ export class EndCallSessionReason extends View {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.endCallReason = null;
+
+		this.router = Router.getInstance();
 	}
 
 	// ----------
@@ -42,7 +45,9 @@ export class EndCallSessionReason extends View {
 	}
 
 	onReasonSelected() {
-		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
+		//TODO: End Call Session Service should be implemented.
+		this.router.navigateByPath(`/landingpage`);
+		//this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
 	}
 
 	onCancelpopup() {

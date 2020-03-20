@@ -140,7 +140,7 @@ export class ConfirmCallerDetails extends Component {
 			birthdate: this.birthdate.value
 		}
 
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+		this.dispatchEvent(new CustomEvent('call-ended-confirm', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	onSearchClick() {
@@ -710,15 +710,34 @@ export class ConfirmCallerDetails extends Component {
 				.confirmedCaller="${this.confirmedCaller}"
 				.callerDetails="${this.callerDetails}"
 				@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
-				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
+				@on-back="${(data) => this.onAddCallerConfirm(data)}">
 			</horizon-add-caller>`;
 	}
+
+	onAddCallerConfirm(data) {
+
+		//this.confirmedCaller = data.detail.confirmedCaller;
+		//this.updateConfirmCaller();
+		this.callerFullName = data.detail.confirmedCaller.nonClientFullName;
+		this.verifiedTelephoneNumber = data.detail.confirmedCaller.nonClientCellPhone;
+		this.southAfricanIDNumber = data.detail.confirmedCaller.nonClientIDNumber;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
+	// updateConfirmCaller() {
+	// 	this.callerFullName = data.detail.confirmedCaller.nonClientFullName;
+	// 	this.verifiedTelephoneNumber = data.detail.confirmedCaller.nonClientCellPhone;
+	// 	this.southAfricanIDNumber = data.detail.confirmedCaller.nonClientIDNumber;
+
+	// 	this.nonClientRelationship = 'Spouse';
+	// }
 
 	renderEndCallModal() {
 		return html`
 			<end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this.onCallCancelled(reason)}"
+				@call-ended="${(reason) => this.onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 

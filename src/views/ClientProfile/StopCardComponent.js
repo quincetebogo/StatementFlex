@@ -163,8 +163,7 @@ export class StopCardComponent extends Component {
 	renderConfirmedUser() {
 		if (this.toggleEndCallModal) {
 			return html`<end-call-session
-						@on-cancel="${() => this.onCancelEndCall()}"
-						@on-reason-set="${() => this.onCallCancelled()}">
+						@on-cancel="${() => this.onCancelEndCall()}">
 			</end-call-session>`;
 		}
 
@@ -196,8 +195,6 @@ export class StopCardComponent extends Component {
 				return html``;
 		}
 	}
-		return html``;
-	}
 
 	onCallCancelled() {
 		this.router.navigateByPath(`/landingpage`);
@@ -206,8 +203,6 @@ export class StopCardComponent extends Component {
 	onCancelEndCall() {
 		this.toggleEndCallModal = false;
 	}
-
-}
 
 	renderReasonButtons(rowData, fieldType) {
 		return html`

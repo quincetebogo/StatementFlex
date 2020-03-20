@@ -1,5 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import { Router } from 'platform/Router';
 import StopcardHelper from '../../helpers/StopCardHelper';
 import { StopCardService } from '../../services/StopCardService'
 
@@ -25,6 +26,7 @@ export class AddCallerDetailsComponent extends Component {
 		this.showEndCallModal = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.router = Router.getInstance();
 
 		this.isBusy = false;
 
@@ -96,28 +98,36 @@ export class AddCallerDetailsComponent extends Component {
 	}
 
 	onConfirmClick(e) {
-		this.validateData()
+		if (this.validateData()) {
+
+			let confirmedCaller = {
+				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+				voiceReferenceNumber: this.voiceReferenceNumber.value,
+				ivrOption: this.ivrOption.value,
+				incidentReferenceNumber: this.incidentReferenceNumber,
+				agentTelephoneNumber: this.agentTelephoneNumber,
+				nonClientFullName: this.userDetails.Name + '' + this.userDetails.Surname, // TODO: Must be populated with the caller details added by this dialog
+				nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
+				nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
+				nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
+			}
+
+			this.raiseBackEvent(confirmedCaller);
+		}
 	}
 
+	validateData() {
 
+		this.errorMessage.errName = this.userDetails.Name == "" ? "Required Field" : "";
+		this.errorMessage.errSurname = this.userDetails.Surname == "" ? "Required Field" : "";
 
-	// 	if (this.validateData()) {
+		this.requestUpdate();
+		if (this.userDetails.Name != "" && this.userDetails.Surname != "") {
+			return true;
+		}
+		return this.userDetails.Name;
+	}
 
-	// 		let confirmedCaller = {
-	// 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-	// 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-	// 			ivrOption: this.ivrOption.value,
-	// 			incidentReferenceNumber: this.incidentReferenceNumber,
-	// 			agentTelephoneNumber: this.agentTelephoneNumber,
-	// 			nonClientFullName: '', // TODO: Must be populated with the caller details added by this dialog
-	// 			nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
-	// 			nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
-	// 			nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
-	// 		}
-
-	// 		this.raiseBackEvent(confirmedCaller);
-	// 	}
-	// }
 	/*
 	this.isBusy = true;
 
@@ -136,29 +146,16 @@ export class AddCallerDetailsComponent extends Component {
 	*/
 
 
-	raiseBackEvent(confirmedCaller) {
+	raiseBackEvent(confirmedCaller123) {
 		//TODO: Populate event with data to return to the confirm dialog.
 		// it will then return to the landing page
 		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
 		this.dispatchEvent(new CustomEvent('on-back', {
 			detail: {
-				confirmedCaller: confirmedCaller
+				confirmedCaller: confirmedCaller123
 			}
 		}));
 	};
-
-
-	validateData() {
-
-		this.errorMessage.errName = this.userDetails.Name == "" ? "Required Field" : "";
-		this.errorMessage.errSurname = this.userDetails.Surname == "" ? "Required Field" : "";
-
-		this.requestUpdate();
-		if (this.userDetails.Name != "" && this.userDetails.Surname != "") {
-			return true;
-		}
-		return this.userDetails.Name;
-	}
 
 	onCallCancelled(reason) {
 		let confirmedCaller = {
@@ -173,8 +170,8 @@ export class AddCallerDetailsComponent extends Component {
 			birthdate: this.birthdate.value
 		}
 
-		this.eventAggregator.publish('call-end', {});
-		//this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+		//this.router.navigateByPath(`/landingpage`);
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	// ---------------
@@ -273,6 +270,11 @@ export class AddCallerDetailsComponent extends Component {
 				margin: 0px;
 			}
 
+			.contentBox{
+				width:98%;
+				height:311px;
+			}
+
 			`];
 
 	}
@@ -285,6 +287,7 @@ export class AddCallerDetailsComponent extends Component {
 					@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
 				</end-call-session>`;
 		}
+
 		return html`
 		${this.renderLoadingIndicator()}
 				<capitec-modal type="free" header="Add Caller Details" header-align="left" >
@@ -348,16 +351,22 @@ export class AddCallerDetailsComponent extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-		<capitec-content-box style="width:98%;">
+		<capitec-content-box class="contentBox">
 			<div>
 				<capitec-text-field label="Name" id="Name" 
 									error="${this.errorMessage.errName}" 
+									?hidden=${isHidden(this.nonClientInformation.firstNameTextField)}
+									.disabled="${isDisabled(this.nonClientInformation.firstNameTextField)}"
+									tabindex="${getTabIndex(this.nonClientInformation.firstNameTextField)}"
 									@value-changed="${(e) => this._valueChanged(e)}" 
 									@key-input="${(e) => this._onKeyPress(e)}">
 				</capitec-text-field>
 			</div>
 			<div>
 				<capitec-text-field label="Surname" id="Surname" 
+									?hidden=${isHidden(this.nonClientInformation.surnameTextField)}
+									.disabled="${isDisabled(this.nonClientInformation.surnameTextField)}"
+									tabindex="${getTabIndex(this.nonClientInformation.surnameTextField)}"
 									error="${this.errorMessage.errSurname}" 
 									@value-changed="${(e) => this._valueChanged(e)}" 
 									@key-input="${(e) => this._onKeyPress(e)}">
@@ -366,12 +375,18 @@ export class AddCallerDetailsComponent extends Component {
 			<div>
 				<capitec-text-field type="number" id="Cellphone" 
 									label="Cellphone Number" 
+									?hidden=${isHidden(this.nonClientInformation.cellPhoneTextField)}
+									.disabled="${isDisabled(this.nonClientInformation.cellPhoneTextField)}"
+									tabindex="${getTabIndex(this.nonClientInformation.cellPhoneTextField)}"
 									@value-changed="${(e) => this._valueChanged(e)}">
 				</capitec-text-field><br>
 			</div>
 			<div style="margin:-20px 0px 0px 0px;">
 				<capitec-select id="Relationship" 
 									label="Choose relationship type (Optional)" 
+									?hidden=${isHidden(this.nonClientInformation.nonClientRelationship)}
+									.disabled="${isDisabled(this.nonClientInformation.nonClientRelationship)}"
+									tabindex="${getTabIndex(this.nonClientInformation.nonClientRelationship)}"
 									.items="${this.nonClientRelationship.possibleValues}" 
 									display-field="text" 
 									@value-changed="${(e) => this._valueChanged(e)}">
@@ -380,15 +395,6 @@ export class AddCallerDetailsComponent extends Component {
 		</capitec-content-box>
 		`;
 	}
-
-	// raiseBackEvent() {
-	// 	console.log('raise event');
-	// 	this.dispatchEvent(new CustomEvent('on-back', {
-	// 		detail: {
-	// 			message: 'Something important happened'
-	// 		}
-	// 	}));
-	// }
 
 	renderFooter() {
 		return html`
