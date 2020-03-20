@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
+import '../../components/dialogs/StopCard';
 
 import 'platform/components';
 
@@ -9,6 +10,11 @@ const COLUMNS = {
 	CARDTYPE: 'cardType',
 	CARDNUMBER: 'accountNumber'
 }
+
+const RENDER_MODE = {
+	CLIENT_PROFILE: 0,
+	CARD_STOP_MODAL: 1,
+};
 
 export class StopCardComponent extends Component {
 
@@ -26,6 +32,9 @@ export class StopCardComponent extends Component {
 		this.cards = null;
 		this.confirmedCaller = null;
 		this.selectedCardCount = 0;
+
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.rowData = {};
 	}
 
 	// ----------
@@ -37,7 +46,9 @@ export class StopCardComponent extends Component {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
-			selectedCardCount: { type: Number }
+			selectedCardCount: { type: Number },
+			renderMode: { type: Number },
+			rowData: { type: Object }
 		}
 	}
 
@@ -193,6 +204,7 @@ export class StopCardComponent extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this.renderEndCallModal()}
+			${this.renderStopCardModal(this.rowData)}
 		`;
 	}
 
@@ -297,6 +309,16 @@ export class StopCardComponent extends Component {
 		}
 	}
 
+	renderStopCardModal(rowData) {
+
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+
+			return html`
+				<horizon-stop-card></horizon-stop-card>
+			`;
+		}
+
+	}
 	renderFooter() {
 		if (this.selectedCardCount > 0) {
 			return html`
@@ -306,7 +328,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+									@click="${() => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
 					</capitec-button>
 				</button-bar>`;
 		}
