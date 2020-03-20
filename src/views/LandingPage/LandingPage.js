@@ -88,8 +88,8 @@ export class LandingPage extends View {
 				this.isUnverifiedCaller = null;
 
 				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.confirmedCaller.incidentReferenceNumber = eventData.incidentNo;
-				this.confirmedCaller.agentTelephoneNumber = eventData.agentPhoneNumber;
+				this.confirmedCaller.incidentReferenceNumber = eventData.IncidentReferenceNumber;
+				this.confirmedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
 
 				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 			}
@@ -113,6 +113,11 @@ export class LandingPage extends View {
 		finally {
 			this.isBusy = false;
 		}
+	}
+
+	identifiedCaller(data) {
+		this.confirmedCaller = data.detail.confirmedCaller;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
 	onCallerConfirmed(data) {
@@ -181,10 +186,13 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
-					.unverifiedCaller="${this.isUnverifiedCaller}">
+					.unverifiedCaller="${this.isUnverifiedCaller}"
+					@on-back="${(data) => this.identifiedCaller(data)}"> 
 				</horizon-search-client>`;
 		}
+
 	}
+
 }
 
 customElements.define(`landing-page`, LandingPage);
