@@ -37,6 +37,7 @@ export class StopCardComponent extends Component {
 
 		this.confirmedCaller = null;
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.rowData = {};
 	}
 
 	// ----------
@@ -48,7 +49,8 @@ export class StopCardComponent extends Component {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			rowData: { type: Object }
 		}
 	}
 
@@ -163,6 +165,7 @@ export class StopCardComponent extends Component {
 				</capitec-table>
 			</capitec-card>
 			${this.renderConfirmedUser()}
+			${this.renderStopCardModal(this.rowData)}
 		`;
 	}
 
@@ -201,10 +204,9 @@ export class StopCardComponent extends Component {
 	}
 
 	renderStopCardModal(rowData) {
-		let renderMode = RENDER_MODE.CARD_STOP_MODAL;
-		console.log('Rendering stop card', renderMode, event);
 
-		if (renderMode = RENDER_MODE.CARD_STOP_MODAL) {
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+
 			return html`
 				<horizon-stop-card></horizon-stop-card>
 			`;
@@ -223,7 +225,7 @@ export class StopCardComponent extends Component {
 						<capitec-button row="1" 
 										column="2"
 										label="Stop Card"
-										@click="${(rowData) => this.renderStopCardModal(rowData) /**Thulekha will to integrate her changes here*/}">
+										@click="${() => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
 						</capitec-button>
 					</capitec-group>`;
 	}

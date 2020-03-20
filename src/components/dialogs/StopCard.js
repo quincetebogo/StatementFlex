@@ -9,8 +9,14 @@ export class StopCard extends Component {
 
 	constructor() {
 		super();
+
 	}
 
+	static get properties() {
+		return {
+
+		}
+	}
 	render() {
 		return html`
 			<capitec-modal type="alert" header="Stop Card">
