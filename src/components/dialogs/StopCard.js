@@ -1,8 +1,15 @@
 import { Component, html, css } from 'platform/elements';
+import { Router } from 'platform/Router';
+
 import 'platform/elements';
+import { StopCardService } from '../../services/StopCardService';
+
 
 export class StopCard extends Component {
 
+	constructor() {
+		super();
+	}
 
 	render() {
 		return html`

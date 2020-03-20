@@ -4,11 +4,17 @@ import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
 
 import 'platform/components';
+import '../../components/dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
 	CARDNUMBER: 'cardNumber'
 }
+
+const RENDER_MODE = {
+	CLIENT_PROFILE: 0,
+	CARD_STOP_MODAL: 1,
+};
 
 export class StopCardComponent extends Component {
 
@@ -30,6 +36,7 @@ export class StopCardComponent extends Component {
 		];
 
 		this.confirmedCaller = null;
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
 	}
 
 	// ----------
@@ -40,7 +47,8 @@ export class StopCardComponent extends Component {
 		return {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
-			cards: { type: Object }
+			cards: { type: Object },
+			renderMode: { type: Number }
 		}
 	}
 
@@ -192,6 +200,18 @@ export class StopCardComponent extends Component {
 		}
 	}
 
+	renderStopCardModal(rowData) {
+		let renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		console.log('Rendering stop card', renderMode, event);
+
+		if (renderMode = RENDER_MODE.CARD_STOP_MODAL) {
+			return html`
+				<horizon-stop-card></horizon-stop-card>
+			`;
+		}
+
+	}
+
 	renderReasonButtons(rowData, fieldType) {
 		return html`
 					<div style="text-align:left;">${rowData[fieldType]}</div>
@@ -203,7 +223,7 @@ export class StopCardComponent extends Component {
 						<capitec-button row="1" 
 										column="2"
 										label="Stop Card"
-										@click="${(rowData) => this.doNothingForNow /**Thulekha will to integrate her changes here*/}">
+										@click="${(rowData) => this.renderStopCardModal(rowData) /**Thulekha will to integrate her changes here*/}">
 						</capitec-button>
 					</capitec-group>`;
 	}
