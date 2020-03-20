@@ -392,25 +392,28 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#action-icon{
+					width: 22px;
+					height: 22px;
+					margin-top: 17px;
 					margin-left: 24px;
 				}
 
 				#action-label{
-					margin:1px 0px 0px 0px;
+					margin-top: 16px;
 					color: #08A6B5;
 					font-family: "Hind Vadodara";
 					font-weight: 800;
 					align: center;
-					padding: 18px 0px 18px 8px;
+					padding: 0px 0px 0px 8px;
 				}
 
 				#action-display{
-					margin: 0px 0px 0px 0px;
+					margin-top; 15px;
 					color: #08A6B5;
 					font-family: "Hind Vadodara";
 					font-weight: 500;
 					align: center;
-					padding: 18px 0px 18px 0px;
+					padding: 0px 0px 0px 0px;
 				}
 
 				#id-confirm-button {
