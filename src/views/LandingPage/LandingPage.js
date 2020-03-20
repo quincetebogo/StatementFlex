@@ -8,6 +8,7 @@ import '../../components/dialogs/ConfirmCallerDetails';
 import '../../components/dialogs/SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { HorizonViewManager } from '../../HorizonViewManager';
 
 const RENDER_MODE = {
@@ -21,11 +22,14 @@ export class LandingPage extends View {
 		super();
 		this.renderMode = -1;
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-temp-button`, () => this.onNewCall({ Date: "2020-03-11T16:05:44.5173009+02:00", IncomingTelephoneNumber: "0631152973", VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard', IncidentReferenceNumber: '1234567', AgentTelephoneNumber: '0219412557' }));
+
+		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(t => { this.toggleBusyFlag() });
 
 		this.isBusy = false;
 	}
@@ -47,34 +51,39 @@ export class LandingPage extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
+		if (landingPageData) {
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		}
 
 		this.eventAggregator.publish('landing-page-loaded', {});
 	}
 
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await StopCardService.getInstance().initialise();
+	async GetLandingPageData() {
+		return await this.serviceCallHelper.makeCall(this.stopCardService.initialise(),
+			(x) => { this.handleInitErrors(x) });
+	}
 
+	toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
+
+	handleInitErrors(ex) {
+		if (ex instanceof TypeError) {
+			// Put in something to update the status bar
+			console.log(ex.message, ": The channel service may be down");
 		}
-		catch (ex) {
-			// TODO: better handling must come here
+		else if (ex instanceof HttpStatusError) {
+			// Put in something to update the status bar
+			console.log(`Http Status: ${ex.status}`);
+		}
+		else {
+			// Put in something to update the status bar
 			console.log(ex);
 		}
-
-		return landingPageData;
 	}
 
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
-
-		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
-		if (eventData.IVROptionCode == null) {
-			eventData.IVROptionCode = 'StopCard';
-		}
-		if (eventData.IncidentReferenceNumber == null) {
-			eventData.IncidentReferenceNumber = '1234567';
-		}
 
 		// Web service calls - must still handle errors
 		try {

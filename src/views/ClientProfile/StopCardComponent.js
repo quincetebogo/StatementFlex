@@ -5,7 +5,16 @@ import '../../components/EndCallSessionReason';
 
 import 'platform/components';
 
+const COLUMNS = {
+	CARDTYPE: 'cardType',
+	CARDNUMBER: 'accountNumber'
+}
+
 export class StopCardComponent extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
@@ -14,101 +23,63 @@ export class StopCardComponent extends Component {
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 
 		this.toggleEndCallModal = false;
-		this.groupByField = "cardCategory";
-		this.rowInputType = "Checkbox";
-		this.cards = [
-			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: true },
-			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: false },
-			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322", selected: false }
-		];
-		this.headers = [
-			{ "key": "cardType", "value": "Card Type" },
-			{ "key": "cardNumber", "value": "Card Number" }
-		];
-		this.items = this._customGroupByHandler();
-
+		this.cards = null;
 		this.confirmedCaller = null;
+		this.selectedCardCount = 0;
 	}
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				.stop-card{
-					width: 1067.8px;
-					height: 770px;
-					padding: 0px 0px 0px 0px;
-					text-align: center;
-					line-height: 40px;
-					align-items: flex-start;
-					background-color: white;
-					border-radius: none;
-				}
-				horizon-product-tile{
-					width: 97%;
-					margin: 15px 0px 15px 15px;
-				}
-				capitec-alert-banner, capitec-table{
-					width: 100%;
-				}
-				table{
-					width: 100%;
-					border-collapse: collapse;
-				}
-				table > thead > tr{
-					width: 100%;
-				}
-				table > thead > tr > th{
-					text-align: left;
-					background-color: #F5F5F5;
-					color: #003652;
-					font: bold 20px/50px Hind Vadodara;
-					width: auto;
-					padding: 5px 0px 0px 20px;
-				}
-				table > tbody > tr {
-					border-bottom: 1px ridge #ddd;
-				}
-				table > tbody > tr > td{
-					text-align: left;
-					color: #003652;
-					font: 15px/35px Hind Vadodara;
-					width: auto;
-					padding: 5px 0px 0px 20px;
-				}
-				table tr:hover{
-					background-color: rgba(0,131,187,0.1);
-				}
-				.group{
-					background-color: #F5F5F5;
-				}
-				.group > td{
-					text-align: left;
-					font: bold 18px/50px Hind Vadodara;
-				}
-				.row-input{
-					width: 6%;
-				}
-			`];
-	}
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
 			toggleEndCallModal: { type: Boolean },
-			confirmedCaller: { type: Object }
+			confirmedCaller: { type: Object },
+			cards: { type: Object },
+			selectedCardCount: { type: Number }
 		}
 	}
 
-	_customGroupByHandler() {
-		const groupedValues = Utilities.groupBy(this.cards, this.groupByField);
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.cards = this.confirmedCaller.cards;
+		/**
+		 * Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
+		 */
+		this.cards = this.generateRowIndex();
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	/**
+	 * Not used for now, will be used when we are going to implement table group by
+	 */
+	_customGroupByHandler(renderSet) {
+		renderSet.pagedItems = renderSet.pagedItems.filter(x => !x.group);
+
+		const groupedValues = Utilities.groupBy(this.cards, renderSet.strategy.groupField);
+
 		const newRows = [];
 
 		for (const key in groupedValues) {
 			if (groupedValues.hasOwnProperty(key)) {
 
 				let groupName = key;
+				if (renderSet.groupLabel && Utilities.isFunction(renderSet.groupLabel)) {
+					groupName = renderSet.groupLabel(key);
+				} else if (typeof renderSet.groupLabel === `string`) {
+					groupName = renderSet.groupLabel;
+				}
 
-				if (groupName && groupName != "undefined") {
+				if (groupName) {
 					newRows.push({
 						group: groupName
 					});
@@ -117,90 +88,234 @@ export class StopCardComponent extends Component {
 				newRows.push(...rows);
 			}
 		}
-		return newRows;
+
+		return {
+			pagedItems: newRows
+		};
 	}
 
-	renderTableHeader() {
-		return html`
-			${this.rowInputType ? html`<th class="row-input"></th>` : ``}
-			${this.headers.map(header => html`
-				<th>
-					${header.value}
-				</th>`)}
-		`;
+	_valueChanged(event, rowData) {
+		this.cards[rowData.rowIndex].selected = event.detail.new;
+		this.selectedCardCount = this.cards.filter(card => card.selected).length;
 	}
 
-	renderTableBody() {
-		return html`${this.items.map((item) => {
-			if (item.group) {
-				return html`<tr class="group">
-								<td colspan="${this.rowInputType ? this.headers.length + 1 : this.headers.length}">
-									${item.group}
-								</td>
-							</tr>`;
-			}
-			else {
-				return html`<tr>
-								${this.renderRowInput()}
-								${this.headers.map(header => html`
-								<td>
-									${item[header.key]}
-								</td>`)}
-							</tr>`;
-			}
-		})}`;
+	_onClickReason() {
+		/**
+		 * Stop reason selection functionality comes here
+		 */
 	}
 
-	renderRowInput() {
-		if (this.rowInputType == "Checkbox") {
-			return html`
-				<td>
-					<capitec-check label=""></capitec-check>
-				</td>
-			`;
-		}
-		else if (this.rowInputType == "Radio") {
-			return html`
-				<td>
-					<capitec-radio label=""></capitec-radio>
-				</td>
-			`;
-		}
-		else {
-			return html``;
-		}
-	}
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
 	toggleEndCall() {
 		this.toggleEndCallModal = !this.toggleEndCallModal;
 	}
 
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	generateRowIndex() {
+		return this.cards.map((card, index) => {
+			card["rowIndex"] = index;
+			card["selected"] = false;
+			return card;
+		});
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				.stop-card{
+					width: 1065px;
+					height: 823px;
+					padding: 0px 0px 0px 0px;
+					text-align: center;
+					line-height: 40px;
+					align-items: flex-start;
+					background-color: white;
+					border-radius: none;
+				}
+				.horizon-notify-client{
+					display: flex;
+					flex-direction: row;
+					width: 100%;
+					height: 64px;
+					background: #DAF5F3;
+				}
+				#action-icon{
+					margin-left: 24px;
+				}
+				#action-display{
+					margin: 0px 0px 0px 0px;
+					color: #08A6B5;
+					font-family: "Hind Vadodara";
+					font-weight: 500;
+					align: center;
+					padding: 12px 0px 0px 10px;
+				}
+				capitec-table {
+					width: 100%;
+					height: 631px;
+				}
+				button-bar{
+					border-top: thin solid #d3d3d3;
+					height: 64px;
+				}
+				button-bar > capitec-button{
+					float: right;
+					padding: 6px 24px 0px 0px;
+				}
+				button-bar > capitec-label{
+					float: left;
+					padding: 11px 0px 0px 24px;
+				}
+			`];
+	}
+
 	render() {
 		return html`
 			<capitec-card class="stop-card">
-				<capitec-title-bar type="clear" label="Stop Card"></capitec-title-bar>
-				<capitec-alert-banner type="info" label="Notify client that once stopped, they will need to visit a branch for a new card.">
-				</capitec-alert-banner>
-				<table>
-					<thead>
-						<tr>
-							${this.renderTableHeader()}
-						</tr>
-					</thead>
-					<tbody>
-						${this.renderTableBody()}
-					</tbody>
-				</table>
+				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
+					
+					${this.renderTitleBar()}
+					${this.renderNotifyClient()}
+					${this.renderCardDetails()}
+					${this.renderFooter()}
+
+				</capitec-group>
 			</capitec-card>
-			${this.renderConfirmedUser()}
+			${this.renderEndCallModal()}
 		`;
 	}
 
-	renderConfirmedUser() {
+	renderTitleBar() {
+		return html`<capitec-title-bar type="clear" 
+									   label="Stop Card" 
+									   row="1" 
+									   column="1">
+					</capitec-title-bar>`;
+	}
+
+	renderNotifyClient() {
+		return html`
+			<div class="horizon-notify-client" row="2" column="1">
+				<img src="../../images/info.svg" id="action-icon"/>
+				<p id="action-display">&nbsp;Notify client that once stopped, they will need to visit a branch for a new card.</p>
+			</div>`;
+	}
+
+	renderCardDetails() {
+		return html`
+				<capitec-table .items="${this.cards}" row="3" column="1">
+					<capitec-table-column label=""
+										  field=""
+										  type=""
+										  size="5%"
+										  .renderer="${(rowData) => this.renderRowInput(rowData)}">
+					</capitec-table-column>
+					<capitec-table-column label="Card Type"
+										  field="cardType"
+										  type="text"
+										  size="95%"
+										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
+										  .headerRenderer="${() => this.headerRenderer()}">
+					</capitec-table-column>
+				</capitec-table>`;
+	}
+
+	renderRowInput(rowData) {
+		return html`<div style="${rowData.selected ? `margin: 0px 0px 63px 0px;` : ``}">
+						<capitec-check label=""
+									   @value-changed="${(e) => this._valueChanged(e, rowData)}">
+						</capitec-check>
+					</div>`;
+	}
+
+	headerRenderer() {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
+						<capitec-label label="Card Type"
+									   row="1"
+									   column="1"
+									   style="text-align: left;"
+									   type="subtitle">
+						</capitec-label>
+						<capitec-label label="Card Number"
+									   row="1"
+									   column="2"
+									   style="text-align: left;"
+									   type="subtitle">
+						</capitec-label>
+					</capitec-group>`;
+	}
+
+	renderRowData(rowData) {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
+						<capitec-label label="${rowData[COLUMNS.CARDTYPE]}"
+										row="1"
+										column="1"
+										style="text-align: left;">
+						</capitec-label>
+						<capitec-label label="${rowData[COLUMNS.CARDNUMBER]}"
+										row="1"
+										column="2"
+										style="text-align: left;">
+						</capitec-label>
+						${this.renderReasonButtons(rowData)}
+					</capitec-group>`;
+	}
+
+	renderReasonButtons(rowData) {
+		if (rowData.selected) {
+			return html`
+					<div row="2" column="1" colspan="2" style="text-align:left;">
+						Choose a Reason
+						<capitec-button label="Card Damaged"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+						<capitec-button label="Card Lost"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+						<capitec-button label="Card Stolen"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+						<capitec-button label="Suspected Fraud"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+					</div>`;
+		}
+	}
+
+	renderFooter() {
+		if (this.selectedCardCount > 0) {
+			return html`
+				<button-bar row="4" column="1">
+					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
+					<capitec-button row="1" 
+									column="2"
+									label="Stop Card(s)"
+									type="primary"
+									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+					</capitec-button>
+				</button-bar>`;
+		}
+	}
+
+	renderEndCallModal() {
 		if (this.toggleEndCallModal) {
 			return html`<end-call-session></end-call-session>`;
 		}
-
 		return html``;
 	}
 }
