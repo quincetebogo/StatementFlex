@@ -242,8 +242,6 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				.horizon-add-caller-details-div{
-					display: flex;
-					flex-direction: row;
 					width: 648px;
 					height: 56px;
 					margin-top: 24px;
@@ -253,6 +251,9 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#action-icon{
+					width:22px;
+					height:22px;
+					margin-top:17px;
 					margin-left:24px;
 				}
 
@@ -359,7 +360,7 @@ export class ConfirmCallerDetails extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-			<div 
+			<capitec-group layout="horizontal" gap="none"
 				class="horizon-add-caller-details-div" 
 				?hidden=${isHidden(this.addCallerDetailsButton)}>
 					<img src="../images/info.svg" id="action-icon"/>
@@ -369,7 +370,7 @@ export class ConfirmCallerDetails extends Component {
 						Add Caller Details
 					</p> 
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-			</div>`;
+			</capitec-group>`;
 	}
 
 	renderConfirmedCaller() {
