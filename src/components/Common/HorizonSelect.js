@@ -1,7 +1,26 @@
 import { Component, html, css } from 'platform/elements';
 import 'platform/components/core/Label';
 
+/**
+ * A select (drop down) component. This component displays a label with a value shown
+ * vertically beneath it. The value may be changed by clicking on the kebab icon and
+ * selecting a new value.
+ *
+ * 
+ * **Usage**
+ * ```html
+ *   <horizon-select> 
+ *  </horizon-select>
+ * ```
+ * 
+ * **Events**
+ * - n/a
+ */
 export class HorizonSelect extends Component {
+
+	// --------------
+	// INITIALISATION 
+	// --------------
 
 	constructor() {
 		super();
@@ -11,6 +30,9 @@ export class HorizonSelect extends Component {
 		this.displayField = ``;
 	}
 
+	// -------------------
+	// PROPERTIES REGISTRY
+	// -------------------
 	static get properties() {
 		return {
 			label: { type: String },
@@ -20,12 +42,19 @@ export class HorizonSelect extends Component {
 		}
 	}
 
+	// ---------
+	// RENDERING
+	// ---------
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				.wrapper{
+				.outer-wrapper {
+					display: flex;
+					flex-direction: row;
+				}
 
+				.inner-wrapper{
 				}
 
 				.label-text{
@@ -46,21 +75,33 @@ export class HorizonSelect extends Component {
 					letter-spacing: 0;
 					line-height: 27px;
 				}
+
+				.kebab-icon {
+					margin-top:20px;
+					margin-left:auto;
+				}
 			`]
 	}
 
 	render() {
 		return html`
-			<div class="wrapper">
-				<capitec-label
-					class="label-text"
-					label="${this.label}">
-				</capitec-label>
-				<capitec-label 
-					class="label-value"
-					label="${this.value}">
-				</capitec-label>
-			</div>`
+		    <div class= "outer-wrapper">
+				<div class="inner-wrapper">
+					<capitec-label
+						class="label-text"
+						label="${this.label}">
+					</capitec-label>
+					<capitec-label 
+						class="label-value"
+						label="${this.value}">
+					</capitec-label>
+				</div>
+				<capitec-icon
+					class="kebab-icon"
+					icon="system/more-action"> 
+				</capitec-icon>
+			</div>
+			`
 	}
 }
 
