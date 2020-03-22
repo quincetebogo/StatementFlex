@@ -291,6 +291,25 @@ export class ConfirmCallerDetails extends Component {
 					display: flex;
 					flex-direction: row;
 				}
+
+				#id-caller-group{
+					margin-left:24px; 
+					margin-top:27px;
+				}
+
+				.line{
+					width:100%;
+					margin-top:30px;
+					border-top:1px solid #dfdfdf;"
+				}
+
+				#id-search-button{
+					margin-right:232px;				
+				}
+
+				#id-confirm-button{
+					margin-right:12px;
+				}
 			`];
 	}
 
@@ -307,7 +326,7 @@ export class ConfirmCallerDetails extends Component {
 						${this.renderAddCallerDetails()}
 						${this.renderConfirmedCaller()} 
 					</div>
-					<div slot="footer" style="margin:0px">
+					<div slot="footer">
 						${this.renderFooter()}
 					<div> 
 				</capitec-modal>
@@ -383,8 +402,7 @@ export class ConfirmCallerDetails extends Component {
 						value = ""
 						tabindex="-1">
 					</capitec-avatar>
-					<capitec-group
-						layout="grid" gap="clear" columns="uniform" rows="auto" style="margin-left:24px; margin-top:27px;"> 
+					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
 						<capitec-label row = "1" column = "1" class="fullname"
 							id="label-value"
 							label="${this.callerFullName.value}"
@@ -429,7 +447,7 @@ export class ConfirmCallerDetails extends Component {
 					</capitec-group>
 				</capitec-group>
 
-				<div style="margin-top:30px;width:100%;border-top:1px solid #dfdfdf;"></div>
+				<div class="line"></div>
 		 `;
 	}
 
@@ -438,7 +456,7 @@ export class ConfirmCallerDetails extends Component {
 			<capitec-group layout="horizontal">
 					<!-- class="footer-bar" > -->
 				<capitec-button
-					style="margin-right:232px;"				
+					id="id-search-button"
 					type="clear"
 					label="Search Client"
 					?hidden=${isHidden(this.searchClientButton)}
@@ -457,7 +475,7 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-button>
 
 				<capitec-button
-					style="margin-right:12px;"
+					id="id-confirm-button"
 					type="primary"
 					label="Confirm"
 					?hidden=${isHidden(this.confirmButton)}
