@@ -7,7 +7,7 @@ import { StopCardService } from '../../services/StopCardService';
 
 const OFFERED = {
 	CARDTYPE: 'cardType',
-	CARDNUMBER: 'accountNumber'
+	CARDNUMBER: 'accountNumber',
 }
 
 const RENDER_MODE = {
@@ -32,7 +32,7 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
-			cards: { type: Object },
+			// cards: { type: Object },
 			cardStopped: { type: Object },
 			renderMode: { type: Number },
 			cardNumber: { type: String },
@@ -51,10 +51,11 @@ export class StopCard extends Component {
 				padding: 0px;
 			}
 			p{
-				text:inline;
+				text-align:left;
 			}
 			.footer{
 				width: 460px;
+				align: right;
 			}
 			`];
 	}
@@ -64,9 +65,9 @@ export class StopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.cards = this.confirmedCaller.cards;
+		// this.cards = this.confirmedStop.cards;
 
-		this.cards = this.onCardStopped();
+		// this.cards = this.onCardStopped();
 	}
 
 	render() {
@@ -83,7 +84,9 @@ export class StopCard extends Component {
 				<div slot="footer">
 					<capitec-button-bar class="footer">
 					<capitec-button type="clear" label="Cancel"></capitec-button>
-					<capitec-button  type="clear" label="Confirm"></capitec-button>
+					<capitec-button  type="clear" label="Confirm"
+					@click="${() => this.renderMode = RENDER_MODE.ONCONFIRMED_CARD}"
+					></capitec-button>
 					</capitec-button-bar>
 				</div>
 		
@@ -91,9 +94,23 @@ export class StopCard extends Component {
 		`;
 	}
 
-	onCardStopped() {
+	showCardStopSuccess() {
+
+		let cardStopEvent = new CustomEvent('confirmed-stop', {
+			detail: { message: 'Card stop confirmed.' }
+		});
+		this.dispatchEvent(cardStopEvent);
 
 
+		this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
+	}
+
+	onRenderStopCardSuccess() {
+		if (this.renderMode === RENDER_MODE.ONCONFIRMED_CARD) {
+			return html`
+					<horizon-stop-card-success>
+					</horizon-stop-card-success>`;
+		}
 	}
 
 }
