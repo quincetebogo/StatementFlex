@@ -27,6 +27,7 @@ export class StopCard extends Component {
 		this.cardType = "Debit Card";
 		this.reason = "Card Lost";
 		this.confirmedCaller = null;
+		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 	}
 
 	static get properties() {
@@ -62,7 +63,7 @@ export class StopCard extends Component {
 
 
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		// this.cards = this.confirmedStop.cards;
@@ -85,11 +86,12 @@ export class StopCard extends Component {
 					<capitec-button-bar class="footer">
 					<capitec-button type="clear" label="Cancel"></capitec-button>
 					<capitec-button  type="clear" label="Confirm"
-					@click="${() => this.renderMode = RENDER_MODE.ONCONFIRMED_CARD}"
+					@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
 					></capitec-button>
 					</capitec-button-bar>
 				</div>
-		
+				${this.onRenderStopCardSuccess()}
+				${this.showCardStopSuccess()}
 			</capitec-modal>
 		`;
 	}
@@ -106,9 +108,11 @@ export class StopCard extends Component {
 	}
 
 	onRenderStopCardSuccess() {
+
 		if (this.renderMode === RENDER_MODE.ONCONFIRMED_CARD) {
 			return html`
-					<horizon-stop-card-success>
+					<horizon-stop-card-success
+					>
 					</horizon-stop-card-success>`;
 		}
 	}
