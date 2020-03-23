@@ -37,7 +37,6 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller = null;
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-
 	}
 
 	// ----------
@@ -159,22 +158,23 @@ export class ConfirmCallerDetails extends Component {
 		});
 	}
 
-	identifiedCaller(data) {
-		//this.confirmedCaller = data.detail.confirmedCaller;
+	identifiedClient(data) {
+
+		//Updating the identified caller info into local variables
 		this.updateCallerInfo(data)
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
 	updateCallerInfo(data) {
-		this.callerInformation = data.detail.confirmedCaller.callerInformation;
-		this.callerFullName = data.detail.confirmedCaller.callerInformation.name;
-		this.southAfricanIDNumber = data.detail.confirmedCaller.callerInformation.southAfricanIDNumber;
-		this.verifiedTelephoneNumber = data.detail.confirmedCaller.callerInformation.verifiedTelephoneNumber;
-		this.livesIn = data.detail.confirmedCaller.callerInformation.livesIn;
-		this.languagePreference = data.detail.confirmedCaller.callerInformation.languagePreference;
-		this.birthdate = data.detail.confirmedCaller.callerInformation.birthdate;
-		this.incidentReferenceNumber = data.detail.confirmedCaller.incidentReferenceNumber;
-		this.agentTelephoneNumber = data.detail.confirmedCaller.agentTelephoneNumber;
+		this.callerInformation = data.detail.identifiedClient.callerInformation;
+		this.callerFullName = this.callerInformation.name;
+		this.southAfricanIDNumber = this.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.callerInformation.livesIn;
+		this.languagePreference = this.callerInformation.languagePreference;
+		this.birthdate = this.callerInformation.birthdate;
+		this.incidentReferenceNumber = data.detail.identifiedClient.incidentReferenceNumber;
+		this.agentTelephoneNumber = data.detail.identifiedClient.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -481,9 +481,9 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`
-				${this.renderSearchCallerModal()}`;
+				return html`${this.renderSearchCallerModal()}`;
 		}
 	}
 	renderLoadingIndicator() {
@@ -703,10 +703,9 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-client
 				.unverifiedCaller="${this.confirmedCaller}"
-				@on-back="${(data) => this.identifiedCaller(data)}"> 
+				@on-client-identified="${(data) => this.identifiedClient(data)}"> 
 			</horizon-search-client>`;
 	}
-
 }
 
 window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails)

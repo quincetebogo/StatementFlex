@@ -1,10 +1,9 @@
 import { css } from 'platform/elements';
-export class DialogStyling {
+export class DialogLayoutStyles {
 
 	static get styles() {
 		return [
 			css`
-
 				.grid-container{
 					grid-row-gap: 0px;
 					grid-column-gap: 0px;

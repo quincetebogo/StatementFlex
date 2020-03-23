@@ -4,11 +4,10 @@
  */
 import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
-import '../dialogs/ConfirmCallerDetails';
-import { DialogStyling } from '../../Assets/Styles/Dialogs-Layout.css';
+import { DialogLayoutStyles } from '../../Assets/Styles/Dialogs-Layout.css';
 
+import '../dialogs/ConfirmCallerDetails';
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -20,7 +19,6 @@ export class SearchClientDetailsComponent extends Component {
 		super();
 
 		RegExp();
-		this.eventAggregator = EventAggregator.getInstance();
 
 		this.isBusy = false;
 		this.errMessage = {
@@ -104,7 +102,7 @@ export class SearchClientDetailsComponent extends Component {
 		if (!this.validateData()) {
 			console.log("service call");
 
-			let callerDetails = {
+			let searchClient = {
 				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
 				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
 				incidentNo: this.unverifiedCaller.incidentReferenceNumber,
@@ -116,12 +114,12 @@ export class SearchClientDetailsComponent extends Component {
 
 			this.isBusy = true;
 			try {
-				let searchResponse = await StopCardService.getInstance().searchCaller(callerDetails);
+				let identifiedClient = await StopCardService.getInstance().searchCaller(searchClient);
 
 				//Adding variables to the response, as searchCaller service doesn't return 
-				searchResponse.incidentReferenceNumber = callerDetails.incidentNo;
-				searchResponse.agentTelephoneNumber = callerDetails.agentTelephoneNumber;
-				this.raiseBackEvent(searchResponse)
+				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
+				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
+				this.raiseBackEvent(identifiedClient)
 
 			}
 			catch (error) {
@@ -137,13 +135,13 @@ export class SearchClientDetailsComponent extends Component {
 		}
 	}
 
-	raiseBackEvent(callerData) {
+	raiseBackEvent(identifiedClient) {
 		//TODO: Populate event with data to return to the confirm dialog.
 		// it will then return to the landing page
 		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
-		this.dispatchEvent(new CustomEvent('on-back', {
+		this.dispatchEvent(new CustomEvent('on-client-identified', {
 			detail: {
-				confirmedCaller: callerData
+				identifiedClient: identifiedClient
 			}
 		}));
 	};
@@ -226,7 +224,7 @@ export class SearchClientDetailsComponent extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			DialogStyling.styles,
+			DialogLayoutStyles.styles,
 			css`
 			
 			.search-box{

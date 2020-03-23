@@ -124,8 +124,8 @@ export class LandingPage extends View {
 		}
 	}
 
-	identifiedCaller(data) {
-		this.confirmedCaller = data.detail.confirmedCaller;
+	identifiedClient(data) {
+		this.confirmedCaller = data.detail.identifiedClient;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -196,7 +196,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-search-client 
 					.unverifiedCaller="${this.isUnverifiedCaller}"
-					@on-back="${(data) => this.identifiedCaller(data)}"> 
+					@on-client-identified="${(data) => this.identifiedClient(data)}"> 
 				</horizon-search-client>`;
 		}
 
