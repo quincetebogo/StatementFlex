@@ -5,7 +5,7 @@
 	"application": {
 		"name": "horizon",
 		"title": "horizon",
-		"version": "0.0.23",
+		"version": "0.0.24",
 		"idp": {
 			"client": "Horizon"
 		}

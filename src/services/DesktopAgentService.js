@@ -2,6 +2,8 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
+import '../utils/channelServiceUtilities';
+import { validate } from '../utils/channelServiceUtilities';
 
 
 export class NewCallEvent {
@@ -39,6 +41,17 @@ export class DesktopAgentService {
 		DesktopAgentService.registrationUrl = url;
 	}
 
+	static getValidationData() {
+		// TODO: Make channel service call to retrieve validation data
+
+		//TODO: these validation criteria needs to come from the channel service
+		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[1-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
+		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
+	}
+
 	static getInstance() {
 		return this.instance || (this.instance = new DesktopAgentService());
 	}
@@ -56,21 +69,40 @@ export class DesktopAgentService {
 
 		// Listening for SSE events from the Desktop Agent
 		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
-		this.eventSource.addEventListener("new-call", (event) => {
-			console.log("Received 'new-call' event: ", event);
-
-			let newCallEvent = Object.assign(new NewCallEvent, JSON.parse(event.data));
-			console.log(newCallEvent);
-
-			this.queueEvent(newCallEvent);
-			this.processEventQueue();
-		})
+		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
 
 		this.router = Router.getInstance();
 	}
+
+
+	onNewCall(event) {
+		console.log("Received 'new-call' event: ", event);
+
+		let eventData = JSON.parse(event.data);
+		let newCallEvent = new NewCallEvent();
+
+
+		try {
+			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
+			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
+			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			newCallEvent.IVROptionCode = validate(eventData.IVROptionCode, DesktopAgentService.ivrOptionCodeValidation);
+			newCallEvent.Date = eventData.Date;
+
+			console.log(newCallEvent);
+
+			this.queueEvent(newCallEvent);
+			this.processEventQueue();
+		}
+		catch (err) {
+			console.log(err);
+		}
+	}
+
 
 
 
