@@ -285,7 +285,7 @@ export class StopCardComponent extends Component {
 					</capitec-group>`;
 	}
 
-	renderStopCardModal(rowData) {
+	renderStopCardModal() {
 
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 
@@ -329,7 +329,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL }}">
 					</capitec-button>
 				</button-bar>`;
 		}
