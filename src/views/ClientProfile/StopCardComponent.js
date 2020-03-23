@@ -310,9 +310,8 @@ export class StopCardComponent extends Component {
 	}
 
 	renderStopCardModal(rowData) {
-
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-
+			console.log("Stop card button clicked");
 			return html`
 				<horizon-stop-card></horizon-stop-card>
 			`;
@@ -320,6 +319,7 @@ export class StopCardComponent extends Component {
 
 	}
 	renderFooter() {
+		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">
@@ -328,7 +328,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${() => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
+									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
 					</capitec-button>
 				</button-bar>`;
 		}
