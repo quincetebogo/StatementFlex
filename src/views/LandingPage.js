@@ -3,13 +3,13 @@ import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
-import '../../components/landingPage/LandingPageWaitForCall';
-import '../../components/dialogs/ConfirmCallerDetails';
-import '../../components/dialogs/SearchClientDetails';
+import '../components/landingPage/LandingPageWaitForCall';
+import '../components/dialogs/ConfirmCallerDetails';
+import '../components/dialogs/SearchClientDetails';
 
-import { StopCardService } from '../../services/StopCardService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { StopCardService } from '../services/StopCardService';
+import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { HorizonViewManager } from '../HorizonViewManager';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
