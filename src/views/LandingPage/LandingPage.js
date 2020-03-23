@@ -3,7 +3,7 @@ import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
-import '../../components/LandingPageWaitForCall';
+import '../../components/landingPage/LandingPageWaitForCall';
 import '../../components/dialogs/ConfirmCallerDetails';
 import '../../components/dialogs/SearchClientDetails';
 

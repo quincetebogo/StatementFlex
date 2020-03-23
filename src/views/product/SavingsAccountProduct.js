@@ -1,10 +1,11 @@
 import { View, html, css } from 'platform/elements';
-import '../../components/CreditProductDetails';
+
+import '../../components/product/SavingsAccountproductDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { HorizonViewManager } from '../../HorizonViewManager';
 
-export class CreditProduct extends View {
+export class SavingsAccountProduct extends View {
 
 	constructor() {
 		super();
@@ -35,7 +36,7 @@ export class CreditProduct extends View {
 		return [
 			super.styles,
 			css`
-				.credit-details{
+				.savings-details{
 					width:100%;
 					height:100%;
 				}					
@@ -43,8 +44,8 @@ export class CreditProduct extends View {
 	}
 
 	render() {
-		return html`<creditproduct-details class="credit-details"></creditproduct-details>`;
+		return html`<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>`;
 	}
 }
 
-customElements.define(`product-credit`, CreditProduct);
+customElements.define(`product-savings-account`, SavingsAccountProduct);

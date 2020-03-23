@@ -24,7 +24,7 @@ export default horizonRoutes = [
 		title: `SavingsAccountProductView`,
 		icon: null,
 		path: SAVINGS_ACCOUNT_PRODUCT_PAGE,
-		load: () => import(`./views/LandingPage/SavingsAccountProduct`),
+		load: () => import(`./views/product/SavingsAccountProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -74,7 +74,7 @@ export default horizonRoutes = [
 		title: `InsureProductView`,
 		icon: null,
 		path: `/product/insure`,
-		load: () => import(`./views/LandingPage/InsureProduct`),
+		load: () => import(`./views/product/InsureProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -84,7 +84,7 @@ export default horizonRoutes = [
 		title: `CreditProductView`,
 		icon: null,
 		path: `/product/credit`,
-		load: () => import(`./views/LandingPage/CreditProduct`),
+		load: () => import(`./views/product/CreditProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
