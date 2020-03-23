@@ -8,7 +8,7 @@ import '../../components/dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
-	CARDNUMBER: 'cardNumber'
+	CARDNUMBER: 'accountNumber'
 }
 
 const RENDER_MODE = {
@@ -29,15 +29,11 @@ export class StopCardComponent extends Component {
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 
 		this.toggleEndCallModal = false;
-		this.cards = [
-			{ cardType: "Debit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: false, rowIndex: 0 },
-			{ cardType: "Credit Card", cardCategory: "", cardNumber: "5284 **** **** 1322", selected: false, rowIndex: 1 },
-			{ cardType: "Credit Card", cardCategory: "Supplementary Cards", cardNumber: "5284 **** **** 1322", selected: false, rowIndex: 2 }
-		];
-
+		this.cards = null;
 		this.confirmedCaller = null;
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
 		this.rowData = {};
+		this.selectedCardCount = 0;
 	}
 
 	// ----------
@@ -50,8 +46,23 @@ export class StopCardComponent extends Component {
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
 			renderMode: { type: Number },
-			rowData: { type: Object }
+			rowData: { type: Object },
+			selectedCardCount: { type: Number }
 		}
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.cards = this.confirmedCaller.cards;
+		/**
+		 * Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
+		 */
+		this.cards = this.generateRowIndex();
 	}
 
 	// --------------
@@ -94,8 +105,14 @@ export class StopCardComponent extends Component {
 	}
 
 	_valueChanged(event, rowData) {
-		this.cards[rowData.rowIndex].selected = event.detail.new
-		this.requestUpdate();
+		this.cards[rowData.rowIndex].selected = event.detail.new;
+		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+	}
+
+	_onClickReason() {
+		/**
+		 * Stop reason selection functionality comes here
+		 */
 	}
 
 	// --------------
@@ -110,7 +127,13 @@ export class StopCardComponent extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	generateRowIndex() {
+		return this.cards.map((card, index) => {
+			card["rowIndex"] = index;
+			card["selected"] = false;
+			return card;
+		});
+	}
 
 	// ---------
 	// RENDERING
@@ -121,8 +144,8 @@ export class StopCardComponent extends Component {
 			super.styles,
 			css`
 				.stop-card{
-					width: 1067.8px;
-					height: 770px;
+					width: 1065px;
+					height: 823px;
 					padding: 0px 0px 0px 0px;
 					text-align: center;
 					line-height: 40px;
@@ -130,8 +153,39 @@ export class StopCardComponent extends Component {
 					background-color: white;
 					border-radius: none;
 				}
-				capitec-alert-banner, capitec-table{
+				.horizon-notify-client{
+					display: flex;
+					flex-direction: row;
 					width: 100%;
+					height: 64px;
+					background: #DAF5F3;
+				}
+				#action-icon{
+					margin-left: 24px;
+				}
+				#action-display{
+					margin: 0px 0px 0px 0px;
+					color: #08A6B5;
+					font-family: "Hind Vadodara";
+					font-weight: 500;
+					align: center;
+					padding: 12px 0px 0px 10px;
+				}
+				capitec-table {
+					width: 100%;
+					height: 631px;
+				}
+				button-bar{
+					border-top: thin solid #d3d3d3;
+					height: 64px;
+				}
+				button-bar > capitec-button{
+					float: right;
+					padding: 6px 24px 0px 0px;
+				}
+				button-bar > capitec-label{
+					float: left;
+					padding: 11px 0px 0px 24px;
 				}
 			`];
 	}
@@ -139,68 +193,96 @@ export class StopCardComponent extends Component {
 	render() {
 		return html`
 			<capitec-card class="stop-card">
-				<capitec-title-bar type="clear" label="Stop Card"></capitec-title-bar>
-				<capitec-alert-banner type="info" label="Notify client that once stopped, they will need to visit a branch for a new card.">
-				</capitec-alert-banner>
+				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
+					
+					${this.renderTitleBar()}
+					${this.renderNotifyClient()}
+					${this.renderCardDetails()}
+					${this.renderFooter()}
 
-				<capitec-table .items="${this.cards}">
-					<capitec-table-column label="" 
-										  field="" 
-										  type=""
-										  size="4%"
-										  .renderer="${(rowData) => this.renderRowInput(rowData)}">
-					</capitec-table-column>
-					<capitec-table-column label="Card Type" 
-										  field="cardType" 
-										  type="text"
-										  size="48%"
-										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}">
-					</capitec-table-column>
-					<capitec-table-column label="Card Number" 
-										  field="cardNumber" 
-										  type="text"
-										  size="48%"
-										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDNUMBER)}">
-					</capitec-table-column>
-				</capitec-table>
+				</capitec-group>
 			</capitec-card>
-			${this.renderConfirmedUser()}
-			${this.renderStopCardModal(this.rowData)}
+			${this.renderEndCallModal()}
 		`;
 	}
 
-	renderConfirmedUser() {
-		if (this.toggleEndCallModal) {
-			return html`<end-call-session></end-call-session>`;
-		}
+	renderTitleBar() {
+		return html`<capitec-title-bar type="clear" 
+									   label="Stop Card" 
+									   row="1" 
+									   column="1">
+					</capitec-title-bar>`;
+	}
 
-		return html``;
+	renderNotifyClient() {
+		return html`
+			<div class="horizon-notify-client" row="2" column="1">
+				<img src="../../images/info.svg" id="action-icon"/>
+				<p id="action-display">&nbsp;Notify client that once stopped, they will need to visit a branch for a new card.</p>
+			</div>`;
+	}
+
+	renderCardDetails() {
+		return html`
+				<capitec-table .items="${this.cards}" row="3" column="1">
+					<capitec-table-column label=""
+										  field=""
+										  type=""
+										  size="5%"
+										  .renderer="${(rowData) => this.renderRowInput(rowData)}">
+					</capitec-table-column>
+					<capitec-table-column label="Card Type"
+										  field="cardType"
+										  type="text"
+										  size="95%"
+										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
+										  .headerRenderer="${() => this.headerRenderer()}">
+					</capitec-table-column>
+				</capitec-table>
+				${this.renderStopCardModal(this.rowData)}
+				`;
+
 	}
 
 	renderRowInput(rowData) {
-		return html`<div style="${rowData.selected ? `margin: 0px 0px 45px 0px;` : ``}">
+		return html`<div style="${rowData.selected ? `margin: 0px 0px 63px 0px;` : ``}">
 						<capitec-check label=""
 									   @value-changed="${(e) => this._valueChanged(e, rowData)}">
 						</capitec-check>
 					</div>`;
 	}
 
-	renderRowData(rowData, fieldType) {
-		switch (fieldType) {
-			case COLUMNS.CARDTYPE:
-				if (rowData.selected) {
-					return html`${this.renderReasonButtons(rowData, fieldType)}`;
-				}
-				return html`<div style="text-align: left;">
-								${rowData[fieldType]}
-							</div>`;
-			case COLUMNS.CARDNUMBER:
-				return html`<div style="${rowData.selected ? `margin: 0px 0px 45px 0px;` : ``} text-align: left;">
-								${rowData[fieldType]}
-							</div>`
-			default:
-				return html``;
-		}
+	headerRenderer() {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
+						<capitec-label label="Card Type"
+									   row="1"
+									   column="1"
+									   style="text-align: left;"
+									   type="subtitle">
+						</capitec-label>
+						<capitec-label label="Card Number"
+									   row="1"
+									   column="2"
+									   style="text-align: left;"
+									   type="subtitle">
+						</capitec-label>
+					</capitec-group>`;
+	}
+
+	renderRowData(rowData) {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
+						<capitec-label label="${rowData[COLUMNS.CARDTYPE]}"
+										row="1"
+										column="1"
+										style="text-align: left;">
+						</capitec-label>
+						<capitec-label label="${rowData[COLUMNS.CARDNUMBER]}"
+										row="1"
+										column="2"
+										style="text-align: left;">
+						</capitec-label>
+						${this.renderReasonButtons(rowData)}
+					</capitec-group>`;
 	}
 
 	renderStopCardModal(rowData) {
@@ -213,21 +295,51 @@ export class StopCardComponent extends Component {
 		}
 
 	}
-
-	renderReasonButtons(rowData, fieldType) {
-		return html`
-					<div style="text-align:left;">${rowData[fieldType]}</div>
-					<capitec-group layout="grid" rows="uniform" columns="auto" gap="none" style="width: 55%;">
-						<capitec-label row="1" 
-									   column="1"
-									   label="Choose a Reason">
-						</capitec-label>
-						<capitec-button row="1" 
-										column="2"
-										label="Stop Card"
-										@click="${() => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
+	renderReasonButtons(rowData) {
+		if (rowData.selected) {
+			return html`
+					<div row="2" column="1" colspan="2" style="text-align:left;">
+						Choose a Reason
+						<capitec-button label="Card Damaged"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
 						</capitec-button>
-					</capitec-group>`;
+						<capitec-button label="Card Lost"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+						<capitec-button label="Card Stolen"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+						<capitec-button label="Suspected Fraud"
+										style="padding: 0px 0px 0px 10px;"
+										@click="${(e) => this._onClickReason()}">
+						</capitec-button>
+					</div>`;
+		}
+	}
+
+	renderFooter() {
+		if (this.selectedCardCount > 0) {
+			return html`
+				<button-bar row="4" column="1">
+					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
+					<capitec-button row="1" 
+									column="2"
+									label="Stop Card(s)"
+									type="primary"
+									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+					</capitec-button>
+				</button-bar>`;
+		}
+	}
+
+	renderEndCallModal() {
+		if (this.toggleEndCallModal) {
+			return html`<end-call-session></end-call-session>`;
+		}
+		return html``;
 	}
 }
 

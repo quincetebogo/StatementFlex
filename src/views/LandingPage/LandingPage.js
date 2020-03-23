@@ -85,14 +85,6 @@ export class LandingPage extends View {
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
 
-		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
-		if (eventData.IVROptionCode == null) {
-			eventData.IVROptionCode = 'StopCard';
-		}
-		if (eventData.IncidentReferenceNumber == null) {
-			eventData.IncidentReferenceNumber = '1234567';
-		}
-
 		// Web service calls - must still handle errors
 		try {
 			let stopCardService = StopCardService.getInstance();
