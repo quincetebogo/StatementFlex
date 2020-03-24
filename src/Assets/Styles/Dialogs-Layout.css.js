@@ -1,3 +1,6 @@
+/*
+ * Intention of this class file is to create a common styling for Dialogs(ConfirmCaller, SearchCaller, AddCaller)
+ */
 import { css } from 'platform/elements';
 export class DialogLayoutStyles {
 

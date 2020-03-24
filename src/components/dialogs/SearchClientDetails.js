@@ -5,9 +5,15 @@
 import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
-import { DialogLayoutStyles } from '../../Assets/Styles/Dialogs-Layout.css';
+import { DialogLayoutStyles } from '../../assets/styles/Dialogs-Layout.css';
 
 import '../dialogs/ConfirmCallerDetails';
+
+const RENDER_MODE = {
+	SEARCH_CALLER: 0,
+	END_CALL: 1,
+};
+
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -27,7 +33,7 @@ export class SearchClientDetailsComponent extends Component {
 		}
 		this.unverifiedCaller = null;
 		this.stopCardService = StopCardService.getInstance();
-
+		this.renderMode = -1;
 	}
 
 	// ----------
@@ -38,7 +44,8 @@ export class SearchClientDetailsComponent extends Component {
 		return {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
-			unverifiedCaller: { type: Object }
+			unverifiedCaller: { type: Object },
+			renderMode: { type: Number }
 		}
 	}
 
@@ -72,7 +79,7 @@ export class SearchClientDetailsComponent extends Component {
 			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
 			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 		}
-
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.searchFieldText = null;
 	}
 
@@ -226,61 +233,59 @@ export class SearchClientDetailsComponent extends Component {
 			super.styles,
 			DialogLayoutStyles.styles,
 			css`
-			
-			.search-box{
-				height:310px;
-				padding:0px 24px 0px 24px;
-			}
-			.search-label{
-				height:27px;
-				width:170px;
-				font-family:"Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				color: #003652;
-				line-height:27px;
-			}
-			.id-methods{
-				padding: 0px 0px 34px 0px;
-				margin:0px"
-			}
-			.id-options{
-				text-align:justify;
-				line-height:12px	
-			}
-			.search-client{
-				padding:16px 0px 24px 0px;
-				margin:0px
-			}
-			.search-field{
-				padding: 0px 0px 0px 0px;
-				margin:0px
-			}
-		`];
-
+				.search-box{
+					height: 310px;
+					padding: 0px 24px 0px 24px;
+				}
+				.search-label{
+					height: 27px;
+					width: 170px;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					color: #003652;
+					line-height: 27px;
+				}
+				.id-methods{
+					padding: 0px 0px 34px 0px;
+					margin: 0px;
+				}
+				.id-options{
+					text-align: justify;
+					line-height: 12px	
+				}
+				.search-client{
+					padding: 16px 0px 24px 0px;
+					margin: 0px;
+				}
+				.search-field{
+					padding: 0px 0px 0px 0px;
+					margin: 0px;
+				}`
+		];
 	}
 
 	render() {
-		return html`
-					${this.renderLoadingIndicator()}
-						<capitec-modal type="free" header="Search Client Details" header-align="left" >
-							<div slot="body" class="main">
-								${this.renderCallInformation()}
-								${this.renderSearchClientDetails()}
-							</div>
-							${this.renderFooter()}
-						</capitec-modal>`;
+		switch (this.renderMode) {
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`${this.renderLoadingIndicator()}
+					<capitec-modal type="free" header="Search Client Details" header-align="left" >
+						<div slot="body" class="main">
+							${this.renderCallInformation()}
+							${this.renderSearchClientDetails()}
+						</div>
+						${this.renderFooter()}
+					</capitec-modal>`;
+			case RENDER_MODE.END_CALL:
+				return html`${this.renderEndCallModal()}`;
+		}
 	}
 
 	renderLoadingIndicator() {
-
-		if (!this.isBusy) {
+		if (!this.isBusy)
 			return html``;
-		}
 		else
-			return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderCallInformation() {
@@ -372,17 +377,23 @@ export class SearchClientDetailsComponent extends Component {
 		<capitec-action-bar class="footer-bar" slot="footer">
 			<capitec-spacer></capitec-spacer>
 			<capitec-button type="clear" 
-							label="End Call Session" 
-							?hidden=${isHidden(this.endCallSessionButton)}
-							.disabled="${isDisabled(this.endCallSessionButton)}"
-							tabindex="${getTabIndex(this.endCallSessionButton)}">
+							label="End Call Session"
+							@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}" >
 			</capitec-button>
-			<capitec-button type="primary" 
-							@click="${(e) => this._onSearchClick(e)}" 
+			<capitec-button type="primary"
+							@click="${(e) => this._onSearchClick(e)}"
 							label="Search Client">
 			</capitec-button>
 		</capitec-action-bar>
 		`;
+	}
+
+	renderEndCallModal() {
+		return html`
+			<end-call-session
+				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+			</end-call-session>`;
 	}
 }
 
