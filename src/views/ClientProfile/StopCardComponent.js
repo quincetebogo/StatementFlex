@@ -4,11 +4,17 @@ import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
 
 import 'platform/components';
+import '../../components/dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
 	CARDNUMBER: 'accountNumber'
 }
+
+const RENDER_MODE = {
+	CLIENT_PROFILE: 0,
+	CARD_STOP_MODAL: 1,
+};
 
 export class StopCardComponent extends Component {
 
@@ -25,6 +31,8 @@ export class StopCardComponent extends Component {
 		this.toggleEndCallModal = false;
 		this.cards = null;
 		this.confirmedCaller = null;
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.rowData = {};
 		this.selectedCardCount = 0;
 	}
 
@@ -37,6 +45,8 @@ export class StopCardComponent extends Component {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
+			renderMode: { type: Number },
+			rowData: { type: Object },
 			selectedCardCount: { type: Number }
 		}
 	}
@@ -228,7 +238,10 @@ export class StopCardComponent extends Component {
 										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
-				</capitec-table>`;
+				</capitec-table>
+				${this.renderStopCardModal(this.rowData)}
+				`;
+
 	}
 
 	renderRowInput(rowData) {
@@ -272,6 +285,18 @@ export class StopCardComponent extends Component {
 					</capitec-group>`;
 	}
 
+	renderStopCardModal() {
+
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+
+			return html`
+				<horizon-stop-card
+				
+				></horizon-stop-card>
+			`;
+		}
+
+	}
 	renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
@@ -306,7 +331,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL }}">
 					</capitec-button>
 				</button-bar>`;
 		}
