@@ -2,7 +2,7 @@ import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
 
 let horizonRoutes = [];
 
-const LANDING_PAGE = `/landingpage`;
+const LANDING_PAGE = `/landingPage`;
 const SAVINGS_ACCOUNT_PRODUCT_PAGE = `/product/savings-account`;
 const CLIENT_PROFILE_PAGE = `/client/profile`;
 
@@ -12,7 +12,7 @@ export default horizonRoutes = [
 		title: `LandingPageView`,
 		icon: null,
 		path: LANDING_PAGE,
-		load: () => import(`./views/LandingPage/LandingPage`),
+		load: () => import(`./views/LandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -24,7 +24,7 @@ export default horizonRoutes = [
 		title: `SavingsAccountProductView`,
 		icon: null,
 		path: SAVINGS_ACCOUNT_PRODUCT_PAGE,
-		load: () => import(`./views/LandingPage/SavingsAccountProduct`),
+		load: () => import(`./views/product/SavingsAccountProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -34,7 +34,7 @@ export default horizonRoutes = [
 		title: `SavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan`,
-		load: () => import(`./views/LandingPage/SavingsPlanProduct/SavingsPlanProduct`),
+		load: () => import(`./views/product/SavingsPlanProduct/SavingsPlanProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -44,7 +44,7 @@ export default horizonRoutes = [
 		title: `FlexibleSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/flexible`,
-		load: () => import(`./views/LandingPage/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
+		load: () => import(`./views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -54,7 +54,7 @@ export default horizonRoutes = [
 		title: `FixedTermSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/fixed-term`,
-		load: () => import(`./views/LandingPage/SavingsPlanProduct/FixedTermSavingsProduct`),
+		load: () => import(`./views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -64,7 +64,7 @@ export default horizonRoutes = [
 		title: `TaxFreeSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/tax-free`,
-		load: () => import(`./views/LandingPage/SavingsPlanProduct/TaxFreeSavingsProduct`),
+		load: () => import(`./views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -74,7 +74,7 @@ export default horizonRoutes = [
 		title: `InsureProductView`,
 		icon: null,
 		path: `/product/insure`,
-		load: () => import(`./views/LandingPage/InsureProduct`),
+		load: () => import(`./views/product/InsureProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -84,7 +84,7 @@ export default horizonRoutes = [
 		title: `CreditProductView`,
 		icon: null,
 		path: `/product/credit`,
-		load: () => import(`./views/LandingPage/CreditProduct`),
+		load: () => import(`./views/product/CreditProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
