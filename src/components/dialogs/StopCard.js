@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
+
 import 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 
@@ -66,7 +67,7 @@ export class StopCard extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		// this.cards = this.confirmedStop.cards;
+		//  this.cards = this.confirmedStop.cards;
 
 		// this.cards = this.onCardStopped();
 	}
@@ -85,12 +86,12 @@ export class StopCard extends Component {
 				<div slot="footer">
 					<capitec-button-bar class="footer">
 					<capitec-button type="clear" label="Cancel"></capitec-button>
-					<capitec-button  type="clear" label="Confirm"
-					@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
+					<capitec-button type="clear" label="Confirm"
+						@click="${(e) => { this.renderMode = RENDER_MODE.ONCONFIRMED_CARD, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
 					></capitec-button>
 					</capitec-button-bar>
 				</div>
-				${this.onRenderStopCardSuccess()}
+				${this.onRenderStopCardSuccess(this.rowData)}
 				${this.showCardStopSuccess()}
 			</capitec-modal>
 		`;
@@ -107,13 +108,16 @@ export class StopCard extends Component {
 		this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
 	}
 
+
 	onRenderStopCardSuccess() {
 
 		if (this.renderMode === RENDER_MODE.ONCONFIRMED_CARD) {
+
 			return html`
-					<horizon-stop-card-success
-					>
-					</horizon-stop-card-success>`;
+				<horizon-stop-card-success
+				
+				></horizon-stop-card-success>
+			`;
 		}
 	}
 

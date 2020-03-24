@@ -290,7 +290,9 @@ export class StopCardComponent extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 
 			return html`
-				<horizon-stop-card></horizon-stop-card>
+				<horizon-stop-card
+				
+				></horizon-stop-card>
 			`;
 		}
 
