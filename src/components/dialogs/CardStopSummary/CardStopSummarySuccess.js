@@ -41,11 +41,7 @@ export class CardStopSummarySuccess extends Component {
 						</p>
 						</div>
 						<div>
-						<capitec-table paging sortStrategy="groupField" .items="${this.records}" .selectedItem="${this.selectedRecord}" .dataHandler="${(renderSet) => this.renderCollection(renderSet)}" .groupLabel="${(e) => this.groupLabelHandler(e)}" @item-selected="${(e) => this.onItemSelected(e)}">
-  							<capitec-table-column label="One" field="columnOne"></capitec-table-column>
-  							<capitec-table-column label="Two" field="columnTwo"></capitec-table-column>
-  							<capitec-table-column label="Three" field="columnThree"></capitec-table-column>
-						</capitec-table>
+			
 						</div>
 				</capitec-group>
 			</capitec-card>

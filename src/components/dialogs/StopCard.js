@@ -5,7 +5,7 @@ import { Router } from 'platform/Router';
 import 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 import '../dialogs/CardStopSummary/CardStopSummarySuccess';
-
+import StopCardHelper from '../../helpers/StopCardHelper';
 
 const OFFERED = {
 	CARDTYPE: 'cardType',
@@ -28,7 +28,7 @@ export class StopCard extends Component {
 		this.cardNumber = "284 **** **** 1522";
 		this.cardType = "Debit Card";
 		this.reason = "Card Lost";
-		this.confirmedCaller = null;
+		this.cardStopped = null;
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 	}
 
@@ -67,7 +67,11 @@ export class StopCard extends Component {
 
 	async connectedCallback() {
 		super.connectedCallback();
-
+		document.addEventListener('confirmed-stop', this.handleChange);
+		// Short hand references for reaching into the incoming data model
+		// this.cardNumber = this.cardStopped.${"this.cardNumber"};
+		// this.cardType = this.cardStopped.this.cardType;
+		// this.reason = this.cardStopped.this.reason;
 		//  this.cards = this.confirmedStop.cards;
 
 		// this.cards = this.onCardStopped();
@@ -88,25 +92,35 @@ export class StopCard extends Component {
 					<capitec-button-bar class="footer">
 					<capitec-button type="clear" label="Cancel"></capitec-button>
 					<capitec-button type="clear" label="Confirm"
-						@click="${() => { this.renderMode = RENDER_MODE.ONCONFIRMED_CARD, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
+					@click="${this.onConfirmClick}"
 					></capitec-button>
 					</capitec-button-bar>
 				</div>
 				${this.onRenderStopCardSuccess()}
-				${this.showCardStopSuccess()}
+
 			</capitec-modal>
 		`;
 	}
 
-	showCardStopSuccess() {
+	onConfirmClick(e) {
+		let cardStopped = {
+			cardNumber: this.cardNumber,
+			cardType: this.cardType,
+			reason: 'Stop Card'
+		};
 
-		let cardStopEvent = new CustomEvent('confirmed-stop', {
-			detail: { message: 'Card stop confirmed.' }
-		});
-		this.dispatchEvent(cardStopEvent);
+		// let identifyStopCardPromise = StopCardHelper.getInstance().identifyCaller(cardStopped);
 
+		// identifyStopCardPromise.then((response) => {
 
-		this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
+		// 	this.dispatchEvent(new CustomEvent('confirmed-stop', { detail: { cardStopped: response } }));
+		// }, (error) => {
+
+		// 	console.log('Error in fetching Stopped card Information.');
+		// 	console.log(error);
+		// });
+
+		console.log(cardStopped);
 	}
 
 
