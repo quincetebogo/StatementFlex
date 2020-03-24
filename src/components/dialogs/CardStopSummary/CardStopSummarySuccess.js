@@ -4,6 +4,10 @@ import 'platform/components/data/Table';
 export class CardStopSummarySuccess extends Component {
 
 
+	constructor() {
+		super();
+	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -48,4 +52,4 @@ export class CardStopSummarySuccess extends Component {
 		`;
 	}
 }
-window.customElements.define(`horizon-stop-card-success`, StopCard);
+window.customElements.define(`horizon-stop-card-success`, CardStopSummarySuccess);

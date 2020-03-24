@@ -2,9 +2,10 @@ import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
-
 import 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
+import '../dialogs/CardStopSummary/CardStopSummarySuccess';
+
 
 const OFFERED = {
 	CARDTYPE: 'cardType',
@@ -87,11 +88,11 @@ export class StopCard extends Component {
 					<capitec-button-bar class="footer">
 					<capitec-button type="clear" label="Cancel"></capitec-button>
 					<capitec-button type="clear" label="Confirm"
-						@click="${(e) => { this.renderMode = RENDER_MODE.ONCONFIRMED_CARD, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
+						@click="${() => { this.renderMode = RENDER_MODE.ONCONFIRMED_CARD, console.log("about to render success screen", RENDER_MODE.ONCONFIRMED_CARD) }}"
 					></capitec-button>
 					</capitec-button-bar>
 				</div>
-				${this.onRenderStopCardSuccess(this.rowData)}
+				${this.onRenderStopCardSuccess()}
 				${this.showCardStopSuccess()}
 			</capitec-modal>
 		`;
