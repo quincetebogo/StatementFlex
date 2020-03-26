@@ -14,7 +14,7 @@ export class StopCardSuccess extends View {
 
 	render() {
 		console.log('render stop card screen');
-		return html`<horizon-stop-card-success .confirmedCaller="${HorizonViewManager.getInstance().recoverState()}"></horizon-stop-card-success>`;
+		return html`<horizon-stop-card-success .confirmedStop="${HorizonViewManager.getInstance().recoverState()}"></horizon-stop-card-success>`;
 	}
 }
 

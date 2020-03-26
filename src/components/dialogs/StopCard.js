@@ -6,6 +6,7 @@ import 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
 import '../dialogs/CardStopSummary/CardStopSummarySuccess';
 import StopCardHelper from '../../helpers/StopCardHelper';
+import '../../views/ClientProfile/StopCardSuccess';
 
 const OFFERED = {
 	CARDTYPE: 'cardType',
@@ -13,9 +14,8 @@ const OFFERED = {
 }
 
 const RENDER_MODE = {
-	CARD_STOP_MODAL: 0,
-	ONCONFIRMED_CARD: 1,
-	ONCANCEL_CARD: 2
+	CONFIRM_CARD: 0,
+	ONCANCEL_CARD: 1
 };
 
 export class StopCard extends Component {
@@ -29,7 +29,7 @@ export class StopCard extends Component {
 		this.cardType = "Debit Card";
 		this.reason = "Card Lost";
 		this.cardStopped = null;
-		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		this.renderMode = RENDER_MODE.CONFIRM_CARD;
 	}
 
 	static get properties() {
@@ -77,10 +77,8 @@ export class StopCard extends Component {
 		// this.cards = this.onCardStopped();
 	}
 
-	render() {
+	renderConfirmStopCard() {
 		return html`
-			<capitec-modal type="alert" header="Stop Card">
-				<div slot="body">
 				<div class="stop-card">
 						<p>	Are you sure you want to stop:</p>
 						<p class="card-reason"> <capitec-label type="strong" label="${this.cardType}"></capitec-label>
@@ -88,18 +86,46 @@ export class StopCard extends Component {
 						<p> Reason: <capitec-label type="strong" label="${this.reason}"></capitec-label></p>
 					</div>
 				</div>
-				<div slot="footer">
-					<capitec-button-bar class="footer">
-					<capitec-button type="clear" label="Cancel"></capitec-button>
-					<capitec-button type="clear" label="Confirm"
-					@click="${this.onConfirmClick}"
-					></capitec-button>
-					</capitec-button-bar>
-				</div>
-				${this.onRenderStopCardSuccess()}
-
-			</capitec-modal>
 		`;
+	}
+
+	render() {
+		switch (this.renderMode) {
+			case RENDER_MODE.CONFIRM_CARD:
+				return html`
+				<capitec-modal
+						type="alert"
+						header="Stop Card"
+						header-align="left">
+					<div slot="body">
+						${this.renderConfirmStopCard()} 
+					</div>
+					<div slot="footer">
+						${this.renderFooter()}
+					<div> 
+				</capitec-modal>
+			`;
+
+		}
+	}
+
+	renderFooter() {
+		return html`
+			<capitec-group layout="horizontal">
+				<capitec-button
+					type="clear"
+					label="Cancel"
+					@click="${() => this.renderMode = RENDER_MODE.ONCANCEL_CARD}">
+				</capitec-button>
+
+				<capitec-button
+					id="id-confirm-button"
+					type="primary"
+					label="Confirm"
+					@click="${() => this.onConfirmClick()}">
+				</capitec-button>
+			</capitec-group>			
+			`;
 	}
 
 	onConfirmClick(e) {
@@ -111,31 +137,17 @@ export class StopCard extends Component {
 			reason: 'Stop Card'
 		};
 
-		// let identifyStopCardPromise = StopCardHelper.getInstance().identifyCaller(cardStopped);
-
-		// identifyStopCardPromise.then((response) => {
-
-		// 	this.dispatchEvent(new CustomEvent('confirmed-stop', { detail: { cardStopped: response } }));
-		// }, (error) => {
-
-		// 	console.log('Error in fetching Stopped card Information.');
-		// 	console.log(error);
-		// });
+		let identifyStopCardPromise =
+			this.dispatchEvent(new CustomEvent('confirmed-stop', this.handleChange));
 
 		console.log(cardStopped);
+		console.log(identifyStopCardPromise);
 	}
-
-
-	onRenderStopCardSuccess() {
-
-		if (this.renderMode === RENDER_MODE.ONCONFIRMED_CARD) {
-
-			return html`
-				<horizon-stop-card-success
-				
-				></horizon-stop-card-success>
-			`;
-		}
+	handleChange() {
+		console.log('rendering stop card screen');
+		return html`
+		<horizon-stop-card-success ></horizon-stop-card-success>
+		`;
 	}
 
 }

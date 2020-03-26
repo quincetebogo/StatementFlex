@@ -123,9 +123,9 @@ export class StopCardComponent extends Component {
 		 */
 	}
 	onStopCardConfirmed() {
-		this.horizonViewManager.saveState(data.detail.confirmedStop);
-		this.renderMode = -1;
-		this.router.navigateByPath(`/client/profile`);
+		// this.horizonViewManager.saveState(data.detail.confirmedStop);
+		// this.renderMode = -1;
+		this.router.navigateByPath(`/stop/card`);
 	}
 	// --------------
 	// PUBLIC METHODS
@@ -251,7 +251,8 @@ export class StopCardComponent extends Component {
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>
-				${this.renderStopCardModal(this.rowData)}
+		
+				${this.renderStopCardConfirmed()}
 				`;
 
 	}
@@ -309,6 +310,18 @@ export class StopCardComponent extends Component {
 			`;
 		}
 
+	}
+
+	//for testing 
+	renderStopCardConfirmed() {
+		console.log('rendering from test method');
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+			return html`
+				<horizon-stop-card
+					.confirmedStop="${this.confirmedStop}"
+					@confirmed-stop="${(data) => this.onStopCardConfirmed(data)}">
+				</horizon-stop-card>`;
+		}
 	}
 	renderReasonButtons(rowData) {
 		if (rowData.selected) {
