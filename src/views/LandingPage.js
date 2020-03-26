@@ -196,7 +196,8 @@ export class LandingPage extends View {
 			return html`
 				<horizon-search-client 
 					.unverifiedCaller="${this.isUnverifiedCaller}"
-					@on-client-identified="${(data) => this.identifiedClient(data)}"> 
+					@on-client-identified="${(data) => this.identifiedClient(data)}"
+					@call-ended="${(data) => this.onCallEnded(data)}">
 				</horizon-search-client>`;
 		}
 

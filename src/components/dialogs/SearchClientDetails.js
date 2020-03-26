@@ -8,6 +8,7 @@ import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUti
 import { DialogLayoutStyles } from '../../assets/styles/Dialogs-Layout.css';
 
 import '../dialogs/ConfirmCallerDetails';
+import '../../components/Common/HorizonSelect';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -152,6 +153,10 @@ export class SearchClientDetailsComponent extends Component {
 			}
 		}));
 	};
+
+	onCallCancelled(reason) {
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
+	}
 
 	// ---------------
 	// PRIVATE METHODS
@@ -306,15 +311,15 @@ export class SearchClientDetailsComponent extends Component {
 							</capitec-label>
 						</div>
 						<div class="ivr-option">
-							<capitec-select
+							<horizon-select
 								id="label-ivr"
-								label="ivr option selected"
+								label="IVR Option Selected"
 								display-field="value"
 								.items="${this.ivrOption.possibleValues}"
-								.value="${this.ivrOption.value}"
+								.value="${this.ivrOption.possibleValues[0].value}"
 								tabindex="${getTabIndex(this.ivrOption)}"
 								?hidden=${isHidden(this.ivrOption)}>
-							</capitec-select>
+							</horizon-select>			
 						</div>
 						<div class="incoming-call">
 							<capitec-label
