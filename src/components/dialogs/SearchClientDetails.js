@@ -153,6 +153,10 @@ export class SearchClientDetailsComponent extends Component {
 		}));
 	};
 
+	onCallCancelled(reason) {
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------

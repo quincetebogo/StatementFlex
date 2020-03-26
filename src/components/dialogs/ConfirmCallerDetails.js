@@ -120,20 +120,26 @@ export class ConfirmCallerDetails extends Component {
 		});
 	}
 
-	onCallCancelled(reason) {
-		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-			livesIn: this.livesIn.value,
-			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
+	onCallCancelled(event) {
+		if (event.detail.unverifiedCaller === undefined) {
+			let confirmedCaller = {
+				voiceReferenceNumber: this.voiceReferenceNumber.value,
+				ivrOption: this.ivrOption.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+				callerFullName: this.callerFullName.value,
+				southAfricanIDNumber: this.southAfricanIDNumber.value,
+				verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+				livesIn: this.livesIn.value,
+				languagePreference: this.languagePreference.value,
+				birthdate: this.birthdate.value
+			}
+
+			this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('call-ended', event));
 		}
 
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	onSearchClick() {
@@ -703,7 +709,8 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-client
 				.unverifiedCaller="${this.confirmedCaller}"
-				@on-client-identified="${(data) => this.identifiedClient(data)}"> 
+				@on-client-identified="${(data) => this.identifiedClient(data)}"
+				@call-ended="${(data) => this.onCallCancelled(data)}">
 			</horizon-search-client>`;
 	}
 }
