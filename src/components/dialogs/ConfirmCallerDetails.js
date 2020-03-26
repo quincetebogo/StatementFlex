@@ -160,6 +160,25 @@ export class ConfirmCallerDetails extends Component {
 		});
 	}
 
+	identifiedClient(data) {
+
+		//Updating the identified caller info into local variables
+		this.updateCallerInfo(data)
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
+	updateCallerInfo(data) {
+		this.callerInformation = data.detail.identifiedClient.callerInformation;
+		this.callerFullName = this.callerInformation.name;
+		this.southAfricanIDNumber = this.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.callerInformation.livesIn;
+		this.languagePreference = this.callerInformation.languagePreference;
+		this.birthdate = this.callerInformation.birthdate;
+		this.incidentReferenceNumber = data.detail.identifiedClient.incidentReferenceNumber;
+		this.agentTelephoneNumber = data.detail.identifiedClient.agentTelephoneNumber;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -339,8 +358,7 @@ export class ConfirmCallerDetails extends Component {
 				return html`${this.renderEndCallModal()}`;
 
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`
-				${this.renderSearchCallerModal()}`;
+				return html`${this.renderSearchCallerModal()}`;
 		}
 	}
 
@@ -517,7 +535,8 @@ export class ConfirmCallerDetails extends Component {
 	renderSearchCallerModal() {
 		return html`
 			<horizon-search-client
-				.unverifiedCaller="${this.confirmedCaller}">
+				.unverifiedCaller="${this.confirmedCaller}"
+				@on-client-identified="${(data) => this.identifiedClient(data)}"> 
 			</horizon-search-client>`;
 	}
 }
