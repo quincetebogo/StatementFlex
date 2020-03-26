@@ -1,12 +1,10 @@
 import { View, html, css } from 'platform/elements';
-
-import '../../components/InsureProductDetails';
+import '../../components/product/CreditProductDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { HorizonViewManager } from '../../HorizonViewManager';
 
-// TODO: Review as per SavingsAccountProduct page
-export class InsureProduct extends View {
+export class CreditProduct extends View {
 
 	constructor() {
 		super();
@@ -37,7 +35,7 @@ export class InsureProduct extends View {
 		return [
 			super.styles,
 			css`
-				.insure-details{
+				.credit-details{
 					width:100%;
 					height:100%;
 				}					
@@ -45,8 +43,8 @@ export class InsureProduct extends View {
 	}
 
 	render() {
-		return html`<insureproduct-details class="insure-details"></insureproduct-details>`;
+		return html`<creditproduct-details class="credit-details"></creditproduct-details>`;
 	}
 }
 
-customElements.define(`product-insure`, InsureProduct);
+customElements.define(`product-credit`, CreditProduct);

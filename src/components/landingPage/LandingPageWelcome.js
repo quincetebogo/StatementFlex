@@ -1,7 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
-import './Common/HorizonProductBar';
+import '../Common/HorizonProductBar';
 
 export class LandingPageWelcome extends Component {
 
