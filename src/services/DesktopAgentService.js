@@ -68,8 +68,7 @@ export class DesktopAgentService {
 		this.eventQueue = [];
 
 		// Listening for SSE events from the Desktop Agent
-		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
-		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
+		// this.open();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
@@ -77,6 +76,30 @@ export class DesktopAgentService {
 		this.router = Router.getInstance();
 	}
 
+	open() {
+		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
+		console.log("event source ready state", this.eventSource.readyState);
+		this.eventSource.onerror = () => { this.onError(); };
+		this.eventSource.onopen = () => { this.onOpen(); };
+		this.eventSource.onmessage = (x) => { this.onMessage(x); };
+		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
+	}
+
+	onError() {
+		console.log(this.eventSource.readyState);
+		console.log("something bad happened");
+		this.eventSource.close();
+		this.open();
+	}
+
+	onOpen() {
+		console.log(this.eventSource.readyState);
+		console.log("connection opened");
+	}
+
+	onMessage(event) {
+		console.log(event);
+	}
 
 	onNewCall(event) {
 		console.log("Received 'new-call' event: ", event);
