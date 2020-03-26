@@ -27,4 +27,7 @@ export class HorizonRouter {
 	navigateToCallWait(docType, id) {
 		this.router.navigateByPath(`/callWaiting`);
 	}
+	navigateToCardStopSummarySuccess() {
+		this.router.navigateByPath(`/stop/card`);
+	}
 }

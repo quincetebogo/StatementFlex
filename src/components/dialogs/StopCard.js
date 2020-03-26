@@ -103,6 +103,8 @@ export class StopCard extends Component {
 	}
 
 	onConfirmClick(e) {
+		this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
+
 		let cardStopped = {
 			cardNumber: this.cardNumber,
 			cardType: this.cardType,

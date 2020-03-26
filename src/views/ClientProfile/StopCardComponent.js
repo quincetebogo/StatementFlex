@@ -1,6 +1,9 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonViewManager } from '../../HorizonViewManager';
+import { Router } from 'platform/Router';
+
 import '../../components/EndCallSessionReason';
 
 import 'platform/components';
@@ -14,6 +17,7 @@ const COLUMNS = {
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
 	CARD_STOP_MODAL: 1,
+	CARD_STOP_SUCCESS: 2
 };
 
 export class StopCardComponent extends Component {
@@ -27,6 +31,10 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
+		this.eventAggregator.subscribe(`confirmed-stop`, (event) => this.onStopCardConfirmed(event));
+		this.router = Router.getInstance();
+
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		this.toggleEndCallModal = false;
 		this.cards = null;
@@ -114,7 +122,11 @@ export class StopCardComponent extends Component {
 		 * Stop reason selection functionality comes here
 		 */
 	}
-
+	onStopCardConfirmed() {
+		this.horizonViewManager.saveState(data.detail.confirmedStop);
+		this.renderMode = -1;
+		this.router.navigateByPath(`/client/profile`);
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -285,6 +297,7 @@ export class StopCardComponent extends Component {
 					</capitec-group>`;
 	}
 
+	//call stop card dialog from click event
 	renderStopCardModal() {
 
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
