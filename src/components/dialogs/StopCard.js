@@ -50,15 +50,18 @@ export class StopCard extends Component {
 			super.styles,
 			css`
 			.stop-card{
-				height: 250px;
-				padding: 0px;
-			}
+				height: 160px;
+				width: 396px;
+				padding:0px 0px 0px 0px;
+			 }
+			 .footer{
+				 height: 64px;
+				 width: 468px;
+				 padding:0px 0px 0px 0px;
+				 border-top: solid 1px #dfdfdf;
+			 }		
 			p{
 				text-align:left;
-			}
-			.footer{
-				width: 460px;
-				align: right;
 			}
 			`];
 	}
@@ -120,7 +123,7 @@ export class StopCard extends Component {
 
 				<capitec-button
 					id="id-confirm-button"
-					type="primary"
+					type="clear"
 					label="Confirm"
 					@click="${() => this.onConfirmClick()}">
 				</capitec-button>
