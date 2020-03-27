@@ -328,7 +328,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = rowData; }}">
+									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = e; }}">
 					</capitec-button>
 				</button-bar>`;
 		}
