@@ -240,7 +240,7 @@ export class SearchClientDetailsComponent extends Component {
 			css`
 				.search-box{
 					height: 310px;
-					padding: 0px 24px 0px 24px;
+					padding: 16px 24px 0px 24px;
 				}
 				.search-label{
 					height: 27px;
@@ -251,21 +251,15 @@ export class SearchClientDetailsComponent extends Component {
 					color: #003652;
 					line-height: 27px;
 				}
-				.id-methods{
-					padding: 0px 0px 34px 0px;
-					margin: 0px;
-				}
 				.id-options{
 					text-align: justify;
 					line-height: 12px	
 				}
-				.search-client{
-					padding: 16px 0px 24px 0px;
-					margin: 0px;
+				.search-fields{
+					padding: 24px 0px 0px 0px;
 				}
-				.search-field{
-					padding: 0px 0px 0px 0px;
-					margin: 0px;
+				.search-field-row{
+					height: 72px;
 				}`
 		];
 	}
@@ -279,7 +273,9 @@ export class SearchClientDetailsComponent extends Component {
 							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
 						</div>
-						${this.renderFooter()}
+						<div slot="footer">
+							${this.renderFooter()}
+						</div>
 					</capitec-modal>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
@@ -295,102 +291,83 @@ export class SearchClientDetailsComponent extends Component {
 
 	renderCallInformation() {
 		return html`
-		<capitec-group layout = "grid" class="grid-container" >
-				<capitec-action-bar class="populatedText" tabindex="-1">
-					<div class="horizon-call">
-						<div class="ref-call">
-							<capitec-label
-								id="ref-number"
-								label="Reference Number"
-								tabindex="-1">
-							</capitec-label>
-							<capitec-label id="label-value"
-								label="${this.voiceReferenceNumber.value}"
-								tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-								?hidden=${isHidden(this.voiceReferenceNumber)}>
-							</capitec-label>
-						</div>
-						<div class="ivr-option">
-							<horizon-select
-								id="label-ivr"
-								label="IVR Option Selected"
-								display-field="value"
-								.items="${this.ivrOption.possibleValues}"
-								.value="${this.ivrOption.possibleValues[0].value}"
-								tabindex="${getTabIndex(this.ivrOption)}"
-								?hidden=${isHidden(this.ivrOption)}>
-							</horizon-select>			
-						</div>
-						<div class="incoming-call">
-							<capitec-label
-								id="ref-number"
-								label="Incoming Number"
-								tabindex="-1">
-							</capitec-label>
-							<capitec-label id="incoming-num"
-								label="${this.isUnverifiedNumber ? 'Private Number' : this.incomingTelephoneNumber.value}"
-								tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-								?hidden=${isHidden(this.incomingTelephoneNumber)}>
-							</capitec-label>
-						</div>
-					</div >
-				</capitec-action-bar >
-			</capitec-group >
-		`;
+			<div class="call-details-bar">
+				<horizon-label 
+					class="call-label"
+					label="Reference Number" 
+					value = "${this.voiceReferenceNumber.value}"
+					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+					?hidden=${isHidden(this.voiceReferenceNumber)}>
+				</horizon-label>
+				<div class="ivr-option left-border">
+					<horizon-select
+						id="label-ivr"
+						label="IVR Option Selected"
+						display-field="value"
+						.items="${this.ivrOption.possibleValues}"
+						.value="${this.ivrOption.possibleValues[0].value}"
+						tabindex="${getTabIndex(this.ivrOption)}"
+						?hidden=${isHidden(this.ivrOption)}>
+					</horizon-select>
+				</div>
+				<div class="left-border">
+					<horizon-label
+						class="call-label"
+						label="Incoming Number"
+						value="${this.incomingTelephoneNumber.value}"
+						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+						?hidden=${isHidden(this.incomingTelephoneNumber)}>
+					</horizon-label>
+				<div>
+			</div>`;
 	}
 
 	renderSearchClientDetails() {
 		return html`
 		<capitec-content-box class="search-box">
-			<div class="search-client">
-				<capitec-label class="search-label" label="Search existing client"></capitec-label>
-			</div>
-			
-			<div class="id-methods">
-				<capitec-select	id="identificationMethods"
-								error="${this.errMessage.identificationMethods}" 
-								label="Choose identification method" 
-								class="id-options"
-								.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
-								@value-changed="${(e) => this._valueChanged(e)}"
-								tabindex="${getTabIndex(this.identificationMethods)}"
-								?hidden=${isHidden(this.identificationMethods)}
-								display-field="displayText">
-				</capitec-select>
-			</div>
-			
-			<div class="search-field">
-				<capitec-text-field id="searchFieldText" 
-									type="search"
-									keyboardMode ="numeric" 
-									label="Search" 
-									error="${this.errMessage.searchFieldText}" 
-									focussed="true" 
-									hint="" 
-									@key-input="${(e) => this._onKeyPress(e)}"
-									@value-changed="${(e) => this._valueChanged(e)}" 
-									value="">
-				</capitec-text-field>
-			</div>
-			
-		</capitec-content-box>
-		`;
+			<capitec-label class="search-label" label="Search existing client"></capitec-label>
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+				<div class="search-field-row">
+					<capitec-select	id="identificationMethods"
+									error="${this.errMessage.identificationMethods}" 
+									label="Choose identification method" 
+									class="id-options"
+									.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
+									@value-changed="${(e) => this._valueChanged(e)}"
+									tabindex="${getTabIndex(this.identificationMethods)}"
+									?hidden=${isHidden(this.identificationMethods)}
+									display-field="displayText">
+					</capitec-select>
+				</div>
+				<div class="search-field-row">
+					<capitec-text-field id="searchFieldText" 
+										type="search"
+										keyboardMode ="numeric" 
+										label="Search" 
+										error="${this.errMessage.searchFieldText}" 
+										focussed="true" 
+										hint="" 
+										@key-input="${(e) => this._onKeyPress(e)}"
+										@value-changed="${(e) => this._valueChanged(e)}" 
+										value="">
+					</capitec-text-field>
+				</div>
+			</capitec-group>
+		</capitec-content-box>`;
 	}
 
 	renderFooter() {
 		return html`
-		<capitec-action-bar class="footer-bar" slot="footer">
-			<capitec-spacer></capitec-spacer>
-			<capitec-button type="clear" 
-							label="End Call Session"
-							@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}" >
-			</capitec-button>
-			<capitec-button type="primary"
-							@click="${(e) => this._onSearchClick(e)}"
-							label="Search Client">
-			</capitec-button>
-		</capitec-action-bar>
-		`;
+			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+				<capitec-button type="clear"
+								label="End Call Session"
+								@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}">
+				</capitec-button>
+				<capitec-button type="primary"
+								@click="${(e) => this._onSearchClick(e)}"
+								label="Search Client">
+				</capitec-button>
+			</capitec-group>`;
 	}
 
 	renderEndCallModal() {
