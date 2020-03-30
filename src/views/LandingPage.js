@@ -3,16 +3,13 @@ import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
-import '../../components/LandingPageWaitForCall';
-import '../../components/dialogs/ConfirmCallerDetails';
-import '../../components/dialogs/SearchClientDetails';
-import '../../components/EndCallSessionReason';
+import '../components/landingPage/LandingPageWaitForCall';
+import '../components/dialogs/ConfirmCallerDetails';
+import '../components/dialogs/SearchClientDetails';
 
-import '../../views/ClientProfile/StopCardComponent';
-
-import { StopCardService } from '../../services/StopCardService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { StopCardService } from '../services/StopCardService';
+import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { HorizonViewManager } from '../HorizonViewManager';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -88,14 +85,6 @@ export class LandingPage extends View {
 
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
-
-		//TODO: Temporary : Remove when contracts and channel service implementation are aligned
-		if (eventData.IVROptionCode == null) {
-			eventData.IVROptionCode = 'StopCard';
-		}
-		if (eventData.IncidentReferenceNumber == null) {
-			eventData.IncidentReferenceNumber = '1234567';
-		}
 
 		// Web service calls - must still handle errors
 		try {

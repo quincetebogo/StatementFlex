@@ -19,8 +19,8 @@ import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentServic
 
 
 //TODO: Move these out of the shell
-import { LandingPageWelcome } from './components/LandingPageWelcome';
-import { LandingPageMarketing } from './components/LandingPageMarketing';
+import { LandingPageWelcome } from './components/landingPage/LandingPageWelcome';
+import { LandingPageMarketing } from './components/landingPage/LandingPageMarketing';
 import { HorizonActionBar } from './components/HorizonActionBar';
 
 /**
@@ -125,6 +125,7 @@ export class AppShell extends Shell {
 		let registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
 		console.log("registrationUrl: ", registrationUrl);
 		DesktopAgentService.setRegistrationUrl(registrationUrl);
+		DesktopAgentService.getValidationData();
 		DesktopAgentService.getInstance();
 
 		console.log(`Appshell: ConnectedCallback`);
