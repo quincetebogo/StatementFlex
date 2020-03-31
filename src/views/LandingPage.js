@@ -187,7 +187,7 @@ export class LandingPage extends View {
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
 					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
-					@call-ended-confirm="${() => this.onCallEnded()}">
+					@call-ended="${(data) => this.onCallEnded(data)}">
 				</horizon-confirm-caller>`;
 		}
 	}

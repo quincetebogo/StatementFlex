@@ -76,3 +76,17 @@ export function validate(field, criteria) {
 		return 0;
 	}
 }
+
+export function getValue(fieldInfo) {
+	if (fieldInfo === undefined) {
+		console.log("fieldInfo in getValue is undefined");
+		return '';
+	}
+
+	if (fieldInfo.hasOwnProperty('value')) {
+		return fieldInfo.value;
+	}
+
+	console.log("fieldInfo in getValue does not have a value property");
+	return '';
+}

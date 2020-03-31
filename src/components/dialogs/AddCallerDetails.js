@@ -1,14 +1,14 @@
 import { Component, html, css } from 'platform/elements';
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
-import { Router } from 'platform/Router';
-import StopcardHelper from '../../helpers/StopCardHelper';
-import { StopCardService } from '../../services/StopCardService'
+import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
 
 import '../EndCallSessionReason';
 import './ConfirmCallerDetails';
 import 'platform/components/popups/Modal';
 
-import { EventAggregator } from 'platform/EventAggregator';
+const RENDER_MODE = {
+	ADD_CALLER: 0,
+	END_CALL: 1,
+};
 
 export class AddCallerDetailsComponent extends Component {
 
@@ -21,24 +21,9 @@ export class AddCallerDetailsComponent extends Component {
 		super();
 
 		this.confirmedCaller = null;
-		this.callerDetails = null;
-		this.addCallerDetailsResponse = null;
-		this.showEndCallModal = false;
-
-		this.eventAggregator = EventAggregator.getInstance();
-		this.router = Router.getInstance();
-
+		this.addCallerDialog = null;
 		this.isBusy = false;
-
-		this.errorMessage = {
-			errName: "",
-			errSurname: ""
-		};
-
-		this.userDetails = {
-			Name: "",
-			Surname: ""
-		};
+		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
 	// ----------
@@ -47,12 +32,10 @@ export class AddCallerDetailsComponent extends Component {
 
 	static get properties() {
 		return {
-			errorMessage: { type: Object },
 			confirmedCaller: { type: Object },
-			callerDetails: { type: Object },
+			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
-			showEndCallModal: { type: Boolean },
-			userDetails: { type: Object }
+			renderMode: { type: Number }
 		}
 	}
 
@@ -64,17 +47,25 @@ export class AddCallerDetailsComponent extends Component {
 		super.connectedCallback();
 
 		// Short hand references for reaching into the incoming data model
-		this.voiceReferenceNumber = this.callerDetails.voiceReferenceNumber;
-		this.ivrOption = this.callerDetails.ivrOption;
-		this.incomingTelephoneNumber = this.callerDetails.incomingTelephoneNumber;
-		this.endCallSessionButton = this.callerDetails.endCallSessionButton;
-		this.firstNameTextField = this.callerDetails.nonClientInformation.firstNameTextField;
-		this.nonClientRelationship = this.callerDetails.nonClientInformation.nonClientRelationship;
+		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
+		this.ivrOption = this.confirmedCaller.ivrOption;
+		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+		//Fields to be rendered
+		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
+		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
+		this.surnameTextField = this.nonClientInformation.surnameTextField;
+		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
+		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
+		//Buttons on footer to be rendered
+		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
+		this.confirmButton = this.addCallerDialog.confirmButton;
+		this.backButton = this.addCallerDialog.backButton;
 
+		this.renderMode = RENDER_MODE.ADD_CALLER;
 
 		// Continue to add field short cuts here.
-
-
 	}
 
 	// --------------
@@ -83,95 +74,50 @@ export class AddCallerDetailsComponent extends Component {
 
 	_onKeyPress(e) {
 		if (e.detail.new != "") {
-			this.errorMessage[`err${e.currentTarget.id}`] = "";
+			this[e.currentTarget.id].errorMessage = "";
 		}
 		this.requestUpdate();
 	}
 
 	_valueChanged(e) {
 		if (typeof e.detail.new == "object") {
-			this.userDetails[e.currentTarget.id] = e.detail.new.text;
+			this[e.currentTarget.id].value = e.detail.new.value;
 		}
 		else {
-			this.userDetails[e.currentTarget.id] = e.detail.new;
+			this[e.currentTarget.id].value = e.detail.new;
 		}
 	}
 
-	onConfirmClick(e) {
-		if (this.validateData()) {
+	addCallerDetails() {
 
-			let confirmedCaller = {
-				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.voiceReferenceNumber.value,
-				ivrOption: this.ivrOption.value,
-				incidentReferenceNumber: this.incidentReferenceNumber,
-				agentTelephoneNumber: this.agentTelephoneNumber,
-				nonClientFullName: this.userDetails.Name + '' + this.userDetails.Surname, // TODO: Must be populated with the caller details added by this dialog
-				nonClientCellPhone: '',// TODO: Must be populated with the caller details added by this dialog
-				nonClientIDNumber: '',// TODO: Must be populated with the caller details added by this dialog
-				nonClientRelationship: ''// TODO: Must be populated with the caller details added by this dialog
-			}
+		if (this.validateData()) {
+			this.dispatchEvent(new CustomEvent('caller-added', {
+				detail: {
+					nonClientCallerInfo: this.nonClientInformation
+				}
+			}));
 
 			this.raiseBackEvent(confirmedCaller);
 		}
-	}
-
-	validateData() {
-
-		this.errorMessage.errName = this.userDetails.Name == "" ? "Required Field" : "";
-		this.errorMessage.errSurname = this.userDetails.Surname == "" ? "Required Field" : "";
-
-		this.requestUpdate();
-		if (this.userDetails.Name != "" && this.userDetails.Surname != "") {
-			return true;
+		else {
+			this.requestUpdate();
 		}
-		return this.userDetails.Name;
 	}
 
-	/*
-	this.isBusy = true;
-
-	let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(confirmedCaller);
-
-	identifyCallerPromise.then((response) => {
-
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
-		this.isBusy = false;
-	}, (error) => {
-
-		console.log('Error in fetching Client Info.');
-		this.isBusy = false;
-	});
-	this.requestUpdate();
-	*/
-
-
-	raiseBackEvent(confirmedCaller123) {
+	raiseBackEvent() {
 		//TODO: Populate event with data to return to the confirm dialog.
 		// it will then return to the landing page
 		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
-		this.dispatchEvent(new CustomEvent('on-back', {
-			detail: {
-				confirmedCaller: confirmedCaller123
-			}
-		}));
+		this.dispatchEvent(new CustomEvent('on-back', {}));
 	};
 
 	onCallCancelled(reason) {
-		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-			livesIn: this.livesIn.value,
-			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
-		}
-
-		//this.router.navigateByPath(`/landingpage`);
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+		this.dispatchEvent(new CustomEvent('call-ended', {
+			detail: {
+				confirmedCaller: {},
+				endCallReason: reason.detail.endCallReason
+			}
+		}));
 	}
 
 	// ---------------
@@ -186,6 +132,26 @@ export class AddCallerDetailsComponent extends Component {
 
 	// n/a
 
+	validateData() {
+		let fieldsHasError = false;
+		for (let key in this.nonClientInformation) {
+			let field = this.nonClientInformation[key];
+			//When the field is required and it doesn't have any value - assigning error message
+			if (field.required && !field.value && key != "cellPhoneTextField") {
+				this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
+				fieldsHasError = true;
+			}
+		}
+		return !fieldsHasError;
+	}
+
+	/**
+	 * Temproary method to return error message
+	 */
+	getErrorMessage(field) {
+		return field && field.errorMessage ? field.errorMessage : '';
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -194,233 +160,206 @@ export class AddCallerDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
-
-			.grid-container{
-				grid-row-gap: 0px;
-				grid-column-gap: 0px;
-				width:678px;
-				margin:0px;
-				padding:0px;
-			}
-
-			.populatedText{
-				padding: 8px;
-				height: 64px;
-				width: 678px;
-				border-bottom: 1px solid #dfdfdf;
-			}
-
-			.horizon-call{
-				display: flex;
-				flex-direction: row;
-				margin: 0px;
-			}
-
-			.ref-call{
-				text-align:left;
-				padding-left: 24px;
-				padding-top: 8px;
-				padding-bottom: 8px;
-				width:232px;
-				height:64px;
-				border: 0px;
-				margin: 0px;
-			}
-
-			.footer-bar{
-				width: 678px;
-				height: 64px;
-				margin: 0px;
-				padding: 0px;
-				border-top: : 1px solid #dfdfdf;
-			}
-
-			#label-value{
-				color: #003652;
-				font-family: "Hind Vadodara";
-				font-size: 20px;
-				font-weight: 600;
-				line-height: 30px;
-			}
-
-			.ivr-option{
-				width: 223px;
-				height: 64px; 
-				text-align:left;
-				border: 0px;
-				padding: 8px;
-				border-left: 1px solid #dfdfdf;
-				border-right: 0px;
-				border-top: 0px;
-				border-bottom: 0px;
-				margin: 0px;
-			}
-
-			.incoming-call{
-				width:232px;
-				height:64px;
-				text-align:left;
-				padding-left: 24px;
-				padding-top: 8px;
-				padding-bottom: 8px;
-				border-left: 1px solid #dfdfdf;
-				border-right: 0px;
-				border-top: 0px;
-				border-bottom: 0px;
-				margin: 0px;
-			}
-
-			.contentBox{
-				width:98%;
-				height:311px;
-			}
-
+				.main{
+					width: 690px;
+					height: 403px;
+					border-bottom: 1px solid #E1E1E1;
+					border-radius: 4px;
+				}
+				.call-details-bar{
+					display: flex;
+					flex-direction: row;
+					height:64px;
+					margin: 0px;
+					border-bottom: 1px solid #dfdfdf;
+				}
+				.call-label{
+					width:208px;
+					margin-left:24px;
+					margin-top:8px;
+					margin-bottom:8px;
+				}
+				.ivr-option{
+					width: 228px;
+				}
+				.left-border{
+					border-left: 1px solid #dfdfdf;
+				}
+				#label-ivr{
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					line-height: 27px;
+					width: 180px;
+					margin-top: 8px;
+					margin-left: 24px;
+				}
+				.addCaller-box{
+					height: 311px;
+					padding: 23px 24px 0px 24px;
+				}
+				.group-field-row{
+					height: 72px;
+				}
+				#id-back-button{
+					margin-right: 288px;
+				}
+				#id-confirm-button{
+					margin-right: 12px;
+				}
 			`];
-
 	}
 
 	render() {
-		if (this.showEndCallModal) {
-			return html
-				`<end-call-session 
-					@on-cancel="${() => this.showEndCallModal = false}"
-					@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
-				</end-call-session>`;
+		switch (this.renderMode) {
+			case RENDER_MODE.ADD_CALLER:
+				return html`
+						${this.renderLoadingIndicator()}
+						<capitec-modal type="free" header="Add Caller Details" header-align="left" >
+							<div slot="body" class="main">
+								${this.renderCallInformation()}
+								${this.renderAddCallerDetails()}
+							</div>
+							<div slot="footer">
+								${this.renderFooter()}
+							</div>
+						</capitec-modal>`;
+			case RENDER_MODE.END_CALL:
+				return html`${this.renderEndCallModal()}`;
 		}
-
-		return html`
-		${this.renderLoadingIndicator()}
-				<capitec-modal type="free" header="Add Caller Details" header-align="left" >
-					<div slot="body">
-						${this.renderCallInformation()}
-						${this.renderAddCallerDetails()}
-					</div>
-					${this.renderFooter()}
-				</capitec-modal>
-				
-		`;
 	}
 
 	renderLoadingIndicator() {
-
-		if (!this.isBusy) {
+		if (!this.isBusy)
 			return html``;
-		}
 		else
-			return html`
-				<capitec-loading-indicator></capitec-loading-indicator>
-		`;
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderCallInformation() {
 		return html`
-			<capitec-group layout="grid" class="grid-container"> 
-				<capitec-action-bar class="populatedText">
-					<div class="horizon-call"> 
-						<div class="ref-call">
-							<capitec-label label="Reference Number"></capitec-label>
-							<capitec-label id="label-value"
-										label="${this.voiceReferenceNumber.value}"
-										tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-										?hidden=${isHidden(this.voiceReferenceNumber)}>
-							</capitec-label>
-						</div>
-						<div class="ivr-option">
-							<capitec-select id="label-value"
-										label="IVR Option Selected"
-										display-field="value"
-										.value="${this.ivrOption.possibleValues[0]}"
-										.items="${this.ivrOption.possibleValues}"
-										tabindex="${getTabIndex(this.ivrOption)}"
-										?hidden=${isHidden(this.ivrOption)}>
-							</capitec-select>
-						</div>
-						<div class="incoming-call">
-							<capitec-label label="Incoming Number"></capitec-label>
-							<capitec-label id="label-value" 
-										label="${this.incomingTelephoneNumber.value}"
-										tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-										?hidden=${isHidden(this.incomingTelephoneNumber)}>
-							</capitec-label>
-						</div>
-					</div>
-				</capitec-action-bar>
-			</capitec-group>
-		`;
+			<div class="call-details-bar">
+				<horizon-label 
+					class="call-label"
+					label="Reference Number" 
+					value = "${this.voiceReferenceNumber.value}"
+					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+					?hidden=${isHidden(this.voiceReferenceNumber)}>
+				</horizon-label>
+				<div class="ivr-option left-border">
+					<horizon-select
+						id="label-ivr"
+						label="IVR Option Selected"
+						display-field="value"
+						.items="${this.ivrOption.possibleValues}"
+						.value="${this.ivrOption.possibleValues[0].value}"
+						tabindex="${getTabIndex(this.ivrOption)}"
+						?hidden=${isHidden(this.ivrOption)}>
+					</horizon-select>
+				</div>
+				<div class="left-border">
+					<horizon-label
+						class="call-label"
+						label="Incoming Number"
+						value="${this.incomingTelephoneNumber.value}"
+						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+						?hidden=${isHidden(this.incomingTelephoneNumber)}>
+					</horizon-label>
+				<div>
+			</div>`;
 	}
 
 	renderAddCallerDetails() {
 		return html`
-		<capitec-content-box class="contentBox">
-			<div>
-				<capitec-text-field label="Name" id="Name" 
-									error="${this.errorMessage.errName}" 
-									?hidden=${isHidden(this.nonClientInformation.firstNameTextField)}
-									.disabled="${isDisabled(this.nonClientInformation.firstNameTextField)}"
-									tabindex="${getTabIndex(this.nonClientInformation.firstNameTextField)}"
-									@value-changed="${(e) => this._valueChanged(e)}" 
-									@key-input="${(e) => this._onKeyPress(e)}">
-				</capitec-text-field>
-			</div>
-			<div>
-				<capitec-text-field label="Surname" id="Surname" 
-									?hidden=${isHidden(this.nonClientInformation.surnameTextField)}
-									.disabled="${isDisabled(this.nonClientInformation.surnameTextField)}"
-									tabindex="${getTabIndex(this.nonClientInformation.surnameTextField)}"
-									error="${this.errorMessage.errSurname}" 
-									@value-changed="${(e) => this._valueChanged(e)}" 
-									@key-input="${(e) => this._onKeyPress(e)}">
-				</capitec-text-field>
-			</div>
-			<div>
-				<capitec-text-field type="number" id="Cellphone" 
-									label="Cellphone Number" 
-									?hidden=${isHidden(this.nonClientInformation.cellPhoneTextField)}
-									.disabled="${isDisabled(this.nonClientInformation.cellPhoneTextField)}"
-									tabindex="${getTabIndex(this.nonClientInformation.cellPhoneTextField)}"
+		<capitec-content-box class="addCaller-box" nopadding>
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+				<div class="group-field-row">
+					<capitec-text-field label="First name"
+										id="firstNameTextField"
+										value="${getValue(this.firstNameTextField)}"
+										error="${this.getErrorMessage(this.firstNameTextField)}"
+										?hidden=${isHidden(this.firstNameTextField)}
+										.disabled="${isDisabled(this.firstNameTextField)}"
+										tabindex="${getTabIndex(this.firstNameTextField)}"
+										@value-changed="${(e) => this._valueChanged(e)}" 
+										@key-input="${(e) => this._onKeyPress(e)}">
+					</capitec-text-field>
+				</div>
+				<div class="group-field-row">
+					<capitec-text-field label="Surname"
+										id="surnameTextField"
+										value="${getValue(this.surnameTextField)}"
+										error="${this.getErrorMessage(this.surnameTextField)}"
+										?hidden=${isHidden(this.surnameTextField)}
+										.disabled="${isDisabled(this.surnameTextField)}"
+										tabindex="${getTabIndex(this.surnameTextField)}"
+										@value-changed="${(e) => this._valueChanged(e)}"
+										@key-input="${(e) => this._onKeyPress(e)}">
+					</capitec-text-field>
+				</div>
+				<div class="group-field-row">
+					<capitec-text-field type="number"
+										id="cellPhoneTextField"
+										value="${getValue(this.cellPhoneTextField)}"
+										label="Cellphone Number (Optional)"
+										?hidden=${isHidden(this.cellPhoneTextField)}
+										.disabled="${isDisabled(this.cellPhoneTextField)}"
+										tabindex="${getTabIndex(this.cellPhoneTextField)}"
+										@value-changed="${(e) => this._valueChanged(e)}">
+					</capitec-text-field><br>
+				</div>
+				<div class="group-field-row">
+					<capitec-select label="Choose relationship type (Optional)"
+									id="nonClientRelationship"
+									value="${getValue(this.nonClientRelationship)}"
+									display-field="value"
+									?hidden=${isHidden(this.nonClientRelationship)}
+									.disabled="${isDisabled(this.nonClientRelationship)}"
+									tabindex="${getTabIndex(this.nonClientRelationship)}"
+									.items="${this.nonClientRelationship.possibleValues}"
 									@value-changed="${(e) => this._valueChanged(e)}">
-				</capitec-text-field><br>
-			</div>
-			<div style="margin:-20px 0px 0px 0px;">
-				<capitec-select id="Relationship" 
-									label="Choose relationship type (Optional)" 
-									?hidden=${isHidden(this.nonClientInformation.nonClientRelationship)}
-									.disabled="${isDisabled(this.nonClientInformation.nonClientRelationship)}"
-									tabindex="${getTabIndex(this.nonClientInformation.nonClientRelationship)}"
-									.items="${this.nonClientRelationship.possibleValues}" 
-									display-field="text" 
-									@value-changed="${(e) => this._valueChanged(e)}">
-				</capitec-select>
-			</div>
-		</capitec-content-box>
-		`;
+					</capitec-select>
+				</div>
+			</capitec-group>
+		</capitec-content-box>`;
 	}
 
 	renderFooter() {
 		return html`
-			<capitec-action-bar slot="footer" class="footer-bar">
-				<capitec-button 
-					id="id-search-client-button" 
-					type="clear" 
-					label="Back"
-					@click="${(e) => this.raiseBackEvent()}">
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-button id="id-back-button"
+								type="clear"
+								label="Back"
+								?hidden=${isHidden(this.backButton)}
+								.disabled="${isDisabled(this.backButton)}"
+								tabindex="${getTabIndex(this.backButton)}"
+								@click="${(e) => this.raiseBackEvent()}">
 				</capitec-button>
-				<capitec-spacer></capitec-spacer>
-				<capitec-button 
-					type="clear"
-					label="End Call Session" 
-					?hidden=${isHidden(this.endCallSessionButton)}
-					.disabled="${isDisabled(this.endCallSessionButton)}"
-					tabindex="${getTabIndex(this.endCallSessionButton)}"
-					@click="${() => this.showEndCallModal = true}">
+				<capitec-sapacer></capitec-sapacer>
+				<capitec-button type="clear"
+								label="End Call Session"
+								?hidden=${isHidden(this.endCallSessionButton)}
+								.disabled="${isDisabled(this.endCallSessionButton)}"
+								tabindex="${getTabIndex(this.endCallSessionButton)}"
+								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>
-				<capitec-button id="id-confirm-button" 
-								type="primary" 
-								label="Confirm" 
-								@click="${(e) => this.onConfirmClick(e)}">
+				<capitec-button id="id-confirm-button"
+								type="primary"
+								label="Confirm"
+								?hidden=${isHidden(this.confirmButton)}
+								.disabled="${isDisabled(this.confirmButton)}"
+								tabindex="${getTabIndex(this.confirmButton)}"
+								@click="${() => this.addCallerDetails()}">
 				</capitec-button>
-			</capitec-action-bar>
-		`;
+			</capitec-group>`;
+	}
+
+	renderEndCallModal() {
+		return html`<end-call-session 
+						@on-cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
+						@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+					</end-call-session>`;
 	}
 }
 

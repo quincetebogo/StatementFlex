@@ -95,6 +95,29 @@ export class ConfirmCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	async _loadAddCallerDialog() {
+		let callDetails = {
+			incomingNumber: this.incomingTelephoneNumber.value,
+			voiceReference: this.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentNo: this.incidentReferenceNumber,
+			agentPhoneNumber: this.agentTelephoneNumber
+		}
+
+		this.isBusy = true;
+		try {
+			this.addCallerDialog = await StopCardService.getInstance().addCallerDetails(callDetails);
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}
+		catch (error) {
+			//TODO: Handle error properly
+			console.log(error);
+		}
+		finally {
+			this.isBusy = false;
+		}
+	}
+
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	onConfirmClick() {
 		let confirmedCaller = {
@@ -229,6 +252,7 @@ export class ConfirmCallerDetails extends Component {
 		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
 
 	}
+
 	onCallerConfirmed(data) {
 		this.horizonViewManager.saveState(data.detail.confirmedCaller);
 		this.displayConfirmedCaller = false;
@@ -239,7 +263,16 @@ export class ConfirmCallerDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	addNonClientCallerDetails(data) {
+		this.nonClientCallerInfo = data.detail.nonClientCallerInfo;
+
+		this.nonClientFullName = this.nonClientCallerInfo.firstNameTextField.value + ' ' + this.nonClientCallerInfo.surnameTextField.value;
+		this.nonClientCellPhone = this.nonClientCallerInfo.cellPhoneTextField.value;
+		this.nonClientIDNumber = "";
+		this.nonClientRelationship = this.nonClientCallerInfo.nonClientRelationship.value;
+
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
 	// ---------
 	// RENDERING
@@ -375,8 +408,7 @@ export class ConfirmCallerDetails extends Component {
 				${this.renderLoadingIndicator()}`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
-				return html`
-				${this.renderAddCallerDetailsModal()}`;
+				return html`${this.renderAddCallerDetailsModal()}`;
 
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
@@ -427,36 +459,11 @@ export class ConfirmCallerDetails extends Component {
 					<img src="../images/info.svg" id="action-icon"/>
 					<p id="action-label" 
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
-						@click="${() => this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS}">
+						@click="${() => this._loadAddCallerDialog()}">
 						Add Caller Details
 					</p> 
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 			</capitec-group>`;
-	}
-
-	async onAddCallerClick() {
-		let callDetails = {
-			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
-			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
-			ivrOption: 'StopCard',
-			incidentNo: this.confirmedCaller.incidentReferenceNumber,
-			agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber
-		}
-
-		this.isBusy = true;
-
-		try {
-			this.callerDetails = await StopCardService.getInstance().addCallerDetails(callDetails);
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-		}
-		catch (error) {
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-			console.log(error);
-			//TODO: Handle error properly
-		}
-		finally {
-			this.isBusy = false;
-		}
 	}
 
 	renderConfirmedCaller() {
@@ -570,29 +577,12 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
-				.callerDetails="${this.callerDetails}"
-				@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
-				@on-back="${(data) => this.onAddCallerConfirm(data)}">
+				.addCallerDialog="${this.addCallerDialog}"
+				@caller-added="${(data) => this.addNonClientCallerDetails(data)}"
+				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@call-ended="${(data) => this.onCallCancelled(data)}">
 			</horizon-add-caller>`;
 	}
-
-	onAddCallerConfirm(data) {
-
-		//this.confirmedCaller = data.detail.confirmedCaller;
-		//this.updateConfirmCaller();
-		this.callerFullName = data.detail.confirmedCaller.nonClientFullName;
-		this.verifiedTelephoneNumber = data.detail.confirmedCaller.nonClientCellPhone;
-		this.southAfricanIDNumber = data.detail.confirmedCaller.nonClientIDNumber;
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-	}
-
-	// updateConfirmCaller() {
-	// 	this.callerFullName = data.detail.confirmedCaller.nonClientFullName;
-	// 	this.verifiedTelephoneNumber = data.detail.confirmedCaller.nonClientCellPhone;
-	// 	this.southAfricanIDNumber = data.detail.confirmedCaller.nonClientIDNumber;
-
-	// 	this.nonClientRelationship = 'Spouse';
-	// }
 
 	renderEndCallModal() {
 		return html`
