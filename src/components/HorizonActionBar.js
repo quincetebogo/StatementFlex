@@ -10,6 +10,10 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = '021 8523086';
 	}
 
+
+	endCallSession() {
+	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -81,10 +85,6 @@ export class HorizonActionBar extends Component {
 				</capitec-button> 
 			</capitec-group>
 		`;
-	}
-
-	endCallSession() {
-		this.eventAggregator.publish('toggle-endcall-session', {});
 	}
 }
 

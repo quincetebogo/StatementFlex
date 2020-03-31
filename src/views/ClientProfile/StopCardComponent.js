@@ -2,7 +2,6 @@ import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
-import { Router } from 'platform/Router';
 
 import 'platform/components';
 
@@ -22,7 +21,6 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
-		this.router = Router.getInstance();
 
 		this.toggleEndCallModal = false;
 		this.cards = null;
@@ -230,20 +228,7 @@ export class StopCardComponent extends Component {
 										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
-				</capitec-table>
-			</capitec-card>
-			${this.renderConfirmedUser()}
-		`;
-	}
-
-	renderConfirmedUser() {
-		if (this.toggleEndCallModal) {
-			return html`<end-call-session
-						@on-cancel="${() => this.onCancelEndCall()}">
-			</end-call-session>`;
-		}
-
-		return html``;
+				</capitec-table>`;
 	}
 
 	renderRowInput(rowData) {
@@ -310,14 +295,6 @@ export class StopCardComponent extends Component {
 						</capitec-button>
 					</div>`;
 		}
-	}
-
-	onCallCancelled() {
-		this.router.navigateByPath(`/landingpage`);
-	}
-
-	onCancelEndCall() {
-		this.toggleEndCallModal = false;
 	}
 
 	renderFooter() {

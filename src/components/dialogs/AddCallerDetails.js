@@ -1,8 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
 
-import '../EndCallSessionReason';
-import './ConfirmCallerDetails';
 import 'platform/components/popups/Modal';
 
 const RENDER_MODE = {
@@ -10,7 +8,7 @@ const RENDER_MODE = {
 	END_CALL: 1,
 };
 
-export class AddCallerDetailsComponent extends Component {
+export class AddCallerDetails extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -96,8 +94,6 @@ export class AddCallerDetailsComponent extends Component {
 					nonClientCallerInfo: this.nonClientInformation
 				}
 			}));
-
-			this.raiseBackEvent(confirmedCaller);
 		}
 		else {
 			this.requestUpdate();
@@ -363,4 +359,4 @@ export class AddCallerDetailsComponent extends Component {
 	}
 }
 
-window.customElements.define(`horizon-add-caller`, AddCallerDetailsComponent);
+window.customElements.define(`horizon-add-caller`, AddCallerDetails);

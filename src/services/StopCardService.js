@@ -77,23 +77,15 @@ export class StopCardService {
 		});
 	}
 
-	async addCaller(callerData) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
+	async addCallerDetails(callerData) {
+		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
 			'ivrOptionCode': callerData.ivrOption,
 			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.callerFullName,
-			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
-			'nonClientIDNumber': callerData.southAfricanIDNumber,
-			'nonClientRelationship': callerData.relationship
+			'agentTelephoneNumber': callerData.agentPhoneNumber
 		});
 	}
-
 
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
@@ -116,14 +108,5 @@ export class StopCardService {
 
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
-	}
-	async addCallerDetails(callerData) {
-		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
-			'incomingTelephoneNumber': callerData.incomingNumber,
-			'voiceReferenceNumber': callerData.voiceReference,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber
-		});
 	}
 }

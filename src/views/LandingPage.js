@@ -26,7 +26,6 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
-		//this.eventAggregator.subscribe(`call-end`, () => this.onCallEnded());
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 		this.stopCardService = StopCardService.getInstance();

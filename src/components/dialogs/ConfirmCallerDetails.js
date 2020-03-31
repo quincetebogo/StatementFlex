@@ -14,8 +14,6 @@ import '../EndCallSessionReason';
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
 import './SearchClientDetails';
-import { HorizonViewManager } from '../../HorizonViewManager';
-import { Router } from 'platform/Router';
 
 import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
@@ -43,9 +41,6 @@ export class ConfirmCallerDetails extends Component {
 		this.callerDetails = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this.isBusy = false;
-
-		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.router = Router.getInstance();
 	}
 
 	// ----------
@@ -251,12 +246,6 @@ export class ConfirmCallerDetails extends Component {
 
 		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
 
-	}
-
-	onCallerConfirmed(data) {
-		this.horizonViewManager.saveState(data.detail.confirmedCaller);
-		this.displayConfirmedCaller = false;
-		this.router.navigateByPath(`/client/profile`);
 	}
 
 	// ---------------
@@ -578,9 +567,9 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
 				.addCallerDialog="${this.addCallerDialog}"
-				@caller-added="${(data) => this.addNonClientCallerDetails(data)}"
 				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				@call-ended="${(data) => this.onCallCancelled(data)}">
+				@call-ended="${(data) => this.onCallCancelled(data)}"
+				@caller-added="${(data) => this.addNonClientCallerDetails(data)}">
 			</horizon-add-caller>`;
 	}
 
@@ -588,8 +577,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}"
-				@call-ended="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 
