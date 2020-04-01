@@ -149,7 +149,8 @@ export class StopCard extends Component {
 	handleChange() {
 		console.log('rendering stop card screen');
 		return html`
-		<horizon-stop-card-success ></horizon-stop-card-success>
+		<!-- <horizon-stop-card-success ></horizon-stop-card-success> -->
+		<horizon-summary-success></horizon-summary-success>
 		`;
 	}
 
