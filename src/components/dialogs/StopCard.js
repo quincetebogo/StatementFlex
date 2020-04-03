@@ -7,6 +7,7 @@ import { StopCardService } from '../../services/StopCardService';
 import '../dialogs/CardStopSummary/CardStopSummarySuccess';
 import StopCardHelper from '../../helpers/StopCardHelper';
 import '../../views/ClientProfile/StopCardSuccess';
+import '../../../mocks/IdentifyCallerResponseMock';
 
 const OFFERED = {
 	CARDTYPE: 'cardType',

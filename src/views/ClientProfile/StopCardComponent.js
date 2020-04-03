@@ -115,6 +115,7 @@ export class StopCardComponent extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+		console.log(event, rowData);
 	}
 
 	_onClickReason() {
@@ -313,14 +314,17 @@ export class StopCardComponent extends Component {
 	}
 
 	//for testing 
-	renderStopCardConfirmed() {
+	renderStopCardConfirmed(rowData) {
 		console.log('rendering from test method');
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card
 					.confirmedStop="${this.confirmedStop}"
-					@confirmed-stop="${(data) => this.onStopCardConfirmed(data)}">
-				</horizon-stop-card>`;
+					@value-changed="${(e) => this._valueChanged(e, rowData)}" 
+					@confirmed-stop="${(data) => { this.onStopCardConfirmed(data); console.log(this.rowData) }}">
+				</horizon-stop-card>
+				`;
+
 		}
 	}
 	renderReasonButtons(rowData) {
@@ -357,7 +361,8 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL }}">
+									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; console.log(this.selectedCardCount.toString(), 'cards') }}">
+									
 					</capitec-button>
 				</button-bar>`;
 		}
