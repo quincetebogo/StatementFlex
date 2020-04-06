@@ -321,7 +321,7 @@ export class StopCardComponent extends Component {
 				<horizon-stop-card
 					.confirmedStop="${this.confirmedStop}"
 					@value-changed="${(e) => this._valueChanged(e, rowData)}" 
-					@confirmed-stop="${(data) => { this.onStopCardConfirmed(data); console.log(this.rowData) }}">
+					@confirmed-stop="${(data) => { this.onStopCardConfirmed(data); this._valueChanged(e, rowData) }}">
 				</horizon-stop-card>
 				`;
 

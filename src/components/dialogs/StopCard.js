@@ -24,6 +24,7 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+		this.eventAggregator = EventAggregator.getInstance();
 		// cards = null;
 		// CARD_STOP_MODAL = 0;
 		this.cardNumber = "284 **** **** 1522";
@@ -36,16 +37,28 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
-			// cards: { type: Object },
+			cards: { type: Object },
 			cardStopped: { type: Object },
 			renderMode: { type: Number },
 			cardNumber: { type: String },
 			// cardType: { type: String },
 			reason: { type: String },
-			confirmedCaller: { type: Object }
+			confirmedCaller: { type: Object },
+			toggleSummarySuccessScreen: { type: Boolean }
 		}
 	}
 
+	//
+	//EVENT HANDLERS
+	//
+	onValueChanged(e) {
+		if (e.detail.new) {
+			this.cards = e.detail.selected
+		};
+	}
+	onCardelected() {
+		this.dispatchEvent(new CustomEvent('on-card-stop', { detail: { cards: this.cards } }));
+	}
 	static get styles() {
 		return [
 			super.styles,
@@ -85,7 +98,10 @@ export class StopCard extends Component {
 		return html`
 				<div class="stop-card">
 						<p>	Are you sure you want to stop:</p>
-						<p class="card-reason"> <capitec-label type="strong" label="${this.cardType}"></capitec-label>
+						<p class="card-reason"> 
+						<capitec-label type="strong"
+						label="${this.cardType}">
+						</capitec-label>
 							<capitec-label type="strong" label="${this.cardNumber}"></capitec-label></p>
 						<p> Reason: <capitec-label type="strong" label="${this.reason}"></capitec-label></p>
 					</div>
@@ -126,7 +142,7 @@ export class StopCard extends Component {
 					id="id-confirm-button"
 					type="clear"
 					label="Confirm"
-					@click="${() => this.onConfirmClick()}">
+					@click="${(e) => { this.onConfirmClick(); console.log(this.selectedCardCount.toString(), 'card') }}">
 				</capitec-button>
 			</capitec-group>			
 			`;
@@ -138,14 +154,12 @@ export class StopCard extends Component {
 		let cardStopped = {
 			cardNumber: this.cardNumber,
 			cardType: this.cardType,
-			reason: 'Stop Card'
+			reason: this.reason
 		};
 
 		let identifyStopCardPromise =
 			this.dispatchEvent(new CustomEvent('confirmed-stop', this.handleChange));
 
-		console.log(cardStopped);
-		console.log(identifyStopCardPromise);
 	}
 	handleChange() {
 		console.log('rendering stop card screen');
