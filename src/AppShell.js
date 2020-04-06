@@ -147,6 +147,7 @@ export class AppShell extends Shell {
 
 		this.isBusy = false;
 		this.roles = this.securityContext.roles != null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : 'n/a';
+		console.log(this.roles);
 		this.platformVersion = await this.executionContext.platformVersion;
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
@@ -413,10 +414,7 @@ export class AppShell extends Shell {
 	}
 
 	renderleftUI() {
-		console.log('renderleftUI(currentView)', this.currentView);
-
 		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			console.log("will now render left welcome");
 			return html`
 				<landingpage-welcome 
 					.fullname="${this.fullName}">
