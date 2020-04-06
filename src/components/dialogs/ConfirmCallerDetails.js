@@ -297,6 +297,17 @@ export class ConfirmCallerDetails extends Component {
 					margin-top:27px;
 				}
 
+				.fullname{
+					height: 30px;
+					width: 123px;
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 20px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 30px;					
+				}
+
 				.line{
 					width:100%;
 					margin-top:30px;
