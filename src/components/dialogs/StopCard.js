@@ -3,6 +3,17 @@ import 'platform/elements';
 
 export class StopCard extends Component {
 
+	constructor() {
+		super();
+
+		this.cardsToStop = {};
+	}
+
+	static get properties() {
+		return {
+			cardsToStop: { type: Object }
+		}
+	}
 
 	static get styles() {
 		return [

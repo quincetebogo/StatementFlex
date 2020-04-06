@@ -34,7 +34,7 @@ export class StopCardComponent extends Component {
 		this.selectedCardCount = 0;
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-		this.rowData = {};
+		this.cardsToStop = {};
 	}
 
 	// ----------
@@ -114,6 +114,11 @@ export class StopCardComponent extends Component {
 		/**
 		 * Stop reason selection functionality comes here
 		 */
+	}
+
+	_onStopCards() {
+		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		this.cardsToStop = this.cards.filter(card => card.selected);
 	}
 
 	// --------------
@@ -313,7 +318,7 @@ export class StopCardComponent extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			console.log("Stop card button clicked");
 			return html`
-				<horizon-stop-card></horizon-stop-card>
+				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
 			`;
 		}
 
@@ -328,7 +333,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; this.rowData = e; }}">
+									@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}
