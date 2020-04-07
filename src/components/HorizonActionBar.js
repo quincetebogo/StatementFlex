@@ -1,10 +1,13 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import 'platform/components/layouts/Group'
 
 export class HorizonActionBar extends Component {
 	constructor() {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.referenceNo = '123456';
+		this.phoneNumber = '021 8523086';
 	}
 
 
@@ -15,24 +18,42 @@ export class HorizonActionBar extends Component {
 		return [
 			super.styles,
 			css`
-				/* TODO: Move styles into new component for action bar where necessary */
-				capitec-action-bar{
-					border-top: ridge;
-					border-bottom: ridge;
+				capitec-group {
+					border-top: none;
+					border-bottom: 1px solid #dfdfdf;
+					height:56px;
+					background:white;
 				}
-				capitec-action-bar > capitec-label {
-					margin: 15px 10px 0px 10px;
+
+				capitec-group > capitec-label {
 					color: #003652;
 					font: bold 18px/35px Hind Vadodara;
+					line-height:56px;
 				}
-				capitec-action-bar > capitec-icon {
-					margin: 23px 8px 0px 10px;
+
+				.vertical-line{
+					margin-left:24px;
+					margin-right:24px;
+					border-left: 1px solid #dfdfdf;
+					margin-top: 12px;
+					height: 32px;
 				}
-				capitec-action-bar > div {
-					border-left: groove;
+
+				#id-reference-label{
+					margin-left:24px;
 				}
-				capitec-group{
-					padding: 0px 0px 0px 20px;
+
+				#id-phone-icon{
+					margin-top:16px;;
+				}
+
+				#id-phone-number-label{
+				}
+
+				#id-end-call-button{
+					margin-top:2px;
+					margin-left:auto;
+					margin-right:24px;
 				}
 			`
 		];
@@ -40,16 +61,29 @@ export class HorizonActionBar extends Component {
 
 	render() {
 		return html`
-		<div class="additional-bar">
-			<capitec-action-bar row="1" colspan="3">
-				<capitec-label type="title" label="Reference Number: 5678532"></capitec-label>
-				<div></div>
-				<capitec-icon size="small" icon="system/phone-escalation"></capitec-icon>
-				<capitec-label type="title" label="082 555 9090"></capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-button label="End Call Session" type="primary" @click="${() => this.endCallSession()}"></capitec-button>
-			</capitec-action-bar>
-		</div>
+			<capitec-group layout="horizontal">
+				<capitec-label 
+					id="id-reference-label"
+					type="title" 
+					label="Reference Number: ${this.referenceNo}">
+				</capitec-label>
+				<div class="vertical-line"></div>
+				<img 
+					id="id-phone-icon"
+					src="../images/phonedown.svg"
+				/> 
+				<capitec-label
+					id="id-phone-number-label" 
+					type="title" 
+					label="${this.phoneNumber}">
+				</capitec-label>
+				<capitec-button 
+					id="id-end-call-button"
+					label="End Call Session" 
+					type="primary" 
+					@click="${() => this.endCallSession()}">
+				</capitec-button> 
+			</capitec-group>
 		`;
 	}
 }

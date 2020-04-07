@@ -124,6 +124,11 @@ export class LandingPage extends View {
 		}
 	}
 
+	identifiedClient(data) {
+		this.confirmedCaller = data.detail.identifiedClient;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
 	onCallerConfirmed(data) {
 		this.horizonViewManager.saveState(data.detail);
 		this.renderMode = -1;
@@ -190,10 +195,14 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
-					.unverifiedCaller="${this.isUnverifiedCaller}">
+					.unverifiedCaller="${this.isUnverifiedCaller}"
+					@on-client-identified="${(data) => this.identifiedClient(data)}"
+					@call-ended="${(data) => this.onCallEnded(data)}">
 				</horizon-search-client>`;
 		}
+
 	}
+
 }
 
 customElements.define(`landing-page`, LandingPage);

@@ -68,11 +68,11 @@ export class StopCardService {
 
 	async searchCaller(clientInfo) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`, {
-			"incomingTelephoneNumber": clientInfo.incomingNumber,
-			"voiceReferenceNumber": clientInfo.voiceReference,
-			"ivrOptionCode": clientInfo.ivrOptionSelected,
+			"incomingTelephoneNumber": clientInfo.incomingTelephoneNumber,
+			"voiceReferenceNumber": clientInfo.voiceReferenceNumber,
+			"ivrOptionCode": clientInfo.ivrOption,
 			"incidentReferenceNumber": clientInfo.incidentNo,
-			"agentTelephoneNumber": clientInfo.agentPhoneNumber,
+			"agentTelephoneNumber": clientInfo.agentTelephoneNumber,
 			"identificationMethod": parseInt(clientInfo.identificationMethod),
 			"value": clientInfo.searchValue
 		});
