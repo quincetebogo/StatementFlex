@@ -125,7 +125,7 @@ export class LandingPage extends View {
 	}
 
 	onCallerConfirmed(data) {
-		this.horizonViewManager.saveState(data.detail.confirmedCaller);
+		this.horizonViewManager.saveState(data.detail);
 		this.renderMode = -1;
 		this.router.navigateByPath(`/client/profile`);
 	}

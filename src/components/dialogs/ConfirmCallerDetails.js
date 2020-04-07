@@ -17,7 +17,6 @@ import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
-import StopCardHelper from '../../helpers/StopCardHelper';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -89,20 +88,18 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
-	onConfirmClick() {
+	async onConfirmClick() {
 		let confirmedCaller = {
+			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: 'StopCard',
+			ivrOptionCode: 'StopCard',
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
-			callerFullName: this.callerFullName.value,
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
-			livesIn: this.livesIn.value,
-			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value,
-			relationship: ''
+			nonClientFullName: 'John Doe',
+			nonClientCellPhone: '0214563987',
+			nonClientIDNumber: '8102030489086',
+			nonClientRelationship: 'Other'
 			/*
 				TODO: should added Caller Details go here?
 
@@ -110,16 +107,32 @@ export class ConfirmCallerDetails extends Component {
 			*/
 		}
 
-		let identifyCallerPromise = StopCardHelper.getInstance().identifyCaller(confirmedCaller);
+		try {
+			this.isBusy = true;
 
-		identifyCallerPromise.then((response) => {
+			let clientProfileDetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
 
-			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
-		}, (error) => {
-
+			//Object.assign(this.confirmedCaller, clientProfileDetails);
+			this.dispatchEvent(new CustomEvent('confirmed-caller', {
+				detail: {
+					incomingCallDetails: {
+						voiceReferenceNumber: this.voiceReferenceNumber.value,
+						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+						ivrOptionCode: 'StopCard',
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						agentTelephoneNumber: this.agentTelephoneNumber
+					},
+					clientProfileDetails: clientProfileDetails
+				}
+			}));
+		}
+		catch (error) {
 			console.log('Error in fetching Client Info.');
 			console.log(error);
-		});
+		}
+		finally {
+			this.isBusy = false;
+		}
 	}
 
 	onCallCancelled(reason) {
