@@ -122,24 +122,34 @@ export class ConfirmCallerDetails extends Component {
 		});
 	}
 
-	onCallCancelled(reason) {
-		let confirmedCaller = {
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOption: this.ivrOption.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			callerFullName: this.callerFullName.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-			livesIn: this.livesIn.value,
-			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value
-		}
+	onCallCancelled(event) {
+		if (event.detail.unverifiedCaller === undefined) {
+			// We got here by ending the call from this dialog.
+			// we return the the caller with the information from this dialog and the end call reason
+			let confirmedCaller = {
+				voiceReferenceNumber: this.voiceReferenceNumber.value,
+				ivrOption: this.ivrOption.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+				callerFullName: this.callerFullName.value,
+				southAfricanIDNumber: this.southAfricanIDNumber.value,
+				verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+				livesIn: this.livesIn.value,
+				languagePreference: this.languagePreference.value,
+				birthdate: this.birthdate.value
+			}
 
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: reason.detail.endCallReason } }));
+			this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: event.detail.endCallReason } }));
+		}
+		else {
+			// We are bubbling back to the caller from the Search for Unverified Client dialog
+			// Should we return the Confirmed Caller? (they are not really confirmed)
+			// Should we return whatever we had on the Search dialog
+			// This will depend on what we need to record when recording the end of the call
+			this.dispatchEvent(new CustomEvent('call-ended', event));
+		}
 	}
 
 	onSearchClick() {
-
 		let callerDetails = {
 			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
 			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
@@ -158,6 +168,25 @@ export class ConfirmCallerDetails extends Component {
 			console.log("Error in fething search options.");
 			this.isBusy = false;
 		});
+	}
+
+	identifiedClient(data) {
+
+		//Updating the identified caller info into local variables
+		this.updateCallerInfo(data)
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
+	updateCallerInfo(data) {
+		this.callerInformation = data.detail.identifiedClient.callerInformation;
+		this.callerFullName = this.callerInformation.name;
+		this.southAfricanIDNumber = this.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.callerInformation.livesIn;
+		this.languagePreference = this.callerInformation.languagePreference;
+		this.birthdate = this.callerInformation.birthdate;
+		this.incidentReferenceNumber = data.detail.identifiedClient.incidentReferenceNumber;
+		this.agentTelephoneNumber = data.detail.identifiedClient.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -350,8 +379,7 @@ export class ConfirmCallerDetails extends Component {
 				return html`${this.renderEndCallModal()}`;
 
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`
-				${this.renderSearchCallerModal()}`;
+				return html`${this.renderSearchCallerModal()}`;
 		}
 	}
 
@@ -528,7 +556,9 @@ export class ConfirmCallerDetails extends Component {
 	renderSearchCallerModal() {
 		return html`
 			<horizon-search-client
-				.unverifiedCaller="${this.confirmedCaller}">
+				.unverifiedCaller="${this.confirmedCaller}"
+				@on-client-identified="${(data) => this.identifiedClient(data)}"
+				@call-ended="${(data) => this.onCallCancelled(data)}">
 			</horizon-search-client>`;
 	}
 }
