@@ -24,6 +24,7 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+		this.cardsToStop = {};
 		this.eventAggregator = EventAggregator.getInstance();
 		// cards = null;
 		// CARD_STOP_MODAL = 0;
@@ -33,6 +34,27 @@ export class StopCard extends Component {
 		this.cardStopped = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CARD;
 	}
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				.stop-card{
+					height: 160px;
+					width: 396px;
+					padding:0px 0px 0px 0px;
+				 }
+				 .footer{
+					 height: 64px;
+					 width: 468px;
+					 padding:0px 0px 0px 0px;
+					 border-top: solid 1px #dfdfdf;
+				 }
+			`];
+	}
+
+
+
 
 	static get properties() {
 		return {
@@ -44,7 +66,9 @@ export class StopCard extends Component {
 			// cardType: { type: String },
 			reason: { type: String },
 			confirmedCaller: { type: Object },
-			toggleSummarySuccessScreen: { type: Boolean }
+			toggleSummarySuccessScreen: { type: Boolean },
+
+			cardsToStop: { type: Object }
 		}
 	}
 

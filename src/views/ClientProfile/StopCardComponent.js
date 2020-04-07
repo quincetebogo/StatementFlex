@@ -5,6 +5,7 @@ import { HorizonViewManager } from '../../HorizonViewManager';
 import { Router } from 'platform/Router';
 
 import '../../components/EndCallSessionReason';
+import '../../components/dialogs/StopCard';
 
 import 'platform/components';
 import '../../components/dialogs/StopCard';
@@ -42,6 +43,9 @@ export class StopCardComponent extends Component {
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
 		this.rowData = {};
 		this.selectedCardCount = 0;
+
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.cardsToStop = {};
 	}
 
 	// ----------
@@ -53,9 +57,9 @@ export class StopCardComponent extends Component {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
+			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			rowData: { type: Object },
-			selectedCardCount: { type: Number }
+			rowData: { type: Object }
 		}
 	}
 
@@ -123,11 +127,12 @@ export class StopCardComponent extends Component {
 		 * Stop reason selection functionality comes here
 		 */
 	}
-	onStopCardConfirmed() {
-		// this.horizonViewManager.saveState(data.detail.confirmedStop);
-		// this.renderMode = -1;
-		this.router.navigateByPath(`/stop/card`);
+
+	_onStopCards() {
+		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		this.cardsToStop = this.cards.filter(card => card.selected);
 	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -216,6 +221,7 @@ export class StopCardComponent extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this.renderEndCallModal()}
+			${this.renderStopCardModal(this.rowData)}
 		`;
 	}
 
@@ -352,7 +358,17 @@ export class StopCardComponent extends Component {
 		}
 	}
 
+	renderStopCardModal(rowData) {
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+			console.log("Stop card button clicked");
+			return html`
+				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
+			`;
+		}
+
+	}
 	renderFooter() {
+		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">
@@ -361,8 +377,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(e) => { this.renderMode = RENDER_MODE.CARD_STOP_MODAL; console.log(this.selectedCardCount.toString(), 'cards') }}">
-									
+									@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}
