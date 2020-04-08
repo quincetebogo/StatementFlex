@@ -70,49 +70,65 @@ export class StopCard extends Component {
 		return [
 			super.styles,
 			css`
-				.stop-card{
-					height: 160px;
-					width: 396px;
-					padding:0px 0px 0px 0px;
-				 }
-				 .footer{
-					 height: 64px;
-					 width: 468px;
-					 padding:0px 0px 0px 0px;
-					 border-top: solid 1px #dfdfdf;
-				 }
-			`];
-	}
-
-	static get styles() {
-		return [
-			super.styles,
-			css`
+			/*
 			.stop-card{
 				height: 160px;
 				width: 396px;
 				padding:0px 0px 0px 0px;
 			 }
+
 			 .footer{
 				 height: 64px;
 				 width: 468px;
 				 padding:0px 0px 0px 0px;
 				 border-top: solid 1px #dfdfdf;
-			 }		
+			 }
+			 */
+
 			p{
-				text-align:left;
+				color: #4E6066;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				/*font-weight: 600;*/
+				letter-spacing: 0;
+				line-height: 24px;
 			}
+
+			.bold-text{
+				color: #4E6066;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+
+			.left-margin{
+				margin-left:24px;
+			}
+
+			.top-margin{
+				margin-top:0px;
+			}
+
+			.line{
+				width:100%;
+				margin-top:30px;
+				border-top:1px solid #dfdfdf;"
+			}
+
 			`];
 	}
 
 	render() {
 		return html`
 			<capitec-modal
-				type="alert"
+				type="free"
 				header="Stop Card"
 				header-align="left">
 				<div slot="body">
 					${this.renderConfirmStopCard()} 
+					<div class="line"></div>
 				</div>
 				<div slot="footer">
 					${this.renderFooter()}
@@ -122,18 +138,22 @@ export class StopCard extends Component {
 	}
 
 	renderConfirmStopCard() {
+		this.firstLine = true;
 		return html`
-			<div class="stop-card">
-				<p>Are you sure you want to stop:</p>
+		<capitec-group style="width:396px;" layout="vertical" gap="none">		
+				<p class="left-margin">Are you sure you want to stop:</p>
 				${this.cardsToStop.map(line => { return this.renderLine(line) })}
-			</div>
+		<apitec-group>
 		`;
 	}
 
 	renderLine(line) {
+		let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
+		this.firstLine = false;
+
 		return html`
-		<p>${line.cardType} <span>${line.accountNumber}</span></p>
-		<p>Reason: <span>${line.reason}</span></p>
+		<p class="${classes}">${line.cardType} <span class="bold-text">${line.accountNumber}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.reason}</span></p>
 		`;
 	}
 
