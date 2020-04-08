@@ -137,7 +137,7 @@ export class StopCard extends Component {
 		`;
 	}
 
-	renderFooter() {
+	renderFooter(event) {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
