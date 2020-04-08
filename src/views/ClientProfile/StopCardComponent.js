@@ -32,7 +32,7 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
-		this.eventAggregator.subscribe(`confirmed-stop`, (event) => this.onStopCardConfirmed(event));
+		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 		this.router = Router.getInstance();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
@@ -119,7 +119,7 @@ export class StopCardComponent extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
-		console.log(event, rowData);
+		console.log(rowData);
 	}
 
 	_onClickReason() {
@@ -127,6 +127,7 @@ export class StopCardComponent extends Component {
 		 * Stop reason selection functionality comes here
 		 */
 	}
+
 
 	_onStopCards() {
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
@@ -258,8 +259,6 @@ export class StopCardComponent extends Component {
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>
-		
-				${this.renderStopCardConfirmed()}
 				`;
 
 	}
@@ -305,34 +304,6 @@ export class StopCardComponent extends Component {
 					</capitec-group>`;
 	}
 
-	//call stop card dialog from click event
-	renderStopCardModal() {
-
-		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-
-			return html`
-				<horizon-stop-card
-				
-				></horizon-stop-card>
-			`;
-		}
-
-	}
-
-	//for testing 
-	renderStopCardConfirmed(rowData) {
-		console.log('rendering from test method');
-		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-			return html`
-				<horizon-stop-card
-					.confirmedStop="${this.confirmedStop}"
-					@value-changed="${(e) => this._valueChanged(e, rowData)}" 
-					@confirmed-stop="${(data) => { this.onStopCardConfirmed(data); this._valueChanged(e, rowData) }}">
-				</horizon-stop-card>
-				`;
-
-		}
-	}
 	renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
@@ -368,7 +339,6 @@ export class StopCardComponent extends Component {
 
 	}
 	renderFooter() {
-		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">

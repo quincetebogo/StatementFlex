@@ -7,7 +7,6 @@ import { StopCardService } from '../../services/StopCardService';
 import '../dialogs/CardStopSummary/CardStopSummarySuccess';
 import StopCardHelper from '../../helpers/StopCardHelper';
 import '../../views/ClientProfile/StopCardSuccess';
-import '../../../mocks/IdentifyCallerResponseMock';
 
 const OFFERED = {
 	CARDTYPE: 'cardType',
@@ -26,11 +25,8 @@ export class StopCard extends Component {
 
 		this.cardsToStop = {};
 		this.eventAggregator = EventAggregator.getInstance();
-		// cards = null;
+		cards = null;
 		// CARD_STOP_MODAL = 0;
-		this.cardNumber = "284 **** **** 1522";
-		this.cardType = "Debit Card";
-		this.reason = "Card Lost";
 		this.cardStopped = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CARD;
 	}
@@ -62,10 +58,6 @@ export class StopCard extends Component {
 			cards: { type: Object },
 			cardStopped: { type: Object },
 			renderMode: { type: Number },
-			cardNumber: { type: String },
-			// cardType: { type: String },
-			reason: { type: String },
-			confirmedCaller: { type: Object },
 			toggleSummarySuccessScreen: { type: Boolean },
 
 			cardsToStop: { type: Object }
@@ -80,9 +72,29 @@ export class StopCard extends Component {
 			this.cards = e.detail.selected
 		};
 	}
-	onCardelected() {
-		this.dispatchEvent(new CustomEvent('on-card-stop', { detail: { cards: this.cards } }));
+
+	_onCardStopped(event) {
+		if (event.detail.selectedCard === undefined) {
+			let cardsToStop = {
+				cardType: this.cardType.value,
+				cardNumber: this.cardNumber.value,
+				reason: this.reason.value
+			}
+
+			let identifyStopCardPromise = StopCardHelper.getInstance().identifyCaller(cardsToStop);
+
+			identifyStopCardPromise.then((response) => {
+
+				this.dispatchEvent(new CustomEvent('confirmed-stop', { detail: { cardsToStop: cardsToStop, } }));
+			}, (error) => {
+
+				console.log('Error in fetching cards Info.');
+				console.log(error);
+			});
+		}
 	}
+
+
 	static get styles() {
 		return [
 			super.styles,
@@ -109,13 +121,8 @@ export class StopCard extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 		document.addEventListener('confirmed-stop', this.handleChange);
-		// Short hand references for reaching into the incoming data model
-		// this.cardNumber = this.cardStopped.${"this.cardNumber"};
-		// this.cardType = this.cardStopped.this.cardType;
-		// this.reason = this.cardStopped.this.reason;
-		//  this.cards = this.confirmedStop.cards;
 
-		// this.cards = this.onCardStopped();
+		this.cards = this._onCardStopped(event);
 	}
 
 	renderConfirmStopCard() {
@@ -153,7 +160,7 @@ export class StopCard extends Component {
 		}
 	}
 
-	renderFooter() {
+	renderFooter(event) {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
@@ -166,32 +173,32 @@ export class StopCard extends Component {
 					id="id-confirm-button"
 					type="clear"
 					label="Confirm"
-					@click="${(e) => { this.onConfirmClick(); console.log(this.selectedCardCount.toString(), 'card') }}">
+					@click="${() => _onCardStopped(event)}">
 				</capitec-button>
 			</capitec-group>			
 			`;
 	}
 
-	onConfirmClick(e) {
-		this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
+	// onConfirmClick(e) {
+	// 	this.renderMode = RENDER_MODE.ONCONFIRMED_CARD;
 
-		let cardStopped = {
-			cardNumber: this.cardNumber,
-			cardType: this.cardType,
-			reason: this.reason
-		};
+	// 	let cardStopped = {
+	// 		cardNumber: this.cardNumber,
+	// 		cardType: this.cardType,
+	// 		reason: this.reason
+	// 	};
 
-		let identifyStopCardPromise =
-			this.dispatchEvent(new CustomEvent('confirmed-stop', this.handleChange));
+	// 	let identifyStopCardPromise =
+	// 		this.dispatchEvent(new CustomEvent('confirmed-stop', this.handleChange));
 
-	}
-	handleChange() {
-		console.log('rendering stop card screen');
-		return html`
-		<!-- <horizon-stop-card-success ></horizon-stop-card-success> -->
-		<horizon-summary-success></horizon-summary-success>
-		`;
-	}
+	// }
+	// handleChange() {
+	// 	console.log('rendering stop card screen');
+	// 	return html`
+	// 	<!-- <horizon-stop-card-success ></horizon-stop-card-success> -->
+	// 	<horizon-summary-success></horizon-summary-success>
+	// 	`;
+	// }
 
 }
 window.customElements.define(`horizon-stop-card`, StopCard);
