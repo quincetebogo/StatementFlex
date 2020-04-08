@@ -405,7 +405,7 @@ export class AppShell extends Shell {
 	}
 
 	renderAddionalBar() {
-		if (this.currentView !== HORIZON_VIEWS.LANDING_PAGE) {
+		if (this.currentView == HORIZON_VIEWS.CARD_STOP) {
 			return html`<horizon-actionbar></horizon-actionbar>`
 		}
 
@@ -413,31 +413,30 @@ export class AppShell extends Shell {
 	}
 
 	renderleftUI() {
-		console.log('renderleftUI(currentView)', this.currentView);
+		switch (this.currentView) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`;
 
-		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			console.log("will now render left welcome");
-			return html`
-				<landingpage-welcome 
-					.fullname="${this.fullName}">
-				</landingpage-welcome>`;
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<client-details></client-details>`;
+
+			default:
+				return html``;
 		}
-		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
-			console.log("will now render client details");
-
-			return html`<client-details></client-details>`;
-		}
-
-		console.log('rendering blank');
-		return html``;
 	}
 
 	renderRightUI() {
-		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			return html`<landingpage-marketing></landingpage-marketing>`;
-		}
-		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
-			return html`<access-component></access-component>`;
+		switch (this.currentView) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html`<landingpage-marketing></landingpage-marketing>`;
+
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<access-component></access-component>`;
+
+			default:
+				return html``;
 		}
 	}
 

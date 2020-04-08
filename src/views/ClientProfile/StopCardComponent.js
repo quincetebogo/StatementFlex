@@ -2,7 +2,6 @@ import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonViewManager } from '../../HorizonViewManager';
-import { Router } from 'platform/Router';
 
 import '../../components/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
@@ -33,7 +32,6 @@ export class StopCardComponent extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
-		this.router = Router.getInstance();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 
@@ -73,8 +71,8 @@ export class StopCardComponent extends Component {
 
 		this.cards = this.confirmedCaller.cards;
 		/**
-		 * Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
-		 */
+		* Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
+		*/
 		this.cards = this.generateRowIndex();
 	}
 
@@ -133,6 +131,10 @@ export class StopCardComponent extends Component {
 	_onStopCards() {
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 		this.cardsToStop = this.cards.filter(card => card.selected);
+	}
+
+	_onCardsStopped(event) {
+		this.dispatchEvent(new CustomEvent('cards-stopped', { detail: { stoppedCards: event.detail.stoppedCards } }));
 	}
 
 	// --------------
@@ -336,7 +338,7 @@ export class StopCardComponent extends Component {
 			return html`
 				<horizon-stop-card 
 					.cardsToStop="${this.cardsToStop}"			
-					@confirmed-stop="${(event) => console.log('stopped card')}"
+					@confirmed-stop="${(event) => this._onCardsStopped(event)}"
 					@confirmed-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
 				</horizon-stop-card>
 			`;

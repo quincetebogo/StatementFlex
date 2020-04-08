@@ -44,8 +44,8 @@ export class StopCard extends Component {
 
 		/* card stop web service calls go here */
 
-		// dispatch event - the caller of the dialog does the transitioning to the success/failure screens
-		this.dispatchEvent(new CustomEvent('confirmed-stop', { /* success/failure information goes here */ }));
+		// TODO: Replace this.cardsToStop with list of stopped cards
+		this.dispatchEvent(new CustomEvent('confirmed-stop', { detail: { stoppedCards: this.cardsToStop } }));
 	}
 
 	_onCancelClick() {
