@@ -45,7 +45,7 @@ export class StopCardComponent extends Component {
 		this.selectedCardCount = 0;
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-		this.cardsToStop = {};
+		this.cardsToStop = [];
 	}
 
 	// ----------
@@ -59,7 +59,8 @@ export class StopCardComponent extends Component {
 			cards: { type: Object },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			rowData: { type: Object }
+			rowData: { type: Object },
+			cardsToStop: { type: Array }
 		}
 	}
 
@@ -305,20 +306,6 @@ export class StopCardComponent extends Component {
 					</capitec-group>`;
 	}
 
-	//call stop card dialog from click event
-	renderStopCardModal() {
-
-		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-
-			return html`
-				<horizon-stop-card
-				
-				></horizon-stop-card>
-			`;
-		}
-
-	}
-
 	//for testing 
 	renderStopCardConfirmed(rowData) {
 		console.log('rendering from test method');
@@ -362,11 +349,16 @@ export class StopCardComponent extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			console.log("Stop card button clicked");
 			return html`
-				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
+				<horizon-stop-card 
+					.cardsToStop="${this.cardsToStop}"			
+					@confirmed-stop="${(event) => console.log('stopped card')}"
+					@confirmed-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+				</horizon-stop-card>
 			`;
 		}
 
 	}
+
 	renderFooter() {
 		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
