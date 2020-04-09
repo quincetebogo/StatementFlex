@@ -94,6 +94,19 @@ export class StopCardService {
 		});
 	}
 
+	async stopCard(cards) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
+			{
+				"incomingTelephoneNumber": "string",
+				"voiceReferenceNumber": "string",
+				"ivrOptionCode": "string",
+				"incidentReferenceNumber": "string",
+				"agentTelephoneNumber": "string",
+				"cardId": "string",
+				"accountNumber": "string",
+				"stopReason": "string"
+			});
+	}
 
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
@@ -117,4 +130,5 @@ export class StopCardService {
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
 	}
+
 }

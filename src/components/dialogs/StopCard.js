@@ -1,4 +1,5 @@
 import { Component, html, css } from 'platform/elements';
+import { StopCardService } from '../../services/StopCardService';
 
 import 'platform/elements';
 
@@ -31,16 +32,31 @@ export class StopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.stopCardService = StopCardService.getInstance();
 	}
 
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------	
-	_onConfirmClick() {
+	async _onConfirmClick() {
 		console.log(`cards to stop`, this.cardsToStop);
+		let card = {};
 
+		for (let index = 0; index < this.cardsToStop.length; index++) {
+			card.incomingTelephoneNumber = "";
+			card.voiceReferenceNumber = "";
+			card.ivrOptionCode = "";
+			card.incidentReferenceNumber = "";
+			card.agentTelephoneNumber = "";
+			card.cardId = "";
+			card.accountNumber = "";
+			card.stopReason = "";
+		}
+		await this.stopCardService.stopCard(card);
 		/* card stop web service calls go here */
+
 
 		// TODO: Replace this.cardsToStop with list of stopped cards
 		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardsToStop } }));
@@ -153,7 +169,7 @@ export class StopCard extends Component {
 					id="id-confirm-button"
 					type="clear"
 					label="Confirm"
-					@click="${() => { this._onConfirmClick() }}">
+					@click="${async () => { this._onConfirmClick() }}">
 				</capitec-button>
 			</capitec-group>			
 			`;
