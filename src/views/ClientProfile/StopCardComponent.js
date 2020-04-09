@@ -8,12 +8,19 @@ import 'platform/components';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
-	CARDNUMBER: 'accountNumber'
+	CARDNUMBER: 'encryptedCardId'
 }
 
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
 	CARD_STOP_MODAL: 1,
+};
+
+const TABLE_STYLE = {
+	HEADER_CELL: `text-align: left; font-size: 16px; font-weight: 600; letter-spacing: 0; width: 490px; height: 22px; position: relative; top: -8px;`,
+	BODY_CELL: `text-align: left; font-size: 16px; letter-spacing: 0; width: 490px; height: 22px; position: relative; top: -8px;`,
+	CELL_HEIGHT: `height: 22px`,
+	PADDING_LEFT: `padding: 0px 0px 0px 10px;`
 };
 
 export class StopCardComponent extends Component {
@@ -30,7 +37,7 @@ export class StopCardComponent extends Component {
 
 		this.toggleEndCallModal = false;
 		this.cards = null;
-		this.confirmedCaller = null;
+		this.callerDetails = null;
 		this.selectedCardCount = 0;
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
@@ -44,7 +51,7 @@ export class StopCardComponent extends Component {
 	static get properties() {
 		return {
 			toggleEndCallModal: { type: Boolean },
-			confirmedCaller: { type: Object },
+			callerDetails: { type: Object },
 			cards: { type: Object },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
@@ -59,7 +66,10 @@ export class StopCardComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.cards = this.confirmedCaller.cards;
+		let clientProfileDetails = this.callerDetails && this.callerDetails.clientProfileDetails;
+
+		this.instruction = clientProfileDetails.instruction;
+		this.cards = clientProfileDetails.cards;
 		/**
 		 * Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
 		 */
@@ -225,7 +235,7 @@ export class StopCardComponent extends Component {
 		return html`
 			<div class="horizon-notify-client" row="2" column="1">
 				<img src="../../images/info.svg" id="action-icon"/>
-				<p id="action-display">&nbsp;Notify client that once stopped, they will need to visit a branch for a new card.</p>
+				<p id="action-display">&nbsp;${this.instruction}</p>
 			</div>`;
 	}
 
@@ -234,80 +244,85 @@ export class StopCardComponent extends Component {
 				<capitec-table .items="${this.cards}" row="3" column="1">
 					<capitec-table-column label=""
 										  field=""
-										  type=""
-										  size="5%"
-										  .renderer="${(rowData) => this.renderRowInput(rowData)}">
-					</capitec-table-column>
-					<capitec-table-column label="Card Type"
-										  field="cardType"
 										  type="text"
-										  size="95%"
-										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
+										  size="1064px;"
+										  .renderer="${(rowData) => this.renderRowData(rowData)}"
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>`;
 	}
 
+	headerRenderer() {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="${TABLE_STYLE.CELL_HEIGHT}">
+						<div row="1" column="2" style="${TABLE_STYLE.HEADER_CELL}">
+							<capitec-label label="Card Type"
+										   style="${TABLE_STYLE.CELL_HEIGHT}"
+										   type="subtitle">
+							</capitec-label>
+						</div>
+						<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
+							<capitec-label label="Card Number"
+										   style="${TABLE_STYLE.CELL_HEIGHT}"
+										   type="subtitle">
+							</capitec-label>
+						</div>
+					</capitec-group>`;
+	}
+
+	renderRowData(rowData) {
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" 
+									style="${rowData.selected ? `height: 79px` : `height: 22px;`}">
+
+						${this.renderRowInput(rowData)}
+
+						<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
+							<capitec-label 
+									label="${rowData[COLUMNS.CARDTYPE]}"
+									style="${TABLE_STYLE.CELL_HEIGHT}">
+							</capitec-label>
+						</div>
+						
+						<div row="1" column="3" style="${TABLE_STYLE.BODY_CELL}">
+							<capitec-label 
+									label="${rowData[COLUMNS.CARDNUMBER]}"
+									style="${TABLE_STYLE.CELL_HEIGHT}">
+							</capitec-label>
+						</div>
+						${this.renderReasonButtons(rowData)}
+					</capitec-group>`;
+	}
+
 	renderRowInput(rowData) {
-		return html`<div style="${rowData.selected ? `margin: 0px 0px 63px 0px;` : ``}">
+		return html`<div row="1" 
+						 column="1" 
+						 style="width: 35px; height: 22px;">
 						<capitec-check label=""
 									   @value-changed="${(e) => this._valueChanged(e, rowData)}">
 						</capitec-check>
 					</div>`;
 	}
 
-	headerRenderer() {
-		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
-						<capitec-label label="Card Type"
-									   row="1"
-									   column="1"
-									   style="text-align: left;"
-									   type="subtitle">
-						</capitec-label>
-						<capitec-label label="Card Number"
-									   row="1"
-									   column="2"
-									   style="text-align: left;"
-									   type="subtitle">
-						</capitec-label>
-					</capitec-group>`;
-	}
-
-	renderRowData(rowData) {
-		return html`<capitec-group layout="grid" rows="auto" columns="uniform">
-						<capitec-label label="${rowData[COLUMNS.CARDTYPE]}"
-										row="1"
-										column="1"
-										style="text-align: left;">
-						</capitec-label>
-						<capitec-label label="${rowData[COLUMNS.CARDNUMBER]}"
-										row="1"
-										column="2"
-										style="text-align: left;">
-						</capitec-label>
-						${this.renderReasonButtons(rowData)}
-					</capitec-group>`;
-	}
-
 	renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
-					<div row="2" column="1" colspan="2" style="text-align:left;">
-						Choose a Reason
+					<div row="2" column="2" colspan="2" style="display: flex; align-items: center; padding-top: 8px;">
+						<capitec-label label="Choose a Reason"
+									   style="font-family: 'Hind Vadodara'; font-size: 16px; letter-spacing: 0;">
+						</capitec-label>
 						<capitec-button label="Card Damaged"
-										style="padding: 0px 0px 0px 10px;"
+										style="${TABLE_STYLE.PADDING_LEFT}"
 										@click="${(e) => this._onClickReason()}">
 						</capitec-button>
 						<capitec-button label="Card Lost"
-										style="padding: 0px 0px 0px 10px;"
+										style="${TABLE_STYLE.PADDING_LEFT}"
 										@click="${(e) => this._onClickReason()}">
 						</capitec-button>
 						<capitec-button label="Card Stolen"
-										style="padding: 0px 0px 0px 10px;"
+										style="${TABLE_STYLE.PADDING_LEFT}"
 										@click="${(e) => this._onClickReason()}">
 						</capitec-button>
 						<capitec-button label="Suspected Fraud"
-										style="padding: 0px 0px 0px 10px;"
+										style="${TABLE_STYLE.PADDING_LEFT}"
 										@click="${(e) => this._onClickReason()}">
 						</capitec-button>
 					</div>`;
@@ -329,9 +344,7 @@ export class StopCardComponent extends Component {
 			return html`
 				<button-bar row="4" column="1">
 					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
-					<capitec-button row="1" 
-									column="2"
-									label="Stop Card(s)"
+					<capitec-button label="Stop Card(s)"
 									type="primary"
 									@click="${() => this._onStopCards()}">
 					</capitec-button>

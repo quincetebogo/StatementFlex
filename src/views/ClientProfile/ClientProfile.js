@@ -14,7 +14,7 @@ export class ClientProfile extends View {
 
 	render() {
 		console.log('render client profile');
-		return html`<stop-card .confirmedCaller="${HorizonViewManager.getInstance().recoverState()}"></stop-card>`;
+		return html`<stop-card .callerDetails="${HorizonViewManager.getInstance().recoverState()}"></stop-card>`;
 	}
 }
 
