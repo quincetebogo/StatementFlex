@@ -334,12 +334,11 @@ export class StopCardComponent extends Component {
 
 	renderStopCardModal(rowData) {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-			console.log("Stop card button clicked");
 			return html`
 				<horizon-stop-card 
 					.cardsToStop="${this.cardsToStop}"			
-					@confirmed-stop="${(event) => this._onCardsStopped(event)}"
-					@confirmed-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+					@on-confirm="${(event) => this._onCardsStopped(event)}"
+					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
 				</horizon-stop-card>
 			`;
 		}

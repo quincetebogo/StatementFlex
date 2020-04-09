@@ -31,8 +31,6 @@ export class StopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		console.log('cards to stop', this.cardsToStop);
 	}
 
 
@@ -45,12 +43,12 @@ export class StopCard extends Component {
 		/* card stop web service calls go here */
 
 		// TODO: Replace this.cardsToStop with list of stopped cards
-		this.dispatchEvent(new CustomEvent('confirmed-stop', { detail: { stoppedCards: this.cardsToStop } }));
+		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardsToStop } }));
 	}
 
 	_onCancelClick() {
 
-		this.dispatchEvent(new CustomEvent('confirmed-cancel'));
+		this.dispatchEvent(new CustomEvent('on-cancel'));
 	}
 
 
@@ -70,21 +68,6 @@ export class StopCard extends Component {
 		return [
 			super.styles,
 			css`
-			/*
-			.stop-card{
-				height: 160px;
-				width: 396px;
-				padding:0px 0px 0px 0px;
-			 }
-
-			 .footer{
-				 height: 64px;
-				 width: 468px;
-				 padding:0px 0px 0px 0px;
-				 border-top: solid 1px #dfdfdf;
-			 }
-			 */
-
 			p{
 				color: #4E6066;
 				font-family: "Hind Vadodara";
