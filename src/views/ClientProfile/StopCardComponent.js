@@ -1,10 +1,13 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonViewManager } from '../../HorizonViewManager';
+
 import '../../components/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
 
 import 'platform/components';
+import '../../components/dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -14,13 +17,21 @@ const COLUMNS = {
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
 	CARD_STOP_MODAL: 1,
+	CARD_STOP_SUCCESS: 2
 };
 
 const TABLE_STYLE = {
-	HEADER_CELL: `text-align: left; font-size: 16px; font-weight: 600; letter-spacing: 0; width: 490px; height: 22px; position: relative; top: -8px;`,
-	BODY_CELL: `text-align: left; font-size: 16px; letter-spacing: 0; width: 490px; height: 22px; position: relative; top: -8px;`,
+	HEADER_CELL: `width: 490px; font-size: 16px; font-weight: 600; letter-spacing: 0; line-height: 22px;`,
+	BODY_CELL: `width: 490px; text-align: left; font-size: 16px; letter-spacing: 0; line-height: 22px;`,
 	CELL_HEIGHT: `height: 22px`,
-	PADDING_LEFT: `padding: 0px 0px 0px 10px;`
+	REASON_BUTTONS: `padding: 0px 0px 0px 14px; --theme-button-padding-top: 5.5px; --theme-button-padding-bottom: 5.5px; --theme-button-padding-left: 10px; --theme-button-padding-right: 10px; --theme-button-font-size: 14px;`
+};
+
+const STOPREASONS = {
+	CARD_DAMAGED: 'Card Damaged',
+	CARD_LOST: 'Card Lost',
+	CARD_STOLEN: 'Card Stolen',
+	SUSPECTED_FRAUD: 'Suspected Fraud'
 };
 
 export class StopCardComponent extends Component {
@@ -34,14 +45,17 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
+		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 
+		this.horizonViewManager = HorizonViewManager.getInstance();
+
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
 		this.toggleEndCallModal = false;
 		this.cards = null;
 		this.callerDetails = null;
+		this.rowData = {};
 		this.selectedCardCount = 0;
-
-		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-		this.cardsToStop = {};
+		this.cardsToStop = [];
 	}
 
 	// ----------
@@ -55,7 +69,8 @@ export class StopCardComponent extends Component {
 			cards: { type: Object },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			rowData: { type: Object }
+			rowData: { type: Object },
+			cardsToStop: { type: Array }
 		}
 	}
 
@@ -118,17 +133,30 @@ export class StopCardComponent extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+
+		if (event.detail.new) {
+			this.cardsToStop.push({
+				cardId: rowData["cardId"],
+				accountNumber: rowData["accountNumber"],
+				stopReason: ""
+			});
+		}
+		else {
+			this.cardsToStop = this.cardsToStop.filter(card => card.cardId != rowData["cardId"]);
+		}
+		console.log(rowData);
 	}
 
-	_onClickReason() {
-		/**
-		 * Stop reason selection functionality comes here
-		 */
+	_onClickReason(stopReason, rowData) {
+		this.cardsToStop.map(card => {
+			if (card.cardId == rowData.cardId) {
+				card.stopReason = stopReason;
+			}
+		});
 	}
 
-	_onStopCards() {
-		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
-		this.cardsToStop = this.cards.filter(card => card.selected);
+	_onCardsStopped(event) {
+		this.dispatchEvent(new CustomEvent('cards-stopped', { detail: { stoppedCards: event.detail.stoppedCards } }));
 	}
 
 	// --------------
@@ -196,12 +224,21 @@ export class StopCardComponent extends Component {
 					height: 64px;
 				}
 				button-bar > capitec-button{
+					--theme-button-padding-top: 8px; 
+					--theme-button-padding-bottom: 8px; 
+					--theme-button-padding-left: 8px; 
+					--theme-button-padding-right: 8px;
 					float: right;
-					padding: 6px 24px 0px 0px;
+					width: 135px;
+					margin: 12px 24px 0px 0px;
 				}
 				button-bar > capitec-label{
+					--theme-label-subtitle-font-weight: 600;
 					float: left;
-					padding: 11px 0px 0px 24px;
+					width: 125px;
+					letter-spacing: 0;
+					line-height: 24px;
+					margin: 20px 0px 0px 23px;
 				}
 			`];
 	}
@@ -271,7 +308,7 @@ export class StopCardComponent extends Component {
 
 	renderRowData(rowData) {
 		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" 
-									style="${rowData.selected ? `height: 79px` : `height: 22px;`}">
+									style="${rowData.selected ? `height: 70px` : `height: 22px;`}">
 
 						${this.renderRowInput(rowData)}
 
@@ -297,6 +334,7 @@ export class StopCardComponent extends Component {
 						 column="1" 
 						 style="width: 35px; height: 22px;">
 						<capitec-check label=""
+									   style="--theme-check-width: 21px; --theme-check-height: 21px;"
 									   @value-changed="${(e) => this._valueChanged(e, rowData)}">
 						</capitec-check>
 					</div>`;
@@ -305,25 +343,25 @@ export class StopCardComponent extends Component {
 	renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
-					<div row="2" column="2" colspan="2" style="display: flex; align-items: center; padding-top: 8px;">
+					<div row="2" column="2" colspan="2" style="display: flex; align-items: center;">
 						<capitec-label label="Choose a Reason"
-									   style="font-family: 'Hind Vadodara'; font-size: 16px; letter-spacing: 0;">
+									   style="line-height: 21px; width: 102px;">
 						</capitec-label>
 						<capitec-button label="Card Damaged"
-										style="${TABLE_STYLE.PADDING_LEFT}"
-										@click="${(e) => this._onClickReason()}">
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										@click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
 						</capitec-button>
 						<capitec-button label="Card Lost"
-										style="${TABLE_STYLE.PADDING_LEFT}"
-										@click="${(e) => this._onClickReason()}">
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										@click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
 						</capitec-button>
 						<capitec-button label="Card Stolen"
-										style="${TABLE_STYLE.PADDING_LEFT}"
-										@click="${(e) => this._onClickReason()}">
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										@click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
 						</capitec-button>
 						<capitec-button label="Suspected Fraud"
-										style="${TABLE_STYLE.PADDING_LEFT}"
-										@click="${(e) => this._onClickReason()}">
+										style="${TABLE_STYLE.REASON_BUTTONS}"
+										@click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">
 						</capitec-button>
 					</div>`;
 		}
@@ -333,11 +371,15 @@ export class StopCardComponent extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			console.log("Stop card button clicked");
 			return html`
-				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
+				<horizon-stop-card 
+					.cardsToStop="${this.cardsToStop}"
+					@confirmed-stop="${(event) => this._onCardsStopped(event)}"
+					@confirmed-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+				</horizon-stop-card>
 			`;
 		}
-
 	}
+
 	renderFooter() {
 		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
@@ -346,7 +388,7 @@ export class StopCardComponent extends Component {
 					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
 					<capitec-button label="Stop Card(s)"
 									type="primary"
-									@click="${() => this._onStopCards()}">
+									@click="${() => this.renderMode = RENDER_MODE.CARD_STOP_MODAL}">
 					</capitec-button>
 				</button-bar>`;
 		}
