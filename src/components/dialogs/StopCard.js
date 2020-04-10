@@ -1,7 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
-
-import 'platform/elements';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 export class StopCard extends Component {
 
@@ -13,6 +12,8 @@ export class StopCard extends Component {
 		super();
 
 		this.cardsToStop = [];
+		this.cardStopResults = [];
+		this.callerInfo = {};
 	}
 
 	// ----------
@@ -22,6 +23,7 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
+			callerInfo: { type: Object },
 			cardsToStop: { type: Array },
 		}
 	}
@@ -40,26 +42,15 @@ export class StopCard extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------	
+
 	async _onConfirmClick() {
 		console.log(`cards to stop`, this.cardsToStop);
-		let card = {};
 
-		for (let index = 0; index < this.cardsToStop.length; index++) {
-			card.incomingTelephoneNumber = "";
-			card.voiceReferenceNumber = "";
-			card.ivrOptionCode = "";
-			card.incidentReferenceNumber = "";
-			card.agentTelephoneNumber = "";
-			card.cardId = "";
-			card.accountNumber = "";
-			card.stopReason = "";
-		}
-		await this.stopCardService.stopCard(card);
-		/* card stop web service calls go here */
+		this.isBusy = true;
+		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
+		this.isBusy = false;
 
-
-		// TODO: Replace this.cardsToStop with list of stopped cards
-		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardsToStop } }));
+		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardStopResults } }));
 	}
 
 	_onCancelClick() {
@@ -75,6 +66,59 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	// TODO: This should move out into a layer so that we can use it in the code that handles stop card retries.
+	async _stopCards(cardsToStop, callerInfo) {
+		let card = {};
+		let success = false;
+		let stoppedCard = {};
+		let error = null;
+		let cardStopResults = [];
+
+		for (let index = 0; index < cardsToStop.length; index++) {
+
+			card.incomingTelephoneNumber = callerInfo.incomingTelephoneNumber;
+			card.voiceReferenceNumber = callerInfo.voiceReferenceNumber;
+			card.ivrOptionCode = callerInfo.ivrOptionCode;
+			card.incidentReferenceNumber = callerInfo.incidentReferenceNumber;
+			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
+			card.cardId = cardsToStop[index].cardId;
+			card.accountNumber = cardsToStop[index].accountNumber;
+			card.stopReason = cardsToStop[index].reason ? cardsToStop[index].reason : '';
+
+			try {
+				await this.stopCardService.stopCard(card);
+				success = true;
+				error = null;
+			}
+			catch (ex) {
+				if (ex instanceof TypeError) {
+					error = ex.message;
+				}
+				else if (ex instanceof HttpStatusError) {
+					error = `${ex.status}: ${ex.message}`;
+				}
+				else {
+				}
+				success = false;
+			}
+			finally {
+				stoppedCard = {
+					cardId: card.cardId,
+					cardType: cardsToStop[index].cardType,
+					encryptedCardId: cardsToStop[index].encryptedCardId,
+					accountNumber: card.accountNumber,
+					stopReason: card.stopReason,
+					stopped: success,
+					errorMessage: error
+				};
+
+				cardStopResults.push(stoppedCard);
+			}
+		}
+
+		return cardStopResults;
+	}
 
 	// ---------
 	// RENDERING
@@ -133,6 +177,7 @@ export class StopCard extends Component {
 					${this.renderFooter()}
 				<div> 
 			</capitec-modal>
+			${this.renderLoadingIndicator()}
 			`;
 	}
 
@@ -156,7 +201,7 @@ export class StopCard extends Component {
 		`;
 	}
 
-	renderFooter(event) {
+	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
@@ -173,6 +218,14 @@ export class StopCard extends Component {
 				</capitec-button>
 			</capitec-group>			
 			`;
+	}
+
+	renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

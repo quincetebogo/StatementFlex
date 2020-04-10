@@ -70,6 +70,16 @@ export class StopCardComponent extends Component {
 		super.connectedCallback();
 
 		this.cards = this.confirmedCaller.cards;
+
+		// Set up caller information for passing to Stop Card Modal
+		this.callerInfo = {
+			incomingTelephoneNumber: this.confirmedCaller.incomingTelephoneNumber,
+			voiceReferenceNumber: this.confirmedCaller.voiceReferenceNumber,
+			ivrOptionCode: this.confirmedCaller.ivrOption,
+			incidentReferenceNumber: this.confirmedCaller.incidentReferenceNumber,
+			agentTelephoneNumber: this.confirmedCaller.agentTelephoneNumber
+		};
+
 		/**
 		* Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
 		*/
@@ -336,6 +346,7 @@ export class StopCardComponent extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card 
+					.callerInfo="${this.callerInfo}"
 					.cardsToStop="${this.cardsToStop}"			
 					@on-confirm="${(event) => this._onCardsStopped(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">

@@ -1,7 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
+
+import 'platform/components/buttons/Button';
 
 import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';

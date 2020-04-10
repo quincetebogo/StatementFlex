@@ -23,9 +23,10 @@ export class ClientProfile extends View {
 
 	render() {
 		console.log('render client profile');
+		let tempState = HorizonViewManager.getInstance().recoverState();
 		return html`
 		<stop-card 
-			.confirmedCaller="${HorizonViewManager.getInstance().recoverState()}"
+			.confirmedCaller="${tempState}"
 			@cards-stopped="${(event) => this._onCardsStopped(event)}">
 		</stop-card>`;
 	}
