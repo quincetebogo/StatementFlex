@@ -405,11 +405,14 @@ export class AppShell extends Shell {
 	}
 
 	renderAddionalBar() {
-		if (this.currentView == HORIZON_VIEWS.CARD_STOP) {
-			return html`<horizon-actionbar></horizon-actionbar>`
-		}
+		switch (this.currentView) {
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<horizon-actionbar></horizon-actionbar>`
 
-		return html``;
+			default:
+				return html``;
+		}
 	}
 
 	renderleftUI() {
