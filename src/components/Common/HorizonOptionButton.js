@@ -1,5 +1,21 @@
 import { Component, html, css } from 'platform/elements';
 
+/**
+ * A button control with an icon above a label.
+ *
+ * **Usage**
+ * ```html
+ * <horizon-option-button
+ *   label="Label Test"
+ *   icon="platform icon | null"
+ * 	 img-src="path to image | null"
+ 	>
+ * </horizon-option-button>
+ * ```
+ * 
+ * **Events**
+ * - ```click``` When the button is clicked.
+ */
 export class HorizonOptionButton extends Component {
 
 	// --------------
@@ -29,7 +45,8 @@ export class HorizonOptionButton extends Component {
 		return {
 			label: { type: String },
 			icon: { type: String },
-			image: { type: String, attribute: 'img-src' }
+			image: { type: String, attribute: 'img-src' },
+			disabled: { type: Boolean }
 		}
 	}
 
@@ -40,6 +57,22 @@ export class HorizonOptionButton extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_buttonClicked(event) {
+
+		// Ignore the event if the component is disabled.
+		if (this.disabled) {
+			return event.stopImmediatePropagation();
+		}
+
+		// Notify any subscribers that the link was clicked.
+		this.dispatchEvent(new CustomEvent(`click`, {
+			detail: {}
+		}));
+
+		// Prevent the event from bubbling up.
+		event.stopPropagation();
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -77,13 +110,13 @@ export class HorizonOptionButton extends Component {
 			`]
 	}
 
-	render() {
+	_webTemplate() {
 		return html`
-			<capitec-button>
+			<capitec-button @click="${this._buttonClicked}">
 				<capitec-group layout="vertical" halign="center" valign="top" gap="none">
 					${this.renderIcon()}			
 					<capitec-label class="label-text" label="${this.label}"></capitec-label> 
-				</capitec-content-box>  
+				</capitec-content-box>  				
 			</capitec-button>
 		`;
 	}

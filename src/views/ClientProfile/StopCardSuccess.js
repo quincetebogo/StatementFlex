@@ -13,6 +13,7 @@ export class StopCardSuccess extends View {
 
 	constructor() {
 		super();
+		this.toggleNotification = true;
 	}
 
 
@@ -20,13 +21,25 @@ export class StopCardSuccess extends View {
 	// PROPERTIES
 	// ----------
 
+	static get properties() {
+		return {
+			toggleNotification: { type: Boolean },
+		}
+	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------	
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		window.setTimeout(() => { this.toggleNotification = false }, 2000);
 	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -82,7 +95,7 @@ export class StopCardSuccess extends View {
 				  }		
 				  
 				  .stop-card-text {
-					height: 48px;
+					height: 20px;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
@@ -92,15 +105,23 @@ export class StopCardSuccess extends View {
 				  }	
 				  
 				  .related-options {
+					margin-top:152px;
 					height: 32px;
 					width: 100%;
-					border-top: 1px solid #dfdfdf;"
-					border-bottom: 1px solid #dfdfdf;"
+					background-color: #F4F4F4;
+					border-top: 1px solid #dfdfdf;
+					border-bottom: 1px solid #dfdfdf;
 				  }
 
 				  .related-options-text{
 					  margin: 0px 0px 0px 24px;
 					  padding: 0px 0px 0px 0px;
+					  color: #003652;
+					  font-family: "Hind Vadodara";
+					  font-size: 15px;
+					  font-weight: 600;
+					  letter-spacing: 0;
+					  line-height: 30px;					  
 				  }
 
 				  .options-group{
@@ -113,7 +134,7 @@ export class StopCardSuccess extends View {
 			`];
 	}
 
-	render() {
+	_webTemplate() {
 		return html`
 		<capitec-card>
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
@@ -121,9 +142,10 @@ export class StopCardSuccess extends View {
 				${this.renderNotifyClient()}
 				${this.renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
+				${this.renderStoppedCards()}
 				<p class="stop-card-text">Remind the client that they will need to visit a branch for a new card.</p>
 				${this.renderRelatedOptions()}
-				${this.renderOptionsButtons()}
+				${this.renderOptionsButtons()} 
 			</capitec-group>
 		</capitec-card>`;
 	}
@@ -141,9 +163,15 @@ export class StopCardSuccess extends View {
 	}
 
 	renderNotifyClient() {
+		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<div class="horizon-notify-client">
-				<img src="../../images/info.svg" id="action-icon"/>
+			<div 
+				style="visibility:${this.toggleNotification ? "hidden" : "visible"}"
+				class="horizon-notify-client">
+				<img 
+					src="../../images/info.svg" 
+					id="action-icon" 
+					/>
 				<p id="action-display">&nbsp;See related options to assist if the client needs to stop their Remote Banking (app/USSD) channels</p>
 			</div>`;
 	}
@@ -152,10 +180,14 @@ export class StopCardSuccess extends View {
 		return html`<img class="card-image" src="../../images/cardStop/cards.svg"/>`;
 	}
 
+	renderStoppedCards() {
+
+	}
+
 	renderRelatedOptions() {
 		return html`
 		<div class="related-options">
-			<p class="related-options-text">Related Options</p>
+			<p class="related-options-text">Related Options</p> 
 		</div>`;
 	}
 
@@ -168,6 +200,10 @@ export class StopCardSuccess extends View {
 				<horizon-option-button class="button-margin"label="Find A Branch" img-src="../../../images/atm.svg"></horizon-option-button>
 			</capitec-group>
 			`;
+	}
+
+	renderSuccessButton() {
+
 	}
 }
 
