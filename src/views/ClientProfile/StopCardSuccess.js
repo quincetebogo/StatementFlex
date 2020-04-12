@@ -19,7 +19,7 @@ export class StopCardSuccess extends View {
 
 	constructor() {
 		super();
-		this.toggleNotification = true;
+		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 	}
 
@@ -30,7 +30,7 @@ export class StopCardSuccess extends View {
 
 	static get properties() {
 		return {
-			toggleNotification: { type: Boolean },
+			displayNotification: { type: Boolean },
 			renderMode: { type: Number }
 		}
 	}
@@ -46,10 +46,17 @@ export class StopCardSuccess extends View {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.state = this.horizonViewManager.recoverState();
+		let state = this.horizonViewManager.recoverState();
 
-		this.eventAggregator.publish(`horizon-toast-update`, { toastOn: true, toastMessage: "Debit Card Stopped" });
+		this.callerInfo = state.callerInfo;
+		this.stoppedCards = state.stoppedCards;
+
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.publish('horizon-update-call_actionbar',
+			{
+				referenceNo: this.callerInfo.incidentReferenceNumber,
+				phoneNumber: this.callerInfo.incomingTelephoneNumber
+			});
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 1000);
 	}
@@ -58,8 +65,7 @@ export class StopCardSuccess extends View {
 	// EVENT HANDLERS
 	// --------------
 	_onToastDisplayTimeout() {
-		this.toggleNotification = false;
-		this.eventAggregator.publish(`horizon-toast-update`, { toastOn: false, toastMessage: "" });
+		this.displayNotification = true;
 	}
 
 	_onEndCallSession() {
@@ -90,6 +96,14 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 36px;
 				  }			
+
+				  .success-toast{
+					position: absolute;
+					top : 32px;
+					left:784px;
+					width : 352px;
+					height: 64px;
+				}
 				  
 				.horizon-notify-client{
 					display: flex;
@@ -179,6 +193,7 @@ export class StopCardSuccess extends View {
 		<capitec-card>
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
 				${this.renderTitleBar()}
+				${this.renderSuccessToast()}
 				${this.renderNotifyClient()}
 				${this.renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
@@ -207,7 +222,7 @@ export class StopCardSuccess extends View {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
 			<div 
-				style="visibility:${this.toggleNotification ? "hidden" : "visible"}"
+				style="visibility:${!this.displayNotification ? "hidden" : "visible"}"
 				class="horizon-notify-client">
 				<img 
 					src="../../images/info.svg" 
@@ -241,6 +256,21 @@ export class StopCardSuccess extends View {
 				<horizon-option-button class="button-margin"label="Find A Branch" img-src="../../../images/atm.svg"></horizon-option-button>
 			</capitec-group>
 			`;
+	}
+
+	renderSuccessToast() {
+		if (!this.displayNotification) {
+			return html`
+			<capitec-toast 
+				class="success-toast" 
+				type="success" 
+				header="Successfull" 
+				detail="Debit card stopped" 
+				closable="true">
+			</capitec-toast>
+		`;
+		}
+		return html``;
 	}
 
 	renderEndCallModal() {

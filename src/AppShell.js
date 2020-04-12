@@ -19,9 +19,11 @@ import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentServic
 
 
 //TODO: Move these out of the shell
+import { HorizonActionBar } from './components/HorizonActionBar';
 import { LandingPageWelcome } from './components/landingPage/LandingPageWelcome';
 import { LandingPageMarketing } from './components/landingPage/LandingPageMarketing';
-import { HorizonActionBar } from './components/HorizonActionBar';
+import { ClientProfileDetails } from './views/ClientProfile/AccessComponent';
+import { AccessComponent } from './views/ClientProfile/AccessComponent';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -69,7 +71,6 @@ export class AppShell extends Shell {
 
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
-		this.eventAggregator.subscribe(`horizon-toast-update`, (event) => this._onToastUpdate(event));
 
 		// Property defaults.
 		this.isBusy = true;
@@ -83,8 +84,6 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
-		this.displayToast = false;
-		this.toastMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
@@ -109,7 +108,6 @@ export class AppShell extends Shell {
 			fullname: { type: String },
 			employeeId: { type: String },
 			currentView: { type: String },
-			displayToast: { type: Boolean }
 		};
 	}
 
@@ -210,11 +208,6 @@ export class AppShell extends Shell {
 		this.employeeId = event.employeeId;
 	}
 
-	_onToastUpdate(event) {
-		this.displayToast = event.toastOn;
-		this.toastMessage = event.toastMessage;
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -267,14 +260,6 @@ export class AppShell extends Shell {
 					height: 56px;
 					margin: 0px 0px 0px 0px;
 					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
-				}
-
-				.success-toast{
-					position: absolute;
-					top : 32px;
-					margin-left:784px;
-					width : 352px;
-					height: 64px;
 				}
 
 				.screen-content {
@@ -421,29 +406,11 @@ export class AppShell extends Shell {
 		switch (this.currentView) {
 			case HORIZON_VIEWS.CARD_STOP:
 			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
-				return html`
-					<horizon-actionbar></horizon-actionbar>
-					${this.renderSuccessToast()}
-					`
+				return html`<horizon-actionbar></horizon-actionbar>`
 
 			default:
 				return html``;
 		}
-	}
-
-	renderSuccessToast() {
-		if (this.displayToast) {
-			return html`
-			<capitec-toast 
-				class="success-toast" 
-				type="success" 
-				header="Successfull" 
-				detail="${this.toastMessage}" 
-				closable="true">
-			</capitec-toast>
-		`;
-		}
-		return html``;
 	}
 
 	renderleftUI() {

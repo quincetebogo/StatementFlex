@@ -144,7 +144,13 @@ export class StopCardComponent extends Component {
 	}
 
 	_onCardsStopped(event) {
-		this.dispatchEvent(new CustomEvent('cards-stopped', { detail: { stoppedCards: event.detail.stoppedCards } }));
+		this.dispatchEvent(new CustomEvent('cards-stopped',
+			{
+				detail: {
+					callerInfo: this.callerInfo,
+					stoppedCards: event.detail.stoppedCards
+				}
+			}));
 	}
 
 	// --------------
