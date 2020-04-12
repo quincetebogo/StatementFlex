@@ -270,8 +270,8 @@ export class AppShell extends Shell {
 				}
 
 				.success-toast{
-					position: relative;
-					top : -96px;
+					position: absolute;
+					top : 32px;
 					margin-left:784px;
 					width : 352px;
 					height: 64px;
