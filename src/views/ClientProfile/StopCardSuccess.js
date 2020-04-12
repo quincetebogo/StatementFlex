@@ -1,9 +1,15 @@
 import { View, html, css } from 'platform/elements';
-// import 'platform/components/layouts/Group'
-// import 'platform/components/containers/Card';
+import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
 
 import { HorizonViewManager } from '../../HorizonViewManager';
 import '../../components/Common/HorizonOptionButton'
+import '../../components/EndCallSessionReason';
+
+const RENDER_MODE = {
+	CARD_STOP_SUCCESS: 0,
+	END_CALLSESSION: 1
+};
 
 export class StopCardSuccess extends View {
 
@@ -14,6 +20,7 @@ export class StopCardSuccess extends View {
 	constructor() {
 		super();
 		this.toggleNotification = true;
+		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 	}
 
 
@@ -24,6 +31,7 @@ export class StopCardSuccess extends View {
 	static get properties() {
 		return {
 			toggleNotification: { type: Boolean },
+			renderMode: { type: Number }
 		}
 	}
 
@@ -34,7 +42,36 @@ export class StopCardSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		window.setTimeout(() => { this.toggleNotification = false }, 1000);
+		this.router = Router.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.state = this.horizonViewManager.recoverState();
+
+		this.eventAggregator.publish(`horizon-toast-update`, { toastOn: true, toastMessage: "Debit Card Stopped" });
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+
+		window.setTimeout(() => this._onToastDisplayTimeout(), 1000);
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+	_onToastDisplayTimeout() {
+		this.toggleNotification = false;
+		this.eventAggregator.publish(`horizon-toast-update`, { toastOn: false, toastMessage: "" });
+	}
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALLSESSION;
+	}
+
+	_onCallComplete() {
+		// TODO: Web service calls to complete call
+
+		// Clear any state and return to landing page.
+		this / this.horizonViewManager.saveState({});
+		this.router.navigateByPath(`/landingPage`);
 	}
 
 	// ---------
@@ -134,6 +171,9 @@ export class StopCardSuccess extends View {
 			`];
 	}
 
+	_mobileTemplate() {
+	}
+
 	_webTemplate() {
 		return html`		
 		<capitec-card>
@@ -146,6 +186,7 @@ export class StopCardSuccess extends View {
 				<p class="stop-card-text">Remind the client that they will need to visit a branch for a new card.</p>
 				${this.renderRelatedOptions()}
 				${this.renderOptionsButtons()} 
+				${this.renderEndCallModal()}
 			</capitec-group>
 		</capitec-card>`;
 	}
@@ -202,9 +243,18 @@ export class StopCardSuccess extends View {
 			`;
 	}
 
-	renderSuccessButton() {
+	renderEndCallModal() {
+		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
+			return html`
+			<end-call-session
+				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS }}"
+				@on-reason-set="${(reason) => this._onCallComplete(reason)}">
+			</end-call-session>`;
+		}
 
+		return html``;
 	}
+
 }
 
 customElements.define(`horizon-summary-success`, StopCardSuccess);

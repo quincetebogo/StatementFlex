@@ -65,15 +65,11 @@ export class AppShell extends Shell {
 		this.showClientProfile = false;
 
 		//Event Aggregator
-		EventAggregator
-			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator = EventAggregator.getInstance();
 
-		EventAggregator
-			.getInstance()
-			.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
-
-		this.test = 'test';
+		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
+		this.eventAggregator.subscribe(`horizon-toast-update`, (event) => this._onToastUpdate(event));
 
 		// Property defaults.
 		this.isBusy = true;
@@ -212,6 +208,11 @@ export class AppShell extends Shell {
 	_onTopBarUpdated(event) {
 		this.fullName = event.agentFullName;
 		this.employeeId = event.employeeId;
+	}
+
+	_onToastUpdate(event) {
+		this.displayToast = event.toastOn;
+		this.toastMessage = event.toastMessage;
 	}
 
 	// --------------
