@@ -34,7 +34,7 @@ export class StopCardSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		window.setTimeout(() => { this.toggleNotification = false }, 2000);
+		window.setTimeout(() => { this.toggleNotification = false }, 1000);
 	}
 
 	// ---------
@@ -52,8 +52,8 @@ export class StopCardSuccess extends View {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 36px;
-			  	}			
-
+				  }			
+				  
 				.horizon-notify-client{
 					display: flex;
 					flex-direction: row;
@@ -135,7 +135,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_webTemplate() {
-		return html`
+		return html`		
 		<capitec-card>
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
 				${this.renderTitleBar()}

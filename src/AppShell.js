@@ -67,11 +67,11 @@ export class AppShell extends Shell {
 		//Event Aggregator
 		EventAggregator
 			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
+			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
 		EventAggregator
 			.getInstance()
-			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
+			.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
 
 		this.test = 'test';
 
@@ -87,6 +87,8 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
+		this.displayToast = false;
+		this.toastMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
@@ -110,7 +112,8 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			fullname: { type: String },
 			employeeId: { type: String },
-			currentView: { type: String }
+			currentView: { type: String },
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -197,11 +200,7 @@ export class AppShell extends Shell {
 		this.isError = !this.isError;
 	}
 
-	navigate(path) {
-		this.router.navigateByPath(`/${path}`);
-	}
-
-	onNavigationContextUpdated() {
+	_onNavigationContextUpdated() {
 		let nextView = this.horizonViewManager.getNextView();
 		if (nextView !== this.currentView) {
 			this.currentView = nextView;
@@ -210,7 +209,7 @@ export class AppShell extends Shell {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
-	onTopBarUpdated(event) {
+	_onTopBarUpdated(event) {
 		this.fullName = event.agentFullName;
 		this.employeeId = event.employeeId;
 	}
@@ -225,7 +224,9 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	navigate(path) {
+		this.router.navigateByPath(`/${path}`);
+	}
 
 	// ---------
 	// RENDERING
@@ -265,6 +266,14 @@ export class AppShell extends Shell {
 					height: 56px;
 					margin: 0px 0px 0px 0px;
 					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+				}
+
+				.success-toast{
+					position: relative;
+					top : -96px;
+					margin-left:784px;
+					width : 352px;
+					height: 64px;
 				}
 
 				.screen-content {
@@ -317,13 +326,16 @@ export class AppShell extends Shell {
 	 *
 	 * @returns {html} HTML content for the component.
 	 */
-	renderShell() {
+	_webTemplate() {
 		return html`
             ${this.renderLoadingIndicator()}
             ${this.renderContent()}
             ${this.renderSuccessModel()}
             ${this.renderErrorModal()}
         `;
+	}
+
+	_mobileTemplate() {
 	}
 
 	renderLoadingIndicator() {
@@ -359,7 +371,7 @@ export class AppShell extends Shell {
                 <div class="screen-size">
 				    ${this.renderTitleBar()}
 					${this.renderAddionalBar()}
-
+					
                     <capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
@@ -408,11 +420,29 @@ export class AppShell extends Shell {
 		switch (this.currentView) {
 			case HORIZON_VIEWS.CARD_STOP:
 			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
-				return html`<horizon-actionbar></horizon-actionbar>`
+				return html`
+					<horizon-actionbar></horizon-actionbar>
+					${this.renderSuccessToast()}
+					`
 
 			default:
 				return html``;
 		}
+	}
+
+	renderSuccessToast() {
+		if (this.displayToast) {
+			return html`
+			<capitec-toast 
+				class="success-toast" 
+				type="success" 
+				header="Successfull" 
+				detail="${this.toastMessage}" 
+				closable="true">
+			</capitec-toast>
+		`;
+		}
+		return html``;
 	}
 
 	renderleftUI() {
