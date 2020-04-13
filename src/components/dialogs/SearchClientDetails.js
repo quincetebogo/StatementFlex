@@ -1,8 +1,19 @@
+/*
+ *		Horizon Search Client Details Dialog
+ *
+ */
 import { Component, html, css } from 'platform/elements';
 import { StopCardService } from '../../services/StopCardService';
-import StopcardHelper from '../../helpers/StopCardHelper';
-import { EventAggregator } from 'platform/EventAggregator';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+
+import '../dialogs/ConfirmCallerDetails';
+import '../../components/Common/HorizonSelect';
+
+const RENDER_MODE = {
+	SEARCH_CALLER: 0,
+	END_CALL: 1,
+};
+
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -14,16 +25,15 @@ export class SearchClientDetailsComponent extends Component {
 		super();
 
 		RegExp();
-		this.eventAggregator = EventAggregator.getInstance();
 
 		this.isBusy = false;
 		this.errMessage = {
 			identificationMethods: "",
 			searchFieldText: ""
 		}
-
 		this.unverifiedCaller = null;
 		this.stopCardService = StopCardService.getInstance();
+		this.renderMode = -1;
 	}
 
 	// ----------
@@ -34,7 +44,8 @@ export class SearchClientDetailsComponent extends Component {
 		return {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
-			unverifiedCaller: { type: Object }
+			unverifiedCaller: { type: Object },
+			renderMode: { type: Number }
 		}
 	}
 
@@ -54,7 +65,6 @@ export class SearchClientDetailsComponent extends Component {
 		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
-
 		this.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
 
@@ -69,13 +79,20 @@ export class SearchClientDetailsComponent extends Component {
 			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
 			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 		}
-
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.searchFieldText = null;
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_onKeyPress(e) {
+		if (e.detail.new != "") {
+			this.errMessage[e.currentTarget.id] = "";
+		}
+		this.requestUpdate();
+	}
 
 	_valueChanged(e) {
 		if (typeof e.detail.new == "object") {
@@ -92,41 +109,52 @@ export class SearchClientDetailsComponent extends Component {
 		if (!this.validateData()) {
 			console.log("service call");
 
-			let callerDetails = {
-				incomingNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
-				voiceReference: this.unverifiedCaller.voiceReferenceNumber.value,
+			let searchClient = {
+				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
+				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
 				incidentNo: this.unverifiedCaller.incidentReferenceNumber,
-				agentPhoneNumber: this.unverifiedCaller.agentTelephoneNumber,
-				ivrOptionSelected: 'StopCard',
+				agentTelephoneNumber: this.unverifiedCaller.agentTelephoneNumber,
+				ivrOption: 'StopCard',
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
 			}
 
 			this.isBusy = true;
+			try {
+				let identifiedClient = await StopCardService.getInstance().searchCaller(searchClient);
 
-			let searchResponse = await StopCardService.getInstance().searchCaller(callerDetails);
+				//Adding variables to the response, as searchCaller service doesn't return 
+				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
+				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
+				this.raiseBackEvent(identifiedClient)
 
-			callerDetails.callerFullName = searchResponse.callerInformation.name.value;
-			callerDetails.verifiedTelephoneNumber = searchResponse.callerInformation.verifiedTelephoneNumber.value;
-			callerDetails.southAfricanIDNumber = searchResponse.callerInformation.southAfricanIDNumber.value;
-			callerDetails.relationship = "Sister";
-
-			let identifyCallerPromise = StopcardHelper.getInstance().identifyCaller(callerDetails);
-
-			identifyCallerPromise.then((response) => {
-
-				this.eventAggregator.publish('confirmed-caller', { detail: { confirmedCaller: response } });
+			}
+			catch (error) {
+				console.log('SearchCaller service Failed');
+			}
+			finally {
 				this.isBusy = false;
-			}, (error) => {
-
-				console.log('Error in fetching Client Info.');
-				this.isBusy = false;
-			});
+			}
 		}
 		else {
 			console.log("Validation failed");
 			this.requestUpdate();
 		}
+	}
+
+	raiseBackEvent(identifiedClient) {
+		//TODO: Populate event with data to return to the confirm dialog.
+		// it will then return to the landing page
+		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
+		this.dispatchEvent(new CustomEvent('on-client-identified', {
+			detail: {
+				identifiedClient: identifiedClient
+			}
+		}));
+	};
+
+	onCallCancelled(reason) {
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	// ---------------
@@ -208,131 +236,179 @@ export class SearchClientDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
-			
-			`];
-
+				.main{
+					width: 690px;
+					height: 403px;
+					border-bottom: 1px solid #E1E1E1;
+					border-radius: 4px;
+				}
+				.call-details-bar{
+					display: flex;
+					flex-direction: row;
+					height:64px;
+					margin: 0px;
+					border-bottom: 1px solid #dfdfdf;
+				}
+				.call-label{
+					width:208px;
+					margin-left:24px;
+					margin-top:8px;
+					margin-bottom:8px;
+				}
+				.ivr-option{
+					width: 228px;
+				}
+				.left-border{
+					border-left: 1px solid #dfdfdf;
+				}
+				#label-ivr{
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					line-height: 27px;
+					width: 180px;
+					margin-top: 8px;
+					margin-left: 24px;
+				}
+				.search-box{
+					height: 310px;
+					padding: 16px 24px 0px 24px;
+				}
+				.search-label{
+					height: 27px;
+					width: 170px;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					color: #003652;
+					line-height: 27px;
+				}
+				.id-options{
+					text-align: justify;
+					line-height: 12px	
+				}
+				.search-fields{
+					padding: 24px 0px 0px 0px;
+				}
+				.search-field-row{
+					height: 72px;
+				}`
+		];
 	}
 
 	render() {
-		return html`
-		${this.renderLoadingIndicator()}
-			<capitec-modal type="free" header="Search Client Details" header-align="left" >
-				<div slot="body">
-					${this.renderCallInformation()}
-					${this.renderSearchClientDetails()}
-				</div>
-				${this.renderFooter()}
-			</capitec-modal>`;
+		switch (this.renderMode) {
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`${this.renderLoadingIndicator()}
+					<capitec-modal type="free" header="Search Client Details" header-align="left" >
+						<div slot="body" class="main">
+							${this.renderCallInformation()}
+							${this.renderSearchClientDetails()}
+						</div>
+						<div slot="footer">
+							${this.renderFooter()}
+						</div>
+					</capitec-modal>`;
+			case RENDER_MODE.END_CALL:
+				return html`${this.renderEndCallModal()}`;
+		}
 	}
 
 	renderLoadingIndicator() {
-
-		if (!this.isBusy) {
+		if (!this.isBusy)
 			return html``;
-		}
 		else
-			return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderCallInformation() {
 		return html`
-		<capitec-action-bar>
-			<capitec-group layout="horizontal" gap="line" halign="left" valign="top">
-				<div>
-					<capitec-group layout="horizontal" gap="clear">
-						<div>
-							<b>Reference Number</b>
-							<capitec-label label="${this.voiceReferenceNumber.value}"
-											tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-											?hidden=${isHidden(this.voiceReferenceNumber)}>
-							</capitec-label>
-						</div>
-						<capitec-spacer></capitec-spacer>
-						<capitec-spacer></capitec-spacer>
-						<capitec-spacer></capitec-spacer>
-					</capitec-group>
+			<div class="call-details-bar">
+				<horizon-label 
+					class="call-label"
+					label="Reference Number" 
+					value = "${this.voiceReferenceNumber.value}"
+					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+					?hidden=${isHidden(this.voiceReferenceNumber)}>
+				</horizon-label>
+				<div class="ivr-option left-border">
+					<horizon-select
+						id="label-ivr"
+						label="IVR Option Selected"
+						display-field="value"
+						.items="${this.ivrOption.possibleValues}"
+						.value="${this.ivrOption.possibleValues[0].value}"
+						tabindex="${getTabIndex(this.ivrOption)}"
+						?hidden=${isHidden(this.ivrOption)}>
+					</horizon-select>
 				</div>
+				<div class="left-border">
+					<horizon-label
+						class="call-label"
+						label="Incoming Number"
+						value="${this.incomingTelephoneNumber.value}"
+						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+						?hidden=${isHidden(this.incomingTelephoneNumber)}>
+					</horizon-label>
 				<div>
-					<capitec-select label="IVR Option Selected" 
-									.value="${this.ivrOption.value}"
-									.items="${this.ivrOption.possibleValues}" 
-									display-field="value"
-									tabindex="${getTabIndex(this.ivrOption)}"
-									?hidden=${isHidden(this.ivrOption)}>
-					</capitec-select>
-				</div>
-				<div>
-					<capitec-group layout="horizontal" gap="clear">
-						<div>
-							<b>Incoming Number</b>
-							<capitec-label label="${this.isUnverifiedNumber ? 'Private Number' : this.incomingTelephoneNumber.value}"
-											tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-											?hidden=${isHidden(this.incomingTelephoneNumber)}>
-							</capitec-label>
-						</div>
-						<capitec-spacer></capitec-spacer>
-						<capitec-spacer></capitec-spacer>
-						<capitec-spacer></capitec-spacer>
-					</capitec-group>
-				</div>
-			</capitec-group>
-		</capitec-action-bar>`;
+			</div>`;
 	}
 
 	renderSearchClientDetails() {
 		return html`
-		<capitec-content-box>
-			<div>
-				<b>Search existing client</b>
-			</div>
-			<capitec-spacer></capitec-spacer>
-			<div>
-				<capitec-select	id="identificationMethods"
-								error="${this.errMessage.identificationMethods}" 
-								label="Choose identification method" 
-								style="text-align:justify;line-height:normal;"
-								.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
-								@value-changed="${(e) => this._valueChanged(e)}"
-								tabindex="${getTabIndex(this.identificationMethods)}"
-								?hidden=${isHidden(this.identificationMethods)}
-								display-field="displayText">
-				</capitec-select>
-			</div>
-			<capitec-spacer></capitec-spacer>
-			<div>
-				<capitec-search-field id="searchFieldText"
-									  keyboardMode ="" label="Search" 
-									  error="${this.errMessage.searchFieldText}" 
-									  focussed="true" 
-									  hint="" 
-									  @value-changed="${(e) => this._valueChanged(e)}" 
-									  value="">
-				</capitec-search-field>
-			</div>
-			<capitec-spacer></capitec-spacer>
-			<capitec-spacer></capitec-spacer>
-			<capitec-spacer></capitec-spacer>
-		</capitec-content-box>
-		`;
+		<capitec-content-box class="search-box">
+			<capitec-label class="search-label" label="Search existing client"></capitec-label>
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+				<div class="search-field-row">
+					<capitec-select	id="identificationMethods"
+									error="${this.errMessage.identificationMethods}" 
+									label="Choose identification method" 
+									class="id-options"
+									.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
+									@value-changed="${(e) => this._valueChanged(e)}"
+									tabindex="${getTabIndex(this.identificationMethods)}"
+									?hidden=${isHidden(this.identificationMethods)}
+									display-field="displayText">
+					</capitec-select>
+				</div>
+				<div class="search-field-row">
+					<capitec-text-field id="searchFieldText" 
+										type="search"
+										keyboardMode ="numeric" 
+										label="Search" 
+										error="${this.errMessage.searchFieldText}" 
+										focussed="true" 
+										hint="" 
+										@key-input="${(e) => this._onKeyPress(e)}"
+										@value-changed="${(e) => this._valueChanged(e)}" 
+										value="">
+					</capitec-text-field>
+				</div>
+			</capitec-group>
+		</capitec-content-box>`;
 	}
 
 	renderFooter() {
 		return html`
-		<capitec-action-bar slot="footer">
-			<capitec-spacer></capitec-spacer>
-			<capitec-button type="clear" label="End Call Session" 
-							?hidden=${isHidden(this.endCallSessionButton)}
-							.disabled="${isDisabled(this.endCallSessionButton)}"
-							tabindex="${getTabIndex(this.endCallSessionButton)}">
-			</capitec-button>
-			<capitec-button type="primary" 
-							@click="${(e) => this._onSearchClick(e)}" 
-							label="Search Client">
-			</capitec-button>
-		</capitec-action-bar>
-		`;
+			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+				<capitec-button type="clear"
+								label="End Call Session"
+								@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}">
+				</capitec-button>
+				<capitec-button type="primary"
+								@click="${(e) => this._onSearchClick(e)}"
+								label="Search Client">
+				</capitec-button>
+			</capitec-group>`;
+	}
+
+	renderEndCallModal() {
+		return html`
+			<end-call-session
+				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+			</end-call-session>`;
 	}
 }
 
