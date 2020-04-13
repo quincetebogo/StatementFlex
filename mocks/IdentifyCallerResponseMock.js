@@ -3,8 +3,10 @@ export default mockResponse = {
 	cards: [
 		{
 			"accountNumber": "5284 **** **** 1322",
+			"encryptedCardId": "5284 **** **** 1322",
 			"cardType": "Debit Card",
 			"cardStatus": "Active",
+			"cardId": "5284 **** **** 1322",
 			"stopCard": {
 				"enabled": true,
 				"tabIndex": 0,
@@ -13,8 +15,10 @@ export default mockResponse = {
 		},
 		{
 			"accountNumber": "5284 **** **** 1222",
+			"encryptedCardId": "5284 **** **** 1222",
 			"cardType": "Credit Card",
 			"cardStatus": "Active",
+			"cardId": "5284 **** **** 1222",
 			"stopCard": {
 				"enabled": true,
 				"tabIndex": 0,

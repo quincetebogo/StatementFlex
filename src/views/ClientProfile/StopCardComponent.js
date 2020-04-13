@@ -1,10 +1,13 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonViewManager } from '../../HorizonViewManager';
+
 import '../../components/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
 
 import 'platform/components';
+import '../../components/dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -14,6 +17,7 @@ const COLUMNS = {
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
 	CARD_STOP_MODAL: 1,
+	CARD_STOP_SUCCESS: 2
 };
 
 export class StopCardComponent extends Component {
@@ -27,14 +31,19 @@ export class StopCardComponent extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
+		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
+
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		this.toggleEndCallModal = false;
 		this.cards = null;
 		this.confirmedCaller = null;
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.rowData = {};
 		this.selectedCardCount = 0;
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-		this.cardsToStop = {};
+		this.cardsToStop = [];
 	}
 
 	// ----------
@@ -48,7 +57,8 @@ export class StopCardComponent extends Component {
 			cards: { type: Object },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			rowData: { type: Object }
+			rowData: { type: Object },
+			cardsToStop: { type: Array }
 		}
 	}
 
@@ -60,9 +70,19 @@ export class StopCardComponent extends Component {
 		super.connectedCallback();
 
 		this.cards = this.confirmedCaller.cards;
+
+		// Set up caller information for passing to Stop Card Modal
+		this.callerInfo = {
+			incomingTelephoneNumber: this.confirmedCaller.incomingTelephoneNumber,
+			voiceReferenceNumber: this.confirmedCaller.voiceReferenceNumber,
+			ivrOptionCode: this.confirmedCaller.ivrOption,
+			incidentReferenceNumber: this.confirmedCaller.incidentReferenceNumber,
+			agentTelephoneNumber: this.confirmedCaller.agentTelephoneNumber
+		};
+
 		/**
-		 * Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
-		 */
+		* Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
+		*/
 		this.cards = this.generateRowIndex();
 	}
 
@@ -108,6 +128,7 @@ export class StopCardComponent extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+		console.log(rowData);
 	}
 
 	_onClickReason() {
@@ -116,9 +137,20 @@ export class StopCardComponent extends Component {
 		 */
 	}
 
+
 	_onStopCards() {
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 		this.cardsToStop = this.cards.filter(card => card.selected);
+	}
+
+	_onCardsStopped(event) {
+		this.dispatchEvent(new CustomEvent('cards-stopped',
+			{
+				detail: {
+					callerInfo: this.callerInfo,
+					stoppedCards: event.detail.stoppedCards
+				}
+			}));
 	}
 
 	// --------------
@@ -245,7 +277,9 @@ export class StopCardComponent extends Component {
 										  .renderer="${(rowData) => this.renderRowData(rowData, COLUMNS.CARDTYPE)}"
 										  .headerRenderer="${() => this.headerRenderer()}">
 					</capitec-table-column>
-				</capitec-table>`;
+				</capitec-table>
+				`;
+
 	}
 
 	renderRowInput(rowData) {
@@ -316,15 +350,19 @@ export class StopCardComponent extends Component {
 
 	renderStopCardModal(rowData) {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
-			console.log("Stop card button clicked");
 			return html`
-				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
+				<horizon-stop-card 
+					.callerInfo="${this.callerInfo}"
+					.cardsToStop="${this.cardsToStop}"			
+					@on-confirm="${(event) => this._onCardsStopped(event)}"
+					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+				</horizon-stop-card>
 			`;
 		}
 
 	}
+
 	renderFooter() {
-		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">

@@ -87,6 +87,23 @@ export class StopCardService {
 		});
 	}
 
+<<<<<<< HEAD
+=======
+	async stopCard(card) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
+			{
+				"incomingTelephoneNumber": card.incomingTelephoneNumber,
+				"voiceReferenceNumber": card.voiceReferenceNumber,
+				"ivrOptionCode": card.ivrOptionCode,
+				"incidentReferenceNumber": card.incidentReferenceNumber,
+				"agentTelephoneNumber": card.agentTelephoneNumber,
+				"cardId": card.cardId,
+				"accountNumber": card.accountNumber,
+				"stopReason": card.stopReason
+			});
+	}
+
+>>>>>>> feature/EL-1422-CardStopSummarySuccess
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
 	}
@@ -109,4 +126,5 @@ export class StopCardService {
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
 	}
+
 }
