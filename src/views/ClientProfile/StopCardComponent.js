@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import '../../components/EndCallSessionReason';
+import '../../components/dialogs/StopCard';
 
 import 'platform/components';
 
@@ -9,6 +10,11 @@ const COLUMNS = {
 	CARDTYPE: 'cardType',
 	CARDNUMBER: 'accountNumber'
 }
+
+const RENDER_MODE = {
+	CLIENT_PROFILE: 0,
+	CARD_STOP_MODAL: 1,
+};
 
 export class StopCardComponent extends Component {
 
@@ -26,6 +32,9 @@ export class StopCardComponent extends Component {
 		this.cards = null;
 		this.confirmedCaller = null;
 		this.selectedCardCount = 0;
+
+		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.cardsToStop = {};
 	}
 
 	// ----------
@@ -37,7 +46,9 @@ export class StopCardComponent extends Component {
 			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
-			selectedCardCount: { type: Number }
+			selectedCardCount: { type: Number },
+			renderMode: { type: Number },
+			rowData: { type: Object }
 		}
 	}
 
@@ -103,6 +114,11 @@ export class StopCardComponent extends Component {
 		/**
 		 * Stop reason selection functionality comes here
 		 */
+	}
+
+	_onStopCards() {
+		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		this.cardsToStop = this.cards.filter(card => card.selected);
 	}
 
 	// --------------
@@ -193,6 +209,7 @@ export class StopCardComponent extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this.renderEndCallModal()}
+			${this.renderStopCardModal(this.rowData)}
 		`;
 	}
 
@@ -297,7 +314,17 @@ export class StopCardComponent extends Component {
 		}
 	}
 
+	renderStopCardModal(rowData) {
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+			console.log("Stop card button clicked");
+			return html`
+				<horizon-stop-card  .cardsToStop="${this.cardsToStop}"></horizon-stop-card>
+			`;
+		}
+
+	}
 	renderFooter() {
+		console.log("Rendering stop card");
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">
@@ -306,7 +333,7 @@ export class StopCardComponent extends Component {
 									column="2"
 									label="Stop Card(s)"
 									type="primary"
-									@click="${(rowData) => this.doNothingForNow /**Thulekha will integrate her changes here*/}">
+									@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}
