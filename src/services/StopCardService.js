@@ -87,8 +87,6 @@ export class StopCardService {
 		});
 	}
 
-<<<<<<< HEAD
-=======
 	async stopCard(card) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
 			{
@@ -103,7 +101,6 @@ export class StopCardService {
 			});
 	}
 
->>>>>>> feature/EL-1422-CardStopSummarySuccess
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
 	}
