@@ -94,17 +94,17 @@ export class StopCardService {
 		});
 	}
 
-	async stopCard(cards) {
+	async stopCard(card) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
 			{
-				"incomingTelephoneNumber": "string",
-				"voiceReferenceNumber": "string",
-				"ivrOptionCode": "string",
-				"incidentReferenceNumber": "string",
-				"agentTelephoneNumber": "string",
-				"cardId": "string",
-				"accountNumber": "string",
-				"stopReason": "string"
+				"incomingTelephoneNumber": card.incomingTelephoneNumber,
+				"voiceReferenceNumber": card.voiceReferenceNumber,
+				"ivrOptionCode": card.ivrOptionCode,
+				"incidentReferenceNumber": card.incidentReferenceNumber,
+				"agentTelephoneNumber": card.agentTelephoneNumber,
+				"cardId": card.cardId,
+				"accountNumber": card.accountNumber,
+				"stopReason": card.stopReason
 			});
 	}
 

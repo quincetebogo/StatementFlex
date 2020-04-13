@@ -58,7 +58,7 @@ export class StopCardSuccess extends View {
 				phoneNumber: this.callerInfo.incomingTelephoneNumber
 			});
 
-		window.setTimeout(() => this._onToastDisplayTimeout(), 1000);
+		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
 
 	// --------------
@@ -73,10 +73,8 @@ export class StopCardSuccess extends View {
 	}
 
 	_onCallComplete() {
-		// TODO: Web service calls to complete call
-
 		// Clear any state and return to landing page.
-		this / this.horizonViewManager.saveState({});
+		this.horizonViewManager.saveState({});
 		this.router.navigateByPath(`/landingPage`);
 	}
 
@@ -95,9 +93,9 @@ export class StopCardSuccess extends View {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 36px;
-				  }			
+				}			
 
-				  .success-toast{
+				.success-toast{
 					position: absolute;
 					top : 32px;
 					left:784px;
@@ -135,6 +133,7 @@ export class StopCardSuccess extends View {
 				
 				.card-stopped {
 					margin-top:36px;
+					margin-bottom:24px;
 					height: 36px;
 					color: #003652;
 					font-family: "Hind Vadodara";
@@ -143,45 +142,54 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 36px;
 					text-align: center;
-				  }		
+				}		
 				  
-				  .stop-card-text {
-					height: 20px;
+				.stop-card-text {
+					margin: 0px 0px 0px 0px;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
-				  }	
+				}	
+
+				.bold-text{
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+				}				  
 				  
-				  .related-options {
+				.related-options {
 					margin-top:152px;
 					height: 32px;
 					width: 100%;
 					background-color: #F4F4F4;
 					border-top: 1px solid #dfdfdf;
 					border-bottom: 1px solid #dfdfdf;
-				  }
+				}
 
-				  .related-options-text{
-					  margin: 0px 0px 0px 24px;
-					  padding: 0px 0px 0px 0px;
-					  color: #003652;
-					  font-family: "Hind Vadodara";
-					  font-size: 15px;
-					  font-weight: 600;
-					  letter-spacing: 0;
-					  line-height: 30px;					  
-				  }
+				.related-options-text{
+					margin: 0px 0px 0px 24px;
+					padding: 0px 0px 0px 0px;
+					color: #003652;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 30px;					  
+				}
 
-				  .options-group{
-					  margin:24px 0px 62px 24px;
-				  }
+				.options-group{
+					margin:24px 0px 62px 24px;
+				}
 
-				  .button-margin{
-					  margin-right:16px;
-				  }
+				.button-margin{
+					margin-right:16px;
+				}
 			`];
 	}
 
@@ -192,24 +200,21 @@ export class StopCardSuccess extends View {
 		return html`		
 		<capitec-card>
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
-				${this.renderTitleBar()}
-				${this.renderSuccessToast()}
-				${this.renderNotifyClient()}
-				${this.renderGraphic()}
+				${this._renderTitleBar()}
+				${this._renderSuccessToast()}
+				${this._renderNotifyClient()}
+				${this._renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
-				${this.renderStoppedCards()}
+				${this.stoppedCards.map(line => { return this._renderStoppedCard(line) })}
 				<p class="stop-card-text">Remind the client that they will need to visit a branch for a new card.</p>
-				${this.renderRelatedOptions()}
-				${this.renderOptionsButtons()} 
-				${this.renderEndCallModal()}
+				${this._renderRelatedOptions()}
+				${this._renderOptionsButtons()} 
+				${this._renderEndCallModal()}
 			</capitec-group>
 		</capitec-card>`;
 	}
 
-	/*
-*/
-
-	renderTitleBar() {
+	_renderTitleBar() {
 		return html`
 			<capitec-title-bar 
 				class="title-bar-text"
@@ -218,7 +223,7 @@ export class StopCardSuccess extends View {
 			</capitec-title-bar>`;
 	}
 
-	renderNotifyClient() {
+	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
 			<div 
@@ -232,22 +237,27 @@ export class StopCardSuccess extends View {
 			</div>`;
 	}
 
-	renderGraphic() {
+	_renderGraphic() {
 		return html`<img class="card-image" src="../../images/cardStop/cards.svg"/>`;
 	}
 
-	renderStoppedCards() {
+	_renderStoppedCard(line) {
+		// let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
+		// this.firstLine = false;
 
+		return html`
+		<p class="stop-card-text">${line.cardType} <span class="bold-text">${line.accountNumber}</span> was stopped successfully.</p>
+		`;
 	}
 
-	renderRelatedOptions() {
+	_renderRelatedOptions() {
 		return html`
 		<div class="related-options">
 			<p class="related-options-text">Related Options</p> 
 		</div>`;
 	}
 
-	renderOptionsButtons() {
+	_renderOptionsButtons() {
 		return html`
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="../../../images/access.svg"></horizon-option-button>
@@ -258,7 +268,7 @@ export class StopCardSuccess extends View {
 			`;
 	}
 
-	renderSuccessToast() {
+	_renderSuccessToast() {
 		if (!this.displayNotification) {
 			return html`
 			<capitec-toast 
@@ -266,14 +276,16 @@ export class StopCardSuccess extends View {
 				type="success" 
 				header="Successfull" 
 				detail="Debit card stopped" 
-				closable="true">
+				closable="true"
+				@click="${() => this._onToastDisplayTimeout()}"
+				>
 			</capitec-toast>
 		`;
 		}
 		return html``;
 	}
 
-	renderEndCallModal() {
+	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<end-call-session
