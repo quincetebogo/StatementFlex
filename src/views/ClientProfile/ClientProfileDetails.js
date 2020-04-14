@@ -17,15 +17,7 @@ export class ClientProfileDetails extends Component {
 		this.router = Router.getInstance();
 
 		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
-
-		this.name = this.confirmedCaller.clientPersonalInfo.value.name;
-		this.southAfricanIDNumber = this.confirmedCaller.clientPersonalInfo.value.southAfricanIDNumber;
-		this.verifiedTelephoneNumber = this.confirmedCaller.clientPersonalInfo.value.verifiedTelephoneNumber;
-		this.livesIn = this.confirmedCaller.clientPersonalInfo.value.livesIn;
-		this.languagePreference = this.confirmedCaller.clientPersonalInfo.value.languagePreference;
-		this.birthdate = this.confirmedCaller.clientPersonalInfo.value.birthdate;
-		this.viewProfileButton = this.confirmedCaller.clientPersonalInfo.value.viewProfileButton;
-		this.documentsButton = this.confirmedCaller.clientPersonalInfo.value.documentsButton;
+		this.clientProfileDetails = null;
 	}
 
 	// ----------
@@ -34,7 +26,7 @@ export class ClientProfileDetails extends Component {
 
 	static get properties() {
 		return {
-			confirmedCaller: { type: Object }
+			clientProfileDetails: { type: Object }
 		}
 	}
 
@@ -42,7 +34,24 @@ export class ClientProfileDetails extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	// N/A
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
+		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		this.clientPersonalInfo = this.clientProfileDetails && this.clientProfileDetails.clientPersonalInformation;
+
+		if (this.clientPersonalInfo) {
+			this.name = this.clientPersonalInfo.value.name;
+			this.southAfricanIDNumber = this.clientPersonalInfo.value.southAfricanIDNumber;
+			this.verifiedTelephoneNumber = this.clientPersonalInfo.value.verifiedTelephoneNumber;
+			this.livesIn = this.clientPersonalInfo.value.livesIn;
+			this.languagePreference = this.clientPersonalInfo.value.languagePreference;
+			this.birthdate = this.clientPersonalInfo.value.birthdate;
+			this.viewProfileButton = this.clientPersonalInfo.value.viewProfileButton;
+			this.documentsButton = this.clientPersonalInfo.value.documentsButton;
+		}
+	}
 
 	// ---------
 	// RENDERING
