@@ -12,6 +12,7 @@ export class AccessComponent extends Component {
 	constructor() {
 		super();
 		this.confirmedCaller = null;
+		this.clientProfileDetails = null;
 		this.showAlert = false;
 	}
 
@@ -21,7 +22,8 @@ export class AccessComponent extends Component {
 
 	static get properties() {
 		return {
-			showAlert: { type: Boolean }
+			showAlert: { type: Boolean },
+			clientProfileDetails: { type: Object }
 		}
 	}
 
@@ -32,7 +34,8 @@ export class AccessComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
-		this.clientAccess = this.confirmedCaller.clientAccess;
+		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
 		this.accessChannels = Object.keys(this.clientAccess);
 	}
 
