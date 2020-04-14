@@ -35,8 +35,7 @@ export class ClientProfileDetails extends Component {
 		super.connectedCallback();
 
 		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
-		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-		this.clientPersonalInfo = this.clientProfileDetails && this.clientProfileDetails.clientPersonalInformation;
+		this.clientPersonalInfo = this.confirmedCaller && this.confirmedCaller.clientPersonalInfo;
 
 		if (this.clientPersonalInfo) {
 			this.name = this.clientPersonalInfo.value.name;
