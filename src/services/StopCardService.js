@@ -43,7 +43,7 @@ export class StopCardService {
 
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
-			'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
+			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
 			'voiceReferenceNumber': callerData.voiceReferenceNumber,
 			'ivrOptionCode': callerData.ivrOptionCode,
@@ -53,6 +53,7 @@ export class StopCardService {
 			'nonClientCellPhone': callerData.nonClientCellPhone,
 			'nonClientIDNumber': callerData.nonClientIDNumber,
 			'nonClientRelationship': callerData.nonClientRelationship
+			// 'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
 		});
 	}
 
