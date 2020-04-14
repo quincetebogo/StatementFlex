@@ -13,7 +13,7 @@ export class ClientProfileDetails extends Component {
 	constructor() {
 		super();
 
-		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
+		this.confirmedCaller = null;
 		this.clientProfileDetails = null;
 	}
 
@@ -23,7 +23,6 @@ export class ClientProfileDetails extends Component {
 
 	static get properties() {
 		return {
-			confirmedCaller: { type: Object },
 			clientProfileDetails: { type: Object }
 		}
 	}
@@ -35,6 +34,7 @@ export class ClientProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
 		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		this.clientPersonalInfo = this.clientProfileDetails && this.clientProfileDetails.clientPersonalInformation;
 
