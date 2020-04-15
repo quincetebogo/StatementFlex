@@ -206,6 +206,16 @@ export class AddCallerDetails extends Component {
 					height: 72px;
 					width: 642px;
 				}
+				.header{
+					height: 30px;
+					width: 159px;
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 20px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 30px;
+				}
 				#id-back-button{
 					margin-right: 288px;
 				}
@@ -220,7 +230,7 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 						${this.renderLoadingIndicator()}
-						<capitec-modal type="free" header="Add Caller Details" header-align="left" >
+						<capitec-modal type="free" header="Add Caller Details"  header-align="left" class="header" >
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
 								${this.renderAddCallerDetails()}
