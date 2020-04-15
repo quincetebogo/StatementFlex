@@ -23,6 +23,7 @@ export class StopCardService {
 	// --------------
 
 	async initialise() {
+		console.log('in initialise');
 		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
 		console.log(tmp);
@@ -96,6 +97,19 @@ export class StopCardService {
 		});
 	}
 
+	async stopCard(card) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
+			{
+				"incomingTelephoneNumber": card.incomingTelephoneNumber,
+				"voiceReferenceNumber": card.voiceReferenceNumber,
+				"ivrOptionCode": card.ivrOptionCode,
+				"incidentReferenceNumber": card.incidentReferenceNumber,
+				"agentTelephoneNumber": card.agentTelephoneNumber,
+				"cardId": card.cardId,
+				"accountNumber": card.accountNumber,
+				"stopReason": card.stopReason
+			});
+	}
 
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
@@ -119,4 +133,5 @@ export class StopCardService {
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
 	}
+
 }

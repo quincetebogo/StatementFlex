@@ -19,9 +19,11 @@ import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentServic
 
 
 //TODO: Move these out of the shell
+import { HorizonActionBar } from './components/HorizonActionBar';
 import { LandingPageWelcome } from './components/landingPage/LandingPageWelcome';
 import { LandingPageMarketing } from './components/landingPage/LandingPageMarketing';
-import { HorizonActionBar } from './components/HorizonActionBar';
+import { ClientProfileDetails } from './views/ClientProfile/AccessComponent';
+import { AccessComponent } from './views/ClientProfile/AccessComponent';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -65,15 +67,10 @@ export class AppShell extends Shell {
 		this.showClientProfile = false;
 
 		//Event Aggregator
-		EventAggregator
-			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
+		this.eventAggregator = EventAggregator.getInstance();
 
-		EventAggregator
-			.getInstance()
-			.subscribe(`horizon-top-bar-data`, (event) => this.onTopBarUpdated(event));
-
-		this.test = 'test';
+		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
 
 		// Property defaults.
 		this.isBusy = true;
@@ -110,7 +107,7 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			fullname: { type: String },
 			employeeId: { type: String },
-			currentView: { type: String }
+			currentView: { type: String },
 		};
 	}
 
@@ -197,11 +194,7 @@ export class AppShell extends Shell {
 		this.isError = !this.isError;
 	}
 
-	navigate(path) {
-		this.router.navigateByPath(`/${path}`);
-	}
-
-	onNavigationContextUpdated() {
+	_onNavigationContextUpdated() {
 		let nextView = this.horizonViewManager.getNextView();
 		if (nextView !== this.currentView) {
 			this.currentView = nextView;
@@ -210,7 +203,7 @@ export class AppShell extends Shell {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
-	onTopBarUpdated(event) {
+	_onTopBarUpdated(event) {
 		this.fullName = event.agentFullName;
 		this.employeeId = event.employeeId;
 	}
@@ -225,7 +218,9 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	navigate(path) {
+		this.router.navigateByPath(`/${path}`);
+	}
 
 	// ---------
 	// RENDERING
@@ -317,13 +312,16 @@ export class AppShell extends Shell {
 	 *
 	 * @returns {html} HTML content for the component.
 	 */
-	renderShell() {
+	_webTemplate() {
 		return html`
             ${this.renderLoadingIndicator()}
             ${this.renderContent()}
             ${this.renderSuccessModel()}
             ${this.renderErrorModal()}
         `;
+	}
+
+	_mobileTemplate() {
 	}
 
 	renderLoadingIndicator() {
@@ -359,7 +357,7 @@ export class AppShell extends Shell {
                 <div class="screen-size">
 				    ${this.renderTitleBar()}
 					${this.renderAddionalBar()}
-
+					
                     <capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
@@ -405,39 +403,41 @@ export class AppShell extends Shell {
 	}
 
 	renderAddionalBar() {
-		if (this.currentView !== HORIZON_VIEWS.LANDING_PAGE) {
-			return html`<horizon-actionbar></horizon-actionbar>`
-		}
+		switch (this.currentView) {
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<horizon-actionbar></horizon-actionbar>`
 
-		return html``;
+			default:
+				return html``;
+		}
 	}
 
 	renderleftUI() {
-		console.log('renderleftUI(currentView)', this.currentView);
+		switch (this.currentView) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`;
 
-		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			console.log("will now render left welcome");
-			return html`
-				<landingpage-welcome 
-					.fullname="${this.fullName}">
-				</landingpage-welcome>`;
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<client-details></client-details>`;
+
+			default:
+				return html``;
 		}
-		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
-			console.log("will now render client details");
-
-			return html`<client-details></client-details>`;
-		}
-
-		console.log('rendering blank');
-		return html``;
 	}
 
 	renderRightUI() {
-		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
-			return html`<landingpage-marketing></landingpage-marketing>`;
-		}
-		else if (this.currentView === HORIZON_VIEWS.CARD_STOP) {
-			return html`<access-component></access-component>`;
+		switch (this.currentView) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html`<landingpage-marketing></landingpage-marketing>`;
+
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+				return html`<access-component></access-component>`;
+
+			default:
+				return html``;
 		}
 	}
 
