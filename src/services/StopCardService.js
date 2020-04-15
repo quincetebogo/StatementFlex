@@ -23,6 +23,7 @@ export class StopCardService {
 	// --------------
 
 	async initialise() {
+		console.log('in initialise');
 		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
 		console.log(tmp);
@@ -43,15 +44,17 @@ export class StopCardService {
 
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
+			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
 			'voiceReferenceNumber': callerData.voiceReferenceNumber,
-			'ivrOptionCode': callerData.ivrOption,
+			'ivrOptionCode': callerData.ivrOptionCode,
 			'incidentReferenceNumber': callerData.incidentReferenceNumber,
 			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.callerFullName,
-			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
-			'nonClientIDNumber': callerData.southAfricanIDNumber,
-			'nonClientRelationship': callerData.relationship
+			'nonClientFullName': callerData.nonClientFullName,
+			'nonClientCellPhone': callerData.nonClientCellPhone,
+			'nonClientIDNumber': callerData.nonClientIDNumber,
+			'nonClientRelationship': callerData.nonClientRelationship
+			// 'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
 		});
 	}
 
