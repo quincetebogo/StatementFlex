@@ -90,21 +90,17 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async onConfirmClick() {
 		let confirmedCaller = {
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
 			ivrOptionCode: 'StopCard',
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
+			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
 			nonClientFullName: '',
 			nonClientCellPhone: '',
 			nonClientIDNumber: '',
 			nonClientRelationship: ''
-			/*
-				TODO: should added Caller Details go here?
-
-				probably not but we should perhaps add the fields and initialize them to null
-			*/
 		}
 
 		try {

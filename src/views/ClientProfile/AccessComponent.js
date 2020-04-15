@@ -36,7 +36,8 @@ export class AccessComponent extends Component {
 		super.connectedCallback();
 
 		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
-		this.clientAccess = this.confirmedCaller.clientAccess;
+		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
 		this.accessChannels = Object.keys(this.clientAccess);
 	}
 
