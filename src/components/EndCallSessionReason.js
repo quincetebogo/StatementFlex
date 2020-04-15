@@ -63,24 +63,44 @@ export class EndCallSessionReason extends View {
 	static get styles() {
 		return [
 			super.styles,
+			css`
+			.options-group {
+				width:396px; 
+				margin-top:24px; 
+				margin-left:24px;
+			}
+			
+			#id-button-cancel{
+				margin-left: auto;
+			}
+
+			.line{
+				width:100%;
+				margin-top:30px;
+				border-top:1px solid #dfdfdf;"
+			}			
+			`
 		]
 	}
 
 
 	render() {
 		return html`
-		<capitec-modal type="alert" header="End Call Session Reason">
+		<capitec-modal type="free" header="End Call Session Reason">
 			<div slot="body">
-				${this.renderCallSessionReason()}
+						${this.renderCallSessionReason()} 
+				<div class="line"></div>
 			</div>
-			${this.renderCallSessionFooter()}
+			<div slot="footer">
+				${this.renderCallSessionFooter()} 
+			</div>
 		</capitec-modal>
 	`;
 	}
 
 	renderCallSessionReason() {
 		return html`
-				<capitec-radio-group>
+				<capitec-radio-group class="options-group">
 					<capitec-radio 
 						label="Need fulfilled" 
 						@value-changed="${(e) => { e.detail.selected = "needFulfilled"; this.onValueChanged(e) }}">
@@ -103,16 +123,20 @@ export class EndCallSessionReason extends View {
 
 	renderCallSessionFooter() {
 		return html`
-			<capitec-action-bar slot="footer">
-				<capitec-spacer></capitec-spacer>
-				<capitec-button type="clear" label="Cancel" @click="${() => this.onCancelpopup()}"></capitec-button>
+			<capitec-group layout="horizontal">
+				<capitec-button 
+					id="id-button-cancel"
+					type="clear" 
+					label="Cancel" 
+					@click="${() => this.onCancelpopup()}">
+				</capitec-button>
 				<capitec-button 
 					type="clear" 
-					label="End Call Session"
+					label="End Call"
 					?disabled="${this.endCallReason === null}"
 					 @click="${() => this.onReasonSelected()}">
 				</capitec-button>
-			</capitec-action-bar>
+			</capitec-group>
 		`;
 	}
 }
