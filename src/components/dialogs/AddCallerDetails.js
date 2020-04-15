@@ -157,10 +157,13 @@ export class AddCallerDetails extends Component {
 			super.styles,
 			css`
 				.main{
+					box-sizing: border-box;
+					height: 464px;
 					width: 690px;
-					height: 403px;
-					border-bottom: 1px solid #E1E1E1;
+					border: 1px solid #E1E1E1;
 					border-radius: 4px;
+					background-color: #FFFFFF;
+					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
 				}
 				.call-details-bar{
 					display: flex;
@@ -192,11 +195,16 @@ export class AddCallerDetails extends Component {
 					margin-left: 24px;
 				}
 				.addCaller-box{
-					height: 311px;
-					padding: 23px 24px 0px 24px;
+					width: 642px;
+					height: 300px;
+					margin: auto;
+					margin-top: 23px;
+					margin-bottom: 27px;
+					align: center;
 				}
 				.group-field-row{
 					height: 72px;
+					width: 642px;
 				}
 				#id-back-button{
 					margin-right: 288px;
