@@ -11,6 +11,7 @@ export class AccessComponent extends Component {
 
 	constructor() {
 		super();
+
 		this.confirmedCaller = null;
 		this.clientProfileDetails = null;
 		this.showAlert = false;
@@ -33,6 +34,7 @@ export class AccessComponent extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
 		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
