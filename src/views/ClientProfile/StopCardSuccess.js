@@ -246,7 +246,7 @@ export class StopCardSuccess extends View {
 		// this.firstLine = false;
 
 		return html`
-		<p class="stop-card-text">${line.cardType} <span class="bold-text">${line.accountNumber}</span> was stopped successfully.</p>
+		<p class="stop-card-text">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span> was stopped successfully.</p>
 		`;
 	}
 
