@@ -104,28 +104,24 @@ export class AddCallerDetails extends Component {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this.confirmedCaller.ivrOption,
+			ivrOptionCode: 'StopCard',
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
-			nonClientFullName: this.nonClientInformation.firstNameTextField.value + ' ' + this.nonClientInformation.surnameTextField.value,
-			nonClientCellPhone: this.nonClientInformation.cellPhoneTextField.value,
+			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
+			nonClientCellPhone: this.cellPhoneTextField.value,
 			nonClientIDNumber: '',
-			nonClientRelationship: this.nonClientInformation.nonClientRelationship
+			//nonClientRelationship needs to chosen; default value of nonClientRelationship doesnt give any response in service call
+			nonClientRelationship: this.nonClientRelationship.value
 		}
 		try{
 			this.isBusy = true;
-			this.addedcallerdetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
+			let addedcallerdetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
 
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {
-					idNumber: this.southAfricanIDNumber.value,
-					incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-					voiceReferenceNumber: this.voiceReferenceNumber.value,
-					ivrOptionCode: this.confirmedCaller.ivrOption,
-					incidentReferenceNumber: this.incidentReferenceNumber,
-					agentTelephoneNumber: this.agentTelephoneNumber,
 					nonClientCallerInfo: this.nonClientInformation
-				}
+				},
+				addedcallerdetails: addedcallerdetails
 			}));
 		}
 		catch (error){

@@ -260,7 +260,7 @@ export class ConfirmCallerDetails extends Component {
 		this.nonClientIDNumber = "";
 		this.nonClientRelationship = this.nonClientCallerInfo.nonClientRelationship.value;
 
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: data.detail}));
 	}
 
 	// ---------
