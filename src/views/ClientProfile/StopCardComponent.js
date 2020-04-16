@@ -30,10 +30,10 @@ const TABLE_STYLE = {
 };
 
 const STOPREASONS = {
-	CARD_DAMAGED: 'Card Damaged',
-	CARD_LOST: 'Card Lost',
-	CARD_STOLEN: 'Card Stolen',
-	SUSPECTED_FRAUD: 'Suspected Fraud'
+	CARD_DAMAGED: 'DAMAGED',
+	CARD_LOST: 'LOST',
+	CARD_STOLEN: 'STOLEN',
+	SUSPECTED_FRAUD: 'SUSPECTED_FRAUD'
 };
 
 export class StopCardComponent extends Component {
@@ -194,10 +194,18 @@ export class StopCardComponent extends Component {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_onCallComplete(reason) {
+	async _onCallComplete(reason) {
 		// TODO - call for end call reason	
 		// Clear any state and return to landing page.
 		this.horizonViewManager.saveState({});
+
+		try {
+			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
+		}
+		catch (error) {
+			console.log(this.error);
+		}
+
 		this.router.navigateByPath(`/landingPage`);
 	}
 
@@ -438,7 +446,7 @@ export class StopCardComponent extends Component {
 			return html`
 			<end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}">
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}">
 			</end-call-session>`;
 		}
 		return html``;

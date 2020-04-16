@@ -147,14 +147,27 @@ export class ConfirmCallerDetails extends Component {
 				birthdate: this.birthdate.value
 			}
 
-			this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: event.detail.endCallReason } }));
+			this.dispatchEvent(new CustomEvent('call-ended',
+				{
+					detail: {
+						confirmedCaller: confirmedCaller, 	// Do we need the confirmed caller?
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						endCallReason: event.detail.endCallReason
+					}
+				}));
 		}
 		else {
 			// We are bubbling back to the caller from the Search for Unverified Client dialog
 			// Should we return the Confirmed Caller? (they are not really confirmed)
 			// Should we return whatever we had on the Search dialog
 			// This will depend on what we need to record when recording the end of the call
-			this.dispatchEvent(new CustomEvent('call-ended', event));
+			this.dispatchEvent(new CustomEvent('call-ended',
+				{
+					detail: {
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						endCallReason: event.detail.endCallReason
+					}
+				}));
 		}
 	}
 
