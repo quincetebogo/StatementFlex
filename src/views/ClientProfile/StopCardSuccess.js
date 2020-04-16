@@ -2,9 +2,10 @@ import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
+import { StopCardService } from '../../services/StopCardService';
 import { HorizonViewManager } from '../../HorizonViewManager';
 import '../../components/Common/HorizonOptionButton'
-import '../../components/EndCallSessionReason';
+import '../../components/dialogs/EndCallSessionReason';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
@@ -43,6 +44,7 @@ export class StopCardSuccess extends View {
 		super.connectedCallback();
 
 		this.router = Router.getInstance();
+		this.stopCardService = StopCardService.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -72,9 +74,17 @@ export class StopCardSuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_onCallComplete(reason) {
+	async _onCallComplete(reason) {
 		// Clear any state and return to landing page.
 		this.horizonViewManager.saveState({});
+
+		try {
+			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
+		}
+		catch (error) {
+			console.log(this.error);
+		}
+
 		this.router.navigateByPath(`/landingPage`);
 	}
 
@@ -290,7 +300,7 @@ export class StopCardSuccess extends View {
 			return html`
 			<end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS }}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}">
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}">
 			</end-call-session>`;
 		}
 

@@ -22,15 +22,9 @@ export class StopCardService {
 	// PUBLIC METHODS
 	// --------------
 
-	async initialise() {
-		console.log('in initialise');
-		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
-
-		console.log(tmp);
-
-		return tmp;
-	}
-
+	// -------------------
+	// Accept Call Methods
+	// -------------------
 	async acceptCall(incomingCallData) {
 		console.log('acceptCall : incomingCallDate =', incomingCallData);
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
@@ -41,6 +35,60 @@ export class StopCardService {
 			'agentTelephoneNumber': incomingCallData.AgentTelephoneNumber
 		});
 	}
+
+	async addCaller(callerData) {
+		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
+			'incomingTelephoneNumber': callerData.incomingNumber,
+			'voiceReferenceNumber': callerData.voiceReference,
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentNo,
+			'agentTelephoneNumber': callerData.agentPhoneNumber,
+			'ivrOptionCode': callerData.ivrOption,
+			'incidentReferenceNumber': callerData.incidentReferenceNumber,
+			'agentTelephoneNumber': callerData.agentTelephoneNumber,
+			'nonClientFullName': callerData.callerFullName,
+			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
+			'nonClientIDNumber': callerData.southAfricanIDNumber,
+			'nonClientRelationship': callerData.relationship
+		});
+	}
+
+
+	// ----------------
+	// End Call Methods
+	// ----------------
+
+	async endCallOptions() {
+		return await this._getClient().get(`/horizon/endcall/${this.version}/Options`);
+	}
+
+	async endCall(incidentNumber, reasonCode) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}`,
+			{
+				"incidentReferenceNumber": incidentNumber,
+				"endReason": reasonCode,
+				"incidentDetails": null
+			});
+	}
+
+	async stopCard(card) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
+			{
+				"incomingTelephoneNumber": card.incomingTelephoneNumber,
+				"voiceReferenceNumber": card.voiceReferenceNumber,
+				"ivrOptionCode": card.ivrOptionCode,
+				"incidentReferenceNumber": card.incidentReferenceNumber,
+				"agentTelephoneNumber": card.agentTelephoneNumber,
+				"cardId": card.cardId,
+				"accountNumber": card.accountNumber,
+				"stopReason": card.stopReason
+			});
+	}
+
+
+	// -----------------------
+	// Identify Caller Methods
+	// -----------------------
 
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
@@ -80,37 +128,21 @@ export class StopCardService {
 		});
 	}
 
-	async addCaller(callerData) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
-			'incomingTelephoneNumber': callerData.incomingNumber,
-			'voiceReferenceNumber': callerData.voiceReference,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.callerFullName,
-			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
-			'nonClientIDNumber': callerData.southAfricanIDNumber,
-			'nonClientRelationship': callerData.relationship
-		});
+	// -----------------
+	// Initialise Method
+	// -----------------
+	async initialise() {
+		console.log('in initialise');
+		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
+
+		console.log(tmp);
+
+		return tmp;
 	}
 
-	async stopCard(card) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
-			{
-				"incomingTelephoneNumber": card.incomingTelephoneNumber,
-				"voiceReferenceNumber": card.voiceReferenceNumber,
-				"ivrOptionCode": card.ivrOptionCode,
-				"incidentReferenceNumber": card.incidentReferenceNumber,
-				"agentTelephoneNumber": card.agentTelephoneNumber,
-				"cardId": card.cardId,
-				"accountNumber": card.accountNumber,
-				"stopReason": card.stopReason
-			});
-	}
-
+	// ------------------------------------------
+	// Utility Methods - not part of API Contract
+	// ------------------------------------------
 	isConfirmedCaller(acceptedCall) {
 		return acceptedCall.addCallerDetailsButton !== undefined;
 	}
