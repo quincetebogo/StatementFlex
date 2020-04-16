@@ -261,15 +261,10 @@ export class ConfirmCallerDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	addNonClientCallerDetails(data) {
-		this.nonClientCallerInfo = data.detail.nonClientCallerInfo;
-
-		this.nonClientFullName = this.nonClientCallerInfo.firstNameTextField.value + ' ' + this.nonClientCallerInfo.surnameTextField.value;
-		this.nonClientCellPhone = this.nonClientCallerInfo.cellPhoneTextField.value;
-		this.nonClientIDNumber = "";
-		this.nonClientRelationship = this.nonClientCallerInfo.nonClientRelationship.value;
-
-		this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: data.detail}));
+	onNonClientDetailsAdded(data) {
+		this.dispatchEvent(new CustomEvent('confirmed-caller', {
+			detail: data.detail
+		}));
 	}
 
 	// ---------
@@ -589,7 +584,7 @@ export class ConfirmCallerDetails extends Component {
 				.addCallerDialog="${this.addCallerDialog}"
 				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				@call-ended="${(data) => this.onCallCancelled(data)}"
-				@caller-added="${(data) => this.addNonClientCallerDetails(data)}">
+				@caller-added="${(data) => this.onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;
 	}
 

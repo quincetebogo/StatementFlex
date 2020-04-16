@@ -98,7 +98,7 @@ export class AddCallerDetails extends Component {
 		}
 	}
 
-	async callerDetailsAdded(){
+	async callerDetailsAdded() {
 
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
@@ -113,24 +113,30 @@ export class AddCallerDetails extends Component {
 			//nonClientRelationship needs to chosen; default value of nonClientRelationship doesnt give any response in service call
 			nonClientRelationship: this.nonClientRelationship.value
 		}
-		try{
+		try {
 			this.isBusy = true;
 			let addedcallerdetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
 
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {
-					nonClientCallerInfo: this.nonClientInformation
-				},
-				addedcallerdetails: addedcallerdetails
+					incomingCallDetails: {
+						voiceReferenceNumber: this.voiceReferenceNumber.value,
+						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+						ivrOptionCode: 'StopCard',
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						agentTelephoneNumber: this.agentTelephoneNumber
+					},
+					clientProfileDetails: addedcallerdetails
+				}
 			}));
 		}
-		catch (error){
+		catch (error) {
 			console.log('Error in adding caller Information');
 			console.log(error);
 		}
-		finally{
+		finally {
 			this.isBusy = false;
-		}	
+		}
 	}
 
 
