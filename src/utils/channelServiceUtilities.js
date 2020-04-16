@@ -82,11 +82,9 @@ export function getValue(fieldInfo) {
 		console.log("fieldInfo in getValue is undefined");
 		return '';
 	}
-
 	if (fieldInfo.hasOwnProperty('value')) {
-		return fieldInfo.value;
+		return !fieldInfo.value ? '' : fieldInfo.value;
 	}
-
 	console.log("fieldInfo in getValue does not have a value property");
 	return '';
 }

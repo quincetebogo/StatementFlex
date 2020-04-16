@@ -23,6 +23,7 @@ export class StopCardService {
 	// --------------
 
 	async initialise() {
+		console.log('in initialise');
 		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
 
 		console.log(tmp);
@@ -53,7 +54,7 @@ export class StopCardService {
 			'nonClientCellPhone': callerData.nonClientCellPhone,
 			'nonClientIDNumber': callerData.nonClientIDNumber,
 			'nonClientRelationship': callerData.nonClientRelationship
-			//'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
+			// 'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
 		});
 	}
 
