@@ -238,8 +238,7 @@ export class AddCallerDetails extends Component {
 				}
 				.group-field-row{
 					height: 72px;
-					width: 642px;	
-					padding-top: 8px; 
+					width: 642px;
 				}
 				.header{
 					height: 30px;
@@ -253,33 +252,9 @@ export class AddCallerDetails extends Component {
 				}
 				#id-back-button{
 					margin-right: 288px;
-					height: 40px;
-					width: 82px;
-					margin-bottom: 8px;
 				}
 				#id-confirm-button{
 					margin-right: 12px;
-					height: 40px;
-					width: 105px;
-					margin-bottom: 8px;
-				}
-				#id-endCall-button{
-					white-space: nowrap;
-					height: 40px;
-					width: 159px;
-					margin-bottom: 8px;
-				}
-				.footer-buttons{
-					box-sizing: border-box;
-					 height: 58px;
-					 margin: 0px 0px 0px 0px;
-					 padding-left: 0px;
-					 padding-top: 0px;
-					 padding-right: 0px;
-					 padding-bottom: 0px;
-					 width: 100%;
-					 border-bottom-width: 8px;
-					 align: left;
 				}
 			`];
 	}
@@ -400,7 +375,7 @@ export class AddCallerDetails extends Component {
 
 	renderFooter() {
 		return html`
-			<capitec-group class="footer-buttons" layout="horizontal" gap="clear" halign="left" valign="center">
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-button id="id-back-button"
 								type="clear"
 								label="Back"
@@ -410,8 +385,7 @@ export class AddCallerDetails extends Component {
 								@click="${(e) => this.raiseBackEvent()}">
 				</capitec-button>
 				<capitec-sapacer></capitec-sapacer>
-				<capitec-button id="id-endCall-button"
-								type="clear"
+				<capitec-button type="clear"
 								label="End Call Session"
 								?hidden=${isHidden(this.endCallSessionButton)}
 								.disabled="${isDisabled(this.endCallSessionButton)}"
