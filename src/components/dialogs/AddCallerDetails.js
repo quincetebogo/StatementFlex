@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
+import { StopCardService } from '../../services/StopCardService';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
@@ -50,6 +51,7 @@ export class AddCallerDetails extends Component {
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
 		//Fields to be rendered
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
@@ -89,16 +91,52 @@ export class AddCallerDetails extends Component {
 	addCallerDetails() {
 
 		if (this.validateData()) {
-			this.dispatchEvent(new CustomEvent('caller-added', {
-				detail: {
-					nonClientCallerInfo: this.nonClientInformation
-				}
-			}));
+			this.callerDetailsAdded();
 		}
 		else {
 			this.requestUpdate();
 		}
 	}
+
+	async callerDetailsAdded(){
+
+		let confirmedCaller = {
+			idNumber: this.southAfricanIDNumber.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOptionCode: this.confirmedCaller.ivrOption,
+			incidentReferenceNumber: this.incidentReferenceNumber,
+			agentTelephoneNumber: this.agentTelephoneNumber,
+			nonClientFullName: this.nonClientInformation.firstNameTextField.value + ' ' + this.nonClientInformation.surnameTextField.value,
+			nonClientCellPhone: this.nonClientInformation.cellPhoneTextField.value,
+			nonClientIDNumber: '',
+			nonClientRelationship: this.nonClientInformation.nonClientRelationship
+		}
+		try{
+			this.isBusy = true;
+			this.addedcallerdetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
+
+			this.dispatchEvent(new CustomEvent('caller-added', {
+				detail: {
+					idNumber: this.southAfricanIDNumber.value,
+					incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+					voiceReferenceNumber: this.voiceReferenceNumber.value,
+					ivrOptionCode: this.confirmedCaller.ivrOption,
+					incidentReferenceNumber: this.incidentReferenceNumber,
+					agentTelephoneNumber: this.agentTelephoneNumber,
+					nonClientCallerInfo: this.nonClientInformation
+				}
+			}));
+		}
+		catch (error){
+			console.log('Error in adding caller Information');
+			console.log(error);
+		}
+		finally{
+			this.isBusy = false;
+		}	
+	}
+
 
 	raiseBackEvent() {
 		//TODO: Populate event with data to return to the confirm dialog.
