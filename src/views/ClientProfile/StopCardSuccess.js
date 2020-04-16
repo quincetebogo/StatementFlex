@@ -72,7 +72,7 @@ export class StopCardSuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_onCallComplete() {
+	_onCallComplete(reason) {
 		// Clear any state and return to landing page.
 		this.horizonViewManager.saveState({});
 		this.router.navigateByPath(`/landingPage`);
