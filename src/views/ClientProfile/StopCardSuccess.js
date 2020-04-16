@@ -4,7 +4,7 @@ import { Router } from 'platform/Router';
 
 import { HorizonViewManager } from '../../HorizonViewManager';
 import '../../components/Common/HorizonOptionButton'
-import '../../components/EndCallSessionReason';
+import '../../components/dialogs/EndCallSessionReason';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,

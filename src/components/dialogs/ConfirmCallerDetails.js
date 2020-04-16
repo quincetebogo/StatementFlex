@@ -10,7 +10,7 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import '../AddCallerDetailsComponent';
-import '../EndCallSessionReason';
+import './EndCallSessionReason';
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
 import './SearchClientDetails';

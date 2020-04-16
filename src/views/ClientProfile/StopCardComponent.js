@@ -5,7 +5,7 @@ import { Router } from 'platform/Router';
 
 import { HorizonViewManager } from '../../HorizonViewManager';
 
-import '../../components/EndCallSessionReason';
+import '../../components/dialogs/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
 
 import 'platform/components';
