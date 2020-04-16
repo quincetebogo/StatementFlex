@@ -5,6 +5,7 @@ let horizonRoutes = [];
 const LANDING_PAGE = `/landingPage`;
 const SAVINGS_ACCOUNT_PRODUCT_PAGE = `/product/savings-account`;
 const CLIENT_PROFILE_PAGE = `/client/profile`;
+const CARD_STOP_SUCCESS = `/client/profile/stoppedcards`;
 
 export default horizonRoutes = [
 	{
@@ -89,6 +90,18 @@ export default horizonRoutes = [
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
 	},
+
+	, {
+		name: `horizon-summary-success`,
+		title: `StopCard`,
+		icon: null,
+		path: CARD_STOP_SUCCESS,
+		load: () => import(`./views/ClientProfile/StopCardSuccess`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_SUCCESS)
+		}
+	},
+
 	{
 		name: `client-profile`,
 		title: `ClientProfile`,

@@ -3,17 +3,53 @@ import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components/layouts/Group'
 
 export class HorizonActionBar extends Component {
+	// --------------
+	// INITIALISATION
+	// --------------	
+
 	constructor() {
 		super();
+		this.referenceNo = '';
+		this.phoneNumber = '';
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	static get properties() {
+		return {
+			referenceNo: { type: String },
+			phoneNumber: { type: String }
+		}
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.referenceNo = '123456';
-		this.phoneNumber = '021 8523086';
+		this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
 	}
 
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-	endCallSession() {
+	_onUpdateCallDetails(event) {
+		this.referenceNo = event.referenceNo;
+		this.phoneNumber = event.phoneNumber;
 	}
 
+	_endCallSession() {
+		this.eventAggregator.publish(`horizon-end-callsession`, {});
+	}
+
+	// ---------
+	// RENDERING
+	// ---------		
 	static get styles() {
 		return [
 			super.styles,
@@ -59,7 +95,10 @@ export class HorizonActionBar extends Component {
 		];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-label 
@@ -81,7 +120,7 @@ export class HorizonActionBar extends Component {
 					id="id-end-call-button"
 					label="End Call Session" 
 					type="primary" 
-					@click="${() => this.endCallSession()}">
+					@click="${() => this._endCallSession()}">
 				</capitec-button> 
 			</capitec-group>
 		`;

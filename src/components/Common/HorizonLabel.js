@@ -3,11 +3,26 @@ import 'platform/components/core/Label';
 
 export class HorizonLabel extends Component {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
 		this.label = ``;
 		this.value = ``;
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	/**
+	 * Registry of all properties defined by the component.
+ 	* 
+ 	* @property {String} [label] - The label string to display.
+ 	* @property {String} [value] - The value string to display beneath the label.
+ */
 
 	static get properties() {
 		return {
@@ -15,6 +30,30 @@ export class HorizonLabel extends Component {
 			value: { type: String }
 		}
 	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// n/a
+
+	// ---------
+	// RENDERING
+	// ---------	
 
 	static get styles() {
 		return [

@@ -1,56 +1,232 @@
 import { Component, html, css } from 'platform/elements';
-import 'platform/elements';
+import { StopCardService } from '../../services/StopCardService';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 export class StopCard extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 
-		this.cardsToStop = {};
+		this.cardsToStop = [];
+		this.cardStopResults = [];
+		this.callerInfo = {};
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
-			cardsToStop: { type: Object }
+			isBusy: { type: Boolean },
+			callerInfo: { type: Object },
+			cardsToStop: { type: Array },
 		}
 	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------	
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.stopCardService = StopCardService.getInstance();
+	}
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------	
+
+	async _onConfirmClick() {
+		console.log(`cards to stop`, this.cardsToStop);
+
+		this.isBusy = true;
+		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
+		this.isBusy = false;
+
+		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardStopResults } }));
+	}
+
+	_onCancelClick() {
+
+		this.dispatchEvent(new CustomEvent('on-cancel'));
+	}
+
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// TODO: This should move out into a layer so that we can use it in the code that handles stop card retries.
+	async _stopCards(cardsToStop, callerInfo) {
+		let card = {};
+		let success = false;
+		let stoppedCard = {};
+		let error = null;
+		let cardStopResults = [];
+
+		for (let index = 0; index < cardsToStop.length; index++) {
+
+			card.incomingTelephoneNumber = callerInfo.incomingTelephoneNumber;
+			card.voiceReferenceNumber = callerInfo.voiceReferenceNumber;
+			card.ivrOptionCode = callerInfo.ivrOptionCode;
+			card.incidentReferenceNumber = callerInfo.incidentReferenceNumber;
+			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
+			card.cardId = cardsToStop[index].cardId;
+			card.accountNumber = cardsToStop[index].accountNumber;
+			card.stopReason = cardsToStop[index].reason ? cardsToStop[index].reason : '';
+
+			try {
+				await this.stopCardService.stopCard(card);
+				success = true;
+				error = null;
+			}
+			catch (ex) {
+				if (ex instanceof TypeError) {
+					error = ex.message;
+				}
+				else if (ex instanceof HttpStatusError) {
+					error = `${ex.status}: ${ex.message}`;
+				}
+				else {
+				}
+				success = false;
+			}
+			finally {
+				stoppedCard = {
+					cardId: card.cardId,
+					cardType: cardsToStop[index].cardType,
+					encryptedCardId: cardsToStop[index].encryptedCardId,
+					accountNumber: card.accountNumber,
+					stopReason: card.stopReason,
+					stopped: success,
+					errorMessage: error
+				};
+
+				cardStopResults.push(stoppedCard);
+			}
+		}
+
+		return cardStopResults;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				.stop-card{
-					height: 160px;
-					width: 396px;
-					padding:0px 0px 0px 0px;
-				 }
-				 .footer{
-					 height: 64px;
-					 width: 468px;
-					 padding:0px 0px 0px 0px;
-					 border-top: solid 1px #dfdfdf;
-				 }
+			p{
+				color: #4E6066;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				/*font-weight: 600;*/
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+
+			.bold-text{
+				color: #4E6066;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+
+			.left-margin{
+				margin-left:24px;
+			}
+
+			.top-margin{
+				margin-top:0px;
+			}
+
+			.line{
+				width:100%;
+				margin-top:30px;
+				border-top:1px solid #dfdfdf;"
+			}
+
 			`];
 	}
 
-
 	render() {
 		return html`
-			<capitec-modal type="alert" header="Stop Card">
-				<div slot="body" class="stop-card">
-					<p>Are you sure you want to stop:</p>
-					<p>Credit card <b>5284 **** **** 1522 </b></p>
-					<br>
-					<p>Reason: <b>Card Lost</b></p>
-				</div>	
-				<div slot="footer" >
-				<div class="footer">
-					<capitec-button type="clear" label="Cancel"></capitec-button>
-					<capitec-button  type="clear" label="Confirm"></capitec-button>
+			<capitec-modal
+				type="free"
+				header="Stop Card"
+				header-align="left">
+				<div slot="body">
+					${this.renderConfirmStopCard()} 
+					<div class="line"></div>
 				</div>
-				</div>
+				<div slot="footer">
+					${this.renderFooter()}
+				<div> 
 			</capitec-modal>
+			${this.renderLoadingIndicator()}
+			`;
+	}
+
+	renderConfirmStopCard() {
+		this.firstLine = true;
+		return html`
+		<capitec-group style="width:396px;" layout="vertical" gap="none">		
+				<p class="left-margin">Are you sure you want to stop:</p>
+				${this.cardsToStop.map(line => { return this.renderLine(line) })}
+		<apitec-group>
 		`;
 	}
+
+	renderLine(line) {
+		let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
+		this.firstLine = false;
+
+		return html`
+		<p class="${classes}">${line.cardType} <span class="bold-text">${line.accountNumber}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.reason}</span></p>
+		`;
+	}
+
+	renderFooter() {
+		return html`
+			<capitec-group layout="horizontal">
+				<capitec-button
+					type="clear"
+					label="Cancel"
+					@click="${() => { this._onCancelClick() }}">
+				</capitec-button>
+
+				<capitec-button
+					id="id-confirm-button"
+					type="clear"
+					label="Confirm"
+					@click="${async () => { this._onConfirmClick() }}">
+				</capitec-button>
+			</capitec-group>			
+			`;
+	}
+
+	renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
 }
+
 window.customElements.define(`horizon-stop-card`, StopCard);
