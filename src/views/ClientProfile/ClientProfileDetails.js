@@ -95,7 +95,7 @@ export class ClientProfileDetails extends Component {
 			}
 			capitec-group > capitec-label:first-child {
 				height: 30px;
-				width: 123px;
+				width: auto;
 				color: #003652;
 				font-family: "Hind Vadodara";
 				font-size: 20px;
