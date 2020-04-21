@@ -146,6 +146,8 @@ export class StopCardComponent extends Component {
 			this.cardsToStop.push({
 				cardId: rowData["cardId"],
 				accountNumber: rowData["accountNumber"],
+				encryptedCardId: rowData["encryptedCardId"],
+				cardType: rowData["cardType"],
 				stopReason: ""
 			});
 		}
