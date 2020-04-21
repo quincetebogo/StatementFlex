@@ -46,18 +46,23 @@ export class AddCallerDetails extends Component {
 		super.connectedCallback();
 
 		// Short hand references for reaching into the incoming data model
-		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
-		this.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
+		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
+		this.ivrOption = this.addCallerDialog.ivrOption;
+		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
+
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
+
 		//Fields to be rendered
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
+
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
+		this.nonClientRelationship.value = ''; // Initialise the value. The contract returns the label here.
+
 		//Buttons on footer to be rendered
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
@@ -243,6 +248,7 @@ export class AddCallerDetails extends Component {
 					align: center;
 				}
 				.group-field-row{
+					margin-left:24px;
 					height: 72px;
 					width: 642px;
 				}
@@ -255,6 +261,9 @@ export class AddCallerDetails extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 30px;
+				}
+				.body-group{
+					margin-top:24px;
 				}
 				#id-back-button{
 					margin-right: 288px;
@@ -326,8 +335,7 @@ export class AddCallerDetails extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-		<capitec-content-box class="addCaller-box" nopadding>
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+			<capitec-group class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
 				<div class="group-field-row">
 					<capitec-text-field label="First name"
 										id="firstNameTextField"
@@ -364,19 +372,19 @@ export class AddCallerDetails extends Component {
 					</capitec-text-field><br>
 				</div>
 				<div class="group-field-row">
-					<capitec-select label="Choose relationship type (Optional)"
-									id="nonClientRelationship"
+					<capitec-select id="nonClientRelationship"
+									label="Choose relationship type (Optional)"									
 									value="${getValue(this.nonClientRelationship)}"
-									display-field="value"
+									.items="${this.nonClientRelationship.possibleValues}"
+									@value-changed="${(e) => this._valueChanged(e)}"
+									tabindex="${getTabIndex(this.nonClientRelationship)}"
 									?hidden=${isHidden(this.nonClientRelationship)}
 									.disabled="${isDisabled(this.nonClientRelationship)}"
-									tabindex="${getTabIndex(this.nonClientRelationship)}"
-									.items="${this.nonClientRelationship.possibleValues}"
-									@value-changed="${(e) => this._valueChanged(e)}">
+									display-field="value">
 					</capitec-select>
 				</div>
-			</capitec-group>
-		</capitec-content-box>`;
+
+			</capitec-group>`;
 	}
 
 	renderFooter() {
