@@ -367,7 +367,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.fullname{
 					height: 30px;
-					width: 123px;
+					width: auto;
 					color: #003652;
 					font-family: "Hind Vadodara";
 					font-size: 20px;
@@ -481,7 +481,7 @@ export class ConfirmCallerDetails extends Component {
 						tabindex="-1">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
-						<capitec-label row = "1" column = "1" class="fullname"
+						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
 							id="label-value"
 							label="${this.callerFullName.value}"
 							tabindex="${getTabIndex(this.callerFullName)}"

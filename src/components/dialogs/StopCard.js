@@ -84,7 +84,7 @@ export class StopCard extends Component {
 			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
 			card.cardId = cardsToStop[index].cardId;
 			card.accountNumber = cardsToStop[index].accountNumber;
-			card.stopReason = cardsToStop[index].reason ? cardsToStop[index].reason : '';
+			card.stopReason = cardsToStop[index].stopReason ? cardsToStop[index].stopReason : '';
 
 			try {
 				await this.stopCardService.stopCard(card);
@@ -196,8 +196,8 @@ export class StopCard extends Component {
 		this.firstLine = false;
 
 		return html`
-		<p class="${classes}">${line.cardType} <span class="bold-text">${line.accountNumber}</span></p>
-		<p class="left-margin">Reason: <span class="bold-text">${line.reason}</span></p>
+		<p class="${classes}">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.stopReason}</span></p>
 		`;
 	}
 
