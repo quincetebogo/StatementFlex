@@ -9,7 +9,7 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import '../AddCallerDetailsComponent';
+import './AddCallerDetails';
 import './EndCallSessionReason';
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
@@ -37,7 +37,9 @@ export class ConfirmCallerDetails extends Component {
 		// Property initialization
 		this.confirmedCaller = null;
 		this.isBusy = false;
+		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -86,6 +88,29 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	async _loadAddCallerDialog() {
+		let callDetails = {
+			incomingNumber: this.incomingTelephoneNumber.value,
+			voiceReference: this.voiceReferenceNumber.value,
+			ivrOption: 'StopCard',
+			incidentNo: this.incidentReferenceNumber,
+			agentPhoneNumber: this.agentTelephoneNumber
+		}
+
+		this.isBusy = true;
+		try {
+			this.addCallerDialog = await StopCardService.getInstance().addCallerDetails(callDetails);
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}
+		catch (error) {
+			//TODO: Handle error properly
+			console.log(error);
+		}
+		finally {
+			this.isBusy = false;
+		}
+	}
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async onConfirmClick() {
@@ -248,11 +273,16 @@ export class ConfirmCallerDetails extends Component {
 		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
 
 	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	onNonClientDetailsAdded(data) {
+		this.dispatchEvent(new CustomEvent('confirmed-caller', {
+			detail: data.detail
+		}));
+	}
 
 	// ---------
 	// RENDERING
@@ -450,7 +480,7 @@ export class ConfirmCallerDetails extends Component {
 					<img src="../images/info.svg" id="action-icon"/>
 					<p id="action-label" 
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
-						@click="${() => this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS}">
+						@click="${() => this._loadAddCallerDialog()}">
 						Add Caller Details
 					</p> 
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
@@ -566,9 +596,13 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		// TODO: We may need to pass confirmedCaller into addCallerDetails
 		return html`
-			<client-add-caller
-				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
-			</client-add-caller>`;
+			<horizon-add-caller
+				.confirmedCaller="${this.confirmedCaller}"
+				.addCallerDialog="${this.addCallerDialog}"
+				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@call-ended="${(data) => this.onCallCancelled(data)}"
+				@caller-added="${(data) => this.onNonClientDetailsAdded(data)}">
+			</horizon-add-caller>`;
 	}
 
 	renderEndCallModal() {
