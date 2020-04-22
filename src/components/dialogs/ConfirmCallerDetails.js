@@ -198,6 +198,10 @@ export class ConfirmCallerDetails extends Component {
 		this.agentTelephoneNumber = data.detail.identifiedClient.agentTelephoneNumber;
 	}
 
+	_ivrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.key;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -274,9 +278,8 @@ export class ConfirmCallerDetails extends Component {
 					font-size: 18px;
 					font-weight: 600;
 					line-height: 27px;
-					width: 180px;
+					width: 100%;
 					margin-top: 8px;
-					margin-left: 24px;
 				}
 
 				.horizon-add-caller-details-div{
@@ -408,9 +411,10 @@ export class ConfirmCallerDetails extends Component {
 						label="IVR Option Selected"
 						display-field="value"
 						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.possibleValues[0].value}"
+						.value="${this.ivrOption.value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}>
+						?hidden=${isHidden(this.ivrOption)}
+						@value-changed="${(e) => this._ivrOptionChanged(e)}">
 					</horizon-select>
 				</div>
 				<div class="left-border">
