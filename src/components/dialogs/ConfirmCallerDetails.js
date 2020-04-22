@@ -9,15 +9,14 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import '../AddCallerDetailsComponent';
-import '../EndCallSessionReason';
+import './AddCallerDetails';
+import './EndCallSessionReason';
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
 import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
-import StopCardHelper from '../../helpers/StopCardHelper';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -38,7 +37,9 @@ export class ConfirmCallerDetails extends Component {
 		// Property initialization
 		this.confirmedCaller = null;
 		this.isBusy = false;
+		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -88,38 +89,71 @@ export class ConfirmCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
-	onConfirmClick() {
-		let confirmedCaller = {
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
+	async _loadAddCallerDialog() {
+		let callDetails = {
+			incomingNumber: this.incomingTelephoneNumber.value,
+			voiceReference: this.voiceReferenceNumber.value,
 			ivrOption: 'StopCard',
-			incidentReferenceNumber: this.incidentReferenceNumber,
-			agentTelephoneNumber: this.agentTelephoneNumber,
-			callerFullName: this.callerFullName.value,
-			verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-			southAfricanIDNumber: this.southAfricanIDNumber.value,
-			livesIn: this.livesIn.value,
-			languagePreference: this.languagePreference.value,
-			birthdate: this.birthdate.value,
-			relationship: ''
-			/*
-				TODO: should added Caller Details go here?
-
-				probably not but we should perhaps add the fields and initialize them to null
-			*/
+			incidentNo: this.incidentReferenceNumber,
+			agentPhoneNumber: this.agentTelephoneNumber
 		}
 
-		let identifyCallerPromise = StopCardHelper.getInstance().identifyCaller(confirmedCaller);
+		this.isBusy = true;
+		try {
+			this.addCallerDialog = await StopCardService.getInstance().addCallerDetails(callDetails);
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}
+		catch (error) {
+			//TODO: Handle error properly
+			console.log(error);
+		}
+		finally {
+			this.isBusy = false;
+		}
+	}
 
-		identifyCallerPromise.then((response) => {
+	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
+	async onConfirmClick() {
+		let confirmedCaller = {
+			idNumber: this.southAfricanIDNumber.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			voiceReferenceNumber: this.voiceReferenceNumber.value,
+			ivrOptionCode: 'StopCard',
+			incidentReferenceNumber: this.incidentReferenceNumber,
+			agentTelephoneNumber: this.agentTelephoneNumber,
+			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
+			nonClientFullName: '',
+			nonClientCellPhone: '',
+			nonClientIDNumber: '',
+			nonClientRelationship: ''
+		}
 
-			this.dispatchEvent(new CustomEvent('confirmed-caller', { detail: { confirmedCaller: response } }));
-		}, (error) => {
+		try {
+			this.isBusy = true;
 
+			let clientProfileDetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
+
+			//Object.assign(this.confirmedCaller, clientProfileDetails);
+			this.dispatchEvent(new CustomEvent('confirmed-caller', {
+				detail: {
+					incomingCallDetails: {
+						voiceReferenceNumber: this.voiceReferenceNumber.value,
+						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+						ivrOptionCode: 'StopCard',
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						agentTelephoneNumber: this.agentTelephoneNumber
+					},
+					clientProfileDetails: clientProfileDetails
+				}
+			}));
+		}
+		catch (error) {
 			console.log('Error in fetching Client Info.');
 			console.log(error);
-		});
+		}
+		finally {
+			this.isBusy = false;
+		}
 	}
 
 	onCallCancelled(event) {
@@ -138,14 +172,27 @@ export class ConfirmCallerDetails extends Component {
 				birthdate: this.birthdate.value
 			}
 
-			this.dispatchEvent(new CustomEvent('call-ended', { detail: { confirmedCaller: confirmedCaller, endCallReason: event.detail.endCallReason } }));
+			this.dispatchEvent(new CustomEvent('call-ended',
+				{
+					detail: {
+						confirmedCaller: confirmedCaller, 	// Do we need the confirmed caller?
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						endCallReason: event.detail.endCallReason
+					}
+				}));
 		}
 		else {
 			// We are bubbling back to the caller from the Search for Unverified Client dialog
 			// Should we return the Confirmed Caller? (they are not really confirmed)
 			// Should we return whatever we had on the Search dialog
 			// This will depend on what we need to record when recording the end of the call
-			this.dispatchEvent(new CustomEvent('call-ended', event));
+			this.dispatchEvent(new CustomEvent('call-ended',
+				{
+					detail: {
+						incidentReferenceNumber: this.incidentReferenceNumber,
+						endCallReason: event.detail.endCallReason
+					}
+				}));
 		}
 	}
 
@@ -222,11 +269,16 @@ export class ConfirmCallerDetails extends Component {
 		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
 
 	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	onNonClientDetailsAdded(data) {
+		this.dispatchEvent(new CustomEvent('confirmed-caller', {
+			detail: data.detail
+		}));
+	}
 
 	// ---------
 	// RENDERING
@@ -328,7 +380,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.fullname{
 					height: 30px;
-					width: 123px;
+					width: auto;
 					color: #003652;
 					font-family: "Hind Vadodara";
 					font-size: 20px;
@@ -424,7 +476,7 @@ export class ConfirmCallerDetails extends Component {
 					<img src="../images/info.svg" id="action-icon"/>
 					<p id="action-label" 
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
-						@click="${() => this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS}">
+						@click="${() => this._loadAddCallerDialog()}">
 						Add Caller Details
 					</p> 
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
@@ -442,7 +494,7 @@ export class ConfirmCallerDetails extends Component {
 						tabindex="-1">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
-						<capitec-label row = "1" column = "1" class="fullname"
+						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
 							id="label-value"
 							label="${this.callerFullName.value}"
 							tabindex="${getTabIndex(this.callerFullName)}"
@@ -540,9 +592,13 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		// TODO: We may need to pass confirmedCaller into addCallerDetails
 		return html`
-			<client-add-caller
-				@on-back="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}">
-			</client-add-caller>`;
+			<horizon-add-caller
+				.confirmedCaller="${this.confirmedCaller}"
+				.addCallerDialog="${this.addCallerDialog}"
+				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@call-ended="${(data) => this.onCallCancelled(data)}"
+				@caller-added="${(data) => this.onNonClientDetailsAdded(data)}">
+			</horizon-add-caller>`;
 	}
 
 	renderEndCallModal() {

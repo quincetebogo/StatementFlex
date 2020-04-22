@@ -1,7 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import 'platform/components/buttons/Button';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
+
+import 'platform/components/buttons/Button';
 
 import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
@@ -130,15 +131,21 @@ export class LandingPage extends View {
 	}
 
 	onCallerConfirmed(data) {
-		this.horizonViewManager.saveState(data.detail.confirmedCaller);
+		this.horizonViewManager.saveState(data.detail);
 		this.renderMode = -1;
 		this.router.navigateByPath(`/client/profile`);
 	}
 
-	onCallEnded(data) {
+	async _onCallEnded(data) {
 		console.log(data.detail);
 		this.renderMode = -1;
-		//		this.router.navigateByPath(`/landingpage`);
+
+		try {
+			await this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key);
+		}
+		catch (error) {
+			console.log(this.error);
+		}
 	}
 
 	static get styles() {
@@ -186,7 +193,7 @@ export class LandingPage extends View {
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
 					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
-					@call-ended="${(data) => this.onCallEnded(data)}">
+					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;
 		}
 	}
@@ -197,7 +204,7 @@ export class LandingPage extends View {
 				<horizon-search-client 
 					.unverifiedCaller="${this.isUnverifiedCaller}"
 					@on-client-identified="${(data) => this.identifiedClient(data)}"
-					@call-ended="${(data) => this.onCallEnded(data)}">
+					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
 		}
 

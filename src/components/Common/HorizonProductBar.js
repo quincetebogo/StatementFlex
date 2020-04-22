@@ -32,7 +32,7 @@ export class HorizonProductBar extends Component {
 				height:80px;
                 padding: 0px 0px 0px 0px;
 				width: 440px;
-				margin-top:24px;
+				margin-top: 16px;
 			}
 			`];
 	}

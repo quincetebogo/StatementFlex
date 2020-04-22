@@ -28,6 +28,7 @@ export default class StopcardHelper {
 
 			return data;
 		}, (error) => {
+			console.log('ERROR', error);
 			/**
 			 * Need to removed this hard coded values, when Identify Caller channel service is ready
 			 */
