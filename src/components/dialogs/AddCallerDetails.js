@@ -251,6 +251,7 @@ export class AddCallerDetails extends Component {
 					margin-left:24px;
 					height: 72px;
 					width: 642px;
+					margin-bottom:8px;
 				}
 				.header{
 					height: 30px;
