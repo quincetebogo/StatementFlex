@@ -88,3 +88,16 @@ export function getValue(fieldInfo) {
 	console.log("fieldInfo in getValue does not have a value property");
 	return '';
 }
+
+export function getPossibleValues(fieldInfo) {
+	if (fieldInfo === undefined) {
+		console.log("fieldInfo in getPossibleValues is undefined");
+		return [];
+	}
+	if (fieldInfo.hasOwnProperty('possibleValues')) {
+		return !fieldInfo.possibleValues ? [] : fieldInfo.possibleValues;
+	}
+
+	console.log("fieldInfo in getPossibleValues does not have a possibleValues property");
+	return [];
+}
