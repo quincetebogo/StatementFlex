@@ -36,16 +36,15 @@ export class StopCardService {
 		});
 	}
 
-	async addCaller(callerData) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/caller/addcallerdetails`, {
+	async addCallerDetails(callerData) {
+		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
 			'ivrOptionCode': callerData.ivrOption,
 			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber,
+			'agentTelephoneNumber': callerData.agentPhoneNumber
 		});
 	}
-
 
 	// ----------------
 	// End Call Methods
