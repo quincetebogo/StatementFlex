@@ -21,6 +21,11 @@ export class AssignStopCard extends Component {
 		this.cards = [];
 	}
 
+	_onAssignClick() {
+		// this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
+
+		this.dispatchEvent(new CustomEvent('horizon-handoff-button', event));
+	}
 	static get properties() {
 		return {
 			teamItems: { type: Array },
@@ -40,11 +45,11 @@ export class AssignStopCard extends Component {
 				${this.renderFooter()}
 			</div>
 			</capitec-modal>
+			
 		`;
 	}
 	renderBody() {
 		return html`
-		${this.cardsToStop()}
 		<p> can not be stopped due to a system error</p>
 
 		<capitec-select 
@@ -69,23 +74,23 @@ export class AssignStopCard extends Component {
 
 	}
 
-	cardsToStop() {
-		console.log(`cards to display `, this.cardsToStop);
-		if (cardCount > 1) {
-			return html`
-				<capitec-group>
+	// cardsToStop() {
+	// 	console.log(`cards to display `, this.cardsToStop);
+	// 	if (cardCount > 1) {
+	// 		return html`
+	// 			<capitec-group>
 
-				</capitec-group>
-		`;
-		}
-		else if (cardCount == 1) {
-			return html`
-			<capitec-group>
+	// 			</capitec-group>
+	// 	`;
+	// 	}
+	// 	else if (cardCount == 1) {
+	// 		return html`
+	// 		<capitec-group>
 
-			</capitec-group>
-		`;
-		}
-	}
+	// 		</capitec-group>
+	// 	`;
+	// 	}
+	//}
 
 	renderFooter() {
 		return html`
@@ -97,7 +102,8 @@ export class AssignStopCard extends Component {
 				</capitec-button>
 				<capitec-button
 					type="clear"
-					label="Assign">
+					label="Assign"
+					@click="${() => { this._onAssignClick() }}">
 				</capitec-button>
 			</capitec-button-bar>
 		`;
