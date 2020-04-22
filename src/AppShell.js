@@ -19,7 +19,7 @@ import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentServic
 
 
 //TODO: Move these out of the shell
-import { HorizonActionBar } from './components/HorizonActionBar';
+import { HorizonActionBar } from './components/shell/HorizonActionBar';
 import { LandingPageWelcome } from './components/landingPage/LandingPageWelcome';
 import { LandingPageMarketing } from './components/landingPage/LandingPageMarketing';
 import { ClientProfileDetails } from './views/ClientProfile/AccessComponent';
