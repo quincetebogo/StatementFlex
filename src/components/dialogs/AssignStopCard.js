@@ -1,5 +1,4 @@
 import { Component, html, css } from 'platform/elements';
-import { StopCardService } from '../../services/StopCardService';
 
 import 'platform/components/inputs/Select';
 
@@ -7,16 +6,17 @@ export class AssignStopCard extends Component {
 
 	constructor() {
 		super();
+
+		this.team = { id: 'T1', text: 'VR12345' };
 		this.teamItems = [
-			{ id: 'T1', text: 'VR12345' },
+			this.team,
 			{ id: 'T2', text: 'VR23456' },
 			{ id: 'T3', text: 'VR98765' },
 			{ id: 'T4', text: 'VR56478' }
 		];
 		this.teamOwner = { id: 'I1', text: '516283574' };
 		this.ownerItems = [
-			this.teamOwner,
-			{ id: 'I2', text: '515283573' }
+			this.teamOwner
 		];
 		this.cards = [];
 	}
@@ -26,86 +26,149 @@ export class AssignStopCard extends Component {
 
 		this.dispatchEvent(new CustomEvent('horizon-handoff-button', event));
 	}
+
+
 	static get properties() {
 		return {
+			team: { type: Object },
 			teamItems: { type: Array },
 			ownerItems: { type: Array },
 			teamOwner: { type: Object },
 			cards: { type: Array }
 		}
 	}
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				p{
+					height: 72px;
+					width: 405px;
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					padding-left: 24px;
+					padding-right: 29px;
+					padding-bottom: 24px;
+					padding-top: 12px;
+				}
+				.modal-body{
+					box-sizing: border-box;
+					height: 320px;
+					width: 458px;
+					border: 1px solid #E1E1E1;
+					border-radius: 4px;
+					background-color: #FFFFFF;
+					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
+				}
+
+				.select-group{
+					height: 124px;
+					width: 410px;
+					padding-top: 24px;
+					padding-left: 24px;
+					padding-right:24px;
+				}
+				#select-team{
+					height: 58px;
+					width: 410px;
+					padding-bottom: 18px;
+				}
+				#select-owner{
+					height: 58px;
+					width: 410px;
+					padding-top: 8px;
+					padding-bottom: 18px;
+				}
+				.footer-buttons{
+					height: 56px;
+					width: 458px;
+				}
+				.assign-button{
+					height: 40px;
+					width: 94px;
+					align: right;
+					padding-left: 8px;
+					padding-bottom: 8px;
+					padding-right: 0px;
+					padding-top: 8px;
+				}
+				.cancel-button{
+					height: 40px;
+					width: 95px;
+				}
+				.line{
+					width:100%;
+					margin-top:30px;
+					border-top:1px solid #dfdfdf;"
+				}
+
+			`];
+	}
+
 
 	render() {
 		return html`
-			<capitec-modal type="alert" header="Assign Stop Card" header-align="left">
+			<capitec-modal 
+				type="free" 
+				header="Assign Stop Card" 
+				header-align="left">
 			<div slot="body">
 				${this.renderBody()}
+				<div slot="footer" class="footer-buttons">
+					${this.renderFooter()}
+				</div>
 			</div>
-			<div slot="footer">
-				${this.renderFooter()}
-			</div>
+			
 			</capitec-modal>
 			
 		`;
 	}
 	renderBody() {
 		return html`
-		<p> can not be stopped due to a system error</p>
+		<capitec-group style="width:458px;" class="modal-body" layout="vertical" nopadding>
+			<p> Credit card 5284 **** **** 1522 and <br>
+				debit card 5284 **** **** 1522 can not be stopped <br>
+				due to a system error. </p>
 
-		<capitec-select 
-  			label="Choose a team" 
-  			.items="${this.teamItems}" 
- 			display-field="text"
- 			mode="inline"
- 			.displayRenderer="${(e) => html`<capitec-card label="${e.id}">${e.text}</capitec-card>`}"
-  			searchable>
-		</capitec-select>
+			<div class="select-group">
+			<capitec-select 
+				id="select-team"
+  				label="Choose a team"
+  				.items="${this.teamItems}" 
+ 				display-field="text"
+				mode="basic"
+  				searchable>
+			</capitec-select>
 
-		<capitec-select 
-  			label="Assign owner" 
-  			.items="${this.ownerItems}" 
- 			display-field="text"
- 			mode="inline"
- 			hint="This is a hint"
- 			.displayRenderer="${(e) => html`<capitec-card label="${e.id}">${e.text}</capitec-card>`}"
-  			searchable>
-		</capitec-select>
+			<capitec-select 
+				id="select-owner"
+  				label="Assign owner" 
+  				.items="${this.ownerItems}" 
+ 				display-field="text"
+ 				mode="basic"
+  				searchable>
+			</capitec-select>
+			</div>
+		</capitec-group>
 		`;
 
 	}
 
-	// cardsToStop() {
-	// 	console.log(`cards to display `, this.cardsToStop);
-	// 	if (cardCount > 1) {
-	// 		return html`
-	// 			<capitec-group>
-
-	// 			</capitec-group>
-	// 	`;
-	// 	}
-	// 	else if (cardCount == 1) {
-	// 		return html`
-	// 		<capitec-group>
-
-	// 		</capitec-group>
-	// 	`;
-	// 	}
-	//}
-
 	renderFooter() {
 		return html`
-			<capitec-button-bar>
-			<capitec-button
+			<capitec-button class="cancel-button"
 					type="clear"
 					label="Cancel"
 					@click="${() => { this._onCancelClick() }}">
 				</capitec-button>
-				<capitec-button
+				<capitec-button class="assign-button"
 					type="clear"
 					label="Assign"
 					@click="${() => { this._onAssignClick() }}">
 				</capitec-button>
-			</capitec-button-bar>
 		`;
 	}
 }
