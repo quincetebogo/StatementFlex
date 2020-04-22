@@ -43,13 +43,6 @@ export class StopCardService {
 			'ivrOptionCode': callerData.ivrOption,
 			'incidentReferenceNumber': callerData.incidentNo,
 			'agentTelephoneNumber': callerData.agentPhoneNumber,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentReferenceNumber,
-			'agentTelephoneNumber': callerData.agentTelephoneNumber,
-			'nonClientFullName': callerData.callerFullName,
-			'nonClientCellPhone': callerData.verifiedTelephoneNumber,
-			'nonClientIDNumber': callerData.southAfricanIDNumber,
-			'nonClientRelationship': callerData.relationship
 		});
 	}
 
