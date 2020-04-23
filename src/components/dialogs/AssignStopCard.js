@@ -26,6 +26,11 @@ export class AssignStopCard extends Component {
 
 		this.dispatchEvent(new CustomEvent('horizon-handoff-button', event));
 	}
+	_onCancelClick() {
+
+		this.dispatchEvent(new CustomEvent('on-cancel'));
+	}
+
 
 	static get properties() {
 		return {
