@@ -27,7 +27,6 @@ export class AssignStopCard extends Component {
 		this.dispatchEvent(new CustomEvent('horizon-handoff-button', event));
 	}
 
-
 	static get properties() {
 		return {
 			team: { type: Object },

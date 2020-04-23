@@ -151,6 +151,9 @@ export class LandingPage extends View {
 		this.renderMode = RENDER_MODE.HAND_OFF;
 		this.router.navigateByPath(`/client/stopcard/handoff`);
 	}
+	onCancel() {
+		this.renderMode = -1;
+	}
 	static get styles() {
 		return [
 			super.styles,
