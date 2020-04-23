@@ -46,8 +46,8 @@ export class AssignStopCard extends Component {
 			super.styles,
 			css`
 				p{
-					height: 72px;
-					width: 405px;
+					height: 88px;
+					width: 100%;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
@@ -55,22 +55,23 @@ export class AssignStopCard extends Component {
 					line-height: 24px;
 					padding-left: 24px;
 					padding-right: 29px;
-					padding-bottom: 24px;
+					padding-bottom: 0px;
 					padding-top: 12px;
 				}
 				.modal-body{
 					box-sizing: border-box;
 					height: 320px;
-					width: 458px;
+					width: 100%;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
 					background-color: #FFFFFF;
 					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
+					z-index: 100;
 				}
 
 				.select-group{
-					height: 124px;
-					width: 410px;
+					height: 200px;
+					width: 100%;
 					padding-top: 24px;
 					padding-left: 24px;
 					padding-right:24px;
@@ -100,8 +101,6 @@ export class AssignStopCard extends Component {
 				.footer-buttons{
 					height: 56px;
 					width: 458px;
-					margin-bottom: 0px;
-					padding-top: 8px;
 				}
 				.assign-button{
 					height: 40px;
@@ -112,11 +111,6 @@ export class AssignStopCard extends Component {
 					margin-left: 261px;
 					height: 40px;
 					width: 95px;
-				}
-				.line{
-					width:100%;
-					margin-top:0px;
-					border-top:1px solid #dfdfdf;"
 				}
  
 			`];
@@ -131,12 +125,10 @@ export class AssignStopCard extends Component {
 				header-align="left">
 			<div slot="body">
 				${this.renderBody()}
-				<div class="line"></div>
-				<div slot="footer" class="footer-buttons">
+			</div>
+			<div slot="footer" class="footer-buttons">
 					${this.renderFooter()}
 				</div>
-			</div>
-			
 			</capitec-modal>
 			
 		`;
