@@ -420,6 +420,7 @@ export class AppShell extends Shell {
 
 			case HORIZON_VIEWS.CARD_STOP:
 			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+			case HORIZON_VIEWS.CARD_STOP_FAILURE:
 				return html`<client-details></client-details>`;
 
 			default:
@@ -434,6 +435,7 @@ export class AppShell extends Shell {
 
 			case HORIZON_VIEWS.CARD_STOP:
 			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
+			case HORIZON_VIEWS.CARD_STOP_FAILURE:
 				return html`<access-component></access-component>`;
 
 			default:
