@@ -74,30 +74,14 @@ export class ConfirmCallerDetails extends Component {
 		super.connectedCallback();
 
 		// Short hand references for reaching into the incoming data model
-		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
-		this.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
-		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
-		this.callerInformation = this.confirmedCaller.callerInformation;
-		this.callerFullName = this.confirmedCaller.callerInformation.name;
-		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
-		this.verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber;
-		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
-		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
-		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
-		this.searchClientButton = this.confirmedCaller.searchClientButton;
-		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
-		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
-		this.confirmButton = this.confirmedCaller.confirmButton;
-		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
-		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+		this._initReferences();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	async _loadAddCallerDialog() {
+	async _onAddCallerDetails() {
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
@@ -106,14 +90,14 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
 
-		this.addCallerDialog = await this.serviceCallHelper.makeCall(this.stopCardService.addCallerDetails(callDetails));
+		this.addCallerDetails = await this.serviceCallHelper.makeCall(this.stopCardService.addCallerDetails(callDetails));
 		if (this.addCallerDetails) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		}
 	}
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
-	async onConfirmClick() {
+	async _onConfirmClick() {
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
@@ -145,7 +129,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	onCallCancelled(event) {
+	_onCallCancelled(event) {
 		if (event.detail.unverifiedCaller === undefined) {
 			// We got here by ending the call from this dialog.
 			// we return the the caller with the information from this dialog and the end call reason
@@ -185,30 +169,53 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	identifiedClient(data) {
+	_onIdentifiedClient(data) {
+		// After a search we need to replace whatever we might have had for the confirmed caller with 
+		// the results of the search
+		this.confirmedCaller = data.detail.identifiedClient;
+		this._initReferences();
 
-		//Updating the identified caller info into local variables
-		this.updateCallerInfo(data)
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	updateCallerInfo(data) {
-		this.callerInformation = data.detail.identifiedClient.callerInformation;
-		this.callerFullName = this.callerInformation.name;
-		this.southAfricanIDNumber = this.callerInformation.southAfricanIDNumber;
-		this.verifiedTelephoneNumber = this.callerInformation.verifiedTelephoneNumber;
-		this.livesIn = this.callerInformation.livesIn;
-		this.languagePreference = this.callerInformation.languagePreference;
-		this.birthdate = this.callerInformation.birthdate;
-		this.incidentReferenceNumber = data.detail.identifiedClient.incidentReferenceNumber;
-		this.agentTelephoneNumber = data.detail.identifiedClient.agentTelephoneNumber;
+	_onNonClientDetailsAdded(data) {
+		this.dispatchEvent(new CustomEvent('confirmed-caller', {
+			detail: data.detail
+		}));
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	getLanguagePreference() {
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+	_initReferences() {
+		// Setup shorthand references into the confirmedCaller object that either
+		// passed into this dialog or returned to this dialog after a Search.
+
+		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
+		this.ivrOption = this.confirmedCaller.ivrOption;
+		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
+		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
+		this.callerInformation = this.confirmedCaller.callerInformation;
+		this.callerFullName = this.confirmedCaller.callerInformation.name;
+		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
+		this.verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber;
+		this.livesIn = this.confirmedCaller.callerInformation.livesIn;
+		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
+		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
+		this.searchClientButton = this.confirmedCaller.searchClientButton;
+		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
+		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
+		this.confirmButton = this.confirmedCaller.confirmButton;
+		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+	}
+
+	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 
 		if (languagePreference === null) {
@@ -217,7 +224,7 @@ export class ConfirmCallerDetails extends Component {
 		return languagePreference;
 	}
 
-	getVerifiedTelephoneNumber() {
+	_getVerifiedTelephoneNumber() {
 		let verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
 
 		if (verifiedTelephoneNumber === null) {
@@ -226,8 +233,8 @@ export class ConfirmCallerDetails extends Component {
 		return verifiedTelephoneNumber;
 	}
 
-	getBirthdate() {
-		let birthdate = this.confirmedCaller.callerInformation.birthdate.value;
+	_getBirthdate() {
+		let birthdate = this.birthdate.value;
 		console.log("Birthdate:", birthdate);
 		let dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
 		console.log("Date of birth: ", dob);
@@ -241,12 +248,6 @@ export class ConfirmCallerDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	onNonClientDetailsAdded(data) {
-		this.dispatchEvent(new CustomEvent('confirmed-caller', {
-			detail: data.detail
-		}));
-	}
 
 	_toggleBusyFlag() {
 		this.isBusy = this.isBusy ? false : true;
@@ -377,7 +378,10 @@ export class ConfirmCallerDetails extends Component {
 			`];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
@@ -448,7 +452,7 @@ export class ConfirmCallerDetails extends Component {
 					<img src="../images/info.svg" id="action-icon"/>
 					<p id="action-label" 
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
-						@click="${() => this._loadAddCallerDialog()}">
+						@click="${() => this._onAddCallerDetails()}">
 						Add Caller Details
 					</p> 
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
@@ -482,7 +486,7 @@ export class ConfirmCallerDetails extends Component {
 						<horizon-label
 							row = "2" column = "2"
 							label="Verified Cellphone Number"
-							value="${this.getVerifiedTelephoneNumber()}"
+							value="${this._getVerifiedTelephoneNumber()}"
 							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
 							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</horizon-label>
@@ -496,14 +500,14 @@ export class ConfirmCallerDetails extends Component {
 						<horizon-label
 							row="3" columun = "2"
 							label="Language Preference"
-							value="${this.getLanguagePreference()}"
+							value="${this._getLanguagePreference()}"
 							tabindex="${getTabIndex(this.languagePreference)}"
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
 							row="4" columun = "1"
 							label="Birthday"
-							value="${this.getBirthdate(this.birthdate)}"
+							value="${this._getBirthdate(this.birthdate)}"
 							tabindex="${getTabIndex(this.birthdate)}"
 							?hidden=${isHidden(this.birthdate)}>
 						</horizon-label>
@@ -544,7 +548,7 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.confirmButton)}
 					.disabled="${isDisabled(this.confirmButton)}"
 					tabindex="${getTabIndex(this.confirmButton)}"
-					@click="${() => this.onConfirmClick()}">
+					@click="${() => this._onConfirmClick()}">
 				</capitec-button>
 			</capitec-group>			
 			`;
@@ -562,14 +566,13 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	renderAddCallerDetailsModal() {
-		// TODO: We may need to pass confirmedCaller into addCallerDetails
 		return html`
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
-				.addCallerDialog="${this.addCallerDialog}"
+				.addCallerDialog="${this.addCallerDetails}"
 				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				@call-ended="${(data) => this.onCallCancelled(data)}"
-				@caller-added="${(data) => this.onNonClientDetailsAdded(data)}">
+				@call-ended="${(data) => this._onCallCancelled(data)}"
+				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;
 	}
 
@@ -577,7 +580,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 
@@ -585,8 +588,8 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-client
 				.unverifiedCaller="${this.confirmedCaller}"
-				@on-client-identified="${(data) => this.identifiedClient(data)}"
-				@call-ended="${(data) => this.onCallCancelled(data)}">
+				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
+				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
 	}
 }
