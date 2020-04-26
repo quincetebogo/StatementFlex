@@ -181,9 +181,11 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIdentifiedClient(data) {
+		// After a search we need to replace whatever we might have had for the confirmed caller with 
+		// the results of the search
+		this.confirmedCaller = data.detail.identifiedClient;
+		this._initReferences();
 
-		//Updating the identified caller info into local variables
-		this._updateCallerInfo(data)
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -222,14 +224,6 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmButton = this.confirmedCaller.confirmButton;
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
-	}
-
-	_updateCallerInfo(data) {
-		// After a search we need to replace whatever we might have had for the confirmed caller with 
-		// the results of the search
-
-		this.confirmedCaller = data.detail.identifiedClient;
-		this._initReferences();
 	}
 
 	_getLanguagePreference() {
