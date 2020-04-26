@@ -16,6 +16,8 @@ import '../../components/Common/HorizonSelect'
 import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
@@ -36,9 +38,15 @@ export class ConfirmCallerDetails extends Component {
 
 		// Property initialization
 		this.confirmedCaller = null;
-		this.isBusy = false;
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+
 		this.isBusy = false;
 	}
 
@@ -98,17 +106,9 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
 
-		this.isBusy = true;
-		try {
-			this.addCallerDialog = await StopCardService.getInstance().addCallerDetails(callDetails);
+		this.addCallerDialog = await this.serviceCallHelper.makeCall(this.stopCardService.addCallerDetails(callDetails));
+		if (this.addCallerDetails) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-		}
-		catch (error) {
-			//TODO: Handle error properly
-			console.log(error);
-		}
-		finally {
-			this.isBusy = false;
 		}
 	}
 
@@ -128,12 +128,8 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ''
 		}
 
-		try {
-			this.isBusy = true;
-
-			let clientProfileDetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
-
-			//Object.assign(this.confirmedCaller, clientProfileDetails);
+		let clientProfileDetails = await this.serviceCallHelper.makeCall(this.stopCardService.identifyCaller(confirmedCaller));
+		if (clientProfileDetails) {
 			this.dispatchEvent(new CustomEvent('confirmed-caller', {
 				detail: {
 					incomingCallDetails: {
@@ -146,13 +142,6 @@ export class ConfirmCallerDetails extends Component {
 					clientProfileDetails: clientProfileDetails
 				}
 			}));
-		}
-		catch (error) {
-			console.log('Error in fetching Client Info.');
-			console.log(error);
-		}
-		finally {
-			this.isBusy = false;
 		}
 	}
 
@@ -194,27 +183,6 @@ export class ConfirmCallerDetails extends Component {
 					}
 				}));
 		}
-	}
-
-	onSearchClick() {
-		let callerDetails = {
-			incomingNumber: this.confirmedCaller.incomingTelephoneNumber.value,
-			voiceReference: this.confirmedCaller.voiceReferenceNumber.value,
-			incidentNo: this.confirmedCaller.incidentReferenceNumber,
-			agentPhoneNumber: this.confirmedCaller.agentTelephoneNumber,
-			ivrOptionSelected: 'StopCard'
-		}
-		this.isBusy = true;
-		let searchOptions = StopCardService.getInstance().searchOptions(callerDetails);
-
-		searchOptions.then((response) => {
-			this.confirmedCaller.identificationMethods = response.identificationMethods;
-			this.renderMode = RENDER_MODE.SEARCH_CALLER;
-			this.isBusy = false;
-		}, (error) => {
-			console.log("Error in fething search options.");
-			this.isBusy = false;
-		});
 	}
 
 	identifiedClient(data) {
@@ -278,6 +246,10 @@ export class ConfirmCallerDetails extends Component {
 		this.dispatchEvent(new CustomEvent('confirmed-caller', {
 			detail: data.detail
 		}));
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
 	}
 
 	// ---------
@@ -417,12 +389,12 @@ export class ConfirmCallerDetails extends Component {
 						${this.renderCallInformation()}
 						${this.renderAddCallerDetails()}
 						${this.renderConfirmedCaller()} 
+						${this.renderLoadingIndicator()}
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
 					<div> 
-				</capitec-modal>
-				${this.renderLoadingIndicator()}`;
+				</capitec-modal>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
 				return html`${this.renderAddCallerDetailsModal()}`;

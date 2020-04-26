@@ -136,10 +136,16 @@ export class StopCardService {
 	// Utility Methods - not part of API Contract
 	// ------------------------------------------
 	isConfirmedCaller(acceptedCall) {
+		if (acceptedCall === null || acceptedCall === undefined) {
+			return false;
+		}
 		return acceptedCall.addCallerDetailsButton !== undefined;
 	}
 
 	isUnverifiedCaller(acceptedCall) {
+		if (acceptedCall === null || acceptedCall === undefined) {
+			return false;
+		}
 		return !this.isConfirmedCaller(acceptedCall);
 	}
 
