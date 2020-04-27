@@ -1,4 +1,4 @@
-import { View, html, css} from 'platform/elements';
+import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
 import { HorizonViewManager } from '../../HorizonViewManager';
@@ -9,66 +9,66 @@ const RENDER_MODE = {
 	END_CALLSESSION: 1
 };
 
-export class StopCardFailure extends View { 
- 
-    // --------------
-    // INITIALISATION
+export class StopCardFailure extends View {
+
+	// --------------
+	// INITIALISATION
 	// --------------
 
-    constructor(){
-        super();
-        this.displayNotification = false;
+	constructor() {
+		super();
+		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.retry = 0;
 
 		this.cardsToStop = [];
 		this.failedCards = [];
-    }
+	}
 
-    // --------------
-    // PROPERTIES
-    // --------------
+	// --------------
+	// PROPERTIES
+	// --------------
 
-    static get properties() { 
-        return{
-            displayNotification : {type : Boolean},
-			RENDER_MODE : {type : Number},
-			retry: {type: Number},
-			isBusy: {type: Boolean},
-			cardsToStop: {type: Array}
-        }
-    }
+	static get properties() {
+		return {
+			displayNotification: { type: Boolean },
+			RENDER_MODE: { type: Number },
+			retry: { type: Number },
+			isBusy: { type: Boolean },
+			cardsToStop: { type: Array }
+		}
+	}
 
-    // -------------------
+	// -------------------
 	// LIFECYCLE OVERRIDES
-    // -------------------
-    
-    connectedCallBack(){
-        super.connectedCallBack();
+	// -------------------
 
-        this.eventAggregator = EventAggregator.getInstance();
-        this.horizonViewManager = HorizonViewManager.getInstance();
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.stopCardService = StopCardService.getInstance();
 
-        let state = this.horizonViewManager.recoverState();
+		let state = this.horizonViewManager.recoverState();
 
 		this.callerInfo = state.callerInfo;
-        this.stoppedCards = state.stoppedCards;
+		this.stoppedCards = state.stoppedCards;
 		this.failedCards = this.stoppedCards.filter(cards => !cards.stoppedCards)
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-        this.eventAggregator.publish('horizon-update-call_actionbar',
+		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
 				referenceNo: this.callerInfo.incidentReferenceNumber,
 				phoneNumber: this.callerInfo.incomingTelephoneNumber
 			});
-		
+
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
-    }
-    
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_onToastDisplayTimeout() {
 		this.displayNotification = true;
@@ -80,18 +80,18 @@ export class StopCardFailure extends View {
 
 	async _onTryAgain() {
 		this.retry++;
-		
+
 		this.isBusy = true;
 		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
 		this.isBusy = false;
 
-		if(this.retry === 3) {
+		if (this.retry === 3) {
 			//for automatically calling assign modal.
 		}
 	}
 
 	_renderAssignModal() {
-		if(this.retry == 3) {
+		if (this.retry == 3) {
 			//for manually calling the assign modal
 		}
 	}
@@ -104,7 +104,7 @@ export class StopCardFailure extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-    //modifications to be done for calling StopCard service
+	//modifications to be done for calling StopCard service
 	async _stopCards(cardsToStop, callerInfo) {
 		let card = {};
 		let success = false;
@@ -153,15 +153,15 @@ export class StopCardFailure extends View {
 				cardStopResults.push(stoppedCard);
 			}
 		}
-		
+
 		return cardStopResults;
 	}
 
-    // ---------
-    // RENDERING
-    // ---------
+	// ---------
+	// RENDERING
+	// ---------
 
-    static get styles() {
+	static get styles() {
 		return [
 			super.styles,
 			css`
@@ -229,17 +229,19 @@ export class StopCardFailure extends View {
                 }
 			`];
 	}
-    
-    //partial development done for web template.
-    _webTemplate() {
+
+	//partial development done for web template.
+	_webTemplate() {
 		return html`		
 			<capitec-card>
 				<capitec-group layout="vertical" gap="none" style="width:100%;">
 					${this._renderTitleBar()}
 					${this._renderFailureToast()}
 					${this._renderGraphic()}
-                    <p class="network-error">Network Error</p>
-					${this.failedCards.map(line => {this._renderStoppedCard(line)})}
+					<p class="network-error">Network Error</p>
+					${this.failedCards.map(line => {
+			return this._renderStoppedCard(line)
+		})}
 					<p class="stop-card-text">Notify the client and try again.</p>
 					${this._renderFooter()}
 				</capitec-group>
@@ -247,18 +249,18 @@ export class StopCardFailure extends View {
 			${this._renderLoadingIndicator()}
 			${this._renderEndCallModal()}
 		`;
-    }
+	}
 
-    _renderTitleBar() {
+	_renderTitleBar() {
 		return html`
 			<capitec-title-bar 
 				class="title-bar-text"
 				type="clear" 
 				label="Stop Card" >
 			</capitec-title-bar>`;
-    }
-    
-    _renderFailureToast() {
+	}
+
+	_renderFailureToast() {
 		if (!this.displayNotification) {
 			return html`
 			<capitec-toast 
@@ -275,19 +277,19 @@ export class StopCardFailure extends View {
 		return html``;
 	}
 
-    //image source to be changed.
-    _renderGraphic() {
+	//image source to be changed.
+	_renderGraphic() {
 		return html`<img class="card-image" src="../../images/cardStop/cards.svg"/>`;
-    }
-    
-    _renderStoppedCard(line) {
+	}
+
+	_renderStoppedCard(line) {
 		return html`
         <p class="stop-card-text">Unable to stop ${line.cardType} <span class="bold-text">${line.accountNumber}.</span></p>
 		`;
 	}
-	
-    _renderFooter() {
-        return html`
+
+	_renderFooter() {
+		return html`
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
                 <capitec-button 
                                 label="Assign"

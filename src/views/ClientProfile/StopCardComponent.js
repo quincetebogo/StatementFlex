@@ -1,8 +1,11 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
 
-import '../../components/EndCallSessionReason';
+import { HorizonViewManager } from '../../HorizonViewManager';
+
+import '../../components/dialogs/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
 
 import 'platform/components';
@@ -27,10 +30,10 @@ const TABLE_STYLE = {
 };
 
 const STOPREASONS = {
-	CARD_DAMAGED: 'Card Damaged',
-	CARD_LOST: 'Card Lost',
-	CARD_STOLEN: 'Card Stolen',
-	SUSPECTED_FRAUD: 'Suspected Fraud'
+	CARD_DAMAGED: 'DAMAGED',
+	CARD_LOST: 'LOST',
+	CARD_STOLEN: 'STOLEN',
+	SUSPECTED_FRAUD: 'SUSPECTED_FRAUD'
 };
 
 export class StopCardComponent extends Component {
@@ -47,7 +50,6 @@ export class StopCardComponent extends Component {
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-		this.toggleEndCallModal = false;
 		this.cards = null;
 		this.rowData = {};
 		this.selectedCardCount = 0;
@@ -62,7 +64,6 @@ export class StopCardComponent extends Component {
 
 	static get properties() {
 		return {
-			toggleEndCallModal: { type: Boolean },
 			confirmedCaller: { type: Object },
 			cards: { type: Object },
 			selectedCardCount: { type: Number },
@@ -78,6 +79,9 @@ export class StopCardComponent extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.router = Router.getInstance();
+		this.horizonViewManager = HorizonViewManager.getInstance();
 
 		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		let incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
@@ -97,6 +101,13 @@ export class StopCardComponent extends Component {
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
 		};
+
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.publish('horizon-update-call_actionbar',
+			{
+				referenceNo: this.callerInfo.incidentReferenceNumber,
+				phoneNumber: this.callerInfo.incomingTelephoneNumber
+			});
 	}
 
 	// --------------
@@ -146,6 +157,8 @@ export class StopCardComponent extends Component {
 			this.cardsToStop.push({
 				cardId: rowData["cardId"],
 				accountNumber: rowData["accountNumber"],
+				encryptedCardId: rowData["encryptedCardId"],
+				cardType: rowData["cardType"],
 				stopReason: ""
 			});
 		}
@@ -179,13 +192,28 @@ export class StopCardComponent extends Component {
 			}));
 	}
 
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALLSESSION;
+	}
+
+	async _onCallComplete(reason) {
+		// TODO - call for end call reason	
+		// Clear any state and return to landing page.
+		this.horizonViewManager.saveState({});
+
+		try {
+			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
+		}
+		catch (error) {
+			console.log(this.error);
+		}
+
+		this.router.navigateByPath(`/landingPage`);
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
-
-	toggleEndCall() {
-		this.toggleEndCallModal = !this.toggleEndCallModal;
-	}
 
 	// ---------------
 	// PRIVATE METHODS
@@ -416,8 +444,12 @@ export class StopCardComponent extends Component {
 	}
 
 	renderEndCallModal() {
-		if (this.toggleEndCallModal) {
-			return html`<end-call-session></end-call-session>`;
+		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
+			return html`
+			<end-call-session
+				@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}"
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}">
+			</end-call-session>`;
 		}
 		return html``;
 	}
