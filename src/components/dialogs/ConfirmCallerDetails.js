@@ -209,7 +209,6 @@ export class ConfirmCallerDetails extends Component {
 		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
 		this.searchClientButton = this.confirmedCaller.searchClientButton;
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
-		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
