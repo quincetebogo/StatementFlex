@@ -25,7 +25,7 @@ export class HorizonSelect extends Component {
 	constructor() {
 		super();
 		this.label = ``;
-		this.value = ``;
+		this.value = null;
 		this.items = {};
 		this.displayField = ``;
 		this.popup = false;
@@ -200,7 +200,6 @@ export class HorizonSelect extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 27px;
-					cursor: pointer;
 				}
 
 				.kebab-icon {
@@ -244,6 +243,7 @@ export class HorizonSelect extends Component {
 					padding-bottom: var(--theme-input-padding-bottom, 14px);
 					padding-left: var(--theme-input-padding-left, 10px);
 					padding-right: var(--theme-input-padding-right, 10px);
+					cursor: pointer;
 				}
 
 				.option:hover {
@@ -278,7 +278,10 @@ export class HorizonSelect extends Component {
 			`]
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 		    <div class="outer-wrapper">
 				<div class="inner-wrapper">
@@ -288,8 +291,7 @@ export class HorizonSelect extends Component {
 					</capitec-label>
 					<capitec-label 
 						class="label-value"
-						label="${this.selectedValue}"
-						@click="${(e) => this._togglePopup(e)}">
+						label="${this.selectedValue}">
 					</capitec-label>
 				</div>
 				<capitec-icon
