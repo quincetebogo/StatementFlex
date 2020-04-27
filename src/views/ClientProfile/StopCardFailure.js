@@ -22,6 +22,7 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 
 		this.cardsToStop = [];
+		this.failedCards = [];
     }
 
     // --------------
@@ -47,14 +48,13 @@ export class StopCardFailure extends View {
 
         this.eventAggregator = EventAggregator.getInstance();
         this.horizonViewManager = HorizonViewManager.getInstance();
+		this.stopCardService = StopCardService.getInstance();
 
         let state = this.horizonViewManager.recoverState();
 
 		this.callerInfo = state.callerInfo;
         this.stoppedCards = state.stoppedCards;
-        this.failedCards = state.failedCards;
-
-		this.stopCardService = StopCardService.getInstance();
+		this.failedCards = this.stoppedCards.filter(cards => !cards.stoppedCards)
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
         this.eventAggregator.publish('horizon-update-call_actionbar',
@@ -239,7 +239,7 @@ export class StopCardFailure extends View {
 					${this._renderFailureToast()}
 					${this._renderGraphic()}
                     <p class="network-error">Network Error</p>
-					<p class="stop-card-text">Unable to stop card</p>
+					${this.failedCards.map(line => {this._renderStoppedCard(line)})}
 					<p class="stop-card-text">Notify the client and try again.</p>
 					${this._renderFooter()}
 				</capitec-group>
