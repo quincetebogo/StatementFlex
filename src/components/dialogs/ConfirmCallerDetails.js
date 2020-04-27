@@ -84,7 +84,7 @@ export class ConfirmCallerDetails extends Component {
 
 		this.isBusy = true;
 		try {
-			this.addCallerDialog = await StopCardService.getInstance().addCallerDetails(callDetails);
+			this.addCallerDetails = await StopCardService.getInstance().addCallerDetails(callDetails);
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		}
 		catch (error) {
@@ -220,7 +220,6 @@ export class ConfirmCallerDetails extends Component {
 		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
 		this.searchClientButton = this.confirmedCaller.searchClientButton;
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
-		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
@@ -572,7 +571,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
-				.addCallerDialog="${this.addCallerDialog}"
+				.addCallerDialog="${this.addCallerDetails}"
 				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				@call-ended="${(data) => this._onCallCancelled(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
