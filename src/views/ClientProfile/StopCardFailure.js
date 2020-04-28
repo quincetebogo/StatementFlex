@@ -1,5 +1,6 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { HorizonViewManager } from '../../HorizonViewManager';
 import { StopCardService } from '../../services/StopCardService';
@@ -21,8 +22,8 @@ export class StopCardFailure extends View {
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.retry = 0;
 
-		this.cardsToStop = [];
 		this.failedCards = [];
+		this.cardStopResults = [];
 	}
 
 	// --------------
@@ -35,7 +36,6 @@ export class StopCardFailure extends View {
 			RENDER_MODE: { type: Number },
 			retry: { type: Number },
 			isBusy: { type: Boolean },
-			cardsToStop: { type: Array }
 		}
 	}
 
@@ -54,7 +54,7 @@ export class StopCardFailure extends View {
 
 		this.callerInfo = state.callerInfo;
 		this.stoppedCards = state.stoppedCards;
-		this.failedCards = this.stoppedCards.filter(cards => !cards.stoppedCards)
+		this.failedCards = this.stoppedCards.filter(cards => !cards.stopped)
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.publish('horizon-update-call_actionbar',
@@ -79,10 +79,11 @@ export class StopCardFailure extends View {
 	}
 
 	async _onTryAgain() {
+		console.log(`cards to stop`, this.failedCards);
 		this.retry++;
 
 		this.isBusy = true;
-		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
+		this.cardStopResults = await this._stopCards(this.failedCards, this.callerInfo);
 		this.isBusy = false;
 
 		if (this.retry === 3) {
@@ -105,27 +106,27 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	//modifications to be done for calling StopCard service
-	async _stopCards(cardsToStop, callerInfo) {
+	async _stopCards(failedCards, callerInfo) {
 		let card = {};
 		let success = false;
 		let stoppedCard = {};
 		let error = null;
 		let cardStopResults = [];
 
-		for (let index = 0; index < cardsToStop.length; index++) {
+		for (let index = 0; index < this.stoppedCards.length && !this.stoppedCards[index].stopped; index++) {
 
 			card.incomingTelephoneNumber = callerInfo.incomingTelephoneNumber;
 			card.voiceReferenceNumber = callerInfo.voiceReferenceNumber;
 			card.ivrOptionCode = callerInfo.ivrOptionCode;
 			card.incidentReferenceNumber = callerInfo.incidentReferenceNumber;
 			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
-			card.cardId = cardsToStop[index].cardId;
-			card.accountNumber = cardsToStop[index].accountNumber;
-			card.stopReason = cardsToStop[index].reason ? cardsToStop[index].reason : '';
+			card.cardId = this.stoppedCards[index].cardId;
+			card.accountNumber = this.stoppedCards[index].accountNumber;
+			card.stopReason = this.stoppedCards[index].reason ? this.stoppedCards[index].reason : '';
 
 			try {
 				await this.stopCardService.stopCard(card);
-				success = true;
+				failedCards[index].success = true;
 				error = null;
 			}
 			catch (ex) {
@@ -137,21 +138,21 @@ export class StopCardFailure extends View {
 				}
 				else {
 				}
-				success = false;
+				failedCards[index].success = false;
 			}
-			finally {
-				stoppedCard = {
-					cardId: card.cardId,
-					cardType: cardsToStop[index].cardType,
-					encryptedCardId: cardsToStop[index].encryptedCardId,
-					accountNumber: card.accountNumber,
-					stopReason: card.stopReason,
-					stopped: success,
-					errorMessage: error
-				};
+			// finally {
+			// 	stoppedCard = {
+			// 		cardId: card.cardId,
+			// 		cardType: failedCards[index].cardType,
+			// 		encryptedCardId: failedCards[index].encryptedCardId,
+			// 		accountNumber: card.accountNumber,
+			// 		stopReason: card.stopReason,
+			// 		stopped: success,
+			// 		errorMessage: error
+			// 	};
 
-				cardStopResults.push(stoppedCard);
-			}
+			// 	cardStopResults.push(stoppedCard);
+			// }
 		}
 
 		return cardStopResults;
@@ -184,6 +185,9 @@ export class StopCardFailure extends View {
 
 				.card-image {
 					margin-top: 188px;
+					align-self: center;
+					height: 152px;
+					width: 210px;
 				}
 				
 				.network-error {
@@ -226,15 +230,33 @@ export class StopCardFailure extends View {
                     border-radius: 0 0 4px 4px;
                     background-color: #FFFFFF;
                     margin-top: 232px;
-                }
+				}
+				
+				.card {
+					height: 823px
+				}
+
+				.button-assign {
+					--theme-button-padding-top: 8.5px;
+					--theme-button-padding-bottom: 8.5px;
+					width: 95px;
+				}
+
+				.button-tryAgain {
+					--theme-button-padding-top: 8.5px;
+					--theme-button-padding-bottom: 8.5px;
+					--theme-button-padding-left: 23.18px;
+					--theme-button-padding-right: 23.18px;
+					margin-right: 24px;
+				}
 			`];
 	}
 
 	//partial development done for web template.
 	_webTemplate() {
 		return html`		
-			<capitec-card>
-				<capitec-group layout="vertical" gap="none" style="width:100%;">
+			<capitec-card class="card">
+				<capitec-group class="card" layout="vertical" gap="none" style="width:100%;">
 					${this._renderTitleBar()}
 					${this._renderFailureToast()}
 					${this._renderGraphic()}
@@ -291,11 +313,12 @@ export class StopCardFailure extends View {
 	_renderFooter() {
 		return html`
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
-                <capitec-button 
+                <capitec-button class="button-assign"
                                 label="Assign"
 						    	@click="${() => this._renderAssignModal()}">
 				</capitec-button>
-				<capitec-button type="primary"
+				<capitec-button class="button-tryAgain"
+								type="primary"
 								@click="${async () => this._onTryAgain()}"
 								label="Try Again">
 				</capitec-button>
