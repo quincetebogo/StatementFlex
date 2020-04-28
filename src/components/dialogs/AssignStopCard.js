@@ -117,7 +117,10 @@ export class AssignStopCard extends Component {
 	}
 
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-modal 
 				type="free" 
