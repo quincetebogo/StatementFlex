@@ -3,7 +3,9 @@
  *
  */
 import { Component, html, css } from 'platform/elements';
+
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 import '../dialogs/ConfirmCallerDetails';
@@ -26,14 +28,19 @@ export class SearchClientDetailsComponent extends Component {
 
 		RegExp();
 
-		this.isBusy = false;
 		this.errMessage = {
 			identificationMethods: "",
 			searchFieldText: ""
 		}
 		this.unverifiedCaller = null;
-		this.stopCardService = StopCardService.getInstance();
 		this.renderMode = -1;
+
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -119,21 +126,14 @@ export class SearchClientDetailsComponent extends Component {
 				searchValue: this.searchFieldText
 			}
 
-			this.isBusy = true;
-			try {
-				let identifiedClient = await StopCardService.getInstance().searchCaller(searchClient);
-
-				//Adding variables to the response, as searchCaller service doesn't return 
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient));
+			if (identifiedClient) {
 				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
 				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
 				this.raiseBackEvent(identifiedClient)
-
 			}
-			catch (error) {
-				console.log('SearchCaller service Failed');
-			}
-			finally {
-				this.isBusy = false;
+			else {
+				// TODO: handle not found - we don't deal with this at all at present
 			}
 		}
 		else {
@@ -170,17 +170,15 @@ export class SearchClientDetailsComponent extends Component {
 			"agentTelephoneNumber": this.agentTelephoneNumber,
 		};
 
-		this.isBusy = true;
-		this.stopCardService.searchOptions(clientInfo)
-			.then((options) => {
+		this.serviceCallHelper.call(
+			this.stopCardService.searchOptions(clientInfo),
+			(options) => {
 				console.log('resolved - result', options);
 				this.identificationMethodsList = options.identificationMethods;
 				if (this.identificationMethodsList != undefined) {
 					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 				}
-			})
-			.catch(error => console.log('error', error))
-			.finally(() => this.isBusy = false);
+			});
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -226,6 +224,10 @@ export class SearchClientDetailsComponent extends Component {
 				break;
 		}
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
 	}
 
 	// ---------
@@ -300,11 +302,12 @@ export class SearchClientDetailsComponent extends Component {
 	render() {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`${this.renderLoadingIndicator()}
+				return html`
 					<capitec-modal type="free" header="Search Client Details" header-align="left" >
 						<div slot="body" class="main">
 							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
+							${this.renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this.renderFooter()}

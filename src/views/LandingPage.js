@@ -62,7 +62,7 @@ export class LandingPage extends View {
 
 	async GetLandingPageData() {
 		let landingPageData = null;
-		landingPageData = await this.serviceCallHelper.makeCall(this.stopCardService.initialise());
+		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
 		if (landingPageData) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
 		}
@@ -75,7 +75,7 @@ export class LandingPage extends View {
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
 
-		let acceptedCall = await this.serviceCallHelper.makeCall(this.stopCardService.acceptCall(eventData));
+		let acceptedCall = await this.serviceCallHelper.asyncCall(this.stopCardService.acceptCall(eventData));
 		console.log("accepted call: ", acceptedCall);
 
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
@@ -120,7 +120,8 @@ export class LandingPage extends View {
 		console.log(data.detail);
 		this.renderMode = -1;
 
-		await this.serviceCallHelper.makeCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
+		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
 	}
 
 	static get styles() {

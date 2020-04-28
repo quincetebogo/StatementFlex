@@ -90,7 +90,7 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
 
-		this.addCallerDetails = await this.serviceCallHelper.makeCall(this.stopCardService.addCallerDetails(callDetails));
+		this.addCallerDetails = await this.serviceCallHelper.asyncCall(this.stopCardService.addCallerDetails(callDetails));
 		if (this.addCallerDetails) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		}
@@ -112,7 +112,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ''
 		}
 
-		let clientProfileDetails = await this.serviceCallHelper.makeCall(this.stopCardService.identifyCaller(confirmedCaller));
+		let clientProfileDetails = await this.serviceCallHelper.asyncCall(this.stopCardService.identifyCaller(confirmedCaller));
 		if (clientProfileDetails) {
 			this.dispatchEvent(new CustomEvent('confirmed-caller', {
 				detail: {
