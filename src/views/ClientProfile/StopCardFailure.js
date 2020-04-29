@@ -58,7 +58,7 @@ export class StopCardFailure extends View {
 
 		this.callerInfo = state.callerInfo;
 		this.stoppedCards = state.stoppedCards;
-		this.failedCards = this.stoppedCards.filter(cards => !cards.stopped)
+		this.failedCards = this.stoppedCards.filter(cards => !cards.stopped);
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.publish('horizon-update-call_actionbar',
@@ -94,8 +94,8 @@ export class StopCardFailure extends View {
 		this.isBusy = false;
 
 		this.horizonViewManager.saveState(this.stoppedCards, this.callerInfo);
-		let hasFailedCards = this.stoppedCards.some(cards => !cards.stopped)
-		if(!hasFailedCards) {
+		let hasFailedCards = this.stoppedCards.some(cards => !cards.stopped);
+		if (!hasFailedCards) {
 			this.router.navigateByPath(`/client/profile/stoppedcards`);
 		}
 		else {
@@ -180,30 +180,31 @@ export class StopCardFailure extends View {
 				.title-bar-text {
 					color: #003652;
 					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 36px;
+					--theme-label-title-font-size : 24px;
+					--theme-label-title-font-weight: 600;
 				}			
 
 				.failure-toast{
 					position: absolute;
 					top : 32px;
-					left:784px;
+					left: 784px;
 					width : 352px;
 					height: 64px;
 				}
 
 				.card-image {
 					margin-top: 188px;
+					margin-left: 466px;
 					align-self: center;
 					height: 112px;
 					width: 132px;
 				}
 				
 				.network-error {
-                    margin-top:36px;
-					margin-bottom:24px;
+                    margin-top: 36px;
+					margin-bottom: 24px;
 					height: 36px;
 					color: #003652;
 					font-family: "Hind Vadodara";
@@ -224,7 +225,7 @@ export class StopCardFailure extends View {
 					text-align: center;
 				}	
 
-				.bold-text{
+				.bold-text {
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
@@ -240,7 +241,6 @@ export class StopCardFailure extends View {
                     border: 1px solid #E1E1E1;
                     border-radius: 0 0 4px 4px;
                     background-color: #FFFFFF;
-                    margin-top: 232px;
 				}
 				
 				.card {
@@ -263,18 +263,21 @@ export class StopCardFailure extends View {
 			`];
 	}
 
+	_mobileTemplate() {
+	}
+
 	_webTemplate() {
 		return html`		
 			<capitec-card class="card">
 				<capitec-group class="card" layout="vertical" gap="none" style="width:100%;">
 					${this._renderTitleBar()}
 					${this._renderFailureToast()}
-					${this._renderGraphic()}
-					<p class="network-error">Network Error</p>
-					${this.failedCards.map(line => {
-			return this._renderStoppedCard(line)
-		})}
-					<p class="stop-card-text">Notify the client and try again.</p>
+					<section style="height:695px;">
+						${this._renderGraphic()}
+						<p class="network-error">Network Error</p>
+						${this.failedCards.map(line => { return this._renderStoppedCard(line) })}
+						<p class="stop-card-text">Notify the client and try again.</p>
+					</section>
 					${this._renderFooter()}
 				</capitec-group>
 			</capitec-card>
@@ -285,7 +288,7 @@ export class StopCardFailure extends View {
 
 	_renderTitleBar() {
 		return html`
-			<capitec-title-bar 
+			<capitec-title-bar
 				class="title-bar-text"
 				type="clear" 
 				label="Stop Card" >
