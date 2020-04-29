@@ -4,6 +4,10 @@ import 'platform/components/inputs/Select';
 
 export class AssignStopCard extends Component {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
 
@@ -21,16 +25,9 @@ export class AssignStopCard extends Component {
 		this.cards = [];
 	}
 
-	_onAssignClick() {
-		// this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
-
-		this.dispatchEvent(new CustomEvent('horizon-handoff-button', event));
-	}
-	_onCancelClick() {
-
-		this.dispatchEvent(new CustomEvent('on-cancel'));
-	}
-
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -41,6 +38,32 @@ export class AssignStopCard extends Component {
 			cards: { type: Array }
 		}
 	}
+
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------	
+
+	_onAssignClick() {
+		this.dispatchEvent(new CustomEvent('on-handoff', event));
+	}
+	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('on-cancel'));
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// ----------
+	// PRIVATE METHODS
+	// ----------
+
+
+	// ---------
+	// RENDERING
+	// ---------
 	static get styles() {
 		return [
 			super.styles,
@@ -115,7 +138,6 @@ export class AssignStopCard extends Component {
  
 			`];
 	}
-
 
 	_mobileTemplate() {
 	}

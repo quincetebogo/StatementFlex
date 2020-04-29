@@ -101,7 +101,7 @@ export class LandingPageWaitForCall extends Component {
 
 	triggerAssignDialog() {
 
-		this.eventAggregator.publish('horizon-handoff-button', {});
+		this.eventAggregator.publish('on-handoff', {});
 		console.log('triggering hand-off dialog');
 	}
 	onPhoneNumberValueChanged(e) {

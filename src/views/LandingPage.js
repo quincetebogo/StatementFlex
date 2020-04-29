@@ -29,7 +29,7 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
-		this.eventAggregator.subscribe(`horizon-handoff-button`, (event) => this.onHandOff(event));
+		this.eventAggregator.subscribe(`on-handoff`, (event) => this.onHandOff(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 		this.stopCardService = StopCardService.getInstance();
@@ -220,7 +220,7 @@ export class LandingPage extends View {
 			return html`
 			<horizon-assign-stop-card
 			.handoffCardStop="${this.isHandoffCardStop}"
-			@horizon-handoff-button="${(event) => this.onHandOff(event)}"
+			@on-handoff="${(event) => this.onHandOff(event)}"
 			@on-cancel="${() => this.onCancel()}">
 			</horizon-assign-stop-card>
 			`;
