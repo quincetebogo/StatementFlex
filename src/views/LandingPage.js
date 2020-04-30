@@ -7,6 +7,7 @@ import 'platform/components/buttons/Button';
 import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/SearchClientDetails';
+import '../components/dialogs/AssignStopCard';
 
 import { StopCardService } from '../services/StopCardService';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
@@ -14,7 +15,8 @@ import { HorizonViewManager } from '../HorizonViewManager';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
-	SEARCH_CALLER: 1
+	SEARCH_CALLER: 1,
+	HAND_OFF: 2
 };
 
 export class LandingPage extends View {
@@ -27,6 +29,7 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
+		this.eventAggregator.subscribe(`on-handoff`, (event) => this.onHandOff(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 		this.stopCardService = StopCardService.getInstance();
@@ -148,6 +151,15 @@ export class LandingPage extends View {
 		}
 	}
 
+	onHandOff() {
+		// console.log(`navigating to hand-off modal`);
+		// this.horizonViewManager.saveState();
+		this.renderMode = RENDER_MODE.HAND_OFF;
+		this.router.navigateByPath(`/client/stopcard/handoff`);
+	}
+	onCancel() {
+		this.renderMode = -1;
+	}
 	static get styles() {
 		return [
 			super.styles,
@@ -166,6 +178,7 @@ export class LandingPage extends View {
 		${this.renderLoadingIndicator()}
 		${this.renderConfirmedUser()}
 		${this.renderUnverifiedUser()}
+		${this.renderCardHandOff()}
 		`;
 
 	}
@@ -207,9 +220,18 @@ export class LandingPage extends View {
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
 		}
-
 	}
-
+	renderCardHandOff() {
+		if (this.renderMode === RENDER_MODE.HAND_OFF) {
+			return html`
+			<horizon-assign-stop-card
+			.handoffCardStop="${this.isHandoffCardStop}"
+			@on-handoff="${(event) => this.onHandOff(event)}"
+			@on-cancel="${() => this.onCancel()}">
+			</horizon-assign-stop-card>
+			`;
+		}
+	}
 }
 
 customElements.define(`landing-page`, LandingPage);
