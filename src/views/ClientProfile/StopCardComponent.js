@@ -159,7 +159,7 @@ export class StopCardComponent extends Component {
 				accountNumber: rowData["accountNumber"],
 				encryptedCardId: rowData["encryptedCardId"],
 				cardType: rowData["cardType"],
-				stopReason: ""
+				stopReason: STOPREASONS.CARD_LOST //Deafult value - incase stopcard reason is not selected.
 			});
 		}
 		else {
@@ -178,8 +178,10 @@ export class StopCardComponent extends Component {
 
 
 	_onStopCards() {
-		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
-		this.cardsToStop = this.cards.filter(card => card.selected);
+		let stopReasonSelected = this.cardsToStop.every(card => card.stopReason !== "");
+		if (stopReasonSelected) {
+			this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+		}
 	}
 
 	_onCardsStopped(event) {
@@ -437,7 +439,7 @@ export class StopCardComponent extends Component {
 					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
 					<capitec-button label="Stop Card(s)"
 									type="primary"
-									@click="${() => this.renderMode = RENDER_MODE.CARD_STOP_MODAL}">
+									@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}
