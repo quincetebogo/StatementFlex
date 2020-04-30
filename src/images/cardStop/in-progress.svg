@@ -1,0 +1,13 @@
+<svg width="68px" height="14px" viewBox="0 0 68 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Static Inprogress</title>
+    <g>
+        <rect fill="#C83B37" x="54" y="0" width="14" height="14" rx="2"></rect>
+        <g>
+            <rect fill="#526065" x="36" y="0" width="14" height="14" rx="2"></rect>
+        </g>
+        <g>
+            <rect fill="#00486D" x="18" y="0" width="14" height="14" rx="2"></rect>
+        </g>
+        <rect fill="#009DE0" x="0" y="0" width="14" height="14" rx="2"></rect>
+    </g>
+</svg>
