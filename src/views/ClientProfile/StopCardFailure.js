@@ -25,7 +25,7 @@ export class StopCardFailure extends View {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 
-		this.displayNotification = false;
+		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.retry = 0;
 
@@ -76,7 +76,7 @@ export class StopCardFailure extends View {
 	// --------------
 
 	_onToastDisplayTimeout() {
-		this.displayNotification = true;
+		this.displayNotification = false;
 	}
 
 	_onEndCallSession() {
@@ -94,10 +94,10 @@ export class StopCardFailure extends View {
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 		await this._stopCards(this.failedCards, this.callerInfo);
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
-		
+
 		let isAllSuccess = this.stoppedCards.every(cards => cards.stopped == true);
 		if (isAllSuccess) {
-			this.horizonViewManager.saveState({callerInfo: this.callerInfo, stoppedCards: this.stoppedCards});
+			this.horizonViewManager.saveState({ callerInfo: this.callerInfo, stoppedCards: this.stoppedCards });
 			this.router.navigateByPath(`/client/profile/stoppedcards`);
 		}
 	}
@@ -123,7 +123,7 @@ export class StopCardFailure extends View {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
+
 	async _stopCards(failedCards, callerInfo) {
 		let card = {};
 		let success = false;
@@ -157,12 +157,12 @@ export class StopCardFailure extends View {
 				success = false;
 			}
 			finally {
-				this.stoppedCards = this.stoppedCards.map( card => {
-					if(card.cardId == failedCards[index].cardId) {
+				this.stoppedCards = this.stoppedCards.map(card => {
+					if (card.cardId == failedCards[index].cardId) {
 						card.stopped = success;
-          				}
+					}
 					return card;
-     			})
+				})
 			}
 		}
 	}
@@ -318,7 +318,7 @@ export class StopCardFailure extends View {
 	}
 
 	_renderFailureToast() {
-		if (!this.displayNotification) {
+		if (this.displayNotification) {
 			return html`
 			<capitec-toast 
 				class="failure-toast" 

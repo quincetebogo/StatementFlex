@@ -85,6 +85,8 @@ export class StopCard extends Component {
 			card.cardId = cardsToStop[index].cardId;
 			card.accountNumber = cardsToStop[index].accountNumber;
 			card.stopReason = cardsToStop[index].stopReason ? cardsToStop[index].stopReason : '';
+			// TODO: Remove - force to fail
+			card.stopReason = '';
 
 			try {
 				await this.stopCardService.stopCard(card);
