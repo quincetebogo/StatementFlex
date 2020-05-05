@@ -23,6 +23,17 @@ export class NewCallEvent {
 	}
 };
 
+export class HeartbeatMonitorEvent {
+	constructor(
+		interval,
+		threshold,
+		disabled
+	) {
+		this.interval = interval;
+		this.threshold = threshold;
+		this.disabled = disabled;
+	}
+}
 
 // Scenario 1 - Call center NOT busy, call ends, and user have enough time to click on "end call" 
 //		and gets routed back to the landing page.
@@ -52,6 +63,11 @@ export class DesktopAgentService {
 		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
 	}
 
+	static setHeartbeatMonitorConfig(heartBeatMonitorEvent) {
+		DesktopAgentService.lastHeartbeatReceivedTime = '';
+		DesktopAgentService.heartbeatMonitor = heartBeatMonitorEvent;
+	}
+
 	static getInstance() {
 		return this.instance || (this.instance = new DesktopAgentService());
 	}
@@ -66,6 +82,8 @@ export class DesktopAgentService {
 		console.log("DesktopAgentService created....");
 
 		this.eventQueue = [];
+		this.heartBeatReceived = false;
+		this.heartBeatsMissed = 0;
 
 		// Listening for SSE events from the Desktop Agent
 		// this.open();
@@ -74,20 +92,35 @@ export class DesktopAgentService {
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
 
 		this.router = Router.getInstance();
+
 	}
 
 	open() {
 		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
+
 		console.log("event source ready state", this.eventSource.readyState);
+
 		this.eventSource.onerror = () => { this.onError(); };
+
 		this.eventSource.onopen = () => { this.onOpen(); };
 		this.eventSource.onmessage = (x) => { this.onMessage(x); };
+
 		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
+		this.eventSource.addEventListener("heartbeat", (event) => this.onHearbeatReceived(event));
+
+		//For {configured} time interval, checks the heartbeatRecived flag to determine heartbeat is received from DesktopAgent service
+		window.setInterval(() => this.checkHeartbeat(), DesktopAgentService.heartbeatMonitor.interval);
+
+		//Disposing the timer on window unload
+		window.onbeforeunload = () => window.clearInterval();
 	}
 
 	onError() {
 		console.log(this.eventSource.readyState);
-		console.log("something bad happened");
+
+		//Resetting the heartbeatReceived flag to flase, when there is error on SSE
+		this.setHeartBeatReceived(false);
+
 		this.eventSource.close();
 		this.open();
 	}
@@ -113,7 +146,7 @@ export class DesktopAgentService {
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IVROptionCode = validate(eventData.IVROptionCode, DesktopAgentService.ivrOptionCodeValidation);
+			newCallEvent.IVROptionCode = 'StopCard'; //TODO: fix up all these hard coded StopCards
 			newCallEvent.Date = eventData.Date;
 
 			console.log(newCallEvent);
@@ -125,9 +158,6 @@ export class DesktopAgentService {
 			console.log(err);
 		}
 	}
-
-
-
 
 	queueEvent(event) {
 		if (event instanceof NewCallEvent) {
@@ -172,5 +202,41 @@ export class DesktopAgentService {
 				console.log("Not on landing page, waiting for agent to end the call...");
 			}
 		}
+	}
+
+	/**
+	 * When the eventListener receives 'Heartbet' event, this function is being called to handle the event
+	 * @param {*} event - Holds the data sent from DesktopAgent service
+	 */
+	onHearbeatReceived(event) {
+		console.log('Heartbeat Received..', event);
+		if (!this.heartBeatReceived) {
+			this.heartBeatReceived = true;
+			this.heartBeatsMissed = 0;
+			DesktopAgentService.lastHeartbeatReceivedTime = event.data;
+			this.publishEvent();
+		}
+	}
+
+	checkHeartbeat() {
+
+		this.heartBeatsMissed = !this.heartBeatReceived ? this.heartBeatsMissed + 1 : 0;
+
+		if (this.heartBeatsMissed >= DesktopAgentService.heartbeatMonitor.threshold && !this.heartBeatReceived) {
+			this.publishEvent();
+		}
+	}
+
+	/**
+	 * Publishing event to Appshell to communicate heartbeat is received or not
+	 */
+	publishEvent() {
+		if (DesktopAgentService.heartbeatMonitor.disabled == "false") {
+			this.eventAggregator.publish(`heatbeat-monitor`, this.heartBeatReceived);
+		}
+	}
+
+	setHeartBeatReceived(value) {
+		this.heartBeatReceived = value;
 	}
 }

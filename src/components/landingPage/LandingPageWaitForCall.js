@@ -1,11 +1,11 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
 
 export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
-
 		this.eventAggregator = EventAggregator.getInstance();
 		this.phoneNumber = "0631152973";
 	}

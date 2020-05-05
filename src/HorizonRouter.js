@@ -30,4 +30,7 @@ export class HorizonRouter {
 	navigateToCardStopSummarySuccess() {
 		this.router.navigateByPath(`/stop/card`);
 	}
+	navigateToStopCardHandOff() {
+		this.router.navigateByPath(`/client/stopcard/handoff`);
+	}
 }

@@ -6,6 +6,7 @@ const LANDING_PAGE = `/landingPage`;
 const SAVINGS_ACCOUNT_PRODUCT_PAGE = `/product/savings-account`;
 const CLIENT_PROFILE_PAGE = `/client/profile`;
 const CARD_STOP_SUCCESS = `/client/profile/stoppedcards`;
+const CARD_STOP_FAILURE = `/client/profile/stopcardfailed`;
 
 export default horizonRoutes = [
 	{
@@ -100,6 +101,17 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_SUCCESS)
 		}
+	},
+
+	{
+		name: `horizon-summary-failure`,
+		title: `StopCardFail`,
+		icon: null,
+		path: CARD_STOP_FAILURE,
+		load: () => import(`./views/ClientProfile/StopCardFailure`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_FAILURE)
+		} 
 	},
 
 	{
