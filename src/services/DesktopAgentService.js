@@ -23,18 +23,6 @@ export class NewCallEvent {
 	}
 };
 
-export class HeartbeatMonitorEvent {
-	constructor(
-		interval,
-		threshold,
-		disabled
-	) {
-		this.interval = interval;
-		this.threshold = threshold;
-		this.disabled = disabled;
-	}
-}
-
 // Scenario 1 - Call center NOT busy, call ends, and user have enough time to click on "end call" 
 //		and gets routed back to the landing page.
 //		-> 	This class will action the event immediately.
@@ -56,16 +44,11 @@ export class DesktopAgentService {
 		// TODO: Make channel service call to retrieve validation data
 
 		//TODO: these validation criteria needs to come from the channel service
-		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[1-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
 		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
 		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
-	}
-
-	static setHeartbeatMonitorConfig(heartBeatMonitorEvent) {
-		DesktopAgentService.lastHeartbeatReceivedTime = '';
-		DesktopAgentService.heartbeatMonitor = heartBeatMonitorEvent;
 	}
 
 	static getInstance() {
@@ -75,18 +58,12 @@ export class DesktopAgentService {
 	constructor() {
 
 		if (this.instance) {
-			console.log("DesktopAgentService already running...");
 			return this.instance;
 		}
 
 		console.log("DesktopAgentService created....");
 
 		this.eventQueue = [];
-		this.heartBeatReceived = false;
-		this.heartBeatsMissed = 0;
-
-		// Listening for SSE events from the Desktop Agent
-		// this.open();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
@@ -96,41 +73,30 @@ export class DesktopAgentService {
 	}
 
 	open() {
+		console.log("Connecting to Desktop Agent");
+
 		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
 		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
-		this.eventSource.addEventListener("heartbeat", (event) => this.onHearbeatReceived(event));
 
 		this.eventSource.onerror = () => { this.onError(); };
 		this.eventSource.onopen = () => { this.onOpen(); };
 		this.eventSource.onmessage = (x) => { this.onMessage(x); };
-
-		console.log("event source ready state", this.eventSource.readyState);
-
-
-		//For {configured} time interval, checks the heartbeatRecived flag to determine heartbeat is received from DesktopAgent service
-		window.setInterval(() => this.checkHeartbeat(), DesktopAgentService.heartbeatMonitor.interval);
-
-		//Disposing the timer on window unload
-		window.onbeforeunload = () => window.clearInterval();
 	}
 
 	onError() {
-		console.log(this.eventSource.readyState);
-
-		//Resetting the heartbeatReceived flag to flase, when there is error on SSE
-		//		this.setHeartBeatReceived(false);
-
+		console.log("Re-connecting to Desktop Agent");
+		// Close the event source and then re-open it.
+		// TODO: Investigate if we can dispose of this logic and let the EventSource automatically re=connect, setting the last-event-id header.		
 		this.eventSource.close();
 		this.open();
 	}
 
 	onOpen() {
-		console.log(this.eventSource.readyState);
-		console.log("connection opened");
+		console.log("Connection to Desktop Agent open");
 	}
 
 	onMessage(event) {
-		console.log(event);
+		console.log("Received an event from the Desktop Agent", event);
 	}
 
 	onNewCall(event) {
@@ -141,6 +107,8 @@ export class DesktopAgentService {
 
 
 		try {
+			// TODO: Agree consistent regular expressions between the CLI, the Horizon UI and the CS !!!!!
+
 			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
@@ -148,8 +116,9 @@ export class DesktopAgentService {
 			newCallEvent.IVROptionCode = 'StopCard'; //TODO: fix up all these hard coded StopCards
 			newCallEvent.Date = eventData.Date;
 
-			console.log(`event id = ${event.lastEventId}`);
-			console.log(`last event id = ${this.lastEventId}`);
+			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
+			// It would be better if we did not have to re-create the event source and could instead rely on the 
+			// Last-Event-ID header being set.
 			this.lastEventId = event.lastEventId;
 
 			console.log(newCallEvent);
@@ -205,45 +174,5 @@ export class DesktopAgentService {
 				console.log("Not on landing page, waiting for agent to end the call...");
 			}
 		}
-	}
-
-	/**
-	 * When the eventListener receives 'Heartbet' event, this function is being called to handle the event
-	 * @param {*} event - Holds the data sent from DesktopAgent service
-	 */
-	onHearbeatReceived(event) {
-		console.log('Heartbeat Received..', event);
-		console.log(`event id = ${event.lastEventId}`);
-		console.log(`last event id = ${this.lastEventId}`);
-		this.lastEventId = event.lastEventId;
-
-		if (!this.heartBeatReceived) {
-			this.heartBeatReceived = true;
-			this.heartBeatsMissed = 0;
-			DesktopAgentService.lastHeartbeatReceivedTime = event.data;
-			this.publishEvent();
-		}
-	}
-
-	checkHeartbeat() {
-
-		this.heartBeatsMissed = !this.heartBeatReceived ? this.heartBeatsMissed + 1 : 0;
-
-		if (this.heartBeatsMissed >= DesktopAgentService.heartbeatMonitor.threshold && !this.heartBeatReceived) {
-			this.publishEvent();
-		}
-	}
-
-	/**
-	 * Publishing event to Appshell to communicate heartbeat is received or not
-	 */
-	publishEvent() {
-		if (DesktopAgentService.heartbeatMonitor.disabled == "false") {
-			this.eventAggregator.publish(`heatbeat-monitor`, this.heartBeatReceived);
-		}
-	}
-
-	setHeartBeatReceived(value) {
-		this.heartBeatReceived = value;
 	}
 }

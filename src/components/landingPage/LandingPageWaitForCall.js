@@ -61,7 +61,7 @@ export class LandingPageWaitForCall extends Component {
 						<div></div>
 						<div>
 							${this.renderWaitingForCall()}
-							${this.renderShowConfirmButton()}
+							<!-- ${this.renderShowConfirmButton()} -->
 						</div>
 					</capitec-group>
 				</div>

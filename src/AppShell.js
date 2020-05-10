@@ -15,7 +15,7 @@ import 'platform/components/navigation/AppRouter';
 //Import Horizon Routes
 import horizonRoutes from './HorizonRoutes';
 import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
-import { DesktopAgentService, NewCallEvent, HeartbeatMonitorEvent } from './services/DesktopAgentService.js';
+import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
 
 
 //TODO: Move these out of the shell
@@ -70,11 +70,6 @@ export class AppShell extends Shell {
 
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
-		/**
-		 * Subscribing to event published from UI-DesktopAgent Service.
-		 * Possible values - true / false.
-		 */
-		this.eventAggregator.subscribe(`heatbeat-monitor`, (event) => this.heartbeatReceived = event);
 
 		// Property defaults.
 		this.isBusy = true;
@@ -88,7 +83,6 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
-		this.heartbeatReceived = true;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
@@ -113,7 +107,6 @@ export class AppShell extends Shell {
 			fullname: { type: String },
 			employeeId: { type: String },
 			currentView: { type: String },
-			heartbeatReceived: { type: Boolean }
 		};
 	}
 
@@ -124,19 +117,11 @@ export class AppShell extends Shell {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.heartbeatMonitorEvent = new HeartbeatMonitorEvent();
-
 		// Listening for events from the Desktop Agent
 		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
 
-		//Retrieving the Heartbeat monitor configuration
-		this.heartbeatMonitorEvent.interval = await this.configuration.getSetting(`DesktopAgent.HeartbeatMonitor.interval`);
-		this.heartbeatMonitorEvent.threshold = await this.configuration.getSetting(`DesktopAgent.HeartbeatMonitor.threshold`);
-		this.heartbeatMonitorEvent.disabled = await this.configuration.getSetting(`DesktopAgent.HeartbeatMonitor.disabled`);
-
 		console.log("registrationUrl: ", registrationUrl);
 		DesktopAgentService.setRegistrationUrl(registrationUrl);
-		DesktopAgentService.setHeartbeatMonitorConfig(this.heartbeatMonitorEvent);
 		DesktopAgentService.getValidationData();
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
@@ -339,7 +324,6 @@ export class AppShell extends Shell {
             ${this.renderContent()}
             ${this.renderSuccessModel()}
 			${this.renderErrorModal()}
-			${this.renderHeartBeatMonitorAlert()}
         `;
 	}
 
@@ -492,22 +476,6 @@ export class AppShell extends Shell {
                 <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
             </capitec-modal>
 		`;
-	}
-
-	renderHeartBeatMonitorAlert() {
-
-		if (!this.heartbeatReceived) {
-			return html`<capitec-modal type="result" result="warn" header="Alert">
-					<div slot="body">
-						Horizon Application has detected that the Desktop Agent is not started. Please close and restart the Horizon Application after completing any current call.
-					</div>
-					<capitec-button slot="footer" 
-									type="clear" 
-									label="Ok"
-									@click="${() => this.heartbeatReceived = true}">
-					</capitec-button>
-				</capitec-modal>`;
-		}
 	}
 }
 
