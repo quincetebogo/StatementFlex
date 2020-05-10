@@ -92,21 +92,20 @@ export class DesktopAgentService {
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
 
 		this.router = Router.getInstance();
-
+		this.lastEventId = 0;
 	}
 
 	open() {
-		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
-
-		console.log("event source ready state", this.eventSource.readyState);
+		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
+		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
+		this.eventSource.addEventListener("heartbeat", (event) => this.onHearbeatReceived(event));
 
 		this.eventSource.onerror = () => { this.onError(); };
-
 		this.eventSource.onopen = () => { this.onOpen(); };
 		this.eventSource.onmessage = (x) => { this.onMessage(x); };
 
-		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
-		this.eventSource.addEventListener("heartbeat", (event) => this.onHearbeatReceived(event));
+		console.log("event source ready state", this.eventSource.readyState);
+
 
 		//For {configured} time interval, checks the heartbeatRecived flag to determine heartbeat is received from DesktopAgent service
 		window.setInterval(() => this.checkHeartbeat(), DesktopAgentService.heartbeatMonitor.interval);
@@ -119,7 +118,7 @@ export class DesktopAgentService {
 		console.log(this.eventSource.readyState);
 
 		//Resetting the heartbeatReceived flag to flase, when there is error on SSE
-		this.setHeartBeatReceived(false);
+		//		this.setHeartBeatReceived(false);
 
 		this.eventSource.close();
 		this.open();
@@ -148,6 +147,10 @@ export class DesktopAgentService {
 			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
 			newCallEvent.IVROptionCode = 'StopCard'; //TODO: fix up all these hard coded StopCards
 			newCallEvent.Date = eventData.Date;
+
+			console.log(`event id = ${event.lastEventId}`);
+			console.log(`last event id = ${this.lastEventId}`);
+			this.lastEventId = event.lastEventId;
 
 			console.log(newCallEvent);
 
@@ -210,6 +213,10 @@ export class DesktopAgentService {
 	 */
 	onHearbeatReceived(event) {
 		console.log('Heartbeat Received..', event);
+		console.log(`event id = ${event.lastEventId}`);
+		console.log(`last event id = ${this.lastEventId}`);
+		this.lastEventId = event.lastEventId;
+
 		if (!this.heartBeatReceived) {
 			this.heartBeatReceived = true;
 			this.heartBeatsMissed = 0;
