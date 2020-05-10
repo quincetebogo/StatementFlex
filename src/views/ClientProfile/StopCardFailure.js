@@ -9,10 +9,13 @@ import '../../components/dialogs/EndCallSessionReason';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
-	END_CALLSESSION: 1,
-	ASSIGN_DIALOG: 2,
-	IN_PROGRESS: 3
+	IN_PROGRESS: 1
 };
+const RENDER_DIALOG = {
+	HANDOFF: 0,
+	ENDCALL: 1
+};
+const MAX_ATTEMPT = 3;
 
 export class StopCardFailure extends View {
 
@@ -27,6 +30,7 @@ export class StopCardFailure extends View {
 
 		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
+		this.renderDialog = -1;
 		this.retry = 0;
 
 		this.failedCards = [];
@@ -40,6 +44,7 @@ export class StopCardFailure extends View {
 		return {
 			displayNotification: { type: Boolean },
 			renderMode: { type: Number },
+			renderDialog: { type: Number },
 			retry: { type: Number }
 		}
 	}
@@ -80,19 +85,24 @@ export class StopCardFailure extends View {
 	}
 
 	_onEndCallSession() {
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
+		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
+
 		this.retry++;
-		if (this.retry > 3) {
-			this.renderMode = RENDER_MODE.ASSIGN_DIALOG;
+		//Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
+		if (this.retry > MAX_ATTEMPT) {
+			this.renderDialog = RENDER_DIALOG.HANDOFF;
 			return;
 		}
 
+		//Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 		await this._stopCards(this.failedCards, this.callerInfo);
+
+		//Toggling back to Network Error summary
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 
 		let isAllSuccess = this.stoppedCards.every(cards => cards.stopped == true);
@@ -157,12 +167,9 @@ export class StopCardFailure extends View {
 				success = false;
 			}
 			finally {
-				this.stoppedCards = this.stoppedCards.map(card => {
-					if (card.cardId == failedCards[index].cardId) {
-						card.stopped = success;
-					}
-					return card;
-				})
+				//Updating the current status (success/failure) into the stoppedCards array.
+				let index = this.stoppedCards.findIndex(c => c.cardId == card.cardId);
+				this.stoppedCards[index].stopped = success;
 			}
 		}
 	}
@@ -280,9 +287,7 @@ export class StopCardFailure extends View {
 	_webTemplate() {
 		switch (this.renderMode) {
 			case RENDER_MODE.CARD_STOP_FAILURE:
-			case RENDER_MODE.END_CALLSESSION:
-			case RENDER_MODE.ASSIGN_DIALOG:
-				return html`		
+				return html`
 					<capitec-card class="card">
 						<capitec-group class="card" layout="vertical" gap="none">
 							${this._renderTitleBar()}
@@ -313,7 +318,7 @@ export class StopCardFailure extends View {
 		return html`
 			<capitec-title-bar
 				type="clear" 
-				label="Stop Card" >
+				label="Stop Card">
 			</capitec-title-bar>`;
 	}
 
@@ -347,9 +352,9 @@ export class StopCardFailure extends View {
 	_renderFooter() {
 		return html`
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
-                <capitec-button class="button-assign"
-                                label="Assign"
-						    	@click="${() => this.renderMode = RENDER_MODE.ASSIGN_DIALOG}">
+				<capitec-button class="button-assign"
+								label="Assign"
+								@click="${() => this.renderDialog = RENDER_DIALOG.HANDOFF}">
 				</capitec-button>
 				<capitec-button class="button-tryAgain"
 								type="primary"
@@ -361,10 +366,10 @@ export class StopCardFailure extends View {
 	}
 
 	_renderEndCallModal() {
-		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
+		if (this.renderDialog == RENDER_DIALOG.ENDCALL) {
 			return html`
 			<end-call-session
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_FAILURE }}"
+				@on-cancel="${() => { this.renderDialog = -1 }}"
 				@on-reason-set="${(reason) => this._onCallComplete(reason)}">
 			</end-call-session>`;
 		}
@@ -373,12 +378,13 @@ export class StopCardFailure extends View {
 	}
 
 	_renderAssignModal() {
-		if (this.renderMode === RENDER_MODE.ASSIGN_DIALOG) {
+		if (this.renderDialog == RENDER_DIALOG.HANDOFF) {
 			return html`
-			<horizon-assign-stop-card
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_FAILURE }}"
-				@on-handoff="${() => { this.renderMode = RENDER_MODE.END_CALLSESSION }}">
-			</horizon-assign-stop-card>`;
+				<horizon-assign-stop-card
+					@on-cancel="${() => { this.renderDialog = -1 }}"
+					@on-handoff="${() => { this.renderDialog = -1 }}">
+				</horizon-assign-stop-card>
+			`;
 		}
 
 		return html``;
@@ -387,7 +393,6 @@ export class StopCardFailure extends View {
 	_renderGraphicInProgress() {
 		return html`<img class="card-image-inprogress" src="../../images/cardStop/in-progress.svg"/>`;
 	}
-
 }
 
 customElements.define(`horizon-summary-failure`, StopCardFailure);
