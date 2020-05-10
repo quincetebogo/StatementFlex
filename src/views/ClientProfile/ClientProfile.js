@@ -18,7 +18,14 @@ export class ClientProfile extends View {
 
 	_onCardsStopped(event) {
 		this.horizonViewManager.saveState(event.detail);
-		this.router.navigateByPath(`/client/profile/stoppedcards`);
+		let stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
+
+		if (stoppedCardsFailed) {
+			this.router.navigateByPath(`/client/profile/stopcardfailed`);
+		}
+		else {
+			this.router.navigateByPath(`/client/profile/stoppedcards`);
+		}
 	}
 
 	render() {

@@ -29,7 +29,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 export const HORIZON_VIEWS = {
 	LANDING_PAGE: 'LANDING PAGE',
 	CARD_STOP: `CARD STOP`,
-	CARD_STOP_SUCCESS: `CARD STOP SUCCESS`
+	CARD_STOP_SUCCESS: `CARD STOP SUCCESS`,
+	CARD_STOP_FAILURE: `CARD STOP FAILURE`
 };
 
 export class HorizonViewManager {
