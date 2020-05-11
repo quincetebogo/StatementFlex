@@ -145,6 +145,7 @@ export class AppShell extends Shell {
 
 		this.isBusy = false;
 		this.roles = this.securityContext.roles != null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : 'n/a';
+		console.log(this.roles);
 		this.platformVersion = await this.executionContext.platformVersion;
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
