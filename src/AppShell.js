@@ -304,13 +304,7 @@ export class AppShell extends Shell {
 
 				.right{
 					width:320px; 
-				}
-				capitec-modal {
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 9px 9px 9px 0px;
-				}
-			`
+				}			`
 		];
 	}
 
