@@ -13,7 +13,6 @@ export class ClientProfileDetails extends Component {
 	constructor() {
 		super();
 
-
 		this.confirmedCaller = null;
 		this.clientProfileDetails = null;
 	}

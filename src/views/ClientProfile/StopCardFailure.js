@@ -28,7 +28,7 @@ export class StopCardFailure extends View {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
 
-		this.displayNotification = false;
+		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.renderDialog = -1;
 		this.retry = 0;
@@ -81,7 +81,7 @@ export class StopCardFailure extends View {
 	// --------------
 
 	_onToastDisplayTimeout() {
-		this.displayNotification = true;
+		this.displayNotification = false;
 	}
 
 	_onEndCallSession() {
@@ -323,7 +323,7 @@ export class StopCardFailure extends View {
 	}
 
 	_renderFailureToast() {
-		if (!this.displayNotification) {
+		if (this.displayNotification) {
 			return html`
 			<capitec-toast 
 				class="failure-toast" 

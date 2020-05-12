@@ -23,7 +23,6 @@ export class NewCallEvent {
 	}
 };
 
-
 // Scenario 1 - Call center NOT busy, call ends, and user have enough time to click on "end call" 
 //		and gets routed back to the landing page.
 //		-> 	This class will action the event immediately.
@@ -45,7 +44,7 @@ export class DesktopAgentService {
 		// TODO: Make channel service call to retrieve validation data
 
 		//TODO: these validation criteria needs to come from the channel service
-		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[1-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
 		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
@@ -59,7 +58,6 @@ export class DesktopAgentService {
 	constructor() {
 
 		if (this.instance) {
-			console.log("DesktopAgentService already running...");
 			return this.instance;
 		}
 
@@ -67,16 +65,39 @@ export class DesktopAgentService {
 
 		this.eventQueue = [];
 
-		// Listening for SSE events from the Desktop Agent
-		this.eventSource = new EventSource(DesktopAgentService.registrationUrl);
-		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
-
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
 
 		this.router = Router.getInstance();
+		this.lastEventId = 0;
 	}
 
+	open() {
+		console.log("Connecting to Desktop Agent");
+
+		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
+		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
+
+		this.eventSource.onerror = () => { this.onError(); };
+		this.eventSource.onopen = () => { this.onOpen(); };
+		this.eventSource.onmessage = (x) => { this.onMessage(x); };
+	}
+
+	onError() {
+		console.log("Re-connecting to Desktop Agent");
+		// Close the event source and then re-open it.
+		// TODO: Investigate if we can dispose of this logic and let the EventSource automatically re=connect, setting the last-event-id header.		
+		this.eventSource.close();
+		this.open();
+	}
+
+	onOpen() {
+		console.log("Connection to Desktop Agent open");
+	}
+
+	onMessage(event) {
+		console.log("Received an event from the Desktop Agent", event);
+	}
 
 	onNewCall(event) {
 		console.log("Received 'new-call' event: ", event);
@@ -86,12 +107,19 @@ export class DesktopAgentService {
 
 
 		try {
+			// TODO: Agree consistent regular expressions between the CLI, the Horizon UI and the CS !!!!!
+
 			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IVROptionCode = validate(eventData.IVROptionCode, DesktopAgentService.ivrOptionCodeValidation);
+			newCallEvent.IVROptionCode = 'StopCard'; //TODO: fix up all these hard coded StopCards
 			newCallEvent.Date = eventData.Date;
+
+			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
+			// It would be better if we did not have to re-create the event source and could instead rely on the 
+			// Last-Event-ID header being set.
+			this.lastEventId = event.lastEventId;
 
 			console.log(newCallEvent);
 
@@ -102,9 +130,6 @@ export class DesktopAgentService {
 			console.log(err);
 		}
 	}
-
-
-
 
 	queueEvent(event) {
 		if (event instanceof NewCallEvent) {
