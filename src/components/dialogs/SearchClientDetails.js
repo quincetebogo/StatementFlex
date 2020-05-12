@@ -157,6 +157,10 @@ export class SearchClientDetailsComponent extends Component {
 		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
+	_ivrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.key;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -269,9 +273,8 @@ export class SearchClientDetailsComponent extends Component {
 					font-size: 18px;
 					font-weight: 600;
 					line-height: 27px;
-					width: 180px;
+					width: 100%;
 					margin-top: 8px;
-					margin-left: 24px;
 				}
 				.search-box{
 					height: 310px;
@@ -343,7 +346,8 @@ export class SearchClientDetailsComponent extends Component {
 						.items="${this.ivrOption.possibleValues}"
 						.value="${this.ivrOption.possibleValues[0].value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}>
+						?hidden=${isHidden(this.ivrOption)}
+						@value-changed="${(e) => this._ivrOptionChanged(e)}">
 					</horizon-select>
 				</div>
 				<div class="left-border">

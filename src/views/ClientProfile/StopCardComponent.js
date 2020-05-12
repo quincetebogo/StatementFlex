@@ -51,7 +51,6 @@ export class StopCardComponent extends Component {
 
 		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
 		this.cards = null;
-		this.rowData = {};
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 
@@ -65,13 +64,13 @@ export class StopCardComponent extends Component {
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
-			cards: { type: Object },
+			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			rowData: { type: Object },
 			cardsToStop: { type: Array }
 		}
 	}
+
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -88,10 +87,12 @@ export class StopCardComponent extends Component {
 
 		this.instruction = clientProfileDetails.instruction;
 		this.cards = clientProfileDetails.cards;
+
 		/**
-		* Generating rowIndex, logic to show/hide stop card reasons is based on rowIndex
+		* Add rowIndex, selected, stopReason fields to cards array. 
+		* Logic to show/hide stop card reasons is based on rowIndex
 		*/
-		this.cards = this.generateRowIndex();
+		this.addFieldsToCardsArray();
 
 		// Set up caller information for passing to Stop Card Modal
 		this.callerInfo = {
@@ -152,34 +153,32 @@ export class StopCardComponent extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
-
-		if (event.detail.new) {
-			this.cardsToStop.push({
-				cardId: rowData["cardId"],
-				accountNumber: rowData["accountNumber"],
-				encryptedCardId: rowData["encryptedCardId"],
-				cardType: rowData["cardType"],
-				stopReason: ""
-			});
-		}
-		else {
-			this.cardsToStop = this.cardsToStop.filter(card => card.cardId != rowData["cardId"]);
-		}
-		console.log(rowData);
 	}
 
 	_onClickReason(stopReason, rowData) {
-		this.cardsToStop.map(card => {
-			if (card.cardId == rowData.cardId) {
-				card.stopReason = stopReason;
-			}
-		});
+		rowData.stopReason = stopReason;
+
+		// After mutating the this.cards array, request an update in order to trigger rendering.
+		// Mutating fields in an object will not be noticed otherwise.
+		this.cards[rowData.rowIndex].stopReason = stopReason;
+		this.requestUpdate();
 	}
 
 
 	_onStopCards() {
+		this.cardsToStop = this.cards.map(
+			card => {
+				return {
+					cardId: card.cardId,
+					accountNumber: card.accountNumber,
+					encryptedCardId: card.encryptedCardId,
+					cardType: card.cardType,
+					stopReason: card.selected ? card.stopReason : ''
+				}
+			}
+		).filter(card => card.stopReason != '');
+
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
-		this.cardsToStop = this.cards.filter(card => card.selected);
 	}
 
 	_onCardsStopped(event) {
@@ -219,11 +218,11 @@ export class StopCardComponent extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	generateRowIndex() {
-		return this.cards.map((card, index) => {
+	addFieldsToCardsArray() {
+		this.cards.map((card, index) => {
 			card["rowIndex"] = index;
 			card["selected"] = false;
-			return card;
+			card.stopReason = STOPREASONS.CARD_LOST;
 		});
 	}
 
@@ -304,7 +303,7 @@ export class StopCardComponent extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this.renderEndCallModal()}
-			${this.renderStopCardModal(this.rowData)}
+			${this.renderStopCardModal()}
 		`;
 	}
 
@@ -399,25 +398,29 @@ export class StopCardComponent extends Component {
 						</capitec-label>
 						<capitec-button label="Card Damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.stopReason === STOPREASONS.CARD_DAMAGED}"
 										@click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
 						</capitec-button>
 						<capitec-button label="Card Lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.stopReason === STOPREASONS.CARD_LOST}"
 										@click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
 						</capitec-button>
 						<capitec-button label="Card Stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.stopReason === STOPREASONS.CARD_STOLEN}"
 										@click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
 						</capitec-button>
 						<capitec-button label="Suspected Fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
+										.disabled="${rowData.stopReason === STOPREASONS.SUSPECTED_FRAUD}"
 										@click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">
 						</capitec-button>
 					</div>`;
 		}
 	}
 
-	renderStopCardModal(rowData) {
+	renderStopCardModal() {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card 
@@ -437,7 +440,7 @@ export class StopCardComponent extends Component {
 					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
 					<capitec-button label="Stop Card(s)"
 									type="primary"
-									@click="${() => this.renderMode = RENDER_MODE.CARD_STOP_MODAL}">
+									@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}

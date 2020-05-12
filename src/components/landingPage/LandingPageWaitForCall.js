@@ -1,11 +1,12 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { Router } from 'platform/Router';
 
 export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
-
+		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.phoneNumber = "0631152973";
 	}
@@ -62,6 +63,7 @@ export class LandingPageWaitForCall extends Component {
 						<div>
 							${this.renderWaitingForCall()}
 							${this.renderShowConfirmButton()}
+							${this.renderHandoffButton()}
 						</div>
 					</capitec-group>
 				</div>
@@ -97,6 +99,11 @@ export class LandingPageWaitForCall extends Component {
 		console.log('triggering dialog');
 	}
 
+	triggerAssignDialog() {
+
+		this.eventAggregator.publish('on-handoff', {});
+		console.log('triggering hand-off dialog');
+	}
 	onPhoneNumberValueChanged(e) {
 		console.log(e);
 		this.phoneNumber = e.detail.new;
@@ -119,6 +126,17 @@ export class LandingPageWaitForCall extends Component {
 				</capitec-button>
 			`;
 		return html``;
+	}
+	//temporary button for hand-off/assign modal
+	renderHandoffButton() {
+		return html`
+				<capitec-button
+					class="buttons"
+					type="primary" 
+					label="Assign" 
+					@click="${(e) => this.triggerAssignDialog(e)}"> 
+				</capitec-button>
+		`;
 	}
 }
 
