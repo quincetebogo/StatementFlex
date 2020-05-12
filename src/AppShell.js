@@ -59,12 +59,11 @@ export class AppShell extends Shell {
 		this.executionContext = ExecutionContext.getInstance();
 		this.logger = Logger.getInstance();
 		this.router = Router.getInstance();
+		this.configuration = Configuration.getInstance();
 
 
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
-
-		this.showClientProfile = false;
 
 		//Event Aggregator
 		this.eventAggregator = EventAggregator.getInstance();
@@ -119,11 +118,13 @@ export class AppShell extends Shell {
 		super.connectedCallback();
 
 		// Listening for events from the Desktop Agent
-		let registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
+		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
+
 		console.log("registrationUrl: ", registrationUrl);
 		DesktopAgentService.setRegistrationUrl(registrationUrl);
 		DesktopAgentService.getValidationData();
-		DesktopAgentService.getInstance();
+		this.agentService = DesktopAgentService.getInstance();
+		this.agentService.open();
 
 		console.log(`Appshell: ConnectedCallback`);
 
@@ -144,6 +145,7 @@ export class AppShell extends Shell {
 
 		this.isBusy = false;
 		this.roles = this.securityContext.roles != null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : 'n/a';
+		console.log(this.roles);
 		this.platformVersion = await this.executionContext.platformVersion;
 		this.applicationName = await this.executionContext.applicationName;
 		this.applicationVersion = await this.executionContext.applicationVersion;
@@ -302,8 +304,7 @@ export class AppShell extends Shell {
 
 				.right{
 					width:320px; 
-				}
-			`
+				}			`
 		];
 	}
 
@@ -317,7 +318,7 @@ export class AppShell extends Shell {
             ${this.renderLoadingIndicator()}
             ${this.renderContent()}
             ${this.renderSuccessModel()}
-            ${this.renderErrorModal()}
+			${this.renderErrorModal()}
         `;
 	}
 
