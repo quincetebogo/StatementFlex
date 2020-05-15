@@ -5,7 +5,7 @@ import { NavigationContext } from 'platform/NavigationContext';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
 
-
+// TODO: Move to a models structure
 export class NewCallEvent {
 	constructor(
 		incomingTelephoneNumber,
@@ -34,22 +34,12 @@ export class NewCallEvent {
 //			ringing), the new-call event is handled appropriately (routed to screen asking end-call reason, 
 //			or not at all, depending).
 
+
 export class DesktopAgentService {
 
-	static setRegistrationUrl(url) {
-		DesktopAgentService.registrationUrl = url;
-	}
-
-	static getValidationData() {
-		// TODO: Make channel service call to retrieve validation data
-
-		//TODO: these validation criteria needs to come from the channel service
-		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
-		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
-		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
-		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
-		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
-	}
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	static getInstance() {
 		return this.instance || (this.instance = new DesktopAgentService());
@@ -66,24 +56,17 @@ export class DesktopAgentService {
 		this.eventQueue = [];
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe("landing-page-loaded", () => this.processEventQueue());
+		this.eventAggregator.subscribe("landing-page-loaded", () => this._processEventQueue());
 
 		this.router = Router.getInstance();
 		this.lastEventId = 0;
 	}
 
-	open() {
-		console.log("Connecting to Desktop Agent");
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener("new-call", (event) => this.onNewCall(event));
-
-		this.eventSource.onerror = () => { this.onError(); };
-		this.eventSource.onopen = () => { this.onOpen(); };
-		this.eventSource.onmessage = (x) => { this.onMessage(x); };
-	}
-
-	onError() {
+	_onError() {
 		console.log("Desktop Agent in error state");
 
 		switch (this.eventSource.readyState) {
@@ -106,15 +89,15 @@ export class DesktopAgentService {
 		}
 	}
 
-	onOpen() {
+	_onOpen() {
 		console.log("Connection to Desktop Agent open");
 	}
 
-	onMessage(event) {
+	_onMessage(event) {
 		console.log("Received an event from the Desktop Agent", event);
 	}
 
-	onNewCall(event) {
+	_onNewCall(event) {
 		console.log("Received 'new-call' event: ", event);
 
 		let eventData = JSON.parse(event.data);
@@ -138,34 +121,70 @@ export class DesktopAgentService {
 
 			console.log(newCallEvent);
 
-			this.queueEvent(newCallEvent);
-			this.processEventQueue();
+			this._queueEvent(newCallEvent);
+			this._processEventQueue();
 		}
 		catch (err) {
 			console.log(err);
 		}
 	}
 
-	queueEvent(event) {
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	static setRegistrationUrl(url) {
+		// TODO: Load from config in constructor and get rid of method
+		DesktopAgentService.registrationUrl = url;
+	}
+
+	open() {
+		console.log("Connecting to Desktop Agent");
+
+		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
+		this.eventSource.addEventListener("new-call", (event) => this._onNewCall(event));
+
+		this.eventSource.onerror = () => { this._onError(); };
+		this.eventSource.onopen = () => { this._onOpen(); };
+		this.eventSource.onmessage = (x) => { this._onMessage(x); };
+	}
+
+	static getValidationData() {
+		// TODO: Make channel service call to retrieve validation data
+		// TODO: these validation criteria needs to come from the channel service
+		// TODO: Move into constructor/class initialization
+		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
+		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_queueEvent(event) {
 		if (event instanceof NewCallEvent) {
 			this.eventQueue.push(event);
 			console.log("Current event queue:", this.eventQueue);
 		}
 	}
 
-	dequeueNextEvent() {
+	_dequeueNextEvent() {
 		return this.eventQueue.shift();
 	}
 
-	peekNextEvent() {
+	_peekNextEvent() {
 		return this.eventQueue[0];
 	}
 
-	eventQueueContains(event) {
+	// TODO: Remove? Is this used
+	_eventQueueContains(event) {
 		return this.eventQueue.includes(event);
 	}
 
-	processEventQueue() {
+	_processEventQueue() {
 		// Business logic on how to respond to events comes here
 
 		// If NOT on Landing Page => Wait for Landing Page (by listening for landing-page-loaded event)
@@ -174,14 +193,14 @@ export class DesktopAgentService {
 
 		console.log("Processing Desktop Agent event queue...");
 
-		if (this.peekNextEvent() instanceof NewCallEvent) {
+		if (this._peekNextEvent() instanceof NewCallEvent) {
 			console.log("Processing New Call Event");
 
 			// Get current view from router
 			if (NavigationContext.getInstance().current.route.name === 'landing-page') {
 				// If Landing Page => publish event
 				console.log("Publishing new-call event");
-				this.eventAggregator.publish(`new-call`, this.dequeueNextEvent());
+				this.eventAggregator.publish(`new-call`, this._dequeueNextEvent());
 			}
 			else {
 				// TODO: should we forcefully route to landing page?
