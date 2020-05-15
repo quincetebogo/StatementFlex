@@ -84,11 +84,26 @@ export class DesktopAgentService {
 	}
 
 	onError() {
-		console.log("Re-connecting to Desktop Agent");
-		// Close the event source and then re-open it.
-		// TODO: Investigate if we can dispose of this logic and let the EventSource automatically re=connect, setting the last-event-id header.		
-		this.eventSource.close();
-		this.open();
+		console.log("Desktop Agent in error state");
+
+		switch (this.eventSource.readyState) {
+			case 0:
+				console.log("Event Source State: CONNECTING");
+				break;
+			case 1:
+				console.log("Event Source State: OPEN");
+				break;
+			case 2:
+				console.log("Event Source State: CLOSED");
+				break;
+		}
+
+		if (this.eventSource.readyState != 0) {
+			console.log("Closing and re-opening Desktop Agent Event Source");
+			// Close the event source and then re-open it.
+			this.eventSource.close();
+			this.open();
+		}
 	}
 
 	onOpen() {
