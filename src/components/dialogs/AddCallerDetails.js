@@ -1,8 +1,9 @@
 import { Component, html, css } from 'platform/elements';
-import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
-
 import 'platform/components/popups/Modal';
+
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
@@ -21,8 +22,14 @@ export class AddCallerDetails extends Component {
 
 		this.confirmedCaller = null;
 		this.addCallerDialog = null;
-		this.isBusy = false;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
+
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -115,13 +122,13 @@ export class AddCallerDetails extends Component {
 			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
 			nonClientCellPhone: this.cellPhoneTextField.value,
 			nonClientIDNumber: '',
-			//nonClientRelationship needs to chosen; default value of nonClientRelationship doesnt give any response in service call
+			//TODO: Check if this is still true
+			// nonClientRelationship needs to chosen; default value of nonClientRelationship doesnt give any response in service call
 			nonClientRelationship: this.nonClientRelationship.value
 		}
-		try {
-			this.isBusy = true;
-			let addedcallerdetails = await StopCardService.getInstance().identifyCaller(confirmedCaller);
 
+		let addedcallerdetails = await this.serviceCallHelper.asyncCall(this.stopCardService.identifyCaller(confirmedCaller));
+		if (addedcallerdetails) {
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {
 					incomingCallDetails: {
@@ -134,13 +141,6 @@ export class AddCallerDetails extends Component {
 					clientProfileDetails: addedcallerdetails
 				}
 			}));
-		}
-		catch (error) {
-			console.log('Error in adding caller Information');
-			console.log(error);
-		}
-		finally {
-			this.isBusy = false;
 		}
 	}
 
@@ -171,7 +171,9 @@ export class AddCallerDetails extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
 
 	validateData() {
 		let fieldsHasError = false;
@@ -279,11 +281,11 @@ export class AddCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
-						${this.renderLoadingIndicator()}
 						<capitec-modal type="free" header="Add Caller Details"  header-align="left" class="header" >
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
 								${this.renderAddCallerDetails()}
+								${this.renderLoadingIndicator()}
 							</div>
 							<div slot="footer">
 								${this.renderFooter()}

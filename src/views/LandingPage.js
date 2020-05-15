@@ -32,8 +32,12 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`on-handoff`, (event) => this.onHandOff(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.router = Router.getInstance();
+
 		this.stopCardService = StopCardService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(t => { this.toggleBusyFlag() });
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this.toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
 
 		this.isBusy = false;
 	}
@@ -52,79 +56,54 @@ export class LandingPage extends View {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		let landingPageData = null;
+		await this.GetLandingPageData();
 
-		landingPageData = await this.GetLandingPageData(landingPageData);
-		if (landingPageData) {
-			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
-		}
-
+		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish('landing-page-loaded', {});
 	}
 
 	async GetLandingPageData() {
-		return await this.serviceCallHelper.makeCall(this.stopCardService.initialise(),
-			(x) => { this.handleInitErrors(x) });
+		let landingPageData = null;
+		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
+		if (landingPageData) {
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		}
 	}
 
 	toggleBusyFlag() {
 		this.isBusy = this.isBusy ? false : true;
 	}
 
-	handleInitErrors(ex) {
-		if (ex instanceof TypeError) {
-			// Put in something to update the status bar
-			console.log(ex.message, ": The channel service may be down");
-		}
-		else if (ex instanceof HttpStatusError) {
-			// Put in something to update the status bar
-			console.log(`Http Status: ${ex.status}`);
-		}
-		else {
-			// Put in something to update the status bar
-			console.log(ex);
-		}
-	}
-
 	async onNewCall(eventData) {
 		console.log("new call received:", eventData);
 
-		// Web service calls - must still handle errors
-		try {
-			let stopCardService = StopCardService.getInstance();
-			this.isBusy = true;
+		let acceptedCall = await this.serviceCallHelper.asyncCall(this.stopCardService.acceptCall(eventData));
+		console.log("accepted call: ", acceptedCall);
 
-			let acceptedCall = await StopCardService.getInstance().acceptCall(eventData);
+		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
+			this.confirmedCaller = acceptedCall;
+			this.isUnverifiedCaller = null;
 
-			if (stopCardService.isConfirmedCaller(acceptedCall)) {
-				this.confirmedCaller = acceptedCall;
-				this.isUnverifiedCaller = null;
+			// TODO: injected into model. Not the best way to do this. look for an alternative
+			this.confirmedCaller.incidentReferenceNumber = eventData.IncidentReferenceNumber;
+			this.confirmedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
 
-				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.confirmedCaller.incidentReferenceNumber = eventData.IncidentReferenceNumber;
-				this.confirmedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
-
-				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-			}
-			else if (stopCardService.isUnverifiedCaller(acceptedCall)) {
-				this.confirmedCaller = null;
-				this.isUnverifiedCaller = acceptedCall;
-
-				// TODO: injected into model. Not the best way to do this. look for an alternative
-				this.isUnverifiedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
-
-				this.renderMode = RENDER_MODE.SEARCH_CALLER;
-			}
+			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		}
-		catch (error) {
-			console.log(`Accept Call Failed: `, error);
+		else if (this.stopCardService.isUnverifiedCaller(acceptedCall)) {
+			this.confirmedCaller = null;
+			this.isUnverifiedCaller = acceptedCall;
+
+			// TODO: injected into model. Not the best way to do this. look for an alternative
+			this.isUnverifiedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
+
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		}
+		else {
+			console.log(`Accept Call Failed: `);
 			this.confirmedCaller = null;
 			this.isUnverifiedCaller = null;
 			this.renderMode = -1;
-			return null;
-		}
-		finally {
-			this.isBusy = false;
 		}
 	}
 
@@ -143,12 +122,8 @@ export class LandingPage extends View {
 		console.log(data.detail);
 		this.renderMode = -1;
 
-		try {
-			await this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key);
-		}
-		catch (error) {
-			console.log(this.error);
-		}
+		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
 	}
 
 	onHandOff() {

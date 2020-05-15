@@ -70,6 +70,7 @@ export class AppShell extends Shell {
 
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
+		this.eventAggregator.subscribe(`horizon-status-bar-update`, (event) => this._onUpdateStatusBar(event));
 
 		// Property defaults.
 		this.isBusy = true;
@@ -83,6 +84,8 @@ export class AppShell extends Shell {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.cardStop = [];
+		this.currentStatus = "success";
+		this.currentMessage = "";
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
@@ -93,7 +96,6 @@ export class AppShell extends Shell {
 	// PROPERTIES
 	// ----------
 
-	// TODO: Document properties
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
@@ -107,6 +109,8 @@ export class AppShell extends Shell {
 			fullname: { type: String },
 			employeeId: { type: String },
 			currentView: { type: String },
+			currentStatus: { type: String },
+			currentMessage: { type: String }
 		};
 	}
 
@@ -210,6 +214,11 @@ export class AppShell extends Shell {
 		this.employeeId = event.employeeId;
 	}
 
+	_onUpdateStatusBar(event) {
+		this.currentStatus = event.status;
+		this.currentMessage = event.message;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -261,7 +270,7 @@ export class AppShell extends Shell {
 					width: 100%;
 					height: 56px;
 					margin: 0px 0px 0px 0px;
-					background: yellow; /* TODO: REMOVE - MAKES STYLING ERRORS DISGUSTINGLY OBVIOUS */
+					background: #f4f4f4; 
 				}
 
 				.screen-content {
@@ -373,7 +382,7 @@ export class AppShell extends Shell {
 						</div>	
                     </capitec-content-box>
 	
-					<capitec-status-bar class="status-bar" status="success" label=""></capitec-status-bar>
+					<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
                 </div>
         `;
 	}

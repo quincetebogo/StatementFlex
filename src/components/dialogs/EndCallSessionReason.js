@@ -1,6 +1,8 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
+
 import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, getPossibleValues } from '../../utils/channelServiceUtilities';
 
 export class EndCallSessionReason extends View {
@@ -16,6 +18,13 @@ export class EndCallSessionReason extends View {
 		this.cancelButton = {};
 		this.endCallSessionButton = {};
 		this.endCallReasons = {};
+
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -27,7 +36,8 @@ export class EndCallSessionReason extends View {
 			endCallReason: { type: Object },
 			cancelButton: { type: Object },
 			endCallSessionButton: { type: Object },
-			endCallReasons: { type: Object }
+			endCallReasons: { type: Object },
+			isBusy: { type: Boolean }
 		}
 	}
 
@@ -38,18 +48,18 @@ export class EndCallSessionReason extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.stopCardService = StopCardService.getInstance();
-
-		this.stopCardService.endCallOptions()
-			.then((response) => {
-				this.cancelButton = response.cancelButton;
-				this.endCallSessionButton = response.endCallSessionButton;
-				this.endCallReasons = response.endCallReasons;
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-
+		// TODO: Consider what happens if this service call fails. We will be left with
+		// the progress bar on the screen permanently and an error message on the status dialog
+		// This call should perhaps be done before showing the dialog or this dialog needs its own
+		// error handler.
+		this.serviceCallHelper.call(
+			this.stopCardService.endCallOptions(),
+			(options) => {
+				this.cancelButton = options.cancelButton;
+				this.endCallSessionButton = options.endCallSessionButton;
+				this.endCallReasons = options.endCallReasons;
+			}
+		);
 	}
 
 	// --------------
@@ -78,7 +88,9 @@ export class EndCallSessionReason extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	// n/a
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
 
 	// ---------
 	// RENDERING
@@ -111,29 +123,31 @@ export class EndCallSessionReason extends View {
 	}
 
 	_webTemplate() {
-		return html`
-		<capitec-modal type="free" header="End Call Session Reason">
-			<div slot="body">
-						${this._renderCallSessionReason()} 
-				<div class="line"></div>
-			</div>
-			<div slot="footer">
-				${this._renderCallSessionFooter()} 
-			</div>
-		</capitec-modal>
-	`;
-	}
-
-	_renderCallSessionReason() {
 		let options = getPossibleValues(this.endCallReasons);
 
 		if (Array.isArray(options) && options.length > 0) {
 			return html`
+			<capitec-modal type="free" header="End Call Session Reason">
+				<div slot="body">
+					${this._renderCallSessionReason(options)} 
+					<div class="line"></div>
+					${this._renderLoadingIndicator()}
+				</div>
+				<div slot="footer">
+					${this._renderCallSessionFooter()} 
+				</div>
+			</capitec-modal>`
+		} else {
+			return html`${this._renderLoadingIndicator()}`;
+		}
+	}
+
+	_renderCallSessionReason(options) {
+		return html`
 			<capitec-radio-group class="options-group">
 				${options.map(line => { return this._renderRadioButton(line) })}
 			</capitec-radio-group>
 			`;
-		}
 	}
 
 	_renderRadioButton(line) {
@@ -168,6 +182,17 @@ export class EndCallSessionReason extends View {
 				</capitec-button>
 			</capitec-group>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
 	}
 }
 
