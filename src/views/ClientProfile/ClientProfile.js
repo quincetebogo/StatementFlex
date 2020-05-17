@@ -30,7 +30,7 @@ export class ClientProfile extends View {
 
 	render() {
 		console.log('render client profile');
-		let tempState = horizonStore.getInstance().recoverState();
+		let tempState = this.horizonStore.recoverState();
 		return html`
 		<stop-card 
 			.confirmedCaller="${tempState}"
