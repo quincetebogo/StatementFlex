@@ -82,8 +82,6 @@ export class HorizonViewManager {
 
 	switchArea(viewSet, areaHtml) {
 		if (viewSet !== this.currentView) {
-			console.log('viewSet', viewSet);
-			console.log('current view: ', this.currentView);
 			return html``;
 		}
 
@@ -91,10 +89,8 @@ export class HorizonViewManager {
 
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
-				console.log(areaHtml);
 				return areaHtml;
 			case HORIZON_VIEWS.CARD_STOP:
-				console.log(areaHtml);
 				return areaHtml;
 		}
 	}
