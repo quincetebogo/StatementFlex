@@ -91,35 +91,32 @@ export default horizonRoutes = [
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
 	},
-
-	, {
-		name: `horizon-summary-success`,
-		title: `StopCard`,
-		icon: null,
-		path: CARD_STOP_SUCCESS,
-		load: () => import(`./views/ClientProfile/StopCardSuccess`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_SUCCESS)
-		}
-	},
-
-	{
-		name: `horizon-summary-failure`,
-		title: `StopCardFail`,
-		icon: null,
-		path: CARD_STOP_FAILURE,
-		load: () => import(`./views/ClientProfile/StopCardFailure`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_FAILURE)
-		} 
-	},
-
 	{
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
 		path: CLIENT_PROFILE_PAGE,
 		load: () => import(`./views/ClientProfile/ClientProfile`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+		}
+	},
+	{
+		name: `horizon-summary-success`,
+		title: `StopCard`,
+		icon: null,
+		path: CARD_STOP_SUCCESS,
+		load: () => import(`./views/ClientProfile/StopCardSuccess`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+		}
+	},
+	{
+		name: `horizon-summary-failure`,
+		title: `StopCardFail`,
+		icon: null,
+		path: CARD_STOP_FAILURE,
+		load: () => import(`./views/ClientProfile/StopCardFailure`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
