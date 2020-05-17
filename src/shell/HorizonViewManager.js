@@ -58,10 +58,10 @@ export class HorizonViewManager {
 				load: () => import(`../components/landingPage/LandingPageMarketing`),
 			},
 			{
-				load: () => import(`../views/ClientProfile/AccessComponent`),
+				load: () => import(`../components/Common/AccessMenuBar`),
 			},
 			{
-				load: () => import(`../views/ClientProfile/ClientProfileDetails`),
+				load: () => import(`../components/Common/ClientProfileDetails`),
 			},
 		];
 	}

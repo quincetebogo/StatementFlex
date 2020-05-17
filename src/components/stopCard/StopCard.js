@@ -5,11 +5,11 @@ import { Router } from 'platform/Router';
 
 import { HorizonStore } from '../../store/HorizonStore';
 
-import '../../components/dialogs/EndCallSessionReason';
-import '../../components/dialogs/StopCard';
+import '../dialogs/EndCallSessionReason';
+import '../dialogs/StopCard';
 
 import 'platform/components';
-import '../../components/dialogs/StopCard';
+import '../dialogs/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -36,7 +36,7 @@ const STOPREASONS = {
 	SUSPECTED_FRAUD: 'SUSPECTED_FRAUD'
 };
 
-export class StopCardComponent extends Component {
+export class StopCard extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -458,4 +458,4 @@ export class StopCardComponent extends Component {
 	}
 }
 
-customElements.define(`stop-card`, StopCardComponent);
+customElements.define(`stop-card`, StopCard);

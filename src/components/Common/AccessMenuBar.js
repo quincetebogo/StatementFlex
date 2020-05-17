@@ -1,9 +1,9 @@
 import { Component, html, css } from 'platform/elements';
 import { HorizonStore } from '../../store/HorizonStore';
 import 'platform/components';
-import '../../components/dialogs/AccessChannelError';
+import '../dialogs/AccessChannelError';
 
-export class AccessComponent extends Component {
+export class AccessMenuBar extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -182,4 +182,4 @@ export class AccessComponent extends Component {
 	}
 }
 
-window.customElements.define(`access-component`, AccessComponent);
+window.customElements.define(`access-component`, AccessMenuBar);

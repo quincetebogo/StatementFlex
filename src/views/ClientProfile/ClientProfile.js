@@ -1,12 +1,11 @@
 import { View, html, css } from 'platform/elements';
-
 import { Router } from 'platform/Router';
 import 'platform/components/buttons/Button';
-import { HorizonStore } from '../../store/HorizonStore';
 
-import './ClientProfileDetails';
-import './AccessComponent';
-import './StopCardComponent';
+import { HorizonStore } from '../../store/HorizonStore';
+import '../../components/stopCard/StopCard'
+import '../../components/Common/AccessMenuBar';
+import '../../components/Common/ClientProfileDetails';
 
 export class ClientProfile extends View {
 
