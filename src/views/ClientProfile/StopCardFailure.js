@@ -3,7 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { Router } from 'platform/Router';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 import { StopCardService } from '../../services/StopCardService';
 import '../../components/dialogs/EndCallSessionReason';
 
@@ -25,7 +25,7 @@ export class StopCardFailure extends View {
 
 	constructor() {
 		super();
-		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.router = Router.getInstance();
 
 		this.displayNotification = true;
@@ -57,10 +57,9 @@ export class StopCardFailure extends View {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.stopCardService = StopCardService.getInstance();
 
-		let state = this.horizonViewManager.recoverState();
+		let state = this.horizonStore.recoverState();
 
 		this.callerInfo = state.callerInfo;
 		this.stoppedCards = state.stoppedCards;
@@ -107,14 +106,14 @@ export class StopCardFailure extends View {
 
 		let isAllSuccess = this.stoppedCards.every(cards => cards.stopped == true);
 		if (isAllSuccess) {
-			this.horizonViewManager.saveState({ callerInfo: this.callerInfo, stoppedCards: this.stoppedCards });
+			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.stoppedCards });
 			this.router.navigateByPath(`/client/profile/stoppedcards`);
 		}
 	}
 
 	async _onCallComplete(reason) {
 		// Clear any state and return to landing page.
-		this.horizonViewManager.saveState({});
+		this.horizonStore.saveState({});
 
 		try {
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);

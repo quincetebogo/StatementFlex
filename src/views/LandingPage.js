@@ -11,7 +11,8 @@ import '../components/dialogs/AssignStopCard';
 
 import { StopCardService } from '../services/StopCardService';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
-import { HorizonViewManager } from '../HorizonViewManager';
+import { HorizonViewManager } from '../shell/HorizonViewManager';
+import { HorizonStore } from '../store/HorizonStore';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -31,6 +32,7 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
 		this.eventAggregator.subscribe(`on-handoff`, (event) => this.onHandOff(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.router = Router.getInstance();
 
 		this.stopCardService = StopCardService.getInstance();
@@ -113,7 +115,7 @@ export class LandingPage extends View {
 	}
 
 	onCallerConfirmed(data) {
-		this.horizonViewManager.saveState(data.detail);
+		this.horizonStore.saveState(data.detail);
 		this.renderMode = -1;
 		this.router.navigateByPath(`/client/profile`);
 	}
@@ -127,11 +129,10 @@ export class LandingPage extends View {
 	}
 
 	onHandOff() {
-		// console.log(`navigating to hand-off modal`);
-		// this.horizonViewManager.saveState();
 		this.renderMode = RENDER_MODE.HAND_OFF;
 		this.router.navigateByPath(`/client/stopcard/handoff`);
 	}
+
 	onCancel() {
 		this.renderMode = -1;
 	}

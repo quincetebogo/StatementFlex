@@ -1,5 +1,5 @@
 import { Component, html, css } from 'platform/elements';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 import 'platform/components';
 import '../../components/dialogs/AccessChannelError';
 
@@ -35,7 +35,7 @@ export class AccessComponent extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
+		this.confirmedCaller = HorizonStore.getInstance().recoverState();
 		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
 		this.accessChannels = Object.keys(this.clientAccess);

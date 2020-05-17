@@ -4,7 +4,7 @@ import { Router } from 'platform/Router';
 import 'platform/components';
 
 import { StopCardService } from '../../../services/StopCardService';
-import { HorizonViewManager } from '../../../HorizonViewManager';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 
 
 export class FlexibleSavingsPlanProduct extends View {

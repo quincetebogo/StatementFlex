@@ -2,7 +2,7 @@ import { View, html, css } from 'platform/elements';
 
 import { Router } from 'platform/Router';
 import 'platform/components/buttons/Button';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 
 import './ClientProfileDetails';
 import './AccessComponent';
@@ -12,12 +12,12 @@ export class ClientProfile extends View {
 
 	constructor() {
 		super();
-		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.router = Router.getInstance();
 	}
 
 	_onCardsStopped(event) {
-		this.horizonViewManager.saveState(event.detail);
+		this.horizonStore.saveState(event.detail);
 		let stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
 
 		if (stoppedCardsFailed) {
@@ -30,7 +30,7 @@ export class ClientProfile extends View {
 
 	render() {
 		console.log('render client profile');
-		let tempState = HorizonViewManager.getInstance().recoverState();
+		let tempState = horizonStore.getInstance().recoverState();
 		return html`
 		<stop-card 
 			.confirmedCaller="${tempState}"

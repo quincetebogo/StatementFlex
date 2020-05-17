@@ -3,7 +3,7 @@ import { View, html, css } from 'platform/elements';
 import '../../components/product/SavingsAccountproductDetails';
 
 import { StopCardService } from '../../services/StopCardService';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonViewManager } from '../../shell/HorizonViewManager';
 
 export class SavingsAccountProduct extends View {
 

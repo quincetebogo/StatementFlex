@@ -3,7 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
 import { StopCardService } from '../../services/StopCardService';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 import '../../components/Common/HorizonOptionButton'
 import '../../components/dialogs/EndCallSessionReason';
 
@@ -45,10 +45,10 @@ export class StopCardSuccess extends View {
 
 		this.router = Router.getInstance();
 		this.stopCardService = StopCardService.getInstance();
-		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
-		let state = this.horizonViewManager.recoverState();
+		let state = this.horizonStore.recoverState();
 
 		this.callerInfo = state.callerInfo;
 		this.stoppedCards = state.stoppedCards;
@@ -76,7 +76,7 @@ export class StopCardSuccess extends View {
 
 	async _onCallComplete(reason) {
 		// Clear any state and return to landing page.
-		this.horizonViewManager.saveState({});
+		this.horizonStore.saveState({});
 
 		try {
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);

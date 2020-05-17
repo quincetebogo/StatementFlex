@@ -13,8 +13,8 @@ import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
-import horizonRoutes from './HorizonRoutes';
-import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+import horizonRoutes from './shell/HorizonRoutes';
+import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
 import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
 
 /**

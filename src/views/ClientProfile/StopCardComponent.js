@@ -3,7 +3,7 @@ import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 
 import '../../components/dialogs/EndCallSessionReason';
 import '../../components/dialogs/StopCard';
@@ -80,7 +80,7 @@ export class StopCardComponent extends Component {
 		super.connectedCallback();
 
 		this.router = Router.getInstance();
-		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		let incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
@@ -198,7 +198,7 @@ export class StopCardComponent extends Component {
 	async _onCallComplete(reason) {
 		// TODO - call for end call reason	
 		// Clear any state and return to landing page.
-		this.horizonViewManager.saveState({});
+		this.horizonStore.saveState({});
 
 		try {
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
