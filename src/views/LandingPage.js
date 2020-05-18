@@ -17,7 +17,6 @@ import { HorizonStore } from '../store/HorizonStore';
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
-	HAND_OFF: 2
 };
 
 export class LandingPage extends View {
@@ -27,10 +26,7 @@ export class LandingPage extends View {
 		this.renderMode = -1;
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.eventAggregator.subscribe(`horizon-temp-button`, (event) => this.onNewCall(event));
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
-		this.eventAggregator.subscribe(`confirmed-caller`, (event) => this.onCallerConfirmed(event));
-		this.eventAggregator.subscribe(`on-handoff`, (event) => this.onHandOff(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.router = Router.getInstance();
@@ -128,14 +124,10 @@ export class LandingPage extends View {
 		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
 	}
 
-	onHandOff() {
-		this.renderMode = RENDER_MODE.HAND_OFF;
-		this.router.navigateByPath(`/client/stopcard/handoff`);
-	}
-
 	onCancel() {
 		this.renderMode = -1;
 	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -154,7 +146,6 @@ export class LandingPage extends View {
 		${this.renderLoadingIndicator()}
 		${this.renderConfirmedUser()}
 		${this.renderUnverifiedUser()}
-		${this.renderCardHandOff()}
 		`;
 
 	}
@@ -195,17 +186,6 @@ export class LandingPage extends View {
 					@on-client-identified="${(data) => this.identifiedClient(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
-		}
-	}
-	renderCardHandOff() {
-		if (this.renderMode === RENDER_MODE.HAND_OFF) {
-			return html`
-			<horizon-assign-stop-card
-			.handoffCardStop="${this.isHandoffCardStop}"
-			@on-handoff="${(event) => this.onHandOff(event)}"
-			@on-cancel="${() => this.onCancel()}">
-			</horizon-assign-stop-card>
-			`;
 		}
 	}
 }
