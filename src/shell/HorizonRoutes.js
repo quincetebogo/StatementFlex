@@ -14,7 +14,7 @@ export default horizonRoutes = [
 		title: `LandingPageView`,
 		icon: null,
 		path: LANDING_PAGE,
-		load: () => import(`./views/LandingPage`),
+		load: () => import(`../views/LandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -26,7 +26,7 @@ export default horizonRoutes = [
 		title: `SavingsAccountProductView`,
 		icon: null,
 		path: SAVINGS_ACCOUNT_PRODUCT_PAGE,
-		load: () => import(`./views/product/SavingsAccountProduct`),
+		load: () => import(`../views/product/SavingsAccountProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -36,7 +36,7 @@ export default horizonRoutes = [
 		title: `SavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan`,
-		load: () => import(`./views/product/SavingsPlanProduct/SavingsPlanProduct`),
+		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -46,7 +46,7 @@ export default horizonRoutes = [
 		title: `FlexibleSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/flexible`,
-		load: () => import(`./views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
+		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -56,7 +56,7 @@ export default horizonRoutes = [
 		title: `FixedTermSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/fixed-term`,
-		load: () => import(`./views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
+		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -66,7 +66,7 @@ export default horizonRoutes = [
 		title: `TaxFreeSavingsPlanProductView`,
 		icon: null,
 		path: `/product/savings-plan/tax-free`,
-		load: () => import(`./views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
+		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -76,7 +76,7 @@ export default horizonRoutes = [
 		title: `InsureProductView`,
 		icon: null,
 		path: `/product/insure`,
-		load: () => import(`./views/product/InsureProduct`),
+		load: () => import(`../views/product/InsureProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -86,40 +86,37 @@ export default horizonRoutes = [
 		title: `CreditProductView`,
 		icon: null,
 		path: `/product/credit`,
-		load: () => import(`./views/product/CreditProduct`),
+		load: () => import(`../views/product/CreditProduct`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
 	},
-
-	, {
-		name: `horizon-summary-success`,
-		title: `StopCard`,
-		icon: null,
-		path: CARD_STOP_SUCCESS,
-		load: () => import(`./views/ClientProfile/StopCardSuccess`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_SUCCESS)
-		}
-	},
-
-	{
-		name: `horizon-summary-failure`,
-		title: `StopCardFail`,
-		icon: null,
-		path: CARD_STOP_FAILURE,
-		load: () => import(`./views/ClientProfile/StopCardFailure`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP_FAILURE)
-		} 
-	},
-
 	{
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
 		path: CLIENT_PROFILE_PAGE,
-		load: () => import(`./views/ClientProfile/ClientProfile`),
+		load: () => import(`../views/ClientProfile/ClientProfile`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+		}
+	},
+	{
+		name: `horizon-summary-success`,
+		title: `StopCard`,
+		icon: null,
+		path: CARD_STOP_SUCCESS,
+		load: () => import(`../views/ClientProfile/StopCardSuccess`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+		}
+	},
+	{
+		name: `horizon-summary-failure`,
+		title: `StopCardFail`,
+		icon: null,
+		path: CARD_STOP_FAILURE,
+		load: () => import(`../views/ClientProfile/StopCardFailure`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}

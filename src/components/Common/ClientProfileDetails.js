@@ -2,7 +2,7 @@ import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/buttons/ProductTile';
 import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
-import { HorizonViewManager } from '../../HorizonViewManager';
+import { HorizonStore } from '../../store/HorizonStore';
 
 export class ClientProfileDetails extends Component {
 
@@ -34,7 +34,7 @@ export class ClientProfileDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.confirmedCaller = HorizonViewManager.getInstance().recoverState();
+		this.confirmedCaller = HorizonStore.getInstance().recoverState();
 		let clientProfileDetails = this.confirmedCaller.clientProfileDetails;
 		this.clientPersonalInfo = this.confirmedCaller && clientProfileDetails.clientPersonalInformation;
 

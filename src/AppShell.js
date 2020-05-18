@@ -13,17 +13,9 @@ import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
-import horizonRoutes from './HorizonRoutes';
-import { HorizonViewManager, HORIZON_VIEWS } from './HorizonViewManager';
+import horizonRoutes from './shell/HorizonRoutes';
+import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
 import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
-
-
-//TODO: Move these out of the shell
-import { HorizonActionBar } from './components/shell/HorizonActionBar';
-import { LandingPageWelcome } from './components/landingPage/LandingPageWelcome';
-import { LandingPageMarketing } from './components/landingPage/LandingPageMarketing';
-import { ClientProfileDetails } from './views/ClientProfile/AccessComponent';
-import { AccessComponent } from './views/ClientProfile/AccessComponent';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -132,8 +124,7 @@ export class AppShell extends Shell {
 
 		console.log(`Appshell: ConnectedCallback`);
 
-		let nextView = this.horizonViewManager.getNextView();
-
+		let nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
@@ -201,7 +192,7 @@ export class AppShell extends Shell {
 	}
 
 	_onNavigationContextUpdated() {
-		let nextView = this.horizonViewManager.getNextView();
+		let nextView = this.horizonViewManager.getCurrentView();
 		if (nextView !== this.currentView) {
 			this.currentView = nextView;
 		}
@@ -334,17 +325,6 @@ export class AppShell extends Shell {
 	_mobileTemplate() {
 	}
 
-	renderLoadingIndicator() {
-
-		if (!this.isBusy) {
-			return html``;
-		}
-
-		return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
-	}
-
 	/*
 	 * The following defines the screen framework in which various components will be displayed.
 	 * The platforms App Router will switch the main display (class middle) 
@@ -366,18 +346,19 @@ export class AppShell extends Shell {
 		return html`         
                 <div class="screen-size">
 				    ${this.renderTitleBar()}
-					${this.renderAddionalBar()}
+					${this.horizonViewManager.renderAdditionalTopBar(this.currentView)}
 					
                     <capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
-								${this.renderleftUI()}
+								${this.horizonViewManager.switchArea(HORIZON_VIEWS.LANDING_PAGE, html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`)}
+								${this.horizonViewManager.switchArea(HORIZON_VIEWS.CARD_STOP, html`<client-details></client-details>`)}
 							</div>	
 							<div class="middle">
 								<capitec-app-router></capitec-app-router> 
 							</div>
-							<div class="right">
-								${this.renderRightUI()}
+							<div class="right">							
+								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
 						</div>	
                     </capitec-content-box>
@@ -386,18 +367,6 @@ export class AppShell extends Shell {
                 </div>
         `;
 	}
-
-
-
-
-	/*
-	*			TODO: MUCH OF THE LOGIC BELOW SHOULD MOVE INTO THE VIEW MANAGER OR BE ACCESSED FROM THE VIEW MANAGER
-	*
-	*			Components need to be created for the title bar, additional bar (action bar) so that they can be styled properly
-	*			within the component
-	*
-	*/
-
 
 	renderTitleBar() {
 		return html`
@@ -412,46 +381,14 @@ export class AppShell extends Shell {
 		`;
 	}
 
-	renderAddionalBar() {
-		switch (this.currentView) {
-			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
-			case HORIZON_VIEWS.CARD_STOP_FAILURE:
-				return html`<horizon-actionbar></horizon-actionbar>`
-
-			default:
-				return html``;
+	renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
 		}
-	}
 
-	renderleftUI() {
-		switch (this.currentView) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`;
-
-			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
-			case HORIZON_VIEWS.CARD_STOP_FAILURE:
-				return html`<client-details></client-details>`;
-
-			default:
-				return html``;
-		}
-	}
-
-	renderRightUI() {
-		switch (this.currentView) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return html`<landingpage-marketing></landingpage-marketing>`;
-
-			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.CARD_STOP_SUCCESS:
-			case HORIZON_VIEWS.CARD_STOP_FAILURE:
-				return html`<access-component></access-component>`;
-
-			default:
-				return html``;
-		}
+		return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
 	}
 
 	renderSuccessModel() {

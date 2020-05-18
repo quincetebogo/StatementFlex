@@ -2,7 +2,7 @@ import { View, html, css } from 'platform/elements';
 import { Router } from 'platform/Router';
 
 import { StopCardService } from '../../../services/StopCardService';
-import { HorizonViewManager } from '../../../HorizonViewManager';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
