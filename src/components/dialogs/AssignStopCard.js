@@ -83,13 +83,14 @@ export class AssignStopCard extends Component {
 				}
 				.modal-body{
 					box-sizing: border-box;
-					height: 320px;
+					height: 422px;
 					width: 100%;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
 					background-color: #FFFFFF;
 					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
 					z-index: 100;
+					border-bottom-style:none
 				}
 
 				.select-group{
@@ -101,12 +102,12 @@ export class AssignStopCard extends Component {
 				}
 				#select-team{
 					height: 58px;
-					width: 410px;
+					width: 472px;
 					padding-bottom: 18px;
 				}
 				#select-owner{
 					height: 58px;
-					width: 410px;
+					width: 472px;
 					padding-top: 8px;
 					padding-bottom: 18px;
 				}
@@ -124,6 +125,7 @@ export class AssignStopCard extends Component {
 				.footer-buttons{
 					height: 56px;
 					width: 458px;
+					// border-top-style:none
 				}
 				.assign-button{
 					height: 40px;
@@ -199,7 +201,7 @@ export class AssignStopCard extends Component {
 					@click="${() => { this._onCancelClick() }}">
 				</capitec-button>
 				<capitec-button class="assign-button"
-					type="clear"
+					type="primary"
 					label="Assign"
 					@click="${() => { this._onAssignClick() }}">
 				</capitec-button>

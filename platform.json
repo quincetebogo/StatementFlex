@@ -1,13 +1,13 @@
 {
-	"version": "0.21.1",
-	"framework": "WebComponents",
-	"type": "desktop",
-	"application": {
-		"name": "horizon",
-		"title": "horizon",
-		"version": "0.0.34",
-		"idp": {
-			"client": "Horizon"
-		}
-	}
+    "version": "0.22.0",
+    "framework": "WebComponents",
+    "type": "desktop",
+    "application": {
+        "name": "horizon",
+        "title": "horizon",
+        "version": "0.0.34",
+        "idp": {
+            "client": "Horizon"
+        }
+    }
 }
