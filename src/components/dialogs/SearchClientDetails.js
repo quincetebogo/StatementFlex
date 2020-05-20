@@ -6,7 +6,7 @@ import { Component, html, css } from 'platform/elements';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
 import '../dialogs/ConfirmCallerDetails';
 import '../../components/Common/HorizonSelect';
@@ -41,6 +41,7 @@ export class SearchClientDetailsComponent extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
+		this.requiredFieldsEmpty = false;
 	}
 
 	// ----------
@@ -52,7 +53,8 @@ export class SearchClientDetailsComponent extends Component {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			unverifiedCaller: { type: Object },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			requiredFieldsEmpty: { type: Boolean }
 		}
 	}
 
@@ -227,6 +229,7 @@ export class SearchClientDetailsComponent extends Component {
 				this.errMessage.identificationMethods = "Choose an Identification Method";
 				break;
 		}
+		this.requiredFieldsEmpty = isNullorEmpty(this.searchFieldText) || isNullorEmpty(this.identificationMethods.value);
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
 
@@ -288,16 +291,36 @@ export class SearchClientDetailsComponent extends Component {
 					font-weight: 600;
 					color: #003652;
 					line-height: 27px;
+					margin: 0px;
 				}
 				.id-options{
 					text-align: justify;
 					line-height: 12px	
 				}
 				.search-fields{
-					padding: 24px 0px 0px 0px;
+					margin-top: 26px;
 				}
 				.search-field-row{
 					height: 72px;
+					margin-top: 8px;
+				}
+				capitec-alert-banner{
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+					
+					margin: 20px 0px 0px 0px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					
+				}
+				.override-margin-top{
+					margin-top: 16px;
+				}
+				capitec-modal {
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 7.5px 24px 7.5px 0px;
 				}`
 		];
 	}
@@ -366,7 +389,9 @@ export class SearchClientDetailsComponent extends Component {
 		return html`
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+			${this.renderAlertBanner()}
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" 
+						   class="search-fields ${this.requiredFieldsEmpty ? `override-margin-top` : ``}">
 				<div class="search-field-row">
 					<capitec-select	id="identificationMethods"
 									error="${this.errMessage.identificationMethods}" 
@@ -394,6 +419,15 @@ export class SearchClientDetailsComponent extends Component {
 				</div>
 			</capitec-group>
 		</capitec-content-box>`;
+	}
+
+	renderAlertBanner() {
+		if (this.requiredFieldsEmpty) {
+			return html`
+				<capitec-alert-banner type="error" label="All fields are required" closable></capitec-alert-banner>
+			`;
+		}
+		return html``;
 	}
 
 	renderFooter() {
