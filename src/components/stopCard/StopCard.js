@@ -1,8 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
-import { Router } from 'platform/Router';
 
+import { HorizonRouter } from '../../shell/HorizonRouter'
 import { HorizonStore } from '../../store/HorizonStore';
 
 import '../dialogs/EndCallSessionReason';
@@ -10,6 +10,7 @@ import '../dialogs/StopCard';
 
 import 'platform/components';
 import '../dialogs/StopCard';
+import { DesktopAgentService } from '../../services/DesktopAgentService';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -45,6 +46,8 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+		this.desktopAgentService = DesktopAgentService.getInstance();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
@@ -79,7 +82,7 @@ export class StopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
 		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
@@ -201,13 +204,14 @@ export class StopCard extends Component {
 		this.horizonStore.saveState({});
 
 		try {
+			this.desktopAgentService.callComplete();
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
 		}
 		catch (error) {
 			console.log(this.error);
 		}
 
-		this.router.navigateByPath(`/landingPage`);
+		this.horizonRouter.navigateToLandingPage();
 	}
 
 	// --------------

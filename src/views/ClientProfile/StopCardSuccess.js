@@ -1,8 +1,10 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { Router } from 'platform/Router';
+
 
 import { StopCardService } from '../../services/StopCardService';
+import { DesktopAgentService } from '../../services/DesktopAgentService';
+import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import '../../components/Common/HorizonOptionButton'
 import '../../components/dialogs/EndCallSessionReason';
@@ -43,10 +45,11 @@ export class StopCardSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.stopCardService = StopCardService.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.desktopAgentService = DesktopAgentService.getInstance();
 
 		let state = this.horizonStore.recoverState();
 
@@ -79,13 +82,14 @@ export class StopCardSuccess extends View {
 		this.horizonStore.saveState({});
 
 		try {
+			this.desktopAgentService.callComplete();
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
 		}
 		catch (error) {
 			console.log(this.error);
 		}
 
-		this.router.navigateByPath(`/landingPage`);
+		this.horizonRouter.navigateToLandingPage();
 	}
 
 	// ---------

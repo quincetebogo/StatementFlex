@@ -1,4 +1,5 @@
 import { Router } from 'platform/Router';
+import { HORIZON_ROUTES } from './HorizonRoutes'
 
 export class HorizonRouter {
 
@@ -7,7 +8,7 @@ export class HorizonRouter {
 	}
 
 	static getInstance() {
-		return this.instance || (this.instance = new AppRouter());
+		return this.instance || (this.instance = new HorizonRouter());
 	}
 
 	configureRouting(routeConfigs) {
@@ -17,20 +18,46 @@ export class HorizonRouter {
 	}
 
 	navigateToLandingPage() {
-		this.router.navigateByPath(`/landingPage`);
+		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
+	}
+
+	navigateToSavingsAccountProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE);
+	}
+
+	navigateToSavingsPlanProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE);
+	}
+
+	navigateToFlexibleSavingsPlanProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE);
+	}
+
+	navigateToFixedTermSavingsProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE);
+	}
+
+	navigateToTaxFreeSavingsProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE);
+	}
+
+	navigateToInsureProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_INSURE);
 	}
 
 	navigateToCreditProduct() {
-		this.router.navigateByPath(`/product/credit`);
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
 	}
 
-	navigateToCallWait(docType, id) {
-		this.router.navigateByPath(`/callWaiting`);
+	navigateToStopCard() {
+		this.router.navigateByPath(HORIZON_ROUTES.CLIENT_PROFILE_PAGE);
 	}
-	navigateToCardStopSummarySuccess() {
-		this.router.navigateByPath(`/stop/card`);
+
+	navigateToStoppedCards() {
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS);
 	}
-	navigateToStopCardHandOff() {
-		this.router.navigateByPath(`/client/stopcard/handoff`);
+
+	navigateToStopCardFailed() {
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
 	}
 }

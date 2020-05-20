@@ -2,10 +2,11 @@ import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
-import { Router } from 'platform/Router';
+import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import { StopCardService } from '../../services/StopCardService';
 import '../../components/dialogs/EndCallSessionReason';
+import { DesktopAgentService } from '../../services/DesktopAgentService';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -15,7 +16,7 @@ const RENDER_DIALOG = {
 	HANDOFF: 0,
 	ENDCALL: 1
 };
-const MAX_ATTEMPT = 3;
+const MAX_ATTEMPT = 2;
 
 export class StopCardFailure extends View {
 
@@ -26,7 +27,8 @@ export class StopCardFailure extends View {
 	constructor() {
 		super();
 		this.horizonStore = HorizonStore.getInstance();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.desktopAgentService = DesktopAgentService.getInstance();
 
 		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
@@ -34,6 +36,7 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 
 		this.failedCards = [];
+
 	}
 
 	// --------------
@@ -107,7 +110,7 @@ export class StopCardFailure extends View {
 		let isAllSuccess = this.stoppedCards.every(cards => cards.stopped == true);
 		if (isAllSuccess) {
 			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.stoppedCards });
-			this.router.navigateByPath(`/client/profile/stoppedcards`);
+			this.horizonRouter.navigateToStoppedCards();
 		}
 	}
 
@@ -116,13 +119,14 @@ export class StopCardFailure extends View {
 		this.horizonStore.saveState({});
 
 		try {
+			this.desktopAgentService.callComplete();
 			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
 		}
 		catch (error) {
 			console.log(this.error);
 		}
 
-		this.router.navigateByPath(`/landingPage`);
+		this.horizonRouter.navigateToLandingPage();
 	}
 
 	// --------------

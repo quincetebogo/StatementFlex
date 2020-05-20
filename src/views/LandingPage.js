@@ -1,6 +1,5 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { Router } from 'platform/Router';
 
 import 'platform/components/buttons/Button';
 
@@ -9,10 +8,12 @@ import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
 
+import { HorizonRouter } from '../shell/HorizonRouter';
 import { StopCardService } from '../services/StopCardService';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HorizonStore } from '../store/HorizonStore';
+import { DesktopAgentService } from '../services/DesktopAgentService'
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -29,7 +30,8 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.desktopAgentService = DesktopAgentService.getInstance();
 
 		this.stopCardService = StopCardService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -113,10 +115,11 @@ export class LandingPage extends View {
 	onCallerConfirmed(data) {
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = -1;
-		this.router.navigateByPath(`/client/profile`);
+		this.horizonRouter.navigateToStopCard();
 	}
 
 	async _onCallEnded(data) {
+		this.desktopAgentService.callComplete();
 		console.log(data.detail);
 		this.renderMode = -1;
 

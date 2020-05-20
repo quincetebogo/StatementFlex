@@ -1,5 +1,4 @@
 import { Component, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
 
 import '../Common/HorizonProductBar';
 
@@ -9,19 +8,14 @@ export class LandingPageWelcome extends Component {
 		super();
 
 		this.fullname = ``;
-		this.router = Router.getInstance();
 	}
 
 	async connectedCallback() {
 		super.connectedCallback();
-
-		console.log(`LandingPageWelcome: connectedCallback`);
 	}
 
 	async disconnectedCallback() {
 		super.disconnectedCallback();
-
-		console.log(`LandingPageWelcome: disconnectedCallback`);
 	}
 
 	static get properties() {
@@ -73,8 +67,6 @@ export class LandingPageWelcome extends Component {
 	}
 
 	render() {
-		console.log(`rendering landing page welcome`);
-
 		return html`
 				<div class="left-card">
 					<div>	

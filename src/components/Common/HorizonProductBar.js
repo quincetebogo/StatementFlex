@@ -1,5 +1,5 @@
 import { Component, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
+import { HorizonRouter } from '../../shell/HorizonRouter';
 
 import 'platform/components/buttons/ProductTile';
 
@@ -7,7 +7,7 @@ export class HorizonProductBar extends Component {
 
 	constructor() {
 		super();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.disableNavigation = false;
 	}
 
@@ -40,31 +40,25 @@ export class HorizonProductBar extends Component {
 	// TODO: Raise events and handle navigation in the client of this component
 	onSavingsAccountClick() {
 		if (!this.disableNavigation) {
-			this.router.navigateByPath(`/product/savings-account`)
+			this.horizonRouter.navigateToSavingsAccountProduct()
 		}
 	}
 
 	onSavingsPlanClick() {
 		if (!this.disableNavigation) {
-			this.router.navigateByPath(`/product/savings-plan`)
+			this.horizonRouter.navigateToSavingsPlanProduct()
 		}
 	}
 
 	onInsureClick() {
 		if (!this.disableNavigation) {
-			this.router.navigateByPath(`/product/savings-plan`)
-		}
-	}
-
-	onInsureClick() {
-		if (!this.disableNavigation) {
-			this.router.navigateByPath(`/product/insure`)
+			this.horizonRouter.navigateToInsureProduct()
 		}
 	}
 
 	onCreditClick() {
 		if (!this.disableNavigation) {
-			this.router.navigateByPath(`/product/credit`)
+			this.horizonRouter.navigateToCreditProduct()
 		}
 	}
 

@@ -1,15 +1,15 @@
 import { View, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
 
 import { StopCardService } from '../../../services/StopCardService';
 import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { HorizonRouter } from '../../../shell/HorizonRouter';
 import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
 
 	constructor() {
 		super();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	async connectedCallback() {
@@ -67,19 +67,19 @@ export class SavingsPlanProduct extends View {
 										  label="Flexible Savings" 
 										  subtitle="Earn from 5.1% interest per year on your daily balances. You have immediate access to your money."
 										  navigational="true"
-										  @click="${() => this.router.navigateByPath(`/product/savings-plan/flexible`)}">
+										  @click="${() => this.horizonRouter.navigateToFlexibleSavingsPlanProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Fixed-term Savings" 
 										  subtitle="Earn up to 9.25% interest when you fix your savings plan for 6 - 60 months. You can calculate your estimated payout."
 										  navigational="true"
-										  @click="${() => this.router.navigateByPath(`/product/savings-plan/fixed-term`)}">
+										  @click="${() => this.horizonRouter.navigateToFixedTermSavingsProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Tax-free Savings" 
 										  subtitle="Save up to R33 000 per year for 12 - 24 months and pay no tax on your interest earned."
 										  navigational="true"
-										  @click="${() => this.router.navigateByPath(`/product/savings-plan/tax-free`)}">
+										  @click="${() => this.horizonRouter.navigateToTaxFreeSavingsProduct()}">
 					</horizon-product-tile>
 					</div>
 			</capitec-card>

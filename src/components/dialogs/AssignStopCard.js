@@ -48,6 +48,7 @@ export class AssignStopCard extends Component {
 	_onAssignClick() {
 		this.dispatchEvent(new CustomEvent('on-handoff', event));
 	}
+
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent('on-cancel'));
 	}
@@ -158,6 +159,7 @@ export class AssignStopCard extends Component {
 			
 		`;
 	}
+
 	renderBody() {
 		return html`
 		<capitec-group  class="modal-body" layout="vertical" nopadding>
@@ -206,4 +208,5 @@ export class AssignStopCard extends Component {
 		`;
 	}
 }
+
 window.customElements.define(`horizon-assign-stop-card`, AssignStopCard);
