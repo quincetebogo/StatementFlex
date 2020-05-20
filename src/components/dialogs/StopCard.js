@@ -128,6 +128,11 @@ export class StopCard extends Component {
 		return [
 			super.styles,
 			css`
+
+			.dialogSize {
+				width: 452px;
+			}
+
 			p{
 				color: #4E6066;
 				font-family: "Hind Vadodara";
@@ -146,17 +151,30 @@ export class StopCard extends Component {
 				line-height: 24px;
 			}
 
+			.first-line {
+				margin-top: 8px;
+				margin-left:24px;
+				height: 20px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+			  }			
+
 			.left-margin{
+				margin-top:0px;
 				margin-left:24px;
 			}
 
 			.top-margin{
-				margin-top:0px;
+				margin-top:8px;
 			}
 
 			.line{
-				width:100%;
-				margin-top:30px;
+				margin: 16px 16px 16px 16px;
+				width: 420px;
 				border-top:1px solid #dfdfdf;"
 			}
 
@@ -171,7 +189,6 @@ export class StopCard extends Component {
 				header-align="left">
 				<div slot="body">
 					${this.renderConfirmStopCard()} 
-					<div class="line"></div>
 				</div>
 				<div slot="footer">
 					${this.renderFooter()}
@@ -184,21 +201,30 @@ export class StopCard extends Component {
 	renderConfirmStopCard() {
 		this.firstLine = true;
 		return html`
-		<capitec-group style="width:396px;" layout="vertical" gap="none">		
-				<p class="left-margin">Are you sure you want to stop:</p>
-				${this.cardsToStop.map(line => { return this.renderLine(line) })}
+		<capitec-group class="dialogSize" layout="vertical" gap="none">		
+				<p class="first-line">Are you sure you want to stop:</p>
+				${this.cardsToStop.map((line, index, cards) => { return this.renderLine(line, index, cards) })}
 		<apitec-group>
 		`;
 	}
 
-	renderLine(line) {
+	renderLine(line, index, cards) {
 		let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
 		this.firstLine = false;
 
 		return html`
 		<p class="${classes}">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
 		<p class="left-margin">Reason: <span class="bold-text">${line.stopReason}</span></p>
+		${this.renderGreyLine(index, cards)}
 		`;
+	}
+
+	renderGreyLine(index, cards) {
+		if (index < (cards.length - 1)) {
+			return html`<div class="line"></div>`
+		}
+
+		return html``;
 	}
 
 	renderFooter() {
@@ -212,7 +238,7 @@ export class StopCard extends Component {
 
 				<capitec-button
 					id="id-confirm-button"
-					type="clear"
+					type="primary"
 					label="Confirm"
 					@click="${async () => { this._onConfirmClick() }}">
 				</capitec-button>
