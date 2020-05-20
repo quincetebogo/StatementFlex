@@ -1,7 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
-
+import 'platform/components/popups/Toast';
 export class AssignStopCard extends Component {
 
 	// --------------
@@ -23,6 +23,8 @@ export class AssignStopCard extends Component {
 			this.teamOwner
 		];
 		this.cards = [];
+		this.errorToast = false;
+		// this.errorMessage = "Please select an owner";
 	}
 
 	// ----------
@@ -35,7 +37,9 @@ export class AssignStopCard extends Component {
 			teamItems: { type: Array },
 			ownerItems: { type: Array },
 			teamOwner: { type: Object },
-			cards: { type: Array }
+			cards: { type: Array },
+			errorToast: { type: Boolean },
+			errorMessage: { type: String }
 		}
 	}
 
@@ -45,8 +49,16 @@ export class AssignStopCard extends Component {
 	// EVENT HANDLERS
 	// --------------	
 
-	_onAssignClick() {
+	_onAssignClick(e) {
 		this.dispatchEvent(new CustomEvent('on-handoff', event));
+		if (!this.inputValidation()) {
+			console.log("Call service for error handling");
+
+			let assignTask = {
+				//To do: call stop card service for error handling
+			};
+
+		}
 	}
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent('on-cancel'));
@@ -56,6 +68,16 @@ export class AssignStopCard extends Component {
 	// PUBLIC METHODS
 	// --------------
 
+	_showErrorToast(ownerItems) {
+		if (ownerItems === '') {
+			errorToast = true;
+		}
+	}
+	inputValidation() {
+		if (!this.ownerItems) {
+			this.errorMessage.ownerItems = "Please select an owner";
+		}
+	}
 	// ----------
 	// PRIVATE METHODS
 	// ----------
@@ -183,6 +205,7 @@ export class AssignStopCard extends Component {
 				id="select-owner"
   				label="Assign owner" 
   				.items="${this.ownerItems}" 
+				.error="${() => this.errorMessage, this.renderErrorToast()}"
  				display-field="text"
  				mode="basic"
   				searchable>
@@ -192,7 +215,15 @@ export class AssignStopCard extends Component {
 		`;
 
 	}
-
+	renderErrorToast() {
+		return html`
+		<capitec-toast type="error" 
+		detail="Select an owner to Assign" 
+		closable="true" 
+		style="width: 300px;">
+		</capitec-toast>
+	`;
+	}
 	renderFooter() {
 		return html`
 			<capitec-button class="cancel-button"
@@ -203,7 +234,7 @@ export class AssignStopCard extends Component {
 				<capitec-button class="assign-button"
 					type="primary"
 					label="Assign"
-					@click="${() => { this._onAssignClick() }}">
+					@click="${(e) => { this._onAssignClick(e) }}">
 				</capitec-button>
 		`;
 	}
