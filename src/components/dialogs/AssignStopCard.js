@@ -2,6 +2,7 @@ import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/Toast';
+import '../../views/ClientProfile/StopCardFailure';
 export class AssignStopCard extends Component {
 
 	// --------------
@@ -17,10 +18,6 @@ export class AssignStopCard extends Component {
 			{ id: 'T2', text: 'VR23456' },
 			{ id: 'T3', text: 'VR98765' },
 			{ id: 'T4', text: 'VR56478' }
-		];
-		this.teamOwner = { id: 'I1', text: '516283574' };
-		this.ownerItems = [
-			this.teamOwner
 		];
 		this.cards = [];
 		this.errorToast = false;
@@ -185,29 +182,18 @@ export class AssignStopCard extends Component {
 	renderBody() {
 		return html`
 		<capitec-group  class="modal-body" layout="vertical" nopadding>
-			<p> Credit card 5284 **** **** 1522 and <br>
-				debit card 5284 **** **** 1522 can not be stopped <br>
-				due to a system error. </p>
-
+				${this.renderLine(this.cards)}
+				<p>can not be stopped due to a system error.</p>
 			<div class="select-group">
 			
 			<capitec-select 
 				id="select-team"
 				class="team-options"
   				label="Choose a team"
-  				.items="${this.teamItems}" 
- 				display-field="text"
-				mode="basic"
-  				searchable>
-			</capitec-select>
-
-			<capitec-select 
-				id="select-owner"
-  				label="Assign owner" 
-  				.items="${this.ownerItems}" 
+				.items="${this.teamItems}" 
 				.error="${() => this.errorMessage, this.renderErrorToast()}"
  				display-field="text"
- 				mode="basic"
+				mode="basic"
   				searchable>
 			</capitec-select>
 			</div>
@@ -215,28 +201,49 @@ export class AssignStopCard extends Component {
 		`;
 
 	}
+
+	renderLine(cards) {
+		let display = html`<p>`;
+
+		for (var i = 0; i < this.cards.length; i++) {
+
+			// if even number begining of line
+			if (i / 2 === 0) {
+				display = display + html`${cards[i].cardType} ${this.encryptedCardId}`;
+			}
+			// If odd number, second on line
+			if (i / 2 !== 0) {
+				display = display + html`and ${cards[i].cardType} ${this.encryptedCardId} <br>`;
+				// and debit card 5284 **** **** 1522 </br>
+			}
+		}
+
+		return display + html`</p>`;
+
+	}
+
 	renderErrorToast() {
 		return html`
-		<capitec-toast type="error" 
-		detail="Select an owner to Assign" 
-		closable="true" 
-		style="width: 300px;">
-		</capitec-toast>
-	`;
+			<capitec-toast type = "error"
+				detail = "Select an owner to Assign"
+				closable = "true"
+				style = "width: 300px;">
+		</capitec-toast >
+			`;
 	}
 	renderFooter() {
 		return html`
 			<capitec-button class="cancel-button"
-					type="clear"
-					label="Cancel"
-					@click="${() => { this._onCancelClick() }}">
-				</capitec-button>
-				<capitec-button class="assign-button"
-					type="primary"
-					label="Assign"
-					@click="${(e) => { this._onAssignClick(e) }}">
-				</capitec-button>
-		`;
+				type = "clear"
+				label = "Cancel"
+				@click="${() => { this._onCancelClick() }}" >
+			</capitec-button >
+			<capitec-button class="assign-button"
+				type="primary"
+				label="Assign"
+				@click="${(e) => { this._onAssignClick(e) }}" >
+			</capitec-button >
+			`;
 	}
 }
 window.customElements.define(`horizon-assign-stop-card`, AssignStopCard);
