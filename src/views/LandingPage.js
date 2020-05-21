@@ -119,12 +119,10 @@ export class LandingPage extends View {
 	}
 
 	async _onCallEnded(data) {
-		this.desktopAgentService.callComplete();
-		console.log(data.detail);
 		this.renderMode = -1;
-
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
 		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
+		this.desktopAgentService.callComplete();
 	}
 
 	onCancel() {
