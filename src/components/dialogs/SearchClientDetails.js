@@ -6,7 +6,7 @@ import { Component, html, css } from 'platform/elements';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
 import '../dialogs/ConfirmCallerDetails';
 import '../../components/Common/HorizonSelect';
@@ -16,6 +16,34 @@ const RENDER_MODE = {
 	END_CALL: 1,
 };
 
+const ERROR_MESSAGES = {
+	REQUIRED_FIELDS_EMPTY: 'All fields are required',
+	0: 'Incorrect ID/Passport number',
+	1: 'Incorrect foreign passport number',
+	2: 'Incorrect account number',
+	3: 'Incorrect reference number',
+	4: 'Incorrect Capitec cellphone number'
+}
+
+//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+const REGEX_PATTERNS = {
+	0: {
+		PATTERN: /^[0-9]{13}$/,
+		ERR_MESSAGE: 'ID Number must be 13 characters long'
+	},
+	2: {
+		PATTERN: /^[0-9]{10}$/,
+		ERR_MESSAGE: 'Account number must be 10 characters long'
+	},
+	3: {
+		PATTERN: /^[0-9]{18}$/,
+		ERR_MESSAGE: 'Either it is Alphanumeric or not equal to 8 digits'
+	},
+	4: {
+		PATTERN: /^[0-9]{10}$/,
+		ERR_MESSAGE: 'Cellphone Number must be 10 characters long'
+	}
+}
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -41,6 +69,7 @@ export class SearchClientDetailsComponent extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
+		this.alertBanner_Message = '';
 	}
 
 	// ----------
@@ -52,7 +81,8 @@ export class SearchClientDetailsComponent extends Component {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			unverifiedCaller: { type: Object },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			alertBanner_Message: { type: String }
 		}
 	}
 
@@ -95,25 +125,25 @@ export class SearchClientDetailsComponent extends Component {
 	// --------------
 
 	_onKeyPress(e) {
-		if (e.detail.new != "") {
+		if (e.detail.new !== "") {
 			this.errMessage[e.currentTarget.id] = "";
+			this.alertBanner_Message = "";
 		}
-		this.requestUpdate();
 	}
 
 	_valueChanged(e) {
-		if (typeof e.detail.new == "object") {
+		if (typeof e.detail.new === "object") {
 			this[e.currentTarget.id].value = e.detail.new.key;
 		}
 		else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
 		this.errMessage[e.currentTarget.id] = "";
-		this.requestUpdate();
+		this.alertBanner_Message = "";
 	}
 
 	async _onSearchClick(e) {
-		if (!this.validateData()) {
+		if (this.validateFields()) {
 			console.log("service call");
 
 			let searchClient = {
@@ -135,10 +165,6 @@ export class SearchClientDetailsComponent extends Component {
 			else {
 				// TODO: handle not found - we don't deal with this at all at present
 			}
-		}
-		else {
-			console.log("Validation failed");
-			this.requestUpdate();
 		}
 	}
 
@@ -196,37 +222,30 @@ export class SearchClientDetailsComponent extends Component {
 		return identificationMethods;
 	}
 
-	validateData() {
-		if (!this.searchFieldText) {
-			this.errMessage.searchFieldText = "This is a Required field";
+	validateFields() {
+		let isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBanner_Message = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			return false;
 		}
-		switch (this.identificationMethods.value) {
-			case 0:
-				if (RegExp('[a-zA-Z]', 'g').test(this.searchFieldText) == true || this.searchFieldText.length != 13) {
-					this.errMessage.searchFieldText = "ID Number must be 13 characters long";
-				}
-				break;
-			case 1:
-				break;
-			case 2:
-				if (RegExp('[a-zA-Z]', 'g').test(this.searchFieldText) == true || this.searchFieldText.length != 10) {
-					this.errMessage.searchFieldText = "Account number must be 10 characters long";
-				}
-				break;
-			case 3:
-				if (RegExp('[a-zA-Z]', 'g').test(this.searchFieldText) == true || this.searchFieldText.length != 8) {
-					this.errMessage.searchFieldText = "Either it is Alphanumeric or not equal to 8 digits";
-				}
-				break;
-			case 4:
-				if (RegExp('[a-zA-Z]', 'g').test(this.searchFieldText) == true || this.searchFieldText.length != 10) {
-					this.errMessage.searchFieldText = "Cellphone Number must be 10 characters long";
-				}
-				break;
-			default:
-				this.errMessage.identificationMethods = "Choose an Identification Method";
-				break;
+
+		let REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
+		let ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
+
+		if (!RegExp(REGEX_PATTERN, 'g').test(this.searchFieldText)) {
+			this.errMessage.searchFieldText = ERR_MESSAGE;
+			this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+			return false;
 		}
+
+		return true;
+	}
+
+	isRequiredFieldsEmpty() {
+
+		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? "This is a Required field" : "";
+		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? "Choose an Identification Method" : "";
+
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
 
@@ -288,16 +307,36 @@ export class SearchClientDetailsComponent extends Component {
 					font-weight: 600;
 					color: #003652;
 					line-height: 27px;
+					margin: 0px;
 				}
 				.id-options{
 					text-align: justify;
 					line-height: 12px	
 				}
 				.search-fields{
-					padding: 24px 0px 0px 0px;
+					margin-top: 26px;
 				}
 				.search-field-row{
 					height: 72px;
+					margin-top: 8px;
+				}
+				capitec-alert-banner{
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+					
+					margin: 20px 0px 0px 0px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					
+				}
+				.override-margin-top{
+					margin-top: 16px;
+				}
+				capitec-modal {
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 7.5px 24px 7.5px 0px;
 				}`
 		];
 	}
@@ -366,7 +405,9 @@ export class SearchClientDetailsComponent extends Component {
 		return html`
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+			${this.renderAlertBanner()}
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" 
+						   class="search-fields ${this.alertBanner_Message ? `override-margin-top` : ``}">
 				<div class="search-field-row">
 					<capitec-select	id="identificationMethods"
 									error="${this.errMessage.identificationMethods}" 
@@ -394,6 +435,16 @@ export class SearchClientDetailsComponent extends Component {
 				</div>
 			</capitec-group>
 		</capitec-content-box>`;
+	}
+
+	renderAlertBanner() {
+
+		if (!isNullorEmpty(this.alertBanner_Message)) {
+			return html`
+				<capitec-alert-banner type="error" label="${this.alertBanner_Message}" closable></capitec-alert-banner>
+			`;
+		}
+		return html``;
 	}
 
 	renderFooter() {
