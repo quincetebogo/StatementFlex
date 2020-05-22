@@ -72,7 +72,7 @@ export class AssignStopCard extends Component {
 	}
 	inputValidation() {
 		if (!this.ownerItems) {
-			this.errorMessage.ownerItems = "Please select an owner";
+			this.errorMessage.ownerItems = "Please select a team";
 		}
 	}
 	// ----------
@@ -156,7 +156,14 @@ export class AssignStopCard extends Component {
 					height: 40px;
 					width: 95px;
 				}
- 
+				.failed-cards{
+					padding: 0px 0px 0px 0px;
+					line-height: 30px;
+					margin: 0px 0px 0px 0px;
+					height: 30px;
+					margin-left: 24px;
+					margin-top: 24px;
+				}
 			`];
 	}
 
@@ -182,8 +189,9 @@ export class AssignStopCard extends Component {
 	renderBody() {
 		return html`
 		<capitec-group  class="modal-body" layout="vertical" nopadding>
-				${this.renderLine(this.cards)}
-				<p>can not be stopped due to a system error.</p>
+				<!-- show the banner  here -->
+				${this.cards.map((line, index, cards) => this.renderLines(line, index, cards))}
+				<p class="failed-cards">can not be stopped due to a system error.</p>
 			<div class="select-group">
 			
 			<capitec-select 
@@ -202,26 +210,18 @@ export class AssignStopCard extends Component {
 
 	}
 
-	renderLine(cards) {
-		let display = html`<p>`;
+	renderLines(line, index, cards) {
+		console.log(`failed cards to hand off`, cards);
 
-		for (var i = 0; i < this.cards.length; i++) {
-
-			// if even number begining of line
-			if (i / 2 === 0) {
-				display = display + html`${cards[i].cardType} ${this.encryptedCardId}`;
-			}
-			// If odd number, second on line
-			if (i / 2 !== 0) {
-				display = display + html`and ${cards[i].cardType} ${this.encryptedCardId} <br>`;
-				// and debit card 5284 **** **** 1522 </br>
-			}
+		// if even number begining of line
+		if (index / 2 === 0 && index + 1 < cards.length) {
+			return html`<p class="failed-cards">${cards[index].cardType} ${cards[index].encryptedCardId} and ${cards[index + 1].cardType} ${cards[index + 1].encryptedCardId} </p>`;
 		}
-
-		return display + html`</p>`;
-
+		else if (index / 2 == 0 && index + 1 >= cards.length) {
+			// If odd number, second on line
+			return html`<p calss="failed-cards">${cards[index].cardType} ${cards[index].encryptedCardId} </p>`;
+		}
 	}
-
 	renderErrorToast() {
 		return html`
 			<capitec-toast type = "error"
