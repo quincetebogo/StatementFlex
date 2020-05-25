@@ -1,7 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
-import 'platform/components/popups/Toast';
+import 'platform/components/popups/AlertBanner';
 import '../../views/ClientProfile/StopCardFailure';
 export class AssignStopCard extends Component {
 
@@ -12,7 +12,7 @@ export class AssignStopCard extends Component {
 	constructor() {
 		super();
 
-		this.team = { id: 'T1', text: 'VR12345' };
+		this.team = {};
 		this.teamItems = [
 			this.team,
 			{ id: 'T2', text: 'VR23456' },
@@ -20,8 +20,8 @@ export class AssignStopCard extends Component {
 			{ id: 'T4', text: 'VR56478' }
 		];
 		this.cards = [];
-		this.errorToast = false;
-		// this.errorMessage = "Please select an owner";
+		this.errorAlert = false;
+		this.errorMessage = "Please select a team to assign";
 	}
 
 	// ----------
@@ -35,7 +35,7 @@ export class AssignStopCard extends Component {
 			ownerItems: { type: Array },
 			teamOwner: { type: Object },
 			cards: { type: Array },
-			errorToast: { type: Boolean },
+			errorAlert: { type: Boolean },
 			errorMessage: { type: String }
 		}
 	}
@@ -57,6 +57,9 @@ export class AssignStopCard extends Component {
 
 		}
 	}
+	_onTeamSelected(e) {
+		this.team = e.detail.new;
+	}
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent('on-cancel'));
 	}
@@ -65,17 +68,12 @@ export class AssignStopCard extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	_showErrorToast(ownerItems) {
-		if (ownerItems === '') {
-			errorToast = true;
+	_showErrorAlert(teamItems, errorAlert) {
+		if (!teamItems) {
+			errorAlert = true;
 		}
 	}
-	inputValidation() {
-		if (!this.ownerItems) {
-			this.errorMessage.ownerItems = "Please select a team";
-		}
-	}
-	// ----------
+	// // ----------
 	// PRIVATE METHODS
 	// ----------
 
@@ -158,11 +156,27 @@ export class AssignStopCard extends Component {
 				}
 				.failed-cards{
 					padding: 0px 0px 0px 0px;
+					width: 100%;
 					line-height: 30px;
 					margin: 0px 0px 0px 0px;
 					height: 30px;
 					margin-left: 24px;
 					margin-top: 24px;
+				}
+				#first-line{
+					width: 100%;
+					margin: 0px 0px 0px 24px;
+					padding: 0px 0px 0px 0px;
+				}
+				p{
+					height: 48px;
+				}
+				.alert-banner{
+					height: 48px;
+					width: 472px;
+					padding-left: 16px;
+					padding-right:16px;
+					margin-top: 16px; 
 				}
 			`];
 	}
@@ -181,6 +195,7 @@ export class AssignStopCard extends Component {
 			</div>
 			<div slot="footer" class="footer-buttons">
 					${this.renderFooter()}
+					
 				</div>
 			</capitec-modal>
 			
@@ -190,24 +205,25 @@ export class AssignStopCard extends Component {
 		return html`
 		<capitec-group  class="modal-body" layout="vertical" nopadding>
 				<!-- show the banner  here -->
+				${this.renderErrorAlertBanner()}
 				${this.cards.map((line, index, cards) => this.renderLines(line, index, cards))}
-				<p class="failed-cards">can not be stopped due to a system error.</p>
+				<p id="first-line">can not be stopped due to a system error.</p>
 			<div class="select-group">
 			
 			<capitec-select 
 				id="select-team"
 				class="team-options"
-  				label="Choose a team"
+  				label="Choose a team (Required)"
 				.items="${this.teamItems}" 
-				.error="${() => this.errorMessage, this.renderErrorToast()}"
+				error="${this.errorMessage}"
  				display-field="text"
+				@value-change="${(e) => this._onTeamSelected(e)}"
 				mode="basic"
   				searchable>
 			</capitec-select>
 			</div>
 		</capitec-group>
 		`;
-
 	}
 
 	renderLines(line, index, cards) {
@@ -222,14 +238,20 @@ export class AssignStopCard extends Component {
 			return html`<p calss="failed-cards">${cards[index].cardType} ${cards[index].encryptedCardId} </p>`;
 		}
 	}
-	renderErrorToast() {
-		return html`
-			<capitec-toast type = "error"
-				detail = "Select an owner to Assign"
-				closable = "true"
-				style = "width: 300px;">
-		</capitec-toast >
+	renderErrorAlertBanner() {
+		if (this.team == {}) {
+			return html`
+				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
+					label = "Select an team to Assign"
+					closable
+					style = "width: 100%;">
+				</capitec-alert-banner>
 			`;
+		}
+		else {
+			return html``;
+		}
+
 	}
 	renderFooter() {
 		return html`
@@ -241,7 +263,7 @@ export class AssignStopCard extends Component {
 			<capitec-button class="assign-button"
 				type="primary"
 				label="Assign"
-				@click="${(e) => { this._onAssignClick(e) }}" >
+				@click="${(e) => { this._onAssignClick(e), this._showErrorAlert() }}" >
 			</capitec-button >
 			`;
 	}
