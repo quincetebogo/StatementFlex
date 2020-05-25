@@ -1,14 +1,14 @@
 import { Component, html, css } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
-import { Router } from 'platform/Router';
-
-import { HorizonStore } from '../../store/HorizonStore';
-
-import '../dialogs/EndCallSessionReason';
-import '../dialogs/StopCard';
-
 import 'platform/components';
+
+import { HorizonRouter } from '../../shell/HorizonRouter'
+import { HorizonStore } from '../../store/HorizonStore';
+import { DesktopAgentService } from '../../services/DesktopAgentService';
+import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import '../dialogs/EndCallSessionReason';
 import '../dialogs/StopCard';
 
 const COLUMNS = {
@@ -45,6 +45,9 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+		this.desktopAgentService = DesktopAgentService.getInstance();
+		this.stopCardService = StopCardService.getInstance();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
@@ -79,8 +82,14 @@ export class StopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+
 
 		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		let incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
@@ -196,18 +205,19 @@ export class StopCard extends Component {
 	}
 
 	async _onCallComplete(reason) {
-		// TODO - call for end call reason	
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		try {
-			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
-		}
-		catch (error) {
-			console.log(this.error);
-		}
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key));
 
-		this.router.navigateByPath(`/landingPage`);
+		this.desktopAgentService.callComplete();
+
+		this.horizonRouter.navigateToLandingPage();
+	}
+
+	_toggleBusyFlag() {
+		// Only used for Call Completion at present.
+		// May be implemented later to render progress on endCall method
 	}
 
 	// --------------

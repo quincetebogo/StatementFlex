@@ -5,5 +5,8 @@
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
+	},
+	"DesktopAgent": {
+		"registrationUrl": "http://localhost:8888/subscribe"
 	}
 }

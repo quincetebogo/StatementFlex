@@ -2,6 +2,9 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
+
+import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
+import { HorizonRouter } from '../shell/HorizonRouter';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
 
@@ -58,8 +61,11 @@ export class DesktopAgentService {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe("landing-page-loaded", () => this._processEventQueue());
 
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.HorizonRouter = HorizonRouter.getInstance();
 		this.router = Router.getInstance();
 		this.lastEventId = 0;
+		this.onCall = false;
 	}
 
 	// --------------
@@ -67,22 +73,22 @@ export class DesktopAgentService {
 	// --------------
 
 	_onError() {
-		console.log("Desktop Agent in error state");
+		// console.log("Desktop Agent in error state");
 
 		switch (this.eventSource.readyState) {
 			case 0:
-				console.log("Event Source State: CONNECTING");
+				// console.log("Event Source State: CONNECTING");
 				break;
 			case 1:
-				console.log("Event Source State: OPEN");
+				// console.log("Event Source State: OPEN");
 				break;
 			case 2:
-				console.log("Event Source State: CLOSED");
+				// console.log("Event Source State: CLOSED");
 				break;
 		}
 
 		if (this.eventSource.readyState != 0) {
-			console.log("Closing and re-opening Desktop Agent Event Source");
+			// console.log("Closing and re-opening Desktop Agent Event Source");
 			// Close the event source and then re-open it.
 			this.eventSource.close();
 			this.open();
@@ -94,7 +100,7 @@ export class DesktopAgentService {
 	}
 
 	_onMessage(event) {
-		console.log("Received an event from the Desktop Agent", event);
+		// console.log("Received an event from the Desktop Agent", event);
 	}
 
 	_onNewCall(event) {
@@ -149,6 +155,11 @@ export class DesktopAgentService {
 		this.eventSource.onmessage = (x) => { this._onMessage(x); };
 	}
 
+	callComplete() {
+		this.onCall = false;
+		this._processEventQueue();
+	}
+
 	static getValidationData() {
 		// TODO: Make channel service call to retrieve validation data
 		// TODO: these validation criteria needs to come from the channel service
@@ -179,11 +190,6 @@ export class DesktopAgentService {
 		return this.eventQueue[0];
 	}
 
-	// TODO: Remove? Is this used
-	_eventQueueContains(event) {
-		return this.eventQueue.includes(event);
-	}
-
 	_processEventQueue() {
 		// Business logic on how to respond to events comes here
 
@@ -195,16 +201,22 @@ export class DesktopAgentService {
 
 		if (this._peekNextEvent() instanceof NewCallEvent) {
 			console.log("Processing New Call Event");
+			console.log("on call flag", this.onCall);
 
-			// Get current view from router
-			if (NavigationContext.getInstance().current.route.name === 'landing-page') {
+			// Get current view from router. Note that we are still on the landing page when presenting
+			// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
+			// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
+			if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
 				// If Landing Page => publish event
 				console.log("Publishing new-call event");
+				this.onCall = true;
 				this.eventAggregator.publish(`new-call`, this._dequeueNextEvent());
 			}
+			else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
+				console.log('Desktop Agent service navigating to landing page');
+				this.HorizonRouter.navigateToLandingPage();
+			}
 			else {
-				// TODO: should we forcefully route to landing page?
-
 				console.log("Not on landing page, waiting for agent to end the call...");
 			}
 		}
