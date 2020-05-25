@@ -4,9 +4,11 @@ import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
-import { StopCardService } from '../../services/StopCardService';
-import '../../components/dialogs/EndCallSessionReason';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
+import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+
+import '../../components/dialogs/EndCallSessionReason';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -29,6 +31,11 @@ export class StopCardFailure extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
+
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
 
 		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
@@ -118,15 +125,15 @@ export class StopCardFailure extends View {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		try {
-			this.desktopAgentService.callComplete();
-			await this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key);
-		}
-		catch (error) {
-			console.log(this.error);
-		}
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key));
+		this.desktopAgentService.callComplete();
 
 		this.horizonRouter.navigateToLandingPage();
+	}
+
+	_toggleBusyFlag() {
+		// Only used for Call Completion at present.
+		// May be implemented later to render progress on endCall method
 	}
 
 	// --------------
