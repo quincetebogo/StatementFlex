@@ -1,13 +1,9 @@
 import { Component, html, css } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
-import { Router } from 'platform/Router';
 
 export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.phoneNumber = "0631152973";
 	}
 
 	static get styles() {
@@ -42,13 +38,6 @@ export class LandingPageWaitForCall extends Component {
 			#waiting-text{
 				color: #003652;
 			}
-
-			.tempinput{
-				height: 48px;
-				line-height: 48px;
-				width : 150px;
-				display:inline;
-			}	
 			`];
 	}
 
@@ -61,7 +50,6 @@ export class LandingPageWaitForCall extends Component {
 						<div></div>
 						<div>
 							${this.renderWaitingForCall()}
-							<!-- ${this.renderShowConfirmButton()} -->
 						</div>
 					</capitec-group>
 				</div>
@@ -71,54 +59,11 @@ export class LandingPageWaitForCall extends Component {
 	}
 
 	renderWaitingForCall() {
-		if (this.displayConfirmedCaller != true) {
-			return html`
-				<img src="../images/LandingPageImages/need.svg" class="needimage"/>
-				<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
-				<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
-			`;
-		}
-
-		return html``;
-	}
-
-	triggerConfirmDialog() {
-
-		let eventData = {
-			Date: "2020-03-11T16:05:44.5173009+02:00",
-			IncomingTelephoneNumber: this.phoneNumber,
-			VoiceReferenceNumber: "123456", IVROptionCode: 'StopCard',
-			IncidentReferenceNumber: '1234567',
-			AgentTelephoneNumber: '0219412557'
-		};
-
-
-		this.eventAggregator.publish('horizon-temp-button', eventData);
-		console.log('triggering dialog');
-	}
-
-	onPhoneNumberValueChanged(e) {
-		console.log(e);
-		this.phoneNumber = e.detail.new;
-	}
-
-	/// temporary button trigger until the incoming call pop is working
-	renderShowConfirmButton() {
 		return html`
-				<capitec-text-field
-					class="temptext"
-					label="Phone Number" 
-					value="${this.phoneNumber}"
-					@value-changed="${(e) => this.onPhoneNumberValueChanged(e)}">
-				</capitec-text-field>
-				<capitec-button 
-					class="buttons"
-					type="credit" 
-					label="Click to see modal" 
-					@click="${() => this.triggerConfirmDialog()}"> 
-				</capitec-button>
+			<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
+			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
 			`;
-		return html``;
 	}
 }
 

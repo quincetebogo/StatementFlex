@@ -60,6 +60,7 @@ export class AssignStopCard extends Component {
 	_onTeamSelected(e) {
 		this.team = e.detail.new;
 	}
+
 	_onCancelClick() {
 		this.dispatchEvent(new CustomEvent('on-cancel'));
 	}
@@ -201,6 +202,7 @@ export class AssignStopCard extends Component {
 			
 		`;
 	}
+
 	renderBody() {
 		return html`
 		<capitec-group  class="modal-body" layout="vertical" nopadding>
@@ -268,4 +270,5 @@ export class AssignStopCard extends Component {
 			`;
 	}
 }
+
 window.customElements.define(`horizon-assign-stop-card`, AssignStopCard);

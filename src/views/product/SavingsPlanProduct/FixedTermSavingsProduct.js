@@ -1,16 +1,16 @@
 import { View, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
 
 import 'platform/components';
 
 import { StopCardService } from '../../../services/StopCardService';
 import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { HorizonRouter } from '../../../shell/HorizonRouter';
 
 export class FixedTermSavingsProduct extends View {
 
 	constructor() {
 		super();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	async connectedCallback() {
@@ -101,7 +101,7 @@ export class FixedTermSavingsProduct extends View {
 			<capitec-group layout="grid" rows="auto" coulmns="uniform" class="savingsproduct-info">
 					<capitec-title-bar type="save">
 						<capitec-icon size="small" icon="system/arrow-left"
-									  @click="${() => this.router.navigateByPath(`/product/savings-plan`)}">
+									  @click="${() => this.horizonRouter.navigateToSavingsPlanProduct()}">
 						</capitec-icon>
 						<capitec-label label="Fixed-term Savings" type="Title"></capitec-label>
 					</capitec-title-bar>

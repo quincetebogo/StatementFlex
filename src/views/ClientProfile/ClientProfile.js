@@ -1,8 +1,8 @@
 import { View, html, css } from 'platform/elements';
-import { Router } from 'platform/Router';
 import 'platform/components/buttons/Button';
 
 import { HorizonStore } from '../../store/HorizonStore';
+import { HorizonRouter } from '../../shell/HorizonRouter';
 import '../../components/stopCard/StopCard'
 import '../../components/Common/AccessMenuBar';
 import '../../components/Common/ClientProfileDetails';
@@ -12,7 +12,7 @@ export class ClientProfile extends View {
 	constructor() {
 		super();
 		this.horizonStore = HorizonStore.getInstance();
-		this.router = Router.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	_onCardsStopped(event) {
@@ -20,10 +20,10 @@ export class ClientProfile extends View {
 		let stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
 
 		if (stoppedCardsFailed) {
-			this.router.navigateByPath(`/client/profile/stopcardfailed`);
+			this.horizonRouter.navigateToStopCardFailed();
 		}
 		else {
-			this.router.navigateByPath(`/client/profile/stoppedcards`);
+			this.horizonRouter.navigateToStoppedCards();
 		}
 	}
 
