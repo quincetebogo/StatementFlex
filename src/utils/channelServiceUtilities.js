@@ -101,3 +101,7 @@ export function getPossibleValues(fieldInfo) {
 	console.log("fieldInfo in getPossibleValues does not have a possibleValues property");
 	return [];
 }
+
+export function isNullorEmpty(fieldValue) {
+	return fieldValue === "" || fieldValue === null || fieldValue === undefined;
+}
