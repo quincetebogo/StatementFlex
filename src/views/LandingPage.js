@@ -1,5 +1,6 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import 'platform/components/buttons/Button';
 
@@ -75,10 +76,9 @@ export class LandingPage extends View {
 	}
 
 	async onNewCall(eventData) {
-		console.log("new call received:", eventData);
-
-		let acceptedCall = await this.serviceCallHelper.asyncCall(this.stopCardService.acceptCall(eventData));
-		console.log("accepted call: ", acceptedCall);
+		let acceptedCall = await this.serviceCallHelper.asyncCall(
+			this.stopCardService.acceptCall(eventData),
+			(ex) => this._acceptCallErrorHandler(ex));
 
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
@@ -100,11 +100,56 @@ export class LandingPage extends View {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 		else {
-			console.log(`Accept Call Failed: `);
+			let event = {
+				from: 'UI-CS',
+				status: "error",
+				message: "Failed to accept call"
+			}
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+
 			this.confirmedCaller = null;
 			this.isUnverifiedCaller = null;
 			this.renderMode = -1;
+
+			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
+			// we flag the call that we tied to take as complete...			
+			this.desktopAgentService.callComplete();
 		}
+	}
+
+	_acceptCallErrorHandler(exception) {
+		// TODO: How do we recover if acceptCall fails? Some call recovery mechanism is required.
+
+		if (exception instanceof TypeError) {
+			let event = {
+				from: 'UI-CS',
+				status: "error",
+				message: exception.message
+			}
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		}
+		else if (exception instanceof HttpStatusError) {
+			let event = {
+				from: 'UI-CS',
+				status: "error",
+				message: `${exception.status}: ${exception.message}`
+			}
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		}
+		else {
+			let event = {
+				from: 'UI-CS',
+				status: "error",
+				message: `UNEXPECTED ERROR: ${exception.message}`
+			}
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		}
+
+		// If accept call fails, we will be stuck on the landing page and unable to take calls unless
+		// we flag the call that we tied to take as complete...
+		this.desktopAgentService.callComplete();
+
+		return true;
 	}
 
 	identifiedClient(data) {
