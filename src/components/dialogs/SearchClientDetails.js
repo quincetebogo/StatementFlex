@@ -3,6 +3,7 @@
  *
  */
 import { Component, html, css } from 'platform/elements';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -31,12 +32,16 @@ const REGEX_PATTERNS = {
 		PATTERN: /^[0-9]{13}$/,
 		ERR_MESSAGE: 'ID Number must be 13 characters long'
 	},
+	1: {
+		PATTERN: /^/,
+		ERR_MESSAGE: ''
+	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
 		ERR_MESSAGE: 'Account number must be 10 characters long'
 	},
 	3: {
-		PATTERN: /^[0-9]{18}$/,
+		PATTERN: /^[0-9]{8}$/,
 		ERR_MESSAGE: 'Either it is Alphanumeric or not equal to 8 digits'
 	},
 	4: {
@@ -138,8 +143,7 @@ export class SearchClientDetailsComponent extends Component {
 		else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
-		this.errMessage[e.currentTarget.id] = "";
-		this.alertBanner_Message = "";
+		this.clearErrors();
 	}
 
 	async _onSearchClick(e) {
@@ -156,7 +160,7 @@ export class SearchClientDetailsComponent extends Component {
 				searchValue: this.searchFieldText
 			}
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient));
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
 			if (identifiedClient) {
 				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
 				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
@@ -249,8 +253,41 @@ export class SearchClientDetailsComponent extends Component {
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
 
+	clearErrors() {
+		this.errMessage.searchFieldText = "";
+		this.errMessage.identificationMethods = "";
+		this.alertBanner_Message = "";
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = this.isBusy ? false : true;
+	}
+
+	_handleSearchClientException(exception) {
+		let event = {
+			from: 'UI-CS',
+			status: "error",
+			message: ""
+		}
+
+		if (exception instanceof TypeError) {
+			event.message = exception.message;
+		}
+		else if (exception instanceof HttpStatusError) {
+			if (exception.status === 204 || exception.status === 412 || exception.status === 400) {
+				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+				return true;
+			}
+			else {
+				event.message = `${exception.status}: ${exception.message}`;
+			}
+		}
+		else {
+			event.message = `UNEXPECTED ERROR: ${exception.message}`;
+		}
+
+		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		return true;
 	}
 
 	// ---------
