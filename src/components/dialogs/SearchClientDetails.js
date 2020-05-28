@@ -4,6 +4,7 @@
  */
 import { Component, html, css } from 'platform/elements';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -58,6 +59,8 @@ export class SearchClientDetailsComponent extends Component {
 
 	constructor() {
 		super();
+
+		this.eventAggregator = EventAggregator.getInstance();
 
 		RegExp();
 

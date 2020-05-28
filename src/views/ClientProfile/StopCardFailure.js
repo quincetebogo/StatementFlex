@@ -131,6 +131,10 @@ export class StopCardFailure extends View {
 		this.horizonRouter.navigateToLandingPage();
 	}
 
+	_onHandOff(e) {
+		this.renderDialog = RENDER_DIALOG.ENDCALL;
+	}
+
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
 		// May be implemented later to render progress on endCall method
@@ -460,7 +464,7 @@ export class StopCardFailure extends View {
 				<horizon-assign-stop-card
 					.cards=${this.failedCards}
 					@on-cancel="${() => { this.renderDialog = -1 }}"
-					@on-handoff="${() => { this.renderDialog = -1 }}">
+					@on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>
 			`;
 		}

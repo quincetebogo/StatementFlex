@@ -12,7 +12,7 @@ export class AssignStopCard extends Component {
 	constructor() {
 		super();
 
-		this.team = {};
+		this.team = null;
 		this.teamItems = [
 			{ id: 'T2', text: 'VR23456' },
 			{ id: 'T3', text: 'VR98765' },
@@ -46,18 +46,19 @@ export class AssignStopCard extends Component {
 	// --------------	
 
 	_onAssignClick(e) {
-		this.dispatchEvent(new CustomEvent('on-handoff', event));
-		if (!this.inputValidation()) {
-			console.log("Call service for error handling");
 
-			let assignTask = {
-				//To do: call stop card service for error handling
-			};
-
+		if (!this.team) {
+			this.errorAlert = true;
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('on-handoff', {
+				detail: {}
+			}));
 		}
 	}
 
 	_onTeamSelected(e) {
+		this.errorAlert = false;
 		this.team = e.detail.new;
 	}
 
@@ -69,11 +70,7 @@ export class AssignStopCard extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	_showErrorAlert(teamItems, errorAlert) {
-		if (!teamItems) {
-			errorAlert = true;
-		}
-	}
+
 	// // ----------
 	// PRIVATE METHODS
 	// ----------
@@ -190,7 +187,8 @@ export class AssignStopCard extends Component {
 
 	renderBody() {
 		return html`
-		<capitec-group  class="modal-body" layout="vertical" nopadding>			
+		<capitec-group  class="modal-body" layout="vertical" nopadding>	
+			${this.renderErrorAlertBanner()}		
 			${this.cards.map((line, index, cards) => this.renderLines(line, index, cards))}
 			<p id="first-line">can not be stopped due to a system error.</p>
 			
@@ -224,7 +222,7 @@ export class AssignStopCard extends Component {
 	}
 
 	renderErrorAlertBanner() {
-		if (this.team == {}) {
+		if (this.errorAlert) {
 			return html`
 				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
 					label = "Select an team to Assign"
@@ -243,12 +241,12 @@ export class AssignStopCard extends Component {
 			<capitec-button class="cancel-button"
 				type = "clear"
 				label = "Cancel"
-				@click="${() => { this._onCancelClick() }}" >
+				@click="${() => this._onCancelClick()}" >
 			</capitec-button >
 			<capitec-button class="assign-button"
 				type="primary"
 				label="Assign"
-				@click="${(e) => { this._onAssignClick(e), this._showErrorAlert() }}" >
+				@click="${(e) => this._onAssignClick(e)}" >
 			</capitec-button >
 			`;
 	}
