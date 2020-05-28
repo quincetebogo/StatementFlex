@@ -3,12 +3,22 @@ import 'platform/components/popups/Modal';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
+import { isDisabled, isHidden, getTabIndex, getValue, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
 	END_CALL: 1,
 };
+
+const ERROR_MESSAGE = {
+	REQUIRED_FIELDS_EMPTY: 'Please enter all required fields before you continue',
+	INVALID_CELLPHONE_NUMBER: 'Cellphone number must be 10 digits'
+}
+
+const REGEX_CELLPHONE = {
+	PATTERN: /^[0-9]{10}$/,
+	ERR_MESSAGE: 'Incorrect cellphone number'
+}
 
 export class AddCallerDetails extends Component {
 
@@ -20,6 +30,8 @@ export class AddCallerDetails extends Component {
 
 		super();
 
+		RegExp();
+
 		this.confirmedCaller = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
@@ -30,6 +42,8 @@ export class AddCallerDetails extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
+		this.validationFailed = false;
+		this.alertBanner_Message = '';
 	}
 
 	// ----------
@@ -41,7 +55,8 @@ export class AddCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			validationFailed: { type: Boolean }
 		}
 	}
 
@@ -88,6 +103,7 @@ export class AddCallerDetails extends Component {
 		if (e.detail.new != "") {
 			this[e.currentTarget.id].errorMessage = "";
 		}
+		this.validationFailed = false;
 		this.requestUpdate();
 	}
 
@@ -98,15 +114,13 @@ export class AddCallerDetails extends Component {
 		else {
 			this[e.currentTarget.id].value = e.detail.new;
 		}
+		this.validationFailed = false;
 	}
 
 	addCallerDetails() {
 
-		if (this.validateData()) {
+		if (!this.validateData()) {
 			this.callerDetailsAdded();
-		}
-		else {
-			this.requestUpdate();
 		}
 	}
 
@@ -176,16 +190,24 @@ export class AddCallerDetails extends Component {
 	}
 
 	validateData() {
-		let fieldsHasError = false;
 		for (let key in this.nonClientInformation) {
 			let field = this.nonClientInformation[key];
 			//When the field is required and it doesn't have any value - assigning error message
-			if (field.required && !field.value && key != "cellPhoneTextField") {
+			if (field.required && !field.value) {
 				this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
-				fieldsHasError = true;
+				this.validationFailed = true;
+				this.alertBanner_Message = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
 			}
 		}
-		return !fieldsHasError;
+
+		if (!isNullorEmpty(this.cellPhoneTextField.value)
+			&& !RegExp(REGEX_CELLPHONE.PATTERN, 'g').test(this.cellPhoneTextField.value)) {
+			this.cellPhoneTextField.errorMessage = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
+			this.validationFailed = true;
+			this.alertBanner_Message = REGEX_CELLPHONE.ERR_MESSAGE;
+
+		}
+		return this.validationFailed;
 	}
 
 	/**
@@ -205,7 +227,7 @@ export class AddCallerDetails extends Component {
 			css`
 				.main{
 					box-sizing: border-box;
-					height: 464px;
+					height: 546px;
 					width: 690px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
@@ -272,7 +294,22 @@ export class AddCallerDetails extends Component {
 					margin-right: 288px;
 				}
 				#id-confirm-button{
-					margin-right: 12px;
+					margin-right: 16px;
+				}
+				capitec-modal {
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
+				}
+				capitec-alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+					
+					margin: 14px 16px 0px 17px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					
 				}
 			`];
 	}
@@ -284,6 +321,7 @@ export class AddCallerDetails extends Component {
 						<capitec-modal type="free" header="Add Caller Details"  header-align="left" class="header" >
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
+								${this.renderErrorMessage()}
 								${this.renderAddCallerDetails()}
 								${this.renderLoadingIndicator()}
 							</div>
@@ -336,6 +374,18 @@ export class AddCallerDetails extends Component {
 			</div>`;
 	}
 
+	renderErrorMessage() {
+		if (this.validationFailed) {
+			return html`
+				<capitec-alert-banner 
+								type="error" 
+								label="${this.alertBanner_Message}"
+								closable>
+				</capitec-alert-banner>`;
+		}
+		return html``;
+	}
+
 	renderAddCallerDetails() {
 		return html`
 			<capitec-group class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
@@ -367,10 +417,12 @@ export class AddCallerDetails extends Component {
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
 										value="${getValue(this.cellPhoneTextField)}"
+										error="${this.getErrorMessage(this.cellPhoneTextField)}"
 										label="Cellphone Number (Optional)"
 										?hidden=${isHidden(this.cellPhoneTextField)}
 										.disabled="${isDisabled(this.cellPhoneTextField)}"
 										tabindex="${getTabIndex(this.cellPhoneTextField)}"
+										@key-input="${(e) => this._onKeyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-text-field><br>
 				</div>
@@ -409,7 +461,7 @@ export class AddCallerDetails extends Component {
 								tabindex="${getTabIndex(this.endCallSessionButton)}"
 								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>
-				<capitec-button id="id-confirm-button"
+				<capitec-button	id="id-confirm-button"
 								type="primary"
 								label="Confirm"
 								?hidden=${isHidden(this.confirmButton)}
