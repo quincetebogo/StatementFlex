@@ -189,12 +189,12 @@ export class StopCard extends Component {
 				header-align="left">
 				<div slot="body">
 					${this.renderConfirmStopCard()} 
+					${this.renderLoadingIndicator()}
 				</div>
 				<div slot="footer">
 					${this.renderFooter()}
 				<div> 
 			</capitec-modal>
-			${this.renderLoadingIndicator()}
 			`;
 	}
 
