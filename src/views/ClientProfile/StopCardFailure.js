@@ -458,6 +458,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog == RENDER_DIALOG.HANDOFF) {
 			return html`
 				<horizon-assign-stop-card
+					.cards=${this.failedCards}
 					@on-cancel="${() => { this.renderDialog = -1 }}"
 					@on-handoff="${() => { this.renderDialog = -1 }}">
 				</horizon-assign-stop-card>
