@@ -10,6 +10,16 @@ const RENDER_MODE = {
 	END_CALL: 1,
 };
 
+const ERROR_MESSAGE = {
+	REQUIRED_FIELDS_EMPTY: 'Please enter all required fields before you continue',
+	INVALID_CELLPHONE_NUMBER: 'Cellphone number must be 10 digits'
+}
+
+const REGEX_CELLPHONE = {
+	PATTERN: /^[0-9]{10}$/,
+	ERR_MESSAGE: 'Incorrect cellphone number'
+}
+
 export class AddCallerDetails extends Component {
 
 	// --------------
@@ -19,6 +29,8 @@ export class AddCallerDetails extends Component {
 	constructor() {
 
 		super();
+
+		RegExp();
 
 		this.confirmedCaller = null;
 		this.addCallerDialog = null;
@@ -30,7 +42,8 @@ export class AddCallerDetails extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
-		this.requiredFieldEmpty = false;
+		this.validationFailed = false;
+		this.alertBanner_Message = '';
 	}
 
 	// ----------
@@ -43,7 +56,7 @@ export class AddCallerDetails extends Component {
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
-			requiredFieldEmpty: { type: Boolean }
+			validationFailed: { type: Boolean }
 		}
 	}
 
@@ -90,7 +103,7 @@ export class AddCallerDetails extends Component {
 		if (e.detail.new != "") {
 			this[e.currentTarget.id].errorMessage = "";
 		}
-		this.requiredFieldEmpty = false;
+		this.validationFailed = false;
 		this.requestUpdate();
 	}
 
@@ -101,15 +114,13 @@ export class AddCallerDetails extends Component {
 		else {
 			this[e.currentTarget.id].value = e.detail.new;
 		}
+		this.validationFailed = false;
 	}
 
 	addCallerDetails() {
 
-		if (this.validateData()) {
+		if (!this.validateData()) {
 			this.callerDetailsAdded();
-		}
-		else {
-			this.requestUpdate();
 		}
 	}
 
@@ -179,17 +190,24 @@ export class AddCallerDetails extends Component {
 	}
 
 	validateData() {
-		let fieldsHasError = false;
 		for (let key in this.nonClientInformation) {
 			let field = this.nonClientInformation[key];
 			//When the field is required and it doesn't have any value - assigning error message
-			if (field.required && !field.value && key != "cellPhoneTextField") {
+			if (field.required && !field.value) {
 				this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
-				fieldsHasError = true;
+				this.validationFailed = true;
+				this.alertBanner_Message = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
 			}
 		}
-		this.requiredFieldEmpty = isNullorEmpty(this.firstNameTextField.value) || isNullorEmpty(this.surnameTextField.value);
-		return !fieldsHasError;
+
+		if (!isNullorEmpty(this.cellPhoneTextField.value)
+			&& !RegExp(REGEX_CELLPHONE.PATTERN, 'g').test(this.cellPhoneTextField.value)) {
+			this.cellPhoneTextField.errorMessage = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
+			this.validationFailed = true;
+			this.alertBanner_Message = REGEX_CELLPHONE.ERR_MESSAGE;
+
+		}
+		return this.validationFailed;
 	}
 
 	/**
@@ -357,11 +375,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	renderErrorMessage() {
-		if (this.requiredFieldEmpty) {
+		if (this.validationFailed) {
 			return html`
 				<capitec-alert-banner 
 								type="error" 
-								label="Please enter all required fields before you continue." 
+								label="${this.alertBanner_Message}"
 								closable>
 				</capitec-alert-banner>`;
 		}
@@ -399,10 +417,12 @@ export class AddCallerDetails extends Component {
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
 										value="${getValue(this.cellPhoneTextField)}"
+										error="${this.getErrorMessage(this.cellPhoneTextField)}"
 										label="Cellphone Number (Optional)"
 										?hidden=${isHidden(this.cellPhoneTextField)}
 										.disabled="${isDisabled(this.cellPhoneTextField)}"
 										tabindex="${getTabIndex(this.cellPhoneTextField)}"
+										@key-input="${(e) => this._onKeyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-text-field><br>
 				</div>
