@@ -137,6 +137,15 @@ export class AssignStopCard extends Component {
 					letter-spacing: 0;
 					line-height: 24px;
 				}
+
+				.bold-text{
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					font-weight: 600;
+				}
 				
 				#first-line{
 					margin-left:16px;
@@ -206,11 +215,11 @@ export class AssignStopCard extends Component {
 
 		// if even number begining of line
 		if (index / 2 === 0 && index + 1 < cards.length) {
-			return html`<p class="failed-cards">${cards[index].cardType} ${cards[index].encryptedCardId} and ${cards[index + 1].cardType} ${cards[index + 1].encryptedCardId} </p>`;
+			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span> and ${cards[index + 1].cardType} <span class="bold-text">${cards[index + 1].encryptedCardId}</span></p>`;
 		}
 		else if (index / 2 == 0 && index + 1 >= cards.length) {
 			// If odd number, second on line
-			return html`<p calss="failed-cards">${cards[index].cardType} ${cards[index].encryptedCardId} </p>`;
+			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span></p>`;
 		}
 	}
 
