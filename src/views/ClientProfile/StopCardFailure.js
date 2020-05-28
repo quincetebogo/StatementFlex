@@ -231,17 +231,36 @@ export class StopCardFailure extends View {
                     text-align: center;
 				}
 
-				.status{
-					margin: 0px 0px 0px 158px;
-					width: 747px;
+				.status-group{
+					width: auto;
 					height: 26px;
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: center;
+					margin: 0px;
 				}
 
-				.card-status{
+				.card-status-success{
 					height: 26px;
-					width: 350px;
+					width: auto;
 					display: flex;
+					align-items: center;
+					margin: 0px 0px 0px 15px;
 				}
+
+				.card-status-error{
+					height: 26px;
+					width: auto;
+					display: flex;
+					align-items: center;
+					margin: 0px 0px 0px 15px;
+				}
+
+				capitec-icon{
+					height: 26px;
+					width: 26px;
+				}
+				
 				.card-status-text {
 					height: 24px;
 					color: #545D60;
@@ -249,7 +268,7 @@ export class StopCardFailure extends View {
 					font-size: 15px;
 					letter-spacing: 0;
 					line-height: 24px;
-					text-align: center;
+					text-align: start;
 					margin: 0px 0px 0px 7px;
 				}
 
@@ -320,7 +339,7 @@ export class StopCardFailure extends View {
 							<section class="section-content">
 								${this._renderGraphic()}
 								<p class="network-error">Network Error</p>
-								${this._renderStoppedCardStatus()}
+								${this._renderStoppedCards()}
 								<p class="notify-client">Notify the client and try again.</p>
 							</section>
 							${this._renderFooter()}
@@ -368,39 +387,43 @@ export class StopCardFailure extends View {
 		return html`<img class="card-image" src="../../images/cardStop/network-error.svg"/>`;
 	}
 
-	_renderStoppedCardStatus() {
-		this.rowIndex = 0;
-		this.columnIndex = 0;
-
+	_renderStoppedCards() {
 		return html`
-			<capitec-group layout="grid" rows="uniform" columns="uniform" gap="none" class="status">
-				${this.failedCards.map((card, index) => { return this._renderCardStatus(card, index) })}
-			</capitec-group>
+			<div class="status-group">
+				${this.stoppedCards.map((card) => { return this._renderCardStatus(card) })}
+			</div>
 		`;
 	}
 
-	_renderCardStatus(card, index) {
-		let temp = this.rowIndex;
-		this.rowIndex = index % 2 === 0 ? this.rowIndex + 1 : this.rowIndex;
-
-		this.columnIndex = temp !== this.rowIndex ? 0 : this.columnIndex + 1;
-
+	_renderCardStatus(card) {
 		if (card.stopped) {
-			return html`
-				<div class="card-status" row="${this.rowIndex}" column="${this.columnIndex + 1}">
-					<capitec-badge icon="status/success-white" iconsize="small" color="#70AF00"></capitec-badge>
-					<p class="card-status-text">${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully</p>
-				</div>
-			`;
+			return html`${this._renderSuccessStatus(card)}`;
 		}
 		else {
-			return html`
-				<div class="card-status" row="${this.rowIndex}" column="${this.columnIndex + 1}">
-					<capitec-badge icon="status/error-white" iconsize="small" color="#70AF00"></capitec-badge>
-					<p class="card-status-text">Unable to stop ${card.cardType} <b>${card.encryptedCardId}</b></p>
-				</div>
-			`;
+			return html`${this._renderErrorStatus(card)}`;
 		}
+	}
+
+	_renderSuccessStatus(card) {
+		return html`
+			<div class="card-status-success">
+				<capitec-icon size="medium" icon="status/success"></capitec-icon>
+				<p class="card-status-text">
+					${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully
+				</p>
+			</div>
+		`;
+	}
+
+	_renderErrorStatus(card) {
+		return html`
+			<div class="card-status-error">
+				<capitec-icon size="medium" icon="status/error"></capitec-icon>
+				<p class="card-status-text">
+					Unable to stop ${card.cardType} <b>${card.encryptedCardId}</b>
+				</p>
+			</div>
+		`;
 	}
 
 	_renderFooter() {

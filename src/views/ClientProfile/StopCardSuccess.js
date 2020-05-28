@@ -175,16 +175,7 @@ export class StopCardSuccess extends View {
 					line-height: 24px;
 					text-align: center;
 				}	
-
-				.bold-text{
-					color: #4E6066;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-				}				  
-				  
+  
 				.related-options {
 					margin-top:152px;
 					height: 32px;
@@ -212,6 +203,39 @@ export class StopCardSuccess extends View {
 				.button-margin{
 					margin-right:16px;
 				}
+
+				.status-group{
+					width: auto;
+					height: 26px;
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: center;
+					margin: 0px 0px 15px 0px;
+				}
+
+				.card-status-success{
+					height: 26px;
+					width: auto;
+					display: flex;
+					align-items: center;
+					margin: 0px 0px 0px 15px;
+				}
+
+				capitec-icon{
+					height: 26px;
+					width: 26px;
+				}
+				
+				.card-status-text {
+					height: 24px;
+					color: #545D60;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: start;
+					margin: 0px 0px 0px 7px;
+				}
 			`];
 	}
 
@@ -227,7 +251,7 @@ export class StopCardSuccess extends View {
 				${this._renderNotifyClient()}
 				${this._renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
-				${this.stoppedCards.map(line => { return this._renderStoppedCard(line) })}
+				${this._renderStoppedCards()}
 				<p class="stop-card-text">Remind the client that they will need to visit a branch for a new card.</p>
 				${this._renderRelatedOptions()}
 				${this._renderOptionsButtons()} 
@@ -263,12 +287,22 @@ export class StopCardSuccess extends View {
 		return html`<img class="card-image" src="../../images/cardStop/cards.svg"/>`;
 	}
 
-	_renderStoppedCard(line) {
-		// let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
-		// this.firstLine = false;
-
+	_renderStoppedCards() {
 		return html`
-		<p class="stop-card-text">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span> was stopped successfully.</p>
+			<div class="status-group">
+				${this.stoppedCards.map((card) => { return this._renderSuccessStatus(card) })}
+			</div>
+		`;
+	}
+
+	_renderSuccessStatus(card) {
+		return html`
+			<div class="card-status-success">
+				<capitec-icon size="medium" icon="status/success"></capitec-icon>
+				<p class="card-status-text">
+					${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully
+				</p>
+			</div>
 		`;
 	}
 
