@@ -3,7 +3,7 @@ import 'platform/components/popups/Modal';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
+import { isDisabled, isHidden, getTabIndex, getValue, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
@@ -30,6 +30,7 @@ export class AddCallerDetails extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
+		this.requiredFieldEmpty = false;
 	}
 
 	// ----------
@@ -41,7 +42,8 @@ export class AddCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			requiredFieldEmpty: { type: Boolean }
 		}
 	}
 
@@ -88,6 +90,7 @@ export class AddCallerDetails extends Component {
 		if (e.detail.new != "") {
 			this[e.currentTarget.id].errorMessage = "";
 		}
+		this.requiredFieldEmpty = false;
 		this.requestUpdate();
 	}
 
@@ -185,6 +188,7 @@ export class AddCallerDetails extends Component {
 				fieldsHasError = true;
 			}
 		}
+		this.requiredFieldEmpty = isNullorEmpty(this.firstNameTextField.value) || isNullorEmpty(this.surnameTextField.value);
 		return !fieldsHasError;
 	}
 
@@ -205,7 +209,7 @@ export class AddCallerDetails extends Component {
 			css`
 				.main{
 					box-sizing: border-box;
-					height: 464px;
+					height: 546px;
 					width: 690px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
@@ -272,7 +276,22 @@ export class AddCallerDetails extends Component {
 					margin-right: 288px;
 				}
 				#id-confirm-button{
-					margin-right: 12px;
+					margin-right: 16px;
+				}
+				capitec-modal {
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
+				}
+				capitec-alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+					
+					margin: 14px 16px 0px 17px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					
 				}
 			`];
 	}
@@ -284,6 +303,7 @@ export class AddCallerDetails extends Component {
 						<capitec-modal type="free" header="Add Caller Details"  header-align="left" class="header" >
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
+								${this.renderErrorMessage()}
 								${this.renderAddCallerDetails()}
 								${this.renderLoadingIndicator()}
 							</div>
@@ -334,6 +354,18 @@ export class AddCallerDetails extends Component {
 					</horizon-label>
 				<div>
 			</div>`;
+	}
+
+	renderErrorMessage() {
+		if (this.requiredFieldEmpty) {
+			return html`
+				<capitec-alert-banner 
+								type="error" 
+								label="Please enter all required fields before you continue." 
+								closable>
+				</capitec-alert-banner>`;
+		}
+		return html``;
 	}
 
 	renderAddCallerDetails() {
@@ -409,7 +441,7 @@ export class AddCallerDetails extends Component {
 								tabindex="${getTabIndex(this.endCallSessionButton)}"
 								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>
-				<capitec-button id="id-confirm-button"
+				<capitec-button	id="id-confirm-button"
 								type="primary"
 								label="Confirm"
 								?hidden=${isHidden(this.confirmButton)}
