@@ -10,11 +10,12 @@ import '../components/dialogs/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
-import { StopCardService } from '../services/StopCardService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HorizonStore } from '../store/HorizonStore';
+
+import { StopCardService } from '../services/StopCardService';
 import { DesktopAgentService } from '../services/DesktopAgentService'
+import { ServiceCallHelper } from '../utils/serviceCallHelper';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -23,12 +24,15 @@ const RENDER_MODE = {
 
 export class LandingPage extends View {
 
+	// --------------
+	// INITIALISATION
+	// --------------
 	constructor() {
 		super();
 		this.renderMode = -1;
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.eventAggregator.subscribe(`new-call`, (event) => this.onNewCall(event));
+		this.eventAggregator.subscribe(`new-call`, (event) => this._onNewCall(event));
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -36,12 +40,17 @@ export class LandingPage extends View {
 
 		this.stopCardService = StopCardService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this.toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
 		this.isBusy = false;
+		this.acceptCallErrorHandled = false;
 	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	static get properties() {
 		return {
@@ -54,32 +63,32 @@ export class LandingPage extends View {
 		}
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
 	async connectedCallback() {
 		super.connectedCallback();
 
-		await this.GetLandingPageData();
+		await this._GetLandingPageData();
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish('landing-page-loaded', {});
 	}
 
-	async GetLandingPageData() {
-		let landingPageData = null;
-		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
-		if (landingPageData) {
-			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
-		}
-	}
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-	toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
-	}
+	async _onNewCall(eventData) {
+		this.acceptCallErrorHandled = false;
 
-	async onNewCall(eventData) {
+		// Check the incoming call to see if it is a verified or unverified number
 		let acceptedCall = await this.serviceCallHelper.asyncCall(
 			this.stopCardService.acceptCall(eventData),
 			(ex) => this._acceptCallErrorHandler(ex));
 
+		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
 			this.isUnverifiedCaller = null;
@@ -100,12 +109,14 @@ export class LandingPage extends View {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 		else {
-			let event = {
-				from: 'UI-CS',
-				status: "error",
-				message: "Failed to accept call"
+			if (!this.acceptCallErrorHandled) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: "acceptCall - invalid response"
+				}
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
 
 			this.confirmedCaller = null;
 			this.isUnverifiedCaller = null;
@@ -117,47 +128,12 @@ export class LandingPage extends View {
 		}
 	}
 
-	_acceptCallErrorHandler(exception) {
-		// TODO: How do we recover if acceptCall fails? Some call recovery mechanism is required.
-
-		if (exception instanceof TypeError) {
-			let event = {
-				from: 'UI-CS',
-				status: "error",
-				message: exception.message
-			}
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		}
-		else if (exception instanceof HttpStatusError) {
-			let event = {
-				from: 'UI-CS',
-				status: "error",
-				message: `${exception.status}: ${exception.message}`
-			}
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		}
-		else {
-			let event = {
-				from: 'UI-CS',
-				status: "error",
-				message: `UNEXPECTED ERROR: ${exception.message}`
-			}
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		}
-
-		// If accept call fails, we will be stuck on the landing page and unable to take calls unless
-		// we flag the call that we tied to take as complete...
-		this.desktopAgentService.callComplete();
-
-		return true;
-	}
-
-	identifiedClient(data) {
+	_onClientIdentified(data) {
 		this.confirmedCaller = data.detail.identifiedClient;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	onCallerConfirmed(data) {
+	_onConfirmedCaller(data) {
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = -1;
 		this.horizonRouter.navigateToStopCard();
@@ -170,9 +146,73 @@ export class LandingPage extends View {
 		this.desktopAgentService.callComplete();
 	}
 
-	onCancel() {
-		this.renderMode = -1;
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _GetLandingPageData() {
+		let landingPageData = null;
+		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
+		if (landingPageData) {
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		}
 	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
+
+	_acceptCallErrorHandler(exception) {
+		try {
+			if (exception instanceof TypeError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `acceptCall: ${exception.message}`
+				}
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else if (exception instanceof HttpStatusError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `acceptCall: ${exception.status} - ${exception.message}`
+				}
+				console.log(exception.message);
+				console.log(exception.output);
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `acceptCall: UNEXPECTED ERROR - ${exception.message}`
+				}
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		}
+		finally {
+			// Just a flag to inform the _onNewCall event handler that the error was handled.
+			this.acceptCallErrorHandled = true;
+
+			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
+			// we flag the call that we tied to take as complete...
+			this.desktopAgentService.callComplete();
+		}
+
+		return true;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------	
 
 	static get styles() {
 		return [
@@ -185,25 +225,25 @@ export class LandingPage extends View {
 				`];
 	}
 
-	render() {
-
-		return html`
-		${this.renderMiddleSection()}
-		${this.renderLoadingIndicator()}
-		${this.renderConfirmedUser()}
-		${this.renderUnverifiedUser()}
-		`;
-
+	_mobileTemplate() {
 	}
 
-	renderMiddleSection() {
+	_webTemplate() {
+		return html`
+		${this._renderMiddleSection()}
+		${this._renderLoadingIndicator()}
+		${this._renderConfirmedUser()}
+		${this._renderUnverifiedUser()}
+		`;
+	}
+
+	_renderMiddleSection() {
 		return html`
 			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
 		`;
 	}
 
-	renderLoadingIndicator() {
-
+	_renderLoadingIndicator() {
 		if (!this.isBusy) {
 			return html``;
 		}
@@ -213,23 +253,23 @@ export class LandingPage extends View {
         `;
 	}
 
-	renderConfirmedUser() {
+	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
-					@confirmed-caller="${(data) => this.onCallerConfirmed(data)}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;
 		}
 	}
 
-	renderUnverifiedUser() {
+	_renderUnverifiedUser() {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
 					.unverifiedCaller="${this.isUnverifiedCaller}"
-					@on-client-identified="${(data) => this.identifiedClient(data)}"
+					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
 		}
