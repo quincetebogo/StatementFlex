@@ -1,5 +1,6 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { isNullorEmpty } from '../utils/channelServiceUtilities';
 
 /**
  *	Helper class for handling errors when making web service calls. 
@@ -55,6 +56,11 @@ export class ServiceCallHelper {
 			console.log("Making service call");
 			let result = await serviceCall;
 			console.log("Made service call");
+
+			if (isNullorEmpty(result)) {
+				throw new HttpStatusError("No Content", 204, result);
+			}
+
 			return result;
 		}
 		catch (exception) {
