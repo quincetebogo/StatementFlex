@@ -229,26 +229,48 @@ export class StopCardFailure extends View {
 					letter-spacing: 0;
 					line-height: 36px;
                     text-align: center;
-				}		
-				  
-				.stop-card-text {
-					margin: 0px 0px 0px 0px;
-					color: #4E6066;
+				}
+
+				.status-group{
+					width: auto;
+					height: 26px;
+					display: flex;
+					flex-wrap: wrap;
+					justify-content: center;
+					margin: 0px;
+				}
+
+				.card-status-success{
+					height: 26px;
+					width: auto;
+					display: flex;
+					align-items: center;
+					margin: 0px 0px 0px 15px;
+				}
+
+				.card-status-error{
+					height: 26px;
+					width: auto;
+					display: flex;
+					align-items: center;
+					margin: 0px 0px 0px 15px;
+				}
+
+				capitec-icon{
+					height: 26px;
+					width: 26px;
+				}
+				
+				.card-status-text {
+					height: 24px;
+					color: #545D60;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					letter-spacing: 0;
 					line-height: 24px;
-					text-align: center;
-				}	
-
-				.bold-text {
-					color: #4E6066;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-				}				  
+					text-align: start;
+					margin: 0px 0px 0px 7px;
+				}
 
                 .button-bar {
                     box-sizing: border-box;
@@ -288,6 +310,18 @@ export class StopCardFailure extends View {
 					text-align: center;
 					margin-top: 400px;
 				}
+
+				.notify-client{
+					height: 24px;
+					width: 1064px;
+					color: #545D60;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: center;
+					margin: 15px 0px 0px 0px;
+				}
 			`];
 	}
 
@@ -305,8 +339,8 @@ export class StopCardFailure extends View {
 							<section class="section-content">
 								${this._renderGraphic()}
 								<p class="network-error">Network Error</p>
-								${this.failedCards.map(line => { return this._renderStoppedCard(line) })}
-								<p class="stop-card-text">Notify the client and try again.</p>
+								${this._renderStoppedCards()}
+								<p class="notify-client">Notify the client and try again.</p>
 							</section>
 							${this._renderFooter()}
 						</capitec-group>
@@ -353,9 +387,42 @@ export class StopCardFailure extends View {
 		return html`<img class="card-image" src="../../images/cardStop/network-error.svg"/>`;
 	}
 
-	_renderStoppedCard(line) {
+	_renderStoppedCards() {
 		return html`
-        <p class="stop-card-text">Unable to stop ${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
+			<div class="status-group">
+				${this.stoppedCards.map((card) => { return this._renderCardStatus(card) })}
+			</div>
+		`;
+	}
+
+	_renderCardStatus(card) {
+		if (card.stopped) {
+			return html`${this._renderSuccessStatus(card)}`;
+		}
+		else {
+			return html`${this._renderErrorStatus(card)}`;
+		}
+	}
+
+	_renderSuccessStatus(card) {
+		return html`
+			<div class="card-status-success">
+				<capitec-icon size="medium" icon="status/success"></capitec-icon>
+				<p class="card-status-text">
+					${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully
+				</p>
+			</div>
+		`;
+	}
+
+	_renderErrorStatus(card) {
+		return html`
+			<div class="card-status-error">
+				<capitec-icon size="medium" icon="status/error"></capitec-icon>
+				<p class="card-status-text">
+					Unable to stop ${card.cardType} <b>${card.encryptedCardId}</b>
+				</p>
+			</div>
 		`;
 	}
 
