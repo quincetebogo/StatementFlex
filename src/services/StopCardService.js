@@ -26,7 +26,6 @@ export class StopCardService {
 	// Accept Call Methods
 	// -------------------
 	async acceptCall(incomingCallData) {
-		console.log('acceptCall : incomingCallDate =', incomingCallData);
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
 			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
 			'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
