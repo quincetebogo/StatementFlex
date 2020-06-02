@@ -1,7 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
-
+import 'platform/components/popups/AlertBanner';
+import '../../views/ClientProfile/StopCardFailure';
 export class AssignStopCard extends Component {
 
 	// --------------
@@ -11,18 +12,15 @@ export class AssignStopCard extends Component {
 	constructor() {
 		super();
 
-		this.team = { id: 'T1', text: 'VR12345' };
+		this.team = null;
 		this.teamItems = [
-			this.team,
 			{ id: 'T2', text: 'VR23456' },
 			{ id: 'T3', text: 'VR98765' },
 			{ id: 'T4', text: 'VR56478' }
 		];
-		this.teamOwner = { id: 'I1', text: '516283574' };
-		this.ownerItems = [
-			this.teamOwner
-		];
 		this.cards = [];
+		this.errorAlert = false;
+		this.errorMessage = ``;  // "Please select a team to assign";
 	}
 
 	// ----------
@@ -35,7 +33,9 @@ export class AssignStopCard extends Component {
 			teamItems: { type: Array },
 			ownerItems: { type: Array },
 			teamOwner: { type: Object },
-			cards: { type: Array }
+			cards: { type: Array },
+			errorAlert: { type: Boolean },
+			errorMessage: { type: String }
 		}
 	}
 
@@ -45,8 +45,21 @@ export class AssignStopCard extends Component {
 	// EVENT HANDLERS
 	// --------------	
 
-	_onAssignClick() {
-		this.dispatchEvent(new CustomEvent('on-handoff', event));
+	_onAssignClick(e) {
+
+		if (!this.team) {
+			this.errorAlert = true;
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('on-handoff', {
+				detail: {}
+			}));
+		}
+	}
+
+	_onTeamSelected(e) {
+		this.errorAlert = false;
+		this.team = e.detail.new;
 	}
 
 	_onCancelClick() {
@@ -57,7 +70,8 @@ export class AssignStopCard extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-	// ----------
+
+	// // ----------
 	// PRIVATE METHODS
 	// ----------
 
@@ -65,78 +79,90 @@ export class AssignStopCard extends Component {
 	// ---------
 	// RENDERING
 	// ---------
+	/*
+	dialog width 504px
+	select components 472px with 16px margin
+	*/
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				p{
-					height: 88px;
-					width: 100%;
-					color: #4E6066;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					padding-left: 24px;
-					padding-right: 29px;
-					padding-bottom: 0px;
-					padding-top: 12px;
-				}
 				.modal-body{
 					box-sizing: border-box;
-					height: 320px;
-					width: 100%;
+					height: 422px;
+					width: 504px;
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
 					background-color: #FFFFFF;
 					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
 					z-index: 100;
+					border-bottom-style:none
 				}
 
-				.select-group{
-					height: 200px;
-					width: 100%;
-					padding-top: 24px;
-					padding-left: 24px;
-					padding-right:24px;
-				}
-				#select-team{
-					height: 58px;
-					width: 410px;
-					padding-bottom: 18px;
-				}
-				#select-owner{
-					height: 58px;
-					width: 410px;
-					padding-top: 8px;
-					padding-bottom: 18px;
-				}
 				.team-options{
-					height: 23px;
-					width: 96px;
-					color: #4E6066;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					letter-spacing: 0;
-					line-height: 23px;
-					text-align: justify;
-
+					margin-top:24px;
+					height: 49px;
+					width: 472px;
+					margin-left: 16px;
 				}
+
 				.footer-buttons{
 					height: 56px;
 					width: 458px;
+					// border-top-style:none
 				}
+
 				.assign-button{
 					height: 40px;
 					width: 94px;
 					// align: right;
 				}
+
 				.cancel-button{
 					margin-left: 261px;
 					height: 40px;
 					width: 95px;
 				}
- 
+
+				.failed-cards{
+					margin-left:16px;
+					margin-bottom:0px;
+					width: 472px;
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+				}
+
+				.bold-text{
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					font-weight: 600;
+				}
+				
+				#first-line{
+					margin-left:16px;
+					margin-bottom:0px;
+					margin-top: 0px;
+					width: 472px;
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+				}
+
+				.alert-banner{
+					height: 48px;
+					width: 472px;
+					padding-left: 16px;
+					padding-right:16px;
+					margin-top: 16px; 
+				}
 			`];
 	}
 
@@ -153,59 +179,76 @@ export class AssignStopCard extends Component {
 				${this.renderBody()}
 			</div>
 			<div slot="footer" class="footer-buttons">
-					${this.renderFooter()}
-				</div>
-			</capitec-modal>
-			
+				${this.renderFooter()}					
+			</div>
+			</capitec-modal>	
 		`;
 	}
 
 	renderBody() {
 		return html`
-		<capitec-group  class="modal-body" layout="vertical" nopadding>
-			<p> Credit card 5284 **** **** 1522 and <br>
-				debit card 5284 **** **** 1522 can not be stopped <br>
-				due to a system error. </p>
-
-			<div class="select-group">
+		<capitec-group  class="modal-body" layout="vertical" nopadding>	
+			${this.renderErrorAlertBanner()}		
+			${this.cards.map((line, index, cards) => this.renderLines(line, index, cards))}
+			<p id="first-line">can not be stopped due to a system error.</p>
 			
 			<capitec-select 
 				id="select-team"
 				class="team-options"
-  				label="Choose a team"
-  				.items="${this.teamItems}" 
+  				label="Choose a team (Required)"
+				.items="${this.teamItems}" 
+				error="${this.errorMessage}"
  				display-field="text"
+				@value-change="${(e) => this._onTeamSelected(e)}"
 				mode="basic"
   				searchable>
 			</capitec-select>
 
-			<capitec-select 
-				id="select-owner"
-  				label="Assign owner" 
-  				.items="${this.ownerItems}" 
- 				display-field="text"
- 				mode="basic"
-  				searchable>
-			</capitec-select>
-			</div>
 		</capitec-group>
 		`;
+	}
 
+	renderLines(line, index, cards) {
+		console.log(`failed cards to hand off`, cards);
+
+		// if even number begining of line
+		if (index / 2 === 0 && index + 1 < cards.length) {
+			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span> and ${cards[index + 1].cardType} <span class="bold-text">${cards[index + 1].encryptedCardId}</span></p>`;
+		}
+		else if (index / 2 == 0 && index + 1 >= cards.length) {
+			// If odd number, second on line
+			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span></p>`;
+		}
+	}
+
+	renderErrorAlertBanner() {
+		if (this.errorAlert) {
+			return html`
+				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
+					label = "Select an team to Assign"
+					closable
+					style = "width: 100%;">
+				</capitec-alert-banner>
+			`;
+		}
+		else {
+			return html``;
+		}
 	}
 
 	renderFooter() {
 		return html`
 			<capitec-button class="cancel-button"
-					type="clear"
-					label="Cancel"
-					@click="${() => { this._onCancelClick() }}">
-				</capitec-button>
-				<capitec-button class="assign-button"
-					type="clear"
-					label="Assign"
-					@click="${() => { this._onAssignClick() }}">
-				</capitec-button>
-		`;
+				type = "clear"
+				label = "Cancel"
+				@click="${() => this._onCancelClick()}" >
+			</capitec-button >
+			<capitec-button class="assign-button"
+				type="primary"
+				label="Assign"
+				@click="${(e) => this._onAssignClick(e)}" >
+			</capitec-button >
+			`;
 	}
 }
 
