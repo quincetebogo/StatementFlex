@@ -20,6 +20,7 @@ import { ServiceCallHelper } from '../utils/serviceCallHelper';
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
+	START_AGENT: 2
 };
 
 export class LandingPage extends View {
@@ -33,6 +34,7 @@ export class LandingPage extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.eventAggregator.subscribe(`new-call`, (event) => this._onNewCall(event));
+		this.eventAggregator.subscribe("prompt-start-desktopagent", () => this._onPromptStartDesktopAgent());
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -79,6 +81,10 @@ export class LandingPage extends View {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_onPromptStartDesktopAgent() {
+		this.renderMode = RENDER_MODE.START_AGENT;
+	}
 
 	async _onNewCall(eventData) {
 		this.acceptCallErrorHandled = false;
@@ -234,6 +240,7 @@ export class LandingPage extends View {
 		${this._renderLoadingIndicator()}
 		${this._renderConfirmedUser()}
 		${this._renderUnverifiedUser()}
+		${this._renderStartAgentPrompt()}
 		`;
 	}
 
@@ -272,6 +279,19 @@ export class LandingPage extends View {
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
+		}
+	}
+
+	_renderStartAgentPrompt() {
+		if (this.renderMode === RENDER_MODE.START_AGENT) {
+			return html`
+				<capitec-modal type="result" result="error" header="Error">
+					<div slot="body">
+						Cannot connect to Desktop Agent Service!
+					</div>
+					<capitec-button slot="footer" type="clear" label="Retry" @click=${() => this.renderMode = -1}></capitec-button>
+				</capitec-modal>
+			`;
 		}
 	}
 }
