@@ -12,10 +12,12 @@ import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../utils/ch
 
 import '../dialogs/ConfirmCallerDetails';
 import '../../components/Common/HorizonSelect';
+import '../dialogs/Insure/SearchCaller';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
 	END_CALL: 1,
+	INSURE_SEARCH_CALLER: 2
 };
 
 const ERROR_MESSAGES = {
@@ -192,6 +194,9 @@ export class SearchClientDetailsComponent extends Component {
 
 	_ivrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.key;
+		if (e.detail.new.key === "Insure") {
+			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+		}
 	}
 
 	// ---------------
@@ -397,6 +402,8 @@ export class SearchClientDetailsComponent extends Component {
 					</capitec-modal>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+			case RENDER_MODE.INSURE_SEARCH_CALLER:
+				return html`${this.renderInsureSearchModal()}`;
 		}
 	}
 
@@ -507,6 +514,10 @@ export class SearchClientDetailsComponent extends Component {
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
 			</end-call-session>`;
+	}
+
+	renderInsureSearchModal() {
+		return html`<horizon-insure-search-client></horizon-insure-search-client>`;
 	}
 }
 
