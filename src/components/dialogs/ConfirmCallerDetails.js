@@ -1,6 +1,6 @@
-/*
- *		Horizon Confirm Caller Details Dialog
- *
+/**
+ * The Horizon Confirm Caller Details Dialog is used to confirming caller details of a
+ * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
  */
 import { Component, html, css } from 'platform/elements';
 
@@ -20,6 +20,9 @@ import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
+/**
+ * 
+ */
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
@@ -85,7 +88,7 @@ export class ConfirmCallerDetails extends Component {
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
-			ivrOption: 'StopCard',
+			ivrOption: this._getIvrOptionKey(this.ivrOption),
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
@@ -96,13 +99,18 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	_onAddCallerDetailsReturn(data) {
+		this.ivrOption.value = data.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER
+	}
+
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
+			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
@@ -119,7 +127,7 @@ export class ConfirmCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: 'StopCard',
+						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
@@ -135,7 +143,7 @@ export class ConfirmCallerDetails extends Component {
 			// we return the the caller with the information from this dialog and the end call reason
 			let confirmedCaller = {
 				voiceReferenceNumber: this.voiceReferenceNumber.value,
-				ivrOption: this.ivrOption.value,
+				ivrOption: this._getIvrOptionKey(this.ivrOption),
 				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 				callerFullName: this.callerFullName.value,
 				southAfricanIDNumber: this.southAfricanIDNumber.value,
@@ -184,8 +192,8 @@ export class ConfirmCallerDetails extends Component {
 		}));
 	}
 
-	_ivrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.key;
+	_onIvrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.value;
 	}
 
 	// --------------
@@ -248,12 +256,13 @@ export class ConfirmCallerDetails extends Component {
 
 	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 	_toggleBusyFlag() {
 		this.isBusy = this.isBusy ? false : true;
+	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
 	}
 
 	// ---------
@@ -432,7 +441,7 @@ export class ConfirmCallerDetails extends Component {
 						.value="${this.ivrOption.value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
 						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._ivrOptionChanged(e)}">
+						@value-changed="${(e) => this._onIvrOptionChanged(e)}">
 					</horizon-select>
 				</div>
 				<div class="left-border">
@@ -573,7 +582,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
 				.addCallerDialog="${this.addCallerDetails}"
-				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;

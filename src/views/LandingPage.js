@@ -88,15 +88,22 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(eventData) {
+		/* --> TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
+        /*
+
+		let incident = await this.serviceCallHelper.asyncCall(this.stopCardService.createIncident(eventData.IncomingTelephoneNumber));
+
+		eventData.IncidentReferenceNumber = incident.incidentNumber;
+		eventData.incidentRecId = incident.incidentRecId;
+        */
+		/* <-- TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
+
 		this.acceptCallErrorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
 		let acceptedCall = await this.serviceCallHelper.asyncCall(
 			this.stopCardService.acceptCall(eventData),
 			(ex) => this._acceptCallErrorHandler(ex));
-
-		//TODO: Remove this hardcoded value once channel service ready
-		acceptedCall.ivrOption.possibleValues.push({ key: 'Insure', value: 'Insure' });
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {

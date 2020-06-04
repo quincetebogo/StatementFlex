@@ -1,3 +1,8 @@
+/**
+ * Add Caller Details is used to record the information of a non-Capitec client calling into the contact centre.
+ * This component is currently shared between the Stop Card and Insure Needs.
+ */
+
 import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
@@ -130,7 +135,7 @@ export class AddCallerDetails extends Component {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
+			ivrOptionCode: this._getIvrOptionKey(this.ivrOptionCode),
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
@@ -148,7 +153,7 @@ export class AddCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: 'StopCard',
+						ivrOptionCode: this._getIvrOptionKey(this.ivrOptionCode),
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
@@ -158,12 +163,12 @@ export class AddCallerDetails extends Component {
 		}
 	}
 
-
-	raiseBackEvent() {
-		//TODO: Populate event with data to return to the confirm dialog.
-		// it will then return to the landing page
-		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
-		this.dispatchEvent(new CustomEvent('on-back', {}));
+	_onBackButtonClick() {
+		this.dispatchEvent(new CustomEvent('on-back', {
+			detail: {
+				ivrOptionValue: this._getIvrOptionKey(this.ivrOption)
+			}
+		}));
 	};
 
 	onCallCancelled(reason) {
@@ -173,6 +178,10 @@ export class AddCallerDetails extends Component {
 				endCallReason: reason.detail.endCallReason
 			}
 		}));
+	}
+
+	_onIvrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.value;
 	}
 
 	// ---------------
@@ -215,6 +224,11 @@ export class AddCallerDetails extends Component {
 	 */
 	getErrorMessage(field) {
 		return field && field.errorMessage ? field.errorMessage : '';
+	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
 	}
 
 	// ---------
@@ -359,7 +373,8 @@ export class AddCallerDetails extends Component {
 						.items="${this.ivrOption.possibleValues}"
 						.value="${this.ivrOption.possibleValues[0].value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}>
+						?hidden=${isHidden(this.ivrOption)}
+						@value-changed="${(e) => this._onIvrOptionChanged(e)}">
 					</horizon-select>
 				</div>
 				<div class="left-border">
@@ -451,7 +466,7 @@ export class AddCallerDetails extends Component {
 								?hidden=${isHidden(this.backButton)}
 								.disabled="${isDisabled(this.backButton)}"
 								tabindex="${getTabIndex(this.backButton)}"
-								@click="${(e) => this.raiseBackEvent()}">
+								@click="${(e) => this._onBackButtonClick()}">
 				</capitec-button>
 				<capitec-sapacer></capitec-sapacer>
 				<capitec-button type="clear"

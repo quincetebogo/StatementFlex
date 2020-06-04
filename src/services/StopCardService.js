@@ -30,6 +30,8 @@ export class StopCardService {
 	// -------------------
 	// Accept Call Methods
 	// -------------------
+
+	// callerConfirmRequest
 	async acceptCall(incomingCallData) {
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
 			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
@@ -40,6 +42,7 @@ export class StopCardService {
 		});
 	}
 
+	// addCallerDetailsRequest
 	async addCallerDetails(callerData) {
 		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
@@ -58,6 +61,7 @@ export class StopCardService {
 		return await this._getClient().get(`/horizon/endcall/${this.version}/Options`);
 	}
 
+	// endCallSession
 	async endCall(incidentNumber, reasonCode) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}`,
 			{
@@ -67,6 +71,7 @@ export class StopCardService {
 			});
 	}
 
+	// stopCardRequest
 	async stopCard(card) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
 			{
@@ -81,11 +86,32 @@ export class StopCardService {
 			});
 	}
 
+	// loadAssignRequest
+	async AssignTeams(incidentData) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/Assign/Teams`,
+			{
+				"cardIds": incidentData.cardIds,
+				"incidentRecId": incidentData.incidentRecId
+			}
+		);
+	}
+
+	// assignRequest
+	async Assign(assignData) {
+		return await this._getClient.post(`/horizon/endcall/${this.version}/Assign`,
+			{
+				"cardIds": assignData.cardIds,
+				"incidentRecId": assignData.incidentRecId,
+				"team": assignData.team
+			}
+		);
+	}
 
 	// -----------------------
 	// Identify Caller Methods
 	// -----------------------
 
+	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
 			'idNumber': callerData.idNumber,
@@ -98,10 +124,10 @@ export class StopCardService {
 			'nonClientCellPhone': callerData.nonClientCellPhone,
 			'nonClientIDNumber': callerData.nonClientIDNumber,
 			'nonClientRelationship': callerData.nonClientRelationship
-			// 'verifiedTelephoneNumber': callerData.verifiedTelephoneNumber,
 		});
 	}
 
+	// searchOptionsRequest
 	async searchOptions(incomingCallData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search/options`, {
 			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
@@ -112,6 +138,7 @@ export class StopCardService {
 		});
 	}
 
+	// searchForClientRequest
 	async searchCaller(clientInfo) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`, {
 			"incomingTelephoneNumber": clientInfo.incomingTelephoneNumber,
@@ -128,12 +155,15 @@ export class StopCardService {
 	// Initialise Method
 	// -----------------
 	async initialise() {
-		console.log('in initialise');
-		let tmp = await this._getClient().get(`/horizon/initialise/${this.version}`);
+		return await this._getClient().get(`/horizon/initialise/${this.version}`);
+	}
 
-		console.log(tmp);
-
-		return tmp;
+	// newIncidentRequest
+	async createIncident(incomingPhoneNumber) {
+		return await this._getClient().post(`/horizon/initialise/${this.version}/CreateIncident`,
+			{
+				"incomingPhoneNumber": incomingPhoneNumber
+			});
 	}
 
 	// ------------------------------------------

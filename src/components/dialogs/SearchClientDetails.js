@@ -1,5 +1,5 @@
 /*
- *		Horizon Search Client Details Dialog
+ *		Horizon Stop Card Search Dialog
  *
  */
 import { Component, html, css } from 'platform/elements';
@@ -160,7 +160,7 @@ export class SearchClientDetailsComponent extends Component {
 				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
 				incidentNo: this.unverifiedCaller.incidentReferenceNumber,
 				agentTelephoneNumber: this.unverifiedCaller.agentTelephoneNumber,
-				ivrOption: 'StopCard',
+				ivrOption: this._getIvrOptionKey(this.ivrOption),
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
 			}
@@ -169,7 +169,7 @@ export class SearchClientDetailsComponent extends Component {
 			if (identifiedClient) {
 				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
 				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
-				this.raiseBackEvent(identifiedClient)
+				this._raiseOnClientIdentified(identifiedClient)
 			}
 			else {
 				// TODO: handle not found - we don't deal with this at all at present
@@ -177,23 +177,12 @@ export class SearchClientDetailsComponent extends Component {
 		}
 	}
 
-	raiseBackEvent(identifiedClient) {
-		//TODO: Populate event with data to return to the confirm dialog.
-		// it will then return to the landing page
-		// The landing page will invoke IdentifyCaller and transition to the Client-Profie/Stopcard page
-		this.dispatchEvent(new CustomEvent('on-client-identified', {
-			detail: {
-				identifiedClient: identifiedClient
-			}
-		}));
-	};
-
-	onCallCancelled(reason) {
+	_onCallCancelled(reason) {
 		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	_ivrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.key;
+		this.ivrOption.value = e.detail.new.value;
 		if (e.detail.new.key === "Insure") {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
@@ -203,11 +192,19 @@ export class SearchClientDetailsComponent extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	_raiseOnClientIdentified(identifiedClient) {
+		this.dispatchEvent(new CustomEvent('on-client-identified', {
+			detail: {
+				identifiedClient: identifiedClient
+			}
+		}));
+	};
+
 	_loadSearchOptions() {
 		let clientInfo = {
 			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
 			"voiceReferenceNumber": this.voiceReferenceNumber.value,
-			"ivrOptionCode": 'StopCard', //TODO: fix this. this must be passed correctly from the structure
+			"ivrOptionCode": this._getIvrOptionKey(this.ivrOption),
 			"incidentReferenceNumber": this.incidentReferenceNumber,
 			"agentTelephoneNumber": this.agentTelephoneNumber,
 		};
@@ -296,6 +293,11 @@ export class SearchClientDetailsComponent extends Component {
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		return true;
+	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
 	}
 
 	// ---------
@@ -512,7 +514,7 @@ export class SearchClientDetailsComponent extends Component {
 		return html`
 			<end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 
