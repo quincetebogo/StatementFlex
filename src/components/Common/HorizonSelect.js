@@ -175,39 +175,40 @@ export class HorizonSelect extends Component {
 				.outer-wrapper {
 					display: flex;
 					flex-direction: row;
-					margin-left: 24px;
+					margin-left: var(--horizon-select-outer-wrapper-margin-left, 24px);
 				}
 
 				.inner-wrapper{
 					width: 164px;
-					height: 48px;
+					height: var(--horizon-select-inner-wrapper-height, 48px);
 				}
 
 				.label-text{
-					height: 21px;
-					color: #4E6066;
+					height: var(--horizon-select-label-text-height, 21px);
+					color: var(--horizon-select-label-text-color, #4E6066);
 					font-family: "Hind Vadodara";
-					font-size: 14px;
+					font-size: var(--horizon-select-label-text-font-size, 14px);
 					letter-spacing: 0;
-					line-height: 21px;
+					line-height: var(--horizon-select-label-text-line-height, 21px);
 				}
 
 				.label-value{
-					height: 27px;
-					color: #003652;
+					height: var(--horizon-select-label-value-height, 27px);
+					color: var(--horizon-select-label-value-color, #003652);
 					font-family: "Hind Vadodara";
-					font-size: 18px;
+					font-size: var(--horizon-select-label-value-font-size, 18px);
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 27px;
+					line-height: var(--horizon-select-label-value-line-height, 27px);
 				}
 
 				.kebab-icon {
-					margin-top: 20px;
+					margin-top: var(--horizon-select-icon-margin-top, 20px);
+					margin-right: var(--horizon-select-icon-margin-right, 0px);
 					cursor: pointer;
-					width: 24px;
+					width: var(--horizon-select-icon-width, 24px);
 					align-items: flex-end;
-					height: 24px;
+					height: var(--horizon-select-icon-height, 24px);
 				}
 
 				.options {
