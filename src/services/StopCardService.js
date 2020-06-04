@@ -1,6 +1,11 @@
 import { HttpClient } from 'platform/HttpClient';
 import { Configuration } from 'platform/Configuration';
 
+/**
+ * Channel Service Proxy (Resource Access) for Stop Card channel. This is probably badly named as other 
+ * needs such as Insure will probably be implemented using some of the same operations as below. 
+ * The class may require a more generic name. 
+ */
 export class StopCardService {
 
 	// --------------
@@ -162,5 +167,4 @@ export class StopCardService {
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
 	}
-
 }

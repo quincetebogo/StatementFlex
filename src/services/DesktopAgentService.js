@@ -1,6 +1,6 @@
-import { EventAggregator } from 'platform/EventAggregator';
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
@@ -11,16 +11,36 @@ import { validate } from '../utils/channelServiceUtilities';
 import { NewCallEvent } from '../models//NewCallEvent'
 
 /**
- * Scenario 1 - Call center NOT busy, call ends, and user have enough time to click on "end call" 
- *		and gets routed back to the landing page.
- *		-> 	This class will action the event immediately.
- * Scenario 2 - Call center IS busy, call ends/drops, agent still on last page. New call arrives before
- *		agent clicked on "end call".
- *		-> 	event is queued, agent has time to press "end call" (agent discretion is used on how quick he/she 
- *			should proceed), when "end call" is pressed, the next event in the queue is actioned. The processor
- *			will action the event intelligently, ie. if a corresponding end-call event was received (call dropped while
- *			ringing), the new-call event is handled appropriately (routed to screen asking end-call reason, 
- *			or not at all, depending).
+ *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
+ *  workstation. Server Side Events are used to notify the Horizon UI of the details of an incoming 
+ *  call. 
+ * 
+ *  A possibly better alternative may be to use Web Sockets as this allows a bi-directional protocol.
+ * 
+ * There a a few scenarios that this service needs to handle.
+ * 
+ * Scenario 1: The agent is still busy on the previous call even though the original caller has
+ *             disconnected. The call must not present until the agent returns to the landing page.
+ * 
+ * Scenario 2: The agent has returned to the  "Landing Page" set of screens. An incomming call must
+ *			   be accepted immediately. 
+ *			   
+ * Scenario 3: Similar to scenario 1. The agent has not completed handling the previous call. A new 
+ *             call comes in and drops before the agent returns to the landing page. A subsequent
+ *             call comes in before the agent returns to the landing page. Only the latest call 
+ *             must be handled. Incoming calls are not queued. There is at most one pending incoming
+ *             call.
+ * 
+ * EVENTS RAISED:
+ * 
+ * new-call						- Notify the subscriber of the details of an incoming call
+ * prompt-start-desktopagent	- Notify the subscriber that the Desktop Agent Service is down
+ * 
+ * EVENTS SUBSCRIBED
+ * 
+ * landing-page-loaded			- Informs this class that the UI is on the landing page and 
+ * 								  therefore calls may be accepted.
+ * 
  */
 export class DesktopAgentService {
 	// --------------
@@ -37,7 +57,10 @@ export class DesktopAgentService {
 			return this.instance;
 		}
 
-		this.nextCall = null;
+		this.nextCall = null;		// A pending call event
+		this.lastEventId = 0;		// The last SSE ID recieved
+		this.onCall = false;		// Indicates that the UI is still handling a call
+		this.connectionTries = 0;	// Retry count for detecting Desktop Agent down
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
@@ -45,10 +68,6 @@ export class DesktopAgentService {
 		this.router = Router.getInstance();
 
 		this.eventAggregator.subscribe("landing-page-loaded", () => this._onLandingPageLoaded());
-
-		this.lastEventId = 0;
-		this.onCall = false;
-		this.connectionTries = 0;
 	}
 
 	// --------------
@@ -64,6 +83,8 @@ export class DesktopAgentService {
 		let eventData = JSON.parse(event.data);
 		let newCallEvent = new NewCallEvent();
 
+		// We have received an event so we must be connected to the Desktop Agent
+		this.connectionTries = 0;
 
 		try {
 			// Copy the information we require out of the incoming event into a new object.
@@ -75,7 +96,8 @@ export class DesktopAgentService {
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IVROptionCode = 'StopCard'; //TODO: fix up all these hard coded StopCards
+			newCallEvent.IncidentRecNo = eventData.IncidentRecNo;
+			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
 
 			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
@@ -124,6 +146,7 @@ export class DesktopAgentService {
 				this.connectionTries = 0;
 				break;
 			case 2:
+				this.connectionTries++;
 				// console.log("Event Source State: CLOSED", this.connectionTries++);
 				break;
 		}
@@ -195,35 +218,25 @@ export class DesktopAgentService {
 	// ---------------
 
 	_handleIncomingCall() {
-		// Business logic on how to respond to events comes here
-
-		// If NOT on Landing Page => Wait for Landing Page (by listening for landing-page-loaded event)
-		// When landing-page-loaded event received, check if a end-call event was received to cancel the new-call
-		// If not, proceed to publish event
 
 		if (!this.nextCall) {
 			return;
 		}
-
-		console.log("Processing New Call Event");
-		console.log("on call flag", this.onCall);
 
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
 		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
 			// If Landing Page => publish event
-			console.log("Publishing new-call event");
 			this.onCall = true;
 			this.eventAggregator.publish(`new-call`, this.nextCall);
 			this.nextCall = null;
 		}
 		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
-			console.log('Desktop Agent service navigating to landing page');
+			// We can take a call when on a product view page (they belong to the set of landing pages)
+			// Automatically navigate to the landing page. Once on the landing page and event will fire
+			// notifying this class to take the call.
 			this.HorizonRouter.navigateToLandingPage();
-		}
-		else {
-			console.log("Not on landing page, waiting for agent to end the call...");
 		}
 	}
 

@@ -30,24 +30,25 @@ export class LandingPage extends View {
 	// --------------
 	constructor() {
 		super();
-		this.renderMode = -1;
-		this.eventAggregator = EventAggregator.getInstance();
 
-		this.eventAggregator.subscribe(`new-call`, (event) => this._onNewCall(event));
-		this.eventAggregator.subscribe("prompt-start-desktopagent", () => this._onPromptStartDesktopAgent());
+		this.renderMode = -1;
+		this.isBusy = false;
+		this.acceptCallErrorHandled = false;
+
+		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-
 		this.stopCardService = StopCardService.getInstance();
+
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
-		this.isBusy = false;
-		this.acceptCallErrorHandled = false;
+		this.eventAggregator.subscribe(`new-call`, (event) => this._onNewCall(event));
+		this.eventAggregator.subscribe("prompt-start-desktopagent", () => this._onPromptStartDesktopAgent());
 	}
 
 	// ----------

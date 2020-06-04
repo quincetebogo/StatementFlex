@@ -85,8 +85,6 @@ export class HorizonViewManager {
 			return html``;
 		}
 
-		// this._importComponents(viewSet);
-
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
 				return areaHtml;
@@ -96,13 +94,15 @@ export class HorizonViewManager {
 	}
 
 	renderAdditionalTopBar(viewSet) {
-		// this._importComponents(viewSet);
-		return html`<horizon-actionbar></horizon-actionbar>`;
+		switch (viewSet) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html``;
+			case HORIZON_VIEWS.CARD_STOP:
+				return html`<horizon-actionbar></horizon-actionbar>`;
+		}
 	}
 
 	renderRightBar(viewSet) {
-		// this._importComponents(viewSet);
-
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
 				return html`<landingpage-marketing></landingpage-marketing>`;
