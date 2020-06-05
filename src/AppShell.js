@@ -304,7 +304,16 @@ export class AppShell extends Shell {
 
 				.right{
 					width:320px; 
-				}			`
+				}
+
+				* {
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-color: white;
+					--theme-modal-header-font-size: 18px;
+					--theme-modal-header-font-weight: 600;
+					--theme-modal-header-padding-left: 16px;
+				}
+				`
 		];
 	}
 
