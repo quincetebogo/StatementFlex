@@ -88,9 +88,6 @@ export class LandingPage extends View {
 			this.stopCardService.acceptCall(eventData),
 			(ex) => this._acceptCallErrorHandler(ex));
 
-		//TODO: Remove this hardcoded value once channel service ready
-		acceptedCall.ivrOption.possibleValues.push({ key: 'Insure', value: 'Insure' });
-
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
