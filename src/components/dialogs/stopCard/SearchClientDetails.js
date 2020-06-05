@@ -1,18 +1,18 @@
 /*
- *		Horizon Stop Card Search Dialog
+ *		Horizon Stop Card Search Dialog for Stop Card
  *
  */
 import { Component, html, css } from 'platform/elements';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { StopCardService } from '../../services/StopCardService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../utils/channelServiceUtilities';
+import { StopCardService } from '../../../services/StopCardService';
+import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
-import '../dialogs/ConfirmCallerDetails';
-import '../../components/Common/HorizonSelect';
-import '../dialogs/Insure/SearchCaller';
+import '../ConfirmCallerDetails';
+import '../../Common/HorizonSelect';
+import '../Insure/SearchCaller';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -113,6 +113,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 		this.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
+		this.incidentRecNo = this.unverifiedCaller.incidentRecNo;
 		this.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
 
 		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
@@ -167,8 +168,11 @@ export class SearchClientDetailsComponent extends Component {
 
 			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
 			if (identifiedClient) {
-				identifiedClient.incidentReferenceNumber = searchClient.incidentNo;
-				identifiedClient.agentTelephoneNumber = searchClient.agentTelephoneNumber;
+				// Add this fields to the indentifiedClient (aka confirmed Caller) model
+				identifiedClient.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
+				identifiedClient.incidentRecNo = this.unverifiedCaller.incidentRecNo;
+				identifiedClient.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
+
 				this._raiseOnClientIdentified(identifiedClient)
 			}
 			else {

@@ -9,11 +9,13 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
+import './stopCard/SearchClientDetails';
+
 import './AddCallerDetails';
 import './EndCallSessionReason';
+
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
-import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -129,6 +131,7 @@ export class ConfirmCallerDetails extends Component {
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 						incidentReferenceNumber: this.incidentReferenceNumber,
+						incidentRecNo: this.incidentRecNo,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
 					clientProfileDetails: clientProfileDetails
@@ -223,6 +226,7 @@ export class ConfirmCallerDetails extends Component {
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
 		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
+		this.incidentRecNo = this.confirmedCaller.incidentRecNo;
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 

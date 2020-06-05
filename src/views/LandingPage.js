@@ -1,3 +1,8 @@
+/**
+ * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
+ * This is the only page that can accept an incoming call. On completing the handling of a call
+ * the user interface must be returned to this page in order top accept a new call.
+ */
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
@@ -6,7 +11,7 @@ import 'platform/components/buttons/Button';
 
 import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
-import '../components/dialogs/SearchClientDetails';
+import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
@@ -87,7 +92,7 @@ export class LandingPage extends View {
 		this.renderMode = RENDER_MODE.START_AGENT;
 	}
 
-	async _onNewCall(eventData) {
+	async _onNewCall(newCallInfo) {
 		/* --> TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
         /*
 
@@ -102,26 +107,29 @@ export class LandingPage extends View {
 
 		// Check the incoming call to see if it is a verified or unverified number
 		let acceptedCall = await this.serviceCallHelper.asyncCall(
-			this.stopCardService.acceptCall(eventData),
+			this.stopCardService.acceptCall(newCallInfo),
 			(ex) => this._acceptCallErrorHandler(ex));
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
-			this.isUnverifiedCaller = null;
+			this.unVerifiedCaller = null;
 
-			// TODO: injected into model. Not the best way to do this. look for an alternative
-			this.confirmedCaller.incidentReferenceNumber = eventData.IncidentReferenceNumber;
-			this.confirmedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
+			// The following is from the Desktop Agent Service new call event. The information is 
+			// injected into the confirmed caller model returned from the channel service here 
+			// but should perhaps be passed separately.
+			this._AddCallInfo(this.confirmedCaller, newCallInfo);
 
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		}
 		else if (this.stopCardService.isUnverifiedCaller(acceptedCall)) {
 			this.confirmedCaller = null;
-			this.isUnverifiedCaller = acceptedCall;
 
-			// TODO: injected into model. Not the best way to do this. look for an alternative
-			this.isUnverifiedCaller.agentTelephoneNumber = eventData.AgentTelephoneNumber;
+			this.unVerifiedCaller = acceptedCall;
+
+			// The following is injected into the unverified caller model returned from the 
+			// channel service. 
+			this._AddCallInfo(this.unVerifiedCaller, newCallInfo);
 
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
@@ -136,7 +144,7 @@ export class LandingPage extends View {
 			}
 
 			this.confirmedCaller = null;
-			this.isUnverifiedCaller = null;
+			this.unVerifiedCaller = null;
 			this.renderMode = -1;
 
 			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
@@ -227,6 +235,12 @@ export class LandingPage extends View {
 		return true;
 	}
 
+	_AddCallInfo(model, newCallInfo) {
+		model.incidentReferenceNumber = newCallInfo.IncidentReferenceNumber;
+		model.incidentRecNo = newCallInfo.IncidentRecNo;
+		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------	
@@ -286,7 +300,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			return html`
 				<horizon-search-client 
-					.unverifiedCaller="${this.isUnverifiedCaller}"
+					.unverifiedCaller="${this.unVerifiedCaller}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
