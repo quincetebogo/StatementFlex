@@ -60,26 +60,26 @@ export class HorizonLabel extends Component {
 			super.styles,
 			css`
 				.wrapper{
-
+					height: 56px;
 				}
 
 				.label-text{
-					height: 21px;
+					height: 16px;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-size: 14px;
 					letter-spacing: 0;
-					line-height: 21px;
+					line-height: 16px;
 				}
 
 				.label-value{
-					height: 27px;
+					height: 20px;
 					color: #003652;
 					font-family: "Hind Vadodara";
 					font-size: 18px;
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 27px;
+					line-height: 20px;
 				}
 			`]
 	}

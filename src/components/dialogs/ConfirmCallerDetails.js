@@ -14,6 +14,7 @@ import './EndCallSessionReason';
 import '../../components/Common/HorizonLabel'
 import '../../components/Common/HorizonSelect'
 import './SearchClientDetails';
+import './Insure/ConfirmCaller';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -24,7 +25,8 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
 	END_CALL: 2,
-	SEARCH_CALLER: 3
+	SEARCH_CALLER: 3,
+	INSURE_CONFIRM_CALLER: 4
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -186,6 +188,9 @@ export class ConfirmCallerDetails extends Component {
 
 	_ivrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.key;
+		if (e.detail.new.key === "Insure") {
+			this.renderMode = RENDER_MODE.INSURE_CONFIRM_CALLER;
+		}
 	}
 
 	// --------------
@@ -410,6 +415,9 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`${this.renderSearchCallerModal()}`;
+
+			case RENDER_MODE.INSURE_CONFIRM_CALLER:
+				return html`${this.renderInsureConfirmCallerModal()}`;
 		}
 	}
 
@@ -594,6 +602,10 @@ export class ConfirmCallerDetails extends Component {
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
+	}
+
+	renderInsureConfirmCallerModal() {
+		return html`<horizon-insure-confirm-caller></horizon-insure-confirm-caller>`;
 	}
 }
 
