@@ -82,10 +82,12 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	async _onAddCallerDetails() {
+
+		let selectedIvrOption = this.ivrOption.possibleValues.find((row) => this._checkSelectedIvrOption(row));
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
-			ivrOption: 'StopCard',
+			ivrOption: selectedIvrOption.key,
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
@@ -96,13 +98,18 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+
+
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
+
+		let selectedValue = this.ivrOption.possibleValues.find((row) => this._checkSelectedIvrOption(row));
+
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
+			ivrOptionCode: selectedValue.key,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
@@ -119,7 +126,7 @@ export class ConfirmCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: 'StopCard',
+						ivrOptionCode: this.ivrOption.value,
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
@@ -133,6 +140,8 @@ export class ConfirmCallerDetails extends Component {
 		if (event.detail.unverifiedCaller === undefined) {
 			// We got here by ending the call from this dialog.
 			// we return the the caller with the information from this dialog and the end call reason
+
+
 			let confirmedCaller = {
 				voiceReferenceNumber: this.voiceReferenceNumber.value,
 				ivrOption: this.ivrOption.value,
@@ -185,7 +194,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_ivrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.key;
+		this.ivrOption.value = e.detail.new.value;
 	}
 
 	// --------------
@@ -218,6 +227,13 @@ export class ConfirmCallerDetails extends Component {
 		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
 	}
 
+	_checkSelectedIvrOption(selectedNeed) {
+
+		if (selectedNeed.value === this.ivrOption.value) {
+			return true;
+		}
+		return false;
+	}
 	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 

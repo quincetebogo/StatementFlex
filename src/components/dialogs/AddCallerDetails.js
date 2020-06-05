@@ -130,7 +130,7 @@ export class AddCallerDetails extends Component {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
+			ivrOptionCode: this.ivrOption.value,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
@@ -148,7 +148,7 @@ export class AddCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: 'StopCard',
+						ivrOptionCode: this.ivrOption.value,
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
