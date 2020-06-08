@@ -298,6 +298,7 @@ export class ConfirmCallerDetails extends Component {
 				.horizon-add-caller-details-div{
 					height: 56px;
 					background: rgba(212,120,28,0.1);
+					margin: 0px;
 				}
 
 				#action-icon{
@@ -554,7 +555,7 @@ export class ConfirmCallerDetails extends Component {
 			<capitec-group layout="horizontal" gap="none"
 				class="horizon-add-caller-details-div"
 				?hidden=${isHidden(this.addCallerDetailsButton)}>
-					<capitec-icon size="medium" id="action-icon" icon="status/warning"></capitec-icon>
+					<capitec-icon size="medium" id="action-icon" icon="status/warning-trans"></capitec-icon>
 					<p id="action-label"
 						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
 						@click="${() => this._onAddCallerDetails()}">
