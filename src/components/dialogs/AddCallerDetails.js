@@ -156,7 +156,7 @@ export class AddCallerDetails extends Component {
 	_onBackButtonClick() {
 		this.dispatchEvent(new CustomEvent('on-back', {
 			detail: {
-				ivrOptionValue: this._getIvrOptionKey(this.ivrOption)
+				ivrOptionValue: this.ivrOption.value
 			}
 		}));
 	};

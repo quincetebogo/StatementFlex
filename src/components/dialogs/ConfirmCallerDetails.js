@@ -13,9 +13,10 @@ import './stopCard/SearchClientDetails';
 
 import './AddCallerDetails';
 import './EndCallSessionReason';
+import './stopCard/SearchClientDetails';
 
-import '../../components/Common/HorizonLabel'
-import '../../components/Common/HorizonSelect'
+import '../../components/Common/HorizonLabel';
+import '../../components/Common/HorizonSelect';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -243,7 +244,7 @@ export class ConfirmCallerDetails extends Component {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 
 		if (languagePreference === null) {
-			languagePreference = '';
+			languagePreference = '-';
 		}
 		return languagePreference;
 	}
@@ -252,7 +253,7 @@ export class ConfirmCallerDetails extends Component {
 		let verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
 
 		if (verifiedTelephoneNumber === null) {
-			verifiedTelephoneNumber = '';
+			verifiedTelephoneNumber = '-';
 		}
 		return verifiedTelephoneNumber;
 	}
@@ -289,16 +290,24 @@ export class ConfirmCallerDetails extends Component {
 				.call-details-bar{
 					display: flex;
 					flex-direction: row;
-					height:64px;
+					height: 56px;
 					margin: 0px;
 					border-bottom: 1px solid #dfdfdf;
 				}
 
 				.call-label{
 					width:208px;
-					margin-left:24px;
+					margin-left:16px;
 					margin-top:8px;
 					margin-bottom:8px;
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #545D60;
+					--horizon-label-text-font-size: 12px;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #545D60;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
 				}
 
 				.left-border{
@@ -309,58 +318,11 @@ export class ConfirmCallerDetails extends Component {
 					width: 228px;
 				}
 
-				#label-ivr{
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					line-height: 27px;
-					width: 100%;
-					margin-top: 8px;
-				}
-
-				.horizon-add-caller-details-div{
-					width: 648px;
-					height: 56px;
-					margin-top: 24px;
-					margin-left:21.6px;
-					margin-right:18.6px;
-					background: #DAF5F3;
-				}
-
-				#action-icon{
-					width:22px;
-					height:22px;
-					margin-top:17px;
-					margin-left:24px;
-				}
-
-				#action-label{
-					margin-top: 16px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";
-					font-weight: 800;
-					text-decoration:underline;
-					align: center;
-					padding: 0px 0px 0px 8px;
-					cursor: pointer;
-				}
-
-				#action-display{
-					margin-top; 16px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";
-					font-weight: 500;
-					align: center;
-					padding: 0px 0px 0px 0px;
-				}
-
 				.image{
 					width: 200px;
 					height: 200px;
 					padding: 0px;
-					margin-left: 24px;
-					margin-top: 27px;
+					margin-top: 16px;
 					background: gainsboro;
 					display: inline-block;
 				}
@@ -371,33 +333,139 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#id-caller-group{
-					margin-left:24px; 
-					margin-top:27px;
+					margin-left: 25px;
+					margin-top: 16px;
 				}
 
 				.fullname{
-					height: 30px;
+					height: 34px;
 					width: auto;
-					color: #003652;
+					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 20px;
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 30px;					
-				}
-
-				.line{
-					width:100%;
-					margin-top:30px;
-					border-top:1px solid #dfdfdf;"
+					line-height: 28px;
 				}
 
 				#id-search-button{
-					margin-right:232px;				
+					margin-right: 10px;
+					height: 48px;
+					width: 133px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
 				}
 
-				#id-confirm-button{
-					margin-right:12px;
+				#id-confirm-button {
+					height: 48px;
+					width: 105px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
+				}
+
+				capitec-modal{
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-padding-top: 31px;
+					--theme-modal-header-padding-bottom: 31px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
+					--theme-modal-footer-padding: 7px 16px 9px 0px;
+				}
+
+				div[slot="header"]{
+					width: 693px;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -670px;
+					top: -25px;
+				}
+
+				div[slot="header"] > span{
+					height: 24px;
+					width: 190px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					padding-left: 17px;
+					margin-right: 355px;
+				}
+
+				div[slot="header"] > capitec-button{
+					width: 130px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-left: 16px;
+					--theme-button-default-background-color: #FF2B25;
+					--theme-button-default-border-color: #FF2B25;
+					--theme-button-default-font-color: rgb(255, 255, 255);
+					--theme-button-default-background-tapped-color: #FF2B25;
+				}
+
+				.end-call-icon{
+					margin: 0px;
+					margin-left: 14px;
+					margin-top: -5px;
+				}
+
+				div[slot="body"]{
+					width: 690px;
+					height: 387px;
+				}
+
+				horizon-label{
+					height: var(--horizon-label-text-height, 21px);
+					color: var(--horizon-label-text-color, #4E6066);
+					font-family: "Hind Vadodara";
+					font-size: var(--horizon-label-text-font-size, 14px);
+					letter-spacing: 0;
+					line-height: var(--horizon-label-text-line-height, 21px);
+				}
+				capitec-content-box{
+					height: 332px;
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-right: 17px;
+				}
+				.client-info-row {
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #545D60;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #545D60;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-margin-top: 4px;
+					height: 56px;
+					width: 216px;
+					justify-content: center;
+				}
+				.client-need-option {
+					--horizon-select-inner-wrapper-margin-top: 10px;
+					--horizon-select-inner-wrapper-height: 36px;
+					--horizon-select-outer-wrapper-margin-left: 16px;
+					--horizon-select-label-text-height: 16px;
+					--horizon-select-label-text-color: #545D60;
+					--horizon-select-label-text-font-size: 12px;
+					--horizon-select-label-text-line-height: 16px;
+					--horizon-select-label-value-height: 20px;
+					--horizon-select-label-value-color: #545D60;
+					--horizon-select-label-value-font-size: 16px;
+					--horizon-select-label-value-line-height: 20px;
+				}
+
+				#id-banner-addcallerdetails{
+					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
+					--theme-alert-banner-icon-margin-left: 16px;
 				}
 			`];
 	}
@@ -411,17 +479,25 @@ export class ConfirmCallerDetails extends Component {
 				return html`
 				<capitec-modal
 						type="free"
-						header="Confirm Caller Details"
 						header-align="left">
+					<div slot="header">
+						<span>Confirm Caller Details</span>
+						<capitec-button label="End Call" 
+										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+						</capitec-button>
+					</div>
 					<div slot="body">
 						${this.renderCallInformation()}
-						${this.renderAddCallerDetails()}
-						${this.renderConfirmedCaller()} 
-						${this.renderLoadingIndicator()}
+						<capitec-content-box>
+							${this.renderAddCallerDetails()}
+							${this.renderConfirmedCaller()} 
+							${this.renderLoadingIndicator()}
+						</capitec-content-box>
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
-					<div> 
+					<div>
 				</capitec-modal>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
@@ -447,8 +523,8 @@ export class ConfirmCallerDetails extends Component {
 				</horizon-label>
 				<div class="ivr-option left-border">
 					<horizon-select
-						id="label-ivr"
-						label="IVR Option Selected"
+						class="client-need-option"
+						label="Client Need"
 						display-field="value"
 						.items="${this.ivrOption.possibleValues}"
 						.value="${this.ivrOption.value}"
@@ -466,27 +542,23 @@ export class ConfirmCallerDetails extends Component {
 						?hidden=${isHidden(this.incomingTelephoneNumber)}>
 					</horizon-label>
 				<div>
-			</div>`
+			</div>`;
 	}
 
 	renderAddCallerDetails() {
 		return html`
-			<capitec-group layout="horizontal" gap="none"
-				class="horizon-add-caller-details-div" 
-				?hidden=${isHidden(this.addCallerDetailsButton)}>
-					<img src="../images/info.svg" id="action-icon"/>
-					<p id="action-label" 
-						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
-						@click="${() => this._onAddCallerDetails()}">
-						Add Caller Details
-					</p> 
-					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-			</capitec-group>`;
+		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+			<capitec-hyperlink 
+				label="Add Caller Details" 
+				tabindex="${getTabIndex(this.addCallerDetailsButton)}"
+				@click="${() => this._onAddCallerDetails()}">
+			</capitec-hyperlink> 
+			if the caller is calling on another client's behalf
+		</capitec-alert-banner>`;
 	}
 
 	renderConfirmedCaller() {
 		return html`
-				<!-- <capitec-group layout="grid" gap="clear" columns="uniform" rows="auto"> -->
 				<capitec-group class="client-info" layout="horizontal" gap="none">
 					<capitec-avatar
 						class="image"
@@ -494,14 +566,14 @@ export class ConfirmCallerDetails extends Component {
 						value = ""
 						tabindex="-1">
 					</capitec-avatar>
-					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
+					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
-							id="label-value"
 							label="${this.callerFullName.value}"
 							tabindex="${getTabIndex(this.callerFullName)}"
 							?hidden=${isHidden(this.callerFullName)}>
 						</capitec-label>
 						<horizon-label
+							class="client-info-row"
 							row = "2" column = "1" 
 							label="ID Number"
 							value="${this.southAfricanIDNumber.value}"
@@ -509,6 +581,7 @@ export class ConfirmCallerDetails extends Component {
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</horizon-label>
 						<horizon-label
+							class="client-info-row"
 							row = "2" column = "2"
 							label="Verified Cellphone Number"
 							value="${this._getVerifiedTelephoneNumber()}"
@@ -516,6 +589,7 @@ export class ConfirmCallerDetails extends Component {
 							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</horizon-label>
 						<horizon-label
+						class="client-info-row"
 							row="3" columun = "1"
 							label="Lives In"
 							value="${this.livesIn.value}"
@@ -523,6 +597,7 @@ export class ConfirmCallerDetails extends Component {
 							?hidden=${isHidden(this.livesIn)}>
 						</horizon-label>
 						<horizon-label
+							class="client-info-row"
 							row="3" columun = "2"
 							label="Language Preference"
 							value="${this._getLanguagePreference()}"
@@ -530,6 +605,7 @@ export class ConfirmCallerDetails extends Component {
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
+							class="client-info-row";
 							row="4" columun = "1"
 							label="Birthday"
 							value="${this._getBirthdate(this.birthdate)}"
@@ -538,8 +614,6 @@ export class ConfirmCallerDetails extends Component {
 						</horizon-label>
 					</capitec-group>
 				</capitec-group>
-
-				<div class="line"></div>
 		 `;
 	}
 
@@ -558,15 +632,6 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-button>
 
 				<capitec-button
-					type="clear"
-					label="End Call Session"
-					?hidden=${isHidden(this.endCallSessionButton)}
-					.disabled="${isDisabled(this.endCallSessionButton)}"
-					tabindex="${getTabIndex(this.endCallSessionButton)}"
-					@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-				</capitec-button>
-
-				<capitec-button
 					id="id-confirm-button"
 					type="primary"
 					label="Confirm"
@@ -575,7 +640,7 @@ export class ConfirmCallerDetails extends Component {
 					tabindex="${getTabIndex(this.confirmButton)}"
 					@click="${() => this._onConfirmClick()}">
 				</capitec-button>
-			</capitec-group>			
+			</capitec-group>
 			`;
 	}
 
@@ -619,6 +684,7 @@ export class ConfirmCallerDetails extends Component {
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
 	}
+
 }
 
 window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails)
