@@ -293,6 +293,14 @@ export class ConfirmCallerDetails extends Component {
 					margin-left:24px;
 					margin-top:8px;
 					margin-bottom:8px;
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #545D60;
+					--horizon-label-text-font-size: 12px;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #545D60;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
 				}
 
 				.left-border{
@@ -314,11 +322,7 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				.horizon-add-caller-details-div{
-					width: 648px;
 					height: 56px;
-					margin-top: 12px;
-					margin-left: 16px;
-					margin-right: 17px;
 					background: rgba(212,120,28,0.1);
 				}
 
@@ -353,7 +357,6 @@ export class ConfirmCallerDetails extends Component {
 					width: 200px;
 					height: 200px;
 					padding: 0px;
-					margin-left: 17px;
 					margin-top: 24px;
 					background: gainsboro;
 					display: inline-block;
@@ -370,9 +373,9 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				.fullname{
-					height: 28px;
+					height: 34px;
 					width: auto;
-					color: #003652;
+					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 20px;
 					font-weight: 600;
@@ -467,11 +470,38 @@ export class ConfirmCallerDetails extends Component {
 					letter-spacing: 0;
 					line-height: var(--horizon-label-text-line-height, 21px);
 				}
-				.value-width {
-
+				capitec-content-box{
+					height: 332px;
+					--theme-container-padding-top: 12px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-right: 17px;
 				}
-				.label-width {
-					padding-right: 40px;
+				.client-info-row {
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #545D60;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #545D60;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-margin-top: 4px;
+					height: 56px;
+					width: 216px;
+					justify-content: center;
+				}
+				.client-need-option {
+					--horizon-select-inner-wrapper-height: 36px;
+					--horizon-select-outer-wrapper-margin-left: 16px;
+					--horizon-select-label-text-height: 16px;
+					--horizon-select-label-text-color: #545D60;
+					--horizon-select-label-text-font-size: 12px;
+					--horizon-select-label-text-line-height: 16px;
+					--horizon-select-label-value-height: 20px;
+					--horizon-select-label-value-color: #545D60;
+					--horizon-select-label-value-font-size: 16px;
+					--horizon-select-label-value-line-height: 20px;
 				}
 			`];
 	}
@@ -494,9 +524,11 @@ export class ConfirmCallerDetails extends Component {
 					</div>
 					<div slot="body">
 						${this.renderCallInformation()}
-						${this.renderAddCallerDetails()}
-						${this.renderConfirmedCaller()} 
-						${this.renderLoadingIndicator()}
+						<capitec-content-box>
+							${this.renderAddCallerDetails()}
+							${this.renderConfirmedCaller()} 
+							${this.renderLoadingIndicator()}
+						</capitec-content-box>
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
@@ -527,7 +559,8 @@ export class ConfirmCallerDetails extends Component {
 				</horizon-label>
 				<div class="ivr-option left-border">
 					<horizon-select
-						label="IVR Option Selected"
+						class="client-need-option"
+						label="Client Need"
 						display-field="value"
 						.items="${this.ivrOptions}"
 						.value="Insure">
@@ -551,55 +584,54 @@ export class ConfirmCallerDetails extends Component {
 					<p id="action-label"
 						@click="${() => this._onAddCallerDetails()}">
 						Add Caller Details
-					</p> 
+					</p>
 					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
 			</capitec-group>`;
 	}
 
 	renderConfirmedCaller() {
 		return html`
-				<!-- <capitec-group layout="grid" gap="clear" columns="uniform" rows="auto"> -->
 				<capitec-group class="client-info" layout="horizontal" gap="none">
 					<capitec-avatar
 						class="image"
 						shape = "none"
 						value = "">
 					</capitec-avatar>
-					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
-					<capitec-label row = "1" column = "1" colspan="2" class="fullname"
-						id="label-value"
-						label="Mr I. Makatini">
-					</capitec-label>
-					<horizon-label
-						class="label-width"
-						row = "2" column = "1" 
-						label="ID Number"
-						value="8812114098081">
-					</horizon-label>
-					<horizon-label
-						class="value-width"
-						row = "2" column = "2"
-						label="Verified Cellphone Number"
-						value="082 555 9090">
-					</horizon-label>
-					<horizon-label
-					class="label-width"
-						row="3" columun = "1"
-						label="Lives In"
-						value="Stellenbosch">
-					</horizon-label>
-					<horizon-label
-						class="value-width"
-						row="3" columun = "2"
-						label="Language Preference"
-						value="English">
-					</horizon-label>
-					<horizon-label
-						class="label-width";
-						row="4" columun = "1"
-						label="Birthday"
-						value="14 December">
-					</horizon-label>
+					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
+						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
+							label="Mr I. Makatini">
+						</capitec-label>
+						<horizon-label
+							class="client-info-row"
+							row = "2" column = "1" 
+							label="ID Number"
+							value="8812114098081">
+						</horizon-label>
+						<horizon-label
+							class="client-info-row"
+							row = "2" column = "2"
+							label="Verified Cellphone Number"
+							value="082 555 9090">
+						</horizon-label>
+						<horizon-label
+						class="client-info-row"
+							row="3" columun = "1"
+							label="Lives In"
+							value="Stellenbosch">
+						</horizon-label>
+						<horizon-label
+							class="client-info-row"
+							row="3" columun = "2"
+							label="Language Preference"
+							value="English">
+						</horizon-label>
+						<horizon-label
+							class="client-info-row";
+							row="4" columun = "1"
+							label="Birthday"
+							value="14 December">
+						</horizon-label>
+					</capitec-group>
 				</capitec-group>
 		 `;
 	}
