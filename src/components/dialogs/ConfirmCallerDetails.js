@@ -318,44 +318,11 @@ export class ConfirmCallerDetails extends Component {
 					width: 228px;
 				}
 
-				.horizon-add-caller-details-div{
-					height: 56px;
-					background: rgba(212,120,28,0.1);
-					margin: 0px;
-				}
-
-				#action-icon{
-					width:22px;
-					height:22px;
-					margin-top:17px;
-					margin-left:24px;
-				}
-
-				#action-label{
-					margin-top: 16px;
-					color: #D4781C;
-					font-family: "Hind Vadodara";
-					font-weight: 800;
-					text-decoration:underline;
-					align: center;
-					padding: 0px 0px 0px 8px;
-					cursor: pointer;
-				}
-
-				#action-display{
-					margin-top; 16px;
-					color: #D4781C;
-					font-family: "Hind Vadodara";
-					font-weight: 500;
-					align: center;
-					padding: 0px 0px 0px 0px;
-				}
-
 				.image{
 					width: 200px;
 					height: 200px;
 					padding: 0px;
-					margin-top: 24px;
+					margin-top: 16px;
 					background: gainsboro;
 					display: inline-block;
 				}
@@ -367,7 +334,7 @@ export class ConfirmCallerDetails extends Component {
 
 				#id-caller-group{
 					margin-left: 25px;
-					margin-top: 24px;
+					margin-top: 16px;
 				}
 
 				.fullname{
@@ -463,7 +430,7 @@ export class ConfirmCallerDetails extends Component {
 				}
 				capitec-content-box{
 					height: 332px;
-					--theme-container-padding-top: 12px;
+					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-right: 17px;
@@ -495,6 +462,7 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-select-label-value-font-size: 16px;
 					--horizon-select-label-value-line-height: 20px;
 				}
+
 				#id-banner-addcallerdetails{
 					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
 					--theme-alert-banner-icon-margin-left: 16px;
@@ -580,21 +548,13 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink label="Add Caller Details" @click="${() => this._onAddCallerDetails()}"></capitec-hyperlink> 
+			<capitec-hyperlink 
+				label="Add Caller Details" 
+				tabindex="${getTabIndex(this.addCallerDetailsButton)}"
+				@click="${() => this._onAddCallerDetails()}">
+			</capitec-hyperlink> 
 			if the caller is calling on another client's behalf
 		</capitec-alert-banner>`;
-		return html`
-			<capitec-group layout="horizontal" gap="none"
-				class="horizon-add-caller-details-div"
-				?hidden=${isHidden(this.addCallerDetailsButton)}>
-					<capitec-icon size="medium" id="action-icon" icon="status/warning-trans"></capitec-icon>
-					<p id="action-label"
-						tabindex="${getTabIndex(this.addCallerDetailsButton)}"
-						@click="${() => this._onAddCallerDetails()}">
-						Add Caller Details
-					</p>
-					<p id="action-display">&nbsp;if the caller is calling on another client's behalf</p>
-			</capitec-group>`;
 	}
 
 	renderConfirmedCaller() {
