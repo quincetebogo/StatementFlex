@@ -48,14 +48,10 @@ export class ServiceCallHelper {
 	 */
 	async asyncCall(serviceCall, errorHandler = null) {
 		try {
-			console.log("In call wrapper");
-
 			this._clearError();
 			this.toggleBusyFlag();
 
-			console.log("Making service call");
 			let result = await serviceCall;
-			console.log("Made service call");
 
 			if (isNullorEmpty(result)) {
 				throw new HttpStatusError("No Content", 204, result);
@@ -67,11 +63,9 @@ export class ServiceCallHelper {
 			this._handleException(errorHandler, exception);
 		}
 		finally {
-			console.log('Leaving call wrapper');
 			this.toggleBusyFlag();
 		}
 
-		console.log('call wrapper returning null');
 		return null;
 	}
 
@@ -84,25 +78,18 @@ export class ServiceCallHelper {
 	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
 	 */
 	call(serviceCall, resultHandler, errorHandler = null) {
-		console.log("In call wrapper");
-
 		this._clearError();
 		this.toggleBusyFlag();
 
-		console.log("Making service call");
-
 		serviceCall
 			.then((result) => {
-				console.log("Made service call");
 				resultHandler(result);
 			})
 			.catch((exception) => {
 				this._handleException(errorHandler, exception);
-				console.log('call wrapper returning null');
 				return null;
 			})
 			.finally(() => {
-				console.log('Leaving call wrapper');
 				this.toggleBusyFlag();
 			})
 	}
@@ -115,7 +102,6 @@ export class ServiceCallHelper {
 	}
 
 	_handleException(errorHandler, exception) {
-		console.log("Service call failed");
 		let handled = false;
 		if (errorHandler !== null) {
 			// Call the specific error handler if passed to this method
