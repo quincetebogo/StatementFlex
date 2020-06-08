@@ -181,7 +181,7 @@ export class HorizonSelect extends Component {
 				.inner-wrapper{
 					width: 164px;
 					height: var(--horizon-select-inner-wrapper-height, 48px);
-					margin-top: var(--horizon-select-inner-wrapper-margin-top, 10px);
+					margin-top: var(--horizon-select-inner-wrapper-margin-top, 0px);
 				}
 
 				.label-text{
