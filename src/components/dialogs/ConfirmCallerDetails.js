@@ -243,7 +243,7 @@ export class ConfirmCallerDetails extends Component {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 
 		if (languagePreference === null) {
-			languagePreference = '';
+			languagePreference = '-';
 		}
 		return languagePreference;
 	}
@@ -252,7 +252,7 @@ export class ConfirmCallerDetails extends Component {
 		let verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
 
 		if (verifiedTelephoneNumber === null) {
-			verifiedTelephoneNumber = '';
+			verifiedTelephoneNumber = '-';
 		}
 		return verifiedTelephoneNumber;
 	}
@@ -296,7 +296,7 @@ export class ConfirmCallerDetails extends Component {
 
 				.call-label{
 					width:208px;
-					margin-left:24px;
+					margin-left:16px;
 					margin-top:8px;
 					margin-bottom:8px;
 					--horizon-label-text-height: 16px;
@@ -494,6 +494,10 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-select-label-value-font-size: 16px;
 					--horizon-select-label-value-line-height: 20px;
 				}
+				#id-banner-addcallerdetails{
+					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
+					--theme-alert-banner-icon-margin-left: 16px;
+				}
 			`];
 	}
 
@@ -573,6 +577,11 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	renderAddCallerDetails() {
+		return html`
+		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+			<capitec-hyperlink label="Add Caller Details" @click="${() => this._onAddCallerDetails()}"></capitec-hyperlink> 
+			if the caller is calling on another client's behalf
+		</capitec-alert-banner>`;
 		return html`
 			<capitec-group layout="horizontal" gap="none"
 				class="horizon-add-caller-details-div"
