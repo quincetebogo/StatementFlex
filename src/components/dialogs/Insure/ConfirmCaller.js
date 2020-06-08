@@ -6,8 +6,8 @@ import { Component, html, css } from 'platform/elements';
 
 import '../AddCallerDetails';
 import '../EndCallSessionReason';
-import '../../Common/HorizonLabel'
-import '../../Common/HorizonSelect'
+import '../../Common/HorizonLabel';
+import '../../Common/HorizonSelect';
 import '../SearchClientDetails';
 
 import { StopCardService } from '../../../services/StopCardService';
@@ -68,7 +68,8 @@ export class InsureConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		//this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this._initReferences();
 	}
 
 	// --------------
@@ -428,8 +429,7 @@ export class InsureConfirmCallerDetails extends Component {
 					width: 690px;
 					height: 387px;
 				}
-				
-				}
+
 				horizon-label{
 					height: var(--horizon-label-text-height, 21px);
 					color: var(--horizon-label-text-color, #4E6066);
@@ -437,10 +437,6 @@ export class InsureConfirmCallerDetails extends Component {
 					font-size: var(--horizon-label-text-font-size, 14px);
 					letter-spacing: 0;
 					line-height: var(--horizon-label-text-line-height, 21px);
-				}
-				button{
-					height: 48px;
-					width: 133px;
 				}
 			`];
 	}
@@ -469,7 +465,7 @@ export class InsureConfirmCallerDetails extends Component {
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
-					<div> 
+					<div>
 				</capitec-modal>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
@@ -594,8 +590,8 @@ export class InsureConfirmCallerDetails extends Component {
 		}
 		else
 			return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+				<capitec-loading-indicator></capitec-loading-indicator>
+		`;
 	}
 
 	renderAddCallerDetailsModal() {

@@ -11,8 +11,8 @@ import 'platform/components/core/Icon';
 
 import './AddCallerDetails';
 import './EndCallSessionReason';
-import '../../components/Common/HorizonLabel'
-import '../../components/Common/HorizonSelect'
+import '../../components/Common/HorizonLabel';
+import '../../components/Common/HorizonSelect';
 import './SearchClientDetails';
 import './Insure/ConfirmCaller';
 
@@ -50,6 +50,17 @@ export class ConfirmCallerDetails extends Component {
 		);
 
 		this.isBusy = false;
+
+		this.ivrOptions = [
+			{
+				"key": "StopCard",
+				"value": "Stop Card"
+			},
+			{
+				"key": "Insure",
+				"value": "Insure"
+			}
+		];
 	}
 
 	// ----------
@@ -188,9 +199,9 @@ export class ConfirmCallerDetails extends Component {
 
 	_ivrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.key;
-		if (e.detail.new.key === "Insure") {
-			this.renderMode = RENDER_MODE.INSURE_CONFIRM_CALLER;
-		}
+		// if (e.detail.new.key === "Insure") {
+		// 	this.renderMode = RENDER_MODE.INSURE_CONFIRM_CALLER;
+		// }
 	}
 
 	// --------------
@@ -272,7 +283,7 @@ export class ConfirmCallerDetails extends Component {
 				.call-details-bar{
 					display: flex;
 					flex-direction: row;
-					height:64px;
+					height: 56px;
 					margin: 0px;
 					border-bottom: 1px solid #dfdfdf;
 				}
@@ -305,10 +316,10 @@ export class ConfirmCallerDetails extends Component {
 				.horizon-add-caller-details-div{
 					width: 648px;
 					height: 56px;
-					margin-top: 24px;
-					margin-left:21.6px;
-					margin-right:18.6px;
-					background: #DAF5F3;
+					margin-top: 12px;
+					margin-left: 16px;
+					margin-right: 17px;
+					background: rgba(212,120,28,0.1);
 				}
 
 				#action-icon{
@@ -320,7 +331,7 @@ export class ConfirmCallerDetails extends Component {
 
 				#action-label{
 					margin-top: 16px;
-					color: #08A6B5;
+					color: #D4781C;
 					font-family: "Hind Vadodara";
 					font-weight: 800;
 					text-decoration:underline;
@@ -331,7 +342,7 @@ export class ConfirmCallerDetails extends Component {
 
 				#action-display{
 					margin-top; 16px;
-					color: #08A6B5;
+					color: #D4781C;
 					font-family: "Hind Vadodara";
 					font-weight: 500;
 					align: center;
@@ -342,8 +353,8 @@ export class ConfirmCallerDetails extends Component {
 					width: 200px;
 					height: 200px;
 					padding: 0px;
-					margin-left: 24px;
-					margin-top: 27px;
+					margin-left: 17px;
+					margin-top: 24px;
 					background: gainsboro;
 					display: inline-block;
 				}
@@ -354,19 +365,19 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#id-caller-group{
-					margin-left:24px; 
-					margin-top:27px;
+					margin-left: 25px;
+					margin-top: 24px;
 				}
 
 				.fullname{
-					height: 30px;
+					height: 28px;
 					width: auto;
 					color: #003652;
 					font-family: "Hind Vadodara";
 					font-size: 20px;
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 30px;					
+					line-height: 28px;
 				}
 
 				.line{
@@ -376,11 +387,91 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				#id-search-button{
-					margin-right:232px;				
+					margin-right: 10px;
+					height: 48px;
+					width: 133px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
 				}
 
-				#id-confirm-button{
-					margin-right:12px;
+				#id-search-button{
+					margin-right: 10px;
+					height: 48px;
+					width: 133px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
+				}
+
+				capitec-modal{
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-padding-top: 31px;
+					--theme-modal-header-padding-bottom: 31px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
+					--theme-modal-footer-padding: 7px 16px 9px 0px;
+				}
+
+				div[slot="header"]{
+					width: 693px;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -670px;
+					top: -25px;
+				}
+
+				div[slot="header"] > span{
+					height: 24px;
+					width: 190px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					padding-left: 17px;
+					margin-right: 355px;
+				}
+
+				div[slot="header"] > capitec-button{
+					width: 130px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-left: 16px;
+					--theme-button-default-background-color: #FF2B25;
+					--theme-button-default-border-color: #FF2B25;
+					--theme-button-default-font-color: rgb(255, 255, 255);
+					--theme-button-default-background-tapped-color: #FF2B25;
+				}
+
+				.end-call-icon{
+					margin: 0px;
+					margin-left: 14px;
+					margin-top: -5px;
+				}
+
+				div[slot="body"]{
+					width: 690px;
+					height: 387px;
+				}
+
+				horizon-label{
+					height: var(--horizon-label-text-height, 21px);
+					color: var(--horizon-label-text-color, #4E6066);
+					font-family: "Hind Vadodara";
+					font-size: var(--horizon-label-text-font-size, 14px);
+					letter-spacing: 0;
+					line-height: var(--horizon-label-text-line-height, 21px);
+				}
+				.value-width {
+
+				}
+				.label-width {
+					padding-right: 40px;
 				}
 			`];
 	}
@@ -394,8 +485,13 @@ export class ConfirmCallerDetails extends Component {
 				return html`
 				<capitec-modal
 						type="free"
-						header="Confirm Caller Details"
 						header-align="left">
+					<div slot="header">
+						<span>Confirm Caller Details</span>
+						<capitec-button label="End Call">
+							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+						</capitec-button>
+					</div>
 					<div slot="body">
 						${this.renderCallInformation()}
 						${this.renderAddCallerDetails()}
@@ -404,7 +500,7 @@ export class ConfirmCallerDetails extends Component {
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
-					<div> 
+					<div>
 				</capitec-modal>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
@@ -416,8 +512,8 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`${this.renderSearchCallerModal()}`;
 
-			case RENDER_MODE.INSURE_CONFIRM_CALLER:
-				return html`${this.renderInsureConfirmCallerModal()}`;
+			// case RENDER_MODE.INSURE_CONFIRM_CALLER:
+			// 	return html`${this.renderInsureConfirmCallerModal()}`;
 		}
 	}
 
@@ -427,42 +523,32 @@ export class ConfirmCallerDetails extends Component {
 				<horizon-label 
 					class="call-label"
 					label="Reference Number" 
-					value = "${this.voiceReferenceNumber.value}"
-					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-					?hidden=${isHidden(this.voiceReferenceNumber)}>
+					value = "34567893">
 				</horizon-label>
 				<div class="ivr-option left-border">
 					<horizon-select
-						id="label-ivr"
 						label="IVR Option Selected"
 						display-field="value"
-						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.value}"
-						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._ivrOptionChanged(e)}">
+						.items="${this.ivrOptions}"
+						.value="Insure">
 					</horizon-select>
 				</div>
 				<div class="left-border">
 					<horizon-label
 						class="call-label"
 						label="Incoming Number"
-						value="${this.incomingTelephoneNumber.value}"
-						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-						?hidden=${isHidden(this.incomingTelephoneNumber)}>
+						value="082 555 9090">
 					</horizon-label>
 				<div>
-			</div>`
+			</div>`;
 	}
 
 	renderAddCallerDetails() {
 		return html`
 			<capitec-group layout="horizontal" gap="none"
-				class="horizon-add-caller-details-div" 
-				?hidden=${isHidden(this.addCallerDetailsButton)}>
-					<img src="../images/info.svg" id="action-icon"/>
-					<p id="action-label" 
-						tabindex="${getTabIndex(this.addCallerDetailsButton)}" 
+				class="horizon-add-caller-details-div">
+					<capitec-icon size="medium" id="action-icon" icon="status/warning"></capitec-icon>
+					<p id="action-label"
 						@click="${() => this._onAddCallerDetails()}">
 						Add Caller Details
 					</p> 
@@ -477,55 +563,44 @@ export class ConfirmCallerDetails extends Component {
 					<capitec-avatar
 						class="image"
 						shape = "none"
-						value = ""
-						tabindex="-1">
+						value = "">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="clear" columns="uniform" rows="auto"> 
-						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
-							id="label-value"
-							label="${this.callerFullName.value}"
-							tabindex="${getTabIndex(this.callerFullName)}"
-							?hidden=${isHidden(this.callerFullName)}>
-						</capitec-label>
-						<horizon-label
-							row = "2" column = "1" 
-							label="ID Number"
-							value="${this.southAfricanIDNumber.value}"
-							tabindex="${getTabIndex(this.southAfricanIDNumber)}"
-							?hidden=${isHidden(this.southAfricanIDNumber)}>
-						</horizon-label>
-						<horizon-label
-							row = "2" column = "2"
-							label="Verified Cellphone Number"
-							value="${this._getVerifiedTelephoneNumber()}"
-							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
-							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
-						</horizon-label>
-						<horizon-label
-							row="3" columun = "1"
-							label="Lives In"
-							value="${this.livesIn.value}"
-							tabindex="${getTabIndex(this.livesIn)}"
-							?hidden=${isHidden(this.livesIn)}>
-						</horizon-label>
-						<horizon-label
-							row="3" columun = "2"
-							label="Language Preference"
-							value="${this._getLanguagePreference()}"
-							tabindex="${getTabIndex(this.languagePreference)}"
-							?hidden=${isHidden(this.languagePreference)}>
-						</horizon-label>
-						<horizon-label
-							row="4" columun = "1"
-							label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}"
-							tabindex="${getTabIndex(this.birthdate)}"
-							?hidden=${isHidden(this.birthdate)}>
-						</horizon-label>
-					</capitec-group>
+					<capitec-label row = "1" column = "1" colspan="2" class="fullname"
+						id="label-value"
+						label="Mr I. Makatini">
+					</capitec-label>
+					<horizon-label
+						class="label-width"
+						row = "2" column = "1" 
+						label="ID Number"
+						value="8812114098081">
+					</horizon-label>
+					<horizon-label
+						class="value-width"
+						row = "2" column = "2"
+						label="Verified Cellphone Number"
+						value="082 555 9090">
+					</horizon-label>
+					<horizon-label
+					class="label-width"
+						row="3" columun = "1"
+						label="Lives In"
+						value="Stellenbosch">
+					</horizon-label>
+					<horizon-label
+						class="value-width"
+						row="3" columun = "2"
+						label="Language Preference"
+						value="English">
+					</horizon-label>
+					<horizon-label
+						class="label-width";
+						row="4" columun = "1"
+						label="Birthday"
+						value="14 December">
+					</horizon-label>
 				</capitec-group>
-
-				<div class="line"></div>
 		 `;
 	}
 
@@ -537,31 +612,16 @@ export class ConfirmCallerDetails extends Component {
 					id="id-search-button"
 					type="clear"
 					label="Search Client"
-					?hidden=${isHidden(this.searchClientButton)}
-					.disabled="${isDisabled(this.searchClientButton)}"
-					tabindex="${getTabIndex(this.searchClientButton)}"
 					@click="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
-				</capitec-button>
-
-				<capitec-button
-					type="clear"
-					label="End Call Session"
-					?hidden=${isHidden(this.endCallSessionButton)}
-					.disabled="${isDisabled(this.endCallSessionButton)}"
-					tabindex="${getTabIndex(this.endCallSessionButton)}"
-					@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>
 
 				<capitec-button
 					id="id-confirm-button"
 					type="primary"
 					label="Confirm"
-					?hidden=${isHidden(this.confirmButton)}
-					.disabled="${isDisabled(this.confirmButton)}"
-					tabindex="${getTabIndex(this.confirmButton)}"
 					@click="${() => this._onConfirmClick()}">
 				</capitec-button>
-			</capitec-group>			
+			</capitec-group>
 			`;
 	}
 
@@ -604,9 +664,9 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-search-client>`;
 	}
 
-	renderInsureConfirmCallerModal() {
-		return html`<horizon-insure-confirm-caller></horizon-insure-confirm-caller>`;
-	}
+	// renderInsureConfirmCallerModal() {
+	// 	return html`<horizon-insure-confirm-caller></horizon-insure-confirm-caller>`;
+	// }
 }
 
 window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails)
