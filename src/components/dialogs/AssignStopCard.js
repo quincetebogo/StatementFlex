@@ -1,3 +1,7 @@
+/**
+ * The Assign Stop Card dialog is used to assign a task to handle the failure
+ * to stop a card to a team.
+ */
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
@@ -29,6 +33,7 @@ export class AssignStopCard extends Component {
 
 	static get properties() {
 		return {
+			callerInfo: { type: Object },
 			team: { type: Object },
 			teamItems: { type: Array },
 			ownerItems: { type: Array },

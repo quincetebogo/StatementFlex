@@ -1,6 +1,6 @@
-/*
- *		Horizon Confirm Caller Details Dialog
- *
+/**
+ * The Horizon Confirm Caller Details Dialog is used to confirming caller details of a
+ * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
  */
 import { Component, html, css } from 'platform/elements';
 
@@ -9,17 +9,23 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
+import './stopCard/SearchClientDetails';
+
 import './AddCallerDetails';
 import './EndCallSessionReason';
+import './stopCard/SearchClientDetails';
+
 import '../../components/Common/HorizonLabel';
 import '../../components/Common/HorizonSelect';
-import './SearchClientDetails';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
+/**
+ * 
+ */
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
@@ -38,6 +44,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// Property initialization
 		this.confirmedCaller = null;
+		this.incomingCallDetails = null;
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
@@ -55,13 +62,18 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * confirmedCaller	: Dialog input - the result of the web service call to retrieve the confirmed caller.
-	 * renderMode	: Flag - controls whether to show the AddCallerDetails dialog
+	 * @property {Object} [confirmedCaller] - Caller info for verified client.
+	 * @property {Object} [callerInfo]      - Incoming call information
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof ConfirmCallerDetails
 	 */
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
 			confirmedCaller: { type: Object },
+			incomingCallDetails: { type: Object },
 			renderMode: { type: Number },
 		}
 	}
@@ -69,7 +81,6 @@ export class ConfirmCallerDetails extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -85,7 +96,7 @@ export class ConfirmCallerDetails extends Component {
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
-			ivrOption: 'StopCard',
+			ivrOption: this._getIvrOptionKey(this.ivrOption),
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
@@ -96,13 +107,18 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
+	_onAddCallerDetailsReturn(data) {
+		this.ivrOption.value = data.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER
+	}
+
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: 'StopCard',
+			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
@@ -119,8 +135,9 @@ export class ConfirmCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: 'StopCard',
+						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 						incidentReferenceNumber: this.incidentReferenceNumber,
+						incidentRecNo: this.incidentRecNo,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
 					clientProfileDetails: clientProfileDetails
@@ -135,7 +152,7 @@ export class ConfirmCallerDetails extends Component {
 			// we return the the caller with the information from this dialog and the end call reason
 			let confirmedCaller = {
 				voiceReferenceNumber: this.voiceReferenceNumber.value,
-				ivrOption: this.ivrOption.value,
+				ivrOption: this._getIvrOptionKey(this.ivrOption),
 				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 				callerFullName: this.callerFullName.value,
 				southAfricanIDNumber: this.southAfricanIDNumber.value,
@@ -172,7 +189,9 @@ export class ConfirmCallerDetails extends Component {
 	_onIdentifiedClient(data) {
 		// After a search we need to replace whatever we might have had for the confirmed caller with 
 		// the results of the search
+		// the results of the search
 		this.confirmedCaller = data.detail.identifiedClient;
+		this.incomingCallDetails = data.detail.incomingCallDetails;
 		this._initReferences();
 
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
@@ -184,8 +203,9 @@ export class ConfirmCallerDetails extends Component {
 		}));
 	}
 
-	_ivrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.key;
+	_onIvrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
 	// --------------
@@ -214,8 +234,10 @@ export class ConfirmCallerDetails extends Component {
 		this.searchClientButton = this.confirmedCaller.searchClientButton;
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
-		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
-		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
+
+		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 	}
 
 	_getLanguagePreference() {
@@ -248,12 +270,13 @@ export class ConfirmCallerDetails extends Component {
 
 	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 	_toggleBusyFlag() {
 		this.isBusy = this.isBusy ? false : true;
+	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
 	}
 
 	// ---------
@@ -535,7 +558,7 @@ export class ConfirmCallerDetails extends Component {
 						.value="${this.ivrOption.value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
 						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._ivrOptionChanged(e)}">
+						@value-changed="${(e) => this._onIvrOptionChanged(e)}">
 					</horizon-select>
 				</div>
 				<div class="left-border">
@@ -667,8 +690,9 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-add-caller
 				.confirmedCaller="${this.confirmedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
-				@on-back="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;
@@ -686,6 +710,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-client
 				.unverifiedCaller="${this.confirmedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;

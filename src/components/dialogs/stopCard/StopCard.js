@@ -2,8 +2,8 @@ import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
-import { StopCardService } from '../../services/StopCardService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { StopCardService } from '../../../services/StopCardService';
+import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 
 export class StopCard extends Component {
 
