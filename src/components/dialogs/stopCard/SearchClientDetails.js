@@ -71,6 +71,7 @@ export class SearchClientDetailsComponent extends Component {
 			searchFieldText: ""
 		}
 		this.unverifiedCaller = null;
+		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
 		this.stopCardService = StopCardService.getInstance();
@@ -91,6 +92,7 @@ export class SearchClientDetailsComponent extends Component {
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			unverifiedCaller: { type: Object },
+			incomingCallDetails: { type: Object },
 			renderMode: { type: Number },
 			alertBanner_Message: { type: String }
 		}
@@ -112,9 +114,10 @@ export class SearchClientDetailsComponent extends Component {
 		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
-		this.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
-		this.incidentRecNo = this.unverifiedCaller.incidentRecNo;
-		this.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
+
+		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
 			// We are coming from the confirmed user dialog
@@ -159,8 +162,8 @@ export class SearchClientDetailsComponent extends Component {
 			let searchClient = {
 				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
 				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
-				incidentNo: this.unverifiedCaller.incidentReferenceNumber,
-				agentTelephoneNumber: this.unverifiedCaller.agentTelephoneNumber,
+				incidentNo: this.incidentReferenceNumber,
+				agentTelephoneNumber: this.agentTelephoneNumber,
 				ivrOption: this._getIvrOptionKey(this.ivrOption),
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
@@ -168,11 +171,6 @@ export class SearchClientDetailsComponent extends Component {
 
 			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
 			if (identifiedClient) {
-				// Add this fields to the indentifiedClient (aka confirmed Caller) model
-				identifiedClient.incidentReferenceNumber = this.unverifiedCaller.incidentReferenceNumber;
-				identifiedClient.incidentRecNo = this.unverifiedCaller.incidentRecNo;
-				identifiedClient.agentTelephoneNumber = this.unverifiedCaller.agentTelephoneNumber;
-
 				this._raiseOnClientIdentified(identifiedClient)
 			}
 			else {
@@ -187,6 +185,8 @@ export class SearchClientDetailsComponent extends Component {
 
 	_ivrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+
 		if (e.detail.new.key === "Insure") {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
@@ -199,7 +199,8 @@ export class SearchClientDetailsComponent extends Component {
 	_raiseOnClientIdentified(identifiedClient) {
 		this.dispatchEvent(new CustomEvent('on-client-identified', {
 			detail: {
-				identifiedClient: identifiedClient
+				identifiedClient: identifiedClient,
+				incomingCallDetails: this.incomingCallDetails
 			}
 		}));
 	};

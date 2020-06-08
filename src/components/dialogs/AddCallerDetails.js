@@ -38,6 +38,7 @@ export class AddCallerDetails extends Component {
 		RegExp();
 
 		this.confirmedCaller = null;
+		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
@@ -58,6 +59,7 @@ export class AddCallerDetails extends Component {
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
+			incomingCallDetails: { type: Object },
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
@@ -72,32 +74,28 @@ export class AddCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Short hand references for reaching into the incoming data model
+		// Short hand references for reaching into the incoming addCallerDialog model
 		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
 		this.ivrOption = this.addCallerDialog.ivrOption;
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
-
-		this.incidentReferenceNumber = this.confirmedCaller.incidentReferenceNumber;
-		this.agentTelephoneNumber = this.confirmedCaller.agentTelephoneNumber;
-		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
-
-		//Fields to be rendered
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
-
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
 		this.nonClientRelationship.value = ''; // Initialise the value. The contract returns the label here.
-
-		//Buttons on footer to be rendered
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
 		this.backButton = this.addCallerDialog.backButton;
 
-		this.renderMode = RENDER_MODE.ADD_CALLER;
+		// confirmed Caller Model references
+		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
 
-		// Continue to add field short cuts here.
+		// incomingCallDetails references
+		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+
+		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
 	// --------------
@@ -135,14 +133,12 @@ export class AddCallerDetails extends Component {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this._getIvrOptionKey(this.ivrOptionCode),
+			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
 			nonClientCellPhone: this.cellPhoneTextField.value,
 			nonClientIDNumber: '',
-			//TODO: Check if this is still true
-			// nonClientRelationship needs to chosen; default value of nonClientRelationship doesnt give any response in service call
 			nonClientRelationship: this.nonClientRelationship.value
 		}
 
@@ -150,15 +146,9 @@ export class AddCallerDetails extends Component {
 		if (addedcallerdetails) {
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {
-					incomingCallDetails: {
-						voiceReferenceNumber: this.voiceReferenceNumber.value,
-						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: this._getIvrOptionKey(this.ivrOptionCode),
-						incidentReferenceNumber: this.incidentReferenceNumber,
-						agentTelephoneNumber: this.agentTelephoneNumber
-					},
-					clientProfileDetails: addedcallerdetails
-				}
+					clientProfileDetails: addedcallerdetails,
+					incomingCallDetails: this.incomingCallDetails,
+				},
 			}));
 		}
 	}
@@ -182,6 +172,7 @@ export class AddCallerDetails extends Component {
 
 	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = de.detail.new.key;
 	}
 
 	// ---------------

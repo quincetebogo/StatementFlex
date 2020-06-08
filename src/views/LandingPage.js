@@ -47,6 +47,14 @@ export class LandingPage extends View {
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.stopCardService = StopCardService.getInstance();
 
+		this.incomingCallDetails = {
+			"incomingTelephoneNumber": ``,
+			"incidentReferenceNumber": ``,
+			"incidentRecNo": ``,
+			"agentTelephoneNumber": ``,
+			"ivrOptionCode": ``
+		};
+
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -113,23 +121,15 @@ export class LandingPage extends View {
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
+			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 			this.unVerifiedCaller = null;
-
-			// The following is from the Desktop Agent Service new call event. The information is 
-			// injected into the confirmed caller model returned from the channel service here 
-			// but should perhaps be passed separately.
-			this._AddCallInfo(this.confirmedCaller, newCallInfo);
 
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		}
 		else if (this.stopCardService.isUnverifiedCaller(acceptedCall)) {
-			this.confirmedCaller = null;
-
 			this.unVerifiedCaller = acceptedCall;
-
-			// The following is injected into the unverified caller model returned from the 
-			// channel service. 
-			this._AddCallInfo(this.unVerifiedCaller, newCallInfo);
+			this.confirmedCaller = null;
+			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
@@ -155,6 +155,7 @@ export class LandingPage extends View {
 
 	_onClientIdentified(data) {
 		this.confirmedCaller = data.detail.identifiedClient;
+		this.incomingCallDetails = data.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -236,9 +237,11 @@ export class LandingPage extends View {
 	}
 
 	_AddCallInfo(model, newCallInfo) {
+		model.incomingTelephoneNumber = newCallInfo.IncomingTelephoneNumber;
 		model.incidentReferenceNumber = newCallInfo.IncidentReferenceNumber;
 		model.incidentRecNo = newCallInfo.IncidentRecNo;
 		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
+		model.ivrOptionCode = newCallInfo.IVROptionCode;
 	}
 
 	// ---------
@@ -290,6 +293,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
+					.incomingCallDetails = "${this.incomingCallDetails}"
 					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;
@@ -301,6 +305,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
