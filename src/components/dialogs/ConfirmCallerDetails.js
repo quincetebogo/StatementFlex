@@ -13,9 +13,10 @@ import './stopCard/SearchClientDetails';
 
 import './AddCallerDetails';
 import './EndCallSessionReason';
+import './stopCard/SearchClientDetails';
 
-import '../../components/Common/HorizonLabel'
-import '../../components/Common/HorizonSelect'
+import '../../components/Common/HorizonLabel';
+import '../../components/Common/HorizonSelect';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
