@@ -295,16 +295,6 @@ export class ConfirmCallerDetails extends Component {
 					width: 228px;
 				}
 
-				#label-ivr{
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					line-height: 27px;
-					width: 100%;
-					margin-top: 8px;
-				}
-
 				.horizon-add-caller-details-div{
 					height: 56px;
 					background: rgba(212,120,28,0.1);
@@ -365,12 +355,6 @@ export class ConfirmCallerDetails extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 28px;
-				}
-
-				.line{
-					width:100%;
-					margin-top:30px;
-					border-top:1px solid #dfdfdf;"
 				}
 
 				#id-search-button{
@@ -502,7 +486,8 @@ export class ConfirmCallerDetails extends Component {
 						header-align="left">
 					<div slot="header">
 						<span>Confirm Caller Details</span>
-						<capitec-button label="End Call">
+						<capitec-button label="End Call" 
+										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
 						</capitec-button>
 					</div>
