@@ -172,7 +172,7 @@ export class AddCallerDetails extends Component {
 
 	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = de.detail.new.key;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
 	// ---------------
@@ -302,9 +302,12 @@ export class AddCallerDetails extends Component {
 					margin-right: 16px;
 				}
 				capitec-modal {
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-header-padding-top: 31px;
+					--theme-modal-header-padding-bottom: 31px;
 					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
 				}
 				capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
@@ -316,6 +319,41 @@ export class AddCallerDetails extends Component {
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 					
 				}
+				div[slot="header"]{
+					width: 693px;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -670px;
+					top: -25px;
+				}
+				div[slot="header"] > span{
+					height: 24px;
+					width: 190px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					padding-left: 17px;
+					margin-right: 355px;
+				}
+				div[slot="header"] > capitec-button{
+					width: 130px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-left: 16px;
+					--theme-button-default-background-color: #FF2B25;
+					--theme-button-default-border-color: #FF2B25;
+					--theme-button-default-font-color: rgb(255, 255, 255);
+					--theme-button-default-background-tapped-color: #FF2B25;
+				}
+				.end-call-icon{
+					margin: 0px;
+					margin-left: 14px;
+					margin-top: -5px;
+				}
 			`];
 	}
 
@@ -323,7 +361,13 @@ export class AddCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
-						<capitec-modal type="free" header="Add Caller Details"  header-align="left" class="header" >
+						<capitec-modal type="free" header-align="left" class="header" >
+							<div slot="header">
+							<span>Add Caller Details</span>
+								<capitec-button label="End Call">
+									<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+								</capitec-button>
+							</div>
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
 								${this.renderErrorMessage()}

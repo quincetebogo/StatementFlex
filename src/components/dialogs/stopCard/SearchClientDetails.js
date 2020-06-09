@@ -511,7 +511,7 @@ export class SearchClientDetailsComponent extends Component {
 						label="Client Need"
 						display-field="value"
 						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.possibleValues[0].value}"
+						.value="${this.ivrOption.value}"
 						tabindex="${getTabIndex(this.ivrOption)}"
 						?hidden=${isHidden(this.ivrOption)}
 						@value-changed="${(e) => this._ivrOptionChanged(e)}">
