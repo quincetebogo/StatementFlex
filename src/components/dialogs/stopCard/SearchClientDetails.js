@@ -14,6 +14,8 @@ import '../ConfirmCallerDetails';
 import '../../Common/HorizonSelect';
 import '../Insure/SearchCaller';
 
+import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
 	END_CALL: 1,
@@ -313,46 +315,14 @@ export class SearchClientDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
+				${CALLERINFOBAR_CSS}
+
 				.main{
 					width: 690px;
 					height: 541px;
 					border-radius: 4px;
 				}
-				.call-details-bar{
-					display: flex;
-					flex-direction: row;
-					height: 56px;
-					margin: 0px;
-					border-bottom: 1px solid #dfdfdf;
-				}
-				.call-label{
-					width:208px;
-					margin-left:24px;
-					margin-top:8px;
-					margin-bottom:8px;
-					--horizon-label-text-height: 16px;
-					--horizon-label-text-color: #545D60;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 16px;
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-color: #545D60;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-				.ivr-option{
-					width: 230px;
-				}
-				.left-border{
-					border-left: 1px solid #dfdfdf;
-				}
-				#label-ivr{
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					line-height: 27px;
-					width: 100%;
-				}
+
 				.search-box{
 					height: 310px;
 					padding: 21px 17px 0px 16px;
@@ -438,19 +408,7 @@ export class SearchClientDetailsComponent extends Component {
 					margin-left: 14px;
 					margin-top: -5px;
 				}
-				.client-need-option {
-					--horizon-select-inner-wrapper-margin-top: 10px;
-					--horizon-select-inner-wrapper-height: 36px;
-					--horizon-select-outer-wrapper-margin-left: 16px;
-					--horizon-select-label-text-height: 16px;
-					--horizon-select-label-text-color: #545D60;
-					--horizon-select-label-text-font-size: 12px;
-					--horizon-select-label-text-line-height: 16px;
-					--horizon-select-label-value-height: 20px;
-					--horizon-select-label-value-color: #545D60;
-					--horizon-select-label-value-font-size: 16px;
-					--horizon-select-label-value-line-height: 20px;
-				}
+
 				#id-search-button {
 					--theme-button-padding-top: 12px;
 				}
@@ -497,35 +455,27 @@ export class SearchClientDetailsComponent extends Component {
 	renderCallInformation() {
 		return html`
 			<div class="call-details-bar">
-				<horizon-label 
-					class="call-label"
+				<horizon-label
 					label="Reference Number" 
 					value = "${this.voiceReferenceNumber.value}"
 					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
 					?hidden=${isHidden(this.voiceReferenceNumber)}>
 				</horizon-label>
-				<div class="ivr-option left-border">
-					<horizon-select
-						class="client-need-option"
-						id="label-ivr"
-						label="Client Need"
-						display-field="value"
-						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.value}"
-						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._ivrOptionChanged(e)}">
-					</horizon-select>
-				</div>
-				<div class="left-border">
-					<horizon-label
-						class="call-label"
-						label="Incoming Number"
-						value="${this.incomingTelephoneNumber.value}"
-						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-						?hidden=${isHidden(this.incomingTelephoneNumber)}>
-					</horizon-label>
-				<div>
+				<horizon-select
+					label="Client Need"
+					display-field="value"
+					.items="${this.ivrOption.possibleValues}"
+					.value="${this.ivrOption.value}"
+					tabindex="${getTabIndex(this.ivrOption)}"
+					?hidden=${isHidden(this.ivrOption)}
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
+				</horizon-select>
+				<horizon-label
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber.value}"
+					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+				</horizon-label>
 			</div>`;
 	}
 
