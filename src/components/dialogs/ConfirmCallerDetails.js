@@ -94,6 +94,7 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	async _onAddCallerDetails() {
+
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
@@ -115,6 +116,9 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
+
+		let selectedValue = this.ivrOption.possibleValues.find((row) => this._checkSelectedIvrOption(row));
+
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
@@ -151,6 +155,8 @@ export class ConfirmCallerDetails extends Component {
 		if (event.detail.unverifiedCaller === undefined) {
 			// We got here by ending the call from this dialog.
 			// we return the the caller with the information from this dialog and the end call reason
+
+
 			let confirmedCaller = {
 				voiceReferenceNumber: this.voiceReferenceNumber.value,
 				ivrOption: this._getIvrOptionKey(this.ivrOption),
