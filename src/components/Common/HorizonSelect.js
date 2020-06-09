@@ -47,7 +47,7 @@ export class HorizonSelect extends Component {
 	static get properties() {
 		return {
 			label: { type: String },
-			value: { type: Object },
+			value: { type: String },
 			items: { type: Object },
 			displayField: { type: String, attribute: `display-field` },
 			popup: { type: Boolean },
@@ -119,7 +119,7 @@ export class HorizonSelect extends Component {
 		}
 
 		const oldValue = this.value;
-		this.value = newValue;
+		this.value = newValue[this.displayField];
 
 		this._dispatchValueChangedEvent(oldValue, newValue);
 		this._togglePopup(e);
@@ -340,7 +340,7 @@ export class HorizonSelect extends Component {
 
 		return html`
             <div 
-                class="option ${this.value && this.value[this.displayField] === item[this.displayField] ? `selected-value` : ``}" 
+                class="option ${this.value && this.value === item[this.displayField] ? `selected-value` : ``}" 
                 @click="${(e) => this._onOptionClick(item, e)}">
                     ${item[this.displayField]}
             </div>`;

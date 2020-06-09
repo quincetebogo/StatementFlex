@@ -172,7 +172,7 @@ export class AddCallerDetails extends Component {
 
 	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = de.detail.new.key;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
 	// ---------------
