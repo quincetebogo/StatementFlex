@@ -4,13 +4,15 @@
  */
 import { Component, html, css } from 'platform/elements';
 
+import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+
 import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../../Common/HorizonSelect';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
-	END_CALL: 1,
+	END_CALL: 1
 };
 
 const CLIENT_TYPE = {
@@ -78,7 +80,9 @@ export class InsureSearchClient extends Component {
 		return {
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
-			clientType: { type: Number }
+			clientType: { type: Number },
+			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object }
 		}
 	}
 
@@ -88,6 +92,15 @@ export class InsureSearchClient extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		//Below references needs to be pulled from services, for now it's fetched from incoming call details
+		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+
+		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
@@ -103,6 +116,11 @@ export class InsureSearchClient extends Component {
 		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? "Search Caller Details" : "Add Caller Details";
 	}
 
+	_onIvrOptionChanged(e) {
+		this.ivrOptionCode = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -115,6 +133,8 @@ export class InsureSearchClient extends Component {
 		return [
 			super.styles,
 			css`
+				${CALLERINFOBAR_CSS}
+
 				capitec-modal {
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-top: 31px;
@@ -168,46 +188,6 @@ export class InsureSearchClient extends Component {
 					height: 56px;
 					margin: 0px;
 					border-bottom: 1px solid #dfdfdf;
-				}
-				.call-label{
-					width: 230px;
-					margin: 10px 0px 0px 16px;
-				}
-				horizon-label{
-					--horizon-label-text-height: 16px;
-					--horizon-label-text-color: #545D60;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 16px;
-
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-color: #545D60;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-				.ivr-option{
-					width: 228px;
-				}
-				.left-border{
-					border-left: 1px solid #dfdfdf;
-				}
-				horizon-select{
-					--horizon-select-outer-wrapper-margin-left: 16px;
-					--horizon-select-inner-wrapper-height: 36px;
-
-					--horizon-select-label-text-height: 16px;
-					--horizon-select-label-text-color: #545D60;
-					--horizon-select-label-text-font-size: 12px;
-					--horizon-select-label-text-line-height: 16px;
-
-					--horizon-select-label-value-height: 20px;
-					--horizon-select-label-value-color: #545D60;
-					--horizon-select-label-value-font-size: 16px;
-					--horizon-select-label-value-line-height: 20px;
-
-					--horizon-select-icon-margin-top: 5px;
-					--horizon-select-icon-margin-right: 14px;
-
-					margin-top: 10px;
 				}
 				capitec-content-box{
 					--theme-container-padding-top: 24px;
@@ -288,57 +268,52 @@ export class InsureSearchClient extends Component {
 							</capitec-button>
 						</div>
 						<div slot="body">
-							${this.renderCallInformation()}
+							${this._renderCallInformation()}
 							<capitec-content-box>
-								${this.renderClientType()}
-								${this.renderCapitecClientFields()}
-								${this.renderNonClientFields()}
+								${this._renderClientType()}
+								${this._renderCapitecClientFields()}
+								${this._renderNonClientFields()}
 							</capitec-content-box>
-							${this.renderLoadingIndicator()}
+							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
-							${this.renderFooter()}
+							${this._renderFooter()}
 						</div>
 					</capitec-modal>`;
 			case RENDER_MODE.END_CALL:
-				return html`${this.renderEndCallModal()}`;
+				return html`${this._renderEndCallModal()}`;
 		}
 	}
 
-	renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		if (!this.isBusy)
 			return html``;
 		else
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
-	renderCallInformation() {
+	_renderCallInformation() {
 		return html`
 			<div class="call-details-bar">
 				<horizon-label 
-					class="call-label"
 					label="Reference Number" 
-					value = "34567893">
+					value = "${this.voiceReferenceNumber}">
 				</horizon-label>
-				<div class="ivr-option left-border">
-					<horizon-select
-						label="IVR Option Selected"
-						display-field="value"
-						.items="${this.ivrOptions}"
-						.value="Insure">
-					</horizon-select>
-				</div>
-				<div class="left-border">
-					<horizon-label
-						class="call-label"
-						label="Incoming Number"
-						value="0716797003">
-					</horizon-label>
-				<div>
+				<horizon-select
+					label="Client Need"
+					display-field="value"
+					.items="${this.ivrOptions}"
+					.value="${this.ivrOptionCode}"
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
+				</horizon-select>
+				<horizon-label
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber}">
+				</horizon-label>
 			</div>`;
 	}
 
-	renderClientType() {
+	_renderClientType() {
 		return html`
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
@@ -355,14 +330,14 @@ export class InsureSearchClient extends Component {
 			</capitec-radio-group>`;
 	}
 
-	renderCapitecClientFields() {
+	_renderCapitecClientFields() {
 		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
 			return html`
 					<capitec-label class="search-label" label="Search existing client"></capitec-label>
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" >
 						<div class="search-field-row">
 							<capitec-select	id="identificationMethods"
-											label="Choose identification method" 
+											label="Choose identification method"
 											class="id-options"
 											.items="${this.identificationMethods}"
 											display-field="value">
@@ -383,7 +358,7 @@ export class InsureSearchClient extends Component {
 		return html``;
 	}
 
-	renderNonClientFields() {
+	_renderNonClientFields() {
 		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
@@ -409,27 +384,25 @@ export class InsureSearchClient extends Component {
 		return html``;
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button type="primary"
-								@click="${(e) => this._onSearchClick(e)}"
 								label="Search Client"
 								?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
 				<capitec-button type="primary"
-								@click="${(e) => this._onSearchClick(e)}"
 								label="Continue"
 								?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
 
-	renderEndCallModal() {
+	_renderEndCallModal() {
 		return html`
 			<end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 }

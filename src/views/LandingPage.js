@@ -242,6 +242,7 @@ export class LandingPage extends View {
 		model.incidentRecNo = newCallInfo.IncidentRecNo;
 		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
 		model.ivrOptionCode = newCallInfo.IVROptionCode;
+		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber
 	}
 
 	// ---------
