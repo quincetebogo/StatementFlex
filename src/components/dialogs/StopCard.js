@@ -1,6 +1,9 @@
 import { Component, html, css } from 'platform/elements';
-import { StopCardService } from '../../services/StopCardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
+
+import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 export class StopCard extends Component {
 
@@ -14,6 +17,7 @@ export class StopCard extends Component {
 		this.cardsToStop = [];
 		this.cardStopResults = [];
 		this.callerInfo = {};
+		this.isBusy = false;
 	}
 
 	// ----------
@@ -35,7 +39,12 @@ export class StopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
 	}
 
 
@@ -46,9 +55,7 @@ export class StopCard extends Component {
 	async _onConfirmClick() {
 		console.log(`cards to stop`, this.cardsToStop);
 
-		this.isBusy = true;
 		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
-		this.isBusy = false;
 
 		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardStopResults } }));
 	}
@@ -57,7 +64,6 @@ export class StopCard extends Component {
 
 		this.dispatchEvent(new CustomEvent('on-cancel'));
 	}
-
 
 	// --------------
 	// PUBLIC METHODS
@@ -70,9 +76,7 @@ export class StopCard extends Component {
 	// TODO: This should move out into a layer so that we can use it in the code that handles stop card retries.
 	async _stopCards(cardsToStop, callerInfo) {
 		let card = {};
-		let success = false;
 		let stoppedCard = {};
-		let error = null;
 		let cardStopResults = [];
 
 		for (let index = 0; index < cardsToStop.length; index++) {
@@ -87,20 +91,12 @@ export class StopCard extends Component {
 			card.stopReason = cardsToStop[index].stopReason ? cardsToStop[index].stopReason : '';
 
 			try {
-				await this.stopCardService.stopCard(card);
-				success = true;
-				error = null;
-			}
-			catch (ex) {
-				if (ex instanceof TypeError) {
-					error = ex.message;
-				}
-				else if (ex instanceof HttpStatusError) {
-					error = `${ex.status}: ${ex.message}`;
-				}
-				else {
-				}
-				success = false;
+				this.success = false;
+				this.error = null;
+				console.log('stopping card', card);
+				let result = await this.serviceCallHelper.asyncCall(this.stopCardService.stopCard(card), (ex) => this._stopCardErrorHandler(ex));
+
+				console.log('stop card result:', result);
 			}
 			finally {
 				stoppedCard = {
@@ -109,8 +105,8 @@ export class StopCard extends Component {
 					encryptedCardId: cardsToStop[index].encryptedCardId,
 					accountNumber: card.accountNumber,
 					stopReason: card.stopReason,
-					stopped: success,
-					errorMessage: error
+					stopped: this.success,
+					errorMessage: this.error
 				};
 
 				cardStopResults.push(stoppedCard);
@@ -118,6 +114,51 @@ export class StopCard extends Component {
 		}
 
 		return cardStopResults;
+	}
+
+	_stopCardErrorHandler(exception) {
+		try {
+			this.error = 'Failed to stop card';
+
+			console.log('stop card exception', exception);
+
+			if (exception instanceof TypeError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `stopCard: ${exception.message}`
+				}
+				this.error = exception.message;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else if (exception instanceof HttpStatusError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `stopCard: ${exception.status} - ${exception.message}`
+				}
+				this.error = `${exception.status}: ${exception.message}`;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `stopCard: UNEXPECTED ERROR - ${exception.message}`
+				}
+				this.error = exception.message;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		}
+		finally {
+			this.success = false;
+		}
+
+		return true;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
 	}
 
 	// ---------
@@ -181,7 +222,10 @@ export class StopCard extends Component {
 			`];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-modal
 				type="free"
