@@ -9,14 +9,14 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import './stopCard/SearchClientDetails';
-
 import './AddCallerDetails';
 import './EndCallSessionReason';
 import './stopCard/SearchClientDetails';
 
 import '../../components/Common/HorizonLabel';
 import '../../components/Common/HorizonSelect';
+
+import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -30,7 +30,8 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
 	END_CALL: 2,
-	SEARCH_CALLER: 3
+	SEARCH_CALLER: 3,
+	INSURE_SEARCH_CALLER: 4
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -208,6 +209,16 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
+	_onSearchClick() {
+
+		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+		}
+		else {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -287,88 +298,9 @@ export class ConfirmCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
-				.call-details-bar{
-					display: flex;
-					flex-direction: row;
-					height: 56px;
-					margin: 0px;
-					border-bottom: 1px solid #dfdfdf;
-				}
-
-				.call-label{
-					width:208px;
-					margin-left:16px;
-					margin-top:8px;
-					margin-bottom:8px;
-					--horizon-label-text-height: 16px;
-					--horizon-label-text-color: #545D60;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 16px;
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-color: #545D60;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-
-				.left-border{
-					border-left: 1px solid #dfdfdf;
-				}
-
-				.ivr-option{
-					width: 228px;
-				}
-
-				.image{
-					width: 200px;
-					height: 200px;
-					padding: 0px;
-					margin-top: 16px;
-					background: gainsboro;
-					display: inline-block;
-				}
-
-				.client-info{
-					display: flex;
-					flex-direction: row;
-				}
-
-				#id-caller-group{
-					margin-left: 25px;
-					margin-top: 16px;
-				}
-
-				.fullname{
-					height: 34px;
-					width: auto;
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 20px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 28px;
-				}
-
-				#id-search-button{
-					margin-right: 10px;
-					height: 48px;
-					width: 133px;
-					--theme-button-padding-top: 13px;
-					--theme-button-padding-right: 12px;
-					--theme-button-padding-bottom: 12px;
-					--theme-button-padding-left: 12px;
-				}
-
-				#id-confirm-button {
-					height: 48px;
-					width: 105px;
-					--theme-button-padding-top: 13px;
-					--theme-button-padding-right: 12px;
-					--theme-button-padding-bottom: 12px;
-					--theme-button-padding-left: 12px;
-				}
+				${CALLERINFOBAR_CSS}
 
 				capitec-modal{
-					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-top: 31px;
 					--theme-modal-header-padding-bottom: 31px;
 					--theme-modal-header-padding-right: 31px;
@@ -420,14 +352,6 @@ export class ConfirmCallerDetails extends Component {
 					height: 387px;
 				}
 
-				horizon-label{
-					height: var(--horizon-label-text-height, 21px);
-					color: var(--horizon-label-text-color, #4E6066);
-					font-family: "Hind Vadodara";
-					font-size: var(--horizon-label-text-font-size, 14px);
-					letter-spacing: 0;
-					line-height: var(--horizon-label-text-line-height, 21px);
-				}
 				capitec-content-box{
 					height: 332px;
 					--theme-container-padding-top: 16px;
@@ -435,37 +359,76 @@ export class ConfirmCallerDetails extends Component {
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-right: 17px;
 				}
+
+				#id-banner-addcallerdetails{
+					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
+					--theme-alert-banner-icon-margin-left: 16px;
+				}
+
+				.client-info{
+					display: flex;
+					flex-direction: row;
+				}
+
+				.image{
+					width: 200px;
+					height: 200px;
+					padding: 0px;
+					margin-top: 16px;
+					background: gainsboro;
+					display: inline-block;
+				}
+
+				#id-caller-group{
+					margin-left: 25px;
+					margin-top: 16px;
+				}
+
+				.fullname{
+					height: 34px;
+					width: auto;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 20px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 28px;
+				}
+
 				.client-info-row {
+					height: 56px;
+					width: 216px;
+					justify-content: center;
+
 					--horizon-label-text-height: 16px;
 					--horizon-label-text-color: #545D60;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-line-height: 16px;
+					
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-color: #545D60;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
-					height: 56px;
-					width: 216px;
-					justify-content: center;
-				}
-				.client-need-option {
-					--horizon-select-inner-wrapper-margin-top: 10px;
-					--horizon-select-inner-wrapper-height: 36px;
-					--horizon-select-outer-wrapper-margin-left: 16px;
-					--horizon-select-label-text-height: 16px;
-					--horizon-select-label-text-color: #545D60;
-					--horizon-select-label-text-font-size: 12px;
-					--horizon-select-label-text-line-height: 16px;
-					--horizon-select-label-value-height: 20px;
-					--horizon-select-label-value-color: #545D60;
-					--horizon-select-label-value-font-size: 16px;
-					--horizon-select-label-value-line-height: 20px;
 				}
 
-				#id-banner-addcallerdetails{
-					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
-					--theme-alert-banner-icon-margin-left: 16px;
+				#id-search-button{
+					margin-right: 10px;
+					height: 48px;
+					width: 133px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
+				}
+
+				#id-confirm-button {
+					height: 48px;
+					width: 105px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
 				}
 			`];
 	}
@@ -508,40 +471,36 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`${this.renderSearchCallerModal()}`;
+
+			case RENDER_MODE.INSURE_SEARCH_CALLER:
+				return html`${this.renderInsureSearchCallerModal()}`;
 		}
 	}
 
 	renderCallInformation() {
 		return html`
 			<div class="call-details-bar">
-				<horizon-label 
-					class="call-label"
+				<horizon-label
 					label="Reference Number" 
 					value = "${this.voiceReferenceNumber.value}"
 					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
 					?hidden=${isHidden(this.voiceReferenceNumber)}>
 				</horizon-label>
-				<div class="ivr-option left-border">
-					<horizon-select
-						class="client-need-option"
-						label="Client Need"
-						display-field="value"
-						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.value}"
-						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-					</horizon-select>
-				</div>
-				<div class="left-border">
-					<horizon-label
-						class="call-label"
-						label="Incoming Number"
-						value="${this.incomingTelephoneNumber.value}"
-						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-						?hidden=${isHidden(this.incomingTelephoneNumber)}>
-					</horizon-label>
-				<div>
+				<horizon-select
+					label="Client Need"
+					display-field="value"
+					.items="${this.ivrOption.possibleValues}"
+					.value="${this.ivrOption.value}"
+					tabindex="${getTabIndex(this.ivrOption)}"
+					?hidden=${isHidden(this.ivrOption)}
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
+				</horizon-select>
+				<horizon-label
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber.value}"
+					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+				</horizon-label>
 			</div>`;
 	}
 
@@ -620,7 +579,6 @@ export class ConfirmCallerDetails extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-					<!-- class="footer-bar" > -->
 				<capitec-button
 					id="id-search-button"
 					type="clear"
@@ -628,7 +586,7 @@ export class ConfirmCallerDetails extends Component {
 					?hidden=${isHidden(this.searchClientButton)}
 					.disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
+					@click="${() => this._onSearchClick()}">
 				</capitec-button>
 
 				<capitec-button
@@ -683,6 +641,16 @@ export class ConfirmCallerDetails extends Component {
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
+	}
+
+	renderInsureSearchCallerModal() {
+		return html`
+			<horizon-insure-search-client
+				.unverifiedCaller="${this.confirmedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
+				@call-ended="${(data) => this._onCallCancelled(data)}">
+			</horizon-insure-search-client>`;
 	}
 
 }
