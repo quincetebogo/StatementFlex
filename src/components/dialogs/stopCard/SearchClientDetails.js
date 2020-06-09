@@ -315,14 +315,13 @@ export class SearchClientDetailsComponent extends Component {
 			css`
 				.main{
 					width: 690px;
-					height: 403px;
-					border-bottom: 1px solid #E1E1E1;
+					height: 541px;
 					border-radius: 4px;
 				}
 				.call-details-bar{
 					display: flex;
 					flex-direction: row;
-					height:64px;
+					height: 56px;
 					margin: 0px;
 					border-bottom: 1px solid #dfdfdf;
 				}
@@ -331,9 +330,17 @@ export class SearchClientDetailsComponent extends Component {
 					margin-left:24px;
 					margin-top:8px;
 					margin-bottom:8px;
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #545D60;
+					--horizon-label-text-font-size: 12px;
+					--horizon-label-text-line-height: 16px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #545D60;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
 				}
 				.ivr-option{
-					width: 228px;
+					width: 230px;
 				}
 				.left-border{
 					border-left: 1px solid #dfdfdf;
@@ -345,20 +352,19 @@ export class SearchClientDetailsComponent extends Component {
 					font-weight: 600;
 					line-height: 27px;
 					width: 100%;
-					margin-top: 8px;
 				}
 				.search-box{
 					height: 310px;
-					padding: 16px 24px 0px 24px;
+					padding: 21px 17px 0px 16px;
 				}
 				.search-label{
-					height: 27px;
+					height: 24px;
 					width: 170px;
 					font-family: "Hind Vadodara";
 					font-size: 18px;
 					font-weight: 600;
-					color: #003652;
-					line-height: 27px;
+					color: #3E4547;
+					line-height: 24px;
 					margin: 0px;
 				}
 				.id-options{
@@ -385,19 +391,86 @@ export class SearchClientDetailsComponent extends Component {
 				.override-margin-top{
 					margin-top: 16px;
 				}
-				capitec-modal {
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 7.5px 24px 7.5px 0px;
-				}`
-		];
+				capitec-modal{
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
+					--theme-modal-header-padding-right: 31px;
+					--theme-modal-header-padding-left: 31px;
+					--theme-modal-footer-padding: 7px 16px 9px 0px;
+				}
+
+				div[slot="header"]{
+					width: 693px;
+					position: absolute;
+					display: flex;
+					align-items: center;
+					left: -670px;
+					top: -25px;
+				}
+
+				div[slot="header"] > span{
+					height: 24px;
+					width: 190px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					padding-left: 17px;
+					margin-right: 355px;
+				}
+
+				div[slot="header"] > capitec-button{
+					width: 130px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-left: 16px;
+					--theme-button-default-background-color: #FF2B25;
+					--theme-button-default-border-color: #FF2B25;
+					--theme-button-default-font-color: rgb(255, 255, 255);
+					--theme-button-default-background-tapped-color: #FF2B25;
+				}
+
+				.end-call-icon{
+					margin: 0px;
+					margin-left: 14px;
+					margin-top: -5px;
+				}
+				.client-need-option {
+					--horizon-select-inner-wrapper-margin-top: 10px;
+					--horizon-select-inner-wrapper-height: 36px;
+					--horizon-select-outer-wrapper-margin-left: 16px;
+					--horizon-select-label-text-height: 16px;
+					--horizon-select-label-text-color: #545D60;
+					--horizon-select-label-text-font-size: 12px;
+					--horizon-select-label-text-line-height: 16px;
+					--horizon-select-label-value-height: 20px;
+					--horizon-select-label-value-color: #545D60;
+					--horizon-select-label-value-font-size: 16px;
+					--horizon-select-label-value-line-height: 20px;
+				}
+				#id-search-button {
+					--theme-button-padding-top: 12px;
+				}
+		`];
 	}
 
 	render() {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<capitec-modal type="free" header="Search Client Details" header-align="left" >
+				<capitec-modal
+						type="free"
+						header-align="left">
+					<div slot="header">
+						<span>Search Caller Details</span>
+						<capitec-button label="End Call" 
+								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+						</capitec-button>
+					</div>
 						<div slot="body" class="main">
 							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
@@ -433,8 +506,9 @@ export class SearchClientDetailsComponent extends Component {
 				</horizon-label>
 				<div class="ivr-option left-border">
 					<horizon-select
+						class="client-need-option"
 						id="label-ivr"
-						label="IVR Option Selected"
+						label="Client Need"
 						display-field="value"
 						.items="${this.ivrOption.possibleValues}"
 						.value="${this.ivrOption.possibleValues[0].value}"
@@ -504,11 +578,8 @@ export class SearchClientDetailsComponent extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button type="clear"
-								label="End Call Session"
-								@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}">
-				</capitec-button>
-				<capitec-button type="primary"
+				<capitec-button id="id-search-button"
+								type="primary"
 								@click="${(e) => this._onSearchClick(e)}"
 								label="Search Client">
 				</capitec-button>
