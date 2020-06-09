@@ -276,10 +276,14 @@ export class AddCallerDetails extends Component {
 					margin-bottom: 27px;
 					align: center;
 				}
+				#id-label-enter-details{
+					margin-left:16px;
+					margin-bottom: 24px;
+				}
 				.group-field-row{
-					margin-left:24px;
+					margin-left:16px;
 					height: 72px;
-					width: 642px;
+					width: 658px;
 					margin-bottom:8px;
 				}
 				.header{
@@ -296,7 +300,7 @@ export class AddCallerDetails extends Component {
 					margin-top:24px;
 				}
 				#id-back-button{
-					margin-right: 288px;
+					margin-left: auto;
 				}
 				#id-confirm-button{
 					margin-right: 16px;
@@ -364,8 +368,16 @@ export class AddCallerDetails extends Component {
 						<capitec-modal type="free" header-align="left" class="header" >
 							<div slot="header">
 							<span>Add Caller Details</span>
-								<capitec-button label="End Call">
-									<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+								<capitec-button 
+									label="End Call"
+									?hidden=${isHidden(this.endCallSessionButton)}
+									.disabled="${isDisabled(this.endCallSessionButton)}"
+									@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+										<capitec-icon 
+											class="end-call-icon" 
+											size="small" 
+											icon="system/phone-escalation">
+										</capitec-icon>
 								</capitec-button>
 							</div>
 							<div slot="body" class="main">
@@ -429,8 +441,7 @@ export class AddCallerDetails extends Component {
 			return html`
 				<capitec-alert-banner 
 								type="error" 
-								label="${this.alertBanner_Message}"
-								closable>
+								label="${this.alertBanner_Message}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -439,8 +450,9 @@ export class AddCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 			<capitec-group class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 				<div class="group-field-row">
-					<capitec-text-field label="First name"
+					<capitec-text-field label="Name"
 										id="firstNameTextField"
 										value="${getValue(this.firstNameTextField)}"
 										error="${this.getErrorMessage(this.firstNameTextField)}"
@@ -497,19 +509,11 @@ export class AddCallerDetails extends Component {
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-button id="id-back-button"
 								type="clear"
-								label="Back"
+								label="Cancel"
 								?hidden=${isHidden(this.backButton)}
 								.disabled="${isDisabled(this.backButton)}"
 								tabindex="${getTabIndex(this.backButton)}"
 								@click="${(e) => this._onBackButtonClick()}">
-				</capitec-button>
-				<capitec-sapacer></capitec-sapacer>
-				<capitec-button type="clear"
-								label="End Call Session"
-								?hidden=${isHidden(this.endCallSessionButton)}
-								.disabled="${isDisabled(this.endCallSessionButton)}"
-								tabindex="${getTabIndex(this.endCallSessionButton)}"
-								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 				</capitec-button>
 				<capitec-button	id="id-confirm-button"
 								type="primary"
