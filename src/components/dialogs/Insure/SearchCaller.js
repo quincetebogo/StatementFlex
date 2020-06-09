@@ -6,7 +6,9 @@ import { Component, html, css } from 'platform/elements';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+
+import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServiceUtilities';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { StopCardService } from '../../../services/StopCardService';
 
@@ -22,6 +24,8 @@ const CLIENT_TYPE = {
 	NON_CLIENT: 1
 }
 
+//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// These error messages has to come from service
 const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: 'All fields are required',
 	NOT_FOUND: {
@@ -48,7 +52,6 @@ const ERROR_MESSAGES = {
 	}
 }
 
-//ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
@@ -98,17 +101,6 @@ export class InsureSearchClient extends Component {
 		this.alertBanner_Message = "";
 
 		//TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": "StopCard",
-				"value": "Stop Card"
-			},
-			{
-				"key": "Insure",
-				"value": "Insure"
-			}
-		];
-
 		this.identificationMethods = [
 			{
 				"key": "0",
@@ -152,6 +144,8 @@ export class InsureSearchClient extends Component {
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
 			clientType: { type: Number },
+			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
 			alertBanner_Message: { type: String }
 		}
 	}
@@ -162,6 +156,16 @@ export class InsureSearchClient extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		// Setup references into the incoming model. The following sets up references to 
+		// fields commmon to both incoming models
+		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+		this.ivrOption = this.unverifiedCaller.ivrOption;
+		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
+
+		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
@@ -195,17 +199,25 @@ export class InsureSearchClient extends Component {
 
 		if (this._validaeFields()) {
 			let searchClient = {
-				incomingTelephoneNumber: "0631152971",
-				voiceReferenceNumber: "123456",
-				incidentNo: "123456",
-				agentTelephoneNumber: "12345678901234567890",
-				ivrOption: 'Insure',
+				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
+				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
+				incidentNo: this.incidentReferenceNumber,
+				agentTelephoneNumber: this.agentTelephoneNumber,
+				ivrOption: this._getIvrOptionKey(this.ivrOption),
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			}
 
 			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
+			if (identifiedClient) {
+				this._raiseOnClientIdentified(identifiedClient)
+			}
 		}
+	}
+
+	_onIvrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
 	// ---------------
@@ -276,8 +288,24 @@ export class InsureSearchClient extends Component {
 		}
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		//TODO: Remove the event dispatch, once the channel service is ready.
+		this._raiseOnClientIdentified(this.unverifiedCaller);
 		return true;
 	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
+	}
+
+	_raiseOnClientIdentified(identifiedClient) {
+		this.dispatchEvent(new CustomEvent('on-client-identified', {
+			detail: {
+				identifiedClient: identifiedClient,
+				incomingCallDetails: this.incomingCallDetails
+			}
+		}));
+	};
 
 	// ---------
 	// RENDERING
@@ -287,6 +315,8 @@ export class InsureSearchClient extends Component {
 		return [
 			super.styles,
 			css`
+				${CALLERINFOBAR_CSS}
+
 				capitec-modal {
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-top: 31px;
@@ -340,46 +370,6 @@ export class InsureSearchClient extends Component {
 					height: 56px;
 					margin: 0px;
 					border-bottom: 1px solid #dfdfdf;
-				}
-				.call-label{
-					width: 230px;
-					margin: 10px 0px 0px 16px;
-				}
-				horizon-label{
-					--horizon-label-text-height: 16px;
-					--horizon-label-text-color: #545D60;
-					--horizon-label-text-font-size: 12px;
-					--horizon-label-text-line-height: 16px;
-
-					--horizon-label-value-height: 20px;
-					--horizon-label-value-color: #545D60;
-					--horizon-label-value-font-size: 16px;
-					--horizon-label-value-line-height: 20px;
-				}
-				.ivr-option{
-					width: 228px;
-				}
-				.left-border{
-					border-left: 1px solid #dfdfdf;
-				}
-				horizon-select{
-					--horizon-select-outer-wrapper-margin-left: 16px;
-					--horizon-select-inner-wrapper-height: 36px;
-
-					--horizon-select-label-text-height: 16px;
-					--horizon-select-label-text-color: #545D60;
-					--horizon-select-label-text-font-size: 12px;
-					--horizon-select-label-text-line-height: 16px;
-
-					--horizon-select-label-value-height: 20px;
-					--horizon-select-label-value-color: #545D60;
-					--horizon-select-label-value-font-size: 16px;
-					--horizon-select-label-value-line-height: 20px;
-
-					--horizon-select-icon-margin-top: 5px;
-					--horizon-select-icon-margin-right: 14px;
-
-					margin-top: 10px;
 				}
 				capitec-content-box{
 					--theme-container-padding-top: 24px;
@@ -490,25 +480,26 @@ export class InsureSearchClient extends Component {
 		return html`
 			<div class="call-details-bar">
 				<horizon-label 
-					class="call-label"
 					label="Reference Number" 
-					value = "34567893">
+					value = "${this.voiceReferenceNumber.value}"
+					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
+					?hidden=${isHidden(this.voiceReferenceNumber)}>
 				</horizon-label>
-				<div class="ivr-option left-border">
-					<horizon-select
-						label="IVR Option Selected"
-						display-field="value"
-						.items="${this.ivrOptions}"
-						.value="Insure">
-					</horizon-select>
-				</div>
-				<div class="left-border">
-					<horizon-label
-						class="call-label"
-						label="Incoming Number"
-						value="0716797003">
-					</horizon-label>
-				<div>
+				<horizon-select
+					label="Client Need"
+					display-field="value"
+					.items="${this.ivrOption.possibleValues}"
+					.value="${this.ivrOption.value}"
+					tabindex="${getTabIndex(this.ivrOption)}"
+					?hidden=${isHidden(this.ivrOption)}
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
+				</horizon-select>
+				<horizon-label
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber.value}"
+					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+				</horizon-label>
 			</div>`;
 	}
 
@@ -621,7 +612,7 @@ export class InsureSearchClient extends Component {
 		return html`
 			<end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</end-call-session>`;
 	}
 }

@@ -9,7 +9,7 @@ import { DesktopAgentService } from '../../services/DesktopAgentService';
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import '../dialogs/EndCallSessionReason';
-import '../dialogs/StopCard';
+import '../dialogs/stopCard/StopCard';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -109,6 +109,7 @@ export class StopCard extends Component {
 			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: incomingCallDetails.ivrOptionCode,
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
+			incidentRecNo: incomingCallDetails.incidentRecNo,
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
 		};
 

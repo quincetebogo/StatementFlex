@@ -13,9 +13,9 @@ import 'platform/components';
 import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
-import horizonRoutes from './shell/HorizonRoutes';
+import horizonRoutes from './shell/HorizonRouter';
 import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
-import { DesktopAgentService, NewCallEvent } from './services/DesktopAgentService.js';
+import { DesktopAgentService } from './services/DesktopAgentService.js';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -304,7 +304,16 @@ export class AppShell extends Shell {
 
 				.right{
 					width:320px; 
-				}			`
+				}
+
+				* {
+					--theme-modal-header-background-color: #4A4848;
+					--theme-modal-header-color: white;
+					--theme-modal-header-font-size: 18px;
+					--theme-modal-header-font-weight: 600;
+					--theme-modal-header-padding-left: 16px;
+				}
+				`
 		];
 	}
 
