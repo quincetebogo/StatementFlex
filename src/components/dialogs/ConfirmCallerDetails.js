@@ -95,7 +95,6 @@ export class ConfirmCallerDetails extends Component {
 
 	async _onAddCallerDetails() {
 
-		let selectedIvrOption = this.ivrOption.possibleValues.find((row) => this._checkSelectedIvrOption(row));
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
@@ -258,13 +257,6 @@ export class ConfirmCallerDetails extends Component {
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 	}
 
-	_checkSelectedIvrOption(selectedNeed) {
-
-		if (selectedNeed.value === this.ivrOption.value) {
-			return true;
-		}
-		return false;
-	}
 	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 
