@@ -73,6 +73,7 @@ export class HorizonLabel extends Component {
 				}
 
 				.label-value{
+					margin-top: var(--horizon-label-value-margin-top, 0px);
 					height: var(--horizon-label-value-height, 27px);
 					color: var(--horizon-label-value-color, #003652);
 					font-family: "Hind Vadodara";

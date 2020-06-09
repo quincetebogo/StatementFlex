@@ -1,13 +1,8 @@
 /*
 		Utility functions for extracting UI control flags and other fields from the channel service contract
 		
-		TODO: REEVALUATE - MAYBE THESE ARE NOT VERY USEFUL - STILL THINKING ABOUT THEM. 
 		THEY DO PROTECT AND DEFAULT SENSIBLY SHOULD THE CHANNEL SERVICE STRUCTURE NOT HAVE
 		THE PROPERTIES/FIELDS WE ARE CHECKING
-
-		TODO: PROBABLY SHOULD MAKE A CLASS
-
-		TODO: Handle fields for validation (required etc.)
 
 		All these functions assume that field info follows the following basic structure
 
@@ -20,7 +15,6 @@
 			...
 		}
 */
-
 
 export function isDisabled(fieldInfo) {
 	if (fieldInfo == undefined) {
