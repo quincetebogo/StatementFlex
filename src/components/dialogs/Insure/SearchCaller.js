@@ -173,7 +173,7 @@ export class InsureSearchClient extends Component {
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;

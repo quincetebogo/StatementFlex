@@ -123,6 +123,7 @@ export class ConfirmCallerDetails extends Component {
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
 			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 			incidentReferenceNumber: this.incidentReferenceNumber,
+			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
 			nonClientFullName: '',
@@ -140,7 +141,7 @@ export class ConfirmCallerDetails extends Component {
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 						incidentReferenceNumber: this.incidentReferenceNumber,
-						incidentRecNo: this.incidentRecNo,
+						incidentRecId: this.incidentRecId,
 						agentTelephoneNumber: this.agentTelephoneNumber
 					},
 					clientProfileDetails: clientProfileDetails
@@ -150,45 +151,14 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onCallCancelled(event) {
-		if (event.detail.unverifiedCaller === undefined) {
-			// We got here by ending the call from this dialog.
-			// we return the the caller with the information from this dialog and the end call reason
-
-
-			let confirmedCaller = {
-				voiceReferenceNumber: this.voiceReferenceNumber.value,
-				ivrOption: this._getIvrOptionKey(this.ivrOption),
-				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-				callerFullName: this.callerFullName.value,
-				southAfricanIDNumber: this.southAfricanIDNumber.value,
-				verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
-				livesIn: this.livesIn.value,
-				languagePreference: this.languagePreference.value,
-				birthdate: this.birthdate.value
-			}
-
-			this.dispatchEvent(new CustomEvent('call-ended',
-				{
-					detail: {
-						confirmedCaller: confirmedCaller, 	// Do we need the confirmed caller?
-						incidentReferenceNumber: this.incidentReferenceNumber,
-						endCallReason: event.detail.endCallReason
-					}
-				}));
-		}
-		else {
-			// We are bubbling back to the caller from the Search for Unverified Client dialog
-			// Should we return the Confirmed Caller? (they are not really confirmed)
-			// Should we return whatever we had on the Search dialog
-			// This will depend on what we need to record when recording the end of the call
-			this.dispatchEvent(new CustomEvent('call-ended',
-				{
-					detail: {
-						incidentReferenceNumber: this.incidentReferenceNumber,
-						endCallReason: event.detail.endCallReason
-					}
-				}));
-		}
+		this.dispatchEvent(new CustomEvent('call-ended',
+			{
+				detail: {
+					incidentReferenceNumber: this.incidentReferenceNumber,
+					incidentRecId: this.incidentRecId,
+					endCallReason: event.detail.endCallReason
+				}
+			}));
 	}
 
 	_onIdentifiedClient(data) {
@@ -251,7 +221,7 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmButton = this.confirmedCaller.confirmButton;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 	}
 

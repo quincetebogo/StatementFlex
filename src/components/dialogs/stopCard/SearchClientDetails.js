@@ -118,7 +118,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {

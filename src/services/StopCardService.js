@@ -62,12 +62,11 @@ export class StopCardService {
 	}
 
 	// endCallSession
-	async endCall(incidentNumber, reasonCode) {
+	async endCall(incidentRecId, reasonCode) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}`,
 			{
-				"incidentReferenceNumber": incidentNumber,
+				"incidentRecId": incidentRecId,
 				"endReason": reasonCode,
-				"incidentDetails": null
 			});
 	}
 
@@ -114,6 +113,7 @@ export class StopCardService {
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
 		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
+			'incidentRecId': callerData.IncidentRecId,
 			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
 			'voiceReferenceNumber': callerData.voiceReferenceNumber,

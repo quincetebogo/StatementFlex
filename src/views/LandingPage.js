@@ -52,7 +52,7 @@ export class LandingPage extends View {
 		this.incomingCallDetails = {
 			"incomingTelephoneNumber": ``,
 			"incidentReferenceNumber": ``,
-			"incidentRecNo": ``,
+			"incidentRecId": ``,
 			"agentTelephoneNumber": ``,
 			"ivrOptionCode": ``
 		};
@@ -177,7 +177,7 @@ export class LandingPage extends View {
 	async _onCallEnded(data) {
 		this.renderMode = -1;
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentReferenceNumber, data.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 	}
 
@@ -248,7 +248,7 @@ export class LandingPage extends View {
 	_AddCallInfo(model, newCallInfo) {
 		model.incomingTelephoneNumber = newCallInfo.IncomingTelephoneNumber;
 		model.incidentReferenceNumber = newCallInfo.IncidentReferenceNumber;
-		model.incidentRecNo = newCallInfo.IncidentRecNo;
+		model.incidentRecId = newCallInfo.IncidentRecId;
 		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
 		model.ivrOptionCode = newCallInfo.IVROptionCode;
 		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber

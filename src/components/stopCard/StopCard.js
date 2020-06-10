@@ -109,7 +109,7 @@ export class StopCard extends Component {
 			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: incomingCallDetails.ivrOptionCode,
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
-			incidentRecNo: incomingCallDetails.incidentRecNo,
+			incidentRecId: incomingCallDetails.incidentRecId,
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
 		};
 
@@ -209,7 +209,7 @@ export class StopCard extends Component {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
 
 		this.desktopAgentService.callComplete();
 
