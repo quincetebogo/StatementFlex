@@ -6,6 +6,8 @@
 import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
+import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
+
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, getValue, isNullorEmpty } from '../../utils/channelServiceUtilities';
@@ -230,71 +232,24 @@ export class AddCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
+				${CALLERINFOBAR_CSS}
+
 				.main{
-					box-sizing: border-box;
 					height: 546px;
 					width: 690px;
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-					background-color: #FFFFFF;
-					box-shadow: 0 2px 6px 0 rgba(0,0,0,0.15);
-				}
-				.call-details-bar{
-					display: flex;
-					flex-direction: row;
-					height:64px;
-					margin: 0px;
-					border-bottom: 1px solid #dfdfdf;
-				}
-				.call-label{
-					width:208px;
-					margin-left:24px;
-					margin-top:8px;
-					margin-bottom:8px;
-				}
-				.ivr-option{
-					width: 228px;
-				}
-				.left-border{
-					border-left: 1px solid #dfdfdf;
-				}
-				#label-ivr{
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					line-height: 27px;
-					width: 180px;
-					margin-top: 8px;
-					margin-left: 24px;
-				}
-				.addCaller-box{
-					width: 642px;
-					height: 300px;
-					margin: auto;
-					margin-top: 23px;
-					margin-bottom: 27px;
-					align: center;
 				}
 				#id-label-enter-details{
-					margin-left:16px;
-					margin-bottom: 24px;
+					margin-left: 16px;
+					margin-bottom: 20px;
+					
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
 				}
 				.group-field-row{
 					margin-left:16px;
 					height: 72px;
 					width: 658px;
 					margin-bottom:8px;
-				}
-				.header{
-					height: 30px;
-					width: 159px;
-					color: #4E6066;
-					font-family: "Hind Vadodara";
-					font-size: 20px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
 				}
 				.body-group{
 					margin-top:24px;
@@ -306,8 +261,8 @@ export class AddCallerDetails extends Component {
 					margin-right: 16px;
 				}
 				capitec-modal {
-					--theme-modal-header-padding-top: 31px;
-					--theme-modal-header-padding-bottom: 31px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
 					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-right: 31px;
@@ -329,7 +284,7 @@ export class AddCallerDetails extends Component {
 					display: flex;
 					align-items: center;
 					left: -670px;
-					top: -25px;
+					top: -23px;
 				}
 				div[slot="header"] > span{
 					height: 24px;
@@ -345,8 +300,9 @@ export class AddCallerDetails extends Component {
 				}
 				div[slot="header"] > capitec-button{
 					width: 130px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+					--theme-button-padding-right: 16px;
 					--theme-button-padding-left: 16px;
 					--theme-button-default-background-color: #FF2B25;
 					--theme-button-default-border-color: #FF2B25;
@@ -354,9 +310,7 @@ export class AddCallerDetails extends Component {
 					--theme-button-default-background-tapped-color: #FF2B25;
 				}
 				.end-call-icon{
-					margin: 0px;
 					margin-left: 14px;
-					margin-top: -5px;
 				}
 			`];
 	}
@@ -367,18 +321,14 @@ export class AddCallerDetails extends Component {
 				return html`
 						<capitec-modal type="free" header-align="left" class="header" >
 							<div slot="header">
-							<span>Add Caller Details</span>
-								<capitec-button 
-									label="End Call"
-									?hidden=${isHidden(this.endCallSessionButton)}
-									.disabled="${isDisabled(this.endCallSessionButton)}"
-									@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-										<capitec-icon 
-											class="end-call-icon" 
-											size="small" 
-											icon="system/phone-escalation">
-										</capitec-icon>
-								</capitec-button>
+								<span>Add Caller Details</span>
+									<capitec-button 
+											label="End Call"
+											?hidden=${isHidden(this.endCallSessionButton)}
+											.disabled="${isDisabled(this.endCallSessionButton)}"
+											@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+										<img class="end-call-icon" src="../../images/hangup.svg"/>
+									</capitec-button>
 							</div>
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
@@ -405,34 +355,27 @@ export class AddCallerDetails extends Component {
 	renderCallInformation() {
 		return html`
 			<div class="call-details-bar">
-				<horizon-label 
-					class="call-label"
+				<horizon-label
 					label="Reference Number" 
 					value = "${this.voiceReferenceNumber.value}"
 					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
 					?hidden=${isHidden(this.voiceReferenceNumber)}>
 				</horizon-label>
-				<div class="ivr-option left-border">
-					<horizon-select
-						id="label-ivr"
-						label="IVR Option Selected"
-						display-field="value"
-						.items="${this.ivrOption.possibleValues}"
-						.value="${this.ivrOption.possibleValues[0].value}"
-						tabindex="${getTabIndex(this.ivrOption)}"
-						?hidden=${isHidden(this.ivrOption)}
-						@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-					</horizon-select>
-				</div>
-				<div class="left-border">
-					<horizon-label
-						class="call-label"
-						label="Incoming Number"
-						value="${this.incomingTelephoneNumber.value}"
-						tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-						?hidden=${isHidden(this.incomingTelephoneNumber)}>
-					</horizon-label>
-				<div>
+				<horizon-select
+					label="Client Need"
+					display-field="value"
+					.items="${this.ivrOption.possibleValues}"
+					.value="${this.ivrOption.value}"
+					tabindex="${getTabIndex(this.ivrOption)}"
+					?hidden=${isHidden(this.ivrOption)}
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
+				</horizon-select>
+				<horizon-label
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber.value}"
+					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
+					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+				</horizon-label>
 			</div>`;
 	}
 
