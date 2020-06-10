@@ -101,6 +101,16 @@ export class InsureSearchClient extends Component {
 		this.alertBanner_Message = "";
 
 		//TODO: Remove this hardcoded values, once the channel service is ready
+		this.ivrOptions = [
+			{
+				"key": "StopCard",
+				"value": "Stop Card"
+			},
+			{
+				"key": "Insure",
+				"value": "Insure"
+			}
+		];
 		this.identificationMethods = [
 			{
 				"key": "0",
@@ -157,11 +167,10 @@ export class InsureSearchClient extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Setup references into the incoming model. The following sets up references to 
-		// fields commmon to both incoming models
-		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
-		this.ivrOption = this.unverifiedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
+		//Below references needs to be pulled from services, for now it's fetched from incoming call details
+		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecNo = this.incomingCallDetails.incidentRecNo;
@@ -188,10 +197,6 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onKeyPress(e) {
-		if (e.detail.new !== "") {
-			this.errMessage[e.currentTarget.id] = "";
-			this.alertBanner_Message = "";
-		}
 		this._clearErrors();
 	}
 
@@ -199,18 +204,20 @@ export class InsureSearchClient extends Component {
 
 		if (this._validaeFields()) {
 			let searchClient = {
-				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this._getIvrOptionKey(this.ivrOption),
+				ivrOption: 'StopCard', //hardcoded value to demo the flow
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			}
 
 			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
 			if (identifiedClient) {
-				this._raiseOnClientIdentified(identifiedClient)
+				//Service returns ivrOption as "StopCard", actually we are in "Insure".
+				identifiedClient.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
+				this._raiseOnClientIdentified(identifiedClient);
 			}
 		}
 	}
@@ -218,6 +225,14 @@ export class InsureSearchClient extends Component {
 	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+	}
+
+	_onContinue() {
+		//TODO: Add non client details comes here
+	}
+
+	_onCallCancelled(reason) {
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	// ---------------
@@ -245,7 +260,6 @@ export class InsureSearchClient extends Component {
 	}
 
 	_isRequiredFieldsEmpty() {
-
 		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? "This is a required field" : "";
 		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? "Choose an Identification Method" : "";
 
@@ -288,8 +302,6 @@ export class InsureSearchClient extends Component {
 		}
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		//TODO: Remove the event dispatch, once the channel service is ready.
-		this._raiseOnClientIdentified(this.unverifiedCaller);
 		return true;
 	}
 
@@ -481,24 +493,18 @@ export class InsureSearchClient extends Component {
 			<div class="call-details-bar">
 				<horizon-label 
 					label="Reference Number" 
-					value = "${this.voiceReferenceNumber.value}"
-					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-					?hidden=${isHidden(this.voiceReferenceNumber)}>
+					value = "${this.voiceReferenceNumber}">
 				</horizon-label>
 				<horizon-select
 					label="Client Need"
 					display-field="value"
-					.items="${this.ivrOption.possibleValues}"
-					.value="${this.ivrOption.value}"
-					tabindex="${getTabIndex(this.ivrOption)}"
-					?hidden=${isHidden(this.ivrOption)}
+					.items="${this.ivrOptions}"
+					.value="${this.ivrOptionCode}"
 					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
 				</horizon-select>
 				<horizon-label
 					label="Incoming Number"
-					value="${this.incomingTelephoneNumber.value}"
-					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+					value="${this.incomingTelephoneNumber}">
 				</horizon-label>
 			</div>`;
 	}
