@@ -173,7 +173,7 @@ export class SearchClientDetailsComponent extends Component {
 
 			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
 			if (identifiedClient) {
-				this._raiseOnClientIdentified(identifiedClient)
+				this._raiseOnClientIdentified(identifiedClient);
 			}
 			else {
 				// TODO: handle not found - we don't deal with this at all at present
@@ -192,6 +192,10 @@ export class SearchClientDetailsComponent extends Component {
 		if (e.detail.new.key === "Insure") {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
+	}
+
+	_onClientIdentfiedInsure(data) {
+		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
 
 	// ---------------
@@ -545,7 +549,13 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	renderInsureSearchModal() {
-		return html`<horizon-insure-search-client></horizon-insure-search-client>`;
+		return html`
+			<horizon-insure-search-client
+				.unverifiedCaller="${this.unverifiedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
+				@call-ended="${(data) => this._onCallCancelled(data)}">
+			</horizon-insure-search-client>`;
 	}
 }
 

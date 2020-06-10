@@ -13,6 +13,7 @@ import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
+import '../components/dialogs/Insure/SearchCaller';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
@@ -25,7 +26,8 @@ import { ServiceCallHelper } from '../utils/serviceCallHelper';
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
-	START_AGENT: 2
+	START_AGENT: 2,
+	INSURE_SEARCH_CALLER: 3
 };
 
 export class LandingPage extends View {
@@ -112,6 +114,13 @@ export class LandingPage extends View {
 		/* <-- TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
 
 		this.acceptCallErrorHandled = false;
+
+		//TODO: Remove the below static condition check, when channel service is ready
+		if (newCallInfo.IVROptionCode === "Insure") {
+			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
+			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+			return;
+		}
 
 		// Check the incoming call to see if it is a verified or unverified number
 		let acceptedCall = await this.serviceCallHelper.asyncCall(
@@ -310,6 +319,14 @@ export class LandingPage extends View {
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
+		}
+		else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
+			return html`
+				<horizon-insure-search-client
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@on-client-identified="${(data) => this._onClientIdentified(data)}"
+					@call-ended="${(data) => this._onCallEnded(data)}">
+				</horizon-insure-search-client>`;
 		}
 	}
 

@@ -3,10 +3,14 @@
  *
  */
 import { Component, html, css } from 'platform/elements';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 
-import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServiceUtilities';
+import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { StopCardService } from '../../../services/StopCardService';
 
 import '../../Common/HorizonSelect';
 
@@ -18,6 +22,61 @@ const RENDER_MODE = {
 const CLIENT_TYPE = {
 	CAPITEC_CLIENT: 0,
 	NON_CLIENT: 1
+}
+
+//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// These error messages has to come from service
+const ERROR_MESSAGES = {
+	REQUIRED_FIELDS_EMPTY: 'All fields are required',
+	NOT_FOUND: {
+		0: {
+			ALERT_BANNER: 'The ID/Passport number not found. This is not a valid ID/Passport number',
+			FIELD_ERROR: 'ID/Passport number not found'
+		},
+		1: {
+			ALERT_BANNER: 'The foreign passport number not found. This is not a valid foreign passport number',
+			FIELD_ERROR: 'Foreign passport number not found'
+		},
+		2: {
+			ALERT_BANNER: 'The account number not found. This is not a valid account number',
+			FIELD_ERROR: 'Account number not found'
+		},
+		3: {
+			ALERT_BANNER: 'The reference number not found. This is not a valid reference number',
+			FIELD_ERROR: 'Reference number not found'
+		},
+		4: {
+			ALERT_BANNER: 'The cellphone number not found. This is not a verified Capitec number',
+			FIELD_ERROR: 'Cellphone number not found'
+		}
+	}
+}
+
+const REGEX_PATTERNS = {
+	0: {
+		PATTERN: /^[0-9]{13}$/,
+		FIELD_ERROR: 'ID Number must be 13 characters long',
+		ALERT_BANNER: 'Incorrect ID/Passport number'
+	},
+	1: {
+		PATTERN: /^/,
+		FIELD_ERROR: ''
+	},
+	2: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: 'Account number must be 10 characters long',
+		ALERT_BANNER: 'Incorrect Account number'
+	},
+	3: {
+		PATTERN: /^[0-9]{6}$/,
+		FIELD_ERROR: 'Reference number must be 6 characters long',
+		ALERT_BANNER: 'Incorrect Reference number'
+	},
+	4: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: 'Enter a 10 digit cellphone number',
+		ALERT_BANNER: 'Incorrect Capitec cellphone number'
+	}
 }
 
 export class InsureSearchClient extends Component {
@@ -35,6 +94,11 @@ export class InsureSearchClient extends Component {
 		this.isBusy = false;
 		this.headerLabel = 'Search Caller Details';
 		this.clientType = -1;
+		this.errMessage = {
+			searchType: "",
+			searchValue: ""
+		}
+		this.alertBanner_Message = "";
 
 		//TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
@@ -47,7 +111,6 @@ export class InsureSearchClient extends Component {
 				"value": "Insure"
 			}
 		];
-
 		this.identificationMethods = [
 			{
 				"key": "0",
@@ -70,6 +133,16 @@ export class InsureSearchClient extends Component {
 				"value": "Verified Cellphone Number"
 			}
 		];
+		this.searchType = { "key": "", "value": "" };
+		this.searchValue = "";
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.stopCardService = StopCardService.getInstance();
+
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, unless you need an exception handler generic to component
+		);
 	}
 
 	// ----------
@@ -82,7 +155,8 @@ export class InsureSearchClient extends Component {
 			renderMode: { type: Number },
 			clientType: { type: Number },
 			incomingCallDetails: { type: Object },
-			unverifiedCaller: { type: Object }
+			unverifiedCaller: { type: Object },
+			alertBanner_Message: { type: String }
 		}
 	}
 
@@ -114,16 +188,136 @@ export class InsureSearchClient extends Component {
 			this.clientType = e.target.id === "capitecClient" ? CLIENT_TYPE.CAPITEC_CLIENT : CLIENT_TYPE.NON_CLIENT;
 		}
 		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? "Search Caller Details" : "Add Caller Details";
+		this._clearErrors();
+	}
+
+	_valueChanged(e) {
+		this[e.currentTarget.id] = e.detail.new;
+		this._clearErrors();
+	}
+
+	_onKeyPress(e) {
+		this._clearErrors();
+	}
+
+	async _onSearchClient() {
+
+		if (this._validaeFields()) {
+			let searchClient = {
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+				incidentNo: this.incidentReferenceNumber,
+				agentTelephoneNumber: this.agentTelephoneNumber,
+				ivrOption: 'StopCard', //hardcoded value to demo the flow
+				identificationMethod: this.searchType.key,
+				searchValue: this.searchValue
+			}
+
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
+			if (identifiedClient) {
+				//Service returns ivrOption as "StopCard", actually we are in "Insure".
+				identifiedClient.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
+				this._raiseOnClientIdentified(identifiedClient);
+			}
+		}
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ivrOptionCode = e.detail.new.value;
+		this.ivrOption.value = e.detail.new.value;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+	}
+
+	_onContinue() {
+		//TODO: Add non client details comes here
+	}
+
+	_onCallCancelled(reason) {
+		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_validaeFields() {
+
+		let isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBanner_Message = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
+
+		let regexValidation = REGEX_PATTERNS[this.searchType.key];
+		let REGEX_PATTERN = regexValidation.PATTERN;
+
+		if (!RegExp(REGEX_PATTERN, 'g').test(this.searchValue)) {
+			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
+			this.alertBanner_Message = regexValidation.ALERT_BANNER;
+			return false;
+		}
+
+		return true;
+	}
+
+	_isRequiredFieldsEmpty() {
+		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? "This is a required field" : "";
+		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? "Choose an Identification Method" : "";
+
+		return this.errMessage.searchValue || this.errMessage.searchType;
+	}
+
+	_clearErrors() {
+		this.errMessage.searchType = "";
+		this.errMessage.searchValue = "";
+		this.alertBanner_Message = "";
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
+
+	_handleSearchClientException(exception) {
+		let event = {
+			from: 'UI-CS',
+			status: "error",
+			message: ""
+		}
+
+		if (exception instanceof TypeError) {
+			event.message = exception.message;
+		}
+		else if (exception instanceof HttpStatusError) {
+			if (exception.status === 204) {
+				let errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+				this.alertBanner_Message = errMessages.ALERT_BANNER;
+				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+				return true;
+			}
+			else {
+				event.message = `${exception.status}: ${exception.message}`;
+			}
+		}
+		else {
+			event.message = `UNEXPECTED ERROR: ${exception.message}`;
+		}
+
+		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		return true;
+	}
+
+	_getIvrOptionKey(ivrOption) {
+		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		return result.key;
+	}
+
+	_raiseOnClientIdentified(identifiedClient) {
+		this.dispatchEvent(new CustomEvent('on-client-identified', {
+			detail: {
+				identifiedClient: identifiedClient,
+				incomingCallDetails: this.incomingCallDetails
+			}
+		}));
+	};
 
 	// ---------
 	// RENDERING
@@ -224,6 +418,9 @@ export class InsureSearchClient extends Component {
 					margin-top: 31px;
 					margin-bottom: 18px;
 				}
+				.reset-margin-bottom{
+					margin-bottom : 0px;
+				}
 				.id-options{
 					text-align: justify;
 					line-height: 12px	
@@ -247,9 +444,8 @@ export class InsureSearchClient extends Component {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					
-					margin: 20px 0px 0px 0px;
+					margin: 20px 0px 16px 0px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-					
 				}`
 		];
 	}
@@ -332,24 +528,32 @@ export class InsureSearchClient extends Component {
 	_renderCapitecClientFields() {
 		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
 			return html`
-					<capitec-label class="search-label" label="Search existing client"></capitec-label>
+					<capitec-label class="search-label ${this.alertBanner_Message ? `reset-margin-bottom` : ``}"
+								   label="Search existing client">
+					</capitec-label>
+					${this._renderAlertBanner()}
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" >
 						<div class="search-field-row">
-							<capitec-select	id="identificationMethods"
-											label="Choose identification method"
+							<capitec-select	id="searchType"
 											class="id-options"
+											label="Choose identification method" 
 											.items="${this.identificationMethods}"
-											display-field="value">
+											.value="${this.searchType}"
+											display-field="value"
+											@value-changed="${(e) => this._valueChanged(e)}"
+											error="${this.errMessage.searchType}">
 							</capitec-select>
 						</div>
 						<div class="search-field-row">
-							<capitec-text-field id="searchFieldText" 
+							<capitec-text-field id="searchValue"
 												type="search"
 												keyboardMode ="numeric" 
 												label="Search" 
 												focussed="true" 
-												hint="" 
-												value="">
+												value="${this.searchValue}"
+												@value-changed="${(e) => this._valueChanged(e)}"
+												@key-input="${(e) => this._onKeyPress(e)}"
+												error="${this.errMessage.searchValue}">
 							</capitec-text-field>
 						</div>
 					</capitec-group>`;
@@ -383,14 +587,26 @@ export class InsureSearchClient extends Component {
 		return html``;
 	}
 
+	_renderAlertBanner() {
+
+		if (!isNullorEmpty(this.alertBanner_Message)) {
+			return html`
+				<capitec-alert-banner type="error" label="${this.alertBanner_Message}" closable></capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button type="primary"
+								@click="${(e) => this._onSearchClient(e)}"
 								label="Search Client"
 								?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
 				<capitec-button type="primary"
+								@click="${(e) => this._onContinue(e)}"
 								label="Continue"
 								?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
