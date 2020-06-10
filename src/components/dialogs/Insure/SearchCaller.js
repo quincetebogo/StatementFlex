@@ -331,8 +331,8 @@ export class InsureSearchClient extends Component {
 
 				capitec-modal {
 					--theme-modal-header-background-color: #4A4848;
-					--theme-modal-header-padding-top: 31px;
-					--theme-modal-header-padding-bottom: 31px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-footer-padding: 7px 16px 9px 0px;
@@ -343,7 +343,7 @@ export class InsureSearchClient extends Component {
 					display: flex;
 					align-items: center;
 					left: -670px;
-					top: -25px;
+					top: -23px;
 				}
 				div[slot="header"] > span{
 					height: 24px;
@@ -359,8 +359,9 @@ export class InsureSearchClient extends Component {
 				}
 				div[slot="header"] > capitec-button{
 					width: 130px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+					--theme-button-padding-right: 16px;
 					--theme-button-padding-left: 16px;
 					--theme-button-default-background-color: #FF2B25;
 					--theme-button-default-border-color: #FF2B25;
@@ -368,9 +369,7 @@ export class InsureSearchClient extends Component {
 					--theme-button-default-background-tapped-color: #FF2B25;
 				}
 				.end-call-icon{
-					margin: 0px;
 					margin-left: 14px;
-					margin-top: -5px;
 				}
 				div[slot="body"]{
 					width: 690px;
@@ -460,7 +459,7 @@ export class InsureSearchClient extends Component {
 							<span>${this.headerLabel}</span>
 							<capitec-button label="End Call"
 											@click="${(e) => this.renderMode = RENDER_MODE.END_CALL}">
-								<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+								<img class="end-call-icon" src="../../../images/hangup.svg"/>
 							</capitec-button>
 						</div>
 						<div slot="body">

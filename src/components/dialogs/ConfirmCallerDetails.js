@@ -94,6 +94,7 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	async _onAddCallerDetails() {
+
 		let callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
@@ -115,6 +116,7 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
+
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
@@ -151,6 +153,8 @@ export class ConfirmCallerDetails extends Component {
 		if (event.detail.unverifiedCaller === undefined) {
 			// We got here by ending the call from this dialog.
 			// we return the the caller with the information from this dialog and the end call reason
+
+
 			let confirmedCaller = {
 				voiceReferenceNumber: this.voiceReferenceNumber.value,
 				ivrOption: this._getIvrOptionKey(this.ivrOption),
@@ -301,8 +305,8 @@ export class ConfirmCallerDetails extends Component {
 				${CALLERINFOBAR_CSS}
 
 				capitec-modal{
-					--theme-modal-header-padding-top: 31px;
-					--theme-modal-header-padding-bottom: 31px;
+					--theme-modal-header-padding-top: 32px;
+					--theme-modal-header-padding-bottom: 32px;
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-footer-padding: 7px 16px 9px 0px;
@@ -314,7 +318,7 @@ export class ConfirmCallerDetails extends Component {
 					display: flex;
 					align-items: center;
 					left: -670px;
-					top: -25px;
+					top: -23px;
 				}
 
 				div[slot="header"] > span{
@@ -332,8 +336,9 @@ export class ConfirmCallerDetails extends Component {
 
 				div[slot="header"] > capitec-button{
 					width: 130px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-top: 10px;
+					--theme-button-padding-bottom: 10px;
+					--theme-button-padding-right: 16px;
 					--theme-button-padding-left: 16px;
 					--theme-button-default-background-color: #FF2B25;
 					--theme-button-default-border-color: #FF2B25;
@@ -342,9 +347,7 @@ export class ConfirmCallerDetails extends Component {
 				}
 
 				.end-call-icon{
-					margin: 0px;
 					margin-left: 14px;
-					margin-top: -5px;
 				}
 
 				div[slot="body"]{
@@ -447,7 +450,7 @@ export class ConfirmCallerDetails extends Component {
 						<span>Confirm Caller Details</span>
 						<capitec-button label="End Call" 
 										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+							<img class="end-call-icon" src="../../images/hangup.svg"/>
 						</capitec-button>
 					</div>
 					<div slot="body">
