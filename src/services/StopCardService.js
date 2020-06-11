@@ -86,7 +86,7 @@ export class StopCardService {
 	}
 
 	// loadAssignRequest
-	async AssignTeams(incidentData) {
+	async assignTeams(incidentData) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
@@ -96,8 +96,8 @@ export class StopCardService {
 	}
 
 	// assignRequest
-	async Assign(assignData) {
-		return await this._getClient.post(`/horizon/endcall/${this.version}/Assign`,
+	async assign(assignData) {
+		return await this._getClient().post(`/horizon/endcall/${this.version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
