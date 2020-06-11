@@ -125,7 +125,6 @@ export class ConfirmCallerDetails extends Component {
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
-			// verifiedTelephoneNumber: this.verifiedTelephoneNumber.value,
 			nonClientFullName: '',
 			nonClientCellPhone: '',
 			nonClientIDNumber: '',
