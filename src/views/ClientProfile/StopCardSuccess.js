@@ -88,7 +88,7 @@ export class StopCardSuccess extends View {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentReferenceNumber, reason.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
 
 		this.desktopAgentService.callComplete();
 

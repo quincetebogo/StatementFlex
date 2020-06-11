@@ -96,7 +96,7 @@ export class DesktopAgentService {
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IncidentRecNo = eventData.IncidentRecNo;
+			newCallEvent.IncidentRecId = eventData.IncidentRecNo;
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
 

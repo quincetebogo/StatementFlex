@@ -6,6 +6,11 @@ import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
+import { EventAggregator } from 'platform/EventAggregator';
+
+import { StopCardService } from '../../services/StopCardService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+
 import '../../views/ClientProfile/StopCardFailure';
 export class AssignStopCard extends Component {
 
@@ -16,15 +21,25 @@ export class AssignStopCard extends Component {
 	constructor() {
 		super();
 
-		this.team = null;
-		this.teamItems = [
-			{ id: 'T2', text: 'VR23456' },
-			{ id: 'T3', text: 'VR98765' },
-			{ id: 'T4', text: 'VR56478' }
-		];
 		this.cards = [];
+
+		this.team = null;
+		this.teamsResponse = null;
+
 		this.errorAlert = false;
 		this.errorMessage = ``;  // "Please select a team to assign";
+
+
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.stopCardService = StopCardService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+
+		this.isBusy = false;
+		this.success = true;
 	}
 
 	// ----------
@@ -34,31 +49,61 @@ export class AssignStopCard extends Component {
 	static get properties() {
 		return {
 			callerInfo: { type: Object },
-			team: { type: Object },
-			teamItems: { type: Array },
-			ownerItems: { type: Array },
-			teamOwner: { type: Object },
 			cards: { type: Array },
+			teamsResponse: { type: Object },
+			isBusy: { type: Boolean },
+			team: { type: Object },
 			errorAlert: { type: Boolean },
 			errorMessage: { type: String }
 		}
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		let cardsAndIncident = {
+			cardIds: this.cards.map(card => card.cardId),
+			incidentRecId: this.callerInfo.incidentRecId
+		}
+
+		this.serviceCallHelper.call(
+			this.stopCardService.assignTeams(cardsAndIncident),
+			(teams) => {
+				this.teamsResponse = teams;
+				this.teamItems = this.teamsResponse.teams.possibleValues;
+			});
+	}
 
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------	
 
-	_onAssignClick(e) {
-
+	async _onAssignClick(e) {
 		if (!this.team) {
 			this.errorAlert = true;
 		}
 		else {
-			this.dispatchEvent(new CustomEvent('on-handoff', {
-				detail: {}
-			}));
+
+			let assignRequest =
+			{
+				"cardIds": this.cards.map(card => card.cardId),
+				"incidentRecId": this.callerInfo.incidentRecId,
+				"team": this.team.value
+			};
+
+			this.success = true;
+			await this.serviceCallHelper.asyncCall(this.stopCardService.assign(assignRequest), (ex) => this._assignErrorHandler(ex));
+
+			if (this.success) {
+				this.dispatchEvent(new CustomEvent('on-handoff', {
+					detail: {}
+				}));
+			}
 		}
 	}
 
@@ -80,6 +125,54 @@ export class AssignStopCard extends Component {
 	// PRIVATE METHODS
 	// ----------
 
+	_assignErrorHandler(exception) {
+		try {
+			if (exception.status === 204) {
+				return true;
+			}
+
+			this.error = 'Failed to assign card';
+
+			if (exception instanceof TypeError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `assign: ${exception.message}`
+				}
+				this.error = exception.message;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else if (exception instanceof HttpStatusError) {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `assign: ${exception.status} - ${exception.message}`
+				}
+				this.error = `${exception.status}: ${exception.message}`;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+			else {
+				let event = {
+					from: 'UI-CS',
+					status: "error",
+					message: `assign: UNEXPECTED ERROR - ${exception.message}`
+				}
+				this.error = exception.message;
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		}
+		finally {
+			if (exception.status != 204) {
+				this.success = false;
+			}
+		}
+
+		return true;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
 
 	// ---------
 	// RENDERING
@@ -175,6 +268,10 @@ export class AssignStopCard extends Component {
 	}
 
 	_webTemplate() {
+		if (this.teamsResponse === null) {
+			return html``;
+		}
+
 		return html`
 			<capitec-modal 
 				type="free" 
@@ -203,12 +300,13 @@ export class AssignStopCard extends Component {
   				label="Choose a team (Required)"
 				.items="${this.teamItems}" 
 				error="${this.errorMessage}"
- 				display-field="text"
+ 				display-field="value"
 				@value-change="${(e) => this._onTeamSelected(e)}"
 				mode="basic"
   				searchable>
 			</capitec-select>
 
+			${this.renderLoadingIndicator()}
 		</capitec-group>
 		`;
 	}
@@ -251,9 +349,19 @@ export class AssignStopCard extends Component {
 			<capitec-button class="assign-button"
 				type="primary"
 				label="Assign"
-				@click="${(e) => this._onAssignClick(e)}" >
+				@click="${async (e) => this._onAssignClick(e)}" >
 			</capitec-button >
 			`;
+	}
+
+	renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+
+		return html`
+            <capitec-loading-indicator></capitec-loading-indicator>
+        `;
 	}
 }
 

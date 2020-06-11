@@ -95,6 +95,7 @@ export class AddCallerDetails extends Component {
 
 		// incomingCallDetails references
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
@@ -137,6 +138,7 @@ export class AddCallerDetails extends Component {
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
 			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 			incidentReferenceNumber: this.incidentReferenceNumber,
+			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
 			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
 			nonClientCellPhone: this.cellPhoneTextField.value,
