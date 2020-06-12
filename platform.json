@@ -1,13 +1,18 @@
 {
-	"version": "0.23.0",
+	"version": "0.23.2",
 	"framework": "WebComponents",
 	"type": "desktop",
 	"application": {
 		"name": "horizon",
 		"title": "horizon",
-		"version": "0.0.38",
+		"version": "0.0.44",
 		"idp": {
 			"client": "Horizon"
+		},
+		"csp": {
+			"connect-src": [
+				"http://localhost:8888"
+			]
 		}
 	}
 }
