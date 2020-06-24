@@ -9,6 +9,7 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
+	PRODUCT_INSURE_NONCLIENT: `/product/insure/non-client`,
 	PRODUCT_CREDIT: `/product/credit`,
 	CLIENT_PROFILE_PAGE: `/client/profile`,
 	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
@@ -86,6 +87,16 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
+	},
+	{
+		name: `product-insure-non-client`,
+		title: `InsureProductNonClientView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_INSURE_NONCLIENT,
+		load: () => import(`../views/product/InsureProductNonClient`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},

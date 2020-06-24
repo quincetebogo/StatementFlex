@@ -5,13 +5,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "edge",
-			"request": "launch",
-			"name": "Launch Edge",
-			"url": "http://localhost:62000",
-			"webRoot": "${workspaceFolder}"
-		},
-		{
 			"type": "chrome",
 			"request": "launch",
 			"name": "Launch Chrome",
