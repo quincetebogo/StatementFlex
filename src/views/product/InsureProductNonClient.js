@@ -25,4 +25,4 @@ export class InsureProductNonClient extends View {
 	}
 }
 
-customElements.define(`product-insure-nonclient`, InsureProductNonClient);
+customElements.define(`product-insure-non-client`, InsureProductNonClient);

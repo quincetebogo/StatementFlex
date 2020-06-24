@@ -60,10 +60,13 @@ export class InsureBenefitNonClient extends Component {
 				</capitec-title-bar>
 
 				<capitec-tab-group>
-					<capitec-button label="Benefits" layout="vertical" halign="left" @click="${() => this.navigate(`benefit`)}">
-					
-					</capitec-button>
-
+					<capitec-tab  label="Benefits">
+						<capitec-content-box>
+							${this.benefitScreen ? html`<div>${this.renderBenefitContent()}</div>` : html``}
+							${this.coverScreen ? html`<div>${this.renderCoverContent()}</div>` : html``}
+							${this.claimScreen ? html`<div>${this.renderClaimContent()}</div>` : html``}
+  				   		</capitec-content-box>
+					</capitec-tab>
 				<capitec-button label="Cover" layout="vertical" halign="left" @click="${() => this.navigate(`cover`)}">
 		
 				</capitec-button>
@@ -73,11 +76,6 @@ export class InsureBenefitNonClient extends Component {
 					</capitec-button>
 			</capitec-tab-group>
 		
-				<capitec-content-box>
-					${this.benefitScreen ? html`<div>${this.renderBenefitContent()}</div>` : html``}
-					${this.coverScreen ? html`<div>${this.renderCoverContent()}</div>` : html``}
-					${this.claimScreen ? html`<div>${this.renderClaimContent()}</div>` : html``}
-				</capitec-content-box>
 			</capitec-card>
 		`;
 	}
