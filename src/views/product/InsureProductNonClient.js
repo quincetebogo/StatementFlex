@@ -13,7 +13,7 @@ export class InsureProductNonClient extends View {
 		return [
 			super.styles,
 			css`
-				.savings-details{
+				.non-client-benefits{
 					width:100%;
 					height:100%;
 				}					
