@@ -8,7 +8,10 @@ import { HorizonRouter } from '../shell/HorizonRouter';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
 
-import { NewCallEvent } from '../models//NewCallEvent'
+import { NewCallEvent } from '../models//NewCallEvent';
+
+import { Configuration } from 'platform/Configuration'
+import { HttpClient } from 'platform/HttpClient';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -229,6 +232,7 @@ export class DesktopAgentService {
 		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
 			// If Landing Page => publish event
 			this.onCall = true;
+			IncidentManagementService.getInstance().createIncident(this.nextCall);
 			this.eventAggregator.publish(`new-call`, this.nextCall);
 			this.nextCall = null;
 		}
@@ -249,4 +253,5 @@ export class DesktopAgentService {
 			this.HorizonRouter.navigateToLandingPage();
 		}
 	}
+
 }

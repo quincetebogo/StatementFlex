@@ -1,5 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 
+import { IncidentManagementService } from '../../services/IncidentManagementService';
+
 export class LandingPageWaitForCall extends Component {
 
 	constructor() {
@@ -44,7 +46,7 @@ export class LandingPageWaitForCall extends Component {
 
 	render() {
 		return html`
-			<capitec-card class="call-waiting-card">
+			<capitec-card class="call-waiting-card">:wait
 				<div>
 					<capitec-group class="call-waiting-group" layout="absolute">
 						<div></div>
@@ -63,6 +65,7 @@ export class LandingPageWaitForCall extends Component {
 			<img src="../images/LandingPageImages/need.svg" class="needimage"/>
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
 			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+			<capitec-button label="New Call" @click=${ e => IncidentManagementService.getInstance().createIncident(null)}></capitec-button>
 			`;
 	}
 }

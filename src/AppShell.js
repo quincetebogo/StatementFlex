@@ -117,10 +117,10 @@ export class AppShell extends Shell {
 		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
 
 		console.log("registrationUrl: ", registrationUrl);
-		DesktopAgentService.setRegistrationUrl(registrationUrl);
-		DesktopAgentService.getValidationData();
-		this.agentService = DesktopAgentService.getInstance();
-		this.agentService.open();
+		//DesktopAgentService.setRegistrationUrl(registrationUrl);
+		//DesktopAgentService.getValidationData();
+		//this.agentService = DesktopAgentService.getInstance();
+		//this.agentService.open();
 
 		console.log(`Appshell: ConnectedCallback`);
 
