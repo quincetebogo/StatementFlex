@@ -12,11 +12,13 @@ import 'platform/components/core/Icon';
 import './AddCallerDetails';
 import './EndCallSessionReason';
 import './stopCard/SearchClientDetails';
+import './Insure/VerifyCaller';
 
 import '../../components/Common/HorizonLabel';
 import '../../components/Common/HorizonSelect';
 
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -31,7 +33,8 @@ const RENDER_MODE = {
 	ADD_CALLER_DETAILS: 1,
 	END_CALL: 2,
 	SEARCH_CALLER: 3,
-	INSURE_SEARCH_CALLER: 4
+	INSURE_SEARCH_CALLER: 4,
+	INSURE_VERIFY_CALLER: 5
 };
 
 export class ConfirmCallerDetails extends Component {
@@ -116,6 +119,11 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	async _onConfirmClick() {
+
+		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+			this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
+			return;
+		}
 
 		let confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
@@ -272,6 +280,7 @@ export class ConfirmCallerDetails extends Component {
 			super.styles,
 			css`
 				${CALLERINFOBAR_CSS}
+				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				capitec-modal{
 					--theme-modal-header-padding-top: 32px;
@@ -279,44 +288,6 @@ export class ConfirmCallerDetails extends Component {
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
-
-				div[slot="header"]{
-					width: 693px;
-					position: absolute;
-					display: flex;
-					align-items: center;
-					left: -670px;
-					top: -23px;
-				}
-
-				div[slot="header"] > span{
-					height: 24px;
-					width: 190px;
-					color: #FFFFFF;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-					padding-left: 17px;
-					margin-right: 355px;
-				}
-
-				div[slot="header"] > capitec-button{
-					width: 130px;
-					--theme-button-padding-top: 10px;
-					--theme-button-padding-bottom: 10px;
-					--theme-button-padding-right: 16px;
-					--theme-button-padding-left: 16px;
-					--theme-button-default-background-color: #FF2B25;
-					--theme-button-default-border-color: #FF2B25;
-					--theme-button-default-font-color: rgb(255, 255, 255);
-					--theme-button-default-background-tapped-color: #FF2B25;
-				}
-
-				.end-call-icon{
-					margin-left: 14px;
 				}
 
 				div[slot="body"]{
@@ -415,13 +386,16 @@ export class ConfirmCallerDetails extends Component {
 				<capitec-modal
 						type="free"
 						header-align="left">
-					<div slot="header">
-						<span>Confirm Caller Details</span>
+					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
+						<capitec-label type="title" 
+										label="Confirm Caller Details">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
 						<capitec-button label="End Call" 
 										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
 							<img class="end-call-icon" src="../../images/hangup.svg"/>
 						</capitec-button>
-					</div>
+					</capitec-group>
 					<div slot="body">
 						${this.renderCallInformation()}
 						<capitec-content-box>
@@ -446,6 +420,9 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.INSURE_SEARCH_CALLER:
 				return html`${this.renderInsureSearchCallerModal()}`;
+
+			case RENDER_MODE.INSURE_VERIFY_CALLER:
+				return html`${this.renderVerifyCallerModal()}`;
 		}
 	}
 
@@ -622,6 +599,12 @@ export class ConfirmCallerDetails extends Component {
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-insure-search-client>`;
+	}
+
+	renderVerifyCallerModal() {
+		return html`
+			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}"></horizon-verify-caller>
+		`;
 	}
 
 }
