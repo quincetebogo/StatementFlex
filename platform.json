@@ -11,7 +11,8 @@
 		},
 		"csp": {
 			"connect-src": [
-				"http://localhost:8888"
+				"http://localhost:8888",
+				"http://localhost:6001"
 			]
 		}
 	}

@@ -1,6 +1,6 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
+		"channelServiceUrl": "http://localhost:6001"
 	},
 	"bancsUser": {
 		"branchCode": "2000",

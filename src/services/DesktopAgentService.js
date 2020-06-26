@@ -10,8 +10,6 @@ import { validate } from '../utils/channelServiceUtilities';
 
 import { NewCallEvent } from '../models//NewCallEvent';
 
-import { Configuration } from 'platform/Configuration'
-import { HttpClient } from 'platform/HttpClient';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -65,6 +63,8 @@ export class DesktopAgentService {
 		this.onCall = false;		// Indicates that the UI is still handling a call
 		this.connectionTries = 0;	// Retry count for detecting Desktop Agent down
 
+		DesktopAgentService.getValidationData();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.HorizonRouter = HorizonRouter.getInstance();
@@ -98,8 +98,8 @@ export class DesktopAgentService {
 			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
-			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IncidentRecId = eventData.IncidentRecNo;
+			//newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			//newCallEvent.IncidentRecId = eventData.IncidentRecNo;
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
 
@@ -213,6 +213,7 @@ export class DesktopAgentService {
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
 		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.incidentRecIdValidation = '^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$'; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
 	}
 
@@ -232,8 +233,12 @@ export class DesktopAgentService {
 		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
 			// If Landing Page => publish event
 			this.onCall = true;
-			IncidentManagementService.getInstance().createIncident(this.nextCall);
+
+			let incident = IncidentManagementService.getInstance().createIncident(this.nextCall);
+			this.nextCall.IncidentReferenceNumber = validate(incident.incidentNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			this.nextCall.IncidentRecId = validate(incident.incidentRecId, DesktopAgentService.incidentRecIdValidation);
 			this.eventAggregator.publish(`new-call`, this.nextCall);
+
 			this.nextCall = null;
 		}
 		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
