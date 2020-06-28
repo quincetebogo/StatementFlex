@@ -86,10 +86,13 @@ export class HorizonActionBar extends Component {
 				#id-phone-number-label{
 				}
 
-				#id-end-call-button{
-					margin-top:2px;
-					margin-left:auto;
-					margin-right:24px;
+				capitec-group > capitec-button {
+					margin-top: 8px;
+					margin-left: auto;
+					margin-right: 23px;
+
+					--theme-button-padding-top: 9px;
+					--theme-button-padding-bottom: 9px;
 				}
 			`
 		];
@@ -117,7 +120,6 @@ export class HorizonActionBar extends Component {
 					label="${this.phoneNumber}">
 				</capitec-label>
 				<capitec-button 
-					id="id-end-call-button"
 					label="End Call Session" 
 					type="primary" 
 					@click="${() => this._endCallSession()}">
