@@ -237,9 +237,11 @@ export class InsureBenefitNonClient extends Component {
 					<capitec-button class="calculate-button" type="white" label="Calculate Premium"></capitec-button>
 				</capitec-title-bar>
 				<capitec-tab-group>
-						<capitec-tab label="Benefits" selectedIndex={0} @click="${() => this.navigate(`benefits`)}">${this.benefitScreen ? html`${this.renderBenefitContent()}` : html``}
+						<capitec-tab label="Benefits">
+						${this.renderBenefitContent()}
 						</capitec-tab>
-						<capitec-tab label="Cover" layout="vertical" halign="left" selectedIndex={1}  @click="${() => this.navigate(`cover`)}">				${this.coverScreen ? html`<div>${this.renderCoverContent()}</div>` : html``}
+						<capitec-tab label="Cover">
+						${this.renderCoverContent()}
 						</capitec-tab>
 						<capitec-tab label="Claim" layout="vertical" halign="left" selectedIndex={2}  @click="${() => this.navigate(`claim`)}">			${this.claimScreen ? html`<div>${this.renderClaimContent()}</div>` : html``}
 						</capitec-tab>
