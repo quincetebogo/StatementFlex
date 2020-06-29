@@ -98,7 +98,7 @@ export class TaxFreeSavingsProduct extends View {
 
 	render() {
 		return html`
-			<capitec-group layout="grid" rows="auto" coulmns="uniform" class="savingsproduct-info">
+			<capitec-group layout="vertical" halign="stretch" valign="top" gap="none" class="savingsproduct-info">
 					<capitec-title-bar type="save">
 						<capitec-icon size="small" icon="system/arrow-left"
 									  @click="${() => this.horizonRouter.navigateToSavingsPlanProduct()}">
@@ -106,7 +106,7 @@ export class TaxFreeSavingsProduct extends View {
 						<capitec-label label="Tax Free Savings" type="Title"></capitec-label>
 					</capitec-title-bar>
 
-					<capitec-content-box class="content" row="2" column="1">
+					<capitec-content-box class="content">
 						<capitec-label id="label" label="Invest for the long term, for your future or your children's." type="default">
 						</capitec-label>
 						<hr class="hr-top">

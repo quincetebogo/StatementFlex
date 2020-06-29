@@ -14,21 +14,14 @@ export class LandingPageWaitForCall extends Component {
 			css`
 			.call-waiting-card {
 				width: 100%;
-				height: 823px;
+				height: 876px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;
 				align-items: center;
 				background-color: white;
 				border-radius: none;
-			}
-
-			.call-waiting-group {
-				display: grid;
-				grid-template-rows: 1fr 1fr 1fr;
-				text-align: center;
-				width: 100%;
-				height: 100%;
+				justify-content: center;
 			}
 			
 			.needimage{
@@ -48,12 +41,7 @@ export class LandingPageWaitForCall extends Component {
 		return html`
 			<capitec-card class="call-waiting-card">
 				<div>
-					<capitec-group class="call-waiting-group" layout="absolute">
-						<div></div>
-						<div>
-							${this.renderWaitingForCall()}
-						</div>
-					</capitec-group>
+					${this.renderWaitingForCall()}
 				</div>
 			</capitec-card>
 

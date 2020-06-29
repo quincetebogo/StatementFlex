@@ -13,7 +13,7 @@ export class CreditProductDetails extends Component {
 			css`
 			.creditproduct-info{
 				width:  100%;
-				height: 823px;
+				height: 876px;
 				padding: 0px 0px 0px 0px;
 				text-align: center;
 				line-height: 40px;

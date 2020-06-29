@@ -270,11 +270,6 @@ export class AppShell extends Shell {
 					background : #f4f4f4; 
 				}
 
-				.status-bar{
-					width: 100%;
-					height: 72px;
-				}
-
 				.branding-logo-white{
 					height: 32px;
 					width: 193px;
@@ -290,7 +285,7 @@ export class AppShell extends Shell {
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
-					height: 823px;
+					height: auto;
 					width: 1872px;
 					margin-top: 24px;
 					margin-left: 24px;
@@ -307,13 +302,29 @@ export class AppShell extends Shell {
 				}
 
 				* {
+					/* Platform CSS - Overriding
+					 * If it is generic change(i.e., applies across application) please specify here
+					 * else override in specific component/view
+					*/
+
+					/* Modal popup */
 					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-color: white;
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-font-weight: 600;
 					--theme-modal-header-padding-left: 16px;
-				}
-				`
+
+					/* StatusBar */
+					--theme-statusbar-min-height: 72px;
+
+					/* Products Menu */
+					--theme-product-tile-heading-margin-top: 11px;
+					--theme-product-tile--height: 72px;
+					--theme-product-tile-title-height: 27px;
+					--theme-product-tile-title-font-size: 18px;
+					--theme-product-tile-subtitle-height: 23px;
+					--theme-product-tile-subtitle-font-size: 15px;
+				}`
 		];
 	}
 
@@ -372,7 +383,7 @@ export class AppShell extends Shell {
 						</div>	
                     </capitec-content-box>
 	
-					<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
+					<capitec-status-bar status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
                 </div>
         `;
 	}

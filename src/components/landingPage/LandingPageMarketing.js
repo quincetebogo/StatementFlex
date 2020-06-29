@@ -20,26 +20,18 @@ export class LandingPageMarketing extends Component {
 		return [
 			super.styles,
 			css`
-			.insights{
-				width: 320px;
-				height: 823px;
-				padding: 0px 0px 0px 0px;
-			}
-		
-			img{
-				width:100%;
-				height: 100%;
-			}
-			`];
+				.landingpage-marketing-img{
+					width: 320px;
+					height: 876px;
+				}`
+		];
 	}
 
 
 	render() {
 		return html`
-		<capitec-card class="insights">
-			<img src="../images/LandingPageImages/Banner.png" alt="banner" />
-		</capitec-card>
-	`;
+			<img class="landingpage-marketing-img" src="../images/LandingPageImages/Banner.png" alt="banner" />
+		`;
 	}
 
 }
