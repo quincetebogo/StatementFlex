@@ -7,6 +7,7 @@ import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -235,6 +236,7 @@ export class AddCallerDetails extends Component {
 			super.styles,
 			css`
 				${CALLERINFOBAR_CSS}
+				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
 					height: 546px;
@@ -265,10 +267,9 @@ export class AddCallerDetails extends Component {
 				capitec-modal {
 					--theme-modal-header-padding-top: 32px;
 					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
-					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
+					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
 				}
 				capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
@@ -277,42 +278,7 @@ export class AddCallerDetails extends Component {
 					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 14px 16px 0px 17px;
-					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-					
-				}
-				div[slot="header"]{
-					width: 693px;
-					position: absolute;
-					display: flex;
-					align-items: center;
-					left: -670px;
-					top: -23px;
-				}
-				div[slot="header"] > span{
-					height: 24px;
-					width: 190px;
-					color: #FFFFFF;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-					padding-left: 17px;
-					margin-right: 355px;
-				}
-				div[slot="header"] > capitec-button{
-					width: 130px;
-					--theme-button-padding-top: 10px;
-					--theme-button-padding-bottom: 10px;
-					--theme-button-padding-right: 16px;
-					--theme-button-padding-left: 16px;
-					--theme-button-default-background-color: #FF2B25;
-					--theme-button-default-border-color: #FF2B25;
-					--theme-button-default-font-color: rgb(255, 255, 255);
-					--theme-button-default-background-tapped-color: #FF2B25;
-				}
-				.end-call-icon{
-					margin-left: 14px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));	
 				}
 			`];
 	}
@@ -322,16 +288,16 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 						<capitec-modal type="free" header-align="left" class="header" >
-							<div slot="header">
-								<span>Add Caller Details</span>
-									<capitec-button 
-											label="End Call"
-											?hidden=${isHidden(this.endCallSessionButton)}
-											.disabled="${isDisabled(this.endCallSessionButton)}"
-											@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-										<img class="end-call-icon" src="../../images/hangup.svg"/>
-									</capitec-button>
-							</div>
+							<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
+								<capitec-label type="title" 
+												label="Add Caller Details">
+								</capitec-label>
+								<capitec-spacer></capitec-spacer>
+								<capitec-button label="End Call" 
+												@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+									<img class="end-call-icon" src="../../images/hangup.svg"/>
+								</capitec-button>
+							</capitec-group>
 							<div slot="body" class="main">
 								${this.renderCallInformation()}
 								${this.renderErrorMessage()}

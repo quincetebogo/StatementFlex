@@ -28,6 +28,8 @@ export class HorizonOptionButton extends Component {
 		this.label = '';
 		this.icon = null;
 		this.image = null;
+		this.type = "";
+		this.iconSize = "";
 	}
 
 	// ----------
@@ -46,7 +48,9 @@ export class HorizonOptionButton extends Component {
 			label: { type: String },
 			icon: { type: String },
 			image: { type: String, attribute: 'img-src' },
-			disabled: { type: Boolean }
+			disabled: { type: Boolean },
+			type: { type: String },
+			iconSize: { type: String }
 		}
 	}
 
@@ -101,29 +105,31 @@ export class HorizonOptionButton extends Component {
 			}
 
 			.label-text{
-				margin-top:10px;
-				color: #4E6066;
+				margin-top: var(--horizon-option-btn-text-margin-top, 10px);
+				color: var(--horizon-option-btn-text-color, #4E6066);
 				font-family: "Hind Vadodara";
 				font-size: 16px;
+				font-weight: var(--horizon-option-btn-text-font-weight, normal);
 				letter-spacing: 0;
-				line-height: 24px;			}
-			`]
+				line-height: 24px;
+			}`
+		]
 	}
 
 	_webTemplate() {
 		return html`
-			<capitec-button @click="${this._buttonClicked}">
+			<capitec-button @click="${this._buttonClicked}" type="${this.type ? this.type : "secondary"}">
 				<capitec-group layout="vertical" halign="center" valign="top" gap="none">
-					${this.renderIcon()}			
+					${this.renderIcon()}
 					<capitec-label class="label-text" label="${this.label}"></capitec-label> 
-				</capitec-content-box>  				
+				</capitec-content-box>
 			</capitec-button>
 		`;
 	}
 
 	renderIcon() {
 		return this.icon
-			? html`<capitec-icon class="icon-size" size="small" icon="${this.icon}"></capitec-icon>`
+			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : 'small'}" icon="${this.icon}"></capitec-icon>`
 			: html`<img class="icon-size" src="${this.image}"/>`;
 	}
 }
