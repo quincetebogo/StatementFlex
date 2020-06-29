@@ -1,14 +1,12 @@
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
-
 import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
-
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
-
 import { NewCallEvent } from '../models//NewCallEvent';
+import { IncidentManagementService } from '../services/IncidentManagementService';
 
 
 /**
@@ -98,6 +96,7 @@ export class DesktopAgentService {
 			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
+			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
 			//newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
 			//newCallEvent.IncidentRecId = eventData.IncidentRecNo;
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
@@ -212,6 +211,7 @@ export class DesktopAgentService {
 		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
 		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.vdnValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = '^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$'; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects

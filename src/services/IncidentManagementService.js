@@ -3,6 +3,7 @@ import '../utils/channelServiceUtilities';
 
 import { Configuration } from 'platform/Configuration'
 import { HttpClient } from 'platform/HttpClient';
+import { SecurityContext } from 'platform/SecurityContext';
 
 export class IncidentManagementService {
 	// --------------
@@ -32,21 +33,24 @@ export class IncidentManagementService {
 	// --------------
 
 	async createIncident(incidentData) {
-		console.log("New-Call : Creating incident using : ", incidentData);
+		console.log("New-Call : incident data : ", incidentData);
+		console.log("New-Call : Security-Context : ", SecurityContext.getInstance());
+
+		let createIncidentRequest = {
+			"networkUserName": SecurityContext.getInstance().username,
+			"cli": incidentData.IncomingTelephoneNumber,
+			"vdn": incidentData.VDN,
+			"ucid": incidentData.VoiceReferenceNumber
+		};
+		console.log("New-Call : Creating incident using : ", createIncidentRequest);
+
 
 		//getting the channel url setting from URIs
 		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
 
 		let client = HttpClient.getInstance(url);
 
-		let incident = await client.post(`/horizon/initialise/v1/CreateIncident`,
-			{
-				"networkUserName": "CP347369",
-				"cli": "0845805348",
-				"vdn": "200012",
-				"ucid": "00001012341234567890"
-			}
-		);
+		let incident = await client.post(`/horizon/initialise/v1/CreateIncident`, createIncidentRequest);
 		console.log("New-Call : Incident created : ", incident);
 
 		return incident;

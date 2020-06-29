@@ -113,6 +113,12 @@ export class LandingPage extends View {
         */
 		/* <-- TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
 
+		//TODO: This static mapping should be fixed and placed somewhere else
+		if (newCallInfo.IVROptionCode === "1") {
+			newCallInfo.IVROptionCode = "StopCard";
+			console.log("IVR Option: ", newCallInfo.IVROptionCode);
+		}
+
 		this.acceptCallErrorHandled = false;
 
 		//TODO: Remove the below static condition check, when channel service is ready

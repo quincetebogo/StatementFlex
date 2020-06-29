@@ -46,7 +46,7 @@ export class LandingPageWaitForCall extends Component {
 
 	render() {
 		return html`
-			<capitec-card class="call-waiting-card">:wait
+			<capitec-card class="call-waiting-card">
 				<div>
 					<capitec-group class="call-waiting-group" layout="absolute">
 						<div></div>
@@ -61,11 +61,13 @@ export class LandingPageWaitForCall extends Component {
 	}
 
 	renderWaitingForCall() {
+		let debug_flag = false;
+
 		return html`
 			<img src="../images/LandingPageImages/need.svg" class="needimage"/>
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
 			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
-			<capitec-button label="New Call" @click=${ e => IncidentManagementService.getInstance().createIncident(null)}></capitec-button>
+			${ debug_flag ? html`<capitec-button label="New Call" @click=${e => IncidentManagementService.getInstance().createIncident(null)}></capitec-button>` : ``}
 			`;
 	}
 }
