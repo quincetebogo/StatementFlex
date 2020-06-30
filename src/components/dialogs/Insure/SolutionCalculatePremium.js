@@ -1,0 +1,298 @@
+import { Component, html, css } from 'platform/elements';
+
+const RENDER_MODE = {
+	CALCULATE_PREMIUM: 0
+};
+
+export class CalculatePremium extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+		super();
+
+		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
+		this.checked = false;
+		this.alertBannerMessage = '';
+	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			renderMode: { type: Number },
+			alertBannerMessage: { type: String },
+			checked: { type: Boolean }
+		}
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_onCancelClick() {
+		// Navigate back to the Insure Tab
+	}
+
+	_onDoneClick() {
+		// Navigate back to the Insure Tab
+		// TODO: Channel Services to be implemented here
+		if (!this.checked) {
+			this.alertBannerMessage = "Choose a feedback reason to continue.";
+			//navigate to the next screen on no error
+		}
+	}
+
+	_onValueChanged() {
+		this.checked = !this.checked;
+		if (this.checked) {
+			this.alertBannerMessage = '';
+		}
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				capitec-modal {
+					height: 616px;
+					width: 690px;
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-header-padding-right: 16px;
+					--theme-modal-header-padding-left: 16px;
+					--theme-modal-footer-padding: 0px 16px 16px 0px;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-color: #3E4547;
+				}
+
+				div[slot="body"] {
+					width: 690px;
+					height: 488px;
+				}
+
+				.body-box {
+					height: 427px;
+					margin: 0px 0px 0px 0px;
+					--theme-container-padding-top : 13px;
+					--theme-container-padding-bottom: 0px;
+				}
+
+				.navigate-info-label {
+					height: 26px;
+					width: 533px;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					color: #545D60;
+					line-height: 24px;
+					letter-spacing: 0;
+					margin: 0px 0px 14px 0px;
+				}
+
+				.navigate-bullet-label {
+					height: 24px;
+					width: 534px;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					color: #545D60;
+					line-height: 24px;
+					margin: 0px;
+				}
+
+				.feedback-label {
+					height: 24px;
+					width: 546px;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					color: #545D60;
+					line-height: 24px;
+					letter-spacing: 0;
+					margin: 17px 0px 19px 0px;
+				}
+
+				#id-cancel-button {
+					height: 48px;
+					width: 94px;
+					margin-right: 19px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
+				}
+
+				#id-done-button {
+					height: 48px;
+					width: 86px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
+				}
+		
+				.radio-button-container {
+					margin: 8px 0px 0px 0px;
+					height: 48px;
+					padding: 0px;
+					box-sizing: border-box;
+					border-style: solid;
+					border-width: thin;
+					border-radius: 5px;
+					border-color: lightgrey;
+				}
+
+				.navigate-container {
+					height: 151px;
+					margin: 0px;
+					border-style: solid;
+					border-width: thin;
+					border-radius: 5px;
+					border-color: lightgrey;
+				}
+		
+				.radio-button-label {
+					height:24px;
+					margin:11px 0px 10px 16px;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					color: #545D60;
+					line-height: 20px;
+				}
+
+				.group-navigate {
+					margin-left: 16px;
+					margin-top: 24px;
+					padding: 0px;
+					width: 640px;
+					height: 125px;
+				}
+
+				capitec-alert-banner {
+					margin: 0px 0px 15px 0px;
+					--theme-alert-banner-info-border: 0px;
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-font-weight: 500;
+					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+				}
+		`];
+
+	}
+
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`
+			<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
+				<div slot="body">
+					<capitec-content-box class="body-box">
+						${this.renderAlertBanner()}
+						${this.renderNavigationToSBL()}
+						${this.renderFeedbackDetails()}
+					</capitec-content-box>
+				</div>
+				<div slot="footer">
+					${this.renderFooter()}
+				</div>
+			</capitec-modal>`;
+	}
+
+	renderAlertBanner() {
+		if (!this.alertBannerMessage == '') {
+			return html`
+				<capitec-alert-banner
+									label="${this.alertBannerMessage}"
+									type="error">
+				</capitec-alert-banner>`;
+		}
+	}
+
+	renderNavigationToSBL() {
+		return html`
+			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
+				<capitec-content-box class="group-navigate">
+					<p class="navigate-info-label">Navigate to <b>SBL T62053</b> (Landing Page)</p>
+					<li class="navigate-bullet-label"> Choose Insure tab </li>
+					<li class="navigate-bullet-label"> Click on Estimate to calculate Premium </li>
+				</capitec-content-box>
+			</capitec-group>
+		`;
+	}
+
+	renderFeedbackDetails() {
+		return html`
+			<capitec-label class="feedback-label" label="Feedback:"></capitec-label>
+
+			<capitec-radio-group>
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio
+								class="radio-button-label"
+								label="Completed Calculation"
+								@value-change="${() => this._onValueChanged()}">
+					</capitec-radio>
+				</capitec-group>
+ 
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio
+								class="radio-button-label"
+								label="System error - assign now"
+								@value-change="${() => this._onValueChanged()}">
+					</capitec-radio>
+				</capitec-group>
+			</capitec-radio-group>
+		`;
+	}
+
+	renderFooter() {
+		return html`
+			<capitec-group layout="horizontal">
+				<capitec-button
+					id="id-cancel-button"
+					type="clear"
+					label="Cancel"
+					?hidden=""
+					.disabled=""
+					tabindex=""
+					@click="${() => this._onCancelClick()}">
+				</capitec-button>
+
+				<capitec-button
+					id="id-done-button"
+					type="primary"
+					label="Done"
+					?hidden=""
+					.disabled=""
+					tabindex=""
+					@click="${() => this._onDoneClick()}">
+				</capitec-button>
+			</capitec-group>
+			`;
+	}
+}
+
+window.customElements.define(`insure-solution-calculate-premium`, CalculatePremium)
