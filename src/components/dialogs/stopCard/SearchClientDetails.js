@@ -15,6 +15,7 @@ import '../../Common/HorizonSelect';
 import '../Insure/SearchCaller';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader'
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -320,6 +321,7 @@ export class SearchClientDetailsComponent extends Component {
 			super.styles,
 			css`
 				${CALLERINFOBAR_CSS}
+				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
 					width: 690px;
@@ -366,51 +368,11 @@ export class SearchClientDetailsComponent extends Component {
 					margin-top: 16px;
 				}
 				capitec-modal{
-					--theme-modal-header-background-color: #4A4848;
 					--theme-modal-header-padding-top: 32px;
 					--theme-modal-header-padding-bottom: 32px;
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
-
-				div[slot="header"]{
-					width: 693px;
-					position: absolute;
-					display: flex;
-					align-items: center;
-					left: -670px;
-					top: -25px;
-				}
-
-				div[slot="header"] > span{
-					height: 24px;
-					width: 190px;
-					color: #FFFFFF;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
-					padding-left: 17px;
-					margin-right: 355px;
-				}
-
-				div[slot="header"] > capitec-button{
-					width: 130px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
-					--theme-button-padding-left: 16px;
-					--theme-button-default-background-color: #FF2B25;
-					--theme-button-default-border-color: #FF2B25;
-					--theme-button-default-font-color: rgb(255, 255, 255);
-					--theme-button-default-background-tapped-color: #FF2B25;
-				}
-
-				.end-call-icon{
-					margin: 0px;
-					margin-left: 14px;
-					margin-top: -5px;
 				}
 
 				#id-search-button {
@@ -426,13 +388,16 @@ export class SearchClientDetailsComponent extends Component {
 				<capitec-modal
 						type="free"
 						header-align="left">
-					<div slot="header">
-						<span>Search Caller Details</span>
+					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
+						<capitec-label type="title" 
+										label="Search Caller Details">
+						</capitec-label>
+						<capitec-spacer></capitec-spacer>
 						<capitec-button label="End Call" 
-								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<capitec-icon class="end-call-icon" size="small" icon="system/phone-escalation"></capitec-icon>
+										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+							<img class="end-call-icon" src="../../../images/hangup.svg"/>
 						</capitec-button>
-					</div>
+					</capitec-group>
 						<div slot="body" class="main">
 							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
