@@ -7,6 +7,7 @@ import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader';
 
 import '../../Common/HorizonOptionButton';
+import './VerifyCallerSecurityQuestions';
 
 const RENDER_MODE = {
 	VERIFY_CALLER: 0,
@@ -80,6 +81,9 @@ export class VerifyCaller extends Component {
 
 	_verifyUsingSQ() {
 		//Show Security Questions dialog
+		this.minutes = 0;
+		this.seconds = 0;
+		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	_skip() {
@@ -251,7 +255,7 @@ export class VerifyCaller extends Component {
 				`;
 
 			case RENDER_MODE.SECURITY_QUESTIONS:
-				return html``;
+				return html`<horizon-verify-caller-secutity-questions></horizon-verify-caller-secutity-questions>`;
 
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
@@ -345,7 +349,7 @@ export class VerifyCaller extends Component {
 									valign="top"
 									gap="clear">
 						<capitec-alert-banner type="error">
-							Notificatio didn't send due to a system error.
+							Notification didn't send due to a system error.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
 										halign="center" 
