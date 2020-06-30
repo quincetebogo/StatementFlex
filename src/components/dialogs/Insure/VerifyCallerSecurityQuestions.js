@@ -20,7 +20,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 		this.checked = false;
 		this.alertBannerMessage = "Navigate to SBL T62053 to complete client verification";
 
-        //these hardcoded values--to be removed if services are ready
+		//these hardcoded values--to be removed if services are ready
 
 		this.ivrOptions = [
 			{
@@ -266,7 +266,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 		return html`
 			${this.renderAlertBanner()}
 			<p class="navigate-label">Navigate to <b class="bold-label">SBL T62053</b> (Landing Page)</p>
-			<li class="navigate-label">Select <b class="bold-label">NO</b> under 'Has the client been verified in the branch'</li>
+			<li class="navigate-label">Select <b class="bold-label">No</b> under 'Has the client been verified in the branch'</li>
 		`;
 	}
 
