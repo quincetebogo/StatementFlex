@@ -20,8 +20,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 		this.checked = false;
 		this.alertBannerMessage = "Navigate to SBL T62053 to complete client verification";
 
-		//these hardcoded values--to be removed if services are ready
-
+		//TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
 				"key": "StopCard",
@@ -69,10 +68,10 @@ export class VerifyCallerSequrityQuestions extends Component {
 		}
 	}
 
-	loadvalidationvariable() {
+	_onValueChanged() {
 		this.checked = !this.checked;
-		this.alertBannerMessage = this.alertBannerType == "error" ? "Navigate to SBL T62053 to complete client verification." : "Choose a feedback reason to continue.";
-		this.alertBannerType = this.alertBannerType == "error" ? "info" : "error";
+		this.alertBannerMessage = this.alertBannerType === "error" ? "Navigate to SBL T62053 to complete client verification." : "Choose a feedback reason to continue.";
+		this.alertBannerType = this.alertBannerType === "error" ? "info" : "error";
 	}
 
 	// --------------
@@ -228,20 +227,20 @@ export class VerifyCallerSequrityQuestions extends Component {
 					<span>Verify Caller</span>
 				</div>
 				<div slot="body">
-					${this.renderCallInformation()}
+					${this._renderCallInformation()}
 					<capitec-content-box class="body-box">
-					${this.renderNavigationToSBL()}
-					${this.renderFeedbackDetails()}
+					${this._renderNavigationToSBL()}
+					${this._renderFeedbackDetails()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
-					${this.renderFooter()}
+					${this._renderFooter()}
 				</div>
 			</capitec-modal>
 		`;
 	}
 
-	renderCallInformation() {
+	_renderCallInformation() {
 		return html`
 			<div class="call-details-bar">
 				<horizon-label
@@ -262,15 +261,15 @@ export class VerifyCallerSequrityQuestions extends Component {
 		`;
 	}
 
-	renderNavigationToSBL() {
+	_renderNavigationToSBL() {
 		return html`
-			${this.renderAlertBanner()}
+			${this._renderAlertBanner()}
 			<p class="navigate-label">Navigate to <b class="bold-label">SBL T62053</b> (Landing Page)</p>
 			<li class="navigate-label">Select <b class="bold-label">No</b> under 'Has the client been verified in the branch'</li>
 		`;
 	}
 
-	renderAlertBanner() {
+	_renderAlertBanner() {
 		if (this.alertBannerType === "info") {
 			return html`
 			<capitec-alert-banner label="${this.alertBannerMessage}" type="${this.alertBannerType}"></capitec-alert-banner>`;
@@ -281,23 +280,23 @@ export class VerifyCallerSequrityQuestions extends Component {
 		}
 	}
 
-	renderFeedbackDetails() {
+	_renderFeedbackDetails() {
 		return html`
 			<capitec-label class="feedback-label" label="Feedback:"></capitec-label>
 
 			<capitec-radio-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio class="radio-button-label" @value-change="${() => this.loadvalidationvariable()}" label="Passed Verification"></capitec-radio>
+					<capitec-radio class="radio-button-label" @value-change="${() => this._onValueChanged()}" label="Passed Verification"></capitec-radio>
 				</capitec-group>
 
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio class="radio-button-label" @value-change="${() => this.loadvalidationvariable()}" label="Failed Verification (end call if client failed)"></capitec-radio>
+					<capitec-radio class="radio-button-label" @value-change="${() => this._onValueChanged()}" label="Failed Verification (end call if client failed)"></capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
 		`;
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
