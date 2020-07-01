@@ -9,8 +9,8 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
-	PRODUCT_INSURE_NONCLIENT: `/product/insure/non-client`,
 	PRODUCT_CREDIT: `/product/credit`,
+	INSURE_NONCLIENT: `/insure/non-client`,
 	CLIENT_PROFILE_PAGE: `/client/profile`,
 	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
 	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
@@ -95,8 +95,8 @@ export default horizonRoutes = [
 		name: `product-insure-non-client`,
 		title: `InsureProductNonClientView`,
 		icon: null,
-		path: HORIZON_ROUTES.PRODUCT_INSURE_NONCLIENT,
-		load: () => import(`../views/product/InsureProductNonClient`),
+		path: HORIZON_ROUTES.INSURE_NONCLIENT,
+		load: () => import(`../views/insure/InsureProductNonClient`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
 		},
@@ -116,7 +116,7 @@ export default horizonRoutes = [
 		title: `ClientProfile`,
 		icon: null,
 		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
-		load: () => import(`../views/ClientProfile/ClientProfile`),
+		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -126,7 +126,7 @@ export default horizonRoutes = [
 		title: `StopCard`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
-		load: () => import(`../views/ClientProfile/StopCardSuccess`),
+		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -136,7 +136,7 @@ export default horizonRoutes = [
 		title: `StopCardFail`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
-		load: () => import(`../views/ClientProfile/StopCardFailure`),
+		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -200,5 +200,9 @@ export class HorizonRouter {
 
 	navigateToStopCardFailed() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
+	}
+
+	navigateToInsureBonClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_NONCLIENT);
 	}
 }

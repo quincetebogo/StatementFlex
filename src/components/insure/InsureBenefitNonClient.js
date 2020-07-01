@@ -8,6 +8,13 @@ import 'platform/components/containers/TabGroup';
 import 'platform/components/data/Table';
 import 'platform/components/navigation/AppRouter';
 
+import '../dialogs/insure/SolutionCalculatePremium'
+
+const RENDER_MODE = {
+	MAIN_PAGE: 0,
+	CALCULATE_PREMIUM: 1
+};
+
 export class InsureBenefitNonClient extends Component {
 
 	// --------------
@@ -26,6 +33,7 @@ export class InsureBenefitNonClient extends Component {
 		this.coverScreen = false;
 		this.claimScreen = false;
 		this.index = 0
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
@@ -46,7 +54,7 @@ export class InsureBenefitNonClient extends Component {
 			benefitScreen: { type: Boolean },
 			coverScreen: { type: Boolean },
 			claimScreen: { type: Boolean },
-
+			renderMode: { type: Number }
 		};
 	}
 
@@ -55,6 +63,10 @@ export class InsureBenefitNonClient extends Component {
 		// Access the current route's information and log its name, e.g. "screen-one"
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
+
+	_onCalculatePremium() {
+		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
+	}
 
 	// ---------
 	// RENDERING
@@ -65,7 +77,7 @@ export class InsureBenefitNonClient extends Component {
 			super.styles,
 			css`
 			.card{
-				height: 888px;
+				height: 876px;
 				width: 100%;
 			}
 			p{
@@ -326,7 +338,12 @@ export class InsureBenefitNonClient extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button class="calculate-button" type="white" label="Calculate Premium"></capitec-button>
+					<capitec-button 
+						class="calculate-button" 
+						type="white" 
+						label="Calculate Premium"
+						@click="${() => this._onCalculatePremium()}">
+					</capitec-button>
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs" >
 						<capitec-tab label="Benefits">
@@ -339,6 +356,7 @@ export class InsureBenefitNonClient extends Component {
 						${this.renderClaimContent()}
 						</capitec-tab>
 				</capitec-tab-group>
+				${this._renderCalculatePremium()}
 		</capitec-card>
 		`;
 	}
@@ -519,5 +537,11 @@ export class InsureBenefitNonClient extends Component {
 		`;
 	}
 
+	_renderCalculatePremium() {
+		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
+			return html`<insure-solution-calculate-premium></insure-solution-calculate-premium>`;
+		}
+		return html``;
+	}
 }
 window.customElements.define(`horizon-insure-benefit-nonclient`, InsureBenefitNonClient);

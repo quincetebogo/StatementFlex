@@ -1,6 +1,6 @@
 import { View, html, css } from 'platform/elements';
 
-import '../../components/dialogs/Insure/InsureBenefitNonClient';
+import '../../components/insure/InsureBenefitNonClient';
 
 export class InsureProductNonClient extends View {
 

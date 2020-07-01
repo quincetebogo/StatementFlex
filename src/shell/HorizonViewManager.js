@@ -62,10 +62,7 @@ export class HorizonViewManager {
 			},
 			{
 				load: () => import(`../components/Common/ClientProfileDetails`),
-			},
-			{
-				load: () => import(`../components/dialogs/Insure/InsureBenefitNonClient`),
-			},
+			}
 		];
 	}
 

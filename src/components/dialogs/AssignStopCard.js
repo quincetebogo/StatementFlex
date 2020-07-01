@@ -11,7 +11,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { StopCardService } from '../../services/StopCardService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
-import '../../views/ClientProfile/StopCardFailure';
+import '../../views/stopCard/StopCardFailure';
 export class AssignStopCard extends Component {
 
 	// --------------
