@@ -27,7 +27,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 				"value": "Insure"
 			}
 		];
-		this.voiceReferenceNumber = "34567893";
+		this.incidentReferenceNumber = "34567893";
 		this.ivrOptionCode = "Insure";
 		this.incomingTelephoneNumber = "082 555 9090";
 
@@ -216,7 +216,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 			<div class="call-details-bar">
 				<horizon-label
 					label="Reference Number"
-					value = "${this.voiceReferenceNumber}">
+					value = "${this.incidentReferenceNumber}">
 				</horizon-label>
 				<horizon-select
 					label="Client Need"

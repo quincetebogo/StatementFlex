@@ -426,9 +426,9 @@ export class SearchClientDetailsComponent extends Component {
 			<div class="call-details-bar">
 				<horizon-label
 					label="Reference Number" 
-					value = "${this.voiceReferenceNumber.value}"
-					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-					?hidden=${isHidden(this.voiceReferenceNumber)}>
+					value = "${this.incidentReferenceNumber}"
+					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
+					?hidden=${isHidden(this.incidentReferenceNumber)}>
 				</horizon-label>
 				<horizon-select
 					label="Client Need"
