@@ -42,24 +42,15 @@ export class CalculatePremium extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 	_onCancelClick() {
 		// Navigate back to the Insure Tab
 	}
 
 	_onDoneClick() {
-		// Navigate back to the Insure Tab
-		// TODO: Channel Services to be implemented here
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
-			//navigate to the next screen on no error
+			// Navigate to the next screen on no error
+			// TODO: Channel Services to be implemented here
 		}
 	}
 
@@ -69,6 +60,14 @@ export class CalculatePremium extends Component {
 			this.alertBannerMessage = '';
 		}
 	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	// ---------
 	// RENDERING
@@ -211,18 +210,18 @@ export class CalculatePremium extends Component {
 			<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
 				<div slot="body">
 					<capitec-content-box class="body-box">
-						${this.renderAlertBanner()}
-						${this.renderNavigationToSBL()}
-						${this.renderFeedbackDetails()}
+						${this._renderAlertBanner()}
+						${this._renderNavigationToSBL()}
+						${this._renderFeedbackDetails()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
-					${this.renderFooter()}
+					${this._renderFooter()}
 				</div>
 			</capitec-modal>`;
 	}
 
-	renderAlertBanner() {
+	_renderAlertBanner() {
 		if (!this.alertBannerMessage == '') {
 			return html`
 				<capitec-alert-banner
@@ -232,7 +231,7 @@ export class CalculatePremium extends Component {
 		}
 	}
 
-	renderNavigationToSBL() {
+	_renderNavigationToSBL() {
 		return html`
 			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
 				<capitec-content-box class="group-navigate">
@@ -244,7 +243,7 @@ export class CalculatePremium extends Component {
 		`;
 	}
 
-	renderFeedbackDetails() {
+	_renderFeedbackDetails() {
 		return html`
 			<capitec-label class="feedback-label" label="Feedback:"></capitec-label>
 
@@ -268,7 +267,7 @@ export class CalculatePremium extends Component {
 		`;
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
