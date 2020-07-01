@@ -55,11 +55,11 @@ export class InsureBenefitNonClient extends Component {
 		// Access the current route's information and log its name, e.g. "screen-one"
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
-	navigate(path) {
-		this.benefitScreen = path == `banefits`;
-		this.coverScreen = path == `cover`;
-		this.claimScreen = path == `claim`;
-	}
+
+	// ---------
+	// RENDERING
+	// ---------	
+
 	static get styles() {
 		return [
 			super.styles,
@@ -93,7 +93,7 @@ export class InsureBenefitNonClient extends Component {
 				font-weight: 500;
 				letter-spacing: 0;
 				line-height: 20px;
-				border: 0px;
+				border: none;
 			}
 			.benefit-content{
 				height: 100%;
@@ -345,7 +345,7 @@ export class InsureBenefitNonClient extends Component {
 
 	renderBenefitContent() {
 		return html`
-				<capitec-alert-banner class="info-banner" type="info" closable>All Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
+				<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
 					</capitec-label>
