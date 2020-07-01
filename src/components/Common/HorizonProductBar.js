@@ -26,10 +26,10 @@ export class HorizonProductBar extends Component {
 				padding: 0px;
 				background-color: #f4f4f4;
 				border: 0px;
+				margin-top: 8px;
 			}
 
             .product-button{
-				height:80px;
                 padding: 0px 0px 0px 0px;
 				width: 440px;
 				margin-top: 16px;
