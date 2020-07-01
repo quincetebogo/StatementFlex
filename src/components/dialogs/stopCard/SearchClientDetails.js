@@ -172,12 +172,15 @@ export class SearchClientDetailsComponent extends Component {
 				searchValue: this.searchFieldText
 			}
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient),
+				(ex) => this._handleSearchClientException(ex));
+
 			if (identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
 			}
 			else {
-				// TODO: handle not found - we don't deal with this at all at present
+				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+				return true;
 			}
 		}
 	}
@@ -291,7 +294,7 @@ export class SearchClientDetailsComponent extends Component {
 			event.message = exception.message;
 		}
 		else if (exception instanceof HttpStatusError) {
-			if (exception.status === 204 || exception.status === 412 || exception.status === 400) {
+			if (exception.status === 412 || exception.status === 400) {
 				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
 				return true;
 			}

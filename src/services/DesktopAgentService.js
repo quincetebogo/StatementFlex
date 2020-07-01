@@ -221,6 +221,9 @@ export class DesktopAgentService {
 	// PRIVATE METHODS
 	// ---------------
 
+	_toggleBusyFlag() {
+	}
+
 	_handleIncomingCall() {
 
 		if (!this.nextCall) {
@@ -234,7 +237,11 @@ export class DesktopAgentService {
 			// If Landing Page => publish event
 			this.onCall = true;
 
-			let incident = IncidentManagementService.getInstance().createIncident(this.nextCall);
+			let incident = IncidentManagementService.getInstance().createIncident(this.nextCall,
+				() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+				null // no error handler supplied, uses default
+			);
+
 			this.nextCall.IncidentReferenceNumber = validate(incident.incidentNumber, DesktopAgentService.incidentReferenceNumberValidation);
 			this.nextCall.IncidentRecId = validate(incident.incidentRecId, DesktopAgentService.incidentRecIdValidation);
 			this.eventAggregator.publish(`new-call`, this.nextCall);

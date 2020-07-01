@@ -214,11 +214,18 @@ export class InsureSearchClient extends Component {
 				searchValue: this.searchValue
 			}
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient), (ex) => this._handleSearchClientException(ex));
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient),
+				(ex) => this._handleSearchClientException(ex));
+
 			if (identifiedClient) {
 				//Service returns ivrOption as "StopCard", actually we are in "Insure".
 				identifiedClient.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
 				this._raiseOnClientIdentified(identifiedClient);
+			}
+			else {
+				let errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+				this.alertBanner_Message = errMessages.ALERT_BANNER;
+				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			}
 		}
 	}
@@ -288,15 +295,7 @@ export class InsureSearchClient extends Component {
 			event.message = exception.message;
 		}
 		else if (exception instanceof HttpStatusError) {
-			if (exception.status === 204) {
-				let errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
-				this.alertBanner_Message = errMessages.ALERT_BANNER;
-				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-				return true;
-			}
-			else {
-				event.message = `${exception.status}: ${exception.message}`;
-			}
+			event.message = `${exception.status}: ${exception.message}`;
 		}
 		else {
 			event.message = `UNEXPECTED ERROR: ${exception.message}`;
