@@ -1,7 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 import { Router, NavigationContext, EventAggregator } from 'platform/core';
 
-
+import 'platform/components/layouts/Layout';
+import 'platform/components/containers/Expander';
 import 'platform/components/popups/Toast';
 import 'platform/components/containers/TabGroup';
 import 'platform/components/data/Table';
@@ -67,6 +68,22 @@ export class InsureBenefitNonClient extends Component {
 				height: 888px;
 				width: 100%;
 			}
+			p{
+				margin: 0px 0px 0px 0px;
+			
+			}	
+			ul{
+				height: auto;
+				width: 975px;
+				color: #545D60;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+			capitec-label{
+				margin: 10px 0px 10px 0px;
+			}
 			.info-banner{
 				width:100%;
 				background-color: #DAF2F4;
@@ -76,6 +93,7 @@ export class InsureBenefitNonClient extends Component {
 				font-weight: 500;
 				letter-spacing: 0;
 				line-height: 20px;
+				border: 0px;
 			}
 			.benefit-content{
 				height: 100%;
@@ -219,6 +237,80 @@ export class InsureBenefitNonClient extends Component {
   				letter-spacing: 0;
  				line-height: 24px;
 			}
+			.text{
+				height: auto;
+  				width: 967px;
+  				color: #545D60;
+  				font-family: "Hind Vadodara";
+  				font-size: 15px;
+  				letter-spacing: 0;
+				line-height: 24px;
+				margin-bottom: 16px;
+			}
+			.life-label{
+				height: 24px;
+				width: 100%;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+			.table{
+				box-sizing: border-box;
+				height: 384px;
+				width: 1016px;
+				border: 1px solid #E1E1E1;
+				background-color: #FFFFFF;
+			}
+			.cover-banner{
+				height: 56px;
+				width: 1032px;
+				background-color: rgba(8,166,181,0.15);
+			}
+			.expander{
+				width: auto;
+				color: #545D60;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				letter-spacing: 0;
+				line-height: 29px;
+			}
+			.married-text{
+				height: 48px;
+				width: 975px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-top: 0px;
+				margin-bottom: 0px;
+			}
+			.relationship-column{
+				height: 464px;
+				width: 186px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 29px;
+			}
+			.claim-label{
+				height: 24px;
+				width: auto;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+			.tabs{
+			}
 			`];
 	}
 
@@ -236,14 +328,15 @@ export class InsureBenefitNonClient extends Component {
 					<capitec-spacer></capitec-spacer>
 					<capitec-button class="calculate-button" type="white" label="Calculate Premium"></capitec-button>
 				</capitec-title-bar>
-				<capitec-tab-group>
+				<capitec-tab-group class="tabs" >
 						<capitec-tab label="Benefits">
 						${this.renderBenefitContent()}
 						</capitec-tab>
 						<capitec-tab label="Cover">
 						${this.renderCoverContent()}
 						</capitec-tab>
-						<capitec-tab label="Claim" layout="vertical" halign="left" selectedIndex={2}  @click="${() => this.navigate(`claim`)}">			${this.claimScreen ? html`<div>${this.renderClaimContent()}</div>` : html``}
+						<capitec-tab label="Claim">
+						${this.renderClaimContent()}
 						</capitec-tab>
 				</capitec-tab-group>
 		</capitec-card>
@@ -252,9 +345,8 @@ export class InsureBenefitNonClient extends Component {
 
 	renderBenefitContent() {
 		return html`
-			<capitec-content-box>
 				<capitec-alert-banner class="info-banner" type="info" closable>All Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
-				<capitec-group>
+				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
 					</capitec-label>
 					<ul class="text-area">
@@ -294,28 +386,26 @@ export class InsureBenefitNonClient extends Component {
 					</capitec-label>
 					<p class="burial-text-area">Repatriation of mortal remains of those covered, to the funeral home of choice closest to the place of burial.</p>
 				</capitec-group>
-			</capitec-content-box>
 		`;
 	}
 
 	renderCoverContent() {
 		return html`
-		<capitec-content-box>
-			<capitec-group>
-			<capitec-alert-banner class="info-banner" type="info" closable>All Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
-				
-				<capitec-label label="Life assured categories" type="strong"></capitec-label>
-				<p class="text-area">Get cover for yourself, one spouse and up to 4 parents, 8 children and 8 extended family members – all on one plan.</p>
 
-				<capitec-table .items="${this.records}" fixed>
+			<capitec-alert-banner class="cover-banner" type="info" closable>*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is   
+  				applicable to the life (ID) across all insurers and their recorded policies.</capitec-alert-banner>
+				
+				<capitec-label class="life-label" label="Life Assured Categories" type="Title"></capitec-label>
+				<p class="text">Get cover for yourself, one spouse and up to 4 parents, 8 children and 8 extended family members – all on one plan.</p>
+
+				<capitec-table class="table" .items="${this.records}" fixed>
 					<capitec-table-column label="Relationship Types" field="columnOne"></capitec-table-column>
 					<capitec-table-column label="Maximum Cover" field="columnTwo"></capitec-table-column>
 				</capitec-table>
 
-				<capitec-label type="Title " label="Spouse"></capitec-label>
-				<p>The person you are married to who is not older than 64 years of age at the cover start date. 
-					Married for purposes of this contract is when 2 people are: </p>
-
+				<capitec-label class="life-label" type="Subtitle" label="Spouse"></capitec-label>
+				<p class="married-text">The person you are married to who is not older than 64 years of age at the cover start date.
+						Married for purposes of this contract is when 2 people are:</p>
 					<ul>
 						<li>Married according to the laws of any sovereign country</li>
 						<li>Married according to customary/tribal law</li>
@@ -324,36 +414,80 @@ export class InsureBenefitNonClient extends Component {
 						<li>Party to a civil union in terms of Civil Union Act (2006)</li>
 					</ul>
 
-				<p>When you have more than one spouse, or if your spouse falls outside the maximum age requirement for a spouse, then the additional spouses can be covered as extended family members. </p>
-				<capitec-label type="Title" label="Parent"></capitec-label>
-				<p>Your biological parents, parents-in-law, legal guardians if you are an adopted child and your stepparents who are under the age of 86 at the cover start date. Where you have more than 4 parents, additional parents can be covered as extended family members.</p>
-				<capitec-label type="Title" label="Child"></capitec-label>
-				<p>Your child, your spouse’s child or your legally adopted child, stepchild or where you/your spouse are the child’s legal guardian. A child must be unmarried and below the age of 25 years.</p>
-				<capitec-label type="Title" label="Extended Family"></capitec-label>
-				<capitec-label type="Title" label="We consider extended famu=ily member to be:"></capitec-label>
-				<capitec-label type="Title " label="Spouse"></capitec-label>
-				<p>Where you have more than one spouse, or if your spouse's age falls outside the 18 – 64 years requirement, then the additional...</p>
-				<capitec-label type="strong" label="Parent"></capitec-label>
-				<p>Where you have more than 4 parents, then the additional parents, if they are 85 years or younger, can be covered as extended family members.</p>
-				<capitec-label type="strong" label="Child"></capitec-label>
-				<p>Where you have more than 8 children, or the child falls outside the age requirements of 25 years or younger, then the additional children can be covered as extended family members.</p>
-			</capitec-group>
-		</capitec-content-box>
+				<p class="text">When you have more than one spouse, or if your spouse falls outside the maximum age requirement for a spouse, then the additional spouses can be covered as extended family members. </p>
+				
+				<capitec-label class="life-label" type="Subtitle" label="Parent"></capitec-label>
+				<p class="text">Your biological parents, parents-in-law, legal guardians if you are an adopted child and your stepparents who are under the age of 86 at the cover start date. Where you have more than 4 parents, additional parents can be covered as extended family members.</p>
+				<capitec-label class="life-label" type="Subtitle" label="Child"></capitec-label>
+				<p class="text">Your child, your spouse’s child or your legally adopted child, stepchild or where you/your spouse are the child’s legal guardian. A child must be unmarried and below the age of 25 years.</p>
+				
+				<capitec-label class="life-label" type="Subtitle" label="Extended Family"></capitec-label>
+				<capitec-label class="life-label" type="Subtitle" label="We consider extended family member to be:"></capitec-label>
+
+				<capitec-label class="life-label" type="Subtitle " label="Spouse"></capitec-label>
+				<p class="text">Where you have more than one spouse, or if your spouse's age falls outside the 18 – 64 years requirement, then the additional...</p>
+				<capitec-label class="life-label" type="Subtitle" label="Parent"></capitec-label>
+				<p class="text">Where you have more than 4 parents, then the additional parents, if they are 85 years or younger, can be covered as extended family members.</p>
+				<capitec-label class="life-label" type="Subtitle" label="Child"></capitec-label>
+				<p class="text">Where you have more than 8 children, or the child falls outside the age requirements of 25 years or younger, then the additional children can be covered as extended family members.</p>
+
+				<capitec-expander-group modeset="single" >
+    				<capitec-expander label="Relationship to you">
+					<capitec-group layout="grid" rows="uniform" columns="uniform" gap="none" class="expander">
+      			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your parents’ male child"></capitec-label>
+						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your parents’ female child"></capitec-label>
+						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your brother or sister"></capitec-label>
+						<capitec-label label="Niece:" row="4" column="1"></capitec-label>	<capitec-label row="4" column="2" label="The female child of your brother or sister"></capitec-label>
+						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
+						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
+						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
+						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
+						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
+						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
+						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
+						<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label><capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
+						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>	<capitec-label row="13" column="2" label="Your parents’ parent"></capitec-label>
+						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label>	<capitec-label row="14" column="2" label="Your parents’ grandparent"></capitec-label>
+						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>	<capitec-label row="15" column="2" label="Your child’s child"></capitec-label>
+						<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label><capitec-label row="16" column="2" label="Greatgrandchild who is your grandchild’s child"></capitec-label>
+					</capitec-group>
+   				 </capitec-expander>
+
+   				 <capitec-expander  label="Relationship to your spouse">
+					<capitec-group layout="grid" rows="uniform" columns="uniform" gap="none" class="expander">
+      			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your spouse’s male child"></capitec-label>
+						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your spouse’s female child"></capitec-label>
+						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
+						<capitec-label label="Niece:" row="4" column="1"></capitec-label>	<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister"></capitec-label>
+						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
+						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
+						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
+						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
+						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
+						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
+						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
+						<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label><capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
+						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>	<capitec-label row="13" column="2" label="Your spouse’s parents’ parent"></capitec-label>
+						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label>	<capitec-label row="14" column="2" label="Your spouse’s parents’ grandparent"></capitec-label>
+						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>	<capitec-label row="15" column="2" label="Your spouse’s child’s child"></capitec-label>
+						<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label><capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child"></capitec-label>
+					</capitec-group>
+  				  </capitec-expander>
+				</capitec-expander-group>
 		`;
 	}
 
 	renderClaimContent() {
 		return html`
-		<capitec-content-box>
 			<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
-			<capitec-label type="strong" label="Ways to claim"></capitec-label>
+			<capitec-label class="claim-label" type="Subtitle" label="Ways to claim"></capitec-label>
 				<ul>
 					<li>Email FuneralClaims@capitecbank.co.za</li>	
 					<li>Visit a branch</li>
 				</ul>
-				<capitec-label type="strong" label="Documents needed"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Documents needed"></capitec-label>
 				<p>Once all documents are received, your claim will be processed and the money paid into your Capitec account immediately after your claim is approved.</p>
-				<capitec-label type="strong" label="Natural Death claims"> </capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Natural Death claims"> </capitec-label>
 					<ul>
 						<li>Original or certified copy of the death certificate</li>
 						<li>Fully completed BI-1663/BI-1680 or DHA-1663/DHA-1680 form BI-1663/BI-1680:</li>
@@ -364,24 +498,23 @@ export class InsureBenefitNonClient extends Component {
 						<li>Beneficiary’s bank, bank account number and branch code if the beneficiary is not a Capitec Bank accountholder</li>
 						<li>Any other documents/reports which we need to assess the validity of the claim</li>
 					</ul>
-				<capitec-label type="strong" label="In addition to the above documents, for"></capitec-label>
-				<capitec-label type="strong" label="Accidental Death claims"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="In addition to the above documents, for"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Accidental Death claims"></capitec-label>
 				<ul>
 					<li>A police report with the deatils of the cause of death</li>
 				</ul>
-				<capitec-label type="strong" label="Newborn Premium Waiver claims"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Newborn Premium Waiver claims"></capitec-label>
 				<ul>
 					<li>An unabridged birth certificate</li>
 				</ul>
-				<capitec-label type="strong" label="Voluntary Premium Pause claims"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Voluntary Premium Pause claims"></capitec-label>
 				<ul>
 					<li>A reason as to why you want to activate the benefit, no additional documents required</li>
 				</ul>
-				<capitec-label type="strong" label="Waiting Period Waiver"></capitec-label>
+				<capitec-label class="claim-label"  type="Subtitle" label="Waiting Period Waiver"></capitec-label>
 				<ul>
 					<li>Policy schedule of previous policy showing that the cover was in force at the time of the Capitec policy acceptance</li>
 				</ul>
-		</capitec-content-box>
 			
 		`;
 	}
