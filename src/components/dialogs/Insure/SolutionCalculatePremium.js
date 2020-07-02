@@ -43,7 +43,9 @@ export class CalculatePremium extends Component {
 	// --------------
 
 	_onCancelClick() {
-		// Navigate back to the Insure Tab
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+			detail: {}
+		}));
 	}
 
 	_onDoneClick() {
@@ -294,4 +296,4 @@ export class CalculatePremium extends Component {
 	}
 }
 
-window.customElements.define(`insure-solution-calculate-premium`, CalculatePremium)
+window.customElements.define(`horizon-calculate-premium`, CalculatePremium)
