@@ -10,6 +10,7 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
+	INSURE_NONCLIENT: `/insure/non-client`,
 	CLIENT_PROFILE_PAGE: `/client/profile`,
 	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
 	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
@@ -91,6 +92,16 @@ export default horizonRoutes = [
 		},
 	},
 	{
+		name: `product-insure-non-client`,
+		title: `InsureProductNonClientView`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_NONCLIENT,
+		load: () => import(`../views/insure/InsureProductNonClient`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+		},
+	},
+	{
 		name: `product-credit`,
 		title: `CreditProductView`,
 		icon: null,
@@ -105,7 +116,7 @@ export default horizonRoutes = [
 		title: `ClientProfile`,
 		icon: null,
 		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
-		load: () => import(`../views/ClientProfile/ClientProfile`),
+		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -115,7 +126,7 @@ export default horizonRoutes = [
 		title: `StopCard`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
-		load: () => import(`../views/ClientProfile/StopCardSuccess`),
+		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -125,7 +136,7 @@ export default horizonRoutes = [
 		title: `StopCardFail`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
-		load: () => import(`../views/ClientProfile/StopCardFailure`),
+		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
 		}
@@ -189,5 +200,9 @@ export class HorizonRouter {
 
 	navigateToStopCardFailed() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
+	}
+
+	navigateToInsureNonClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_NONCLIENT);
 	}
 }

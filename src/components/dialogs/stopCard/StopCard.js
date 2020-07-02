@@ -172,6 +172,7 @@ export class StopCard extends Component {
 
 			.dialogSize {
 				width: 452px;
+				margin-bottom: 48px;
 			}
 
 			p{
@@ -219,6 +220,10 @@ export class StopCard extends Component {
 				border-top:1px solid #dfdfdf;"
 			}
 
+			capitec-modal {
+				--theme-modal-header-background-color: #F7F7F7;
+				--theme-modal-header-color: #3E4547;
+			}
 			`];
 	}
 
@@ -232,38 +237,38 @@ export class StopCard extends Component {
 				header="Stop Card"
 				header-align="left">
 				<div slot="body">
-					${this.renderConfirmStopCard()} 
-					${this.renderLoadingIndicator()}
+					${this._renderConfirmStopCard()} 
+					${this._renderLoadingIndicator()}
 				</div>
 				<div slot="footer">
-					${this.renderFooter()}
+					${this._renderFooter()}
 				<div> 
 			</capitec-modal>
 			`;
 	}
 
-	renderConfirmStopCard() {
+	_renderConfirmStopCard() {
 		this.firstLine = true;
 		return html`
 		<capitec-group class="dialogSize" layout="vertical" gap="none">		
 				<p class="first-line">Are you sure you want to stop:</p>
-				${this.cardsToStop.map((line, index, cards) => { return this.renderLine(line, index, cards) })}
-		<apitec-group>
+				${this.cardsToStop.map((line, index, cards) => { return this._renderLine(line, index, cards) })}
+		<capitec-group>
 		`;
 	}
 
-	renderLine(line, index, cards) {
+	_renderLine(line, index, cards) {
 		let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
 		this.firstLine = false;
 
 		return html`
 		<p class="${classes}">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
 		<p class="left-margin">Reason: <span class="bold-text">${line.stopReason}</span></p>
-		${this.renderGreyLine(index, cards)}
+		${this._renderGreyLine(index, cards)}
 		`;
 	}
 
-	renderGreyLine(index, cards) {
+	_renderGreyLine(index, cards) {
 		if (index < (cards.length - 1)) {
 			return html`<div class="line"></div>`
 		}
@@ -271,7 +276,7 @@ export class StopCard extends Component {
 		return html``;
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
@@ -290,7 +295,7 @@ export class StopCard extends Component {
 			`;
 	}
 
-	renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		if (!this.isBusy) {
 			return html``;
 		}
