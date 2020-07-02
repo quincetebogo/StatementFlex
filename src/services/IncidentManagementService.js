@@ -48,7 +48,7 @@ export class IncidentManagementService {
 		};
 
 		//TODO: Remove hard coded value
-		createIncidentRequest.vdn = '211377';
+		//createIncidentRequest.vdn = '211377';
 
 		console.log("New-Call : Creating incident using : ", createIncidentRequest);
 
