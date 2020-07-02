@@ -9,6 +9,8 @@ import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeade
 import '../../Common/HorizonOptionButton';
 import './VerifyCallerSecurityQuestions';
 
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+
 const RENDER_MODE = {
 	VERIFY_CALLER: 0,
 	END_CALL: 1,
@@ -43,6 +45,8 @@ export class VerifyCaller extends Component {
 				"value": "Insure"
 			}
 		];
+
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -88,6 +92,7 @@ export class VerifyCaller extends Component {
 
 	_skip() {
 		//TODO: Navigate to Insure Landing Page
+		this.horizonRouter.navigateToInsureNonClient();
 	}
 
 	_tryAgain() {
