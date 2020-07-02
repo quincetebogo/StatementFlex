@@ -6,6 +6,8 @@ import '../../Common/HorizonSelect';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+
 export class VerifyCallerSequrityQuestions extends Component {
 
 
@@ -35,6 +37,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 		this.ivrOptionCode = "Insure";
 		this.incomingTelephoneNumber = "082 555 9090";
 
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -66,12 +69,21 @@ export class VerifyCallerSequrityQuestions extends Component {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
 			//navigate to the next screen on no error
 		}
+		else {
+			//TODO: Based on the option selected, naviagtion should happen. Can be done when implementing channel service
+			this.horizonRouter.navigateToInsureNonClient();
+		}
 	}
 
 	_onValueChanged() {
 		this.checked = !this.checked;
 		this.alertBannerMessage = this.alertBannerType === "error" ? "Navigate to SBL T62053 to complete client verification." : "Choose a feedback reason to continue.";
 		this.alertBannerType = this.alertBannerType === "error" ? "info" : "error";
+	}
+
+	_skip() {
+		//TODO: Channel service might be implemented here. If required.
+		this.horizonRouter.navigateToInsureNonClient();
 	}
 
 	// --------------
@@ -303,7 +315,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 					id="id-skip-button"
 					type="clear"
 					label="Skip"
-					@click="">
+					@click="${() => this._skip()}">
 				</capitec-button>
 
 				<capitec-button

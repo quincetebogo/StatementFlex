@@ -202,7 +202,7 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
 	}
 
-	navigateToInsureBonClient() {
+	navigateToInsureNonClient() {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_NONCLIENT);
 	}
 }

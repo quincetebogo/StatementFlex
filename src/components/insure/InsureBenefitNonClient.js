@@ -9,10 +9,12 @@ import 'platform/components/data/Table';
 import 'platform/components/navigation/AppRouter';
 
 import '../dialogs/insure/SolutionCalculatePremium'
+import '../dialogs/insure/NonAdvisoryDisclaimer'
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
-	CALCULATE_PREMIUM: 1
+	CALCULATE_PREMIUM: 1,
+	DISCLAIMER: 2
 };
 
 export class InsureBenefitNonClient extends Component {
@@ -33,7 +35,7 @@ export class InsureBenefitNonClient extends Component {
 		this.coverScreen = false;
 		this.claimScreen = false;
 		this.index = 0
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.renderMode = RENDER_MODE.DISCLAIMER;
 
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
@@ -400,8 +402,9 @@ export class InsureBenefitNonClient extends Component {
 						${this.renderClaimContent()}
 						</capitec-tab>
 				</capitec-tab-group>
-				${this._renderCalculatePremium()}
 		</capitec-card>
+		${this._renderDislaimer()}
+		${this._renderCalculatePremium()}
 		`;
 	}
 
@@ -581,11 +584,18 @@ export class InsureBenefitNonClient extends Component {
 		`;
 	}
 
+	_renderDislaimer() {
+		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
+			return html`<horizon-non-advisory-disclaimer @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-non-advisory-disclaimer>`;
+		}
+	}
+
 	_renderCalculatePremium() {
 		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
-			return html`<insure-solution-calculate-premium></insure-solution-calculate-premium>`;
+			return html`<horizon-calculate-premium @on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-calculate-premium>`;
 		}
 		return html``;
 	}
 }
+
 window.customElements.define(`horizon-insure-benefit-nonclient`, InsureBenefitNonClient);
