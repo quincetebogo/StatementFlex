@@ -94,7 +94,7 @@ export class InsureBenefitNonClient extends Component {
 				line-height: 24px;
 			}
 			capitec-label{
-				margin: 10px 0px 10px 0px;
+			
 			}
 			.info-banner{
 				width:100%;
@@ -105,7 +105,7 @@ export class InsureBenefitNonClient extends Component {
 				font-weight: 500;
 				letter-spacing: 0;
 				line-height: 20px;
-				border: none;
+				--theme-alert-banner-info-border: none;
 			}
 			.benefit-content{
 				height: 100%;
@@ -125,6 +125,7 @@ export class InsureBenefitNonClient extends Component {
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 24px;
+				margin-bottom: 0px;
 			}
 			.text-area{
 				height: 120px;
@@ -270,16 +271,22 @@ export class InsureBenefitNonClient extends Component {
 				line-height: 24px;
 			}
 			.table{
-				box-sizing: border-box;
 				height: 384px;
 				width: 1016px;
-				border: 1px solid #E1E1E1;
 				background-color: #FFFFFF;
+				margin: 0px;
+				border-radius: 5px;
+				border: 1px solid #E1E1E1;
+				--theme-data-table-border-last-row: none;
 			}
 			.cover-banner{
 				height: 56px;
 				width: 1032px;
+				color: #08A6B5;
 				background-color: rgba(8,166,181,0.15);
+				--theme-alert-banner-info-border: none;
+				box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+				box-sizing: border-box;
 			}
 			.expander{
 				width: auto;
@@ -320,8 +327,45 @@ export class InsureBenefitNonClient extends Component {
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 24px;
+				margin-bottom: 0px;
 			}
 			.tabs{
+			}
+			capitec-label[column="1"]{
+				width: 157px;
+				margin: 0px;
+				height: auto;
+				width: auto;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 29px;
+				--theme-label-default-font-weight: 600;
+				margin: 10px 0px 10px 0px;
+			}
+			capitec-expander-group > capitec-expander{
+                height: 554px;
+            }
+            .expander > capitec-label {
+                margin: 0px;
+            } 
+            }
+            capitec-label[column="2"] {
+                width: 500px;
+			}
+			.documents-claim-label{
+				height: 24px;
+				width: 1002px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 500;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-bottom: 10px;
+				margin-top: 10px;
 			}
 			`];
 	}
@@ -345,7 +389,7 @@ export class InsureBenefitNonClient extends Component {
 						@click="${() => this._onCalculatePremium()}">
 					</capitec-button>
 				</capitec-title-bar>
-				<capitec-tab-group class="tabs" >
+				<capitec-tab-group class="tabs">
 						<capitec-tab label="Benefits">
 						${this.renderBenefitContent()}
 						</capitec-tab>
@@ -410,15 +454,15 @@ export class InsureBenefitNonClient extends Component {
 	renderCoverContent() {
 		return html`
 
-			<capitec-alert-banner class="cover-banner" type="info" closable>*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is   
-  				applicable to the life (ID) across all insurers and their recorded policies.</capitec-alert-banner>
+			<capitec-alert-banner class="cover-banner" type="info" closable>*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is <br>  
+  				&nbsp; applicable to the life (ID) across all insurers and their recorded policies.</capitec-alert-banner>
 				
 				<capitec-label class="life-label" label="Life Assured Categories" type="Title"></capitec-label>
 				<p class="text">Get cover for yourself, one spouse and up to 4 parents, 8 children and 8 extended family members – all on one plan.</p>
 
-				<capitec-table class="table" .items="${this.records}" fixed>
+				<capitec-table class="table" .items="${this.records}" displayMode="Full">
 					<capitec-table-column label="Relationship Types" field="columnOne"></capitec-table-column>
-					<capitec-table-column label="Maximum Cover" field="columnTwo"></capitec-table-column>
+					<capitec-table-column label="Maximum Cover" field="columnTwo" align="right"></capitec-table-column>
 				</capitec-table>
 
 				<capitec-label class="life-label" type="Subtitle" label="Spouse"></capitec-label>
@@ -451,7 +495,7 @@ export class InsureBenefitNonClient extends Component {
 
 				<capitec-expander-group modeset="single" >
     				<capitec-expander label="Relationship to you">
-					<capitec-group layout="grid" rows="uniform" columns="uniform" gap="none" class="expander">
+					<capitec-group layout="grid" rows="uniform" columns="auto" gap="none" class="expander">
       			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your parents’ male child"></capitec-label>
 						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your parents’ female child"></capitec-label>
 						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your brother or sister"></capitec-label>
@@ -472,7 +516,7 @@ export class InsureBenefitNonClient extends Component {
    				 </capitec-expander>
 
    				 <capitec-expander  label="Relationship to your spouse">
-					<capitec-group layout="grid" rows="uniform" columns="uniform" gap="none" class="expander">
+					<capitec-group layout="grid" rows="uniform" columns="auto" gap="none" class="expander">
       			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your spouse’s male child"></capitec-label>
 						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your spouse’s female child"></capitec-label>
 						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
@@ -504,7 +548,7 @@ export class InsureBenefitNonClient extends Component {
 					<li>Visit a branch</li>
 				</ul>
 				<capitec-label class="claim-label"  type="Subtitle" label="Documents needed"></capitec-label>
-				<p>Once all documents are received, your claim will be processed and the money paid into your Capitec account immediately after your claim is approved.</p>
+				<p class="documents-claim-label">Once all documents are received, your claim will be processed and the money paid into your Capitec account immediately after your claim is approved.</p>
 				<capitec-label class="claim-label"  type="Subtitle" label="Natural Death claims"> </capitec-label>
 					<ul>
 						<li>Original or certified copy of the death certificate</li>
