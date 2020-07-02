@@ -330,7 +330,7 @@ export class VerifyCaller extends Component {
 										valign="top" 
 										gap="clear"
 										id="notification-status-group">
-							<img src="../../../images/Insure/sms.svg" class="sms-svg"/>
+							<img src="../../../images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
 							</div>

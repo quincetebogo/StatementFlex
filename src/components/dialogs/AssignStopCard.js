@@ -260,6 +260,12 @@ export class AssignStopCard extends Component {
 					padding-left: 16px;
 					padding-right:16px;
 					margin-top: 16px; 
+					--theme-alert-banner-unsuccessful-red-border: none;
+				}
+
+				capitec-modal{
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-color: #3E4547;	
 				}
 			`];
 	}
