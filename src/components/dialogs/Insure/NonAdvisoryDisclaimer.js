@@ -23,6 +23,12 @@ export class NonAdvisoryDisclaimer extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onGotItClick() {
+		this.dispatchEvent(new CustomEvent(`click`, {
+			detail: {}
+		}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -177,7 +183,7 @@ export class NonAdvisoryDisclaimer extends Component {
 					id="id-done-button"
 					type="primary"
 					label="Got It"
-					@click="">
+					@click="${() => this._onGotItClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;

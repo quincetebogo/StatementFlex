@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1032px" height="48px" viewBox="0 0 1032 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>2D476B04-325D-4A87-BBF2-FC6E7C969630</title>
+    <g id="Insure-MVP" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.2.2.-Non-Client---Product-Info---Benefits" transform="translate(-504.000000, -232.000000)">
+            <g id="Card" transform="translate(488.000000, 96.000000)">
+                <g id="06-Popup-/-2)-Alert-/-1)-Basic-/-1)-Info" transform="translate(16.000000, 136.000000)">
+                    <g id="Setup-/-Container-/-Shape-/-6)-→|←" fill="#DAF2F4" fill-rule="evenodd">
+                        <rect id="Bg" x="0" y="0" width="1032" height="48"></rect>
+                    </g>
+                    <text id="Type-something" font-family="HindVadodara-Medium, Hind Vadodara" font-size="14" font-weight="400" line-spacing="20" fill="#05829B">
+                        <tspan x="56" y="30">All Capitec Funeral Plan benefits are subject to terms and conditions, including limitations and exclusions.</tspan>
+                    </text>
+                    <g id="ic/close2" transform="translate(992.000000, 12.000000)" fill="#05829B" fill-rule="evenodd" stroke-width="1">
+                        <g id="Combined-Shape">
+                            <path d="M18.027997,5.972003 C18.2737815,6.21778752 18.2961256,6.60240015 18.0950291,6.87342614 L18.027997,6.95107393 L12.9782308,11.9992308 L18.027997,17.0489261 C18.29836,17.319289 18.29836,17.757634 18.027997,18.027997 C17.7822125,18.2737815 17.3975999,18.2961256 17.1265739,18.0950291 L17.0489261,18.027997 L11.9992308,12.9782308 L6.95107393,18.027997 C6.68071095,18.29836 6.24236597,18.29836 5.972003,18.027997 C5.72621848,17.7822125 5.70387443,17.3975999 5.90497086,17.1265739 L5.972003,17.0489261 L11.0202308,11.9992308 L5.972003,6.95107393 C5.70164003,6.68071095 5.70164003,6.24236597 5.972003,5.972003 C6.21778752,5.72621848 6.60240015,5.70387443 6.87342614,5.90497086 L6.95107393,5.972003 L11.9992308,11.0202308 L17.0489261,5.972003 C17.319289,5.70164003 17.757634,5.70164003 18.027997,5.972003 Z"></path>
+                        </g>
+                    </g>
+                    <g id="ic/Status/Info/Dark" transform="translate(16.000000, 12.000000)" fill-rule="evenodd" stroke-width="1">
+                        <g>
+                            <circle id="Oval" stroke="#05829B" stroke-width="1.5" fill-opacity="0.15" fill="#08A6B5" cx="12" cy="12" r="9.40384615"></circle>
+                            <path d="M12,9.46153846 C12.3504884,9.46153846 12.6401455,9.7219882 12.6859877,10.0599041 L12.6923077,10.1538462 L12.6923077,16.6153846 C12.6923077,16.9977356 12.382351,17.3076923 12,17.3076923 C11.6495116,17.3076923 11.3598545,17.0472426 11.3140123,16.7093267 L11.3076923,16.6153846 L11.3076923,10.1538462 C11.3076923,9.77149517 11.617649,9.46153846 12,9.46153846 Z M12,6.46153846 C12.5098013,6.46153846 12.9230769,6.87481408 12.9230769,7.38461538 C12.9230769,7.89441669 12.5098013,8.30769231 12,8.30769231 C11.4901987,8.30769231 11.0769231,7.89441669 11.0769231,7.38461538 C11.0769231,6.87481408 11.4901987,6.46153846 12,6.46153846 Z" id="Combined-Shape" fill="#05829B"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

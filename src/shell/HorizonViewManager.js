@@ -62,7 +62,7 @@ export class HorizonViewManager {
 			},
 			{
 				load: () => import(`../components/Common/ClientProfileDetails`),
-			},
+			}
 		];
 	}
 
