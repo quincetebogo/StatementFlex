@@ -29,7 +29,7 @@ export class InsureBenefitNonClient extends Component {
 
 		EventAggregator
 			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this.onNavigationContextUpdated());
+			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
 		this.benefitScreen = true;
 		this.coverScreen = false;
@@ -60,8 +60,18 @@ export class InsureBenefitNonClient extends Component {
 		};
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-	onNavigationContextUpdated() {
+	// n/a
+
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_onNavigationContextUpdated() {
 		// Access the current route's information and log its name, e.g. "screen-one"
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
@@ -69,6 +79,13 @@ export class InsureBenefitNonClient extends Component {
 	_onCalculatePremium() {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
 
 	// ---------
 	// RENDERING
@@ -393,13 +410,13 @@ export class InsureBenefitNonClient extends Component {
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs">
 						<capitec-tab label="Benefits">
-						${this.renderBenefitContent()}
+						${this._renderBenefitContent()}
 						</capitec-tab>
 						<capitec-tab label="Cover">
-						${this.renderCoverContent()}
+						${this._renderCoverContent()}
 						</capitec-tab>
 						<capitec-tab label="Claim">
-						${this.renderClaimContent()}
+						${this._renderClaimContent()}
 						</capitec-tab>
 				</capitec-tab-group>
 		</capitec-card>
@@ -408,7 +425,7 @@ export class InsureBenefitNonClient extends Component {
 		`;
 	}
 
-	renderBenefitContent() {
+	_renderBenefitContent() {
 		return html`
 				<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
 				<capitec-group class="group">
@@ -454,7 +471,7 @@ export class InsureBenefitNonClient extends Component {
 		`;
 	}
 
-	renderCoverContent() {
+	_renderCoverContent() {
 		return html`
 
 			<capitec-alert-banner class="cover-banner" type="info" closable>*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is <br>  
@@ -542,7 +559,7 @@ export class InsureBenefitNonClient extends Component {
 		`;
 	}
 
-	renderClaimContent() {
+	_renderClaimContent() {
 		return html`
 			<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
 			<capitec-label class="claim-label" type="Subtitle" label="Ways to claim"></capitec-label>
