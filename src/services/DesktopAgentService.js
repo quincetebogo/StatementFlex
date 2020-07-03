@@ -80,7 +80,7 @@ export class DesktopAgentService {
 	 * 
 	 * @param {*} event 
 	 */
-	_onNewCall(event) {
+	async _onNewCall(event) {
 		let eventData = JSON.parse(event.data);
 		let newCallEvent = new NewCallEvent();
 
@@ -114,7 +114,7 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
-			this._handleIncomingCall();
+			await this._handleIncomingCall();
 		}
 		catch (err) {
 			console.log(err);
@@ -187,7 +187,7 @@ export class DesktopAgentService {
 		// console.log("Connecting to Desktop Agent");
 
 		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener("new-call", (event) => this._onNewCall(event));
+		this.eventSource.addEventListener("new-call", async (event) => this._onNewCall(event));
 
 		this.eventSource.onerror = () => { this._onError(); };
 		this.eventSource.onopen = () => { this._onOpen(); };
@@ -224,7 +224,7 @@ export class DesktopAgentService {
 	_toggleBusyFlag() {
 	}
 
-	_handleIncomingCall() {
+	async _handleIncomingCall() {
 
 		if (!this.nextCall) {
 			return;
@@ -237,7 +237,7 @@ export class DesktopAgentService {
 			// If Landing Page => publish event
 			this.onCall = true;
 
-			let incident = IncidentManagementService.getInstance().createIncident(this.nextCall,
+			let incident = await IncidentManagementService.getInstance().createIncident(this.nextCall,
 				() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 				null // no error handler supplied, uses default
 			);
