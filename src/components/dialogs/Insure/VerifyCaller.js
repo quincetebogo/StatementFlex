@@ -361,7 +361,7 @@ export class VerifyCaller extends Component {
 										valign="top" 
 										gap="clear"
 										id="notification-status-error-group">
-							<img src="../../../images/Insure/connection-error.svg" class="connection-error-svg"/>
+							<img src="../../../images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
 							</div>
@@ -394,7 +394,7 @@ export class VerifyCaller extends Component {
 											@click="${() => this._skip()}">
 					</horizon-option-button>
 					<horizon-option-button label="Try Again" 
-											img-src="../../../images/Insure/refresh.svg"
+											img-src="../../../images/insure/refresh.svg"
 											iconSize="default"
 											type="clear"
 											@click="${() => this._tryAgain()}">
