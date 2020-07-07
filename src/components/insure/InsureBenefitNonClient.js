@@ -16,7 +16,10 @@ const RENDER_MODE = {
 	CALCULATE_PREMIUM: 1,
 	DISCLAIMER: 2
 };
-
+const RENDER_BANNER = {
+	NON_CLIENT: 0,
+	NEW_PROSPECTIVE_CLIENT: 1,
+}
 export class InsureBenefitNonClient extends Component {
 
 	// --------------
@@ -34,8 +37,9 @@ export class InsureBenefitNonClient extends Component {
 		this.benefitScreen = true;
 		this.coverScreen = false;
 		this.claimScreen = false;
-		this.index = 0
+		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
+		this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
@@ -56,7 +60,8 @@ export class InsureBenefitNonClient extends Component {
 			benefitScreen: { type: Boolean },
 			coverScreen: { type: Boolean },
 			claimScreen: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			renderAlertBanner: { type: Number }
 		};
 	}
 
@@ -80,6 +85,9 @@ export class InsureBenefitNonClient extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
 
+	_toggleBanner() {
+		this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -386,6 +394,17 @@ export class InsureBenefitNonClient extends Component {
 				margin-bottom: 10px;
 				margin-top: 10px;
 			}
+			.unverfied-caller-alert{
+				height: 21px;
+				width: 937px;
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 21px;
+				--theme-alert-banner-info-border: none;
+			}
 			`];
 	}
 
@@ -422,12 +441,15 @@ export class InsureBenefitNonClient extends Component {
 		</capitec-card>
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
+		<!-- ${this._renderUnverifiedClientBanner()}
+		${this._renderProspectiveClientBanner()} -->
 		`;
 	}
 
 	_renderBenefitContent() {
+		// this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
 		return html`
-				<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
+				${this._toggleBanner()}
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
 					</capitec-label>
@@ -612,6 +634,29 @@ export class InsureBenefitNonClient extends Component {
 			return html`<horizon-calculate-premium @on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-calculate-premium>`;
 		}
 		return html``;
+	}
+
+	_renderUnverifiedClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
+			return html`
+			<capitec-alert-banner class="info-banner" type="info" closable>
+				All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+			</capitec-alert-banner>
+				
+			`;
+		}
+	}
+	_renderProspectiveClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.NEW_PROSPECTIVE_CLIENT) {
+			return html`
+				<capitec-alert-banner class="unverfied-caller-alert">Client has not been verified, so you are only able to see limited information.
+					<capitec-hyperlink 
+ 						 href="#"
+ 						 label="Verify Now">
+					</capitec-hyperlink> 
+				</capitec-alert-banner>
+			`;
+		}
 	}
 }
 
