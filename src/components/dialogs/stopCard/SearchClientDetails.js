@@ -464,6 +464,7 @@ export class SearchClientDetailsComponent extends Component {
 									@value-changed="${(e) => this._valueChanged(e)}"
 									tabindex="${getTabIndex(this.identificationMethods)}"
 									?hidden=${isHidden(this.identificationMethods)}
+									id-field="key"
 									display-field="displayText">
 					</capitec-select>
 				</div>
