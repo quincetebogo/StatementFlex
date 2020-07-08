@@ -300,6 +300,7 @@ export class AssignStopCard extends Component {
   				label="Choose a team (Required)"
 				.items="${this.teamItems}" 
 				error="${this.errorMessage}"
+				id-field="key"
  				display-field="value"
 				@value-change="${(e) => this._onTeamSelected(e)}"
 				mode="basic"

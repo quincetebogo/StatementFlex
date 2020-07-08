@@ -508,6 +508,7 @@ export class InsureSearchClient extends Component {
 											label="Choose identification method" 
 											.items="${this.identificationMethods}"
 											.value="${this.searchType}"
+											id-field="key"
 											display-field="value"
 											@value-changed="${(e) => this._valueChanged(e)}"
 											error="${this.errMessage.searchType}">
