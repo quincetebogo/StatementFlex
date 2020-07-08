@@ -1,14 +1,13 @@
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
-
 import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
-
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
+import { NewCallEvent } from '../models//NewCallEvent';
+import { IncidentManagementService } from '../services/IncidentManagementService';
 
-import { NewCallEvent } from '../models//NewCallEvent'
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -62,6 +61,8 @@ export class DesktopAgentService {
 		this.onCall = false;		// Indicates that the UI is still handling a call
 		this.connectionTries = 0;	// Retry count for detecting Desktop Agent down
 
+		DesktopAgentService.getValidationData();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.HorizonRouter = HorizonRouter.getInstance();
@@ -79,7 +80,7 @@ export class DesktopAgentService {
 	 * 
 	 * @param {*} event 
 	 */
-	_onNewCall(event) {
+	async _onNewCall(event) {
 		let eventData = JSON.parse(event.data);
 		let newCallEvent = new NewCallEvent();
 
@@ -95,8 +96,9 @@ export class DesktopAgentService {
 			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
-			newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			newCallEvent.IncidentRecId = eventData.IncidentRecNo;
+			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
+			//newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			//newCallEvent.IncidentRecId = eventData.IncidentRecNo;
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
 
@@ -112,7 +114,7 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
-			this._handleIncomingCall();
+			await this._handleIncomingCall();
 		}
 		catch (err) {
 			console.log(err);
@@ -185,7 +187,7 @@ export class DesktopAgentService {
 		// console.log("Connecting to Desktop Agent");
 
 		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener("new-call", (event) => this._onNewCall(event));
+		this.eventSource.addEventListener("new-call", async (event) => this._onNewCall(event));
 
 		this.eventSource.onerror = () => { this._onError(); };
 		this.eventSource.onopen = () => { this._onOpen(); };
@@ -209,7 +211,9 @@ export class DesktopAgentService {
 		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
 		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.vdnValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.incidentRecIdValidation = '^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$'; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
 	}
 
@@ -217,7 +221,10 @@ export class DesktopAgentService {
 	// PRIVATE METHODS
 	// ---------------
 
-	_handleIncomingCall() {
+	_toggleBusyFlag() {
+	}
+
+	async _handleIncomingCall() {
 
 		if (!this.nextCall) {
 			return;
@@ -229,7 +236,16 @@ export class DesktopAgentService {
 		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
 			// If Landing Page => publish event
 			this.onCall = true;
+
+			let incident = await IncidentManagementService.getInstance().createIncident(this.nextCall,
+				() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+				null // no error handler supplied, uses default
+			);
+
+			this.nextCall.IncidentReferenceNumber = validate(incident.incidentNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			this.nextCall.IncidentRecId = validate(incident.incidentRecId, DesktopAgentService.incidentRecIdValidation);
 			this.eventAggregator.publish(`new-call`, this.nextCall);
+
 			this.nextCall = null;
 		}
 		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
@@ -249,4 +265,5 @@ export class DesktopAgentService {
 			this.HorizonRouter.navigateToLandingPage();
 		}
 	}
+
 }
