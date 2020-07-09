@@ -6,8 +6,6 @@ import { HorizonRouter } from '../shell/HorizonRouter';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
 import { NewCallEvent } from '../models//NewCallEvent';
-import { IncidentManagementService } from '../services/IncidentManagementService';
-
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -237,13 +235,6 @@ export class DesktopAgentService {
 			// If Landing Page => publish event
 			this.onCall = true;
 
-			let incident = await IncidentManagementService.getInstance().createIncident(this.nextCall,
-				() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
-				null // no error handler supplied, uses default
-			);
-
-			this.nextCall.IncidentReferenceNumber = validate(incident.incidentNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			this.nextCall.IncidentRecId = validate(incident.incidentRecId, DesktopAgentService.incidentRecIdValidation);
 			this.eventAggregator.publish(`new-call`, this.nextCall);
 
 			this.nextCall = null;

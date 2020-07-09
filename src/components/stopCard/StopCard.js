@@ -6,7 +6,7 @@ import 'platform/components';
 import { HorizonRouter } from '../../shell/HorizonRouter'
 import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import '../dialogs/EndCallSessionReason';
 import '../dialogs/stopCard/StopCard';
@@ -46,7 +46,7 @@ export class StopCard extends Component {
 		super();
 
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
@@ -209,7 +209,7 @@ export class StopCard extends Component {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.channelService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
 
 		this.desktopAgentService.callComplete();
 
@@ -270,7 +270,6 @@ export class StopCard extends Component {
 					color: #08A6B5;
 					font-family: "Hind Vadodara";
 					font-weight: 500;
-					align: center;
 					padding: 12px 0px 0px 10px;
 				}
 				capitec-table {
@@ -366,6 +365,11 @@ export class StopCard extends Component {
 					</capitec-group>`;
 	}
 
+	/**
+	 * @param {*} rowData
+	 * @returns {Object}
+	 * @memberof StopCard
+	 */
 	renderRowData(rowData) {
 		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" 
 									style="${rowData.selected ? `height: 70px` : `height: 22px;`}">

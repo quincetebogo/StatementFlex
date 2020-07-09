@@ -11,7 +11,7 @@ import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeade
 
 import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServiceUtilities';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
-import { StopCardService } from '../../../services/StopCardService';
+import { HorizonChannelService } from '../../../services/HorizonChannelService';
 
 import '../../Common/HorizonSelect';
 
@@ -138,7 +138,7 @@ export class InsureSearchClient extends Component {
 		this.searchValue = "";
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
@@ -214,7 +214,7 @@ export class InsureSearchClient extends Component {
 				searchValue: this.searchValue
 			}
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient),
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
 				(ex) => this._handleSearchClientException(ex));
 
 			if (identifiedClient) {
@@ -519,7 +519,7 @@ export class InsureSearchClient extends Component {
 												type="search"
 												keyboardMode ="numeric" 
 												label="Search" 
-												focussed="true" 
+												focussed
 												value="${this.searchValue}"
 												@value-changed="${(e) => this._valueChanged(e)}"
 												@key-input="${(e) => this._onKeyPress(e)}"

@@ -2,8 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
-import { StopCardService } from '../../../services/StopCardService';
-import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { CardService } from '../../../services/CardService'
 
 export class StopCard extends Component {
 
@@ -40,11 +39,6 @@ export class StopCard extends Component {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.stopCardService = StopCardService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
 	}
 
 
@@ -53,8 +47,6 @@ export class StopCard extends Component {
 	// --------------	
 
 	async _onConfirmClick() {
-		console.log(`cards to stop`, this.cardsToStop);
-
 		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
 
 		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardStopResults } }));
@@ -72,46 +64,12 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	// TODO: This should move out into a layer so that we can use it in the code that handles stop card retries.
 	async _stopCards(cardsToStop, callerInfo) {
-		let card = {};
-		let stoppedCard = {};
-		let cardStopResults = [];
+		let cardService = new CardService();
 
-		for (let index = 0; index < cardsToStop.length; index++) {
-
-			card.incomingTelephoneNumber = callerInfo.incomingTelephoneNumber;
-			card.voiceReferenceNumber = callerInfo.voiceReferenceNumber;
-			card.ivrOptionCode = callerInfo.ivrOptionCode;
-			card.incidentReferenceNumber = callerInfo.incidentReferenceNumber;
-			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
-			card.cardId = cardsToStop[index].cardId;
-			card.accountNumber = cardsToStop[index].accountNumber;
-			card.stopReason = cardsToStop[index].stopReason ? cardsToStop[index].stopReason : '';
-
-			try {
-				this.success = false;
-				this.error = null;
-				console.log('stopping card', card);
-				let result = await this.serviceCallHelper.asyncCall(this.stopCardService.stopCard(card), (ex) => this._stopCardErrorHandler(ex));
-
-				console.log('stop card result:', result);
-			}
-			finally {
-				stoppedCard = {
-					cardId: card.cardId,
-					cardType: cardsToStop[index].cardType,
-					encryptedCardId: cardsToStop[index].encryptedCardId,
-					accountNumber: card.accountNumber,
-					stopReason: card.stopReason,
-					stopped: this.success,
-					errorMessage: this.error
-				};
-
-				cardStopResults.push(stoppedCard);
-			}
-		}
+		let cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
+			() => this._toggleBusyFlag(),
+			(ex) => this._stopCardErrorHandler(ex));
 
 		return cardStopResults;
 	}
@@ -217,7 +175,7 @@ export class StopCard extends Component {
 			.line{
 				margin: 16px 16px 16px 16px;
 				width: 420px;
-				border-top:1px solid #dfdfdf;"
+				border-top:1px solid #dfdfdf;
 			}
 
 			capitec-modal {
@@ -242,7 +200,7 @@ export class StopCard extends Component {
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
-				<div> 
+				</div> 
 			</capitec-modal>
 			`;
 	}
@@ -253,7 +211,7 @@ export class StopCard extends Component {
 		<capitec-group class="dialogSize" layout="vertical" gap="none">		
 				<p class="first-line">Are you sure you want to stop:</p>
 				${this.cardsToStop.map((line, index, cards) => { return this._renderLine(line, index, cards) })}
-		<capitec-group>
+		</capitec-group>
 		`;
 	}
 
