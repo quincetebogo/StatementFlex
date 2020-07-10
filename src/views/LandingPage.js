@@ -202,7 +202,8 @@ export class LandingPage extends View {
 		let landingPageData = null;
 		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
 		if (landingPageData) {
-			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
+			this.eventAggregator.publish('horizon-update-welcome-bar', { fullname: landingPageData.agentFullName });
 		}
 	}
 

@@ -17,6 +17,8 @@ const HORIZON_ROUTES = {
 };
 
 let horizonRoutes = [];
+let landingPageSet = new Set([HORIZON_VIEWS.AGENT_BAR, HORIZON_VIEWS.WELCOME_MENU_BAR, HORIZON_VIEWS.MARKETING_BAR]);
+let cardStopSet = new Set([HORIZON_VIEWS.CALL_BAR, HORIZON_VIEWS.PROFILE_MENU_BAR, HORIZON_VIEWS.ACCESS_BAR])
 
 export default horizonRoutes = [
 	{
@@ -26,7 +28,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.LANDING_PAGE,
 		load: () => import(`../views/LandingPage`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 		isDefault: true,
 		isFallback: true
@@ -38,7 +40,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -48,7 +50,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -58,7 +60,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -68,7 +70,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -78,7 +80,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -88,7 +90,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -98,7 +100,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,
 		load: () => import(`../views/insure/InsureProductNonClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(new Set([HORIZON_VIEWS.CALL_BAR, HORIZON_VIEWS.PROFILE_MENU_BAR, HORIZON_VIEWS.MARKETING_BAR]))
 		},
 	},
 	{
@@ -108,7 +110,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(landingPageSet)
 		},
 	},
 	{
@@ -118,7 +120,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(cardStopSet)
 		}
 	},
 	{
@@ -128,7 +130,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(cardStopSet)
 		}
 	},
 	{
@@ -138,7 +140,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(cardStopSet)
 		}
 	}
 ]

@@ -61,7 +61,6 @@ export class AppShell extends Shell {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
-		this.eventAggregator.subscribe(`horizon-top-bar-data`, (event) => this._onTopBarUpdated(event));
 		this.eventAggregator.subscribe(`horizon-status-bar-update`, (event) => this._onUpdateStatusBar(event));
 
 		// Property defaults.
@@ -73,14 +72,11 @@ export class AppShell extends Shell {
 		this.platformVersion = null;
 		this.applicationName = null;
 		this.applicationVersion = null;
-		this.fullname = ``;
-		this.employeeId = ``;
-		this.cardStop = [];
 		this.currentStatus = "success";
 		this.currentMessage = "";
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEWS.LANDING_PAGE);
+		this.currentView = this.horizonViewManager.transitionToView(new Set([HORIZON_VIEWS.AGENT_BAR, HORIZON_VIEWS.WELCOME_MENU_BAR, HORIZON_VIEWS.MARKETING_BAR]));
 	}
 
 
@@ -98,8 +94,6 @@ export class AppShell extends Shell {
 			platformVersion: { type: String },
 			applicationName: { type: String },
 			applicationVersion: { type: String },
-			fullname: { type: String },
-			employeeId: { type: String },
 			currentView: { type: String },
 			currentStatus: { type: String },
 			currentMessage: { type: String }
@@ -116,13 +110,10 @@ export class AppShell extends Shell {
 		// Listening for events from the Desktop Agent
 		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
 
-		console.log("registrationUrl: ", registrationUrl);
 		DesktopAgentService.setRegistrationUrl(registrationUrl);
 		DesktopAgentService.getValidationData();
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
-
-		console.log(`Appshell: ConnectedCallback`);
 
 		let nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
@@ -200,11 +191,6 @@ export class AppShell extends Shell {
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
-	_onTopBarUpdated(event) {
-		this.fullName = event.agentFullName;
-		this.employeeId = event.employeeId;
-	}
-
 	_onUpdateStatusBar(event) {
 		this.currentStatus = event.status;
 		this.currentMessage = event.message;
@@ -248,15 +234,6 @@ export class AppShell extends Shell {
 					flex-direction: column;
 				}
 
-				.title-bar{
-					width: 100%;
-					height: 72px;
-					background-color: #ffffff;
-					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
-					grid-template-columns: 1fr;
-					grid-row-gap: 8px;
-				}
-
 				.additional-bar{
 					width: 100%;
 					height: 56px;
@@ -268,15 +245,6 @@ export class AppShell extends Shell {
 					width : 100%;
 					height: auto;
 					background : #f4f4f4; 
-				}
-
-				.branding-logo-white{
-					height: 32px;
-					width: 193px;
-				}
-
-				.logged-in-user{
-					color: #003652;
 				}
 
 				.grid-container {
@@ -335,10 +303,10 @@ export class AppShell extends Shell {
 	 */
 	_webTemplate() {
 		return html`
-            ${this.renderLoadingIndicator()}
-            ${this.renderContent()}
-            ${this.renderSuccessModel()}
-			${this.renderErrorModal()}
+            ${this._renderLoadingIndicator()}
+            ${this._renderContent()}
+            ${this._renderSuccessModel()}
+			${this._renderErrorModal()}
         `;
 	}
 
@@ -357,7 +325,7 @@ export class AppShell extends Shell {
 	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
 	 * 
 	 */
-	renderContent() {
+	_renderContent() {
 
 		if (this.isBusy) {
 			return html``;
@@ -365,14 +333,12 @@ export class AppShell extends Shell {
 
 		return html`         
                 <div class="screen-size">
-				    ${this.renderTitleBar()}
-					${this.horizonViewManager.renderAdditionalTopBar(this.currentView)}
+					${this.horizonViewManager.renderTopBar(this.currentView)}
 					
                     <capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
-								${this.horizonViewManager.switchArea(HORIZON_VIEWS.LANDING_PAGE, html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`)}
-								${this.horizonViewManager.switchArea(HORIZON_VIEWS.CARD_STOP, html`<client-details></client-details>`)}
+							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>	
 							<div class="middle">
 								<capitec-app-router></capitec-app-router> 
@@ -388,20 +354,7 @@ export class AppShell extends Shell {
         `;
 	}
 
-	renderTitleBar() {
-		return html`
-			<capitec-title-bar class="title-bar" type="clear" row=1>
-				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
-				<capitec-spacer></capitec-spacer>
-				<div class="logged-in-user">
-					<capitec-label label="${this.fullName}"></capitec-label>
-					<capitec-label label="${this.employeeId}"></capitec-label>
-				</div>
-			</capitec-title-bar>
-		`;
-	}
-
-	renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		if (!this.isBusy) {
 			return html``;
 		}
@@ -411,7 +364,7 @@ export class AppShell extends Shell {
         `;
 	}
 
-	renderSuccessModel() {
+	_renderSuccessModel() {
 
 		if (!this.isSuccess) {
 			return html``;
@@ -425,7 +378,7 @@ export class AppShell extends Shell {
 				`;
 	}
 
-	renderErrorModal() {
+	_renderErrorModal() {
 
 		if (!this.isError) {
 			return html``;
