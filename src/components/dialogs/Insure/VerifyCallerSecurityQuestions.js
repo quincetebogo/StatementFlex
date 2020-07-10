@@ -75,12 +75,15 @@ export class VerifyCallerSequrityQuestions extends Component {
 		}
 	}
 
-	_onValueChanged() {
-		this.checked = !this.checked;
-		this.alertBannerMessage = this.alertBannerType === "error" ? "Navigate to SBL T62053 to complete client verification." : "Choose a feedback reason to continue.";
-		this.alertBannerType = this.alertBannerType === "error" ? "info" : "error";
-	}
+	_onValueChanged(e) {
+		debugger;
+		if (e.detail.new == true) {
+			this.checked = true;
+			this.alertBannerType = "info";
+			this.alertBannerMessage = "Navigate to SBL T62053 to complete client verification";
 
+		}
+	}
 	_skip() {
 		//TODO: Channel service might be implemented here. If required.
 		this.horizonRouter.navigateToInsureNonClient();
@@ -298,11 +301,11 @@ export class VerifyCallerSequrityQuestions extends Component {
 
 			<capitec-radio-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio class="radio-button-label" @value-change="${() => this._onValueChanged()}" label="Passed Verification"></capitec-radio>
+					<capitec-radio class="radio-button-label" @value-change="${(e) => this._onValueChanged(e)}" label="Passed Verification"></capitec-radio>
 				</capitec-group>
 
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio class="radio-button-label" @value-change="${() => this._onValueChanged()}" label="Failed Verification (end call if client failed)"></capitec-radio>
+					<capitec-radio class="radio-button-label" @value-change="${(e) => this._onValueChanged(e)}" label="Failed Verification (end call if client failed)"></capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
 		`;
