@@ -21,7 +21,7 @@ export class InsureProductNonClient extends View {
 	}
 
 	render() {
-		return html`<horizon-insure-benefit-nonclient class="non-client-benefits"></horizon-insure-benefit-nonclients>`;
+		return html`<horizon-insure-benefit-nonclient class="non-client-benefits" displayMode="non-client"></horizon-insure-benefit-nonclients>`;
 	}
 }
 

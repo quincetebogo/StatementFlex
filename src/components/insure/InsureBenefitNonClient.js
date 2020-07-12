@@ -11,14 +11,19 @@ import 'platform/components/navigation/AppRouter';
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 
+import '../../shell/HorizonRouter';
+
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
 	DISCLAIMER: 2
+
 };
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
-	NEW_PROSPECTIVE_CLIENT: 1,
+	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
+	VERIFIED_PROSPECTIVE_CLIENT: 2,
+	TOAST: 3
 }
 export class InsureBenefitNonClient extends Component {
 
@@ -39,8 +44,8 @@ export class InsureBenefitNonClient extends Component {
 		this.claimScreen = false;
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-		this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
-
+		this.renderAlertBanner = 0;
+		this.displayMode = "";
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
 			{ columnOne: 'Spouse(18 - 64)', columnTwo: 'R100 000' },
@@ -50,6 +55,8 @@ export class InsureBenefitNonClient extends Component {
 			{ columnOne: 'Parents (26 - 85 years)', columnTwo: 'R50 000 each*' },
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
+
+		window.showToast = this._showToast;
 	}
 
 	// ----------
@@ -61,7 +68,9 @@ export class InsureBenefitNonClient extends Component {
 			coverScreen: { type: Boolean },
 			claimScreen: { type: Boolean },
 			renderMode: { type: Number },
-			renderAlertBanner: { type: Number }
+			renderAlertBanner: { type: Number },
+			displayMode: { type: String },
+
 		};
 	}
 
@@ -70,8 +79,21 @@ export class InsureBenefitNonClient extends Component {
 	// -------------------
 
 	// n/a
+	connectedCallback() {
+		super.connectedCallback();
+		// this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
+		if (this.displayMode === "non-client") {
+			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
+		}
+		else if (this.displayMode === "unverified-prospective") {
+			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
+		}
+		else if (this.displayMode === "verified-prospective") {
+			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
+		}
 
-
+		window.showToast = this._showToast();
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -85,9 +107,7 @@ export class InsureBenefitNonClient extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
 
-	_toggleBanner() {
-		this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
-	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -119,6 +139,7 @@ export class InsureBenefitNonClient extends Component {
 				font-size: 15px;
 				letter-spacing: 0;
 				line-height: 24px;
+				margin-top: 8px;
 			}
 			capitec-label{
 			
@@ -395,15 +416,24 @@ export class InsureBenefitNonClient extends Component {
 				margin-top: 10px;
 			}
 			.unverfied-caller-alert{
-				height: 21px;
-				width: 937px;
+				height: 48px;
+				width: 1032px;
+				background-color: rgba(212,120,28,0.1);
 				color: #D4781C;
 				font-family: "Hind Vadodara";
 				font-size: 14px;
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 21px;
-				--theme-alert-banner-info-border: none;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+				margin-bottom: 0px;
+			}
+			.unverfied-toast{
+				height: 64px;
+ 				width: 383px;
+  				border-radius: 4px;
+  				background-color: rgba(212,120,28,0.1);
 			}
 			`];
 	}
@@ -441,15 +471,15 @@ export class InsureBenefitNonClient extends Component {
 		</capitec-card>
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
-		<!-- ${this._renderUnverifiedClientBanner()}
-		${this._renderProspectiveClientBanner()} -->
 		`;
 	}
 
 	_renderBenefitContent() {
-		// this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
 		return html`
-				${this._toggleBanner()}
+				${this._renderNonClientBanner()}
+				${this._renderUnverifiedProspectiveClient()}	
+				${this._renderToastAndDisclaimer()}
+				${this._renderVerifiedProspectiveClientBanner()}
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
 					</capitec-label>
@@ -636,20 +666,31 @@ export class InsureBenefitNonClient extends Component {
 		return html``;
 	}
 
-	_renderUnverifiedClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
+	_renderToastAndDisclaimer() {
+		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.renderAlertBanner === RENDER_BANNER.TOAST) {
 			return html`
-			<capitec-alert-banner class="info-banner" type="info" closable>
-				All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
-			</capitec-alert-banner>
+				<capitec-toast class="unverfied-toast" type="warning" header="Not Verified" detail="Only limited information will be display" isVisible></capitec-toast>
 				
 			`;
 		}
+		return html``;
 	}
-	_renderProspectiveClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.NEW_PROSPECTIVE_CLIENT) {
+	_renderNonClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
 			return html`
-				<capitec-alert-banner class="unverfied-caller-alert">Client has not been verified, so you are only able to see limited information.
+				<capitec-alert-banner class="info-banner" type="info" closable>
+					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+				</capitec-alert-banner>
+				`;
+		}
+		return html``;
+	}
+	_renderUnverifiedProspectiveClient() {
+		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
+			return html`
+				${this._renderToastAndDisclaimer()}
+				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
  						 href="#"
  						 label="Verify Now">
@@ -657,6 +698,21 @@ export class InsureBenefitNonClient extends Component {
 				</capitec-alert-banner>
 			`;
 		}
+		return html``;
+	}
+	_renderVerifiedProspectiveClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT) {
+			return html`
+				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+					Client has not been verified, so you are only able to see limited information.
+					<capitec-hyperlink 
+ 						 href="#"
+ 						 label="Verify Now">
+					</capitec-hyperlink> 
+				</capitec-alert-banner>
+			`;
+		}
+		return html``;
 	}
 }
 

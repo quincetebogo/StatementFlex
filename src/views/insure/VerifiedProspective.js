@@ -13,7 +13,7 @@ export class InsureVerifiedProspective extends View {
 		return [
 			super.styles,
 			css`
-				.non-client-benefits{
+				.verified-caller{
 					width:100%;
 					height:100%;
 				}					
@@ -21,7 +21,7 @@ export class InsureVerifiedProspective extends View {
 	}
 
 	render() {
-		return html`<horizon-insure-benefit-nonclient class="non-client-benefits"></horizon-insure-benefit-nonclients>`;
+		return html`<horizon-insure-benefit-nonclient class="verified-caller" displayMode="verified-prospective"></horizon-insure-benefit-nonclients>`;
 	}
 }
 
