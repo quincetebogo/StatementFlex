@@ -12,6 +12,7 @@ import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 
 import '../../shell/HorizonRouter';
+import { getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -23,7 +24,7 @@ const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
 	VERIFIED_PROSPECTIVE_CLIENT: 2,
-	TOAST: 3
+	// TOAST: 3
 }
 export class InsureBenefitNonClient extends Component {
 
@@ -44,7 +45,7 @@ export class InsureBenefitNonClient extends Component {
 		this.claimScreen = false;
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-		this.renderAlertBanner = 0;
+		this.renderAlertBanner = 1;
 		this.displayMode = "";
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
@@ -56,7 +57,7 @@ export class InsureBenefitNonClient extends Component {
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
 
-		window.showToast = this._showToast;
+		// window.showToast = this._showToast;
 	}
 
 	// ----------
@@ -92,7 +93,7 @@ export class InsureBenefitNonClient extends Component {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
-		window.showToast = this._showToast();
+		// window.showToast = this._showToast();
 	}
 	// ---------------
 	// PRIVATE METHODS
@@ -399,7 +400,7 @@ export class InsureBenefitNonClient extends Component {
             .expander > capitec-label {
                 margin: 0px;
             } 
-            }
+            
             capitec-label[column="2"] {
                 width: 500px;
 			}
@@ -429,11 +430,22 @@ export class InsureBenefitNonClient extends Component {
 				--theme-alert-banner-height: 48px;
 				margin-bottom: 0px;
 			}
-			.unverfied-toast{
+			.warning-toast{
+				--theme-toast-warning-background-color: #e7b27c;
+				--theme-toast-max-width: 383px;
+				--theme-toast-min-width: 383px;
 				height: 64px;
- 				width: 383px;
-  				border-radius: 4px;
-  				background-color: rgba(212,120,28,0.1);
+			}
+			capitec-toast{
+				--theme-toast-max-width: 383px;
+				height: 64px;
+ 				border-radius: 4px;
+				  background-color: rgba(212,120,28,0.1);
+				--theme-toast-warning-background-color: #f7d3b0;
+			}
+			.container .warning{
+				--theme-toast-warning-background-color: #f7d3b0;
+				--theme-toast-max-width: 375px;
 			}
 			`];
 	}
@@ -445,6 +457,7 @@ export class InsureBenefitNonClient extends Component {
 
 	_webTemplate() {
 		return html`
+		
 			<capitec-card class="card">
 				<capitec-title-bar class="title-bar" type="insure">
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
@@ -478,7 +491,6 @@ export class InsureBenefitNonClient extends Component {
 		return html`
 				${this._renderNonClientBanner()}
 				${this._renderUnverifiedProspectiveClient()}	
-				${this._renderToastAndDisclaimer()}
 				${this._renderVerifiedProspectiveClientBanner()}
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
@@ -665,16 +677,6 @@ export class InsureBenefitNonClient extends Component {
 		}
 		return html``;
 	}
-
-	_renderToastAndDisclaimer() {
-		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.renderAlertBanner === RENDER_BANNER.TOAST) {
-			return html`
-				<capitec-toast class="unverfied-toast" type="warning" header="Not Verified" detail="Only limited information will be display" isVisible></capitec-toast>
-				
-			`;
-		}
-		return html``;
-	}
 	_renderNonClientBanner() {
 		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
 			return html`
@@ -686,9 +688,14 @@ export class InsureBenefitNonClient extends Component {
 		return html``;
 	}
 	_renderUnverifiedProspectiveClient() {
+
+
 		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
+
 			return html`
-				${this._renderToastAndDisclaimer()}
+				<div id="warning-toast" class="controller-toast">
+					${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
+				</div>
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
