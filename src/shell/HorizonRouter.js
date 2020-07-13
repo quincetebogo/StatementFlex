@@ -98,7 +98,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,
 		load: () => import(`../views/insure/InsureProductNonClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.LANDING_PAGE)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.INSURE)
 		},
 	},
 	{

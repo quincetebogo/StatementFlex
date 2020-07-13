@@ -30,6 +30,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 export const HORIZON_VIEWS = {
 	LANDING_PAGE: 'LANDING PAGE',
 	CARD_STOP: `CARD STOP`,
+	INSURE: `INSURE`
 };
 
 export class HorizonViewManager {
@@ -93,13 +94,27 @@ export class HorizonViewManager {
 		}
 	}
 
-	renderAdditionalTopBar(viewSet) {
+	renderTitleBar(viewSet) {
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
-				return html``;
+				return html`
+							<capitec-title-bar class="title-bar" type="clear" row=1>
+								<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
+								<capitec-spacer></capitec-spacer>
+								<div class="logged-in-user">
+									<capitec-label label="${this.fullName}"></capitec-label>
+									<capitec-label label="${this.employeeId}"></capitec-label>
+								</div>
+							</capitec-title-bar>
+						`;
 			case HORIZON_VIEWS.CARD_STOP:
-				return html`<horizon-actionbar></horizon-actionbar>`;
+			case HORIZON_VIEWS.INSURE:
+				return html``;
 		}
+	}
+
+	renderTopActionBar(viewSet) {
+		return html`<horizon-actionbar></horizon-actionbar>`;
 	}
 
 	renderRightBar(viewSet) {
@@ -107,6 +122,7 @@ export class HorizonViewManager {
 			case HORIZON_VIEWS.LANDING_PAGE:
 				return html`<landingpage-marketing></landingpage-marketing>`;
 			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.INSURE:
 				return html`<access-component></access-component>`;
 			default:
 				return html``;

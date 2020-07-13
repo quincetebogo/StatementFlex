@@ -17,6 +17,8 @@ import horizonRoutes from './shell/HorizonRouter';
 import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
 import { DesktopAgentService } from './services/DesktopAgentService.js';
 
+import './components/shell/HorizonActionBar';
+
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -363,42 +365,29 @@ export class AppShell extends Shell {
 			return html``;
 		}
 
-		return html`         
-                <div class="screen-size">
-				    ${this.renderTitleBar()}
-					${this.horizonViewManager.renderAdditionalTopBar(this.currentView)}
+		return html`
+				<div class="screen-size">
+					${this.horizonViewManager.renderTopActionBar(this.currentView)}
 					
-                    <capitec-content-box class="screen-content" nopadding>
+					<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
 								${this.horizonViewManager.switchArea(HORIZON_VIEWS.LANDING_PAGE, html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`)}
 								${this.horizonViewManager.switchArea(HORIZON_VIEWS.CARD_STOP, html`<client-details></client-details>`)}
+								${this.horizonViewManager.switchArea(HORIZON_VIEWS.INSURE, html`<landingpage-welcome .fullname="${this.fullName}"></landingpage-welcome>`)}
 							</div>	
 							<div class="middle">
 								<capitec-app-router></capitec-app-router> 
 							</div>
-							<div class="right">							
+							<div class="right">
 								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
-						</div>	
-                    </capitec-content-box>
+						</div>
+					</capitec-content-box>
 	
 					<capitec-status-bar status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
-                </div>
-        `;
-	}
-
-	renderTitleBar() {
-		return html`
-			<capitec-title-bar class="title-bar" type="clear" row=1>
-				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
-				<capitec-spacer></capitec-spacer>
-				<div class="logged-in-user">
-					<capitec-label label="${this.fullName}"></capitec-label>
-					<capitec-label label="${this.employeeId}"></capitec-label>
 				</div>
-			</capitec-title-bar>
-		`;
+			`;
 	}
 
 	renderLoadingIndicator() {

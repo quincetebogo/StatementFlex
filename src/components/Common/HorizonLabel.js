@@ -11,6 +11,7 @@ export class HorizonLabel extends Component {
 		super();
 		this.label = ``;
 		this.value = ``;
+		this.iconPath = ``;
 	}
 
 	// ----------
@@ -27,7 +28,8 @@ export class HorizonLabel extends Component {
 	static get properties() {
 		return {
 			label: { type: String },
-			value: { type: String }
+			value: { type: String },
+			iconPath: { type: String }
 		}
 	}
 
@@ -87,6 +89,7 @@ export class HorizonLabel extends Component {
 
 	render() {
 		return html`
+			${this._renderIcon()}
 			<div class="wrapper">
 				<capitec-label
 					class="label-text"
@@ -97,6 +100,15 @@ export class HorizonLabel extends Component {
 					label="${this.value}">
 				</capitec-label>
 			</div>`
+	}
+
+	_renderIcon() {
+		if (this.iconPath) {
+			return html`
+				<img src="${this.iconPath}" />
+			`;
+		}
+		return html``;
 	}
 }
 
