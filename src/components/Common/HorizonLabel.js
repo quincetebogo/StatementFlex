@@ -77,7 +77,7 @@ export class HorizonLabel extends Component {
 					margin-right: 21px;
 					
 					--theme-icon-size-small: 24px;
-			}
+				}
 
 				.label-text{
 					height: var(--horizon-label-text-height, 21px);

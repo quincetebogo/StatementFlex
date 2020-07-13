@@ -79,7 +79,9 @@ export class StopCardFailure extends View {
 		this.eventAggregator.publish(`horizon-update-call_actionbar`,
 			{
 				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber
+				phoneNumber: this.callerInfo.incomingTelephoneNumber,
+				ivrOptionCode: this.callerInfo.ivrOptionCode,
+				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
 			});
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);

@@ -26,10 +26,9 @@ export class InsureBenefitNonClient extends Component {
 	constructor() {
 		super();
 		this.router = Router.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
-		EventAggregator
-			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
 		this.benefitScreen = true;
 		this.coverScreen = false;
@@ -64,7 +63,16 @@ export class InsureBenefitNonClient extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	// n/a
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.eventAggregator.publish('horizon-update-call_actionbar',
+			{
+				referenceNo: "73023022",
+				phoneNumber: "0631152973",
+				ivrOptionCode: "Insure"
+			});
+	}
 
 
 	// ---------------

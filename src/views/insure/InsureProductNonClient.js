@@ -1,8 +1,6 @@
 import { View, html, css } from 'platform/elements';
 
-import '../../components/shell/HorizonActionBar';
 import '../../components/insure/InsureBenefitNonClient';
-import '../../components/Common/AccessMenuBar';
 
 export class InsureProductNonClient extends View {
 

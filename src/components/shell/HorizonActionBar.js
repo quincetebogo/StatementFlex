@@ -4,7 +4,6 @@ import 'platform/components/layouts/Group';
 
 import '../Common/HorizonLabel';
 
-
 export class HorizonActionBar extends Component {
 	// --------------
 	// INITIALISATION
@@ -14,6 +13,7 @@ export class HorizonActionBar extends Component {
 		super();
 		this.referenceNo = '';
 		this.phoneNumber = '';
+		this.clientNeed = '';
 	}
 
 	// ----------
@@ -44,6 +44,8 @@ export class HorizonActionBar extends Component {
 	_onUpdateCallDetails(event) {
 		this.referenceNo = event.referenceNo;
 		this.phoneNumber = event.phoneNumber;
+		this.clientNeed = event.ivrOptionCode;
+		this.isUnverifiedNumber = event.isUnverifiedNumber;
 	}
 
 	_endCallSession() {
@@ -126,17 +128,17 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<horizon-label
 						label="Reference Number" 
-						value="082 555 9090">
+						value="${this.referenceNo}">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
 						label="Primary Need" 
-						value="Insure">
+						value="${this.clientNeed}">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
 						label="Incoming call" 
-						value="Private Number"
+						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}"
 						icon="system/phone-escalation">
 					</horizon-label>
 				</capitec-group>
@@ -146,7 +148,7 @@ export class HorizonActionBar extends Component {
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" label="Handoff"></capitec-button>
 					<capitec-button label="End Call" 
-									@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
+									@click="${() => this._endCallSession()}">
 						<img class="end-call-icon" src="../../images/hangup.svg"/>
 					</capitec-button>
 				</capitec-group>

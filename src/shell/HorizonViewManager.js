@@ -165,10 +165,14 @@ export class HorizonViewManager {
 				this.shellComponents[2].load(); // Marketing Bar
 				break;
 			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.INSURE:
 				this.shellComponents[0].load(); // Action Bar
 				this.shellComponents[3].load(); // Access Component Bar
 				this.shellComponents[4].load(); // Client Profile Details Bar
+				break;
+			case HORIZON_VIEWS.INSURE:
+				this.shellComponents[0].load(); // Action Bar
+				this.shellComponents[1].load(); // Access Component Bar
+				this.shellComponents[2].load(); // Client Profile Details Bar
 				break;
 			default:
 				break;
