@@ -1,6 +1,8 @@
 import { View, html, css } from 'platform/elements';
 
+import '../../components/shell/HorizonActionBar';
 import '../../components/insure/InsureBenefitNonClient';
+import '../../components/Common/AccessMenuBar';
 
 export class InsureProductNonClient extends View {
 
@@ -16,8 +18,8 @@ export class InsureProductNonClient extends View {
 				.non-client-benefits{
 					width:100%;
 					height:100%;
-				}					
-				`];
+				}`
+		];
 	}
 
 	render() {

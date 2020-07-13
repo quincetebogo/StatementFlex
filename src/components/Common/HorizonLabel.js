@@ -11,7 +11,7 @@ export class HorizonLabel extends Component {
 		super();
 		this.label = ``;
 		this.value = ``;
-		this.iconPath = ``;
+		this.icon = ``;
 	}
 
 	// ----------
@@ -29,7 +29,7 @@ export class HorizonLabel extends Component {
 		return {
 			label: { type: String },
 			value: { type: String },
-			iconPath: { type: String }
+			icon: { type: String }
 		}
 	}
 
@@ -61,9 +61,23 @@ export class HorizonLabel extends Component {
 		return [
 			super.styles,
 			css`
+				.outer-wrapper{
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+				}
+
 				.wrapper{
 
 				}
+
+				capitec-icon {
+					width: 24px;
+					height: 24px;
+					margin-right: 21px;
+					
+					--theme-icon-size-small: 24px;
+			}
 
 				.label-text{
 					height: var(--horizon-label-text-height, 21px);
@@ -89,23 +103,25 @@ export class HorizonLabel extends Component {
 
 	render() {
 		return html`
-			${this._renderIcon()}
-			<div class="wrapper">
-				<capitec-label
-					class="label-text"
-					label="${this.label}">
-				</capitec-label>
-				<capitec-label 
-					class="label-value"
-					label="${this.value}">
-				</capitec-label>
+			<div class="outer-wrapper">
+				${this._renderIcon()}
+				<div class="wrapper">
+					<capitec-label
+						class="label-text"
+						label="${this.label}">
+					</capitec-label>
+					<capitec-label 
+						class="label-value"
+						label="${this.value}">
+					</capitec-label>
+				</div>
 			</div>`
 	}
 
 	_renderIcon() {
-		if (this.iconPath) {
+		if (this.icon) {
 			return html`
-				<img src="${this.iconPath}" />
+				<capitec-icon size="small" icon="${this.icon}"></capitec-icon>
 			`;
 		}
 		return html``;

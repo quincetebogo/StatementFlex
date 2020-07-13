@@ -1,6 +1,9 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import 'platform/components/layouts/Group'
+import 'platform/components/layouts/Group';
+
+import '../Common/HorizonLabel';
+
 
 export class HorizonActionBar extends Component {
 	// --------------
@@ -123,17 +126,18 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<horizon-label
 						label="Reference Number" 
-						value = "082 555 9090">
+						value="082 555 9090">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
 						label="Primary Need" 
-						value = "Insure">
+						value="Insure">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
 						label="Incoming call" 
-						value = "Private Number">
+						value="Private Number"
+						icon="system/phone-escalation">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>

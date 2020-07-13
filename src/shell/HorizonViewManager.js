@@ -47,6 +47,8 @@ export class HorizonViewManager {
 		this.currentView = HORIZON_VIEWS.LANDING_PAGE;
 		this.eventAggregator = EventAggregator.getInstance();
 		this.state = null;
+		this.fullName = ``;
+		this.employeeId = ``;
 
 		this.shellComponents = [
 			{
@@ -85,44 +87,42 @@ export class HorizonViewManager {
 		if (viewSet !== this.currentView) {
 			return html``;
 		}
-
-		switch (viewSet) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return areaHtml;
-			case HORIZON_VIEWS.CARD_STOP:
-				return areaHtml;
-		}
+		return areaHtml;
 	}
 
 	renderTitleBar(viewSet) {
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
 				return html`
-							<capitec-title-bar class="title-bar" type="clear" row=1>
-								<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
-								<capitec-spacer></capitec-spacer>
-								<div class="logged-in-user">
-									<capitec-label label="${this.fullName}"></capitec-label>
-									<capitec-label label="${this.employeeId}"></capitec-label>
-								</div>
-							</capitec-title-bar>
-						`;
-			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.INSURE:
+						<capitec-title-bar class="title-bar" type="clear">
+							<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
+							<capitec-spacer></capitec-spacer>
+							<div class="logged-in-user">
+								<capitec-label label="${this.fullName}"></capitec-label>
+								<capitec-label label="${this.employeeId}"></capitec-label>
+							</div>
+						</capitec-title-bar>`;
+			default:
 				return html``;
 		}
 	}
 
 	renderTopActionBar(viewSet) {
-		return html`<horizon-actionbar></horizon-actionbar>`;
+		switch (viewSet) {
+			case HORIZON_VIEWS.LANDING_PAGE:
+				return html``;
+			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.INSURE:
+				return html`<horizon-actionbar></horizon-actionbar>`;
+		}
 	}
 
 	renderRightBar(viewSet) {
 		switch (viewSet) {
 			case HORIZON_VIEWS.LANDING_PAGE:
+			case HORIZON_VIEWS.INSURE:
 				return html`<landingpage-marketing></landingpage-marketing>`;
 			case HORIZON_VIEWS.CARD_STOP:
-			case HORIZON_VIEWS.INSURE:
 				return html`<access-component></access-component>`;
 			default:
 				return html``;
@@ -136,6 +136,8 @@ export class HorizonViewManager {
 			if (userData != undefined && userData != null) {
 
 				// We may replace the event publishing mechanism below with a registered callback
+				this.fullName = userData.agentFullName;
+				this.employeeId = userData.employeeId;
 
 				this.eventAggregator.publish('horizon-top-bar-data', {
 					agentFullName: userData.agentFullName,
@@ -163,6 +165,7 @@ export class HorizonViewManager {
 				this.shellComponents[2].load(); // Marketing Bar
 				break;
 			case HORIZON_VIEWS.CARD_STOP:
+			case HORIZON_VIEWS.INSURE:
 				this.shellComponents[0].load(); // Action Bar
 				this.shellComponents[3].load(); // Access Component Bar
 				this.shellComponents[4].load(); // Client Profile Details Bar

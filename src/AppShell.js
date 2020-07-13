@@ -17,8 +17,6 @@ import horizonRoutes from './shell/HorizonRouter';
 import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
 import { DesktopAgentService } from './services/DesktopAgentService.js';
 
-import './components/shell/HorizonActionBar';
-
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
  */
@@ -367,6 +365,7 @@ export class AppShell extends Shell {
 
 		return html`
 				<div class="screen-size">
+					${this.horizonViewManager.renderTitleBar(this.currentView)}
 					${this.horizonViewManager.renderTopActionBar(this.currentView)}
 					
 					<capitec-content-box class="screen-content" nopadding>
