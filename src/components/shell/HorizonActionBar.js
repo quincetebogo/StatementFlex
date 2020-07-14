@@ -14,6 +14,7 @@ export class HorizonActionBar extends Component {
 		this.referenceNo = '';
 		this.phoneNumber = '';
 		this.clientNeed = '';
+		this.isUnverifiedNumber = null;
 	}
 
 	// ----------
@@ -23,7 +24,9 @@ export class HorizonActionBar extends Component {
 	static get properties() {
 		return {
 			referenceNo: { type: String },
-			phoneNumber: { type: String }
+			phoneNumber: { type: String },
+			clientNeed: { type: String },
+			isUnverifiedNumber: { type: Boolean }
 		}
 	}
 
