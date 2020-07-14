@@ -24,7 +24,6 @@ const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
 	VERIFIED_PROSPECTIVE_CLIENT: 2,
-	// TOAST: 3
 }
 export class InsureBenefitNonClient extends Component {
 
@@ -45,7 +44,7 @@ export class InsureBenefitNonClient extends Component {
 		this.claimScreen = false;
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-		this.renderAlertBanner = 1;
+		this.renderAlertBanner = 0;
 		this.displayMode = "";
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
@@ -57,7 +56,7 @@ export class InsureBenefitNonClient extends Component {
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
 
-		// window.showToast = this._showToast;
+		this.displayNotification = true;
 	}
 
 	// ----------
@@ -71,7 +70,7 @@ export class InsureBenefitNonClient extends Component {
 			renderMode: { type: Number },
 			renderAlertBanner: { type: Number },
 			displayMode: { type: String },
-
+			displayNotification: { type: Boolean },
 		};
 	}
 
@@ -93,7 +92,7 @@ export class InsureBenefitNonClient extends Component {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
-		// window.showToast = this._showToast();
+		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
 	// ---------------
 	// PRIVATE METHODS
@@ -114,7 +113,10 @@ export class InsureBenefitNonClient extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// n/a
+	_onToastDisplayTimeout() {
+		this.displayNotification = false;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -142,9 +144,6 @@ export class InsureBenefitNonClient extends Component {
 				line-height: 24px;
 				margin-top: 8px;
 			}
-			capitec-label{
-			
-			}
 			.info-banner{
 				width:100%;
 				background-color: #DAF2F4;
@@ -160,7 +159,6 @@ export class InsureBenefitNonClient extends Component {
 				height: 100%;
 				width: 100%;
 			  }
-			}
 			.calculate-button{
 				border: 1px solid white; 
 				color: white;
@@ -378,8 +376,6 @@ export class InsureBenefitNonClient extends Component {
 				line-height: 24px;
 				margin-bottom: 0px;
 			}
-			.tabs{
-			}
 			capitec-label[column="1"]{
 				width: 157px;
 				margin: 0px;
@@ -431,21 +427,22 @@ export class InsureBenefitNonClient extends Component {
 				margin-bottom: 0px;
 			}
 			.warning-toast{
-				--theme-toast-warning-background-color: #e7b27c;
 				--theme-toast-max-width: 383px;
 				--theme-toast-min-width: 383px;
 				height: 64px;
-			}
-			capitec-toast{
-				--theme-toast-max-width: 383px;
-				height: 64px;
- 				border-radius: 4px;
-				  background-color: rgba(212,120,28,0.1);
+				z-index: 806;
+				left: calc(50% - 200px);
+				top: 70px;
+				width: 383px;
+				position: absolute;
+				justify-content: center;
+				align-items: center;
+				background-color: rgba(212,120,28,0.1);
 				--theme-toast-warning-background-color: #f7d3b0;
+				--theme-toast-warning-color:#D4781C;
 			}
-			.container .warning{
-				--theme-toast-warning-background-color: #f7d3b0;
-				--theme-toast-max-width: 375px;
+			.title{
+				color: #E47C28;
 			}
 			`];
 	}
@@ -587,7 +584,7 @@ export class InsureBenefitNonClient extends Component {
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
-						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
+						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
 						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
@@ -608,7 +605,7 @@ export class InsureBenefitNonClient extends Component {
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
-						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
+						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
 						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
@@ -693,9 +690,15 @@ export class InsureBenefitNonClient extends Component {
 		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
 
 			return html`
-				<div id="warning-toast" class="controller-toast">
-					${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
-				</div>
+				
+				<capitec-toast class="warning-toast"
+					type="warning" 
+					header="Not Verified" 
+					detail="Only limited information will be display" 
+					closable="true"
+					@click="${this._onToastDisplayTimeout()}">
+				</capitec-toast>
+				
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
