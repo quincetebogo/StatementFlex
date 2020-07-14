@@ -175,6 +175,13 @@ export class LandingPage extends View {
 	}
 
 	_onConfirmedCaller(data) {
+
+		/**
+		 * Updating whether the incoming number is verified or unverified, which will be used in action bar
+		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
+		 */
+		data.detail.incomingCallDetails.isUnverifiedNumber = this.unVerifiedCaller ? true : false;
+
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = -1;
 		this.horizonRouter.navigateToStopCard();
@@ -258,7 +265,7 @@ export class LandingPage extends View {
 		model.incidentRecId = newCallInfo.IncidentRecId;
 		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
 		model.ivrOptionCode = newCallInfo.IVROptionCode;
-		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber
+		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber;
 	}
 
 	// ---------

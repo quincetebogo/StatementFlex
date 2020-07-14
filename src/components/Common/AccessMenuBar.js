@@ -38,7 +38,8 @@ export class AccessMenuBar extends Component {
 		this.confirmedCaller = HorizonStore.getInstance().recoverState();
 		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
-		this.accessChannels = Object.keys(this.clientAccess);
+
+		this.accessChannels = this.clientAccess ? Object.keys(this.clientAccess) : [];
 	}
 
 	// ---------
