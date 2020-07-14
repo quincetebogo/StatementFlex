@@ -55,8 +55,6 @@ export class InsureBenefitNonClient extends Component {
 			{ columnOne: 'Parents (26 - 85 years)', columnTwo: 'R50 000 each*' },
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
-
-		this.displayNotification = true;
 	}
 
 	// ----------
@@ -70,7 +68,6 @@ export class InsureBenefitNonClient extends Component {
 			renderMode: { type: Number },
 			renderAlertBanner: { type: Number },
 			displayMode: { type: String },
-			displayNotification: { type: Boolean },
 		};
 	}
 
@@ -91,8 +88,6 @@ export class InsureBenefitNonClient extends Component {
 		else if (this.displayMode === "verified-prospective") {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
-
-		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
 	// ---------------
 	// PRIVATE METHODS
@@ -113,10 +108,7 @@ export class InsureBenefitNonClient extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onToastDisplayTimeout() {
-		this.displayNotification = false;
-	}
-
+	//na
 
 	// ---------
 	// RENDERING
@@ -441,9 +433,7 @@ export class InsureBenefitNonClient extends Component {
 				--theme-toast-warning-background-color: #f7d3b0;
 				--theme-toast-warning-color:#D4781C;
 			}
-			.title{
-				color: #E47C28;
-			}
+			
 			`];
 	}
 
@@ -691,13 +681,9 @@ export class InsureBenefitNonClient extends Component {
 
 			return html`
 				
-				<capitec-toast class="warning-toast"
-					type="warning" 
-					header="Not Verified" 
-					detail="Only limited information will be display" 
-					closable="true"
-					@click="${this._onToastDisplayTimeout()}">
-				</capitec-toast>
+				<div id="warning-toast" class="controller-toast">
+					${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
+				</div>
 				
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
