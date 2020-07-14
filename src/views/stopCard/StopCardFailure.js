@@ -31,6 +31,7 @@ export class StopCardFailure extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
+		this.stoppedCards = [];
 
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
@@ -71,16 +72,19 @@ export class StopCardFailure extends View {
 
 		let state = this.horizonStore.recoverState();
 
-		this.callerInfo = state.callerInfo;
-		this.stoppedCards = state.stoppedCards;
-		this.failedCards = this.stoppedCards.filter(cards => !cards.stopped);
+		if (this.state) {
+			this.callerInfo = state.callerInfo;
+			this.stoppedCards = state.stoppedCards;
+			this.failedCards = this.stoppedCards.filter(cards => !cards.stopped);
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish(`horizon-update-call_actionbar`,
-			{
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber
+				phoneNumber: this.callerInfo.incomingTelephoneNumber,
+				ivrOptionCode: this.callerInfo.ivrOptionCode,
+				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
 			});
+		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
@@ -378,9 +382,8 @@ export class StopCardFailure extends View {
 				type="error" 
 				header="Unsuccessful" 
 				detail="An error has occured" 
-				closable="true"
-				@click="${() => this._onToastDisplayTimeout()}"
-				>
+				closable
+				@click="${() => this._onToastDisplayTimeout()}">
 			</capitec-toast>
 		`;
 		}

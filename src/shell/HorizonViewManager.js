@@ -27,10 +27,20 @@
 import { html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
-export const HORIZON_VIEWS = {
-	LANDING_PAGE: 'LANDING PAGE',
-	CARD_STOP: `CARD STOP`,
+const LAYOUT_COMPONENT = {
+	CALL_BAR: 0,
+	WELCOME_MENU_BAR: 1,
+	MARKETING_BAR: 2,
+	ACCESS_BAR: 3,
+	PROFILE_MENU_BAR: 4,
+	AGENT_BAR: 5,
 };
+
+export const HORIZON_VIEW_SET = {
+	LANDING_PAGES: new Set([LAYOUT_COMPONENT.AGENT_BAR, LAYOUT_COMPONENT.WELCOME_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
+	CARD_STOP: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.ACCESS_BAR]),
+	NONCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
+}
 
 export class HorizonViewManager {
 
@@ -43,7 +53,7 @@ export class HorizonViewManager {
 	}
 
 	constructor() {
-		this.currentView = HORIZON_VIEWS.LANDING_PAGE;
+		this.currentView = HORIZON_VIEW_SET.LANDING_PAGES;
 		this.eventAggregator = EventAggregator.getInstance();
 		this.state = null;
 
@@ -52,7 +62,7 @@ export class HorizonViewManager {
 				load: () => import(`../components/shell/HorizonActionBar`),
 			},
 			{
-				load: () => import(`../components/landingPage/LandingPageWelcome`),
+				load: () => import(`../components/landingPage/WelcomeBar`),
 			},
 			{
 				load: () => import(`../components/landingPage/LandingPageMarketing`),
@@ -62,6 +72,9 @@ export class HorizonViewManager {
 			},
 			{
 				load: () => import(`../components/Common/ClientProfileDetails`),
+			},
+			{
+				load: () => import(`../components/landingPage/TitleBar`),
 			}
 		];
 	}
@@ -80,48 +93,48 @@ export class HorizonViewManager {
 		this._importComponents(this.currentView);
 	}
 
-	switchArea(viewSet, areaHtml) {
-		if (viewSet !== this.currentView) {
-			return html``;
+	renderTopBar(viewSet) {
+		if (viewSet.has(LAYOUT_COMPONENT.AGENT_BAR)) {
+			return html`<horizon-title-bar></horizon-title-bar>`;
+		}
+		else if (viewSet.has(LAYOUT_COMPONENT.CALL_BAR)) {
+			return html`<horizon-actionbar></horizon-actionbar>`;
 		}
 
-		switch (viewSet) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return areaHtml;
-			case HORIZON_VIEWS.CARD_STOP:
-				return areaHtml;
-		}
+		return html``;
 	}
 
-	renderAdditionalTopBar(viewSet) {
-		switch (viewSet) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return html``;
-			case HORIZON_VIEWS.CARD_STOP:
-				return html`<horizon-actionbar></horizon-actionbar>`;
+	renderLeftBar(viewSet) {
+		if (viewSet.has(LAYOUT_COMPONENT.WELCOME_MENU_BAR)) {
+			return html`<horizon-welcome-bar></horizon-welcome-bar>`;
 		}
+		else if (viewSet.has(LAYOUT_COMPONENT.PROFILE_MENU_BAR)) {
+			return html`<client-details></client-details>`;
+		}
+
+		return html``;
 	}
 
 	renderRightBar(viewSet) {
-		switch (viewSet) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				return html`<landingpage-marketing></landingpage-marketing>`;
-			case HORIZON_VIEWS.CARD_STOP:
-				return html`<access-component></access-component>`;
-			default:
-				return html``;
+		if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
+			return html`<landingpage-marketing></landingpage-marketing>`;
 		}
+		else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
+			return html`<access-component></access-component>`;
+		}
+
+		return html``;
 	}
 
 	/// Used from the Landing Page & Product Pages to update the toolbar and the 
 	/// welcome box on the left hand user interface. 
 	UpdateLoggedInUser(userData) {
-		if (this.currentView === HORIZON_VIEWS.LANDING_PAGE) {
+		if (this.currentView.has(LAYOUT_COMPONENT.AGENT_BAR)) {
 			if (userData != undefined && userData != null) {
 
 				// We may replace the event publishing mechanism below with a registered callback
 
-				this.eventAggregator.publish('horizon-top-bar-data', {
+				this.eventAggregator.publish('horizon-update-title-bar', {
 					agentFullName: userData.agentFullName,
 					employeeId: userData.employeeId
 				})
@@ -130,7 +143,7 @@ export class HorizonViewManager {
 
 				// We may replace the event publishing mechanism below with a registered callback
 
-				this.eventAggregator.publish('horizon-top-bar-data', { agentFullName: `unknown`, employeeId: `unknown` });
+				this.eventAggregator.publish('horizon-update-title-bar', { agentFullName: `unknown`, employeeId: `unknown` });
 				this.fullname = `unknown`;
 			}
 		}
@@ -141,18 +154,28 @@ export class HorizonViewManager {
 	// ---------------
 
 	_importComponents(viewSet) {
-		switch (viewSet) {
-			case HORIZON_VIEWS.LANDING_PAGE:
-				this.shellComponents[1].load(); // Welcome Bar
-				this.shellComponents[2].load(); // Marketing Bar
-				break;
-			case HORIZON_VIEWS.CARD_STOP:
-				this.shellComponents[0].load(); // Action Bar
-				this.shellComponents[3].load(); // Access Component Bar
-				this.shellComponents[4].load(); // Client Profile Details Bar
-				break;
-			default:
-				break;
+		if (viewSet.has(LAYOUT_COMPONENT.WELCOME_MENU_BAR)) {
+			this.shellComponents[1].load(); // Welcome Bar
+		}
+
+		if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
+			this.shellComponents[2].load(); // Marketing Bar
+		}
+
+		if (viewSet.has(LAYOUT_COMPONENT.CALL_BAR)) {
+			this.shellComponents[0].load(); // Action Bar
+		}
+
+		if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
+			this.shellComponents[3].load(); // Access Component Bar
+		}
+
+		if (viewSet.has(LAYOUT_COMPONENT.PROFILE_MENU_BAR)) {
+			this.shellComponents[4].load(); // Client Profile Details Bar
+		}
+
+		if (viewSet.has(LAYOUT_COMPONENT.AGENT_BAR)) {
+			this.shellComponents[5].load(); // Agent/Title Bar
 		}
 	}
 }

@@ -110,14 +110,17 @@ export class StopCard extends Component {
 			ivrOptionCode: incomingCallDetails.ivrOptionCode,
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
 			incidentRecId: incomingCallDetails.incidentRecId,
-			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
+			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
+			isUnverifiedNumber: incomingCallDetails.isUnverifiedNumber
 		};
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
 				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber
+				phoneNumber: this.callerInfo.incomingTelephoneNumber,
+				ivrOptionCode: this.callerInfo.ivrOptionCode,
+				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
 			});
 	}
 

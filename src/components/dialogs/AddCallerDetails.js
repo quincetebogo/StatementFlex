@@ -245,6 +245,7 @@ export class AddCallerDetails extends Component {
 				#id-label-enter-details{
 					margin-left: 16px;
 					margin-bottom: 20px;
+					margin-top: 24px;
 					
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
@@ -325,9 +326,9 @@ export class AddCallerDetails extends Component {
 			<div class="call-details-bar">
 				<horizon-label
 					label="Reference Number" 
-					value = "${this.voiceReferenceNumber.value}"
-					tabindex="${getTabIndex(this.voiceReferenceNumber)}"
-					?hidden=${isHidden(this.voiceReferenceNumber)}>
+					value = "${this.incidentReferenceNumber}"
+					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
+					?hidden=${isHidden(this.incidentReferenceNumber)}>
 				</horizon-label>
 				<horizon-select
 					label="Client Need"
@@ -360,7 +361,7 @@ export class AddCallerDetails extends Component {
 
 	renderAddCallerDetails() {
 		return html`
-			<capitec-group class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" class="search-fields">
+			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
 			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
@@ -408,11 +409,11 @@ export class AddCallerDetails extends Component {
 									tabindex="${getTabIndex(this.nonClientRelationship)}"
 									?hidden=${isHidden(this.nonClientRelationship)}
 									.disabled="${isDisabled(this.nonClientRelationship)}"
+									id-field="key"
 									display-field="value">
 					</capitec-select>
 				</div>
-
-			</capitec-group>`;
+			</content-box>`;
 	}
 
 	renderFooter() {
