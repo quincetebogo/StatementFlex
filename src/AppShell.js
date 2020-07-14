@@ -14,7 +14,7 @@ import 'platform/components/navigation/AppRouter';
 
 //Import Horizon Routes
 import horizonRoutes from './shell/HorizonRouter';
-import { HorizonViewManager, HORIZON_VIEWS } from './shell/HorizonViewManager';
+import { HorizonViewManager, HORIZON_VIEW_SET } from './shell/HorizonViewManager';
 import { DesktopAgentService } from './services/DesktopAgentService.js';
 
 /**
@@ -76,7 +76,7 @@ export class AppShell extends Shell {
 		this.currentMessage = "";
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.currentView = this.horizonViewManager.transitionToView(new Set([HORIZON_VIEWS.AGENT_BAR, HORIZON_VIEWS.WELCOME_MENU_BAR, HORIZON_VIEWS.MARKETING_BAR]));
+		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 	}
 
 
