@@ -110,7 +110,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
 		load: () => import(`../views/insure/UnverifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.NONCLIENT_INSURE)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
 		},
 	},
 	{
@@ -120,7 +120,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE,
 		load: () => import(`../views/insure/VerifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEWS.NONCLIENT_INSURE)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
 		},
 	},
 	{

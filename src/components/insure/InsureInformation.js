@@ -25,7 +25,7 @@ const RENDER_BANNER = {
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
 	VERIFIED_PROSPECTIVE_CLIENT: 2,
 }
-export class InsureBenefitNonClient extends Component {
+export class InsureInformation extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -720,4 +720,4 @@ export class InsureBenefitNonClient extends Component {
 	}
 }
 
-window.customElements.define(`horizon-insure-benefit-nonclient`, InsureBenefitNonClient);
+window.customElements.define(`horizon-insure-information`, InsureInformation);

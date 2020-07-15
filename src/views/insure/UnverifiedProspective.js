@@ -1,6 +1,6 @@
 import { View, html, css } from 'platform/elements';
 
-import '../../components/insure/InsureBenefitNonClient';
+import '../../components/insure/InsureInformation';
 
 export class InsureUnverifiedProspective extends View {
 
@@ -20,8 +20,11 @@ export class InsureUnverifiedProspective extends View {
 				`];
 	}
 
-	render() {
-		return html`<horizon-insure-benefit-nonclient class="unverified-caller" displayMode="unverified-prospective"></horizon-insure-benefit-nonclients>`;
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`<horizon-insure-information class="unverified-caller" displayMode="unverified-prospective"></horizon-insure-information>`;
 	}
 }
 
