@@ -1,5 +1,5 @@
 import { Component, html, css } from 'platform/elements';
-
+import { EventAggregator } from 'platform/EventAggregator';
 
 export class AssignReasonDialog extends Component {
 
@@ -8,12 +8,18 @@ export class AssignReasonDialog extends Component {
 	// --------------
 	constructor() {
 		super();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+	static get properties() {
+		return {
+			assignReason: { type: Object },
 
+		}
+	}
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -22,6 +28,12 @@ export class AssignReasonDialog extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onContinueClick() {
+		this.dispatchEvent(new CustomEvent('on-assign-reason', {
+			detail: {}
+		}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -29,7 +41,9 @@ export class AssignReasonDialog extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
+	_onValueChanged() {
+		this.checked = !this.checked;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -83,8 +97,19 @@ export class AssignReasonDialog extends Component {
 					border: 1px solid #E1E1E1;
 					border-radius: 5px;
 					background-color: #FFFFFF;
+					height: 24px;
+					margin: 11px 0px 10px 16px;
 				}
-		
+				.radio-button-container{
+					margin: 8px 0px 0px 0px;
+					height: 48px;
+					padding: 0px;
+					box-sizing: border-box;
+					border-style: solid;
+					border-width: thin;
+					border-radius: 5px;
+					border-color: lightgrey;
+				}
 			`];
 
 	}
@@ -113,9 +138,15 @@ export class AssignReasonDialog extends Component {
 	_renderReason() {
 		return html`
 			<capitec-radio-group class="radio-group">
-				<capitec-radio id="radio-button" label="System error" ></capitec-radio>
-				<capitec-radio id="radio-button" label="Client is not in arrears, but was told they are"></capitec-radio>
-				<capitec-radio id="radio-button" label="Refunds"></capitec-radio>
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio id="radio-button" label="System error" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+				</capitec-group>
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio id="radio-button" label="Client is not in arrears, but was told they are" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+				</capitec-group>
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio id="radio-button" label="Refunds" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+				</capitec-group>
 			</capitec-radio-group>
 		`;
 	}
@@ -133,7 +164,7 @@ export class AssignReasonDialog extends Component {
 					id="continue-button"
 					type="primary"
 					label="Continue"
-					@click="${() => this._onContinueButtonClick()}">
+					@click="${() => this._onContinueClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;

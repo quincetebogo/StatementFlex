@@ -56,6 +56,8 @@ export class LandingPageWaitForCall extends Component {
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
 			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
 			${ debug_flag ? html`<capitec-button label="New Call" @click=${e => IncidentManagementService.getInstance().createIncident(null)}></capitec-button>` : ``}
+			
+			<capitec-button type="primary" label="Assign" @on-assign-reason=${e => onAssignClick()}></capitec-button>
 			`;
 	}
 }
