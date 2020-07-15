@@ -1,7 +1,7 @@
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
+import { HorizonViewManager, HORIZON_VIEW_SET } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
@@ -239,7 +239,7 @@ export class DesktopAgentService {
 
 			this.nextCall = null;
 		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
+		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
 			// We can take a call when on a product view page (they belong to the set of landing pages)
 			// Automatically navigate to the landing page. Once on the landing page and event will fire
 			// notifying this class to take the call.
@@ -252,7 +252,7 @@ export class DesktopAgentService {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
 			this.connectionTries = 0;
 		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
+		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
 			this.HorizonRouter.navigateToLandingPage();
 		}
 	}

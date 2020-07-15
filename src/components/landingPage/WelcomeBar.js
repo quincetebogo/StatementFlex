@@ -1,23 +1,22 @@
 import { Component, html, css } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import '../Common/HorizonProductBar';
 
 export class LandingPageWelcome extends Component {
 
+	// --------------
+	// INITIALISATION
+	// --------------	
 	constructor() {
 		super();
 
 		this.fullname = ``;
 	}
 
-	async connectedCallback() {
-		super.connectedCallback();
-	}
-
-	async disconnectedCallback() {
-		super.disconnectedCallback();
-	}
-
+	// ----------
+	// PROPERTIES
+	// ----------
 	static get properties() {
 		return {
 			//to extract client details from the service
@@ -25,6 +24,40 @@ export class LandingPageWelcome extends Component {
 		}
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	async connectedCallback() {
+		super.connectedCallback();
+		this.eventAggregator = EventAggregator.getInstance();
+		this.eventAggregator.subscribe(`horizon-update-welcome-bar`, (event) => this._onUpdateWelcome(event));
+	}
+
+	async disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------	
+
+	_onUpdateWelcome(event) {
+		this.fullname = event.fullname;
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// ---------
+	// RENDERING
+	// ---------		
 	static get styles() {
 		return [
 			super.styles,
@@ -66,7 +99,10 @@ export class LandingPageWelcome extends Component {
 			`];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 				<div class="left-card">
 					<div>	
@@ -86,4 +122,4 @@ export class LandingPageWelcome extends Component {
 	}
 }
 
-window.customElements.define(`landingpage-welcome`, LandingPageWelcome);
+window.customElements.define(`horizon-welcome-bar`, LandingPageWelcome);

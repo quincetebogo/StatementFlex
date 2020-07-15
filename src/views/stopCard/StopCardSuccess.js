@@ -60,15 +60,20 @@ export class StopCardSuccess extends View {
 
 		let state = this.horizonStore.recoverState();
 
-		this.callerInfo = state.callerInfo;
-		this.stoppedCards = state.stoppedCards;
+		this.stoppedCards = [];
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish('horizon-update-call_actionbar',
-			{
+		if (state) {
+			this.callerInfo = state.callerInfo;
+			this.stoppedCards = state.stoppedCards;
+
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.eventAggregator.publish('horizon-update-call_actionbar', {
 				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber
+				phoneNumber: this.callerInfo.incomingTelephoneNumber,
+				ivrOptionCode: this.callerInfo.ivrOptionCode,
+				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
 			});
+		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
@@ -317,9 +322,9 @@ export class StopCardSuccess extends View {
 		return html`
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="../../../images/access.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin"label="Card Skimming Case" img-src="../../../images/cards.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin"label="ATM Withdrawal Dispute" img-src="../../../images/atm.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin"label="Find A Branch" img-src="../../../images/atm.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="Card Skimming Case" img-src="../../../images/cards.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="../../../images/atm.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="Find A Branch" img-src="../../../images/atm.svg"></horizon-option-button>
 			</capitec-group>
 			`;
 	}
