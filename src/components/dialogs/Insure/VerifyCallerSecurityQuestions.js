@@ -76,7 +76,6 @@ export class VerifyCallerSequrityQuestions extends Component {
 	}
 
 	_onValueChanged(e) {
-		debugger;
 		if (e.detail.new == true) {
 			this.checked = true;
 			this.alertBannerType = "info";
