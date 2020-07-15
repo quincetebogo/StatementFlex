@@ -1,12 +1,12 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { CardService } from '../../services/CardService';
 
 import '../../components/dialogs/EndCallSessionReason';
 
@@ -31,7 +31,7 @@ export class StopCardFailure extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.stoppedCards = [];
+		this.cardsToStop = [];
 
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
@@ -72,10 +72,10 @@ export class StopCardFailure extends View {
 
 		let state = this.horizonStore.recoverState();
 
-		if (this.state) {
+		if (state) {
 			this.callerInfo = state.callerInfo;
-			this.stoppedCards = state.stoppedCards;
-			this.failedCards = this.stoppedCards.filter(cards => !cards.stopped);
+			this.cardsToStop = state.stoppedCards;
+			this.failedCards = this.cardsToStop.filter(cards => !cards.stopped);
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {

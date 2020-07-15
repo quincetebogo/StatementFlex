@@ -53,7 +53,7 @@ export class CardService {
 					encryptedCardId: cardsToStop[index].encryptedCardId,
 					accountNumber: cardsToStop[index].accountNumber,
 					stopReason: cardsToStop[index].stopReason,
-					stopped: response.result.statusCode === "200",
+					stopped: response.result.statusCode === 200,
 					errorMessage: response.result.statusCode
 				}
 			})
