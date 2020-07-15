@@ -1,9 +1,5 @@
 import { Component, html, css } from 'platform/elements';
 
-const RENDER_MODE = {
-	EMAIL_PLAN: 0
-};
-
 export class EmailPlan extends Component {
 
 	// --------------
@@ -13,7 +9,6 @@ export class EmailPlan extends Component {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.EMAIL_PLAN;
 		this.checked = false;
 		this.alertBannerMessage = '';
 	}
@@ -24,7 +19,6 @@ export class EmailPlan extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
 			checked: { type: Boolean }
 		}

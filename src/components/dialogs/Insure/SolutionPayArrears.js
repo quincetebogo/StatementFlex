@@ -1,9 +1,5 @@
 import { Component, html, css } from 'platform/elements';
 
-const RENDER_MODE = {
-	PAY_ARREARS: 0
-};
-
 export class PayArrears extends Component {
 
 	// --------------
@@ -13,7 +9,6 @@ export class PayArrears extends Component {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.PAY_ARREARS;
 		this.checked = false;
 		this.alertBannerMessage = '';
 	}
@@ -24,7 +19,6 @@ export class PayArrears extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
 			checked: { type: Boolean }
 		}
