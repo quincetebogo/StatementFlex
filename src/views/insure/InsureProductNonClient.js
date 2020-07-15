@@ -13,11 +13,11 @@ export class InsureProductNonClient extends View {
 		return [
 			super.styles,
 			css`
-				.non-client-benefits{
-					width:100%;
-					height:100%;
-				}					
-				`];
+			.non-client-benefits{
+				width:100%;
+				height:100%;
+			}					
+			`];
 	}
 
 	render() {

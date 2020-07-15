@@ -34,10 +34,9 @@ export class InsureBenefitNonClient extends Component {
 	constructor() {
 		super();
 		this.router = Router.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
-		EventAggregator
-			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
 		this.benefitScreen = true;
 		this.coverScreen = false;
@@ -78,7 +77,7 @@ export class InsureBenefitNonClient extends Component {
 	// n/a
 	connectedCallback() {
 		super.connectedCallback();
-		// this.isNonClient = this.isNonClient ? this.renderAlertBanner.NEW_PROSPECTIVE_CLIENT : this.renderAlertBanner.NON_CLIENT;
+
 		if (this.displayMode === "non-client") {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 		}
@@ -88,7 +87,16 @@ export class InsureBenefitNonClient extends Component {
 		else if (this.displayMode === "verified-prospective") {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
+
+		this.eventAggregator.publish('horizon-update-call_actionbar',
+			{
+				referenceNo: "73023022",
+				phoneNumber: "0631152973",
+				ivrOptionCode: "Insure"
+			});
 	}
+
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
