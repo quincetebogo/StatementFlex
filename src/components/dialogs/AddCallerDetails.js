@@ -239,7 +239,7 @@ export class AddCallerDetails extends Component {
 				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
-					height: 546px;
+					height: 650px;
 					width: 690px;
 				}
 				#id-label-enter-details{
