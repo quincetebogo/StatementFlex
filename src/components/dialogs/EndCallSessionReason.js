@@ -1,7 +1,7 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { View, html, css } from 'platform/elements';
 
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, getPossibleValues } from '../../utils/channelServiceUtilities';
 
@@ -19,7 +19,7 @@ export class EndCallSessionReason extends View {
 		this.endCallSessionButton = {};
 		this.endCallReasons = {};
 
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -53,7 +53,7 @@ export class EndCallSessionReason extends View {
 		// This call should perhaps be done before showing the dialog or this dialog needs its own
 		// error handler.
 		this.serviceCallHelper.call(
-			this.stopCardService.endCallOptions(),
+			this.channelService.endCallOptions(),
 			(options) => {
 				this.cancelButton = options.cancelButton;
 				this.endCallSessionButton = options.endCallSessionButton;

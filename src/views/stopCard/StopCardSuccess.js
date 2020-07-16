@@ -5,7 +5,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import '../../components/Common/HorizonOptionButton'
@@ -48,7 +48,7 @@ export class StopCardSuccess extends View {
 		super.connectedCallback();
 
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.stopCardService = StopCardService.getInstance();
+		this.stopCardService = HorizonChannelService.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();

@@ -6,7 +6,7 @@ import { Component, html, css } from 'platform/elements';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { StopCardService } from '../../../services/StopCardService';
+import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
@@ -77,7 +77,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -122,7 +122,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		if (this.stopCardService.isConfirmedCaller(this.unverifiedCaller)) {
+		if (this.channelService.isConfirmedCaller(this.unverifiedCaller)) {
 			// We are coming from the confirmed user dialog
 			this._loadSearchOptions();
 
@@ -172,7 +172,7 @@ export class SearchClientDetailsComponent extends Component {
 				searchValue: this.searchFieldText
 			}
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.stopCardService.searchCaller(searchClient),
+			let identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
 				(ex) => this._handleSearchClientException(ex));
 
 			if (identifiedClient) {
@@ -186,7 +186,13 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
+		this.dispatchEvent(new CustomEvent('call-ended', {
+			detail: {
+				unverifiedCaller: {},
+				incidentRecId: this.incidentRecId,
+				endCallReason: reason.detail.endCallReason
+			}
+		}));
 	}
 
 	_ivrOptionChanged(e) {
@@ -225,7 +231,7 @@ export class SearchClientDetailsComponent extends Component {
 		};
 
 		this.serviceCallHelper.call(
-			this.stopCardService.searchOptions(clientInfo),
+			this.channelService.searchOptions(clientInfo),
 			(options) => {
 				console.log('resolved - result', options);
 				this.identificationMethodsList = options.identificationMethods;
@@ -477,7 +483,7 @@ export class SearchClientDetailsComponent extends Component {
 										keyboardMode ="numeric" 
 										label="Search" 
 										error="${this.errMessage.searchFieldText}" 
-										focussed="true" 
+										focussed
 										hint="" 
 										@key-input="${(e) => this._onKeyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}" 

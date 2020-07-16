@@ -6,14 +6,14 @@ import { Configuration } from 'platform/Configuration';
  * needs such as Insure will probably be implemented using some of the same operations as below. 
  * The class may require a more generic name. 
  */
-export class StopCardService {
+export class HorizonChannelService {
 
 	// --------------
 	// INITIALISATION
 	// --------------
 
 	static getInstance() {
-		return this.instance || (this.instance = new StopCardService());
+		return this.instance || (this.instance = new HorizonChannelService());
 	}
 
 	constructor() {
@@ -71,17 +71,15 @@ export class StopCardService {
 	}
 
 	// stopCardRequest
-	async stopCard(card) {
+	async stopCard(stopCardRequest) {
 		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
 			{
-				"incomingTelephoneNumber": card.incomingTelephoneNumber,
-				"voiceReferenceNumber": card.voiceReferenceNumber,
-				"ivrOptionCode": card.ivrOptionCode,
-				"incidentReferenceNumber": card.incidentReferenceNumber,
-				"agentTelephoneNumber": card.agentTelephoneNumber,
-				"cardId": card.cardId,
-				"accountNumber": card.accountNumber,
-				"stopReason": card.stopReason
+				"cards": stopCardRequest.cards,
+				"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
+				"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
+				"ivrOptionCode": stopCardRequest.ivrOptionCode,
+				"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
+				"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
 			});
 	}
 
@@ -159,11 +157,8 @@ export class StopCardService {
 	}
 
 	// newIncidentRequest
-	async createIncident(incomingPhoneNumber) {
-		return await this._getClient().post(`/horizon/initialise/${this.version}/CreateIncident`,
-			{
-				"incomingPhoneNumber": incomingPhoneNumber
-			});
+	async createIncident(createIncidentRequest) {
+		return await this._getClient().post(`/horizon/initialise/${this.version}/CreateIncident`, createIncidentRequest);
 	}
 
 	// ------------------------------------------

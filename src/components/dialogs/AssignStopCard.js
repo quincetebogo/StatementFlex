@@ -8,7 +8,7 @@ import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import '../../views/stopCard/StopCardFailure';
@@ -32,7 +32,7 @@ export class AssignStopCard extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -71,7 +71,7 @@ export class AssignStopCard extends Component {
 		}
 
 		this.serviceCallHelper.call(
-			this.stopCardService.assignTeams(cardsAndIncident),
+			this.channelService.assignTeams(cardsAndIncident),
 			(teams) => {
 				this.teamsResponse = teams;
 				this.teamItems = this.teamsResponse.teams.possibleValues;
@@ -97,7 +97,7 @@ export class AssignStopCard extends Component {
 			};
 
 			this.success = true;
-			await this.serviceCallHelper.asyncCall(this.stopCardService.assign(assignRequest), (ex) => this._assignErrorHandler(ex));
+			await this.serviceCallHelper.asyncCall(this.channelService.assign(assignRequest), (ex) => this._assignErrorHandler(ex));
 
 			if (this.success) {
 				this.dispatchEvent(new CustomEvent('on-handoff', {
