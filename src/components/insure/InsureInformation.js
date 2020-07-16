@@ -135,6 +135,10 @@ export class InsureInformation extends Component {
 		this.renderMode = RENDER_MODE.ASSIGN_INCIDENT;
 	}
 
+	_onCancelAssign() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------	
@@ -747,7 +751,7 @@ export class InsureInformation extends Component {
 
 	_renderAssignIncident() {
 		if (this.renderMode === RENDER_MODE.ASSIGN_INCIDENT) {
-			return html`<horizon-insure-assign-reason></horizon-insure-assign-reason>`;
+			return html`<horizon-insure-assign-reason @on-cancel=${() => this._onCancelAssign()}></horizon-insure-assign-reason>`;
 		}
 		return html``;
 	}
