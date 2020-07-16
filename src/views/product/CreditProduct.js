@@ -1,7 +1,7 @@
 import { View, html, css } from 'platform/elements';
 import '../../components/product/CreditProductDetails';
 
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { HorizonViewManager } from '../../shell/HorizonViewManager';
 
 export class CreditProduct extends View {
@@ -21,7 +21,7 @@ export class CreditProduct extends View {
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await StopCardService.getInstance().initialise();
+			landingPageData = await HorizonChannelService.getInstance().initialise();
 		}
 		catch (ex) {
 			// TODO: better handling must come here

@@ -20,9 +20,10 @@ import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HorizonStore } from '../store/HorizonStore';
 
-import { StopCardService } from '../services/StopCardService';
+import { HorizonChannelService } from '../services/HorizonChannelService';
 import { DesktopAgentService } from '../services/DesktopAgentService'
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { IncidentManagementService } from '../services/IncidentManagementService';
 
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
@@ -45,15 +46,16 @@ export class LandingPage extends View {
 		this.renderMode = -1;
 		this.renderDialog = 0;
 		this.isBusy = false;
-		this.acceptCallErrorHandled = false;
+		this.errorHandled = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 
+		/** @type {Object} */
 		this.incomingCallDetails = {
 			"incomingTelephoneNumber": ``,
 			"incidentReferenceNumber": ``,
@@ -111,23 +113,27 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		/* --> TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
-        /*
+		let incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
+			() => { this._toggleBusyFlag() },
+			(ex) => { this.landingPageErrorHandler(ex, "createIncident") }
+		);
 
-		let incident = await this.serviceCallHelper.asyncCall(this.stopCardService.createIncident(eventData.IncomingTelephoneNumber));
+		if (incident) {
+			newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
+			newCallInfo.IncidentRecId = incident.incidentRecId;
 
-		eventData.IncidentReferenceNumber = incident.incidentNumber;
-		eventData.incidentRecId = incident.incidentRecId;
-        */
-		/* <-- TEMPORARILY CREATING INCIDENT HERE. IT SHOULD BE CREATED IN THE DESKTOP AGENT AND PASSED */
+			await this._acceptCall(newCallInfo);
+		}
+	}
 
+	async _acceptCall(newCallInfo) {
 		//TODO: This static mapping should be fixed and placed somewhere else
 		if (newCallInfo.IVROptionCode === "1") {
 			newCallInfo.IVROptionCode = "StopCard";
 			console.log("IVR Option: ", newCallInfo.IVROptionCode);
 		}
 
-		this.acceptCallErrorHandled = false;
+		this.errorHandled = false;
 
 		//TODO: Remove the below static condition check, when channel service is ready
 		if (newCallInfo.IVROptionCode === "Insure") {
@@ -138,18 +144,18 @@ export class LandingPage extends View {
 
 		// Check the incoming call to see if it is a verified or unverified number
 		let acceptedCall = await this.serviceCallHelper.asyncCall(
-			this.stopCardService.acceptCall(newCallInfo),
-			(ex) => this._acceptCallErrorHandler(ex));
+			this.channelService.acceptCall(newCallInfo),
+			(ex) => this.landingPageErrorHandler(ex, "acceptCall"));
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
-		if (this.stopCardService.isConfirmedCaller(acceptedCall)) {
+		if (this.channelService.isConfirmedCaller(acceptedCall)) {
 			this.confirmedCaller = acceptedCall;
 			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 			this.unVerifiedCaller = null;
 
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		}
-		else if (this.stopCardService.isUnverifiedCaller(acceptedCall)) {
+		else if (this.channelService.isUnverifiedCaller(acceptedCall)) {
 			this.unVerifiedCaller = acceptedCall;
 			this.confirmedCaller = null;
 			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
@@ -157,7 +163,7 @@ export class LandingPage extends View {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 		else {
-			if (!this.acceptCallErrorHandled) {
+			if (!this.errorHandled) {
 				let event = {
 					from: 'UI-CS',
 					status: "error",
@@ -183,6 +189,13 @@ export class LandingPage extends View {
 	}
 
 	_onConfirmedCaller(data) {
+
+		/**
+		 * Updating whether the incoming number is verified or unverified, which will be used in action bar
+		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
+		 */
+		data.detail.incomingCallDetails.isUnverifiedNumber = this.unVerifiedCaller ? true : false;
+
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = -1;
 		this.horizonRouter.navigateToStopCard();
@@ -191,7 +204,7 @@ export class LandingPage extends View {
 	async _onCallEnded(data) {
 		this.renderMode = -1;
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 	}
 	_onAssignClick() {
@@ -211,9 +224,10 @@ export class LandingPage extends View {
 
 	async _GetLandingPageData() {
 		let landingPageData = null;
-		landingPageData = await this.serviceCallHelper.asyncCall(this.stopCardService.initialise());
+		landingPageData = await this.serviceCallHelper.asyncCall(this.channelService.initialise());
 		if (landingPageData) {
-			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
+			this.eventAggregator.publish('horizon-update-welcome-bar', { fullname: landingPageData.agentFullName });
 		}
 	}
 
@@ -221,13 +235,13 @@ export class LandingPage extends View {
 		this.isBusy = this.isBusy ? false : true;
 	}
 
-	_acceptCallErrorHandler(exception) {
+	landingPageErrorHandler(exception, context) {
 		try {
 			if (exception instanceof TypeError) {
 				let event = {
 					from: 'UI-CS',
 					status: "error",
-					message: `acceptCall: ${exception.message}`
+					message: `${context}: ${exception.message}`
 				}
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
@@ -235,7 +249,7 @@ export class LandingPage extends View {
 				let event = {
 					from: 'UI-CS',
 					status: "error",
-					message: `acceptCall: ${exception.status} - ${exception.message}`
+					message: `${context}: ${exception.status} - ${exception.message}`
 				}
 				console.log(exception.message);
 				console.log(exception.output);
@@ -245,14 +259,14 @@ export class LandingPage extends View {
 				let event = {
 					from: 'UI-CS',
 					status: "error",
-					message: `acceptCall: UNEXPECTED ERROR - ${exception.message}`
+					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
 				}
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
 		}
 		finally {
 			// Just a flag to inform the _onNewCall event handler that the error was handled.
-			this.acceptCallErrorHandled = true;
+			this.errorHandled = true;
 
 			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
 			// we flag the call that we tied to take as complete...
@@ -268,7 +282,7 @@ export class LandingPage extends View {
 		model.incidentRecId = newCallInfo.IncidentRecId;
 		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
 		model.ivrOptionCode = newCallInfo.IVROptionCode;
-		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber
+		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber;
 	}
 
 	// ---------
@@ -320,7 +334,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-confirm-caller 
 					.confirmedCaller="${this.confirmedCaller}"
-					.incomingCallDetails = "${this.incomingCallDetails}"
+					.incomingCallDetails = "${this.incomingCallDetails}" 
 					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;

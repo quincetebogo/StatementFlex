@@ -1,6 +1,6 @@
 import { View, html, css } from 'platform/elements';
 
-import '../../components/insure/InsureBenefitNonClient';
+import '../../components/insure/InsureInformation';
 
 export class InsureProductNonClient extends View {
 
@@ -13,15 +13,18 @@ export class InsureProductNonClient extends View {
 		return [
 			super.styles,
 			css`
-				.non-client-benefits{
-					width:100%;
-					height:100%;
-				}					
-				`];
+			.non-client-benefits{
+				width:100%;
+				height:100%;
+			}					
+			`];
 	}
 
-	render() {
-		return html`<horizon-insure-benefit-nonclient class="non-client-benefits"></horizon-insure-benefit-nonclients>`;
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`<horizon-insure-information class="non-client-benefits" displayMode="non-client"></horizon-insure-information>`;
 	}
 }
 

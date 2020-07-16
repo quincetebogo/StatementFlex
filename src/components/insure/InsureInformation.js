@@ -10,14 +10,23 @@ import 'platform/components/navigation/AppRouter';
 
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
+import '../dialogs/insure/EndCallSession'
+
+import '../../shell/HorizonRouter';
+import { getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
-	DISCLAIMER: 2
+	DISCLAIMER: 2,
+	END_CALL: 3
 };
-
-export class InsureBenefitNonClient extends Component {
+const RENDER_BANNER = {
+	NON_CLIENT: 0,
+	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
+	VERIFIED_PROSPECTIVE_CLIENT: 2,
+}
+export class InsureInformation extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -26,17 +35,17 @@ export class InsureBenefitNonClient extends Component {
 	constructor() {
 		super();
 		this.router = Router.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
-		EventAggregator
-			.getInstance()
-			.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 
 		this.benefitScreen = true;
 		this.coverScreen = false;
 		this.claimScreen = false;
-		this.index = 0
+		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-
+		this.renderAlertBanner = 0;
+		this.displayMode = "";
 		this.records = [
 			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
 			{ columnOne: 'Spouse(18 - 64)', columnTwo: 'R100 000' },
@@ -56,7 +65,9 @@ export class InsureBenefitNonClient extends Component {
 			benefitScreen: { type: Boolean },
 			coverScreen: { type: Boolean },
 			claimScreen: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			renderAlertBanner: { type: Number },
+			displayMode: { type: String },
 		};
 	}
 
@@ -65,11 +76,38 @@ export class InsureBenefitNonClient extends Component {
 	// -------------------
 
 	// n/a
+	connectedCallback() {
+		super.connectedCallback();
+
+		if (this.displayMode === "non-client") {
+			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
+		}
+		else if (this.displayMode === "unverified-prospective") {
+			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
+		}
+		else if (this.displayMode === "verified-prospective") {
+			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
+		}
+
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+
+		this.eventAggregator.publish('horizon-update-call_actionbar',
+			{
+				referenceNo: "73023022",
+				phoneNumber: "0631152973",
+				ivrOptionCode: "Insure"
+			});
+	}
 
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_onNavigationContextUpdated() {
 		// Access the current route's information and log its name, e.g. "screen-one"
@@ -80,12 +118,13 @@ export class InsureBenefitNonClient extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
 
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// n/a
+	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// ---------
 	// RENDERING
@@ -111,9 +150,7 @@ export class InsureBenefitNonClient extends Component {
 				font-size: 15px;
 				letter-spacing: 0;
 				line-height: 24px;
-			}
-			capitec-label{
-			
+				margin-top: 8px;
 			}
 			.info-banner{
 				width:100%;
@@ -130,7 +167,6 @@ export class InsureBenefitNonClient extends Component {
 				height: 100%;
 				width: 100%;
 			  }
-			}
 			.calculate-button{
 				border: 1px solid white; 
 				color: white;
@@ -348,8 +384,6 @@ export class InsureBenefitNonClient extends Component {
 				line-height: 24px;
 				margin-bottom: 0px;
 			}
-			.tabs{
-			}
 			capitec-label[column="1"]{
 				width: 157px;
 				margin: 0px;
@@ -370,7 +404,7 @@ export class InsureBenefitNonClient extends Component {
             .expander > capitec-label {
                 margin: 0px;
             } 
-            }
+            
             capitec-label[column="2"] {
                 width: 500px;
 			}
@@ -386,6 +420,36 @@ export class InsureBenefitNonClient extends Component {
 				margin-bottom: 10px;
 				margin-top: 10px;
 			}
+			.unverfied-caller-alert{
+				height: 48px;
+				width: 1032px;
+				background-color: rgba(212,120,28,0.1);
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 21px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+				margin-bottom: 0px;
+			}
+			.warning-toast{
+				--theme-toast-max-width: 383px;
+				--theme-toast-min-width: 383px;
+				height: 64px;
+				z-index: 806;
+				left: calc(50% - 200px);
+				top: 70px;
+				width: 383px;
+				position: absolute;
+				justify-content: center;
+				align-items: center;
+				background-color: rgba(212,120,28,0.1);
+				--theme-toast-warning-background-color: #f7d3b0;
+				--theme-toast-warning-color:#D4781C;
+			}
+			
 			`];
 	}
 
@@ -396,6 +460,7 @@ export class InsureBenefitNonClient extends Component {
 
 	_webTemplate() {
 		return html`
+		
 			<capitec-card class="card">
 				<capitec-title-bar class="title-bar" type="insure">
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
@@ -422,12 +487,15 @@ export class InsureBenefitNonClient extends Component {
 		</capitec-card>
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
+		${this._renderEndCallSessionDialog()}
 		`;
 	}
 
 	_renderBenefitContent() {
 		return html`
-				<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
+				${this._renderNonClientBanner()}
+				${this._renderUnverifiedProspectiveClient()}	
+				${this._renderVerifiedProspectiveClientBanner()}
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
 					</capitec-label>
@@ -523,7 +591,7 @@ export class InsureBenefitNonClient extends Component {
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
-						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
+						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
 						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
@@ -544,7 +612,7 @@ export class InsureBenefitNonClient extends Component {
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
-						<capitec-label label="Daughter-in-law:"row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
+						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
 						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
@@ -613,6 +681,60 @@ export class InsureBenefitNonClient extends Component {
 		}
 		return html``;
 	}
+	_renderNonClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
+			return html`
+				<capitec-alert-banner class="info-banner" type="info" closable>
+					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+				</capitec-alert-banner>
+				`;
+		}
+		return html``;
+	}
+	_renderUnverifiedProspectiveClient() {
+
+
+		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
+
+			return html`
+				
+				<div id="warning-toast" class="controller-toast">
+					${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
+				</div>
+				
+				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+					Client has not been verified, so you are only able to see limited information.
+					<capitec-hyperlink 
+ 						 href="#"
+ 						 label="Verify Now">
+					</capitec-hyperlink> 
+				</capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+	_renderVerifiedProspectiveClientBanner() {
+		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT) {
+			return html`
+				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+					Client has not been verified, so you are only able to see limited information.
+					<capitec-hyperlink 
+ 						 href="#"
+ 						 label="Verify Now">
+					</capitec-hyperlink> 
+				</capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"></horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
 }
 
-window.customElements.define(`horizon-insure-benefit-nonclient`, InsureBenefitNonClient);
+window.customElements.define(`horizon-insure-information`, InsureInformation);

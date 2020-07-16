@@ -1,12 +1,12 @@
 import { View, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { CardService } from '../../services/CardService';
 
 import '../../components/dialogs/EndCallSessionReason';
 
@@ -31,6 +31,7 @@ export class StopCardFailure extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
+		this.cardsToStop = [];
 
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
@@ -67,20 +68,23 @@ export class StopCardFailure extends View {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 
 		let state = this.horizonStore.recoverState();
 
-		this.callerInfo = state.callerInfo;
-		this.stoppedCards = state.stoppedCards;
-		this.failedCards = this.stoppedCards.filter(cards => !cards.stopped);
+		if (state) {
+			this.callerInfo = state.callerInfo;
+			this.cardsToStop = state.stoppedCards;
+			this.failedCards = this.cardsToStop.filter(cards => !cards.stopped);
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish(`horizon-update-call_actionbar`,
-			{
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber
+				phoneNumber: this.callerInfo.incomingTelephoneNumber,
+				ivrOptionCode: this.callerInfo.ivrOptionCode,
+				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
 			});
+		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
@@ -109,14 +113,14 @@ export class StopCardFailure extends View {
 
 		//Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
-		await this._stopCards(this.failedCards, this.callerInfo);
+		this.cardsToStop = await this._stopCards(this.cardsToStop, this.callerInfo);
 
 		//Toggling back to Network Error summary
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 
-		let isAllSuccess = this.stoppedCards.every(cards => cards.stopped == true);
+		let isAllSuccess = this.cardsToStop.every(cards => cards.stopped == true);
 		if (isAllSuccess) {
-			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.stoppedCards });
+			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
 			this.horizonRouter.navigateToStoppedCards();
 		}
 	}
@@ -125,7 +129,7 @@ export class StopCardFailure extends View {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
+		await this.serviceCallHelper.asyncCall(this.channelService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 
 		this.horizonRouter.navigateToLandingPage();
@@ -148,44 +152,14 @@ export class StopCardFailure extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _stopCards(failedCards, callerInfo) {
-		let card = {};
-		let success = false;
-		let error = null;
+	async _stopCards(cardsToStop, callerInfo) {
+		let cardService = new CardService();
 
-		for (let index = 0; index < this.failedCards.length; index++) {
+		let cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
+			() => this._toggleBusyFlag(),
+			(ex) => this._stopCardErrorHandler(ex));
 
-			card.incomingTelephoneNumber = callerInfo.incomingTelephoneNumber;
-			card.voiceReferenceNumber = callerInfo.voiceReferenceNumber;
-			card.ivrOptionCode = callerInfo.ivrOptionCode;
-			card.incidentReferenceNumber = callerInfo.incidentReferenceNumber;
-			card.agentTelephoneNumber = callerInfo.agentTelephoneNumber;
-			card.cardId = failedCards[index].cardId;
-			card.accountNumber = failedCards[index].accountNumber;
-			card.stopReason = failedCards[index].reason ? failedCards[index].reason : '';
-
-			try {
-				await this.stopCardService.stopCard(card);
-				success = true;
-				error = null;
-			}
-			catch (ex) {
-				if (ex instanceof TypeError) {
-					error = ex.message;
-				}
-				else if (ex instanceof HttpStatusError) {
-					error = `${ex.status}: ${ex.message}`;
-				}
-				else {
-				}
-				success = false;
-			}
-			finally {
-				//Updating the current status (success/failure) into the stoppedCards array.
-				let index = this.stoppedCards.findIndex(c => c.cardId == card.cardId);
-				this.stoppedCards[index].stopped = success;
-			}
-		}
+		return cardStopResults;
 	}
 
 	// ---------
@@ -378,9 +352,8 @@ export class StopCardFailure extends View {
 				type="error" 
 				header="Unsuccessful" 
 				detail="An error has occured" 
-				closable="true"
-				@click="${() => this._onToastDisplayTimeout()}"
-				>
+				closable
+				@click="${() => this._onToastDisplayTimeout()}">
 			</capitec-toast>
 		`;
 		}
@@ -394,7 +367,7 @@ export class StopCardFailure extends View {
 	_renderStoppedCards() {
 		return html`
 			<div class="status-group">
-				${this.stoppedCards.map((card) => { return this._renderCardStatus(card) })}
+				${this.cardsToStop.map((card) => { return this._renderCardStatus(card) })}
 			</div>
 		`;
 	}

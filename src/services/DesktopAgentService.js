@@ -1,13 +1,11 @@
 import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonViewManager, HORIZON_VIEWS } from '../shell/HorizonViewManager';
+import { HorizonViewManager, HORIZON_VIEW_SET } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
 import '../utils/channelServiceUtilities';
 import { validate } from '../utils/channelServiceUtilities';
 import { NewCallEvent } from '../models//NewCallEvent';
-import { IncidentManagementService } from '../services/IncidentManagementService';
-
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -237,18 +235,11 @@ export class DesktopAgentService {
 			// If Landing Page => publish event
 			this.onCall = true;
 
-			let incident = await IncidentManagementService.getInstance().createIncident(this.nextCall,
-				() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
-				null // no error handler supplied, uses default
-			);
-
-			this.nextCall.IncidentReferenceNumber = validate(incident.incidentNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			this.nextCall.IncidentRecId = validate(incident.incidentRecId, DesktopAgentService.incidentRecIdValidation);
 			this.eventAggregator.publish(`new-call`, this.nextCall);
 
 			this.nextCall = null;
 		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
+		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
 			// We can take a call when on a product view page (they belong to the set of landing pages)
 			// Automatically navigate to the landing page. Once on the landing page and event will fire
 			// notifying this class to take the call.
@@ -261,7 +252,7 @@ export class DesktopAgentService {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
 			this.connectionTries = 0;
 		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEWS.LANDING_PAGE) {
+		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
 			this.HorizonRouter.navigateToLandingPage();
 		}
 	}

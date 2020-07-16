@@ -9,7 +9,7 @@ import 'platform/components/popups/Modal';
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, getValue, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
@@ -45,7 +45,7 @@ export class AddCallerDetails extends Component {
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -147,7 +147,7 @@ export class AddCallerDetails extends Component {
 			nonClientRelationship: this.nonClientRelationship.value
 		}
 
-		let addedcallerdetails = await this.serviceCallHelper.asyncCall(this.stopCardService.identifyCaller(confirmedCaller));
+		let addedcallerdetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
 		if (addedcallerdetails) {
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {
@@ -239,7 +239,7 @@ export class AddCallerDetails extends Component {
 				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
-					height: 546px;
+					height: 650px;
 					width: 690px;
 				}
 				#id-label-enter-details{
