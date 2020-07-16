@@ -12,7 +12,7 @@ import 'platform/components/core/Icon';
 import './AddCallerDetails';
 import './EndCallSessionReason';
 import './stopCard/SearchClientDetails';
-import './Insure/VerifyCaller';
+import './insure/VerifyCaller';
 
 import '../../components/Common/HorizonLabel';
 import '../../components/Common/HorizonSelect';

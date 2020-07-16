@@ -3,11 +3,11 @@ import { EventAggregator } from 'platform/core';
 
 import '../Common/HorizonOptionButton';
 import '../dialogs/insure/NonAdvisoryDisclaimer';
-import '../dialogs/Insure/SolutionViewPlan';
-import '../dialogs/Insure/ChooseAnUpdateOption';
-import '../dialogs/Insure/SolutionPayArrears';
+import '../dialogs/insure/SolutionViewPlan';
+import '../dialogs/insure/ChooseAnUpdateOption';
+import '../dialogs/insure/SolutionPayArrears';
 import './InsureHowToClaim';
-import '../dialogs/Insure/SolutionEmailPlan';
+import '../dialogs/insure/SolutionEmailPlan';
 import '../dialogs/insure/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignPayArrears';

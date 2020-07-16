@@ -13,7 +13,7 @@ import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
-import '../components/dialogs/Insure/SearchCaller';
+import '../components/dialogs/insure/SearchCaller';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';

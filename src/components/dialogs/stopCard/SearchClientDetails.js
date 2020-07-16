@@ -12,7 +12,7 @@ import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils
 
 import '../ConfirmCallerDetails';
 import '../../Common/HorizonSelect';
-import '../Insure/SearchCaller';
+import '../insure/SearchCaller';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader'
