@@ -8,6 +8,9 @@ import '../dialogs/Insure/ChooseAnUpdateOption';
 import '../dialogs/Insure/SolutionPayArrears';
 import './InsureHowToClaim';
 import '../dialogs/Insure/SolutionEmailPlan';
+import '../dialogs/insure/EndCallSession';
+import '../dialogs/insure/AssignReasonDialog';
+import '../dialogs/insure/AssignPayArrears';
 
 const SOLUTION_SET = {
 	VIEW_PLAN: 'View Plan',
@@ -21,7 +24,9 @@ const SOLUTION_SET = {
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
-	DISCLAIMER: 1
+	DISCLAIMER: 1,
+	ASSIGN: 2,
+	END_CALL: 3
 };
 
 export class ThirdPartyOrExisingClient extends Component {
@@ -33,7 +38,6 @@ export class ThirdPartyOrExisingClient extends Component {
 	constructor() {
 		super();
 
-		this.renderMode = -1;
 		this.clientType = "";
 		this.solutionsAvailable = [];
 		this.solutionSelected = "";
@@ -69,6 +73,8 @@ export class ThirdPartyOrExisingClient extends Component {
 				phoneNumber: "0631152973",
 				ivrOptionCode: "Insure"
 			});
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
 		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
 	}
@@ -85,7 +91,29 @@ export class ThirdPartyOrExisingClient extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
+	_onAssignReasonSelected(e) {
+		this.renderMode = RENDER_MODE.ASSIGN;
+	}
+
+	_onCancelSelectAssignReason() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onCancelAssign() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// ---------
 	// RENDERING
@@ -205,7 +233,11 @@ export class ThirdPartyOrExisingClient extends Component {
 						${this._renderVerifiedToast()}
 						${this._renderUnverifiedToast()}
 						${this._renderDislaimer()}
-						${this._renderSolutionDialog()}`;
+						${this._renderSolutionDialog()}
+						${this._renderEndCallSessionDialog()}
+						${this._renderSelectAssignReason()}
+						${this._renderAssign()}
+				`;
 		}
 	}
 
@@ -316,6 +348,34 @@ export class ThirdPartyOrExisingClient extends Component {
 			default:
 				return html``;
 		}
+	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`<horizon-end-call-session 
+							@on-cancel="{${() => this._onCancelEndCall()}}">
+						</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
+	_renderSelectAssignReason() {
+		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
+			return html`<horizon-insure-assign-reason 
+							@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+							@on-cancel=${() => this._onCancelSelectAssignReason()}>
+						</horizon-insure-assign-reason>`;
+		}
+		return html``;
+	}
+
+	_renderAssign() {
+		if (this.renderMode === RENDER_MODE.ASSIGN) {
+			return html`<horizon-assign-pay-arrears
+							@on-cancel=${() => this._onCancelAssign()}>
+						</horizon-assign-pay-arrears>`;
+		}
+		return html``;
 	}
 }
 
