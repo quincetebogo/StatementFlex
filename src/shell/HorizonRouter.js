@@ -10,10 +10,13 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	INSURE_NONCLIENT: `/insure/non-client`,
 	CLIENT_PROFILE_PAGE: `/client/profile`,
 	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
 	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
+	INSURE_NONCLIENT: `/insure/non-client`,
+	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client/verified`,
+	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client/unverified`,
+	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party-client`
 };
 
 let horizonRoutes = [];
@@ -140,6 +143,36 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP)
 		}
+	},
+	{
+		name: `insure-verified-existing-client`,
+		title: `InsureVerifiedExistingClientView`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT,
+		load: () => import(`../views/insure/VerifiedExistingClient`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE)
+		},
+	},
+	{
+		name: `insure-unverified-existing-client`,
+		title: `InsureUnverifiedExistingClientView`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT,
+		load: () => import(`../views/insure/UnverifiedExistingClient`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE)
+		},
+	},
+	{
+		name: `insure-third-party-client`,
+		title: `InsureThirdPartyClientView`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT,
+		load: () => import(`../views/insure/ThirdPartyBeneficiaryClient`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.THIRDPARTYCLIENT_INSURE)
+		},
 	}
 ]
 export class HorizonRouter {
@@ -204,5 +237,17 @@ export class HorizonRouter {
 
 	navigateToInsureNonClient() {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_NONCLIENT);
+	}
+
+	navigateToInsureVerifiedExistingClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT);
+	}
+
+	navigateToInsureUnverifiedExistingClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT);
+	}
+
+	navigateToInsureThirdPartyClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT);
 	}
 }

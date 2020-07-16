@@ -35,8 +35,8 @@ export class ClientProfileDetails extends Component {
 		super.connectedCallback();
 
 		this.confirmedCaller = HorizonStore.getInstance().recoverState();
-		let clientProfileDetails = this.confirmedCaller.clientProfileDetails;
-		this.clientPersonalInfo = this.confirmedCaller && clientProfileDetails.clientPersonalInformation;
+		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		this.clientPersonalInfo = clientProfileDetails && clientProfileDetails.clientPersonalInformation;
 
 		if (this.clientPersonalInfo) {
 			this.name = this.clientPersonalInfo.value.name;
