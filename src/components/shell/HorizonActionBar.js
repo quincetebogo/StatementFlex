@@ -143,10 +143,10 @@ export class HorizonActionBar extends Component {
 						value="${this.clientNeed}">
 					</horizon-label>
 					<div class="vertical-line"></div>
+					<img class="end-call-icon" src="../../images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
-						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}"
-						icon="system/phone-escalation">
+						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>
