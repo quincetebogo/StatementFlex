@@ -36,6 +36,7 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.solutionsAvailable = [];
 		this.solutionSelected = "";
 		this.renderMode = RENDER_MODE.DISCLAIMER;
+		this.displayToast = true;
 
 		this.eventAggregator = EventAggregator.getInstance();
 	}
@@ -48,7 +49,8 @@ export class ThirdPartyOrExisingClient extends Component {
 			renderMode: { type: String },
 			solutionsAvailable: { type: Array },
 			clientType: { type: String },
-			solutionSelected: { type: String }
+			solutionSelected: { type: String },
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -65,20 +67,16 @@ export class ThirdPartyOrExisingClient extends Component {
 				phoneNumber: "0631152973",
 				ivrOptionCode: "Insure"
 			});
-		this._showToast();
+
+		window.setTimeout(() => this._onToggleToastDisplay(), 120000);
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_showToast() {
-		if (this.clientType === 'verified-existing-client') {
-			this._renderVerifiedToast();
-		}
-		else if (this.clientType === 'unverified-existing-client') {
-			this._renderUnverifiedToast();
-		}
+	_onToggleToastDisplay() {
+		this.displayToast = false;
 	}
 
 	// --------------
@@ -160,6 +158,15 @@ export class ThirdPartyOrExisingClient extends Component {
 					--horizon-option-btn-text-font-weight: 500;
 					--horizon-option-btn-text-color: #545D60;
 				}
+
+				.toast{
+					position: absolute;
+					top : 170px;
+					left: 790px;
+					width : 323px;
+					height: 64px;
+					z-index: 201;
+				}
 			`
 		];
 	}
@@ -187,6 +194,8 @@ export class ThirdPartyOrExisingClient extends Component {
 					</capitec-group>
 				</capitec-content-box>
 			</capitec-card>
+			${this._renderVerifiedToast()}
+			${this._renderUnverifiedToast()}
 			${this._renderDislaimer()}
 			${this._renderSolutionDialog()}
 		`;
@@ -204,11 +213,23 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_renderVerifiedToast() {
-		showToastTimed("success", "top", "Successful", "Client has been verified", 3000, true, null);
+		if (this.clientType === 'verified-existing-client' && this.displayToast) {
+			return html`<capitec-toast class="toast" 
+										type="success" 
+										header="Successfull" 
+										detail="Client has been verified">
+						</capitec-toast>`;
+		}
 	}
 
 	_renderUnverifiedToast() {
-		showToastTimed("warning", "top", "Not Verified", "Only limited information will be displayed.", 3000, true, null);
+		if (this.clientType === 'unverified-existing-client' && this.displayToast) {
+			return html`<capitec-toast class="toast" 
+										type="warning" 
+										header="Not Verified" 
+										detail="Only limited information will be displayed.">
+						</capitec-toast>`;
+		}
 	}
 
 	_render3rdPartyAlertBanner() {
