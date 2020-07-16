@@ -11,6 +11,8 @@ const HORIZON_ROUTES = {
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
 	INSURE_NONCLIENT: `/insure/non-client`,
+	INSURE_VERIFIED_PROSPECTIVE: `/insure/verified-prospective`,
+	INSURE_UNVERIFIED_PROSPECTIVE: `/insure/unverified-prospective`,
 	CLIENT_PROFILE_PAGE: `/client/profile`,
 	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
 	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
@@ -97,6 +99,26 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,
 		load: () => import(`../views/insure/InsureProductNonClient`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
+		},
+	},
+	{
+		name: `horizon-insure-unverified-prospective`,
+		title: `InsureProductUnverifiedProspective`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
+		load: () => import(`../views/insure/UnverifiedProspective`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
+		},
+	},
+	{
+		name: `horizon-insure-verified-prospective`,
+		title: `InsureProductVerifiedProspective`,
+		icon: null,
+		path: HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE,
+		load: () => import(`../views/insure/VerifiedProspective`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
 		},
