@@ -1,6 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import 'platform/components/layouts/Group'
+import 'platform/components/layouts/Group';
+
+import '../Common/HorizonLabel';
 
 export class HorizonActionBar extends Component {
 	// --------------
@@ -11,6 +13,8 @@ export class HorizonActionBar extends Component {
 		super();
 		this.referenceNo = '';
 		this.phoneNumber = '';
+		this.clientNeed = '';
+		this.isUnverifiedNumber = null;
 	}
 
 	// ----------
@@ -20,7 +24,9 @@ export class HorizonActionBar extends Component {
 	static get properties() {
 		return {
 			referenceNo: { type: String },
-			phoneNumber: { type: String }
+			phoneNumber: { type: String },
+			clientNeed: { type: String },
+			isUnverifiedNumber: { type: Boolean }
 		}
 	}
 
@@ -41,6 +47,8 @@ export class HorizonActionBar extends Component {
 	_onUpdateCallDetails(event) {
 		this.referenceNo = event.referenceNo;
 		this.phoneNumber = event.phoneNumber;
+		this.clientNeed = event.ivrOptionCode;
+		this.isUnverifiedNumber = event.isUnverifiedNumber;
 	}
 
 	_endCallSession() {
@@ -54,46 +62,62 @@ export class HorizonActionBar extends Component {
 		return [
 			super.styles,
 			css`
-				capitec-group {
-					border-top: none;
-					border-bottom: 1px solid #dfdfdf;
-					height:56px;
-					background:white;
+				capitec-title-bar{
+					--theme-type-default-background: #363434
 				}
 
-				capitec-group > capitec-label {
-					color: #003652;
-					font: bold 18px/35px Hind Vadodara;
-					line-height:56px;
+				capitec-title-bar > capitec-group:first-child {
+					--theme-layout-gap-spacing: 24px;
+				}
+
+				capitec-title-bar > capitec-group:last-child {
+					--theme-layout-gap-spacing: 16px;
+				}
+
+				horizon-label{
+					--horizon-label-text-height: 16px;
+					--horizon-label-text-color: #969B9D;
+					--horizon-label-text-line-height: 16px;
+
+					--horizon-label-value-margin-top: 2px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-color: #DCDCDC;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
 				}
 
 				.vertical-line{
-					margin-left:24px;
-					margin-right:24px;
-					border-left: 1px solid #dfdfdf;
-					margin-top: 12px;
-					height: 32px;
-				}
-
-				#id-reference-label{
-					margin-left:24px;
-				}
-
-				#id-phone-icon{
-					margin-top:16px;;
-				}
-
-				#id-phone-number-label{
+					height: 24px;
+					width: 1px;
+					background-color: rgba(255,255,255,0.3);
 				}
 
 				capitec-group > capitec-button {
-					margin-top: 8px;
-					margin-left: auto;
-					margin-right: 23px;
-
-					--theme-button-padding-top: 9px;
-					--theme-button-padding-bottom: 9px;
+					--theme-button-font-weight: 600;
+					--theme-button-line-height: 20px;
+					--theme-button-padding-top: 14px;
+					--theme-button-padding-bottom: 14px;
+					--theme-button-padding-left: 18px;
+					--theme-button-padding-right: 21px;
+					--theme-button-clear-font-color: #FFFFFF
 				}
+
+				capitec-group > capitec-button:last-child{
+					width: 130px;
+					
+					--theme-button-padding-top: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-right: 16px;
+					--theme-button-padding-left: 16px;
+					--theme-button-default-background-color: #FF2B25;
+					--theme-button-default-border-color: #FF2B25;
+					--theme-button-default-font-color: rgb(255, 255, 255);
+					--theme-button-default-background-tapped-color: #FF2B25;
+				}
+			
+				.end-call-icon{
+					margin-left: 12px;
+				}	
 			`
 		];
 	}
@@ -103,28 +127,35 @@ export class HorizonActionBar extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-group layout="horizontal">
-				<capitec-label 
-					id="id-reference-label"
-					type="title" 
-					label="Reference Number: ${this.referenceNo}">
-				</capitec-label>
-				<div class="vertical-line"></div>
-				<img 
-					id="id-phone-icon"
-					src="../images/phonedown.svg"
-				/> 
-				<capitec-label
-					id="id-phone-number-label" 
-					type="title" 
-					label="${this.phoneNumber}">
-				</capitec-label>
-				<capitec-button 
-					label="End Call Session" 
-					type="primary" 
-					@click="${() => this._endCallSession()}">
-				</capitec-button> 
-			</capitec-group>
+			<capitec-title-bar>
+				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
+					<horizon-label
+						label="Reference Number" 
+						value="${this.referenceNo}">
+					</horizon-label>
+					<div class="vertical-line"></div>
+					<horizon-label
+						label="Primary Need" 
+						value="${this.clientNeed}">
+					</horizon-label>
+					<div class="vertical-line"></div>
+					<horizon-label
+						label="Incoming call" 
+						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}"
+						icon="system/phone-escalation">
+					</horizon-label>
+				</capitec-group>
+				<capitec-spacer></capitec-spacer>
+				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
+					<capitec-button type="clear" label="Assign"></capitec-button>
+					<div class="vertical-line"></div>
+					<capitec-button type="clear" label="Handoff"></capitec-button>
+					<capitec-button label="End Call" 
+									@click="${() => this._endCallSession()}">
+						<img class="end-call-icon" src="../../images/hangup.svg"/>
+					</capitec-button>
+				</capitec-group>
+			</capitec-title-bar>
 		`;
 	}
 }

@@ -53,9 +53,24 @@ export class ServiceCallHelper {
 
 			let result = await serviceCall;
 
+			/* 
+			
+			Don't do this. The asyncCall wrapper returns null if
+				- there was no content
+				- there was a null response
+				- there was an error
+
+			In the case of an error, any registered error handler can be invoked.
+
+			If your error hanlder was invoked and you get a null return from asyncCall, it was due to an error.
+			If your error handler was not invoked and you get a null return from asyncCall, it means no content.
+
+			Perhaps an error handler and a success handler would be better.
+
 			if (isNullorEmpty(result)) {
 				throw new HttpStatusError("No Content", 204, result);
 			}
+			*/
 
 			return result;
 		}

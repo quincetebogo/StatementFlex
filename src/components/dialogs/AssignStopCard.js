@@ -127,10 +127,6 @@ export class AssignStopCard extends Component {
 
 	_assignErrorHandler(exception) {
 		try {
-			if (exception.status === 204) {
-				return true;
-			}
-
 			this.error = 'Failed to assign card';
 
 			if (exception instanceof TypeError) {
@@ -162,9 +158,7 @@ export class AssignStopCard extends Component {
 			}
 		}
 		finally {
-			if (exception.status != 204) {
-				this.success = false;
-			}
+			this.success = false;
 		}
 
 		return true;
