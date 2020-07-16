@@ -20,7 +20,7 @@ import '../../components/Common/HorizonSelect';
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
-import { StopCardService } from '../../services/StopCardService';
+import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
@@ -52,7 +52,7 @@ export class ConfirmCallerDetails extends Component {
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
-		this.stopCardService = StopCardService.getInstance();
+		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
@@ -106,7 +106,7 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		}
 
-		this.addCallerDetails = await this.serviceCallHelper.asyncCall(this.stopCardService.addCallerDetails(callDetails));
+		this.addCallerDetails = await this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callDetails));
 		if (this.addCallerDetails) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		}
@@ -139,7 +139,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ''
 		}
 
-		let clientProfileDetails = await this.serviceCallHelper.asyncCall(this.stopCardService.identifyCaller(confirmedCaller));
+		let clientProfileDetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
 		if (clientProfileDetails) {
 			this.dispatchEvent(new CustomEvent('confirmed-caller', {
 				detail: {
@@ -406,7 +406,7 @@ export class ConfirmCallerDetails extends Component {
 					</div>
 					<div slot="footer">
 						${this.renderFooter()}
-					<div>
+					</div>
 				</capitec-modal>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
@@ -513,7 +513,7 @@ export class ConfirmCallerDetails extends Component {
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
-							class="client-info-row";
+							class="client-info-row"
 							row="4" columun = "1"
 							label="Birthday"
 							value="${this._getBirthdate(this.birthdate)}"
