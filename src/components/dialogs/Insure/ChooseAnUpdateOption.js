@@ -33,6 +33,10 @@ export class ChooseAnUpdateOption extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -192,7 +196,7 @@ export class ChooseAnUpdateOption extends Component {
 					?hidden=""
 					.disabled=""
 					tabindex=""
-					@click="">
+					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
 				<capitec-button

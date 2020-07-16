@@ -250,7 +250,7 @@ export class StopCard extends Component {
 			css`
 				.stop-card{
 					width: 1065px;
-					height: 823px;
+					height: 876px;
 					padding: 0px 0px 0px 0px;
 					text-align: center;
 					line-height: 40px;

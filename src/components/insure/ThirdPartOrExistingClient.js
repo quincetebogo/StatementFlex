@@ -4,6 +4,7 @@ import { EventAggregator } from 'platform/core';
 import '../Common/HorizonOptionButton';
 import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/Insure/SolutionViewPlan';
+import '../dialogs/Insure/ChooseAnUpdateOption';
 import '../dialogs/Insure/SolutionPayArrears';
 import '../dialogs/Insure/SolutionEmailPlan';
 
@@ -68,7 +69,7 @@ export class ThirdPartyOrExisingClient extends Component {
 				ivrOptionCode: "Insure"
 			});
 
-		window.setTimeout(() => this._onToggleToastDisplay(), 120000);
+		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
 	}
 
 	// ---------------
@@ -277,7 +278,10 @@ export class ThirdPartyOrExisingClient extends Component {
 							</horizon-view-plan>`;
 
 			case SOLUTION_SET.UPDATE_PLAN:
-				return html``;
+				return html`<horizon-choose-update-option
+								@solution-provided="${() => this.solutionSelected = ''}"
+								@close-solution="${() => this.solutionSelected = ''}">
+							</horizon-choose-update-option>`;
 
 			case SOLUTION_SET.PAY_ARREARS:
 				return html`<horizon-pay-arrears
