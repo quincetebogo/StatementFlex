@@ -11,21 +11,27 @@ import 'platform/components/navigation/AppRouter';
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 import '../dialogs/insure/EndCallSession'
-
+import '../dialogs/insure/AssignReasonDialog'
+import '../dialogs/insure/AssignPayArrears'
 import '../../shell/HorizonRouter';
+
 import { getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
 	DISCLAIMER: 2,
-	END_CALL: 3
+	END_CALL: 3,
+	SELECT_ASSIGN_REASON: 4,
+	ASSIGN: 5
 };
+
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
 	VERIFIED_PROSPECTIVE_CLIENT: 2,
 }
+
 export class InsureInformation extends Component {
 
 	// --------------
@@ -68,6 +74,7 @@ export class InsureInformation extends Component {
 			renderMode: { type: Number },
 			renderAlertBanner: { type: Number },
 			displayMode: { type: String },
+			assignReason: { type: Number }
 		};
 	}
 
@@ -90,6 +97,7 @@ export class InsureInformation extends Component {
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
 		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
@@ -123,6 +131,24 @@ export class InsureInformation extends Component {
 	}
 
 	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
+	_onCancelSelectAssignReason() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignReasonSelected(e) {
+		this.assignReason = e.detail.assignReason;
+		this.renderMode = RENDER_MODE.ASSIGN;
+	}
+
+	_onCancelAssign() {
+		console.log("Cancel assign received");
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -488,6 +514,8 @@ export class InsureInformation extends Component {
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
 		${this._renderEndCallSessionDialog()}
+		${this._renderSelectAssignReason()}
+		${this._renderAssign()}
 		`;
 	}
 
@@ -735,6 +763,24 @@ export class InsureInformation extends Component {
 		return html``;
 	}
 
+	_renderSelectAssignReason() {
+		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
+			return html`<horizon-insure-assign-reason 
+							@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+							@on-cancel=${() => this._onCancelSelectAssignReason()}>
+						</horizon-insure-assign-reason>`;
+		}
+		return html``;
+	}
+
+	_renderAssign() {
+		if (this.renderMode === RENDER_MODE.ASSIGN) {
+			return html`<horizon-assign-pay-arrears
+							@on-cancel=${() => this._onCancelAssign()}>
+						</horizon-assign-pay-arrears>`;
+		}
+		return html``;
+	}
 }
 
 window.customElements.define(`horizon-insure-information`, InsureInformation);
