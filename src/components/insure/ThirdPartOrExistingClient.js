@@ -3,15 +3,18 @@ import { EventAggregator } from 'platform/core';
 
 import '../Common/HorizonOptionButton';
 import '../dialogs/insure/NonAdvisoryDisclaimer';
+import '../dialogs/Insure/SolutionViewPlan';
+import '../dialogs/Insure/SolutionPayArrears';
+import '../dialogs/Insure/SolutionEmailPlan';
 
-const RENDER_SOLUTION_DIALOG = {
-	'View Plan': '<horizon-view-plan></horizon-view-plan>',
-	'Update Plan': '',
-	'Pay Arrears': '<horizon-pay-arrears></horizon-pay-arrears>',
-	'How To Claim': '',
-	'Email Plan': '<horizon-email-plan></horizon-email-plan>',
-	'Benefits': '',
-	'Cancel Plan': ''
+const SOLUTION_SET = {
+	VIEW_PLAN: 'View Plan',
+	UPDATE_PLAN: 'Update Plan',
+	PAY_ARREARS: 'Pay Arrears',
+	HOW_TO_CLAIM: 'How To Claim',
+	EMAIL_PLAN: 'Email Plan',
+	BENEFITS: 'Benefits',
+	CANCEL_PLAN: 'Cancel Plan'
 }
 
 const RENDER_MODE = {
@@ -62,13 +65,21 @@ export class ThirdPartyOrExisingClient extends Component {
 				phoneNumber: "0631152973",
 				ivrOptionCode: "Insure"
 			});
+		this._showToast();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	// N/A
+	_showToast() {
+		if (this.clientType === 'verified-existing-client') {
+			this._renderVerifiedToast();
+		}
+		else if (this.clientType === 'unverified-existing-client') {
+			this._renderUnverifiedToast();
+		}
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -85,8 +96,8 @@ export class ThirdPartyOrExisingClient extends Component {
 			super.styles,
 			css`
 				:host{
-					width: inherit;
-					height: inherit;
+					width: 100%;
+					height: 876px;
 				}
 
 				capitec-card {
@@ -177,7 +188,7 @@ export class ThirdPartyOrExisingClient extends Component {
 				</capitec-content-box>
 			</capitec-card>
 			${this._renderDislaimer()}
-			${this._showSolutionDialog()}
+			${this._renderSolutionDialog()}
 		`;
 	}
 
@@ -190,6 +201,14 @@ export class ThirdPartyOrExisingClient extends Component {
 			`;
 		}
 		return html``;
+	}
+
+	_renderVerifiedToast() {
+		showToastTimed("success", "top", "Successful", "Client has been verified", 3000, true, null);
+	}
+
+	_renderUnverifiedToast() {
+		showToastTimed("warning", "top", "Not Verified", "Only limited information will be displayed.", 3000, true, null);
 	}
 
 	_render3rdPartyAlertBanner() {
@@ -227,8 +246,42 @@ export class ThirdPartyOrExisingClient extends Component {
 		`;
 	}
 
-	_showSolutionDialog() {
-		return html`${RENDER_SOLUTION_DIALOG[this.solutionSelected]}`;
+	_renderSolutionDialog() {
+
+		switch (this.solutionSelected) {
+			case SOLUTION_SET.VIEW_PLAN:
+				return html`<horizon-view-plan
+								@solution-provided="${() => this.solutionSelected = ''}"
+								@close-solution="${() => this.solutionSelected = ''}">
+							</horizon-view-plan>`;
+
+			case SOLUTION_SET.UPDATE_PLAN:
+				return html``;
+
+			case SOLUTION_SET.PAY_ARREARS:
+				return html`<horizon-pay-arrears
+								@solution-provided="${() => this.solutionSelected = ''}"
+								@close-solution="${() => this.solutionSelected = ''}">
+							</horizon-pay-arrears>`;
+
+			case SOLUTION_SET.HOW_TO_CLAIM:
+				return html``;
+
+			case SOLUTION_SET.EMAIL_PLAN:
+				return html`<horizon-email-plan 
+								@solution-provided="${() => this.solutionSelected = ''}"
+								@close-solution="${() => this.solutionSelected = ''}">
+							</horizon-email-plan>`;
+
+			case SOLUTION_SET.BENEFITS:
+				return html``;
+
+			case SOLUTION_SET.CANCEL_PLAN:
+				return html``;
+
+			default:
+				return html``;
+		}
 	}
 }
 

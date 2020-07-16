@@ -2,8 +2,6 @@ import { View, html, css } from 'platform/elements';
 
 import '../../components/insure/ThirdPartOrExistingClient';
 
-import { HorizonStore } from '../../store/HorizonStore';
-
 export class ThirdPartyBeneficiaryClient extends View {
 
 	// --------------
@@ -57,9 +55,6 @@ export class ThirdPartyBeneficiaryClient extends View {
 	}
 
 	_webTemplate() {
-
-		let state = HorizonStore.getInstance().recoverState();
-
 		return html`<insure-third-party-or-existing-client .solutionsAvailable="${this.solutionsAvailable}" 
 															clientType="third-party-client">
 					</insure-third-party-or-existing-client>`;

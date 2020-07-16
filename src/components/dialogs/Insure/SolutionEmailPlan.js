@@ -37,11 +37,15 @@ export class EmailPlan extends Component {
 	// --------------
 
 	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
 	}
 
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
 		}
 	}
 
