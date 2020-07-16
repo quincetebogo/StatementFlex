@@ -78,9 +78,47 @@ export class AssignReasonDialog extends Component {
 			capitec-modal {
 				height: 384px;
 				width: 578px;
+				--theme-modal-header-padding-top: 20px;
+				--theme-modal-header-padding-bottom: 20px;
+				--theme-modal-header-padding-right: 16px;
+				--theme-modal-header-padding-left: 16px;
+				--theme-modal-footer-padding: 5px 16px 11px 0px;
 				--theme-modal-header-background-color: #F7F7F7;
 				--theme-modal-header-color: #3E4547;
-			}			
+			}	
+			.body-content{
+				width: 578px;
+				height: 255px;
+			}
+			.radio-button-container{
+				margin: 8px 0px 0px 0px;
+				height: 48px;
+				padding: 0px;
+				box-sizing: border-box;
+				border-style: solid;
+				border-width: thin;
+				border-radius: 5px;
+				border-color: lightgrey;
+			}		
+			#radio-button{
+				padding-left: 16px;
+			}
+			#cancel-button{
+				height: 48px;
+				width: 94px;
+				border-radius: 4px;
+				background-color: rgba(255,255,255,0)
+			}
+			#continue-button{
+				height: 48px;
+				width: 113px;
+				border-radius: 5px;
+				background-color: #009DE0;
+			}
+			div[slot="footer"]{
+				padding-right: 4px;
+				--theme-modal-footer-padding: 12px 12px 12px 16px;
+			}
 			`];
 
 	}
@@ -117,7 +155,7 @@ export class AssignReasonDialog extends Component {
 
 	_renderFooter() {
 		return html`
-			<capitec-group layout="horizontal">
+			<capitec-group layout="horizontal" class="footer-button">
 			<capitec-button
 					id="cancel-button"
 					type="clear"
