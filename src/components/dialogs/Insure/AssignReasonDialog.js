@@ -34,8 +34,29 @@ export class AssignReasonDialog extends Component {
 
 	_onContinueClick() {
 		this.dispatchEvent(new CustomEvent('on-assign-reason', {
-			detail: {}
+			detail: { reason: this.selected }
 		}));
+	}
+
+	_onSystemError(e) {
+		console.log(e);
+		if (e.detail.new) {
+			this.selected = 0;
+		}
+	}
+
+	_onNotInArrears(e) {
+		console.log(e);
+		if (e.detail.new) {
+			this.selected = 1;
+		}
+	}
+
+	_onRefund(e) {
+		console.log(e);
+		if (e.detail.new) {
+			this.selected = 2;
+		}
 	}
 
 	// --------------
@@ -45,9 +66,7 @@ export class AssignReasonDialog extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	_onValueChanged() {
-		this.checked = !this.checked;
-	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -117,13 +136,13 @@ export class AssignReasonDialog extends Component {
 		return html`
 			<capitec-radio-group class="radio-group">
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="System error" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+					<capitec-radio id="radio-button" label="System error" @value-change="${(e) => this._onSystemError(e)}"></capitec-radio>
 				</capitec-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="Client is not in arrears, but was told they are" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+					<capitec-radio id="radio-button" label="Client is not in arrears, but was told they are" @value-change="${(e) => this._onNotInArrears(e)}"></capitec-radio>
 				</capitec-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="Refunds" @value-change="${() => this._onValueChanged()}"></capitec-radio>
+					<capitec-radio id="radio-button" label="Refunds" @value-change="${(e) => this._onRefund(e)}"></capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
 		`;
