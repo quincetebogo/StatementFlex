@@ -54,6 +54,10 @@ export class EndCallSession extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onCancel() {
+		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -231,7 +235,7 @@ export class EndCallSession extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					@click="">
+					@click="${() => this._onCancel()}">
 				</capitec-button>
 
 				<capitec-button
