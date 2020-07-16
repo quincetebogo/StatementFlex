@@ -6,13 +6,14 @@ import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/Insure/SolutionViewPlan';
 import '../dialogs/Insure/ChooseAnUpdateOption';
 import '../dialogs/Insure/SolutionPayArrears';
+import './InsureHowToClaim';
 import '../dialogs/Insure/SolutionEmailPlan';
 
 const SOLUTION_SET = {
 	VIEW_PLAN: 'View Plan',
 	UPDATE_PLAN: 'Update Plan',
 	PAY_ARREARS: 'Pay Arrears',
-	HOW_TO_CLAIM: 'How To Claim',
+	HOW_TO_CLAIM: 'How to Claim',
 	EMAIL_PLAN: 'Email Plan',
 	BENEFITS: 'Benefits',
 	CANCEL_PLAN: 'Cancel Plan'
@@ -176,30 +177,36 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_webTemplate() {
-		return html`
-			<capitec-card class="card">
-				<capitec-title-bar class="title-bar" type="insure">
-					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
-					<capitec-label label="Insure" type="title"></capitec-label>
-					<capitec-spacer></capitec-spacer>
-				</capitec-title-bar>
-				<capitec-content-box class="${this.clientType === 'verified-existing-client' ? 'verified-existing-client-cb' : 'third-party-client-cb'}">
-					${this._render3rdPartyAlertBanner()}
-					${this._renderUnverifiedExistingClientAlert()}
-					<capitec-label type="default" 
-								   label="Choose an Option"
-								   class="${this.clientType === 'verified-existing-client' ? '' : 'third-party-client-label'}">
-					</capitec-label>
-					<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
-						${this.solutionsAvailable.map((item) => this._renderOptionButtons(item))}
-					</capitec-group>
-				</capitec-content-box>
-			</capitec-card>
-			${this._renderVerifiedToast()}
-			${this._renderUnverifiedToast()}
-			${this._renderDislaimer()}
-			${this._renderSolutionDialog()}
-		`;
+		switch (this.solutionSelected) {
+			case SOLUTION_SET.HOW_TO_CLAIM:
+				return html`<insure-how-to-claim
+								@close-solution="${() => this.solutionSelected = ''}">
+							</insure-how-to-claim>`;
+			default:
+				return html`
+						<capitec-card class="card">
+							<capitec-title-bar class="title-bar" type="insure">
+								<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
+								<capitec-label label="Insure" type="title"></capitec-label>
+								<capitec-spacer></capitec-spacer>
+							</capitec-title-bar>
+							<capitec-content-box class="${this.clientType === 'verified-existing-client' ? 'verified-existing-client-cb' : 'third-party-client-cb'}">
+								${this._render3rdPartyAlertBanner()}
+								${this._renderUnverifiedExistingClientAlert()}
+								<capitec-label type="default" 
+											label="Choose an Option"
+											class="${this.clientType === 'verified-existing-client' ? '' : 'third-party-client-label'}">
+								</capitec-label>
+								<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
+									${this.solutionsAvailable.map((item) => this._renderOptionButtons(item))}
+								</capitec-group>
+							</capitec-content-box>
+						</capitec-card>
+						${this._renderVerifiedToast()}
+						${this._renderUnverifiedToast()}
+						${this._renderDislaimer()}
+						${this._renderSolutionDialog()}`;
+		}
 	}
 
 	_renderDislaimer() {
@@ -290,7 +297,9 @@ export class ThirdPartyOrExisingClient extends Component {
 							</horizon-pay-arrears>`;
 
 			case SOLUTION_SET.HOW_TO_CLAIM:
-				return html``;
+				return html`<insure-how-to-claim
+								@close-solution="${() => this.solutionSelected = ''}">
+							</insure-how-to-claim>`;
 
 			case SOLUTION_SET.EMAIL_PLAN:
 				return html`<horizon-email-plan 
