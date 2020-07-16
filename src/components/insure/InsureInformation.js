@@ -11,6 +11,7 @@ import 'platform/components/navigation/AppRouter';
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 import '../dialogs/insure/EndCallSession'
+import '../dialogs/insure/AssignReasonDialog'
 
 import '../../shell/HorizonRouter';
 import { getTabIndex } from '../../utils/channelServiceUtilities';
@@ -19,13 +20,16 @@ const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
 	DISCLAIMER: 2,
-	END_CALL: 3
+	END_CALL: 3,
+	ASSIGN_INCIDENT: 4
 };
+
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
 	VERIFIED_PROSPECTIVE_CLIENT: 2,
 }
+
 export class InsureInformation extends Component {
 
 	// --------------
@@ -90,6 +94,7 @@ export class InsureInformation extends Component {
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
 		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
@@ -124,6 +129,10 @@ export class InsureInformation extends Component {
 
 	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.ASSIGN_INCIDENT;
 	}
 
 	// ---------
@@ -488,6 +497,7 @@ export class InsureInformation extends Component {
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
 		${this._renderEndCallSessionDialog()}
+		${this._renderAssignIncident()}
 		`;
 	}
 
@@ -731,6 +741,13 @@ export class InsureInformation extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"></horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
+	_renderAssignIncident() {
+		if (this.renderMode === RENDER_MODE.ASSIGN_INCIDENT) {
+			return html`<horizon-insure-assign-reason></horizon-insure-assign-reason>`;
 		}
 		return html``;
 	}

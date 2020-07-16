@@ -228,10 +228,12 @@ export class DesktopAgentService {
 			return;
 		}
 
+		//TODO: Fix the onCall handling - removed for now
+
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
-		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
+		if (NavigationContext.getInstance().current.route.name === 'landing-page' /*&& !this.onCall*/) {
 			// If Landing Page => publish event
 			this.onCall = true;
 

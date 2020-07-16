@@ -14,7 +14,6 @@ import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
 import '../components/dialogs/Insure/SearchCaller';
-import '../components/dialogs/Insure/AssignReasonDialog';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
@@ -30,11 +29,8 @@ const RENDER_MODE = {
 	SEARCH_CALLER: 1,
 	START_AGENT: 2,
 	INSURE_SEARCH_CALLER: 3,
-	ASSIGN_REASON: 4
 };
-const RENDER_DIALOG = {
-	ASSIGN_REASON: 0
-};
+
 export class LandingPage extends View {
 
 	// --------------
@@ -100,8 +96,6 @@ export class LandingPage extends View {
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish('landing-page-loaded', {});
-
-		this.eventAggregator.subscribe(`on-assign-reason`, () => this.assignReason());
 	}
 
 	// --------------
@@ -207,11 +201,7 @@ export class LandingPage extends View {
 		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 	}
-	_onAssignClick() {
-		console.log('Showing reason dialog');
-		this.dispatchEvent(new CustomEvent('on-assign-reason', {}));
-		this.renderMode = RENDER_MODE.ASSIGN_REASON;
-	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -315,7 +305,7 @@ export class LandingPage extends View {
 
 	_renderMiddleSection() {
 		return html`
-			<landingpage-waitforcall class="wait-for-call" @click="${(e) => this._onAssignClick(e)}"></landingpage-waitforcall>
+			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
 		`;
 	}
 
@@ -339,18 +329,6 @@ export class LandingPage extends View {
 					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;
 		}
-	}
-
-	_renderAssignReason() {
-		if (this.renderMode === RENDER_MODE.ASSIGN_REASON) {
-			return html`
-				<horizon-insure-assign-reason
-					.assignReason=${this.assignReason}
-					@on-assign-reason="${(e) => this._onAssignClick(e)}">
-				</horizon-insure-assign-reason>
-			`;
-		}
-		return html``;
 	}
 
 	_renderUnverifiedUser() {
