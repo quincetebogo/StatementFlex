@@ -1,0 +1,64 @@
+import { View, html, css } from 'platform/elements';
+
+import '../../components/insure/ThirdPartOrExistingClient';
+
+export class UnerifiedExistingClient extends View {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+		super();
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				:host{
+					width: 100%;
+					height: 100%;
+				}
+			`
+		]
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.solutionsAvailable = [
+			{
+				"icon": "system/documents-action",
+				"imgSRC": "",
+				"iconSize": "default",
+				"label": "How to Claim"
+			},
+			{
+				"icon": "system/notes-action",
+				"imgSRC": "",
+				"iconSize": "default",
+				"label": "View Status"
+			}
+		];
+	}
+
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`<insure-third-party-or-existing-client .solutionsAvailable="${this.solutionsAvailable}" 
+															clientType="unverified-existing-client">
+					</insure-third-party-or-existing-client>`;
+	}
+}
+
+customElements.define(`insure-unverified-existing-client`, UnerifiedExistingClient);

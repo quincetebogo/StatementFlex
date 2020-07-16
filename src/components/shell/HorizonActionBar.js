@@ -55,6 +55,10 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
+	_onAssign() {
+		this.eventAggregator.publish(`horizon-assign-incident`, {});
+	}
+
 	// ---------
 	// RENDERING
 	// ---------		
@@ -139,15 +143,18 @@ export class HorizonActionBar extends Component {
 						value="${this.clientNeed}">
 					</horizon-label>
 					<div class="vertical-line"></div>
+					<img class="end-call-icon" src="../../images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
-						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}"
-						icon="system/phone-escalation">
+						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
-					<capitec-button type="clear" label="Assign"></capitec-button>
+					<capitec-button type="clear" 
+									label="Assign"
+									@click="${() => this._onAssign()}">
+					</capitec-button>
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" label="Handoff"></capitec-button>
 					<capitec-button label="End Call" 

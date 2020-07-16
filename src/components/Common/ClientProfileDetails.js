@@ -35,8 +35,8 @@ export class ClientProfileDetails extends Component {
 		super.connectedCallback();
 
 		this.confirmedCaller = HorizonStore.getInstance().recoverState();
-		let clientProfileDetails = this.confirmedCaller.clientProfileDetails;
-		this.clientPersonalInfo = this.confirmedCaller && clientProfileDetails.clientPersonalInformation;
+		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		this.clientPersonalInfo = clientProfileDetails && clientProfileDetails.clientPersonalInformation;
 
 		if (this.clientPersonalInfo) {
 			this.name = this.clientPersonalInfo.value.name;
@@ -283,7 +283,7 @@ export class ClientProfileDetails extends Component {
 											tabindex="${getTabIndex(this.documentsButton)}">
 								<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 									<capitec-icon size="small" icon="system/documents"></capitec-icon>
-									<capitec-label label="document"></capitec-label>
+									<capitec-label label="Document"></capitec-label>
 								</capitec-content-box> 
 							</capitec-button>
 						</div>

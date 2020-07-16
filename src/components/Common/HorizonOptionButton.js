@@ -100,8 +100,8 @@ export class HorizonOptionButton extends Component {
 			css`
 
 			.icon-size {
-				height: 24px;
-				width: 24px;
+				height: var(--horizon-option-btn-icon-height, 24px);
+				width: var(--horizon-option-btn-icon-width, 24px);
 			}
 
 			.label-text{
@@ -111,7 +111,8 @@ export class HorizonOptionButton extends Component {
 				font-size: 16px;
 				font-weight: var(--horizon-option-btn-text-font-weight, normal);
 				letter-spacing: 0;
-				line-height: 24px;
+				line-height: var(--horizon-option-btn-text-line-height, 24px);
+				cursor: pointer;
 			}`
 		]
 	}

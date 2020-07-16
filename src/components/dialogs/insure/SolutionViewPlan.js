@@ -1,6 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 
-export class EmailPlan extends Component {
+export class ViewPlan extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -37,11 +37,15 @@ export class EmailPlan extends Component {
 	// --------------
 
 	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
 	}
 
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
 		}
 	}
 
@@ -51,6 +55,7 @@ export class EmailPlan extends Component {
 			this.alertBannerMessage = '';
 		}
 	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -81,7 +86,7 @@ export class EmailPlan extends Component {
 
 				div[slot="body"] {
 					width: 694px;
-					height: auto;
+					height: 488px;
 				}
 
 				.body-box {
@@ -92,8 +97,7 @@ export class EmailPlan extends Component {
 				}
 
 				.navigate-container {
-					height: 146px;
-					width: 662px;
+					height: 151px;
 					margin: 0px;
 					border-style: solid;
 					border-width: thin;
@@ -105,8 +109,8 @@ export class EmailPlan extends Component {
 					margin-left: 16px;
 					margin-top: 17px;
 					padding: 0px;
-					width: auto;
-					height: 127px;
+					width: 640px;
+					height: 132px;
 				}
 
 				.navigate-info-label {
@@ -117,23 +121,12 @@ export class EmailPlan extends Component {
 					color: #545D60;
 					line-height: 24px;
 					letter-spacing: 0;
-					margin: 0px 0px 11px 0px;
+					margin: 0px 0px 14px 0px;
 				}
 
 				.navigate-bullet-label {
 					height: 24px;
-					width: 622px;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					color: #545D60;
-					line-height: 24px;
-					margin: 0px;
-				}
-
-				.navigate-label {
-					height: 24px;
-					padding: 0px 0px 0px 22px;
-					width: 622px;
+					width: 534px;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					color: #545D60;
@@ -150,11 +143,7 @@ export class EmailPlan extends Component {
 					color: #545D60;
 					line-height: 24px;
 					letter-spacing: 0;
-					margin: 24px 0px 15px 0px;
-				}
-
-				.radio-group {
-					margin-bottom: 43px;
+					margin: 17px 0px 15px 0px;
 				}
 
 				.radio-button-container {
@@ -212,11 +201,11 @@ export class EmailPlan extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Solution - Email plan">
+			<capitec-modal type="free" header-align="left" header="Solution - View plan">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
-						${this._renderNavigation()}
+						${this._renderNavigationToSBL()}
 						${this._renderFeedbackDetails()}
 					</capitec-content-box>
 				</div>
@@ -236,14 +225,14 @@ export class EmailPlan extends Component {
 		}
 	}
 
-	_renderNavigation() {
+	_renderNavigationToSBL() {
 		return html`
 			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
 				<capitec-content-box class="group-navigate">
-					<p class="navigate-info-label">Navigate to ......</p>
-					<li class="navigate-bullet-label"> Retrieve the relevant policy document from CDS using the client's ID number or Policy </li>
-					<p class="navigate-label"> number </p>
-					<li class="navigate-bullet-label"> Send the document from STRACK to the client's email address. </li>
+					<p class="navigate-info-label"> Navigate to <b>SBL T62053</b> (Landing Page) </p>
+					<li class="navigate-bullet-label"> Choose the Insure tab </li>
+					<li class="navigate-bullet-label"> Choose the relevant funeral plan </li>
+					<li class="navigate-bullet-label"> Choose plan details </li>
 				</capitec-content-box>
 			</capitec-group>
 		`;
@@ -253,11 +242,11 @@ export class EmailPlan extends Component {
 		return html`
 			<capitec-label class="feedback-label" label="Feedback:"></capitec-label>
 
-			<capitec-radio-group class="radio-group">
+			<capitec-radio-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
 								class="radio-button-label"
-								label="Email sent"
+								label="Informed client about their Capitec Funeral Plan"
 								@value-change="${() => this._onValueChanged()}">
 					</capitec-radio>
 				</capitec-group>
@@ -300,4 +289,4 @@ export class EmailPlan extends Component {
 	}
 }
 
-window.customElements.define(`horizon-email-plan`, EmailPlan)
+window.customElements.define(`horizon-view-plan`, ViewPlan)

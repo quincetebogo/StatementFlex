@@ -13,7 +13,7 @@ import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
-import '../components/dialogs/Insure/SearchCaller';
+import '../components/dialogs/insure/SearchCaller';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
@@ -28,7 +28,7 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3
+	INSURE_SEARCH_CALLER: 3,
 };
 
 export class LandingPage extends View {
@@ -40,6 +40,7 @@ export class LandingPage extends View {
 		super();
 
 		this.renderMode = -1;
+		this.renderDialog = 0;
 		this.isBusy = false;
 		this.errorHandled = false;
 
@@ -80,6 +81,7 @@ export class LandingPage extends View {
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
 			ivrOption: { type: String },
+			renderDialog: { type: Number }
 		}
 	}
 
@@ -199,7 +201,6 @@ export class LandingPage extends View {
 		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 	}
-
 
 	// --------------
 	// PUBLIC METHODS

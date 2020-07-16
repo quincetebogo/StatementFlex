@@ -40,6 +40,11 @@ export class AssignPayArrears extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onCancel() {
+		console.log("cancelling pay arrears");
+		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -202,7 +207,7 @@ export class AssignPayArrears extends Component {
 					?hidden=""
 					.disabled=""
 					tabindex=""
-					@click="">
+					@click="${() => this._onCancel()}">
 				</capitec-button>
 
 				<capitec-button
