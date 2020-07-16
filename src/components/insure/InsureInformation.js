@@ -10,6 +10,7 @@ import 'platform/components/navigation/AppRouter';
 
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
+import '../dialogs/insure/EndCallSession'
 
 import '../../shell/HorizonRouter';
 import { getTabIndex } from '../../utils/channelServiceUtilities';
@@ -17,8 +18,8 @@ import { getTabIndex } from '../../utils/channelServiceUtilities';
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
-	DISCLAIMER: 2
-
+	DISCLAIMER: 2,
+	END_CALL: 3
 };
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
@@ -88,6 +89,8 @@ export class InsureInformation extends Component {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+
 		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
 				referenceNo: "73023022",
@@ -101,6 +104,11 @@ export class InsureInformation extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
 	_onNavigationContextUpdated() {
 		// Access the current route's information and log its name, e.g. "screen-one"
 		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
@@ -110,13 +118,13 @@ export class InsureInformation extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
 
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
 
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	//na
+	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// ---------
 	// RENDERING
@@ -479,6 +487,7 @@ export class InsureInformation extends Component {
 		</capitec-card>
 		${this._renderDislaimer()}
 		${this._renderCalculatePremium()}
+		${this._renderEndCallSessionDialog()}
 		`;
 	}
 
@@ -718,6 +727,14 @@ export class InsureInformation extends Component {
 		}
 		return html``;
 	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"></horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
 }
 
 window.customElements.define(`horizon-insure-information`, InsureInformation);
