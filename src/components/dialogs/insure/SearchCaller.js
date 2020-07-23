@@ -13,7 +13,7 @@ import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServ
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 
-import '../../Common/HorizonSelect';
+import '../../common/HorizonSelect';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,

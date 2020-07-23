@@ -1,7 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import '../Common/HorizonProductBar';
+import '../common/HorizonProductBar';
 
 export class LandingPageWelcome extends Component {
 

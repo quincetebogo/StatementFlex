@@ -8,7 +8,7 @@ import { DesktopAgentService } from '../../services/DesktopAgentService';
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
-import '../../components/Common/HorizonOptionButton'
+import '../../components/common/HorizonOptionButton'
 import '../../components/dialogs/EndCallSessionReason';
 
 const RENDER_MODE = {

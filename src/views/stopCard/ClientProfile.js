@@ -4,8 +4,8 @@ import 'platform/components/buttons/Button';
 import { HorizonStore } from '../../store/HorizonStore';
 import { HorizonRouter } from '../../shell/HorizonRouter';
 import '../../components/stopCard/StopCard'
-import '../../components/Common/AccessMenuBar';
-import '../../components/Common/ClientProfileDetails';
+import '../../components/common/AccessMenuBar';
+import '../../components/common/ClientProfileDetails';
 
 export class ClientProfile extends View {
 
