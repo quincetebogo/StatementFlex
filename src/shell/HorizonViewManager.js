@@ -70,10 +70,10 @@ export class HorizonViewManager {
 				load: () => import(`../components/landingPage/LandingPageMarketing`),
 			},
 			{
-				load: () => import(`../components/Common/AccessMenuBar`),
+				load: () => import(`../components/common/AccessMenuBar`),
 			},
 			{
-				load: () => import(`../components/Common/ClientProfileDetails`),
+				load: () => import(`../components/common/ClientProfileDetails`),
 			},
 			{
 				load: () => import(`../components/landingPage/TitleBar`),

@@ -50,7 +50,7 @@ export class LandingPageWaitForCall extends Component {
 		let debug_flag = false;
 
 		return html`
-			<img src="../images/LandingPageImages/need.svg" class="needimage"/>
+			<img src="../images/landingPageImages/need.svg" class="needimage"/>
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
 			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
 			`;

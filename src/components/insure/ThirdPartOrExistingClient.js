@@ -1,7 +1,7 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 
-import '../Common/HorizonOptionButton';
+import '../common/HorizonOptionButton';
 import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/insure/SolutionViewPlan';
 import '../dialogs/insure/ChooseAnUpdateOption';

@@ -2,7 +2,7 @@ import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components/layouts/Group';
 
-import '../Common/HorizonLabel';
+import '../common/HorizonLabel';
 
 export class HorizonActionBar extends Component {
 	// --------------

@@ -1,8 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
-import '../../Common/HorizonLabel';
-import '../../Common/HorizonSelect';
+import '../../common/HorizonLabel';
+import '../../common/HorizonSelect';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 
