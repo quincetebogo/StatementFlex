@@ -30,7 +30,7 @@ export class LandingPageMarketing extends Component {
 
 	render() {
 		return html`
-			<img class="landingpage-marketing-img" src="../images/LandingPageImages/Banner.png" alt="banner" />
+			<img class="landingpage-marketing-img" src="../images/landingPageImages/Banner.png" alt="banner" />
 		`;
 	}
 
