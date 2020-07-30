@@ -6,11 +6,26 @@ const RENDER_MODE = {
 
 export class HowToClaim extends Component {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
 
 		this.renderMode = RENDER_MODE.HOW_TO_CLAIM;
 	}
+
+	// --------------
+	// EVENT HANDLERS
+
+	_back() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -134,6 +149,10 @@ export class HowToClaim extends Component {
 				margin: 4px 0px 10px 0px;
 			}
 
+			capitec-title-bar > capitec-icon {
+				cursor: pointer;
+			}
+
 		`];
 	}
 
@@ -143,7 +162,12 @@ export class HowToClaim extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-card class="howtoclaim-info">
-				<capitec-title-bar type="insure" label="How To Claim"> </capitec-title-bar>
+				<capitec-title-bar type="insure">
+					<capitec-icon size="small" icon="system/arrow-left"
+								  @click="${() => this._back()}">
+					</capitec-icon>
+					<capitec-label label="How to Claim" type="title"></capitec-label>
+				</capitec-title-bar>
 
 				<capitec-content-box class="content">
 

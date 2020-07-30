@@ -1,6 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 
-export class PayArrears extends Component {
+export class EmailPlan extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -37,11 +37,15 @@ export class PayArrears extends Component {
 	// --------------
 
 	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
 	}
 
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
 		}
 	}
 
@@ -92,7 +96,7 @@ export class PayArrears extends Component {
 				}
 
 				.navigate-container {
-					height: 242px;
+					height: 146px;
 					width: 662px;
 					margin: 0px;
 					border-style: solid;
@@ -106,16 +110,16 @@ export class PayArrears extends Component {
 					margin-top: 17px;
 					padding: 0px;
 					width: auto;
-					height: 224px;
+					height: 127px;
 				}
 
 				.navigate-info-label {
 					height: 26px;
-					width: 553px;
+					width: 533px;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
-					line-height: 24px;
 					color: #545D60;
+					line-height: 24px;
 					letter-spacing: 0;
 					margin: 0px 0px 11px 0px;
 				}
@@ -125,8 +129,8 @@ export class PayArrears extends Component {
 					width: 622px;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
-					line-height: 24px;
 					color: #545D60;
+					line-height: 24px;
 					margin: 0px;
 				}
 
@@ -154,7 +158,7 @@ export class PayArrears extends Component {
 				}
 
 				.radio-group {
-					margin-bottom: 52px;
+					margin-bottom: 43px;
 				}
 
 				.radio-button-container {
@@ -212,11 +216,11 @@ export class PayArrears extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Solution - Pay Arrears">
+			<capitec-modal type="free" header-align="left" header="Solution - Email plan">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
-						${this._renderNavigationToSBL()}
+						${this._renderNavigation()}
 						${this._renderFeedbackDetails()}
 					</capitec-content-box>
 				</div>
@@ -236,18 +240,14 @@ export class PayArrears extends Component {
 		}
 	}
 
-	_renderNavigationToSBL() {
+	_renderNavigation() {
 		return html`
 			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
 				<capitec-content-box class="group-navigate">
-					<p class="navigate-info-label">Navigate to <b> SBL T62053 </b> (Landing page) </p>
-					<li class="navigate-bullet-label"> Enter valid client details. Verify client </li>
-					<li class="navigate-bullet-label"> Choose Insure tab </li>
-					<li class="navigate-bullet-label"> Pay Outstanding Amount </li>
-					<li class="navigate-bullet-label"> This option can be used if the client missed a payment and reflects in arrears. </li>
-					<li class="navigate-bullet-label"> Choose the account the client wants to make the outstanding payment from then transmit to </li>
-					<p class="navigate-label"> complete the payment. </p>
-					<li class="navigate-bullet-label"> Click transmit </li>
+					<p class="navigate-info-label">Navigate to ......</p>
+					<li class="navigate-bullet-label"> Retrieve the relevant policy document from CDS using the client's ID number or Policy </li>
+					<p class="navigate-label"> number </p>
+					<li class="navigate-bullet-label"> Send the document from STRACK to the client's email address. </li>
 				</capitec-content-box>
 			</capitec-group>
 		`;
@@ -261,7 +261,7 @@ export class PayArrears extends Component {
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
 								class="radio-button-label"
-								label="Payment has been made"
+								label="Email sent"
 								@value-change="${() => this._onValueChanged()}">
 					</capitec-radio>
 				</capitec-group>
@@ -273,15 +273,6 @@ export class PayArrears extends Component {
 								@value-change="${() => this._onValueChanged()}">
 					</capitec-radio>
 				</capitec-group>
-
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio
-								class="radio-button-label"
-								label="Client has informed that they are not in arrear - assign now"
-								@value-change="${() => this._onValueChanged()}">
-					</capitec-radio>
-				</capitec-group>
-
 			</capitec-radio-group>
 		`;
 	}
@@ -313,4 +304,4 @@ export class PayArrears extends Component {
 	}
 }
 
-window.customElements.define(`horizon-pay-arrears`, PayArrears)
+window.customElements.define(`horizon-email-plan`, EmailPlan)

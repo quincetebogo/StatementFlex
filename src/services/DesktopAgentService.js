@@ -79,6 +79,8 @@ export class DesktopAgentService {
 	 * @param {*} event 
 	 */
 	async _onNewCall(event) {
+		console.log("_onNewCall: new call event received");
+
 		let eventData = JSON.parse(event.data);
 		let newCallEvent = new NewCallEvent();
 
@@ -99,6 +101,8 @@ export class DesktopAgentService {
 			//newCallEvent.IncidentRecId = eventData.IncidentRecNo;
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
+
+			console.log("_onNewCall: event data validated");
 
 			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
 			// When not re-creating an the event source, the EventSource automatically sets the last event id
@@ -208,11 +212,11 @@ export class DesktopAgentService {
 		// TODO: Move into constructor/class initialization
 		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
 		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
-		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
+		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{3,5}';	// Dialplan as configured on Avaya
 		DesktopAgentService.vdnValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
-		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{6}'; // STrack reference numbers
+		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{1,10}'; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = '^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$'; // STrack rec id
-		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]'; // TODO: confirm with architects
+		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]*';
 	}
 
 	// ---------------
@@ -223,16 +227,21 @@ export class DesktopAgentService {
 	}
 
 	async _handleIncomingCall() {
+		console.log("_handleIncomingCall");
 
 		if (!this.nextCall) {
 			return;
 		}
 
+		//TODO: Fix the onCall handling - removed for now
+
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
-		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
+		if (NavigationContext.getInstance().current.route.name === 'landing-page' /*&& !this.onCall*/) {
 			// If Landing Page => publish event
+			console.log("_handleIncomingCall: on landing page - publishing call event");
+
 			this.onCall = true;
 
 			this.eventAggregator.publish(`new-call`, this.nextCall);

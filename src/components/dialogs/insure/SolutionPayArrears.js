@@ -1,6 +1,6 @@
 import { Component, html, css } from 'platform/elements';
 
-export class ViewPlan extends Component {
+export class PayArrears extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -37,11 +37,15 @@ export class ViewPlan extends Component {
 	// --------------
 
 	_onCancelClick() {
+		this.dispatchEvent(new CustomEvent('close-solution', {}));
 	}
 
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
 		}
 	}
 
@@ -51,7 +55,6 @@ export class ViewPlan extends Component {
 			this.alertBannerMessage = '';
 		}
 	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -82,7 +85,7 @@ export class ViewPlan extends Component {
 
 				div[slot="body"] {
 					width: 694px;
-					height: 488px;
+					height: auto;
 				}
 
 				.body-box {
@@ -93,7 +96,8 @@ export class ViewPlan extends Component {
 				}
 
 				.navigate-container {
-					height: 151px;
+					height: 242px;
+					width: 662px;
 					margin: 0px;
 					border-style: solid;
 					border-width: thin;
@@ -105,24 +109,35 @@ export class ViewPlan extends Component {
 					margin-left: 16px;
 					margin-top: 17px;
 					padding: 0px;
-					width: 640px;
-					height: 132px;
+					width: auto;
+					height: 224px;
 				}
 
 				.navigate-info-label {
 					height: 26px;
-					width: 533px;
+					width: 553px;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
-					color: #545D60;
 					line-height: 24px;
+					color: #545D60;
 					letter-spacing: 0;
-					margin: 0px 0px 14px 0px;
+					margin: 0px 0px 11px 0px;
 				}
 
 				.navigate-bullet-label {
 					height: 24px;
-					width: 534px;
+					width: 622px;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					line-height: 24px;
+					color: #545D60;
+					margin: 0px;
+				}
+
+				.navigate-label {
+					height: 24px;
+					padding: 0px 0px 0px 22px;
+					width: 622px;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					color: #545D60;
@@ -139,7 +154,11 @@ export class ViewPlan extends Component {
 					color: #545D60;
 					line-height: 24px;
 					letter-spacing: 0;
-					margin: 17px 0px 15px 0px;
+					margin: 24px 0px 15px 0px;
+				}
+
+				.radio-group {
+					margin-bottom: 52px;
 				}
 
 				.radio-button-container {
@@ -197,7 +216,7 @@ export class ViewPlan extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Solution - View plan">
+			<capitec-modal type="free" header-align="left" header="Solution - Pay Arrears">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
@@ -225,10 +244,14 @@ export class ViewPlan extends Component {
 		return html`
 			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
 				<capitec-content-box class="group-navigate">
-					<p class="navigate-info-label"> Navigate to <b>SBL T62053</b> (Landing Page) </p>
-					<li class="navigate-bullet-label"> Choose the Insure tab </li>
-					<li class="navigate-bullet-label"> Choose the relevant funeral plan </li>
-					<li class="navigate-bullet-label"> Choose plan details </li>
+					<p class="navigate-info-label">Navigate to <b> SBL T62053 </b> (Landing page) </p>
+					<li class="navigate-bullet-label"> Enter valid client details. Verify client </li>
+					<li class="navigate-bullet-label"> Choose Insure tab </li>
+					<li class="navigate-bullet-label"> Pay Outstanding Amount </li>
+					<li class="navigate-bullet-label"> This option can be used if the client missed a payment and reflects in arrears. </li>
+					<li class="navigate-bullet-label"> Choose the account the client wants to make the outstanding payment from then transmit to </li>
+					<p class="navigate-label"> complete the payment. </p>
+					<li class="navigate-bullet-label"> Click transmit </li>
 				</capitec-content-box>
 			</capitec-group>
 		`;
@@ -238,11 +261,11 @@ export class ViewPlan extends Component {
 		return html`
 			<capitec-label class="feedback-label" label="Feedback:"></capitec-label>
 
-			<capitec-radio-group>
+			<capitec-radio-group class="radio-group">
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
 								class="radio-button-label"
-								label="Informed client about their Capitec Funeral Plan"
+								label="Payment has been made"
 								@value-change="${() => this._onValueChanged()}">
 					</capitec-radio>
 				</capitec-group>
@@ -254,6 +277,15 @@ export class ViewPlan extends Component {
 								@value-change="${() => this._onValueChanged()}">
 					</capitec-radio>
 				</capitec-group>
+
+				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
+					<capitec-radio
+								class="radio-button-label"
+								label="Client has informed that they are not in arrear - assign now"
+								@value-change="${() => this._onValueChanged()}">
+					</capitec-radio>
+				</capitec-group>
+
 			</capitec-radio-group>
 		`;
 	}
@@ -285,4 +317,4 @@ export class ViewPlan extends Component {
 	}
 }
 
-window.customElements.define(`horizon-view-plan`, ViewPlan)
+window.customElements.define(`horizon-pay-arrears`, PayArrears)

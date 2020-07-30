@@ -39,7 +39,9 @@ const LAYOUT_COMPONENT = {
 export const HORIZON_VIEW_SET = {
 	LANDING_PAGES: new Set([LAYOUT_COMPONENT.AGENT_BAR, LAYOUT_COMPONENT.WELCOME_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
 	CARD_STOP: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.ACCESS_BAR]),
-	NONCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
+	NONCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
+	EXISTINGCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
+	THIRDPARTYCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
 }
 
 export class HorizonViewManager {
@@ -68,10 +70,10 @@ export class HorizonViewManager {
 				load: () => import(`../components/landingPage/LandingPageMarketing`),
 			},
 			{
-				load: () => import(`../components/Common/AccessMenuBar`),
+				load: () => import(`../components/common/AccessMenuBar`),
 			},
 			{
-				load: () => import(`../components/Common/ClientProfileDetails`),
+				load: () => import(`../components/common/ClientProfileDetails`),
 			},
 			{
 				load: () => import(`../components/landingPage/TitleBar`),

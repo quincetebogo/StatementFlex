@@ -4,7 +4,7 @@ import { Component, css, html } from 'platform/elements';
  * A control that displays product info.
  *
  * ```js 
- * import 'components/Common/HorizonProductTile'; 
+ * import 'components/common/HorizonProductTile'; 
  * ```
  * 
  * **Usage**

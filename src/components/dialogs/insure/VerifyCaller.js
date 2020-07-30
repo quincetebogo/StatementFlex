@@ -6,7 +6,7 @@ import { Component, html, css } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader';
 
-import '../../Common/HorizonOptionButton';
+import '../../common/HorizonOptionButton';
 import './VerifyCallerSecurityQuestions';
 
 import { HorizonRouter } from '../../../shell/HorizonRouter';

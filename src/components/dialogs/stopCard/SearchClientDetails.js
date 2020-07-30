@@ -11,8 +11,8 @@ import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../ConfirmCallerDetails';
-import '../../Common/HorizonSelect';
-import '../Insure/SearchCaller';
+import '../../common/HorizonSelect';
+import '../insure/SearchCaller';
 
 import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader'

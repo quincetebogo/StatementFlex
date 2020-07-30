@@ -12,10 +12,10 @@ import 'platform/components/core/Icon';
 import './AddCallerDetails';
 import './EndCallSessionReason';
 import './stopCard/SearchClientDetails';
-import './Insure/VerifyCaller';
+import './insure/VerifyCaller';
 
-import '../../components/Common/HorizonLabel';
-import '../../components/Common/HorizonSelect';
+import '../../components/common/HorizonLabel';
+import '../../components/common/HorizonSelect';
 
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';

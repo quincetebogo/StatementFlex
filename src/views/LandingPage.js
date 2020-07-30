@@ -13,7 +13,7 @@ import '../components/landingPage/LandingPageWaitForCall';
 import '../components/dialogs/ConfirmCallerDetails';
 import '../components/dialogs/stopCard/SearchClientDetails';
 import '../components/dialogs/AssignStopCard';
-import '../components/dialogs/Insure/SearchCaller';
+import '../components/dialogs/insure/SearchCaller';
 
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
@@ -28,7 +28,7 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3
+	INSURE_SEARCH_CALLER: 3,
 };
 
 export class LandingPage extends View {
@@ -40,6 +40,7 @@ export class LandingPage extends View {
 		super();
 
 		this.renderMode = -1;
+		this.renderDialog = 0;
 		this.isBusy = false;
 		this.errorHandled = false;
 
@@ -80,6 +81,7 @@ export class LandingPage extends View {
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
 			ivrOption: { type: String },
+			renderDialog: { type: Number }
 		}
 	}
 
@@ -105,6 +107,8 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
+		console.log("landing page - _onNewCall(): creating incident");
+
 		let incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
 			() => { this._toggleBusyFlag() },
 			(ex) => { this.landingPageErrorHandler(ex, "createIncident") }
@@ -114,11 +118,14 @@ export class LandingPage extends View {
 			newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
 			newCallInfo.IncidentRecId = incident.incidentRecId;
 
+			console.log("landing page - _onNewCall(): incident created, accepting call");
 			await this._acceptCall(newCallInfo);
 		}
 	}
 
 	async _acceptCall(newCallInfo) {
+		console.log("landing page - _acceptCall()");
+
 		//TODO: This static mapping should be fixed and placed somewhere else
 		if (newCallInfo.IVROptionCode === "1") {
 			newCallInfo.IVROptionCode = "StopCard";
@@ -146,6 +153,7 @@ export class LandingPage extends View {
 			this.unVerifiedCaller = null;
 
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			console.log("landing page - show confirmed caller");
 		}
 		else if (this.channelService.isUnverifiedCaller(acceptedCall)) {
 			this.unVerifiedCaller = acceptedCall;
@@ -153,6 +161,7 @@ export class LandingPage extends View {
 			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			console.log("landing page - show search caller");
 		}
 		else {
 			if (!this.errorHandled) {
@@ -162,6 +171,7 @@ export class LandingPage extends View {
 					message: "acceptCall - invalid response"
 				}
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+				console.log("landing page - _acceptCall failed");
 			}
 
 			this.confirmedCaller = null;
@@ -199,7 +209,6 @@ export class LandingPage extends View {
 		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
 	}
-
 
 	// --------------
 	// PUBLIC METHODS
