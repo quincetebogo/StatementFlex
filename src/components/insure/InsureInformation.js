@@ -55,6 +55,7 @@ export class InsureInformation extends Component {
 			{ columnOne: 'Parents (26 - 85 years)', columnTwo: 'R50 000 each*' },
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
+		this.displayNotification = true;
 	}
 
 	// ----------
@@ -68,6 +69,9 @@ export class InsureInformation extends Component {
 			renderMode: { type: Number },
 			renderAlertBanner: { type: Number },
 			displayMode: { type: String },
+			displayNotification: { type: Boolean },
+			displayCoverNotification: { type: Boolean },
+			displayClaimNotification: { type: Boolean }
 		};
 	}
 
@@ -97,6 +101,10 @@ export class InsureInformation extends Component {
 				phoneNumber: "0631152973",
 				ivrOptionCode: "Insure"
 			});
+
+		this.displayNotification = true;
+		this.displayCoverNotification = true;
+		this.displayClaimNotification = true;
 	}
 
 
@@ -125,7 +133,18 @@ export class InsureInformation extends Component {
 	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
-
+	_onCloseClick() {
+		console.log('closable button clicked');
+		this.displayNotification = false;
+	}
+	_onCloseCover() {
+		console.log('closable cover alert clicked');
+		this.displayCoverNotification = false;
+	}
+	_onCloseClaimAlert() {
+		console.log('closable claim alert clicked');
+		this.displayClaimNotification = false;
+	}
 	// ---------
 	// RENDERING
 	// ---------	
@@ -541,10 +560,7 @@ export class InsureInformation extends Component {
 
 	_renderCoverContent() {
 		return html`
-
-			<capitec-alert-banner class="cover-banner" type="info" closable>*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is <br>  
-  				&nbsp; applicable to the life (ID) across all insurers and their recorded policies.</capitec-alert-banner>
-				
+				${this._renderCoverBanner()}
 				<capitec-label class="life-label" label="Life Assured Categories" type="Title"></capitec-label>
 				<p class="text">Get cover for yourself, one spouse and up to 4 parents, 8 children and 8 extended family members – all on one plan.</p>
 
@@ -629,7 +645,7 @@ export class InsureInformation extends Component {
 
 	_renderClaimContent() {
 		return html`
-			<capitec-alert-banner class="info-banner" type="info" closable>All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.</capitec-alert-banner>
+			${this._renderClaimAlert()}
 			<capitec-label class="claim-label" type="Subtitle" label="Ways to claim"></capitec-label>
 				<ul>
 					<li>Email FuneralClaims@capitecbank.co.za</li>	
@@ -683,11 +699,39 @@ export class InsureInformation extends Component {
 	}
 	_renderNonClientBanner() {
 		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
-			return html`
-				<capitec-alert-banner class="info-banner" type="info" closable>
+			if (this.displayNotification) {
+				return html`
+				<capitec-alert-banner class="info-banner" type="info" 
+				closable
+				@click="${() => this._onCloseClick()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>
 				`;
+			}
+			return html``;
+		}
+	}
+	_renderCoverBanner() {
+		if (this.displayCoverNotification) {
+			return html`
+			<capitec-alert-banner class="cover-banner" type="info"
+			closable
+			@click="${() => this._onCloseCover()}">*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by legislation. The restriction is <br>  
+  				&nbsp; applicable to the life (ID) across all insurers and their recorded policies.</capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+	_renderClaimAlert() {
+		if (this.displayClaimNotification) {
+			return html`
+				<capitec-alert-banner class="info-banner" type="info" 
+					closable
+					@click="${() => this._onCloseClaimAlert()}">
+					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+				</capitec-alert-banner>
+			
+			`;
 		}
 		return html``;
 	}
@@ -695,28 +739,36 @@ export class InsureInformation extends Component {
 
 
 		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
-
-			return html`
+			if (this.displayNotification) {
+				return html`
+					<div id="warning-toast" class="controller-toast">
+						${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
+					</div>
 				
-				<div id="warning-toast" class="controller-toast">
-					${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
-				</div>
-				
-				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
-					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink 
- 						 href="#"
- 						 label="Verify Now">
-					</capitec-hyperlink> 
-				</capitec-alert-banner>
+					<capitec-alert-banner class="unverfied-caller-alert" 
+						type="warning"
+						closable
+						@click="${() => this._onCloseClick()}">
+						Client has not been verified, so you are only able to see limited information.
+						<capitec-hyperlink 
+ 							 href="#"
+ 						 	label="Verify Now">
+						</capitec-hyperlink> 
+					</capitec-alert-banner>
 			`;
+			}
 		}
 		return html``;
 	}
 	_renderVerifiedProspectiveClientBanner() {
 		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT) {
-			return html`
-				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
+			if (this.displayNotification) {
+				return html`
+				<capitec-alert-banner 
+					class="unverfied-caller-alert" 
+					type="warning"
+					closable
+					@click="${() => this._onCloseClick()}">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
  						 href="#"
@@ -724,6 +776,7 @@ export class InsureInformation extends Component {
 					</capitec-hyperlink> 
 				</capitec-alert-banner>
 			`;
+			}
 		}
 		return html``;
 	}
