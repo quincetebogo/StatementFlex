@@ -461,7 +461,7 @@ export class InsureSearchClient extends Component {
 			<div class="call-details-bar">
 				<horizon-label 
 					label="Reference Number" 
-					value = "${this.voiceReferenceNumber}">
+					value = "${this.incidentReferenceNumber}">
 				</horizon-label>
 				<horizon-select
 					label="Client Need"
