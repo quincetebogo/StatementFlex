@@ -6,6 +6,8 @@
 import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
+import '../common/HorizonCallerInfoBar';
+
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
@@ -99,6 +101,8 @@ export class AddCallerDetails extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
+		this.incomingCallDetails.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
@@ -281,6 +285,13 @@ export class AddCallerDetails extends Component {
 					margin: 14px 16px 0px 17px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));	
 				}
+				.caller-info-details {
+					height: auto;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+				}
 			`];
 	}
 
@@ -323,29 +334,12 @@ export class AddCallerDetails extends Component {
 
 	renderCallInformation() {
 		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number" 
-					value = "${this.incidentReferenceNumber}"
-					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
-					?hidden=${isHidden(this.incidentReferenceNumber)}>
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOption.possibleValues}"
-					.value="${this.ivrOption.value}"
-					tabindex="${getTabIndex(this.ivrOption)}"
-					?hidden=${isHidden(this.ivrOption)}
-					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber.value}"
-					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-					?hidden=${isHidden(this.incomingTelephoneNumber)}>
-				</horizon-label>
-			</div>`;
+			<capitec-content-box class="caller-info-details">
+				<horizon-caller-info-bar
+								.incomingCallDetails="${this.incomingCallDetails}">
+				</horizon-caller-info-bar>
+			</capitec-content-box>
+			`;
 	}
 
 	renderErrorMessage() {
