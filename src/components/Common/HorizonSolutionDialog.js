@@ -83,8 +83,8 @@ export class SolutionDialogGeneric extends Component {
 			css`
 
 			capitec-modal {
-				height: auto;
-				width: 694px;
+				height: var(--horizon-solution-modal-height,auto);
+				width: var(--horizon-solution-modal-width,694px);
 				--theme-modal-header-padding-top: 20px;
 				--theme-modal-header-padding-bottom: 20px;
 				--theme-modal-header-padding-right: 16px;
@@ -108,7 +108,7 @@ export class SolutionDialogGeneric extends Component {
 
 			.navigate-container {
 				height: auto;
-				width: 662px;
+				width: auto;
 				margin: 0px;
 				border-style: solid;
 				border-width: thin;
@@ -119,8 +119,7 @@ export class SolutionDialogGeneric extends Component {
 			.group-navigate {
 				margin: 16px 0px 19px 16px;
 				padding: 0px;
-				width: 640px;
-				height: auto;
+				width: inherit;
 			}
 			
 			.feedback-label {
@@ -250,4 +249,4 @@ export class SolutionDialogGeneric extends Component {
 	}
 }
 
-window.customElements.define(`horizon-solution-generic`, SolutionDialogGeneric)
+window.customElements.define(`horizon-solution-dialog`, SolutionDialogGeneric)
