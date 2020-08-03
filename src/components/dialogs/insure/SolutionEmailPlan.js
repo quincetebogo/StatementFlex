@@ -64,7 +64,6 @@ export class EmailPlan extends Component {
 		return [
 			super.styles,
 			css`
-
 				.solution-modal{
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
@@ -102,9 +101,8 @@ export class EmailPlan extends Component {
 					color: #545D60;
 					line-height: 24px;
 					margin: 0px;
-				}
-
-		`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -117,17 +115,15 @@ export class EmailPlan extends Component {
 				.solutionDetails="${this.solutionDetails}"
 				@on-cancel = "${() => this._onCancelClick()}"
 				@on-done = "${() => this._onDoneClick()}">
-				
-					<p class="navigate-info-label">Navigate to ......</p>
-					<li class="navigate-bullet-label"> Retrieve the relevant policy document from CDS using the client's ID number or Policy </li>
-					<p class="navigate-label"> number </p>
-					<li class="navigate-bullet-label"> Send the document from STRACK to the client's email address. </li>
-				
-			</horizon-solution-dialog>
-		
-			`;
-	}
 
+				<p class="navigate-info-label">Navigate to ......</p>
+				<li class="navigate-bullet-label"> Retrieve the relevant policy document from CDS using the client's ID number or Policy </li>
+				<p class="navigate-label"> number </p>
+				<li class="navigate-bullet-label"> Send the document from STRACK to the client's email address. </li>
+
+			</horizon-solution-dialog>
+		`;
+	}
 }
 
 window.customElements.define(`horizon-email-plan`, EmailPlan)

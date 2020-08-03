@@ -51,7 +51,6 @@ export class HorizonRadioButtonContainer extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.radioButtonsAvailable = this.radioButtonsAvailable;
 	}
 
 	// --------------
@@ -59,7 +58,6 @@ export class HorizonRadioButtonContainer extends Component {
 	// --------------
 
 	_onValueChange(event) {
-
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {}
 		}));
@@ -82,29 +80,29 @@ export class HorizonRadioButtonContainer extends Component {
 		return [
 			super.styles,
 			css`
-			.radio-button-container {
-				margin: 8px 0px 0px 0px;
-				height: 48px;
-				padding: 0px;
-				box-sizing: border-box;
-				border-style: solid;
-				border-width: thin;
-				border-radius: 5px;
-				border-color: lightgrey;
-			}
+				.radio-button-container {
+					margin: 8px 0px 0px 0px;
+					height: 48px;
+					padding: 0px;
+					box-sizing: border-box;
+					border-style: solid;
+					border-width: thin;
+					border-radius: 5px;
+					border-color: lightgrey;
+				}
 
-			.radio-button-label {
-				height:24px;
-				margin:11px 0px 10px 16px;
-				font-family: "Hind Vadodara";
-				font-size: 15px;
-				color: #545D60;
-				line-height: 20px;
-			}
-			
-			capitec-radio-group{
-				margin-bottom: var(--horizon-radio-button-container-margin-bottom, 41px);
-			}
+				.radio-button-label {
+					height:24px;
+					margin:11px 0px 10px 16px;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					color: #545D60;
+					line-height: 20px;
+				}
+				
+				capitec-radio-group{
+					margin-bottom: var(--horizon-radio-button-container-margin-bottom, 41px);
+				}
 			}`
 		]
 	}

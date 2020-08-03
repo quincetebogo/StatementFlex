@@ -3,7 +3,7 @@ import './HorizonRadioButtonsContainer';
 
 const ERROR_MESSAGE = "Choose a feedback reason to continue.";
 
-export class SolutionDialogGeneric extends Component {
+export class HorizonSolutionDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -14,7 +14,6 @@ export class SolutionDialogGeneric extends Component {
 		this.solutionDetails = null;
 		this.checked = false;
 		this.alertBannerMessage = '';
-
 	}
 
 	// --------------
@@ -83,8 +82,8 @@ export class SolutionDialogGeneric extends Component {
 			css`
 
 			capitec-modal {
-				height: var(--horizon-solution-modal-height,auto);
-				width: var(--horizon-solution-modal-width,694px);
+				height: var(--horizon-solution-modal-height, auto);
+				width: var(--horizon-solution-modal-width, 694px);
 				--theme-modal-header-padding-top: 20px;
 				--theme-modal-header-padding-bottom: 20px;
 				--theme-modal-header-padding-right: 16px;
@@ -131,7 +130,7 @@ export class SolutionDialogGeneric extends Component {
 				color: #545D60;
 				line-height: 24px;
 				letter-spacing: 0;
-				margin-top: var(--horizon-feedback-label-margin-top,17px);
+				margin-top: var(--horizon-feedback-label-margin-top, 17px);
 				margin-bottom: 15px;
 				margin-left: 8px;
 			}
@@ -166,10 +165,8 @@ export class SolutionDialogGeneric extends Component {
 				--theme-alert-banner-font-weight: 500;
 				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-			}
-
-			`];
-
+			}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -177,7 +174,7 @@ export class SolutionDialogGeneric extends Component {
 
 	_webTemplate() {
 		return html`
-		<capitec-modal type="free" header-align="left" header="${this.solutionHeader}">
+			<capitec-modal type="free" header-align="left" header="${this.solutionHeader}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
@@ -188,66 +185,67 @@ export class SolutionDialogGeneric extends Component {
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
-			</capitec-modal>`;
-
+			</capitec-modal>
+		`;
 	}
 
 	_renderAlertBanner() {
-		if (!this.alertBannerMessage == '') {
+		if (this.alertBannerMessage) {
 			return html`
-			<capitec-alert-banner
-								label="${this.alertBannerMessage}"
-								type="error">
-			</capitec-alert-banner>`;
+				<capitec-alert-banner
+						label="${this.alertBannerMessage}"
+						type="error">
+				</capitec-alert-banner>
+			`;
 		}
 	}
 
 	_renderNavigationToSBL() {
 		return html`
-		<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
-		<capitec-content-box class="group-navigate">
-			<slot></slot>
-		</capitec-content-box>
-		</capitec-group>
-	`;
+			<capitec-group class="navigate-container" layout="vertical" gap="clear" halign="stretch" valign="top">
+				<capitec-content-box class="group-navigate">
+					<slot></slot>
+				</capitec-content-box>
+			</capitec-group>
+		`;
 	}
 
 	_renderFeedbackDetails() {
 		return html`
-			<capitec-label class="feedback-label" label="Feedback"></capitec-label>	
-				<horizon-radio-button 
-					class="radio-button"
-					.radioButtonsAvailable="${this.radioButtonsAvailable}"
-					@value-change="${() => this._onValueChanged()}">
-				</horizon-radio-button>
+			<capitec-label class="feedback-label" label="Feedback"></capitec-label>
+			<horizon-radio-button 
+				class="radio-button"
+				.radioButtonsAvailable="${this.radioButtonsAvailable}"
+				@value-change="${() => this._onValueChanged()}">
+			</horizon-radio-button>
 		`;
 	}
 
 	_renderFooter() {
 		return html`
-		<capitec-group layout="horizontal">
-			<capitec-button
-				id="id-cancel-button"
-				type="clear"
-				label="Cancel"
-				?hidden=""
-				.disabled=""
-				tabindex=""
-				@click="${() => this._onCancelClick()}">
-			</capitec-button>
+			<capitec-group layout="horizontal">
+				<capitec-button
+					id="id-cancel-button"
+					type="clear"
+					label="Cancel"
+					?hidden=""
+					.disabled=""
+					tabindex=""
+					@click="${() => this._onCancelClick()}">
+				</capitec-button>
 
-			<capitec-button
-				id="id-done-button"
-				type="primary"
-				label="Done"
-				?hidden=""
-				.disabled=""
-				tabindex=""
-				@click="${() => this._onDoneClick()}">
-			</capitec-button>
-		</capitec-group>
+				<capitec-button
+					id="id-done-button"
+					type="primary"
+					label="Done"
+					?hidden=""
+					.disabled=""
+					tabindex=""
+					@click="${() => this._onDoneClick()}">
+				</capitec-button>
+			</capitec-group>
 		`;
 	}
 }
 
-window.customElements.define(`horizon-solution-dialog`, SolutionDialogGeneric)
+window.customElements.define(`horizon-solution-dialog`, HorizonSolutionDialog)

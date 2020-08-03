@@ -64,7 +64,6 @@ export class PayArrears extends Component {
 		return [
 			super.styles,
 			css`
-			
 				.solution-modal{
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
@@ -102,9 +101,8 @@ export class PayArrears extends Component {
 					color: #545D60;
 					line-height: 24px;
 					margin: 0px;
-				}
-
-		`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -117,19 +115,18 @@ export class PayArrears extends Component {
 				.solutionDetails="${this.solutionDetails}"
 				@on-cancel = "${() => this._onCancelClick()}"
 				@on-done = "${() => this._onDoneClick()}">
-				
-					<p class="navigate-info-label">Navigate to <b> SBL T62053 </b> (Landing page) </p>
-					<li class="navigate-bullet-label"> Enter valid client details. Verify client </li>
-					<li class="navigate-bullet-label"> Choose Insure tab </li>
-					<li class="navigate-bullet-label"> Pay Outstanding Amount </li>
-					<li class="navigate-bullet-label"> This option can be used if the client missed a payment and reflects in arrears. </li>
-					<li class="navigate-bullet-label"> Choose the account the client wants to make the outstanding payment from then transmit to </li>
-					<p class="navigate-label"> complete the payment. </p>
-					<li class="navigate-bullet-label"> Click transmit </li>
-				
+
+				<p class="navigate-info-label">Navigate to <b> SBL T62053 </b> (Landing page) </p>
+				<li class="navigate-bullet-label"> Enter valid client details. Verify client </li>
+				<li class="navigate-bullet-label"> Choose Insure tab </li>
+				<li class="navigate-bullet-label"> Pay Outstanding Amount </li>
+				<li class="navigate-bullet-label"> This option can be used if the client missed a payment and reflects in arrears. </li>
+				<li class="navigate-bullet-label"> Choose the account the client wants to make the outstanding payment from then transmit to </li>
+				<p class="navigate-label"> complete the payment. </p>
+				<li class="navigate-bullet-label"> Click transmit </li>
+
 			</horizon-solution-dialog>
-		
-			`;
+		`;
 	}
 
 }

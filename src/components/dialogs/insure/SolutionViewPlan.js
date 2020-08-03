@@ -64,7 +64,6 @@ export class ViewPlan extends Component {
 		return [
 			super.styles,
 			css`
-
 				.solution-modal{
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
@@ -92,9 +91,8 @@ export class ViewPlan extends Component {
 					line-height: 24px;
 					margin: 0px;
 					padding-left: 12px;
-				}
-
-		`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -107,16 +105,15 @@ export class ViewPlan extends Component {
 				.solutionDetails="${this.solutionDetails}"
 				@on-cancel = "${() => this._onCancelClick()}"
 				@on-done = "${() => this._onDoneClick()}">
-			
-					<p class="navigate-info-label"> Navigate to <b>SBL T62053</b> (Landing Page) </p>
-					<li class="navigate-bullet-label"> Choose the Insure tab </li>
-					<li class="navigate-bullet-label"> Choose the relevant funeral plan </li>
-					<li class="navigate-bullet-label"> Choose plan details </li>
-		
+
+				<p class="navigate-info-label"> Navigate to <b>SBL T62053</b> (Landing Page) </p>
+				<li class="navigate-bullet-label"> Choose the Insure tab </li>
+				<li class="navigate-bullet-label"> Choose the relevant funeral plan </li>
+				<li class="navigate-bullet-label"> Choose plan details </li>
+
 			</horizon-solution-dialog>
 		`;
 	}
-
 }
 
 window.customElements.define(`horizon-view-plan`, ViewPlan)
