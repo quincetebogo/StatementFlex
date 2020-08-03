@@ -62,6 +62,7 @@ export class InsureInformation extends Component {
 			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
 		];
 		this.displayNotification = true;
+		this.displayToast = true;
 	}
 
 	// ----------
@@ -78,6 +79,7 @@ export class InsureInformation extends Component {
 			displayNotification: { type: Boolean },
 			displayCoverNotification: { type: Boolean },
 			displayClaimNotification: { type: Boolean },
+			displayToast: { type: Boolean },
 			assignReason: { type: Number }
 		};
 	}
@@ -113,6 +115,8 @@ export class InsureInformation extends Component {
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
 		this.displayClaimNotification = true;
+
+		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
 	}
 
 
@@ -152,6 +156,9 @@ export class InsureInformation extends Component {
 	_onCloseClaimAlert() {
 		console.log('closable claim alert clicked');
 		this.displayClaimNotification = false;
+	}
+	_onToggleToastDisplay() {
+		this.displayToast = false;
 	}
 
 	_onAssignIncident() {
@@ -481,21 +488,20 @@ export class InsureInformation extends Component {
 				margin-bottom: 0px;
 			}
 			.warning-toast{
-				--theme-toast-max-width: 383px;
-				--theme-toast-min-width: 383px;
-				height: 64px;
-				z-index: 806;
-				left: calc(50% - 200px);
-				top: 70px;
-				width: 383px;
-				position: absolute;
-				justify-content: center;
-				align-items: center;
-				background-color: rgba(212,120,28,0.1);
 				--theme-toast-warning-background-color: #f7d3b0;
 				--theme-toast-warning-color:#D4781C;
 			}
-			
+			.toast{
+				position: absolute;
+				top : 170px;
+				left: 790px;
+				width : 383px;
+				height: 64px;
+				z-index: 201;
+				left: calc(50.8% - 200px);
+				justify-content: center;	
+				align-items: center;
+			}
 			`];
 	}
 
@@ -727,16 +733,14 @@ export class InsureInformation extends Component {
 		return html``;
 	}
 	_renderNonClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT) {
-			if (this.displayNotification) {
-				return html`
+		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT && this.displayNotification) {
+			return html`
 				<capitec-alert-banner class="info-banner" type="info" 
 				closable
 				@click="${() => this._onCloseClick()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>
 				`;
-			}
 			return html``;
 		}
 	}
@@ -765,15 +769,9 @@ export class InsureInformation extends Component {
 		return html``;
 	}
 	_renderUnverifiedProspectiveClient() {
-
-
-		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT) {
-			if (this.displayNotification) {
-				return html`
-					<div id="warning-toast" class="controller-toast">
-						${showToastTimed("warning", "top", "Not Verified", "Only limited information will be display", 5000, true)}
-					</div>
-				
+		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.displayNotification) {
+			return html`
+					${this._renderUnverifiedToast()}
 					<capitec-alert-banner class="unverfied-caller-alert" 
 						type="warning"
 						closable
@@ -785,31 +783,48 @@ export class InsureInformation extends Component {
 						</capitec-hyperlink> 
 					</capitec-alert-banner>
 			`;
-			}
 		}
 		return html``;
 	}
 	_renderVerifiedProspectiveClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT) {
-			if (this.displayNotification) {
-				return html`
-				<capitec-alert-banner 
-					class="unverfied-caller-alert" 
-					type="warning"
+		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT && this.displayNotification) {
+			return html`
+				${this._renderVerifiedToast()}
+				<capitec-alert-banner class="info-banner" type="info" 
 					closable
 					@click="${() => this._onCloseClick()}">
-					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink 
- 						 href="#"
- 						 label="Verify Now">
-					</capitec-hyperlink> 
+					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>
 			`;
-			}
+		}
+		return html`
+			
+			`;
+	}
+	_renderVerifiedToast() {
+		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT && this.displayToast) {
+			return html`
+				<capitec-toast class="toast" 
+								type="success" 
+								header="Successful" 
+								detail="Client has been verified">
+				</capitec-toast>
+				`;
 		}
 		return html``;
 	}
-
+	_renderUnverifiedToast() {
+		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.displayToast) {
+			return html`
+				<capitec-toast class="toast" 
+								type="warning" 
+								header="Not Verified" 
+								detail="Only limited information will be display">
+				</capitec-toast>
+				`;
+		}
+		return html``;
+	}
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"></horizon-end-call-session>`;
