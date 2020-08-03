@@ -133,6 +133,7 @@ export class SolutionDialogGeneric extends Component {
 				letter-spacing: 0;
 				margin-top: var(--horizon-feedback-label-margin-top,17px);
 				margin-bottom: 15px;
+				margin-left: 8px;
 			}
 
 			#id-cancel-button {

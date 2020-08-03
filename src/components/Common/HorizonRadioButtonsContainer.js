@@ -5,11 +5,13 @@ import { Component, html, css } from 'platform/elements';
  *
  * **Usage**
  * ```html
+ * 
  * <horizon-radio-button
  *   label="Label Test"
  *   .radioButtonsAvailable= "set of radio buttons available as an array | null"
  * 	 @value-change="function to be called on value cahnge event | null">
  * </horizon-radio-button>
+ * 
  * ```
  */
 
@@ -120,7 +122,7 @@ export class HorizonRadioButtonContainer extends Component {
 			<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 				<capitec-radio
 							class="radio-button-label"
-							label="${item.label}"
+							label="${item.value}"
 							@value-change="${this._onValueChange}">
 				</capitec-radio>
 			</capitec-group>
