@@ -149,8 +149,15 @@ export class HowToClaim extends Component {
 				margin: 4px 0px 10px 0px;
 			}
 
-			capitec-title-bar > capitec-icon {
+			capitec-title-bar{
+				padding-left: 15px;
+			}
+
+			capitec-title-bar > img {
 				cursor: pointer;
+				height: 26px;
+				width: 26px;
+				margin: 5px 10px 5px 5px; 
 			}
 
 		`];
@@ -163,9 +170,7 @@ export class HowToClaim extends Component {
 		return html`
 			<capitec-card class="howtoclaim-info">
 				<capitec-title-bar type="insure">
-					<capitec-icon size="small" icon="system/arrow-left"
-								  @click="${() => this._back()}">
-					</capitec-icon>
+					<img class="left-arrow-icon" src="../images/insure/left-arrow.svg" @click="${() => this._back()}"/>
 					<capitec-label label="How to Claim" type="title"></capitec-label>
 				</capitec-title-bar>
 
