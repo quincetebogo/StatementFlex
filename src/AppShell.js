@@ -269,6 +269,37 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
+				.div-status{
+					background-color: #333;
+					column-count: 2;
+					height: 72px;
+				}
+				.column{
+					float: right;
+					width: 6%;
+					height: 60px;
+					margin: 0px;
+					align-content: center;	
+					margin-right: 8px;
+					padding-top: 7px;
+				}
+				.row::after{
+					display: table;
+				}
+				img{
+					padding-left: 6px;
+				}
+				.fig-caption{
+					height: 15px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 13px;
+					font-weight: 500;
+					letter-spacing: 0;
+					line-height: 16px;
+					text-align: center;
+					margin-bottom: 6px;
+				}
 				* {
 					/* Platform CSS - Overriding
 					 * If it is generic change(i.e., applies across application) please specify here
@@ -348,8 +379,29 @@ export class AppShell extends Shell {
 							</div>
 						</div>	
                     </capitec-content-box>
-	
-					<capitec-status-bar status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
+					<div class="div-status">	
+						<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
+						<div class="row">
+							<figure class="column">
+								<a href="http://c-net.int.capinet:51001/Pages/default.aspx">
+									<img src="../images/statusBar/C-Net.svg" alt=""/>
+								</a>
+								<figcaption class="fig-caption">C-NET</figcaption>
+							</figure>
+							<figure class="column">
+								<a href="">
+									<img src="../images/statusBar/CDS.svg" alt=""/>
+								</a>
+								<figcaption class="fig-caption">CDS</figcaption>
+							</figure>
+							<figure class="column">
+								<a href="http://standardbancslinkv3.int.capinet:8080/">
+									<img src="../images/statusBar/SBL.svg" alt=""/>
+								</a>
+								<figcaption class="fig-caption">SBL</figcaption>
+							</figure>
+						</div>
+					</div>
                 </div>
         `;
 	}
