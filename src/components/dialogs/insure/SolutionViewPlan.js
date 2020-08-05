@@ -9,8 +9,9 @@ export class ViewPlan extends Component {
 
 	constructor() {
 		super();
+		this.clientType = "";
 		this.solutionDetails = {
-			solutionHeader: "Solution - View plan",
+			solutionHeader: " ",
 			radioButtonsAvailable: [
 				{ "key": "0", "value": "Informed client about their Capitec Funeral Plan" },
 				{ "key": "1", "value": "System error - assign now" }
@@ -24,6 +25,7 @@ export class ViewPlan extends Component {
 
 	static get properties() {
 		return {
+			clientType: { type: String },
 			solutionDetails: { type: Object }
 		}
 	}
@@ -34,6 +36,13 @@ export class ViewPlan extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		if (this.clientType == "verified-existing-client") {
+			this.solutionDetails.solutionHeader = "How to View Plan";
+		}
+		else {
+			this.solutionDetails.solutionHeader = "Solution - View Plan";
+		}
 	}
 
 	// --------------

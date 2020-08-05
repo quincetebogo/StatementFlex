@@ -19,7 +19,8 @@ const SOLUTION_SET = {
 	HOW_TO_CLAIM: 'How to Claim',
 	EMAIL_PLAN: 'Email Plan',
 	BENEFITS: 'Benefits',
-	CANCEL_PLAN: 'Cancel Plan'
+	CANCEL_PLAN: 'Cancel Plan',
+	VIEW_STATUS: 'View Status'
 }
 
 const RENDER_MODE = {
@@ -311,9 +312,11 @@ export class ThirdPartyOrExisingClient extends Component {
 
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.VIEW_PLAN:
+			case SOLUTION_SET.VIEW_STATUS:
 				return html`<horizon-view-plan
 								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
+								@close-solution="${() => this.solutionSelected = ''}"
+								clientType = "${this.clientType}">
 							</horizon-view-plan>`;
 
 			case SOLUTION_SET.UPDATE_PLAN:
