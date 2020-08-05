@@ -7,9 +7,7 @@ import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 
 import '../common/HorizonCallerInfoBar';
-
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import '../common/HorizonCallerDialog';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -19,6 +17,8 @@ const RENDER_MODE = {
 	ADD_CALLER: 0,
 	END_CALL: 1,
 };
+
+const HEADER_LABEL = "Add Caller Details";
 
 const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: 'Please enter all required fields before you continue',
@@ -46,6 +46,7 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
+		this.headerLabel = HEADER_LABEL;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -68,7 +69,8 @@ export class AddCallerDetails extends Component {
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
-			validationFailed: { type: Boolean }
+			validationFailed: { type: Boolean },
+			headerLabel: { type: String }
 		}
 	}
 
@@ -184,6 +186,10 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -239,11 +245,9 @@ export class AddCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
-					height: 650px;
+					height: 594px;
 					width: 690px;
 				}
 				#id-label-enter-details{
@@ -264,18 +268,23 @@ export class AddCallerDetails extends Component {
 					margin-top:24px;
 				}
 				#id-back-button{
-					margin-left: auto;
+					margin-right: 10px;
+					height: 48px;
+					width: 86px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
 				}
 				#id-confirm-button{
-					margin-right: 16px;
+					height: 48px;
+					width: 105px;
+					--theme-button-padding-top: 13px;
+					--theme-button-padding-right: 12px;
+					--theme-button-padding-bottom: 12px;
+					--theme-button-padding-left: 12px;
 				}
-				capitec-modal {
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7.5px 0px 7.5px 0px;
-				}
+
 				capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
@@ -285,13 +294,6 @@ export class AddCallerDetails extends Component {
 					margin: 14px 16px 0px 17px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));	
 				}
-				.caller-info-details {
-					height: auto;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-				}
 			`];
 	}
 
@@ -299,27 +301,19 @@ export class AddCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
-						<capitec-modal type="free" header-align="left" class="header" >
-							<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-								<capitec-label type="title" 
-												label="Add Caller Details">
-								</capitec-label>
-								<capitec-spacer></capitec-spacer>
-								<capitec-button label="End Call" 
-												@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-									<img class="end-call-icon" src="../../images/hangup.svg"/>
-								</capitec-button>
-							</capitec-group>
-							<div slot="body" class="main">
-								${this.renderCallInformation()}
-								${this.renderErrorMessage()}
-								${this.renderAddCallerDetails()}
-								${this.renderLoadingIndicator()}
-							</div>
-							<div slot="footer">
-								${this.renderFooter()}
-							</div>
-						</capitec-modal>`;
+					<horizon-caller-dialog
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${this.headerLabel}"
+								@on-end-call="${() => this._onEndCall()}">
+						<div slot="body" class="main">
+							${this.renderErrorMessage()}
+							${this.renderAddCallerDetails()}
+							${this.renderLoadingIndicator()}
+						</div>
+						<div slot="footer">
+							${this.renderFooter()}
+						</div>
+					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
 		}
@@ -330,16 +324,6 @@ export class AddCallerDetails extends Component {
 			return html``;
 		else
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
-	renderCallInformation() {
-		return html`
-			<capitec-content-box class="caller-info-details">
-				<horizon-caller-info-bar
-								.incomingCallDetails="${this.incomingCallDetails}">
-				</horizon-caller-info-bar>
-			</capitec-content-box>
-			`;
 	}
 
 	renderErrorMessage() {

@@ -3,10 +3,11 @@ import { Component, html, css } from 'platform/elements';
 import 'platform/components/popups/Modal';
 import '../../common/HorizonLabel';
 import '../../common/HorizonSelect';
-
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+import '../../common/HorizonCallerDialog';
 
 import { HorizonRouter } from '../../../shell/HorizonRouter';
+
+const HEADER_LABEL = "Verify Caller";
 
 export class VerifyCallerSequrityQuestions extends Component {
 
@@ -22,20 +23,9 @@ export class VerifyCallerSequrityQuestions extends Component {
 		this.checked = false;
 		this.alertBannerMessage = "Navigate to SBL T62053 to complete client verification";
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": "StopCard",
-				"value": "Stop Card"
-			},
-			{
-				"key": "Insure",
-				"value": "Insure"
-			}
-		];
-		this.incidentReferenceNumber = "34567893";
-		this.ivrOptionCode = "Insure";
-		this.incomingTelephoneNumber = "082 555 9090";
+		this.displayButton = false;
+		this.headerLabel = HEADER_LABEL;
+		this.incomingCallDetails = null;
 
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
@@ -49,6 +39,9 @@ export class VerifyCallerSequrityQuestions extends Component {
 			checked: { type: Boolean },
 			alertBannerType: { type: String },
 			alertBannerMessage: { type: String },
+			incomingCallDetails: { type: Object },
+			displayButton: { type: Boolean },
+			headerLabel: { type: String }
 		}
 	}
 
@@ -105,42 +98,9 @@ export class VerifyCallerSequrityQuestions extends Component {
 		return [
 			super.styles,
 			css`
-			${CALLERINFOBAR_CSS}
-
-			capitec-modal {
-				height: 550px;
-				--theme-modal-header-padding-top: 32px;
-				--theme-modal-header-padding-bottom: 32px;
-				--theme-modal-header-padding-right: 31px;
-				--theme-modal-header-padding-left: 31px;
-				--theme-modal-footer-padding: 7px 16px 9px 0px;
-			}
-
-			div[slot="header"] {
-				width: 690px;
-				position: absolute;
-				display: flex;
-				align-items: center;
-				left: -670px;
-				top: -15px;
-			}
-
-			div[slot="header"] > span {
-				height: 24px;
-				width: 190px;
-				color: #FFFFFF;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				padding-left: 17px;
-				margin-right: 575px;
-			}
 
 			div[slot="body"] {
 				width: 690px;
-				height: 422px;
 			}
 
 			.body-box {
@@ -234,14 +194,11 @@ export class VerifyCallerSequrityQuestions extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal
-				type="free"
-				header-align="left">
-				<div slot="header">
-					<span>Verify Caller</span>
-				</div>
+			<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.headerLabel="${this.headerLabel}"
+						.displayButton="${this.displayButton}">
 				<div slot="body">
-					${this._renderCallInformation()}
 					<capitec-content-box class="body-box">
 					${this._renderNavigationToSBL()}
 					${this._renderFeedbackDetails()}
@@ -250,28 +207,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
-			</capitec-modal>
-		`;
-	}
-
-	_renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number"
-					value = "${this.incidentReferenceNumber}">
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOptions}"
-					.value="${this.ivrOptionCode}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber}">
-				</horizon-label>
-			</div>
+			</horizon-caller-dialog>
 		`;
 	}
 

@@ -18,9 +18,7 @@ import '../../components/common/HorizonLabel';
 import '../../components/common/HorizonSelect';
 
 import '../common/HorizonCallerInfoBar';
-
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import '../common/HorizonCallerDialog';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -39,6 +37,8 @@ const RENDER_MODE = {
 	INSURE_VERIFY_CALLER: 5
 };
 
+const HEADER_LABEL = "Confirm Caller Details";
+
 export class ConfirmCallerDetails extends Component {
 
 	// --------------
@@ -53,6 +53,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.headerLabel = HEADER_LABEL;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -81,6 +82,7 @@ export class ConfirmCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			renderMode: { type: Number },
+			headerLabel: { type: String }
 		}
 	}
 
@@ -275,6 +277,10 @@ export class ConfirmCallerDetails extends Component {
 		return result.key;
 	}
 
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -283,21 +289,6 @@ export class ConfirmCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
-
-				capitec-modal{
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
-
-				div[slot="body"]{
-					width: 690px;
-					height: 387px;
-				}
 
 				capitec-content-box{
 					height: 332px;
@@ -305,14 +296,6 @@ export class ConfirmCallerDetails extends Component {
 					--theme-container-padding-bottom: 0px;
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-right: 17px;
-				}
-
-				.caller-info-details {
-					height: auto;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
 				}
 
 				#id-banner-addcallerdetails{
@@ -395,31 +378,21 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-				<capitec-modal
-						type="free"
-						header-align="left">
-					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-						<capitec-label type="title" 
-										label="Confirm Caller Details">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button label="End Call" 
-										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<img class="end-call-icon" src="../../images/hangup.svg"/>
-						</capitec-button>
-					</capitec-group>
-					<div slot="body">
-						${this.renderCallInformation()}
-						<capitec-content-box>
-							${this.renderAddCallerDetails()}
-							${this.renderConfirmedCaller()} 
-							${this.renderLoadingIndicator()}
-						</capitec-content-box>
-					</div>
-					<div slot="footer">
-						${this.renderFooter()}
-					</div>
-				</capitec-modal>`;
+					<horizon-caller-dialog 
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${this.headerLabel}"
+								@on-end-call="${() => this._onEndCall()}">
+						<div slot="body">
+							<capitec-content-box>
+								${this.renderAddCallerDetails()}
+								${this.renderConfirmedCaller()} 
+								${this.renderLoadingIndicator()}
+							</capitec-content-box>
+						</div>
+						<div slot="footer">
+							${this.renderFooter()}
+						</div>
+					</horizon-caller-dialog>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
 				return html`${this.renderAddCallerDetailsModal()}`;
@@ -436,16 +409,6 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.INSURE_VERIFY_CALLER:
 				return html`${this.renderVerifyCallerModal()}`;
 		}
-	}
-
-	renderCallInformation() {
-		return html`
-			<capitec-content-box class="caller-info-details">
-				<horizon-caller-info-bar
-								.incomingCallDetails="${this.incomingCallDetails}">
-				</horizon-caller-info-bar>
-			</capitec-content-box>
-			`;
 	}
 
 	renderAddCallerDetails() {

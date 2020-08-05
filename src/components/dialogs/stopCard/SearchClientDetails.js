@@ -15,15 +15,15 @@ import '../../common/HorizonSelect';
 import '../insure/SearchCaller';
 
 import '../../common/HorizonCallerInfoBar';
-
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader'
+import '../../common/HorizonCallerDialog';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
 	END_CALL: 1,
 	INSURE_SEARCH_CALLER: 2
 };
+
+const HEADER_LABEL = "Search Caller Details";
 
 const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: 'All fields are required',
@@ -86,6 +86,7 @@ export class SearchClientDetailsComponent extends Component {
 		);
 		this.isBusy = false;
 		this.alertBanner_Message = '';
+		this.headerLabel = HEADER_LABEL;
 	}
 
 	// ----------
@@ -99,7 +100,8 @@ export class SearchClientDetailsComponent extends Component {
 			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			renderMode: { type: Number },
-			alertBanner_Message: { type: String }
+			alertBanner_Message: { type: String },
+			headerLabel: { type: String }
 		}
 	}
 
@@ -210,6 +212,10 @@ export class SearchClientDetailsComponent extends Component {
 
 	_onClientIdentfiedInsure(data) {
 		this._raiseOnClientIdentified(data.detail.identifiedClient);
+	}
+
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	// ---------------
@@ -333,12 +339,10 @@ export class SearchClientDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
 					width: 690px;
-					height: 541px;
+					height: 485px;
 					border-radius: 4px;
 				}
 
@@ -380,24 +384,9 @@ export class SearchClientDetailsComponent extends Component {
 				.override-margin-top{
 					margin-top: 16px;
 				}
-				capitec-modal{
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
 
 				#id-search-button {
 					--theme-button-padding-top: 12px;
-				}
-
-				.caller-info-details {
-					height: auto;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
 				}
 		`];
 	}
@@ -406,28 +395,18 @@ export class SearchClientDetailsComponent extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-				<capitec-modal
-						type="free"
-						header-align="left">
-					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-						<capitec-label type="title" 
-										label="Search Caller Details">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button label="End Call" 
-										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<img class="end-call-icon" src="../../../images/hangup.svg"/>
-						</capitec-button>
-					</capitec-group>
+					<horizon-caller-dialog
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${this.headerLabel}"
+								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body" class="main">
-							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this.renderFooter()}
 						</div>
-					</capitec-modal>`;
+					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
 			case RENDER_MODE.INSURE_SEARCH_CALLER:
@@ -440,16 +419,6 @@ export class SearchClientDetailsComponent extends Component {
 			return html``;
 		else
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
-	renderCallInformation() {
-		return html`
-			<capitec-content-box class="caller-info-details">
-				<horizon-caller-info-bar
-								.incomingCallDetails="${this.incomingCallDetails}">
-				</horizon-caller-info-bar>
-			</capitec-content-box>
-			`;
 	}
 
 	renderSearchClientDetails() {

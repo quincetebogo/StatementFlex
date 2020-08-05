@@ -6,14 +6,12 @@ import { Component, html, css } from 'platform/elements';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader';
-
 import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServiceUtilities';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 
 import '../../common/HorizonSelect';
+import '../../common/HorizonCallerDialog';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -80,6 +78,8 @@ const REGEX_PATTERNS = {
 	}
 }
 
+const HEADER_LABEL = "Search Caller Details";
+
 export class InsureSearchClient extends Component {
 
 	// --------------
@@ -93,7 +93,6 @@ export class InsureSearchClient extends Component {
 
 		this.renderMode = -1;
 		this.isBusy = false;
-		this.headerLabel = 'Search Caller Details';
 		this.clientType = -1;
 		this.errMessage = {
 			searchType: "",
@@ -101,17 +100,9 @@ export class InsureSearchClient extends Component {
 		}
 		this.alertBanner_Message = "";
 
+		this.headerLabel = HEADER_LABEL;
+
 		//TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": "StopCard",
-				"value": "Stop Card"
-			},
-			{
-				"key": "Insure",
-				"value": "Insure"
-			}
-		];
 		this.identificationMethods = [
 			{
 				"key": "0",
@@ -243,6 +234,10 @@ export class InsureSearchClient extends Component {
 		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -327,27 +322,11 @@ export class InsureSearchClient extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
-				capitec-modal {
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
 				div[slot="body"]{
 					width: 690px;
-					height: 540px;
 				}
-				.call-details-bar{
-					display: flex;
-					flex-direction: row;
-					height: 56px;
-					margin: 0px;
-					border-bottom: 1px solid #dfdfdf;
-				}
+
 				capitec-content-box{
 					--theme-container-padding-top: 24px;
 					--theme-container-padding-bottom: 0px;
@@ -420,19 +399,11 @@ export class InsureSearchClient extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<capitec-modal type="free" header-align="left" >
-						<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-							<capitec-label type="title" 
-											label="${this.headerLabel}">
-							</capitec-label>
-							<capitec-spacer></capitec-spacer>
-							<capitec-button label="End Call" 
-											@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-								<img class="end-call-icon" src="../../../images/hangup.svg"/>
-							</capitec-button>
-						</capitec-group>
+					<horizon-caller-dialog
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${this.headerLabel}"
+								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
-							${this._renderCallInformation()}
 							<capitec-content-box>
 								${this._renderClientType()}
 								${this._renderCapitecClientFields()}
@@ -443,7 +414,7 @@ export class InsureSearchClient extends Component {
 						<div slot="footer">
 							${this._renderFooter()}
 						</div>
-					</capitec-modal>`;
+					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
 		}
@@ -454,27 +425,6 @@ export class InsureSearchClient extends Component {
 			return html``;
 		else
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
-	_renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label 
-					label="Reference Number" 
-					value = "${this.voiceReferenceNumber}">
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOptions}"
-					.value="${this.ivrOptionCode}"
-					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber}">
-				</horizon-label>
-			</div>`;
 	}
 
 	_renderClientType() {

@@ -45,6 +45,11 @@ export class CallerInfoBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_onIvrOptionChanged(e) {
+		this.ivrOption.value = e.detail.new.value;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
