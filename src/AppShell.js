@@ -269,27 +269,34 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
-				.div-status{
+				.row{	
+					display: flex;
+					flex-direction: row;
 					background-color: #333;
 					column-count: 2;
 					height: 72px;
+					margin: 0px;
+					width: 100%;
+				}
+				.status-bar{
+					--theme-statusbar-min-height: 59px;
+					margin:0px;
+					width: 1716px;
 				}
 				.column{
 					float: right;
-					width: 6%;
+					width: 33.3%;
 					height: 60px;
 					margin: 0px;
 					align-content: center;	
-					margin-right: 8px;
-					padding-top: 7px;
-				}
-				.row::after{
-					display: table;
 				}
 				img{
-					padding-left: 6px;
+					margin-left: 14px;
 				}
-				.fig-caption{
+				.group{
+					width: 204px;
+				}
+				.icon-caption{
 					height: 15px;
 					color: #FFFFFF;
 					font-family: "Hind Vadodara";
@@ -298,7 +305,6 @@ export class AppShell extends Shell {
 					letter-spacing: 0;
 					line-height: 16px;
 					text-align: center;
-					margin-bottom: 6px;
 				}
 				* {
 					/* Platform CSS - Overriding
@@ -378,29 +384,32 @@ export class AppShell extends Shell {
 								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
 						</div>	
-                    </capitec-content-box>
-					<div class="div-status">	
+					</capitec-content-box>
+					
+					<div class="row">	
 						<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
-						<div class="row">
-							<figure class="column">
-								<a href="http://c-net.int.capinet:51001/Pages/default.aspx">
-									<img src="../images/statusBar/C-Net.svg" alt=""/>
-								</a>
-								<figcaption class="fig-caption">C-NET</figcaption>
-							</figure>
-							<figure class="column">
-								<a href="">
-									<img src="../images/statusBar/CDS.svg" alt=""/>
-								</a>
-								<figcaption class="fig-caption">CDS</figcaption>
-							</figure>
-							<figure class="column">
+						<capitec-group class="group" layout="horizontal" halign="right" valign="center" gap="clear">
+							<div class="column" column="1" row="1">
 								<a href="http://standardbancslinkv3.int.capinet:8080/">
 									<img src="../images/statusBar/SBL.svg" alt=""/>
 								</a>
-								<figcaption class="fig-caption">SBL</figcaption>
-							</figure>
-						</div>
+								<capitec-label class="icon-caption" label="SBL"></capitec-label>
+							</div>
+						
+							<div class="column" column="2" row="1">
+								<a href="">
+									<img src="../images/statusBar/CDS.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="CDS"></capitec-label>
+							</div>
+							<div class="column" column="3" row="1">
+								<a href="http://c-net.int.capinet:51001/Pages/default.aspx">
+									<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
+							</div> 
+							
+						</capitec-group>
 					</div>
                 </div>
         `;
