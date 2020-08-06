@@ -14,14 +14,16 @@ import '../ConfirmCallerDetails';
 import '../../common/HorizonSelect';
 import '../insure/SearchCaller';
 
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader'
+import '../../common/HorizonCallerInfoBar';
+import '../../common/HorizonCallerDialog';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
 	END_CALL: 1,
 	INSURE_SEARCH_CALLER: 2
 };
+
+const HEADER_LABEL = "Search Caller Details";
 
 const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: 'All fields are required',
@@ -122,6 +124,8 @@ export class SearchClientDetailsComponent extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
+
 		if (this.channelService.isConfirmedCaller(this.unverifiedCaller)) {
 			// We are coming from the confirmed user dialog
 			this._loadSearchOptions();
@@ -206,6 +210,10 @@ export class SearchClientDetailsComponent extends Component {
 
 	_onClientIdentfiedInsure(data) {
 		this._raiseOnClientIdentified(data.detail.identifiedClient);
+	}
+
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	// ---------------
@@ -329,12 +337,10 @@ export class SearchClientDetailsComponent extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
 				.main{
 					width: 690px;
-					height: 541px;
+					height: 485px;
 					border-radius: 4px;
 				}
 
@@ -376,13 +382,6 @@ export class SearchClientDetailsComponent extends Component {
 				.override-margin-top{
 					margin-top: 16px;
 				}
-				capitec-modal{
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
 
 				#id-search-button {
 					--theme-button-padding-top: 12px;
@@ -394,28 +393,18 @@ export class SearchClientDetailsComponent extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-				<capitec-modal
-						type="free"
-						header-align="left">
-					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-						<capitec-label type="title" 
-										label="Search Caller Details">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button label="End Call" 
-										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<img class="end-call-icon" src="../../../images/hangup.svg"/>
-						</capitec-button>
-					</capitec-group>
+					<horizon-caller-dialog
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${HEADER_LABEL}"
+								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body" class="main">
-							${this.renderCallInformation()}
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this.renderFooter()}
 						</div>
-					</capitec-modal>`;
+					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
 			case RENDER_MODE.INSURE_SEARCH_CALLER:
@@ -428,33 +417,6 @@ export class SearchClientDetailsComponent extends Component {
 			return html``;
 		else
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
-	renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number" 
-					value = "${this.incidentReferenceNumber}"
-					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
-					?hidden=${isHidden(this.incidentReferenceNumber)}>
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOption.possibleValues}"
-					.value="${this.ivrOption.value}"
-					tabindex="${getTabIndex(this.ivrOption)}"
-					?hidden=${isHidden(this.ivrOption)}
-					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber.value}"
-					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-					?hidden=${isHidden(this.incomingTelephoneNumber)}>
-				</horizon-label>
-			</div>`;
 	}
 
 	renderSearchClientDetails() {

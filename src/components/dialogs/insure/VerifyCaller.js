@@ -3,10 +3,8 @@
  */
 import { Component, html, css } from 'platform/elements';
 
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../../css/HorizonModalHeader';
-
 import '../../common/HorizonOptionButton';
+import '../../common/HorizonCallerDialog';
 import './VerifyCallerSecurityQuestions';
 
 import { HorizonRouter } from '../../../shell/HorizonRouter';
@@ -16,6 +14,8 @@ const RENDER_MODE = {
 	END_CALL: 1,
 	SECURITY_QUESTIONS: 2
 }
+
+const HEADER_LABEL = "Verify Caller";
 
 export class VerifyCaller extends Component {
 
@@ -103,6 +103,10 @@ export class VerifyCaller extends Component {
 		this._startTimer();
 	}
 
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -135,21 +139,10 @@ export class VerifyCaller extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
-
-				capitec-modal{
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-					--theme-modal-footer-padding: 0px;
-				}
 
 				div[slot="body"]{
 					width: 690px;
-					height: 550px;
+					height: 494px;
 				}
 				#notification-status-box {
 					--theme-container-padding-top: 18px;
@@ -253,65 +246,26 @@ export class VerifyCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.VERIFY_CALLER:
 				return html`
-					<capitec-modal type="free" header-align="left">
-						${this._renderModalHeader()}
-						${this._renderModalBody()}
-					</capitec-modal>
+					<horizon-caller-dialog
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${HEADER_LABEL}"
+								@on-end-call="${() => this._onEndCall()}">
+						<div slot="body">
+							${this._renderNotificationStatus()}
+							${this._renderPushNotificationError()}
+							${this._renderOtherOptions()}
+						</div>
+					</horizon-caller-dialog>
 				`;
 
 			case RENDER_MODE.SECURITY_QUESTIONS:
-				return html`<horizon-verify-caller-secutity-questions></horizon-verify-caller-secutity-questions>`;
+				return html`<horizon-verify-caller-secutity-questions
+										.incomingCallDetails="${this.incomingCallDetails}">
+							</horizon-verify-caller-secutity-questions>`;
 
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
 		}
-	}
-
-	_renderModalHeader() {
-		return html`
-			<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-				<capitec-label type="title" 
-								label="Verify Caller">
-				</capitec-label>
-				<capitec-spacer></capitec-spacer>
-				<capitec-button label="End Call" 
-								@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-					<img class="end-call-icon" src="../../../images/hangup.svg"/>
-				</capitec-button>
-			</capitec-group>
-		`;
-	}
-
-	_renderModalBody() {
-		return html`
-			<div slot="body">
-				${this._renderCallInformation()}
-				${this._renderNotificationStatus()}
-				${this._renderPushNotificationError()}
-				${this._renderOtherOptions()}
-			</div>
-		`;
-	}
-
-	_renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number" 
-					value = "${this.incidentReferenceNumber}">
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOptions}"
-					.value="${this.ivrOptionCode}"
-					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber}">
-				</horizon-label>
-			</div>`;
 	}
 
 	_renderNotificationStatus() {

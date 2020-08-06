@@ -17,8 +17,8 @@ import './insure/VerifyCaller';
 import '../../components/common/HorizonLabel';
 import '../../components/common/HorizonSelect';
 
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import '../common/HorizonCallerInfoBar';
+import '../common/HorizonCallerDialog';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -36,6 +36,8 @@ const RENDER_MODE = {
 	INSURE_SEARCH_CALLER: 4,
 	INSURE_VERIFY_CALLER: 5
 };
+
+const HEADER_LABEL = "Confirm Caller Details";
 
 export class ConfirmCallerDetails extends Component {
 
@@ -78,7 +80,7 @@ export class ConfirmCallerDetails extends Component {
 			isBusy: { type: Boolean },
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
-			renderMode: { type: Number },
+			renderMode: { type: Number }
 		}
 	}
 
@@ -88,6 +90,7 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
 	}
@@ -284,6 +287,10 @@ export class ConfirmCallerDetails extends Component {
 		return result.key;
 	}
 
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -292,21 +299,6 @@ export class ConfirmCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
-				${CALLERINFOBAR_CSS}
-				${HORIZON_CALLER_DIALOG_HEADER_CSS}
-
-				capitec-modal{
-					--theme-modal-header-padding-top: 32px;
-					--theme-modal-header-padding-bottom: 32px;
-					--theme-modal-header-padding-right: 31px;
-					--theme-modal-header-padding-left: 31px;
-					--theme-modal-footer-padding: 7px 16px 9px 0px;
-				}
-
-				div[slot="body"]{
-					width: 690px;
-					height: 387px;
-				}
 
 				capitec-content-box{
 					height: 332px;
@@ -396,31 +388,21 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-				<capitec-modal
-						type="free"
-						header-align="left">
-					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-						<capitec-label type="title" 
-										label="Confirm Caller Details">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button label="End Call" 
-										@click="${() => this.renderMode = RENDER_MODE.END_CALL}">
-							<img class="end-call-icon" src="../../images/hangup.svg"/>
-						</capitec-button>
-					</capitec-group>
-					<div slot="body">
-						${this.renderCallInformation()}
-						<capitec-content-box>
-							${this.renderAddCallerDetails()}
-							${this.renderConfirmedCaller()} 
-							${this.renderLoadingIndicator()}
-						</capitec-content-box>
-					</div>
-					<div slot="footer">
-						${this.renderFooter()}
-					</div>
-				</capitec-modal>`;
+					<horizon-caller-dialog 
+								.incomingCallDetails="${this.incomingCallDetails}"
+								.headerLabel="${HEADER_LABEL}"
+								@on-end-call="${() => this._onEndCall()}">
+						<div slot="body">
+							<capitec-content-box>
+								${this.renderAddCallerDetails()}
+								${this.renderConfirmedCaller()} 
+								${this.renderLoadingIndicator()}
+							</capitec-content-box>
+						</div>
+						<div slot="footer">
+							${this.renderFooter()}
+						</div>
+					</horizon-caller-dialog>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
 				return html`${this.renderAddCallerDetailsModal()}`;
@@ -437,33 +419,6 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.INSURE_VERIFY_CALLER:
 				return html`${this.renderVerifyCallerModal()}`;
 		}
-	}
-
-	renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number" 
-					value = "${this.incidentReferenceNumber}"
-					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
-					?hidden=${isHidden(this.incidentReferenceNumber)}>
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOption.possibleValues}"
-					.value="${this.ivrOption.value}"
-					tabindex="${getTabIndex(this.ivrOption)}"
-					?hidden=${isHidden(this.ivrOption)}
-					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber.value}"
-					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-					?hidden=${isHidden(this.incomingTelephoneNumber)}>
-				</horizon-label>
-			</div>`;
 	}
 
 	renderAddCallerDetails() {
