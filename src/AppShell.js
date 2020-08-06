@@ -269,6 +269,43 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
+				.status-bar-group{	
+					display: flex;
+					flex-direction: row;
+					background-color: #333;
+					column-count: 2;
+					height: 72px;
+					margin: 0px;
+					width: 100%;
+				}
+				.status-bar{
+					--theme-statusbar-min-height: 59px;
+					margin:0px;
+					width: 1716px;
+				}
+				.status-bar-icon{
+					float: right;
+					width: 33.3%;
+					height: 60px;
+					margin: 0px;
+					align-content: center;	
+				}
+				img{
+					margin-left: 14px;
+				}
+				.status-bar-icon-group{
+					width: 204px;
+				}
+				.icon-caption{
+					height: 15px;
+					color: #FFFFFF;
+					font-family: "Hind Vadodara";
+					font-size: 13px;
+					font-weight: 500;
+					letter-spacing: 0;
+					line-height: 16px;
+					text-align: center;
+				}
 				* {
 					/* Platform CSS - Overriding
 					 * If it is generic change(i.e., applies across application) please specify here
@@ -347,10 +384,35 @@ export class AppShell extends Shell {
 								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
 						</div>	
-                    </capitec-content-box>
-	
-					<capitec-status-bar status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
-                </div>
+					</capitec-content-box>
+					
+					<div class="status-bar-group">	
+						<capitec-status-bar class="status-bar" 
+											status="${this.currentStatus}" 
+											label="${this.currentMessage}">
+						</capitec-status-bar>
+						<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
+							<div class="status-bar-icon" column="1" row="1">
+								<a href="http://standardbancslinkv3.int.capinet:8080/" target="_blank">
+									<img src="../images/statusBar/SBL.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="SBL"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="2" row="1">
+								<a href="" target="_blank">
+									<img src="../images/statusBar/CDS.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="CDS"></capitec-label>
+							</div>
+							<div class="status-bar-icon" column="3" row="1">
+								<a href="http://c-net.int.capinet:51001/Pages/default.aspx" target="_blank">
+									<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
+								</a>
+								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
+							</div>
+						</capitec-group>
+					</div>
+				</div>
         `;
 	}
 
