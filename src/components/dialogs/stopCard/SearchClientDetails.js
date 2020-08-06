@@ -195,7 +195,7 @@ export class SearchClientDetailsComponent extends Component {
 		}));
 	}
 
-	_ivrOptionChanged(e) {
+	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 

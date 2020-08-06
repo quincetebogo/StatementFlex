@@ -595,6 +595,7 @@ export class ConfirmCallerDetails extends Component {
 	renderInsureSearchCallerModal() {
 		return html`
 			<horizon-insure-search-client
+				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
