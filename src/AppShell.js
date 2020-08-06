@@ -269,7 +269,7 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
-				.row{	
+				.status-bar-group{	
 					display: flex;
 					flex-direction: row;
 					background-color: #333;
@@ -283,7 +283,7 @@ export class AppShell extends Shell {
 					margin:0px;
 					width: 1716px;
 				}
-				.column{
+				.status-bar-icon{
 					float: right;
 					width: 33.3%;
 					height: 60px;
@@ -293,7 +293,7 @@ export class AppShell extends Shell {
 				img{
 					margin-left: 14px;
 				}
-				.group{
+				.status-bar-icon-group{
 					width: 204px;
 				}
 				.icon-caption{
@@ -386,32 +386,33 @@ export class AppShell extends Shell {
 						</div>	
 					</capitec-content-box>
 					
-					<div class="row">	
-						<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}"></capitec-status-bar>
-						<capitec-group class="group" layout="horizontal" halign="right" valign="center" gap="clear">
-							<div class="column" column="1" row="1">
-								<a href="http://standardbancslinkv3.int.capinet:8080/">
+					<div class="status-bar-group">	
+						<capitec-status-bar class="status-bar" 
+											status="${this.currentStatus}" 
+											label="${this.currentMessage}">
+						</capitec-status-bar>
+						<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
+							<div class="status-bar-icon" column="1" row="1">
+								<a href="http://standardbancslinkv3.int.capinet:8080/" target="_blank">
 									<img src="../images/statusBar/SBL.svg" alt=""/>
 								</a>
 								<capitec-label class="icon-caption" label="SBL"></capitec-label>
 							</div>
-						
-							<div class="column" column="2" row="1">
-								<a href="">
+							<div class="status-bar-icon" column="2" row="1">
+								<a href="" target="_blank">
 									<img src="../images/statusBar/CDS.svg" alt=""/>
 								</a>
 								<capitec-label class="icon-caption" label="CDS"></capitec-label>
 							</div>
-							<div class="column" column="3" row="1">
-								<a href="http://c-net.int.capinet:51001/Pages/default.aspx">
+							<div class="status-bar-icon" column="3" row="1">
+								<a href="http://c-net.int.capinet:51001/Pages/default.aspx" target="_blank">
 									<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
 								</a>
 								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
-							</div> 
-							
+							</div>
 						</capitec-group>
 					</div>
-                </div>
+				</div>
         `;
 	}
 
