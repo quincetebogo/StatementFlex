@@ -118,7 +118,20 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
-	async _onConfirmClick() {
+	_onConfirmClick() {
+		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+			this._fetchInsureDetails();
+		}
+		else {
+			this._fetchClientCards();
+		}
+	}
+
+	async _fetchInsureDetails() {
+		//TODO: Service implementation comes here
+	}
+
+	async _fetchClientCards() {
 
 		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
 			this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
