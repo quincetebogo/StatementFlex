@@ -24,7 +24,6 @@ export class VerifyCallerSequrityQuestions extends Component {
 		this.alertBannerMessage = "Navigate to SBL T62053 to complete client verification";
 
 		this.displayButton = false;
-		this.headerLabel = HEADER_LABEL;
 		this.incomingCallDetails = null;
 
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -40,8 +39,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 			alertBannerType: { type: String },
 			alertBannerMessage: { type: String },
 			incomingCallDetails: { type: Object },
-			displayButton: { type: Boolean },
-			headerLabel: { type: String }
+			displayButton: { type: Boolean }
 		}
 	}
 
@@ -196,7 +194,7 @@ export class VerifyCallerSequrityQuestions extends Component {
 		return html`
 			<horizon-caller-dialog
 						.incomingCallDetails="${this.incomingCallDetails}"
-						.headerLabel="${this.headerLabel}"
+						.headerLabel="${HEADER_LABEL}"
 						.displayButton="${this.displayButton}">
 				<div slot="body">
 					<capitec-content-box class="body-box">

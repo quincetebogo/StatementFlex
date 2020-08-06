@@ -46,7 +46,6 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-		this.headerLabel = HEADER_LABEL;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -69,8 +68,7 @@ export class AddCallerDetails extends Component {
 			addCallerDialog: { type: Object },
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
-			validationFailed: { type: Boolean },
-			headerLabel: { type: String }
+			validationFailed: { type: Boolean }
 		}
 	}
 
@@ -104,7 +102,6 @@ export class AddCallerDetails extends Component {
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingCallDetails.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
@@ -303,7 +300,7 @@ export class AddCallerDetails extends Component {
 				return html`
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${this.headerLabel}"
+								.headerLabel="${HEADER_LABEL}"
 								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body" class="main">
 							${this.renderErrorMessage()}

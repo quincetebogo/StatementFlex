@@ -53,7 +53,6 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-		this.headerLabel = HEADER_LABEL;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -81,8 +80,7 @@ export class ConfirmCallerDetails extends Component {
 			isBusy: { type: Boolean },
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
-			renderMode: { type: Number },
-			headerLabel: { type: String }
+			renderMode: { type: Number }
 		}
 	}
 
@@ -93,7 +91,6 @@ export class ConfirmCallerDetails extends Component {
 		super.connectedCallback();
 
 		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
-		this.incomingCallDetails.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
 	}
@@ -380,7 +377,7 @@ export class ConfirmCallerDetails extends Component {
 				return html`
 					<horizon-caller-dialog 
 								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${this.headerLabel}"
+								.headerLabel="${HEADER_LABEL}"
 								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							<capitec-content-box>

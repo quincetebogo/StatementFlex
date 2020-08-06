@@ -33,7 +33,6 @@ export class VerifyCaller extends Component {
 		this.minutes = 1;
 		this.seconds = 60;
 		this.notVerified = false;
-		this.headerLabel = HEADER_LABEL;
 
 		//TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
@@ -59,8 +58,7 @@ export class VerifyCaller extends Component {
 			renderMode: { type: Number },
 			incomingCallDetails: { type: Object },
 			timeLeft: { type: String },
-			notVerified: { type: Boolean },
-			headerLabel: { type: String }
+			notVerified: { type: Boolean }
 		}
 	}
 
@@ -250,7 +248,7 @@ export class VerifyCaller extends Component {
 				return html`
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${this.headerLabel}"
+								.headerLabel="${HEADER_LABEL}"
 								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}

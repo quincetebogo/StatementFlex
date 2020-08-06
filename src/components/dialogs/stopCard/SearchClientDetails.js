@@ -86,7 +86,6 @@ export class SearchClientDetailsComponent extends Component {
 		);
 		this.isBusy = false;
 		this.alertBanner_Message = '';
-		this.headerLabel = HEADER_LABEL;
 	}
 
 	// ----------
@@ -100,8 +99,7 @@ export class SearchClientDetailsComponent extends Component {
 			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			renderMode: { type: Number },
-			alertBanner_Message: { type: String },
-			headerLabel: { type: String }
+			alertBanner_Message: { type: String }
 		}
 	}
 
@@ -397,7 +395,7 @@ export class SearchClientDetailsComponent extends Component {
 				return html`
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${this.headerLabel}"
+								.headerLabel="${HEADER_LABEL}"
 								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}

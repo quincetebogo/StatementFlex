@@ -105,7 +105,7 @@ export class CallerInfoBar extends Component {
 				</horizon-select>
 				<horizon-label
 					label="Incoming Number"
-					value="${this.incomingTelephoneNumber.value}"
+					value="${this.incomingTelephoneNumber}"
 					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
 					?hidden=${isHidden(this.incomingTelephoneNumber)}>
 				</horizon-label>
