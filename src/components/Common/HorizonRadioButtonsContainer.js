@@ -15,14 +15,13 @@ import { Component, html, css } from 'platform/elements';
  * ```
  */
 
-export class HorizonRadioButtonContainer extends Component {
+export class HorizonRadioButtonsContainer extends Component {
 
 	// --------------
 	// INITIALISATION
 	// --------------	
 
 	constructor() {
-
 		super();
 		this.label = '';
 		this.radioButtonsAvailable = [];
@@ -129,4 +128,4 @@ export class HorizonRadioButtonContainer extends Component {
 
 }
 
-window.customElements.define(`horizon-radio-button`, HorizonRadioButtonContainer);
+window.customElements.define(`horizon-radio-button`, HorizonRadioButtonsContainer);
