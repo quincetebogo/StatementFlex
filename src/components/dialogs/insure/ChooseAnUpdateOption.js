@@ -53,7 +53,7 @@ export class ChooseAnUpdateOption extends Component {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		}
 		else {
-			this.dispatchEvent(new CustomEvent('on-continue', {}));
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
 		}
 	}
 
