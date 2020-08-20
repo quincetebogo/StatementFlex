@@ -26,5 +26,12 @@
     // Exclude platform-specific files from the user's project.
     "files.exclude": {
         "jsconfig.json": true
-    }
+    },
+    "eslint.nodePath": "C:/ocwp/0.27.0/node_modules",
+    "eslint.runtime": "C:/ocwp/0.27.0/node/node.exe",
+    "eslint.options": {
+        "configFile": "./.eslintrc.json"
+    },
+    "eslint.enable": true,
+    "eslint.alwaysShowStatus": true
 }

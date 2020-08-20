@@ -109,9 +109,13 @@ export class LandingPage extends View {
 	async _onNewCall(newCallInfo) {
 		console.log("landing page - _onNewCall(): creating incident");
 
-		let incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
-			() => { this._toggleBusyFlag() },
-			(ex) => { this.landingPageErrorHandler(ex, "createIncident") }
+		const incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
+			() => {
+				this._toggleBusyFlag()
+			},
+			(ex) => {
+				this.landingPageErrorHandler(ex, `createIncident`)
+			}
 		);
 
 		if (incident) {
