@@ -1,11 +1,11 @@
-import { Router } from 'platform/Router';
-import { NavigationContext } from 'platform/NavigationContext';
+import { HORIZON_VIEW_SET, HorizonViewManager } from '../shell/HorizonViewManager';
+
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonViewManager, HORIZON_VIEW_SET } from '../shell/HorizonViewManager';
 import { HorizonRouter } from '../shell/HorizonRouter';
-import '../utils/channelServiceUtilities';
-import { validate } from '../utils/channelServiceUtilities';
+import { NavigationContext } from 'platform/NavigationContext';
 import { NewCallEvent } from '../models//NewCallEvent';
+import { Router } from 'platform/Router';
+import { validate } from '../utils/channelServiceUtilities';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -54,10 +54,10 @@ export class DesktopAgentService {
 			return this.instance;
 		}
 
-		this.nextCall = null;		// A pending call event
-		this.lastEventId = 0;		// The last SSE ID recieved
-		this.onCall = false;		// Indicates that the UI is still handling a call
-		this.connectionTries = 0;	// Retry count for detecting Desktop Agent down
+		this.nextCall = null; // A pending call event
+		this.lastEventId = 0; // The last SSE ID recieved
+		this.onCall = false; // Indicates that the UI is still handling a call
+		this.connectionTries = 0; // Retry count for detecting Desktop Agent down
 
 		DesktopAgentService.getValidationData();
 
@@ -66,7 +66,7 @@ export class DesktopAgentService {
 		this.HorizonRouter = HorizonRouter.getInstance();
 		this.router = Router.getInstance();
 
-		this.eventAggregator.subscribe("landing-page-loaded", () => this._onLandingPageLoaded());
+		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 	}
 
 	// --------------
@@ -79,10 +79,16 @@ export class DesktopAgentService {
 	 * @param {*} event 
 	 */
 	async _onNewCall(event) {
-		console.log("_onNewCall: new call event received");
+		console.log(`_onNewCall: new call event received`);
 
-		let eventData = JSON.parse(event.data);
-		let newCallEvent = new NewCallEvent();
+		const eventData = JSON.parse(event.data);
+
+		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
+			this.connectionTries = 0;
+			return;
+		}
+
+		const newCallEvent = new NewCallEvent();
 
 		// We have received an event so we must be connected to the Desktop Agent
 		this.connectionTries = 0;
@@ -97,12 +103,14 @@ export class DesktopAgentService {
 			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
-			//newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			//newCallEvent.IncidentRecId = eventData.IncidentRecNo;
+
+			// newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
+			// newCallEvent.IncidentRecId = eventData.IncidentRecNo;
+
 			newCallEvent.IVROptionCode = eventData.IVROptionCode;
 			newCallEvent.Date = eventData.Date;
 
-			console.log("_onNewCall: event data validated");
+			console.log(`_onNewCall: event data validated`);
 
 			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
 			// When not re-creating an the event source, the EventSource automatically sets the last event id
@@ -143,19 +151,21 @@ export class DesktopAgentService {
 		switch (this.eventSource.readyState) {
 			case 0:
 				this.connectionTries++;
-				// console.log("Event Source State: CONNECTING", this.connectionTries);
+				console.log(`Event Source State: CONNECTING`, this.connectionTries);
 				break;
 			case 1:
-				// console.log("Event Source State: OPEN");
+				console.log(`Event Source State: OPEN`);
 				this.connectionTries = 0;
 				break;
 			case 2:
 				this.connectionTries++;
-				// console.log("Event Source State: CLOSED", this.connectionTries++);
+				console.log(`Event Source State: CLOSED`, this.connectionTries++);
+				break;
+			default:
 				break;
 		}
 
-		if (this.eventSource.readyState != 0) {
+		if (this.eventSource.readyState !== 0) {
 			// console.log("Closing and re-opening Desktop Agent Event Source");
 			// Close the event source and then re-open it.
 			this.eventSource.close();
@@ -189,11 +199,17 @@ export class DesktopAgentService {
 		// console.log("Connecting to Desktop Agent");
 
 		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener("new-call", async (event) => this._onNewCall(event));
+		this.eventSource.addEventListener(`new-call`, async (event) => this._onNewCall(event));
 
-		this.eventSource.onerror = () => { this._onError(); };
-		this.eventSource.onopen = () => { this._onOpen(); };
-		this.eventSource.onmessage = (x) => { this._onMessage(x); };
+		this.eventSource.onerror = () => {
+			this._onError();
+		};
+		this.eventSource.onopen = () => {
+			this._onOpen();
+		};
+		this.eventSource.onmessage = (x) => {
+			this._onMessage(x);
+		};
 	}
 
 	/**
@@ -227,20 +243,20 @@ export class DesktopAgentService {
 	}
 
 	async _handleIncomingCall() {
-		console.log("_handleIncomingCall");
+		console.log(`_handleIncomingCall`);
 
 		if (!this.nextCall) {
 			return;
 		}
 
-		//TODO: Fix the onCall handling - removed for now
+		// TODO: Fix the onCall handling - removed for now
 
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
-		if (NavigationContext.getInstance().current.route.name === 'landing-page' /*&& !this.onCall*/) {
+		if (NavigationContext.getInstance().current.route.name === `landing-page` /*&& !this.onCall*/) {
 			// If Landing Page => publish event
-			console.log("_handleIncomingCall: on landing page - publishing call event");
+			console.log(`_handleIncomingCall: on landing page - publishing call event`);
 
 			this.onCall = true;
 
@@ -257,7 +273,7 @@ export class DesktopAgentService {
 	}
 
 	_promptForDesktopAgent() {
-		if (NavigationContext.getInstance().current.route.name === 'landing-page' && !this.onCall) {
+		if (NavigationContext.getInstance().current.route.name === `landing-page` && !this.onCall) {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
 			this.connectionTries = 0;
 		}
