@@ -79,8 +79,6 @@ export class EndCallSession extends Component {
 			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
 			super.connectedCallback();
 		}
-
-
 	}
 
 	// --------------
@@ -111,6 +109,7 @@ export class EndCallSession extends Component {
 
 	async _fetchEndCallReasons() {
 
+		this.incomingCallDetails.ivrOptionCode = "1"; //Hardcoded for now
 		let endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
 
 		if (endCallDialog) {
@@ -249,7 +248,6 @@ export class EndCallSession extends Component {
 				.radioButtonsAvailable="${this.endCallReasons}"
 				@value-change="${(e) => { this._onValueChanged(e) }}">
 			</horizon-radio-button>
-			
 		`;
 	}
 
