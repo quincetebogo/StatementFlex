@@ -109,7 +109,7 @@ export class InsureInformation extends Component {
 			{
 				referenceNo: "73023022",
 				phoneNumber: "0631152973",
-				ivrOptionCode: "Insure"
+				ivrOptionCode: `2`
 			});
 
 		this.displayNotification = true;

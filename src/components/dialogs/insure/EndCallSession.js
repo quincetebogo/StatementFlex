@@ -28,7 +28,7 @@ export class EndCallSession extends Component {
 			}
 		];
 		this.voiceReferenceNumber = "34567893";
-		this.ivrOptionCode = "Insure";
+		this.ivrOptionCode = `2`;
 		this.incomingTelephoneNumber = "071 679 7003";
 
 	}

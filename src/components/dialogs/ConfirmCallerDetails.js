@@ -122,7 +122,7 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this._fetchInsureDetails();
 		}
 		else {
@@ -136,12 +136,12 @@ export class ConfirmCallerDetails extends Component {
 
 	async _fetchClientCards() {
 
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
 			return;
 		}
 
-		let confirmedCaller = {
+		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
@@ -208,7 +208,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_onSearchClick() {
 
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
 		else {

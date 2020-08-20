@@ -126,25 +126,21 @@ export class LandingPage extends View {
 	async _acceptCall(newCallInfo) {
 		console.log("landing page - _acceptCall()");
 
-		//TODO: This static mapping should be fixed and placed somewhere else
-		if (newCallInfo.IVROptionCode === "1") {
-			newCallInfo.IVROptionCode = "StopCard";
-			console.log("IVR Option: ", newCallInfo.IVROptionCode);
-		}
 
 		this.errorHandled = false;
 
-		//TODO: Remove the below static condition check, when channel service is ready
-		if (newCallInfo.IVROptionCode === "Insure") {
+
+		if (newCallInfo.IVROptionCode === `2`) {
 			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 			return;
 		}
 
 		// Check the incoming call to see if it is a verified or unverified number
-		let acceptedCall = await this.serviceCallHelper.asyncCall(
+		const acceptedCall = await this.serviceCallHelper.asyncCall(
 			this.channelService.acceptCall(newCallInfo),
-			(ex) => this.landingPageErrorHandler(ex, "acceptCall"));
+			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
+		);
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.channelService.isConfirmedCaller(acceptedCall)) {
