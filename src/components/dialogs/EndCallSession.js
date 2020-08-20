@@ -1,10 +1,18 @@
 import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
-import '../../common/HorizonLabel';
-import '../../common/HorizonSelect';
+import '../common/HorizonLabel';
+import '../common/HorizonSelect';
+import '../common/HorizonRadioButtonsContainer';
 
-import { CALLERINFOBAR_CSS } from '../../../css/CallerInfoBar';
+import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
+
+import { HorizonChannelService } from '../../services/HorizonChannelService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { isNullorEmpty } from '../../utils/channelServiceUtilities';
+import '../common/HorizonCallerDialog';
+
+const HEADER_LABEL = "End Call Session";
 
 export class EndCallSession extends Component {
 
@@ -31,6 +39,12 @@ export class EndCallSession extends Component {
 		this.ivrOptionCode = "Insure";
 		this.incomingTelephoneNumber = "071 679 7003";
 
+		this.incomingCallDetails = {};
+		this.endCallReasons = [];
+		this.isBusy = false;
+		this.isReassigned = false;
+
+		this.channelService = HorizonChannelService.getInstance();
 	}
 
 	// --------------
@@ -39,15 +53,34 @@ export class EndCallSession extends Component {
 
 	static get properties() {
 		return {
-
+			incomingCallDetails: { type: Object },
+			endCallReasons: { type: Array },
+			isReassigned: { type: Boolean }
 		}
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
-		super.connectedCallback();
+	async connectedCallback() {
+
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+
+		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
+
+		//this._fetchEndCallReasons();
+
+		let endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
+
+		if (endCallDialog) {
+			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+			super.connectedCallback();
+		}
+
+
 	}
 
 	// --------------
@@ -58,6 +91,16 @@ export class EndCallSession extends Component {
 		this.dispatchEvent(new CustomEvent('on-cancel', {}));
 	}
 
+	_onReasonSelected() {
+		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
+	}
+
+	_onValueChanged(e) {
+		if (e.detail.new) {
+			this.endCallReason = this.endCallReasons.find(reason => reason.key == e.detail.key);
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -65,6 +108,19 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _fetchEndCallReasons() {
+
+		let endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
+
+		if (endCallDialog) {
+			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+		}
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = this.isBusy ? false : true;
+	}
 
 	// ---------
 	// RENDERING
@@ -115,10 +171,10 @@ export class EndCallSession extends Component {
 
 			.body-box {
 				height: 256px;
-				--theme-container-padding-top: 16px;
+				--theme-container-padding-top: 35px;
 				--theme-container-padding-bottom: 0px;
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-right: 17px;
+				--theme-container-padding-left: 72px;
+				--theme-container-padding-right: 73px;
 			}
 
 			.end-reason-label {
@@ -130,7 +186,7 @@ export class EndCallSession extends Component {
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 24px;
-				margin: 19px 57px 0px 56px;
+				margin: 0px;
 			  }
 
 			#id-cancel-button {
@@ -156,36 +212,23 @@ export class EndCallSession extends Component {
 				--theme-button-padding-left: 12px;
 			}
 
-			.radio-button-container {
-				margin: 23px 57px 0px 56px;
-				height: 48px;
-				padding: 0px;
-				box-sizing: border-box;
-				border-style: solid;
-				border-width: thin;
-				border-radius: 5px;
-				border-color: lightgrey;
-			}
-
-			.radio-button-label {
-				height: 24px;
-				--theme-radio-label-spacing: 12px;
-				margin: 11px 0px 10px 16px;
+			.radio-button {
+				margin-top: 15px;
 			}
 		`];
 
 	}
 
+	_mobileTemplate() {
+	}
+
 	_webTemplate() {
 		return html`
-			<capitec-modal
-				type="free"
-				header-align="left">
-				<div slot="header">
-					<span>End Call Session</span>
-				</div>
+			<horizon-caller-dialog 
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.headerLabel="${HEADER_LABEL}"
+						.displayButton="${false}">
 				<div slot="body">
-					${this._renderCallInformation()}
 					<capitec-content-box class="body-box">
 					${this._renderChooseEndCallReason()}
 					</capitec-content-box>
@@ -193,38 +236,20 @@ export class EndCallSession extends Component {
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
-			</capitec-modal>
-		`;
-	}
-
-	_renderCallInformation() {
-		return html`
-			<div class="call-details-bar">
-				<horizon-label
-					label="Reference Number"
-					value = "${this.voiceReferenceNumber}">
-				</horizon-label>
-				<horizon-select
-					label="Client Need"
-					display-field="value"
-					.items="${this.ivrOptions}"
-					.value="${this.ivrOptionCode}">
-				</horizon-select>
-				<horizon-label
-					label="Incoming Number"
-					value="${this.incomingTelephoneNumber}">
-				</horizon-label>
-			</div>
+			</horizon-caller-dialog>
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
 	_renderChooseEndCallReason() {
 		return html`
 			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
-
-			<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-				<capitec-radio class="radio-button-label" @value-change="" label="Client need has been assigned"></capitec-radio>
-			</capitec-group>
+			<horizon-radio-button 
+				class="radio-button"
+				.radioButtonsAvailable="${this.endCallReasons}"
+				@value-change="${(e) => { this._onValueChanged(e) }}">
+			</horizon-radio-button>
+			
 		`;
 	}
 
@@ -242,10 +267,18 @@ export class EndCallSession extends Component {
 					id="id-continue-button"
 					type="primary"
 					label="Continue"
-					@click="">
+					@click="${() => this._onReasonSelected()}">
 				</capitec-button>
 			</capitec-group>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+		else
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

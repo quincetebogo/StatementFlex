@@ -8,6 +8,7 @@ import 'platform/components/popups/Modal';
 
 import '../common/HorizonCallerInfoBar';
 import '../common/HorizonCallerDialog';
+import './EndCallSession';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -414,10 +415,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	renderEndCallModal() {
-		return html`<end-call-session 
+		return html`<horizon-end-call-session 
 						@on-cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
-						@on-reason-set="${(reason) => this.onCallCancelled(reason)}">
-					</end-call-session>`;
+						@on-reason-set="${(reason) => this.onCallCancelled(reason)}"
+						.incomingCallDetails = "${this.incomingCallDetails}">
+					</horizon-end-call-session>`;
 	}
 }
 

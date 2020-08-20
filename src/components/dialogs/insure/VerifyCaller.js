@@ -6,6 +6,7 @@ import { Component, html, css } from 'platform/elements';
 import '../../common/HorizonOptionButton';
 import '../../common/HorizonCallerDialog';
 import './VerifyCallerSecurityQuestions';
+import '../EndCallSession';
 
 import { HorizonRouter } from '../../../shell/HorizonRouter';
 
@@ -360,10 +361,11 @@ export class VerifyCaller extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 }
 

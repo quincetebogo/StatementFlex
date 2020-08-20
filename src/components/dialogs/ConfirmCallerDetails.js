@@ -10,7 +10,7 @@ import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
 import './AddCallerDetails';
-import './EndCallSessionReason';
+import './EndCallSession';
 import './stopCard/SearchClientDetails';
 import './insure/VerifyCaller';
 
@@ -165,7 +165,8 @@ export class ConfirmCallerDetails extends Component {
 						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						incidentRecId: this.incidentRecId,
-						agentTelephoneNumber: this.agentTelephoneNumber
+						agentTelephoneNumber: this.agentTelephoneNumber,
+						ivrOption: this.ivrOption.possibleValues
 					},
 					clientProfileDetails: clientProfileDetails
 				}
@@ -544,10 +545,11 @@ export class ConfirmCallerDetails extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 
 	renderSearchCallerModal() {

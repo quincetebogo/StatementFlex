@@ -8,7 +8,7 @@ import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { CardService } from '../../services/CardService';
 
-import '../../components/dialogs/EndCallSessionReason';
+import '../../components/dialogs/EndCallSession';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -42,6 +42,7 @@ export class StopCardFailure extends View {
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 		this.renderDialog = -1;
 		this.retry = 0;
+		this.isReassigned = false;
 
 		this.failedCards = [];
 
@@ -77,6 +78,7 @@ export class StopCardFailure extends View {
 			this.cardsToStop = state.stoppedCards;
 			this.failedCards = this.cardsToStop.filter(cards => !cards.stopped);
 
+			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.callerInfo.incidentReferenceNumber,
@@ -98,6 +100,7 @@ export class StopCardFailure extends View {
 	}
 
 	_onEndCallSession() {
+		this.isReassigned = false;
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
@@ -136,6 +139,7 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
+		this.isReassigned = true;
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
@@ -160,6 +164,10 @@ export class StopCardFailure extends View {
 			(ex) => this._stopCardErrorHandler(ex));
 
 		return cardStopResults;
+	}
+
+	_onAssignIncident() {
+		this.renderDialog = RENDER_DIALOG.HANDOFF;
 	}
 
 	// ---------
@@ -422,10 +430,12 @@ export class StopCardFailure extends View {
 	_renderEndCallModal() {
 		if (this.renderDialog == RENDER_DIALOG.ENDCALL) {
 			return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderDialog = -1 }}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
+				.incomingCallDetails = "${this.callerInfo}"
+				.isReassigned = "${this.isReassigned}">
+			</horizon-end-call-session>`;
 		}
 
 		return html``;

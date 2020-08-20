@@ -45,6 +45,10 @@ export class AssignPayArrears extends Component {
 		this.dispatchEvent(new CustomEvent('on-cancel', {}));
 	}
 
+	_onAssign() {
+		this.dispatchEvent(new CustomEvent('on-assign', {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -217,7 +221,7 @@ export class AssignPayArrears extends Component {
 					?hidden=""
 					.disabled=""
 					tabindex=""
-					@click="">
+					@click="${() => this._onAssign()}">
 				</capitec-button>
 			</capitec-group>
 			`;

@@ -16,6 +16,7 @@ import '../insure/SearchCaller';
 
 import '../../common/HorizonCallerInfoBar';
 import '../../common/HorizonCallerDialog';
+import '../EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -479,10 +480,11 @@ export class SearchClientDetailsComponent extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {

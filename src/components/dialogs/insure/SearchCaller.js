@@ -12,6 +12,7 @@ import { HorizonChannelService } from '../../../services/HorizonChannelService';
 
 import '../../common/HorizonSelect';
 import '../../common/HorizonCallerDialog';
+import '../EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -535,10 +536,11 @@ export class InsureSearchClient extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 }
 
