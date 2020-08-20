@@ -1,5 +1,8 @@
 import { Component, html, css } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import '../../Common/HorizonSolutionDialog';
+
+const ERROR_MESSAGE = "Choose a reason for assigning to continue";
 
 export class AssignReasonDialog extends Component {
 
@@ -9,17 +12,27 @@ export class AssignReasonDialog extends Component {
 	constructor() {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.radioButtonsAvailable = [
+			{ "key": "0", "value": "System error" },
+			{ "key": "1", "value": "Client is not in arrears, but was told they are" },
+			{ "key": "2", "value": "Refunds" }
+		];
+		this.checked = false;
+		this.alertBannerMessage = '';
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
 			assignReason: { type: Object },
-
+			checked: { type: Boolean },
+			alertBannerMessage: { type: String }
 		}
 	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -33,30 +46,35 @@ export class AssignReasonDialog extends Component {
 	}
 
 	_onContinueClick() {
-		this.dispatchEvent(new CustomEvent('on-assign-reason', {
-			detail: { reason: this.selected }
-		}));
+		if (!this.checked) {
+			this.alertBannerMessage = ERROR_MESSAGE;
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('on-assign-reason', {
+				detail: { reason: this.selected }
+			}));
+		}
+
 	}
 
-	_onSystemError(e) {
+	_onValueChanged(e) {
 		console.log(e);
-		if (e.detail.new) {
-			this.selected = 0;
-		}
-	}
+		this.checked = !this.checked;
 
-	_onNotInArrears(e) {
-		console.log(e);
-		if (e.detail.new) {
-			this.selected = 1;
-		}
-	}
+		if (this.checked) {
+			this.alertBannerMessage = '';
 
-	_onRefund(e) {
-		console.log(e);
-		if (e.detail.new) {
-			this.selected = 2;
+			if (e.detail.selectedReason === "System error") {
+				this.selected = 0;
+			}
+			else if (e.detail.selectedReason === "Client is not in arrears, but was told they are") {
+				this.selected = 1;
+			}
+			else if (e.detail.selectedReason === "Refunds") {
+				this.selected = 2;
+			}
 		}
+
 	}
 
 	// --------------
@@ -85,41 +103,47 @@ export class AssignReasonDialog extends Component {
 				--theme-modal-footer-padding: 5px 16px 11px 0px;
 				--theme-modal-header-background-color: #F7F7F7;
 				--theme-modal-header-color: #3E4547;
-			}	
-			.body-content{
+			}
+
+			.body-content {
 				width: 578px;
-				height: 255px;
+				height: auto;
+				padding: 8px 16px 0px 16px;
 			}
-			.radio-button-container{
-				margin: 8px 0px 0px 0px;
-				height: 48px;
-				padding: 0px;
-				box-sizing: border-box;
-				border-style: solid;
-				border-width: thin;
-				border-radius: 5px;
-				border-color: lightgrey;
-			}		
-			#radio-button{
-				padding-left: 16px;
+
+			.radio-button {
+				--horizon-radio-button-container-margin-bottom: 75px;
 			}
-			#cancel-button{
+
+			#cancel-button {
 				height: 48px;
 				width: 94px;
 				border-radius: 4px;
 				background-color: rgba(255,255,255,0)
 			}
-			#continue-button{
+
+			#continue-button {
 				height: 48px;
 				width: 113px;
 				border-radius: 5px;
 				background-color: #009DE0;
 			}
-			div[slot="footer"]{
+
+			div[slot="footer"] {
 				padding-right: 4px;
 				--theme-modal-footer-padding: 12px 12px 12px 16px;
 			}
-			`];
+
+			capitec-alert-banner {
+				margin: 0px 0px 15px 0px;
+				--theme-alert-banner-info-border: 0px;
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-font-weight: 500;
+				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+			}
+
+		`];
 
 	}
 
@@ -128,6 +152,7 @@ export class AssignReasonDialog extends Component {
 			<capitec-modal type="free" header-align="left" header="Choose a Reason For Assigning">
 				<div slot="body">
 					<capitec-content-box class="body-content">
+						${this._renderAlertBanner()}
 						${this._renderReason()}
 					</capitec-content-box>
 				</div>
@@ -137,19 +162,24 @@ export class AssignReasonDialog extends Component {
 			</capitec-modal>`;
 	}
 
+	_renderAlertBanner() {
+		if (this.alertBannerMessage) {
+			return html`
+				<capitec-alert-banner
+						label="${this.alertBannerMessage}"
+						type="error-trans">
+				</capitec-alert-banner>
+			`;
+		}
+	}
+
 	_renderReason() {
 		return html`
-			<capitec-radio-group class="radio-group">
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="System error" @value-change="${(e) => this._onSystemError(e)}"></capitec-radio>
-				</capitec-group>
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="Client is not in arrears, but was told they are" @value-change="${(e) => this._onNotInArrears(e)}"></capitec-radio>
-				</capitec-group>
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio id="radio-button" label="Refunds" @value-change="${(e) => this._onRefund(e)}"></capitec-radio>
-				</capitec-group>
-			</capitec-radio-group>
+			<horizon-radio-button 
+					class="radio-button"
+					.radioButtonsAvailable="${this.radioButtonsAvailable}"
+					@value-change="${(e) => this._onValueChanged(e)}">
+			</horizon-radio-button>
 		`;
 	}
 
@@ -161,8 +191,8 @@ export class AssignReasonDialog extends Component {
 					type="clear"
 					label="Cancel"
 					@click="${() => this._onCancelClick()}">
-				</capitec-button>
-				<capitec-button
+			</capitec-button>
+			<capitec-button
 					id="continue-button"
 					type="primary"
 					label="Continue"

@@ -10,7 +10,7 @@ import './InsureHowToClaim';
 import '../dialogs/insure/SolutionEmailPlan';
 import '../dialogs/insure/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog';
-import '../dialogs/insure/AssignPayArrears';
+import '../dialogs/insure/AssignReasonSelected';
 
 const SOLUTION_SET = {
 	VIEW_PLAN: 'View Plan',
@@ -44,6 +44,7 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.solutionSelected = "";
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.displayToast = true;
+		this.selectedAssignReason = "";
 
 		this.eventAggregator = EventAggregator.getInstance();
 	}
@@ -105,6 +106,7 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_onAssignReasonSelected(e) {
+		this.selectedAssignReason = e.detail.reason;
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
@@ -374,9 +376,10 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-pay-arrears
+			return html`<horizon-assign-reason-selected
+							.selectedReason = "${this.selectedAssignReason}"
 							@on-cancel=${() => this._onCancelAssign()}>
-						</horizon-assign-pay-arrears>`;
+						</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}

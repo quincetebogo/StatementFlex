@@ -12,7 +12,7 @@ import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 import '../dialogs/insure/EndCallSession'
 import '../dialogs/insure/AssignReasonDialog'
-import '../dialogs/insure/AssignPayArrears'
+import '../dialogs/insure/AssignReasonSelected'
 import '../../shell/HorizonRouter';
 
 import { getTabIndex } from '../../utils/channelServiceUtilities';
@@ -848,9 +848,9 @@ export class InsureInformation extends Component {
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-pay-arrears
+			return html`<horizon-assign-reason-selected
 							@on-cancel=${() => this._onCancelAssign()}>
-						</horizon-assign-pay-arrears>`;
+						</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
