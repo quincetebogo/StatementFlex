@@ -154,7 +154,7 @@ export class LandingPage extends View {
 						key: `2`, value: `Insure`
 					}
 				],
-				value: `Insure`
+				value: `2`
 			};
 
 			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
@@ -171,6 +171,7 @@ export class LandingPage extends View {
 				key: `2`, value: `Insure`
 			}
 		];
+		acceptedCall.ivrOption.value = `1`;
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.channelService.isConfirmedCaller(acceptedCall)) {

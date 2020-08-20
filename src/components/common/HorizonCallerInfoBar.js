@@ -27,8 +27,8 @@ export class CallerInfoBar extends Component {
 
 	static get properties() {
 		return {
-			incomingCallDetails: { type: Object },
-		}
+			incomingCallDetails: { type: Object }
+		};
 	}
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -46,7 +46,7 @@ export class CallerInfoBar extends Component {
 	// --------------
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.value;
+		this.ivrOption.value = e.detail.new.key;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
 
@@ -65,6 +65,12 @@ export class CallerInfoBar extends Component {
 		this.ivrOption = this.incomingCallDetails.ivrOption;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+	}
+
+
+	_getIvrOptionDisplayValue(ivrOption) {
+		const result = ivrOption.possibleValues.find((entry) => entry.key === ivrOption.value);
+		return result.value;
 	}
 
 	// ---------
@@ -98,7 +104,7 @@ export class CallerInfoBar extends Component {
 					label="Client Need"
 					display-field="value"
 					.items="${this.ivrOption.possibleValues}"
-					.value="${this.ivrOption.value}"
+					.value="${this._getIvrOptionDisplayValue(this.ivrOption)}"
 					tabindex="${getTabIndex(this.ivrOption)}"
 					?hidden=${isHidden(this.ivrOption)}
 					@value-changed="${(e) => this._onIvrOptionChanged(e)}">

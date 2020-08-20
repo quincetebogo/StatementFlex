@@ -3,22 +3,23 @@
  * This component is currently shared between the Stop Card and Insure Needs.
  */
 
-import { Component, html, css } from 'platform/elements';
-import 'platform/components/popups/Modal';
-
-import '../common/HorizonCallerInfoBar';
-import '../common/HorizonCallerDialog';
+import { Component, css, html } from 'platform/elements';
+import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty, tempFixIVROption } from '../../utils/channelServiceUtilities';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, getValue, isNullorEmpty } from '../../utils/channelServiceUtilities';
+
+import 'platform/components/popups/Modal';
+import '../common/HorizonCallerInfoBar';
+import '../common/HorizonCallerDialog';
+
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
 	END_CALL: 1,
 };
 
-const HEADER_LABEL = "Add Caller Details";
+const HEADER_LABEL = `Add Caller Details`;
 
 const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: 'Please enter all required fields before you continue',
@@ -49,12 +50,14 @@ export class AddCallerDetails extends Component {
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag();
+			}, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
 		this.validationFailed = false;
-		this.alertBanner_Message = '';
+		this.alertBanner_Message = ``;
 	}
 
 	// ----------
@@ -81,14 +84,17 @@ export class AddCallerDetails extends Component {
 
 		// Short hand references for reaching into the incoming addCallerDialog model
 		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
+
+		tempFixIVROption(this.addCallerDialog.ivrOption);
 		this.ivrOption = this.addCallerDialog.ivrOption;
+
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
-		this.nonClientRelationship.value = ''; // Initialise the value. The contract returns the label here.
+		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
 		this.backButton = this.addCallerDialog.backButton;
@@ -136,11 +142,11 @@ export class AddCallerDetails extends Component {
 
 	async callerDetailsAdded() {
 
-		let confirmedCaller = {
+		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
+			ivrOptionCode: /*this._getIvrOptionKey(*/this.incomingCallDetails.ivrOption.value /*)*/,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
@@ -150,7 +156,7 @@ export class AddCallerDetails extends Component {
 			nonClientRelationship: this.nonClientRelationship.value
 		}
 
-		let addedcallerdetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
+		const addedcallerdetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
 		if (addedcallerdetails) {
 			this.dispatchEvent(new CustomEvent('caller-added', {
 				detail: {

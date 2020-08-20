@@ -16,9 +16,16 @@
 		}
 */
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldInfo
+ * @returns
+ */
 export function isDisabled(fieldInfo) {
 	if (fieldInfo == undefined) {
-		//console.log("fieldInfo in isDisabled is undefined");
+		// console.log("fieldInfo in isDisabled is undefined");
 		return false;
 	}
 
@@ -26,13 +33,20 @@ export function isDisabled(fieldInfo) {
 		return !fieldInfo.enabled;
 	}
 
-	//console.log("fieldInfo in isDisabled does not have an enabled property");
+	// console.log("fieldInfo in isDisabled does not have an enabled property");
 	return false;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldInfo
+ * @returns
+ */
 export function isHidden(fieldInfo) {
 	if (fieldInfo === undefined) {
-		//console.log("fieldInfo in isHidden is undefined");
+		// console.log("fieldInfo in isHidden is undefined");
 		return false;
 	}
 
@@ -40,13 +54,20 @@ export function isHidden(fieldInfo) {
 		return !fieldInfo.visible;
 	}
 
-	//console.log("fieldInfo in isHidden does not have a visible property");
+	// console.log("fieldInfo in isHidden does not have a visible property");
 	return false;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldInfo
+ * @returns
+ */
 export function getTabIndex(fieldInfo) {
 	if (fieldInfo === undefined) {
-		//console.log("fieldInfo in getTabIndex is undefined");
+		// console.log("fieldInfo in getTabIndex is undefined");
 		return -1;
 	}
 
@@ -54,47 +75,124 @@ export function getTabIndex(fieldInfo) {
 		return fieldInfo.tabIndex;
 	}
 
-	//console.log("fieldInfo in getTabIndex does not have a tabIndex property");
+	// console.log("fieldInfo in getTabIndex does not have a tabIndex property");
 	return -1;
 }
 
-
+/**
+ *
+ *
+ * @export
+ * @param {*} field
+ * @param {*} criteria
+ * @returns
+ */
 export function validate(field, criteria) {
-	let re = RegExp(criteria);
+	const re = RegExp(criteria);
 
 	if (re.test(field)) {
 		return field;
 	}
-	else {
-		return 0;
-	}
+
+	return 0;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldInfo
+ * @returns
+ */
 export function getValue(fieldInfo) {
 	if (fieldInfo === undefined) {
-		//console.log("fieldInfo in getValue is undefined");
-		return '';
+		// console.log("fieldInfo in getValue is undefined");
+		return ``;
 	}
 	if (fieldInfo.hasOwnProperty('value')) {
-		return !fieldInfo.value ? '' : fieldInfo.value;
+		return !fieldInfo.value ? `` : fieldInfo.value;
 	}
-	//console.log("fieldInfo in getValue does not have a value property");
-	return '';
+	// console.log("fieldInfo in getValue does not have a value property");
+	return ``;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldInfo
+ * @returns
+ */
 export function getPossibleValues(fieldInfo) {
 	if (fieldInfo === undefined) {
-		//console.log("fieldInfo in getPossibleValues is undefined");
+		// console.log("fieldInfo in getPossibleValues is undefined");
 		return [];
 	}
+
 	if (fieldInfo.hasOwnProperty('possibleValues')) {
 		return !fieldInfo.possibleValues ? [] : fieldInfo.possibleValues;
 	}
 
-	//console.log("fieldInfo in getPossibleValues does not have a possibleValues property");
+	// console.log("fieldInfo in getPossibleValues does not have a possibleValues property");
 	return [];
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {*} fieldValue
+ * @returns
+ */
 export function isNullorEmpty(fieldValue) {
-	return fieldValue === "" || fieldValue === null || fieldValue === undefined;
+	return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+}
+
+/**
+ *
+ *
+ * @export
+ * @param {*} ivrOption
+ * @returns
+ */
+export function tempFixIVROptionValue(ivrOption) {
+	if (ivrOption === undefined) {
+		return;
+	}
+
+	if (ivrOption.hasOwnProperty(`value`)) {
+		if (ivrOption.value === `Stop Card`) {
+			ivrOption.value = `1`;
+		}
+
+		if (ivrOption.value === `Insure`) {
+			ivrOption.value = `2`;
+		}
+	}
+}
+
+/**
+ * T
+ *
+ * @export
+ * @param {*} ivrOption
+ * 
+ */
+export function tempFixIVROption(ivrOption) {
+	if (ivrOption === undefined) {
+		return;
+	}
+
+	if (ivrOption.hasOwnProperty('possibleValues')) {
+		ivrOption.possibleValues = [
+			{
+				key: `1`, value: `Stop Card`
+			},
+			{
+				key: `2`, value: `Insure`
+			}
+		];
+	}
+
+	tempFixIVROptionValue(ivrOption);
 }
