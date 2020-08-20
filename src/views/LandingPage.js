@@ -57,7 +57,10 @@ export class LandingPage extends View {
 			"incidentReferenceNumber": ``,
 			"incidentRecId": ``,
 			"agentTelephoneNumber": ``,
-			"ivrOptionCode": ``
+			"ivrOptionCode": ``,
+			"ivrOption": {
+				"possibleValues": []
+			}
 		};
 
 		this.serviceCallHelper = new ServiceCallHelper(
@@ -128,23 +131,46 @@ export class LandingPage extends View {
 	}
 
 	async _acceptCall(newCallInfo) {
-		console.log("landing page - _acceptCall()");
+		console.log(`landing page - _acceptCall()`);
 
 
 		this.errorHandled = false;
-
-
-		if (newCallInfo.IVROptionCode === `2`) {
-			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
-			return;
-		}
 
 		// Check the incoming call to see if it is a verified or unverified number
 		const acceptedCall = await this.serviceCallHelper.asyncCall(
 			this.channelService.acceptCall(newCallInfo),
 			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
 		);
+
+
+		if (newCallInfo.IVROptionCode === `2`) {
+			// Temp Fix
+			this.incomingCallDetails.ivrOption = {
+				possibleValues: [
+					{
+						key: `1`, value: `Stop Card`
+					},
+					{
+						key: `2`, value: `Insure`
+					}
+				],
+				value: `Insure`
+			};
+
+			this._AddCallInfo(this.incomingCallDetails, newCallInfo);
+			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+			return;
+		}
+
+		// Temp Fix
+		acceptedCall.ivrOption.possibleValues = [
+			{
+				key: `1`, value: `Stop Card`
+			},
+			{
+				key: `2`, value: `Insure`
+			}
+		];
 
 		// Based on need and verfication status, dispatch to the appropriate dialog
 		if (this.channelService.isConfirmedCaller(acceptedCall)) {
@@ -352,6 +378,7 @@ export class LandingPage extends View {
 		else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
 			return html`
 				<horizon-insure-search-client
+					.unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">

@@ -19,11 +19,11 @@ export class EndCallSession extends Component {
 		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
-				"key": "StopCard",
+				"key": "1",
 				"value": "Stop Card"
 			},
 			{
-				"key": "Insure",
+				"key": "2",
 				"value": "Insure"
 			}
 		];

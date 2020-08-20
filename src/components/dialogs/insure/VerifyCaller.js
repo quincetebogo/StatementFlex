@@ -34,14 +34,14 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
+		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
-				"key": "StopCard",
+				"key": "1",
 				"value": "Stop Card"
 			},
 			{
-				"key": "Insure",
+				"key": "2",
 				"value": "Insure"
 			}
 		];
