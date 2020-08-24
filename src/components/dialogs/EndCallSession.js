@@ -1,18 +1,17 @@
-import { Component, html, css } from 'platform/elements';
-
-import 'platform/components/popups/Modal';
-import '../common/HorizonLabel';
-import '../common/HorizonSelect';
-import '../common/HorizonRadioButtonsContainer';
-
+import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { isNullorEmpty } from '../../utils/channelServiceUtilities';
+
+import 'platform/components/popups/Modal';
+import '../common/HorizonLabel';
+import '../common/HorizonSelect';
+import '../common/HorizonRadioButtonsContainer';
 import '../common/HorizonCallerDialog';
 
-const HEADER_LABEL = "End Call Session";
+const HEADER_LABEL = `End Call Session`;
 
 export class EndCallSession extends Component {
 
@@ -24,20 +23,21 @@ export class EndCallSession extends Component {
 	constructor() {
 		super();
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
+		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
-				"key": "StopCard",
-				"value": "Stop Card"
+				"key": `StopCard`,
+				"value": `Stop Card`
 			},
 			{
-				"key": "Insure",
-				"value": "Insure"
+				"key": `Insure`,
+				"value": `Insure`
 			}
 		];
-		this.voiceReferenceNumber = "34567893";
-		this.ivrOptionCode = "Insure";
-		this.incomingTelephoneNumber = "071 679 7003";
+
+		this.voiceReferenceNumber = `34567893`;
+		this.ivrOptionCode = `Insure`;
+		this.incomingTelephoneNumber = `071 679 7003`;
 
 		this.incomingCallDetails = {};
 		this.endCallReasons = [];
@@ -56,7 +56,7 @@ export class EndCallSession extends Component {
 			incomingCallDetails: { type: Object },
 			endCallReasons: { type: Array },
 			isReassigned: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -65,15 +65,17 @@ export class EndCallSession extends Component {
 	async connectedCallback() {
 
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
+			},
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
-		//this._fetchEndCallReasons();
+		// this._fetchEndCallReasons();
 
-		let endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
+		const endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
 
 		if (endCallDialog) {
 			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
@@ -86,11 +88,11 @@ export class EndCallSession extends Component {
 	// --------------
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
 	_onReasonSelected() {
-		this.dispatchEvent(new CustomEvent('on-reason-set', { detail: { endCallReason: this.endCallReason } }));
+		this.dispatchEvent(new CustomEvent(`on-reason-set`, { detail: { endCallReason: this.endCallReason } }));
 	}
 
 	_onValueChanged(e) {
@@ -109,8 +111,8 @@ export class EndCallSession extends Component {
 
 	async _fetchEndCallReasons() {
 
-		this.incomingCallDetails.ivrOptionCode = "1"; //Hardcoded for now
-		let endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
+		this.incomingCallDetails.ivrOptionCode = `1`; // Hardcoded for now
+		const endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
 
 		if (endCallDialog) {
 			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
@@ -118,7 +120,7 @@ export class EndCallSession extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -213,9 +215,8 @@ export class EndCallSession extends Component {
 
 			.radio-button {
 				margin-top: 15px;
-			}
-		`];
-
+			}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -246,7 +247,9 @@ export class EndCallSession extends Component {
 			<horizon-radio-button 
 				class="radio-button"
 				.radioButtonsAvailable="${this.endCallReasons}"
-				@value-change="${(e) => { this._onValueChanged(e) }}">
+				@value-change="${(e) => {
+				this._onValueChanged(e);
+			}}">
 			</horizon-radio-button>
 		`;
 	}
@@ -275,9 +278,9 @@ export class EndCallSession extends Component {
 		if (!this.isBusy) {
 			return html``;
 		}
-		else
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 
-window.customElements.define(`horizon-end-call-session`, EndCallSession)
+window.customElements.define(`horizon-end-call-session`, EndCallSession);

@@ -18,7 +18,7 @@ export class HorizonChannelService {
 
 	constructor() {
 
-		//channel url settings to be acquired from back end and set in config files
+		// channel url settings to be acquired from back end and set in config files
 		this.channelUrlSetting = `serviceURIs.channelServiceUrl`;
 		this.version = `v1`;
 	}
