@@ -172,27 +172,25 @@ export function tempFixIVROptionValue(ivrOption) {
 }
 
 /**
- * T
- *
+ * This function must be stripped out. It populates the provided ivrOption with a list of possible values.
+ * This is only required until we have a channel service contract in place providing this functionality
  * @export
- * @param {*} ivrOption
- * 
+ * @param {*} ivrOption An ivrOptiun object containing an array of possible values
+ * @returns {undefined}
  */
 export function tempFixIVROption(ivrOption) {
 	if (ivrOption === undefined) {
 		return;
 	}
 
-	if (ivrOption.hasOwnProperty('possibleValues')) {
+	if (Object.prototype.hasOwnProperty.call(ivrOption, `possibleValues`)) {
 		ivrOption.possibleValues = [
 			{
-				key: `1`, value: `Stop Card`
+				key: `StopCard`, value: `Stop Card`
 			},
 			{
-				key: `2`, value: `Insure`
+				key: `Insure`, value: `Insure`
 			}
 		];
 	}
-
-	tempFixIVROptionValue(ivrOption);
 }

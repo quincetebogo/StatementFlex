@@ -104,18 +104,14 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		// Listening for events from the Desktop Agent
-		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
-
-		DesktopAgentService.setRegistrationUrl(registrationUrl);
-		DesktopAgentService.getValidationData();
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
 
-		let nextView = this.horizonViewManager.getCurrentView();
+		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
