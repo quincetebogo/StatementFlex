@@ -66,7 +66,8 @@ export class LandingPage extends View {
 		);
 
 		this.eventAggregator.subscribe(`new-call`, (event) => this._onNewCall(event));
-		this.eventAggregator.subscribe("prompt-start-desktopagent", () => this._onPromptStartDesktopAgent());
+		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
+		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._onPromptStartDesktopAgent());
 	}
 
 	// ----------
@@ -102,6 +103,12 @@ export class LandingPage extends View {
 	// EVENT HANDLERS
 	// --------------
 
+	_onDesktopAgentup() {
+		if (this.renderMode === RENDER_MODE.START_AGENT) {
+			this.renderMode = -1;
+		}
+	}
+
 	_onPromptStartDesktopAgent() {
 		this.renderMode = RENDER_MODE.START_AGENT;
 	}
@@ -109,9 +116,13 @@ export class LandingPage extends View {
 	async _onNewCall(newCallInfo) {
 		console.log("landing page - _onNewCall(): creating incident");
 
-		let incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
-			() => { this._toggleBusyFlag() },
-			(ex) => { this.landingPageErrorHandler(ex, "createIncident") }
+		const incident = await IncidentManagementService.getInstance().createIncident(newCallInfo,
+			() => {
+				this._toggleBusyFlag()
+			},
+			(ex) => {
+				this.landingPageErrorHandler(ex, `createIncident`)
+			}
 		);
 
 		if (incident) {
