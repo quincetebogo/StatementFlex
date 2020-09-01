@@ -62,6 +62,7 @@ export class LandingPage extends View {
 		);
 
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
+		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
 		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._onPromptStartDesktopAgent());
 	}
 
@@ -97,6 +98,12 @@ export class LandingPage extends View {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_onDesktopAgentup() {
+		if (this.renderMode === RENDER_MODE.START_AGENT) {
+			this.renderMode = RENDER_MODE.PAGE_ONLY;
+		}
+	}
 
 	_onPromptStartDesktopAgent() {
 		this.renderMode = RENDER_MODE.START_AGENT;
