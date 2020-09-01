@@ -84,6 +84,9 @@ export class DesktopAgentService {
 		const eventData = JSON.parse(event.data);
 
 		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
+			if (this.connectionTries >= 3) {
+				this.eventAggregator.publish(`desktop-agent-up`, {});
+			}
 			this.connectionTries = 0;
 			return;
 		}
@@ -155,7 +158,7 @@ export class DesktopAgentService {
 				break;
 			case 1:
 				console.log(`Event Source State: OPEN`);
-				this.connectionTries = 0;
+				// this.connectionTries = 0;
 				break;
 			case 2:
 				this.connectionTries++;
@@ -173,7 +176,7 @@ export class DesktopAgentService {
 		}
 
 		if (this.connectionTries >= 3) {
-			this._promptForDesktopAgent()
+			this._promptForDesktopAgent();
 		}
 	}
 
@@ -254,7 +257,7 @@ export class DesktopAgentService {
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
-		if (NavigationContext.getInstance().current.route.name === `landing-page` /*&& !this.onCall*/) {
+		if (this._landingPageActive()) {
 			// If Landing Page => publish event
 			console.log(`_handleIncomingCall: on landing page - publishing call event`);
 
@@ -273,13 +276,20 @@ export class DesktopAgentService {
 	}
 
 	_promptForDesktopAgent() {
-		if (NavigationContext.getInstance().current.route.name === `landing-page` && !this.onCall) {
+		if (this._landingPageActive()) {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
-			this.connectionTries = 0;
-		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
+			// this.connectionTries = 0;
+		} else if (this._productLandingPagesActive()) {
 			this.HorizonRouter.navigateToLandingPage();
 		}
 	}
 
+	_productLandingPagesActive() {
+		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
+	}
+
+	_landingPageActive() {
+		// TODO: Restore onCall check once all screens for insure etc. are properly wired up again
+		return NavigationContext.getInstance().current.route.name === `landing-page`; /* && !this.onCall */
+	}
 }
