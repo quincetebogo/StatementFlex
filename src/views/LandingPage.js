@@ -135,6 +135,7 @@ export class LandingPage extends View {
 
 		newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
 		newCallInfo.IncidentRecUd = incident.incidentRecId;
+		newCallInfo.IVROptionCode = `1`;
 
 		this.errorHandled = false;
 
@@ -145,7 +146,7 @@ export class LandingPage extends View {
 		);
 
 		if (acceptedCall) {
-			_dispatchCall(acceptedCall, newCallInfo);
+			this._dispatchCall(acceptedCall, newCallInfo);
 		} else {
 			console.log(`Failed to accept call`);
 		}
@@ -156,11 +157,11 @@ export class LandingPage extends View {
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
-			case `Insure`: {
+			case `Insure`:
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
-			}
-			case `StopCard`: {
+				break;
+			case `1`: // StopCard
 				// Based on need and verfication status, dispatch to the appropriate dialog
 				if (this.channelService.isConfirmedCaller(acceptedCall)) {
 					this.confirmedCaller = acceptedCall;
@@ -193,7 +194,7 @@ export class LandingPage extends View {
 					// we flag the call that we tied to take as complete...
 					this.desktopAgentService.callComplete();
 				}
-			}
+				break;
 			default:
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
