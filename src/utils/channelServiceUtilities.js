@@ -160,13 +160,13 @@ export function tempFixIVROptionValue(ivrOption) {
 		return;
 	}
 
-	if (ivrOption.hasOwnProperty(`value`)) {
+	if (Object.prototype.hasOwnProperty.call(ivrOption, `value`)) {
 		if (ivrOption.value === `Stop Card`) {
-			ivrOption.value = `1`;
+			ivrOption.value = `StopCard`;
 		}
 
 		if (ivrOption.value === `Insure`) {
-			ivrOption.value = `2`;
+			ivrOption.value = `Insure`;
 		}
 	}
 }

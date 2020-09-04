@@ -23,30 +23,30 @@ const CLIENT_TYPE = {
 	NON_CLIENT: 1
 }
 
-//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	REQUIRED_FIELDS_EMPTY: 'All fields are required',
+	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: 'The ID/Passport number not found. This is not a valid ID/Passport number',
-			FIELD_ERROR: 'ID/Passport number not found'
+			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: 'The foreign passport number not found. This is not a valid foreign passport number',
-			FIELD_ERROR: 'Foreign passport number not found'
+			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: 'The account number not found. This is not a valid account number',
-			FIELD_ERROR: 'Account number not found'
+			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: 'The reference number not found. This is not a valid reference number',
-			FIELD_ERROR: 'Reference number not found'
+			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: 'The cellphone number not found. This is not a verified Capitec number',
-			FIELD_ERROR: 'Cellphone number not found'
+			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
 }
@@ -54,31 +54,31 @@ const ERROR_MESSAGES = {
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
-		FIELD_ERROR: 'ID Number must be 13 characters long',
-		ALERT_BANNER: 'Incorrect ID/Passport number'
+		FIELD_ERROR: `ID Number must be 13 characters long`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
 		PATTERN: /^/,
-		FIELD_ERROR: ''
+		FIELD_ERROR: ``
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: 'Account number must be 10 characters long',
-		ALERT_BANNER: 'Incorrect Account number'
+		FIELD_ERROR: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
 		PATTERN: /^[0-9]{6}$/,
-		FIELD_ERROR: 'Reference number must be 6 characters long',
-		ALERT_BANNER: 'Incorrect Reference number'
+		FIELD_ERROR: `Reference number must be 6 characters long`,
+		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
 		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: 'Enter a 10 digit cellphone number',
-		ALERT_BANNER: 'Incorrect Capitec cellphone number'
+		FIELD_ERROR: `Enter a 10 digit cellphone number`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
 	}
 }
 
-const HEADER_LABEL = "Search Caller Details";
+const HEADER_LABEL = `Search Caller Details`;
 
 export class InsureSearchClient extends Component {
 
@@ -95,14 +95,15 @@ export class InsureSearchClient extends Component {
 		this.isBusy = false;
 		this.clientType = -1;
 		this.errMessage = {
-			searchType: "",
-			searchValue: ""
-		}
-		this.alertBanner_Message = "";
+			searchType: ``,
+			searchValue: ``
+		};
+
+		this.alertBanner_Message = ``;
 
 		this.headerLabel = HEADER_LABEL;
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
+		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.identificationMethods = [
 			{
 				"key": "0",
@@ -195,7 +196,7 @@ export class InsureSearchClient extends Component {
 	async _onSearchClient() {
 
 		if (this._validaeFields()) {
-			let searchClient = {
+			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
@@ -227,11 +228,11 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onContinue() {
-		//TODO: Add non client details comes here
+		// TODO: Add non client details comes here
 	}
 
 	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
+		this.dispatchEvent(new CustomEvent(`call-ended`, { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
 	}
 
 	_onEndCall() {
