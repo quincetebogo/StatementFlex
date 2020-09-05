@@ -1,13 +1,14 @@
-import { Component, html, css } from 'platform/elements';
-
-import './HorizonLabel';
-import './HorizonSelect';
+import { Component, css, html } from 'platform/elements';
 
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
+import './HorizonLabel';
+import './HorizonSelect';
 
+/**
+ * The Horizon Caller Info Bar is presented at the top of many Horizon Dialogs.
+ */
 export class CallerInfoBar extends Component {
 
 
@@ -19,14 +20,21 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
+		this.need = null;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 *
+	 * @property {Object} {incomingCallDetails} - Incoming Caller Information (see models/IncomingCallDetails for layout)
+	 */
 	static get properties() {
 		return {
+
 			incomingCallDetails: { type: Object }
 		};
 	}
@@ -46,8 +54,14 @@ export class CallerInfoBar extends Component {
 	// --------------
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.key;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+		this.dispatchEvent(new CustomEvent(`on-need-changed`, {
+			detail: {
+				old: this.need,
+				new: e.detail.new.key
+			}
+		}));
+
+		this.need = e.detail.new.key;
 	}
 
 	// --------------
@@ -62,14 +76,16 @@ export class CallerInfoBar extends Component {
 		// Setup shorthand references into the confirmedCaller object that either
 		// passed into this dialog or returned to this dialog after a Search.
 
-		this.ivrOption = this.incomingCallDetails.ivrOption;
+		this.need = this.incomingCallDetails.ivrOption.value;
+		this.possibleNeedValues = this.incomingCallDetails.ivrOption.possibleValues;
+
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 	}
 
 
-	_getIvrOptionDisplayValue(ivrOption) {
-		const result = ivrOption.possibleValues.find((entry) => entry.key === ivrOption.value);
+	_getNeedDisplayValue(need) {
+		const result = this.possibleNeedValues.find((entry) => entry.key === need);
 		return result.value;
 	}
 
@@ -85,7 +101,8 @@ export class CallerInfoBar extends Component {
 			${CALLERINFOBAR_CSS}
 			${HORIZON_CALLER_DIALOG_HEADER_CSS}
 
-			`];
+			`
+		];
 	}
 
 	_mobileTemplate() {
@@ -96,29 +113,21 @@ export class CallerInfoBar extends Component {
 			<div class="call-details-bar">
 				<horizon-label
 					label="Reference Number" 
-					value = "${this.incidentReferenceNumber}"
-					tabindex="${getTabIndex(this.incidentReferenceNumber)}"
-					?hidden=${isHidden(this.incidentReferenceNumber)}>
+					value = "${this.incidentReferenceNumber}">
 				</horizon-label>
 				<horizon-select
 					label="Client Need"
 					display-field="value"
-					.items="${this.ivrOption.possibleValues}"
-					.value="${this._getIvrOptionDisplayValue(this.ivrOption)}"
-					tabindex="${getTabIndex(this.ivrOption)}"
-					?hidden=${isHidden(this.ivrOption)}
+					.items="${this.possibleNeedValues}"
+					.value="${this._getNeedDisplayValue(this.need)}"
 					@value-changed="${(e) => this._onIvrOptionChanged(e)}">
 				</horizon-select>
 				<horizon-label
 					label="Incoming Number"
-					value="${this.incomingTelephoneNumber}"
-					tabindex="${getTabIndex(this.incomingTelephoneNumber)}"
-					?hidden=${isHidden(this.incomingTelephoneNumber)}>
+					value="${this.incomingTelephoneNumber}">
 				</horizon-label>
 			</div>`;
 	}
-
-
 }
 
 window.customElements.define(`horizon-caller-info-bar`, CallerInfoBar);

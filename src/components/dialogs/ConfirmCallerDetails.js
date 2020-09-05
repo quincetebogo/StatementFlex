@@ -276,7 +276,15 @@ export class ConfirmCallerDetails extends Component {
 
 	_getBirthdate() {
 		const birthdate = this.birthdate.value;
-		const dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
+		let dob = null;
+
+		if (birthdate instanceof Date) {
+			dob = birthdate;
+		} else if (birthdate) {
+			dob = new Date(birthdate);
+		} else {
+			dob = null;
+		}
 
 		const months = [
 			`January`, `February`, `March`, `April`, `May`, `June`,
