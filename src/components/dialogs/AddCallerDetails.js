@@ -4,7 +4,7 @@
  */
 
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty, tempFixIVROption } from '../../utils/channelServiceUtilities';
+import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from '../../utils/channelServiceUtilities';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -17,20 +17,20 @@ import './EndCallSession';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
-	END_CALL: 1,
+	END_CALL: 1
 };
 
 const HEADER_LABEL = `Add Caller Details`;
 
 const ERROR_MESSAGE = {
-	REQUIRED_FIELDS_EMPTY: 'Please enter all required fields before you continue',
-	INVALID_CELLPHONE_NUMBER: 'Cellphone number must be 10 digits'
-}
+	REQUIRED_FIELDS_EMPTY: `Please enter all required fields before you continue`,
+	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`
+};
 
 const REGEX_CELLPHONE = {
 	PATTERN: /^[0-9]{10}$/,
-	ERR_MESSAGE: 'Incorrect cellphone number'
-}
+	ERR_MESSAGE: `Incorrect cellphone number`
+};
 
 export class AddCallerDetails extends Component {
 
@@ -52,19 +52,28 @@ export class AddCallerDetails extends Component {
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => {
-				this._toggleBusyFlag();
-			}, // ServiceCallHelper will toggle the busy flag
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
+			},
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
 		this.validationFailed = false;
-		this.alertBanner_Message = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} confirmedCaller - Caller info for verified client.
+	 * @property {Object} incomingCallDetails - Incoming call information
+     * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof AddCallerDetails
+	 */
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
@@ -73,7 +82,7 @@ export class AddCallerDetails extends Component {
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
 			validationFailed: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -86,7 +95,6 @@ export class AddCallerDetails extends Component {
 		// Short hand references for reaching into the incoming addCallerDialog model
 		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
 
-		tempFixIVROption(this.addCallerDialog.ivrOption);
 		this.ivrOption = this.addCallerDialog.ivrOption;
 
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
@@ -108,7 +116,6 @@ export class AddCallerDetails extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
 
@@ -117,18 +124,17 @@ export class AddCallerDetails extends Component {
 	// --------------
 
 	_onKeyPress(e) {
-		if (e.detail.new != "") {
-			this[e.currentTarget.id].errorMessage = "";
+		if (e.detail.new !== ``) {
+			this[e.currentTarget.id].errorMessage = ``;
 		}
 		this.validationFailed = false;
 		this.requestUpdate();
 	}
 
 	_valueChanged(e) {
-		if (typeof e.detail.new == "object") {
+		if (typeof e.detail.new === `object`) {
 			this[e.currentTarget.id].value = e.detail.new.value;
-		}
-		else {
+		} else {
 			this[e.currentTarget.id].value = e.detail.new;
 		}
 		this.validationFailed = false;
@@ -147,29 +153,29 @@ export class AddCallerDetails extends Component {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: /*this._getIvrOptionKey(*/this.incomingCallDetails.ivrOption.value /*)*/,
+			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
-			nonClientFullName: this.firstNameTextField.value + ' ' + this.surnameTextField.value,
+			nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
 			nonClientCellPhone: this.cellPhoneTextField.value,
-			nonClientIDNumber: '',
+			nonClientIDNumber: ``,
 			nonClientRelationship: this.nonClientRelationship.value
-		}
+		};
 
 		const addedcallerdetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
 		if (addedcallerdetails) {
-			this.dispatchEvent(new CustomEvent('caller-added', {
+			this.dispatchEvent(new CustomEvent(`caller-added`, {
 				detail: {
 					clientProfileDetails: addedcallerdetails,
-					incomingCallDetails: this.incomingCallDetails,
-				},
+					incomingCallDetails: this.incomingCallDetails
+				}
 			}));
 		}
 	}
 
 	_onBackButtonClick() {
-		this.dispatchEvent(new CustomEvent('on-back', {
+		this.dispatchEvent(new CustomEvent(`on-back`, {
 			detail: {
 				ivrOptionValue: this.ivrOption.value
 			}
@@ -177,7 +183,7 @@ export class AddCallerDetails extends Component {
 	};
 
 	onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', {
+		this.dispatchEvent(new CustomEvent(`call-ended`, {
 			detail: {
 				confirmedCaller: {},
 				endCallReason: reason.detail.endCallReason
@@ -186,8 +192,10 @@ export class AddCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+		this.addCallerDialog.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
 
 	_onEndCall() {
@@ -205,40 +213,37 @@ export class AddCallerDetails extends Component {
 	// ---------------
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
 	validateData() {
-		for (let key in this.nonClientInformation) {
-			let field = this.nonClientInformation[key];
-			//When the field is required and it doesn't have any value - assigning error message
-			if (field.required && !field.value) {
-				this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
-				this.validationFailed = true;
-				this.alertBanner_Message = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+		for (const key in this.nonClientInformation) {
+			if (Object.prototype.hasOwnProperty.call(this.nonClientInformation, key)) {
+				const field = this.nonClientInformation[key];
+				// When the field is required and it doesn't have any value - assigning error message
+				if (field.required && !field.value) {
+					this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
+					this.validationFailed = true;
+					this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+				}
 			}
 		}
 
-		if (!isNullorEmpty(this.cellPhoneTextField.value)
-			&& !RegExp(REGEX_CELLPHONE.PATTERN, 'g').test(this.cellPhoneTextField.value)) {
+		if (!isNullorEmpty(this.cellPhoneTextField.value) &&
+			!RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField.value)) {
 			this.cellPhoneTextField.errorMessage = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
 			this.validationFailed = true;
-			this.alertBanner_Message = REGEX_CELLPHONE.ERR_MESSAGE;
+			this.alertBannerMessage = REGEX_CELLPHONE.ERR_MESSAGE;
 
 		}
 		return this.validationFailed;
 	}
 
-	/**
+	/*
 	 * Temproary method to return error message
 	 */
 	getErrorMessage(field) {
-		return field && field.errorMessage ? field.errorMessage : '';
-	}
-
-	_getIvrOptionKey(ivrOption) {
-		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
-		return result.key;
+		return field && field.errorMessage ? field.errorMessage : ``;
 	}
 
 	// ---------
@@ -296,9 +301,9 @@ export class AddCallerDetails extends Component {
 					--theme-alert-banner-icon-margin-right: 15px;
 					
 					margin: 14px 16px 0px 17px;
-					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));	
-				}
-			`];
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+				}`
+		];
 	}
 
 	render() {
@@ -308,7 +313,8 @@ export class AddCallerDetails extends Component {
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
 								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}">
+								@on-end-call="${() => this._onEndCall()}"
+								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body" class="main">
 							${this.renderErrorMessage()}
 							${this.renderAddCallerDetails()}
@@ -320,14 +326,16 @@ export class AddCallerDetails extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
+			default:
 		}
 	}
 
 	renderLoadingIndicator() {
-		if (!this.isBusy)
+		if (!this.isBusy) {
 			return html``;
-		else
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderErrorMessage() {
@@ -335,7 +343,7 @@ export class AddCallerDetails extends Component {
 			return html`
 				<capitec-alert-banner 
 								type="error" 
-								label="${this.alertBanner_Message}">
+								label="${this.alertBannerMessage}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -384,7 +392,7 @@ export class AddCallerDetails extends Component {
 				</div>
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
-									label="Choose relationship type (Optional)"									
+									label="Choose relationship type (Optional)"
 									value="${getValue(this.nonClientRelationship)}"
 									.items="${this.nonClientRelationship.possibleValues}"
 									@value-changed="${(e) => this._valueChanged(e)}"
@@ -409,7 +417,7 @@ export class AddCallerDetails extends Component {
 								tabindex="${getTabIndex(this.backButton)}"
 								@click="${(e) => this._onBackButtonClick()}">
 				</capitec-button>
-				<capitec-button	id="id-confirm-button"
+				<capitec-button id="id-confirm-button"
 								type="primary"
 								label="Confirm"
 								?hidden=${isHidden(this.confirmButton)}

@@ -23,22 +23,6 @@ export class EndCallSession extends Component {
 	constructor() {
 		super();
 
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		/* this.ivrOptions = [
-			{
-				"key": `StopCard`,
-				"value": `Stop Card`
-			},
-			{
-				"key": `Insure`,
-				"value": `Insure`
-			}
-		];
-
-		this.voiceReferenceNumber = `34567893`;
-		this.ivrOptionCode = `Insure`;
-		this.incomingTelephoneNumber = `071 679 7003`;
- */
 		this.incomingCallDetails = {};
 		this.endCallReasons = [];
 		this.isBusy = false;

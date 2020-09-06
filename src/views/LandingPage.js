@@ -134,8 +134,7 @@ export class LandingPage extends View {
 		console.log(`landing page - _acceptCall()`);
 
 		newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
-		newCallInfo.IncidentRecUd = incident.incidentRecId;
-		newCallInfo.IVROptionCode = `1`;
+		newCallInfo.IncidentRecId = incident.incidentRecId;
 
 		this.errorHandled = false;
 
@@ -158,10 +157,13 @@ export class LandingPage extends View {
 
 		switch (newCallInfo.IVROptionCode) {
 			case `Insure`:
+				// Temporary code until the contract is available for loading the client/non-client search dialog
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
+				this.incomingCallDetails.ivrOption.value = `Insure`;
+				this.unVerifiedCaller = acceptedCall;
 				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 				break;
-			case `1`: // StopCard
+			case `StopCard`: // StopCard
 				// Based on need and verfication status, dispatch to the appropriate dialog
 				if (this.channelService.isConfirmedCaller(acceptedCall)) {
 					this.confirmedCaller = acceptedCall;
@@ -353,6 +355,7 @@ export class LandingPage extends View {
 
 	_renderUnverifiedUser() {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
+			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}"
@@ -361,6 +364,7 @@ export class LandingPage extends View {
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
 		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
+			console.log(`render search caller for insure`);
 			return html`
 				<horizon-insure-search-client
 					.unverifiedCaller="${this.unVerifiedCaller}"

@@ -69,12 +69,11 @@ export class HorizonChannelService {
 	}
 
 	// endCallSession
-	async endCall(incidentRecId, reasonCode) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/EndCallerSession`,
-			{
-				"incidentRecId": incidentRecId,
-				"endReason": reasonCode,
-			});
+	endCall(incidentRecId, reasonCode) {
+		return this._getClient().post(`/clientcare/card/${this.version}/EndCallerSession`, {
+			"incidentRecId": incidentRecId,
+			"endReason": reasonCode
+		});
 	}
 
 	// stopCardRequest
