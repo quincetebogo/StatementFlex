@@ -3,7 +3,7 @@
  *
  */
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isHidden, isNullorEmpty, tempFixIVROption } from '../../../utils/channelServiceUtilities';
+import { getTabIndex, isHidden, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
