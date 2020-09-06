@@ -3,7 +3,7 @@
  * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
  */
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isDisabled, isHidden, tempFixIVROption } from '../../utils/channelServiceUtilities';
+import { getTabIndex, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
@@ -93,7 +93,6 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		tempFixIVROption(this.confirmedCaller.ivrOption);
 		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
@@ -126,29 +125,23 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === `2`) {
+		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
 			this._fetchInsureDetails();
 		} else {
 			this._fetchClientCards();
 		}
 	}
 
-	async _fetchInsureDetails() {
-		// TODO: Service implementation comes here
+	_fetchInsureDetails() {
+		this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
 	}
 
 	async _fetchClientCards() {
-
-		if (this.incomingCallDetails.ivrOptionCode === `2`) {
-			this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
-			return;
-		}
-
 		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
+			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
@@ -165,7 +158,7 @@ export class ConfirmCallerDetails extends Component {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
+						ivrOptionCode: this.incomingCallDetails.ivrOption.value,
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						incidentRecId: this.incidentRecId,
 						agentTelephoneNumber: this.agentTelephoneNumber
@@ -173,6 +166,8 @@ export class ConfirmCallerDetails extends Component {
 					clientProfileDetails: clientProfileDetails
 				}
 			}));
+		} else {
+			// TODO: Handle Identify Caller failing
 		}
 	}
 
@@ -206,16 +201,14 @@ export class ConfirmCallerDetails extends Component {
 		}));
 	}
 
-    /*
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+		this.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
-    */
 
 	_onSearchClick() {
 
-		if (this.incomingCallDetails.ivrOptionCode === `2`) {
+		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
@@ -236,7 +229,6 @@ export class ConfirmCallerDetails extends Component {
 
 		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
 
-		tempFixIVROption(this.confirmedCaller.ivrOption);
 		this.ivrOption = this.confirmedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
@@ -297,13 +289,6 @@ export class ConfirmCallerDetails extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-
-	/*
-	_getIvrOptionKey(ivrOption) {
-		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
-		return result.key;
-	}
-    */
 
 	_onEndCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
@@ -410,7 +395,8 @@ export class ConfirmCallerDetails extends Component {
 					<horizon-caller-dialog 
 								.incomingCallDetails="${this.incomingCallDetails}"
 								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}">
+								@on-end-call="${() => this._onEndCall()}"
+								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this.renderAddCallerDetails()}
