@@ -136,7 +136,6 @@ export class SearchClientDetailsComponent extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		tempFixIVROption(this.incomingCallDetails.ivrOption);
 		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
 
 		if (this.channelService.isConfirmedCaller(this.unverifiedCaller)) {
