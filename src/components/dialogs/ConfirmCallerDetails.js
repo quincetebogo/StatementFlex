@@ -71,8 +71,8 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} [confirmedCaller] - Caller info for verified client.
-	 * @property {Object} [callerInfo]      - Incoming call information
+	 * @property {Object} [confirmedCaller] - Information on confirmed client.
+	 * @property {Object} [incomingCallDetails] - Incoming call information
 	 *
 	 * @readonly
 	 * @static
@@ -80,9 +80,9 @@ export class ConfirmCallerDetails extends Component {
 	 */
 	static get properties() {
 		return {
-			isBusy: { type: Boolean },
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
+			isBusy: { type: Boolean },
 			renderMode: { type: Number }
 		};
 	}
@@ -93,7 +93,6 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
 	}
@@ -107,7 +106,7 @@ export class ConfirmCallerDetails extends Component {
 		const callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
-			ivrOption: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
+			ivrOption: this.incomingCallDetails.ivrOption.value,
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
@@ -119,7 +118,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onAddCallerDetailsReturn(data) {
-		this.ivrOption.value = data.detail.ivrOptionValue;
+		this.confirmedCaller.ivrOption.value = data.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOption.value = data.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOptionCode = data.detail.ivrOptionValue;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -202,7 +203,8 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new;
+		this.ConfirmCallerDetails.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
 
@@ -227,9 +229,8 @@ export class ConfirmCallerDetails extends Component {
 		// Setup shorthand references into the confirmedCaller object that either
 		// passed into this dialog or returned to this dialog after a Search.
 
+		// Confirmed caller shortcut referencews
 		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
-
-		this.ivrOption = this.confirmedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
 		this.callerInformation = this.confirmedCaller.callerInformation;
@@ -242,10 +243,13 @@ export class ConfirmCallerDetails extends Component {
 		this.searchClientButton = this.confirmedCaller.searchClientButton;
 		this.endCallSessionButton = this.confirmedCaller.endCallSessionButton;
 		this.confirmButton = this.confirmedCaller.confirmButton;
+		this.ivrOption = this.confirmedCaller.ivrOption;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+
+		this.incomingCallDetails.ivrOption.value = this.confirmedCaller.ivrOption.value;
 	}
 
 	_getLanguagePreference() {

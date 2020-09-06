@@ -32,9 +32,9 @@ export class HorizonCallerDialog extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {String} {headerLabel} - The label string for the dialog heading
-	 * @property {Boolean} {displayButton=true} - Wheather to display the End Call button or not 
-	 * @property {Object} {incomingCallDetails} - Incoming Caller Information (see models/IncomingCallDetails)
+	 * @property {String} headerLabel - The label string for the dialog heading
+	 * @property {Boolean} [displayButton=true] - Whether to display the End Call button or not 
+	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails)
 	 * 
 	 * @readonly
 	 * @static

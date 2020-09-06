@@ -30,7 +30,7 @@ export class CallerInfoBar extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 *
-	 * @property {Object} {incomingCallDetails} - Incoming Caller Information (see models/IncomingCallDetails for layout)
+	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails for layout)
 	 */
 	static get properties() {
 		return {

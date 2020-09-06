@@ -94,12 +94,20 @@ export class SearchClientDetailsComponent extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} unverifiedCaller  - Incoming caller without a verified telephone number
+	 * @property {Object} incomingCallDetails - Incoming call information
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof SearchClientDetailsComponent
+	 */
 	static get properties() {
 		return {
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
 			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
+			isBusy: { type: Boolean },
+			errMessage: { type: Object },
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String }
 		};
