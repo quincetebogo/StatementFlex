@@ -6,6 +6,7 @@ import { Component, html, css } from 'platform/elements';
 import '../../common/HorizonOptionButton';
 import '../../common/HorizonCallerDialog';
 import './VerifyCallerSecurityQuestions';
+import '../EndCallSession';
 
 import { HorizonRouter } from '../../../shell/HorizonRouter';
 
@@ -34,14 +35,14 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
+		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
-				"key": "StopCard",
+				"key": "1",
 				"value": "Stop Card"
 			},
 			{
-				"key": "Insure",
+				"key": "2",
 				"value": "Insure"
 			}
 		];
@@ -360,10 +361,11 @@ export class VerifyCaller extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 }
 

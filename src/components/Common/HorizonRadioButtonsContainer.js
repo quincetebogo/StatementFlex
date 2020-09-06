@@ -57,9 +57,14 @@ export class HorizonRadioButtonContainer extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onValueChange(event) {
+	_onValueChange(event, item) {
 		this.dispatchEvent(new CustomEvent(`value-change`, {
-			detail: {}
+			detail: {
+				old: event.detail.old,
+				new: event.detail.new,
+				key: item.key,
+				value: item.value
+			}
 		}));
 		event.stopPropagation();
 	}
@@ -121,7 +126,7 @@ export class HorizonRadioButtonContainer extends Component {
 				<capitec-radio
 							class="radio-button-label"
 							label="${item.value}"
-							@value-change="${this._onValueChange}">
+							@value-change="${(event) => this._onValueChange(event, item)}">
 				</capitec-radio>
 			</capitec-group>
 		`;

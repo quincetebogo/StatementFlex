@@ -1,5 +1,6 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from '../shell/HorizonViewManager';
 
+import { Configuration } from 'platform/Configuration';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { NavigationContext } from 'platform/NavigationContext';
@@ -20,8 +21,8 @@ import { validate } from '../utils/channelServiceUtilities';
  *             disconnected. The call must not present until the agent returns to the landing page.
  * 
  * Scenario 2: The agent has returned to the  "Landing Page" set of screens. An incomming call must
- *			   be accepted immediately. 
- *			   
+ *              be accepted immediately. 
+ *
  * Scenario 3: Similar to scenario 1. The agent has not completed handling the previous call. A new 
  *             call comes in and drops before the agent returns to the landing page. A subsequent
  *             call comes in before the agent returns to the landing page. Only the latest call 
@@ -30,13 +31,13 @@ import { validate } from '../utils/channelServiceUtilities';
  * 
  * EVENTS RAISED:
  * 
- * new-call						- Notify the subscriber of the details of an incoming call
- * prompt-start-desktopagent	- Notify the subscriber that the Desktop Agent Service is down
+ * new-call                     - Notify the subscriber of the details of an incoming call
+ * prompt-start-desktopagent    - Notify the subscriber that the Desktop Agent Service is down
  * 
  * EVENTS SUBSCRIBED
  * 
- * landing-page-loaded			- Informs this class that the UI is on the landing page and 
- * 								  therefore calls may be accepted.
+ * landing-page-loaded          - Informs this class that the UI is on the landing page and 
+ *                                therefore calls may be accepted.
  * 
  */
 export class DesktopAgentService {
@@ -59,7 +60,9 @@ export class DesktopAgentService {
 		this.onCall = false; // Indicates that the UI is still handling a call
 		this.connectionTries = 0; // Retry count for detecting Desktop Agent down
 
-		DesktopAgentService.getValidationData();
+		this.registrationUrl = null;
+
+		this._setValidationData();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
@@ -75,14 +78,21 @@ export class DesktopAgentService {
 
 	/**
 	 * Event handler for the SSE event from the Desktop Agent Service
-	 * 
-	 * @param {*} event 
+	 *
+	 * @private
+	 * @param {*} event Server Side Event from the Destkop Agent Service Application
+	 * @returns {undefined}
+	 * @memberof DesktopAgentService
 	 */
-	async _onNewCall(event) {
+	_onNewCall(event) {
 		console.log(`_onNewCall: new call event received`);
+
+		// We have received an event so we must be connected to the Desktop Agent
+		this.connectionTries = 0;
 
 		const eventData = JSON.parse(event.data);
 
+		// Do nothing with hearbeats. They are just to keep the connecction alive
 		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
 			if (this.connectionTries >= 3) {
 				this.eventAggregator.publish(`desktop-agent-up`, {});
@@ -92,9 +102,6 @@ export class DesktopAgentService {
 		}
 
 		const newCallEvent = new NewCallEvent();
-
-		// We have received an event so we must be connected to the Desktop Agent
-		this.connectionTries = 0;
 
 		try {
 			// Copy the information we require out of the incoming event into a new object.
@@ -107,10 +114,7 @@ export class DesktopAgentService {
 			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
 
-			// newCallEvent.IncidentReferenceNumber = validate(eventData.IncidentReferenceNumber, DesktopAgentService.incidentReferenceNumberValidation);
-			// newCallEvent.IncidentRecId = eventData.IncidentRecNo;
-
-			newCallEvent.IVROptionCode = eventData.IVROptionCode;
+			newCallEvent.IVROptionCode = this._mapIvrOption(eventData.IVROptionCode);
 			newCallEvent.Date = eventData.Date;
 
 			console.log(`_onNewCall: event data validated`);
@@ -127,9 +131,8 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
-			await this._handleIncomingCall();
-		}
-		catch (err) {
+			this._handleIncomingCall();
+		} catch (err) {
 			console.log(err);
 		}
 	}
@@ -138,6 +141,10 @@ export class DesktopAgentService {
 	 * Event that gets received when the UI returns to the landing page. If there is a
 	 * call pending (i.e. a call came in before we returned to the landing page) then 
 	 * take it immediately.
+	 * 
+	 * @private
+	 * @returns {undefined}
+	 * @memberof DesktopAgentService
 	 */
 	_onLandingPageLoaded() {
 		this._handleIncomingCall();
@@ -147,9 +154,13 @@ export class DesktopAgentService {
 	 * Re-connect to the Desktop Agent when the connection is closed.
 	 * Notify the user if unable to connect/re-connect within a 
 	 * specified number of retries.
-	 */
+	 * 
+	 * @private
+	 * @returns {undefined}
+	 * @memberof DesktopAgentService
+ 	 */
 	_onError() {
-		// console.log("Desktop Agent in error state");
+		// console.log(`Desktop Agent in error state`);
 
 		switch (this.eventSource.readyState) {
 			case 0:
@@ -169,7 +180,7 @@ export class DesktopAgentService {
 		}
 
 		if (this.eventSource.readyState !== 0) {
-			// console.log("Closing and re-opening Desktop Agent Event Source");
+			// console.log(`Closing and re-opening Desktop Agent Event Source`);
 			// Close the event source and then re-open it.
 			this.eventSource.close();
 			this.open();
@@ -193,16 +204,19 @@ export class DesktopAgentService {
 	// PUBLIC METHODS
 	// --------------
 
-	static setRegistrationUrl(url) {
-		// TODO: Load from config in constructor and get rid of method
-		DesktopAgentService.registrationUrl = url;
-	}
+	/**
+	 * Registers for Server Side Events with the Desktop Agent Applicaton.
+	 *
+	 * @returns {undefined}
+	 * @memberof DesktopAgentService
+	 */
+	async open() {
+		if (!this.registrationUrl) {
+			this.registrationUrl = await Configuration.getInstance().getSetting(`DesktopAgent.registrationUrl`);
+		}
 
-	open() {
-		// console.log("Connecting to Desktop Agent");
-
-		this.eventSource = new EventSource(`${DesktopAgentService.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener(`new-call`, async (event) => this._onNewCall(event));
+		this.eventSource = new EventSource(`${this.registrationUrl}?eventId=${this.lastEventId}`);
+		this.eventSource.addEventListener(`new-call`, event => this._onNewCall(event));
 
 		this.eventSource.onerror = () => {
 			this._onError();
@@ -219,33 +233,41 @@ export class DesktopAgentService {
 	 * We maintain a flag (this.onCall) to prevent a new call from interrupting an incomplete call session.
 	 * The UI must invoke callComplete() once a call session has been completed in order to handle any
 	 * new incoming call.
+	 * *
+	 * @memberof DesktopAgentService
+	 * @returns {undefined}
 	 */
 	callComplete() {
 		this.onCall = false;
 		this._handleIncomingCall();
 	}
 
-	static getValidationData() {
-		// TODO: Make channel service call to retrieve validation data
-		// TODO: these validation criteria needs to come from the channel service
-		// TODO: Move into constructor/class initialization
-		DesktopAgentService.incomingTelephoneNumberValidation = '^\\+?[0-9][0-9]{6,14}'; // E164 telephone number format (minimum of 7 digits, maximum of 15)
-		DesktopAgentService.voiceReferenceNumberValidation = '^[0-9]{20}';	// Avaya specific. Needs to be revised when adding more incoming channels.
-		DesktopAgentService.agentTelephoneNumberValidation = '^[1-9][0-9]{3,5}';	// Dialplan as configured on Avaya
-		DesktopAgentService.vdnValidation = '^[1-9][0-9]{5}';	// Dialplan as configured on Avaya
-		DesktopAgentService.incidentReferenceNumberValidation = '^[0-9]{1,10}'; // STrack reference numbers
-		DesktopAgentService.incidentRecIdValidation = '^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$'; // STrack rec id
-		DesktopAgentService.ivrOptionCodeValidation = '^[0-9]*';
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_toggleBusyFlag() {
+	_mapIvrOption(IvrOptionCode) {
+		switch (IvrOptionCode) {
+			case `1`: return `StopCard`;
+			case `5`: return `Insure`;
+			case `51`: return `Insure`;
+			case `52`: return `Insure`;
+			default: return `Insure`;
+		}
+
 	}
 
-	async _handleIncomingCall() {
+	_setValidationData() {
+		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{6,14}`; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; // Avaya specific. Needs to be revised when adding more incoming channels.
+		DesktopAgentService.agentTelephoneNumberValidation = `^[1-9][0-9]{3,5}`; // Dialplan as configured on Avaya
+		DesktopAgentService.vdnValidation = `^[1-9][0-9]{5}`; // Dialplan as configured on Avaya
+		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
+		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id
+		DesktopAgentService.ivrOptionCodeValidation = `^[0-9]*`;
+	}
+
+	_handleIncomingCall() {
 		console.log(`_handleIncomingCall`);
 
 		if (!this.nextCall) {
@@ -266,8 +288,7 @@ export class DesktopAgentService {
 			this.eventAggregator.publish(`new-call`, this.nextCall);
 
 			this.nextCall = null;
-		}
-		else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
+		} else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
 			// We can take a call when on a product view page (they belong to the set of landing pages)
 			// Automatically navigate to the landing page. Once on the landing page and event will fire
 			// notifying this class to take the call.

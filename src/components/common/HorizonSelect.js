@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
 /**
@@ -53,7 +53,7 @@ export class HorizonSelect extends Component {
 			popup: { type: Boolean },
 			focused: { type: Boolean },
 			disabled: { type: Boolean }
-		}
+		};
 	}
 
 	get selectedValue() {
@@ -276,8 +276,8 @@ export class HorizonSelect extends Component {
 					border-right: var(--theme-scrollbar-track-padding-right, 2px) solid transparent;
 					
 					background-clip: padding-box;
-				}
-			`]
+				}`
+		];
 	}
 
 	_mobileTemplate() {
