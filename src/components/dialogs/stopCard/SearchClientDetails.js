@@ -1,14 +1,14 @@
 /*
- *		Horizon Stop Card Search Dialog for Stop Card
+ *       Horizon Stop Card Search Dialog for Stop Card
  *
  */
-import { Component, html, css } from 'platform/elements';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { EventAggregator } from 'platform/EventAggregator';
+import { Component, css, html } from 'platform/elements';
+import { getTabIndex, isHidden, isNullorEmpty, tempFixIVROption } from '../../../utils/channelServiceUtilities';
 
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../ConfirmCallerDetails';
 import '../../common/HorizonSelect';
@@ -24,7 +24,7 @@ const RENDER_MODE = {
 	INSURE_SEARCH_CALLER: 2
 };
 
-const HEADER_LABEL = "Search Caller Details";
+const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: 'All fields are required',
@@ -35,7 +35,7 @@ const ERROR_MESSAGES = {
 	4: 'Incorrect Capitec cellphone number'
 }
 
-//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
@@ -73,20 +73,23 @@ export class SearchClientDetailsComponent extends Component {
 		RegExp();
 
 		this.errMessage = {
-			identificationMethods: "",
-			searchFieldText: ""
-		}
+			identificationMethods: ``,
+			searchFieldText: ``
+		};
+
 		this.unverifiedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
+			},
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
-		this.alertBanner_Message = '';
+		this.alertBanner_Message = ``;
 	}
 
 	// ----------
@@ -118,6 +121,8 @@ export class SearchClientDetailsComponent extends Component {
 		// Setup references into the incoming model. The following sets up references to 
 		// fields commmon to both incoming models
 		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+
+		tempFixIVROption(this.unverifiedCaller.ivrOption);
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 
@@ -125,6 +130,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		tempFixIVROption(this.incomingCallDetails.ivrOption);
 		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
 
 		if (this.channelService.isConfirmedCaller(this.unverifiedCaller)) {
@@ -147,14 +153,14 @@ export class SearchClientDetailsComponent extends Component {
 	// --------------
 
 	_onKeyPress(e) {
-		if (e.detail.new !== "") {
-			this.errMessage[e.currentTarget.id] = "";
-			this.alertBanner_Message = "";
+		if (e.detail.new !== ``) {
+			this.errMessage[e.currentTarget.id] = ``;
+			this.alertBanner_Message = ``;
 		}
 	}
 
 	_valueChanged(e) {
-		if (typeof e.detail.new === "object") {
+		if (typeof e.detail.new === `object`) {
 			this[e.currentTarget.id].value = e.detail.new.key;
 		}
 		else {
@@ -165,25 +171,24 @@ export class SearchClientDetailsComponent extends Component {
 
 	async _onSearchClick(e) {
 		if (this.validateFields()) {
-			console.log("service call");
+			console.log(`service call`);
 
-			let searchClient = {
+			const searchClient = {
 				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
 				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this._getIvrOptionKey(this.ivrOption),
+				ivrOption: /*this._getIvrOptionKey(*/ this.ivrOption.value /*)*/,
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
-			}
+			};
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
+			const identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
 				(ex) => this._handleSearchClientException(ex));
 
 			if (identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			}
-			else {
+			} else {
 				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
 				return true;
 			}
@@ -191,7 +196,7 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', {
+		this.dispatchEvent(new CustomEvent(`call-ended`, {
 			detail: {
 				unverifiedCaller: {},
 				incidentRecId: this.incidentRecId,
@@ -204,7 +209,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.ivrOption.value = e.detail.new.value;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 
-		if (e.detail.new.key === "Insure") {
+		if (e.detail.new.key === `2`) {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
 	}
@@ -222,7 +227,7 @@ export class SearchClientDetailsComponent extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent('on-client-identified', {
+		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
 			detail: {
 				identifiedClient: identifiedClient,
 				incomingCallDetails: this.incomingCallDetails
@@ -231,20 +236,20 @@ export class SearchClientDetailsComponent extends Component {
 	};
 
 	_loadSearchOptions() {
-		let clientInfo = {
+		const clientInfo = {
 			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
 			"voiceReferenceNumber": this.voiceReferenceNumber.value,
-			"ivrOptionCode": this._getIvrOptionKey(this.ivrOption),
+			"ivrOptionCode": /*this._getIvrOptionKey(*/ this.ivrOption.value /*)*/,
 			"incidentReferenceNumber": this.incidentReferenceNumber,
-			"agentTelephoneNumber": this.agentTelephoneNumber,
+			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
 		this.serviceCallHelper.call(
 			this.channelService.searchOptions(clientInfo),
 			(options) => {
-				console.log('resolved - result', options);
+				console.log(`resolved - result`, options);
 				this.identificationMethodsList = options.identificationMethods;
-				if (this.identificationMethodsList != undefined) {
+				if (this.identificationMethodsList !== undefined) {
 					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 				}
 			});
@@ -254,7 +259,7 @@ export class SearchClientDetailsComponent extends Component {
 
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
-			Object.assign(identificationMethod, identificationMethod["value"]);
+			Object.assign(identificationMethod, identificationMethod[`value`]);
 			delete identificationMethod.value;
 			return identificationMethod;
 		});
@@ -262,14 +267,14 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	validateFields() {
-		let isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
+		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
 			this.alertBanner_Message = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
 			return false;
 		}
 
-		let REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
-		let ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
+		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
+		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
 
 		if (!RegExp(REGEX_PATTERN, 'g').test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
@@ -325,10 +330,12 @@ export class SearchClientDetailsComponent extends Component {
 		return true;
 	}
 
+	/*
 	_getIvrOptionKey(ivrOption) {
-		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
+		let result = ivrOption.possibleValues.find((entry) => entry.key === ivrOption.value);
 		return result.key;
 	}
+	*/
 
 	// ---------
 	// RENDERING

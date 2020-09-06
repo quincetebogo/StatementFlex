@@ -24,7 +24,7 @@ export class EndCallSession extends Component {
 		super();
 
 		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
+		/* this.ivrOptions = [
 			{
 				"key": `StopCard`,
 				"value": `Stop Card`
@@ -38,7 +38,7 @@ export class EndCallSession extends Component {
 		this.voiceReferenceNumber = `34567893`;
 		this.ivrOptionCode = `Insure`;
 		this.incomingTelephoneNumber = `071 679 7003`;
-
+ */
 		this.incomingCallDetails = {};
 		this.endCallReasons = [];
 		this.isBusy = false;
@@ -71,6 +71,7 @@ export class EndCallSession extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
 		// this._fetchEndCallReasons();

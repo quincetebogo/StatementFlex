@@ -1,5 +1,5 @@
-import { HttpClient } from 'platform/HttpClient';
 import { Configuration } from 'platform/Configuration';
+import { HttpClient } from 'platform/HttpClient';
 
 /**
  * Channel Service Proxy (Resource Access) for Stop Card channel. This is probably badly named as other 
@@ -32,8 +32,8 @@ export class HorizonChannelService {
 	// -------------------
 
 	// callerConfirmRequest
-	async acceptCall(incomingCallData) {
-		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller`, {
+	acceptCall(incomingCallData) {
+		return this._getClient().post(`/clientcare/card/${this.version}/caller`, {
 			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
 			'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
 			'ivrOptionCode': incomingCallData.IVROptionCode,
@@ -44,7 +44,7 @@ export class HorizonChannelService {
 
 	// addCallerDetailsRequest
 	async addCallerDetails(callerData) {
-		return await this._getClient().post(`/horizon/acceptcall/${this.version}/caller/addcallerdetails`, {
+		return await this._getClient().post(`/clientcare/card/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
 			'ivrOptionCode': callerData.ivrOption,
@@ -58,7 +58,7 @@ export class HorizonChannelService {
 	// ----------------
 
 	async endCallOptions(endCallDetails) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}/Options`, {
+		return await this._getClient().post(`/clientcare/card/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
 			'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
 			'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
@@ -70,7 +70,7 @@ export class HorizonChannelService {
 
 	// endCallSession
 	async endCall(incidentRecId, reasonCode) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}`,
+		return await this._getClient().post(`/clientcare/card/${this.version}/EndCallerSession`,
 			{
 				"incidentRecId": incidentRecId,
 				"endReason": reasonCode,
@@ -79,7 +79,7 @@ export class HorizonChannelService {
 
 	// stopCardRequest
 	async stopCard(stopCardRequest) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}/StopCard`,
+		return await this._getClient().post(`/clientcare/card/${this.version}/StopCard`,
 			{
 				"cards": stopCardRequest.cards,
 				"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
@@ -92,7 +92,7 @@ export class HorizonChannelService {
 
 	// loadAssignRequest
 	async assignTeams(incidentData) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}/Assign/Teams`,
+		return await this._getClient().post(`/clientcare/card/${this.version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
 				"incidentRecId": incidentData.incidentRecId
@@ -102,7 +102,7 @@ export class HorizonChannelService {
 
 	// assignRequest
 	async assign(assignData) {
-		return await this._getClient().post(`/horizon/endcall/${this.version}/Assign`,
+		return await this._getClient().post(`/clientcare/card/${this.version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
@@ -117,7 +117,7 @@ export class HorizonChannelService {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}`, {
+		return await this._getClient().post(`/clientcare/${this.version}/LoadConfirmedClientProfile`, {
 			'incidentRecId': callerData.incidentRecId,
 			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
@@ -134,7 +134,7 @@ export class HorizonChannelService {
 
 	// searchOptionsRequest
 	async searchOptions(incomingCallData) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search/options`, {
+		return await this._getClient().post(`/clientcare/card/${this.version}/search/options`, {
 			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
 			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
 			"ivrOptionCode": incomingCallData.ivrOptionCode,
@@ -145,7 +145,7 @@ export class HorizonChannelService {
 
 	// searchForClientRequest
 	async searchCaller(clientInfo) {
-		return await this._getClient().post(`/horizon/identifycaller/${this.version}/search`, {
+		return await this._getClient().post(`/clientcare/card/${this.version}/search`, {
 			"incomingTelephoneNumber": clientInfo.incomingTelephoneNumber,
 			"voiceReferenceNumber": clientInfo.voiceReferenceNumber,
 			"ivrOptionCode": clientInfo.ivrOption,
@@ -159,13 +159,13 @@ export class HorizonChannelService {
 	// -----------------
 	// Initialise Method
 	// -----------------
-	async initialise() {
-		return await this._getClient().get(`/horizon/initialise/${this.version}`);
+	initialise() {
+		return this._getClient().get(`/clientcare/initialise/${this.version}`);
 	}
 
 	// newIncidentRequest
-	async createIncident(createIncidentRequest) {
-		return await this._getClient().post(`/horizon/initialise/${this.version}/CreateIncident`, createIncidentRequest);
+	createIncident(createIncidentRequest) {
+		return this._getClient().post(`/clientcare/initialise/${this.version}/CreateIncident`, createIncidentRequest);
 	}
 
 	// ------------------------------------------
@@ -190,8 +190,8 @@ export class HorizonChannelService {
 	// ---------------
 
 	async _getChannelUrl() {
-		//getting the channel url setting from URIs
-		let url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
+		// getting the channel url setting from URIs
+		const url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
 		console.log(url);
 		return url;
 	}

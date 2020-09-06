@@ -157,11 +157,12 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	async _stopCards(cardsToStop, callerInfo) {
-		let cardService = new CardService();
+		const cardService = new CardService();
 
-		let cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
+		const cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
 			() => this._toggleBusyFlag(),
-			(ex) => this._stopCardErrorHandler(ex));
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 
 		return cardStopResults;
 	}

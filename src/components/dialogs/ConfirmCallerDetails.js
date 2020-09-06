@@ -2,7 +2,12 @@
  * The Horizon Confirm Caller Details Dialog is used to confirming caller details of a
  * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
  */
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { getTabIndex, isDisabled, isHidden, tempFixIVROption } from '../../utils/channelServiceUtilities';
+
+import { HorizonChannelService } from '../../services/HorizonChannelService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -20,10 +25,6 @@ import '../../components/common/HorizonSelect';
 import '../common/HorizonCallerInfoBar';
 import '../common/HorizonCallerDialog';
 
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-
-import { isDisabled, isHidden, getTabIndex } from '../../utils/channelServiceUtilities';
 
 /**
  * 
@@ -37,7 +38,7 @@ const RENDER_MODE = {
 	INSURE_VERIFY_CALLER: 5
 };
 
-const HEADER_LABEL = "Confirm Caller Details";
+const HEADER_LABEL = `Confirm Caller Details`;
 
 export class ConfirmCallerDetails extends Component {
 
@@ -56,7 +57,9 @@ export class ConfirmCallerDetails extends Component {
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag();
+			}, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
@@ -81,7 +84,7 @@ export class ConfirmCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			renderMode: { type: Number }
-		}
+		};
 	}
 
 	// -------------------
@@ -90,6 +93,7 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		tempFixIVROption(this.confirmedCaller.ivrOption);
 		this.incomingCallDetails.ivrOption = this.confirmedCaller.ivrOption;
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
@@ -101,13 +105,13 @@ export class ConfirmCallerDetails extends Component {
 
 	async _onAddCallerDetails() {
 
-		let callDetails = {
+		const callDetails = {
 			incomingNumber: this.incomingTelephoneNumber.value,
 			voiceReference: this.voiceReferenceNumber.value,
-			ivrOption: this._getIvrOptionKey(this.ivrOption),
+			ivrOption: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
-		}
+		};
 
 		this.addCallerDetails = await this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callDetails));
 		if (this.addCallerDetails) {
@@ -117,52 +121,51 @@ export class ConfirmCallerDetails extends Component {
 
 	_onAddCallerDetailsReturn(data) {
 		this.ivrOption.value = data.detail.ivrOptionValue;
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this._fetchInsureDetails();
-		}
-		else {
+		} else {
 			this._fetchClientCards();
 		}
 	}
 
 	async _fetchInsureDetails() {
-		//TODO: Service implementation comes here
+		// TODO: Service implementation comes here
 	}
 
 	async _fetchClientCards() {
 
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
 			return;
 		}
 
-		let confirmedCaller = {
+		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
+			ivrOptionCode: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
 			incidentReferenceNumber: this.incidentReferenceNumber,
 			incidentRecId: this.incidentRecId,
 			agentTelephoneNumber: this.agentTelephoneNumber,
-			nonClientFullName: '',
-			nonClientCellPhone: '',
-			nonClientIDNumber: '',
-			nonClientRelationship: ''
-		}
+			nonClientFullName: ``,
+			nonClientCellPhone: ``,
+			nonClientIDNumber: ``,
+			nonClientRelationship: ``
+		};
 
-		let clientProfileDetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
+		const clientProfileDetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
 		if (clientProfileDetails) {
-			this.dispatchEvent(new CustomEvent('confirmed-caller', {
+			this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 				detail: {
 					incomingCallDetails: {
 						voiceReferenceNumber: this.voiceReferenceNumber.value,
 						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-						ivrOptionCode: this._getIvrOptionKey(this.ivrOption),
+						ivrOptionCode: /* this._getIvrOptionKey( */ this.incomingCallDetails.ivrOption.value /* ) */,
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						incidentRecId: this.incidentRecId,
 						agentTelephoneNumber: this.agentTelephoneNumber,
@@ -175,14 +178,16 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onCallCancelled(event) {
-		this.dispatchEvent(new CustomEvent('call-ended',
+		this.dispatchEvent(new CustomEvent(
+			`call-ended`,
 			{
 				detail: {
 					incidentReferenceNumber: this.incidentReferenceNumber,
 					incidentRecId: this.incidentRecId,
 					endCallReason: event.detail.endCallReason
 				}
-			}));
+			}
+		));
 	}
 
 	_onIdentifiedClient(data) {
@@ -197,22 +202,23 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onNonClientDetailsAdded(data) {
-		this.dispatchEvent(new CustomEvent('confirmed-caller', {
+		this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 			detail: data.detail
 		}));
 	}
 
+    /*
 	_onIvrOptionChanged(e) {
 		this.ivrOption.value = e.detail.new.value;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
 	}
+    */
 
 	_onSearchClick() {
 
-		if (this.incomingCallDetails.ivrOptionCode === "Insure") {
+		if (this.incomingCallDetails.ivrOptionCode === `2`) {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
-		}
-		else {
+		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
@@ -230,6 +236,8 @@ export class ConfirmCallerDetails extends Component {
 		// passed into this dialog or returned to this dialog after a Search.
 
 		this.voiceReferenceNumber = this.confirmedCaller.voiceReferenceNumber;
+
+		tempFixIVROption(this.confirmedCaller.ivrOption);
 		this.ivrOption = this.confirmedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.addCallerDetailsButton = this.confirmedCaller.addCallerDetailsButton;
@@ -253,7 +261,7 @@ export class ConfirmCallerDetails extends Component {
 		let languagePreference = this.confirmedCaller.callerInformation.languagePreference.value;
 
 		if (languagePreference === null) {
-			languagePreference = '-';
+			languagePreference = `-`;
 		}
 		return languagePreference;
 	}
@@ -262,31 +270,33 @@ export class ConfirmCallerDetails extends Component {
 		let verifiedTelephoneNumber = this.confirmedCaller.callerInformation.verifiedTelephoneNumber.value;
 
 		if (verifiedTelephoneNumber === null) {
-			verifiedTelephoneNumber = '-';
+			verifiedTelephoneNumber = `-`;
 		}
 		return verifiedTelephoneNumber;
 	}
 
 	_getBirthdate() {
-		let birthdate = this.birthdate.value;
-		console.log("Birthdate:", birthdate);
-		let dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
-		console.log("Date of birth: ", dob);
-		let months = ["January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December"];
+		const birthdate = this.birthdate.value;
+		const dob = birthdate instanceof Date ? birthdate : birthdate ? new Date(birthdate) : null;
 
-		return (`${dob.getDate()} ${months[dob.getMonth()]}`);
+		const months = [
+			`January`, `February`, `March`, `April`, `May`, `June`,
+			`July`, `August`, `September`, `October`, `November`, `December`
+		];
 
+		return `${dob.getDate()} ${months[dob.getMonth()]}`;
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
+	/*
 	_getIvrOptionKey(ivrOption) {
 		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
 		return result.key;
 	}
+    */
 
 	_onEndCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
@@ -379,7 +389,8 @@ export class ConfirmCallerDetails extends Component {
 					--theme-button-padding-bottom: 12px;
 					--theme-button-padding-left: 12px;
 				}
-			`];
+			`
+		];
 	}
 
 	_mobileTemplate() {
@@ -419,6 +430,8 @@ export class ConfirmCallerDetails extends Component {
 
 			case RENDER_MODE.INSURE_VERIFY_CALLER:
 				return html`${this.renderVerifyCallerModal()}`;
+			default:
+				return html``;
 		}
 	}
 
@@ -524,11 +537,9 @@ export class ConfirmCallerDetails extends Component {
 
 		if (!this.isBusy) {
 			return html``;
-		}
-		else
-			return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderAddCallerDetailsModal() {
@@ -546,7 +557,9 @@ export class ConfirmCallerDetails extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
+				@on-cancel="${() => {
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
@@ -579,4 +592,4 @@ export class ConfirmCallerDetails extends Component {
 
 }
 
-window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails)
+window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails);

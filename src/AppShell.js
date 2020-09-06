@@ -57,7 +57,7 @@ export class AppShell extends Shell {
 		// Adding routes to URL Routing Table
 		horizonRoutes.map(route => this.router.addRoute(route));
 
-		//Event Aggregator
+		// Event Aggregator
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
@@ -104,18 +104,14 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		// Listening for events from the Desktop Agent
-		let registrationUrl = await this.configuration.getSetting(`DesktopAgent.registrationUrl`);
-
-		DesktopAgentService.setRegistrationUrl(registrationUrl);
-		DesktopAgentService.getValidationData();
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
 
-		let nextView = this.horizonViewManager.getCurrentView();
+		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
 			this.currentView = nextView;
 		}
@@ -183,7 +179,7 @@ export class AppShell extends Shell {
 	}
 
 	_onNavigationContextUpdated() {
-		let nextView = this.horizonViewManager.getCurrentView();
+		const nextView = this.horizonViewManager.getCurrentView();
 		if (nextView !== this.currentView) {
 			this.currentView = nextView;
 		}
@@ -212,7 +208,7 @@ export class AppShell extends Shell {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	/**
 	 * Generates the component stylesheet.
@@ -269,7 +265,7 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
-				.status-bar-group{	
+				.status-bar-group{
 					display: flex;
 					flex-direction: row;
 					background-color: #333;
@@ -288,7 +284,7 @@ export class AppShell extends Shell {
 					width: 33.3%;
 					height: 60px;
 					margin: 0px;
-					align-content: center;	
+					align-content: center;
 				}
 				img{
 					margin-left: 14px;
@@ -355,10 +351,10 @@ export class AppShell extends Shell {
 	 * The platforms App Router will switch the main display (class middle) 
 	 * The Horizon View Manager will be responsible for switching other components
 	 *
-	 *		- Any additional button/toolbars
-	 *		- Left and Right hand display components
+	 *      - Any additional button/toolbars
+	 *      - Left and Right hand display components
 	 *
-	 *	The View manager will also facilitate communication between view components (i.e. between the main
+	 * The View manager will also facilitate communication between view components (i.e. between the main
 	 * display and the left, right, and toolbar components. OK, OK! I used an Oxford comma; we can fight about that another time)
 	 * 
 	 */
@@ -376,17 +372,17 @@ export class AppShell extends Shell {
 						<div class="grid-container">
 							<div class="left">
 							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
-							</div>	
+							</div>
 							<div class="middle">
 								<capitec-app-router></capitec-app-router> 
 							</div>
-							<div class="right">							
+							<div class="right">
 								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
-						</div>	
+						</div>
 					</capitec-content-box>
 					
-					<div class="status-bar-group">	
+					<div class="status-bar-group">
 						<capitec-status-bar class="status-bar" 
 											status="${this.currentStatus}" 
 											label="${this.currentMessage}">

@@ -160,7 +160,7 @@ export class InsureSearchClient extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		//Below references needs to be pulled from services, for now it's fetched from incoming call details
+		// Below references needs to be pulled from services, for now it's fetched from incoming call details
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
@@ -201,7 +201,7 @@ export class InsureSearchClient extends Component {
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: 'StopCard', //hardcoded value to demo the flow
+				ivrOption: '1', //hardcoded value to demo the flow
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			}
