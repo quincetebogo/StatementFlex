@@ -26,6 +26,7 @@ const CLIENT_TYPE = {
 //ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
+	NONCLIENT_REQUIRED_FIELDS_EMPTY: 'Name and surname must be completed',
 	REQUIRED_FIELDS_EMPTY: 'All fields are required',
 	NOT_FOUND: {
 		0: {
@@ -49,6 +50,24 @@ const ERROR_MESSAGES = {
 			FIELD_ERROR: 'Cellphone number not found'
 		}
 	}
+}
+
+const NONCLIENT_REGEX_PATTERN = {
+	nameValue: {
+		PATTERN: /^[A-Za-z]$/,
+		FIELD_ERROR: 'Enter a name',
+		ALERT_BANNER: 'Name and surname must be completed'
+	},
+	surNameValue: {
+		PATTERN: /^[A-Za-z]$/,
+		FIELD_ERROR: 'Enter a surname',
+		ALERT_BANNER: 'Name and surname must be completed'
+	},
+	cellPhoneNumberValue: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: 'Must be 10 digits',
+		ALERT_BANNER: 'Incorrect cellphone number'
+	},
 }
 
 const REGEX_PATTERNS = {
@@ -96,7 +115,10 @@ export class InsureSearchClient extends Component {
 		this.clientType = -1;
 		this.errMessage = {
 			searchType: "",
-			searchValue: ""
+			searchValue: "",
+			nameValue: "",
+			surNameValue: "",
+			cellPhoneNumberValue: ""
 		}
 		this.alertBanner_Message = "";
 
@@ -127,6 +149,9 @@ export class InsureSearchClient extends Component {
 		];
 		this.searchType = { "key": "", "value": "" };
 		this.searchValue = "";
+		this.nameValue = "";
+		this.surNameValue = "";
+		this.cellPhoneNumberValue = "";
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.channelService = HorizonChannelService.getInstance();
@@ -180,16 +205,16 @@ export class InsureSearchClient extends Component {
 			this.clientType = e.target.id === "capitecClient" ? CLIENT_TYPE.CAPITEC_CLIENT : CLIENT_TYPE.NON_CLIENT;
 		}
 		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? "Search Caller Details" : "Add Caller Details";
-		this._clearErrors();
+		this._clearErrors(e);
 	}
 
 	_valueChanged(e) {
 		this[e.currentTarget.id] = e.detail.new;
-		this._clearErrors();
+		this._clearErrors(e);
 	}
 
 	_onKeyPress(e) {
-		this._clearErrors();
+		this._clearErrors(e);
 	}
 
 	async _onSearchClient() {
@@ -227,7 +252,9 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onContinue() {
-		//TODO: Add non client details comes here
+		if (this._validateNonClientFields()) {
+			//TODO: Functionality after validation must be implemented here
+		}
 	}
 
 	_onCallCancelled(reason) {
@@ -241,6 +268,25 @@ export class InsureSearchClient extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_validateNonClientFields() {
+		let isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBanner_Message = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
+
+		if (this.cellPhoneNumberValue) {
+
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, 'g').test(this.cellPhoneNumberValue)) {
+				this.errMessage.cellPhoneNumberValue = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.FIELD_ERROR;
+				this.alertBanner_Message = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
+				return false;
+			}
+		}
+
+		return true;
+	}
 
 	_validaeFields() {
 
@@ -262,6 +308,13 @@ export class InsureSearchClient extends Component {
 		return true;
 	}
 
+	_isRequiredNonClientFieldsEmpty() {
+		this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : "";
+		this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : "";
+
+		return this.errMessage.nameValue || this.errMessage.surNameValue;
+	}
+
 	_isRequiredFieldsEmpty() {
 		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? "This is a required field" : "";
 		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? "Choose an Identification Method" : "";
@@ -269,9 +322,8 @@ export class InsureSearchClient extends Component {
 		return this.errMessage.searchValue || this.errMessage.searchType;
 	}
 
-	_clearErrors() {
-		this.errMessage.searchType = "";
-		this.errMessage.searchValue = "";
+	_clearErrors(e) {
+		this.errMessage[e.currentTarget.id] = "";
 		this.alertBanner_Message = "";
 	}
 
@@ -389,7 +441,7 @@ export class InsureSearchClient extends Component {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					
-					margin: 20px 0px 16px 0px;
+					margin: 0px 0px 16px 0px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 				}`
 		];
@@ -405,6 +457,7 @@ export class InsureSearchClient extends Component {
 								@on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							<capitec-content-box>
+								${this._renderAlertBanner()}
 								${this._renderClientType()}
 								${this._renderCapitecClientFields()}
 								${this._renderNonClientFields()}
@@ -450,7 +503,6 @@ export class InsureSearchClient extends Component {
 					<capitec-label class="search-label ${this.alertBanner_Message ? `reset-margin-bottom` : ``}"
 								   label="Search existing client">
 					</capitec-label>
-					${this._renderAlertBanner()}
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" >
 						<div class="search-field-row">
 							<capitec-select	id="searchType"
@@ -486,20 +538,33 @@ export class InsureSearchClient extends Component {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
 					<div class="search-field-row">
-						<capitec-text-field id="name" 
+						<capitec-text-field id="nameValue" 
 											label="Name"
-											hint="Required Field">
+											hint="Required Field"
+											.value="${this.nameValue}"
+											@value-changed="${(e) => this._valueChanged(e)}"
+											@key-input="${(e) => this._onKeyPress(e)}"
+											error="${this.errMessage.nameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="surname" 
+						<capitec-text-field id="surNameValue" 
 											label="Surname"
-											hint="Required Field">
+											hint="Required Field"
+											.value="${this.surNameValue}"
+											@value-changed="${(e) => this._valueChanged(e)}"
+											@key-input="${(e) => this._onKeyPress(e)}"
+											error="${this.errMessage.surNameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="cellphone"
-											label="Cellphone number (optional)">
+						<capitec-text-field id="cellPhoneNumberValue"
+											label="Cellphone number (optional)"
+											type="numeric"
+											.value="${this.cellPhoneNumberValue}"
+											@value-changed="${(e) => this._valueChanged(e)}"
+											@key-input="${(e) => this._onKeyPress(e)}"
+											error="${this.errMessage.cellPhoneNumberValue}">
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
