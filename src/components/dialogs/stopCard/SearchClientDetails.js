@@ -1,21 +1,21 @@
 /*
- *		Horizon Stop Card Search Dialog for Stop Card
+ *       Horizon Stop Card Search Dialog for Stop Card
  *
  */
-import { Component, html, css } from 'platform/elements';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { EventAggregator } from 'platform/EventAggregator';
+import { Component, css, html } from 'platform/elements';
+import { getTabIndex, isHidden, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
-import { isDisabled, isHidden, getTabIndex, isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../ConfirmCallerDetails';
 import '../../common/HorizonSelect';
 import '../insure/SearchCaller';
 
-import '../../common/HorizonCallerInfoBar';
 import '../../common/HorizonCallerDialog';
+import '../EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -23,40 +23,40 @@ const RENDER_MODE = {
 	INSURE_SEARCH_CALLER: 2
 };
 
-const HEADER_LABEL = "Search Caller Details";
+const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
-	REQUIRED_FIELDS_EMPTY: 'All fields are required',
-	0: 'Incorrect ID/Passport number',
-	1: 'Incorrect foreign passport number',
-	2: 'Incorrect account number',
-	3: 'Incorrect reference number',
-	4: 'Incorrect Capitec cellphone number'
-}
+	REQUIRED_FIELDS_EMPTY: `All fields are required`,
+	0: `Incorrect ID/Passport number`,
+	1: `Incorrect foreign passport number`,
+	2: `Incorrect account number`,
+	3: `Incorrect reference number`,
+	4: `Incorrect Capitec cellphone number`
+};
 
-//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
-		ERR_MESSAGE: 'ID Number must be 13 characters long'
+		ERR_MESSAGE: `ID Number must be 13 characters long`
 	},
 	1: {
 		PATTERN: /^/,
-		ERR_MESSAGE: ''
+		ERR_MESSAGE: ``
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: 'Account number must be 10 characters long'
+		ERR_MESSAGE: `Account number must be 10 characters long`
 	},
 	3: {
 		PATTERN: /^[0-9]{8}$/,
-		ERR_MESSAGE: 'Either it is Alphanumeric or not equal to 8 digits'
+		ERR_MESSAGE: `Either it is Alphanumeric or not equal to 8 digits`
 	},
 	4: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: 'Cellphone Number must be 10 characters long'
+		ERR_MESSAGE: `Cellphone Number must be 10 characters long`
 	}
-}
+};
 
 export class SearchClientDetailsComponent extends Component {
 
@@ -72,35 +72,46 @@ export class SearchClientDetailsComponent extends Component {
 		RegExp();
 
 		this.errMessage = {
-			identificationMethods: "",
-			searchFieldText: ""
-		}
+			identificationMethods: ``,
+			searchFieldText: ``
+		};
+
 		this.unverifiedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
+			},
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 		this.isBusy = false;
-		this.alertBanner_Message = '';
+		this.alertBannerMessage = ``;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} unverifiedCaller  - Incoming caller without a verified telephone number
+	 * @property {Object} incomingCallDetails - Incoming call information
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof SearchClientDetailsComponent
+	 */
 	static get properties() {
 		return {
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
 			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
+			isBusy: { type: Boolean },
+			errMessage: { type: Object },
 			renderMode: { type: Number },
-			alertBanner_Message: { type: String }
-		}
+			alertBannerMessage: { type: String }
+		};
 	}
 
 	// -------------------
@@ -112,11 +123,12 @@ export class SearchClientDetailsComponent extends Component {
 
 		// We can enter this dialog in two ways
 		//    1. From the Confirm Caller Dialog that the caller is not associated with the verified phone number
-		//	  2. From the Landing Page after receiving an unverified call
+		//    2. From the Landing Page after receiving an unverified call
 
 		// Setup references into the incoming model. The following sets up references to 
 		// fields commmon to both incoming models
 		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+
 		this.ivrOption = this.unverifiedCaller.ivrOption;
 		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
 
@@ -131,8 +143,7 @@ export class SearchClientDetailsComponent extends Component {
 			this._loadSearchOptions();
 
 			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
-		}
-		else {
+		} else {
 			// We are coming from the landing page/Desktop Agent event.
 			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
 			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
@@ -146,17 +157,16 @@ export class SearchClientDetailsComponent extends Component {
 	// --------------
 
 	_onKeyPress(e) {
-		if (e.detail.new !== "") {
-			this.errMessage[e.currentTarget.id] = "";
-			this.alertBanner_Message = "";
+		if (e.detail.new !== ``) {
+			this.errMessage[e.currentTarget.id] = ``;
+			this.alertBannerMessage = ``;
 		}
 	}
 
 	_valueChanged(e) {
-		if (typeof e.detail.new === "object") {
+		if (typeof e.detail.new === `object`) {
 			this[e.currentTarget.id].value = e.detail.new.key;
-		}
-		else {
+		} else {
 			this[e.currentTarget.id] = e.detail.new;
 		}
 		this.clearErrors();
@@ -164,33 +174,34 @@ export class SearchClientDetailsComponent extends Component {
 
 	async _onSearchClick(e) {
 		if (this.validateFields()) {
-			console.log("service call");
+			console.log(`service call`);
 
-			let searchClient = {
+			const searchClient = {
 				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
 				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this._getIvrOptionKey(this.ivrOption),
+				ivrOption: this.ivrOption.value,
 				identificationMethod: this.identificationMethods.value,
 				searchValue: this.searchFieldText
-			}
+			};
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
-				(ex) => this._handleSearchClientException(ex));
+			const identifiedClient = await this.serviceCallHelper.asyncCall(
+				this.channelService.searchCaller(searchClient),
+				(ex) => this._handleSearchClientException(ex)
+			);
 
 			if (identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			}
-			else {
-				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
 				return true;
 			}
 		}
 	}
 
 	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', {
+		this.dispatchEvent(new CustomEvent(`call-ended`, {
 			detail: {
 				unverifiedCaller: {},
 				incidentRecId: this.incidentRecId,
@@ -199,11 +210,11 @@ export class SearchClientDetailsComponent extends Component {
 		}));
 	}
 
-	_ivrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+	_onNeedChanged(e) {
+		this.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		if (e.detail.new.key === "Insure") {
+		if (this.ivrOption.value === `Insure`) {
 			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
 	}
@@ -221,7 +232,7 @@ export class SearchClientDetailsComponent extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent('on-client-identified', {
+		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
 			detail: {
 				identifiedClient: identifiedClient,
 				incomingCallDetails: this.incomingCallDetails
@@ -230,30 +241,31 @@ export class SearchClientDetailsComponent extends Component {
 	};
 
 	_loadSearchOptions() {
-		let clientInfo = {
+		const clientInfo = {
 			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
 			"voiceReferenceNumber": this.voiceReferenceNumber.value,
-			"ivrOptionCode": this._getIvrOptionKey(this.ivrOption),
+			"ivrOptionCode": this.ivrOption.value,
 			"incidentReferenceNumber": this.incidentReferenceNumber,
-			"agentTelephoneNumber": this.agentTelephoneNumber,
+			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
 		this.serviceCallHelper.call(
 			this.channelService.searchOptions(clientInfo),
 			(options) => {
-				console.log('resolved - result', options);
+				console.log(`resolved - result`, options);
 				this.identificationMethodsList = options.identificationMethods;
-				if (this.identificationMethodsList != undefined) {
+				if (this.identificationMethodsList !== undefined) {
 					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 				}
-			});
+			}
+		);
 	}
 
 	extractIdentificationMethods(identificationMethods) {
 
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
-			Object.assign(identificationMethod, identificationMethod["value"]);
+			Object.assign(identificationMethod, identificationMethod[`value`]);
 			delete identificationMethod.value;
 			return identificationMethod;
 		});
@@ -261,18 +273,18 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	validateFields() {
-		let isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
+		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
-			this.alertBanner_Message = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
 			return false;
 		}
 
-		let REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
-		let ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
+		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
+		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
 
-		if (!RegExp(REGEX_PATTERN, 'g').test(this.searchFieldText)) {
+		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
-			this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+			this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
 			return false;
 		}
 
@@ -281,52 +293,43 @@ export class SearchClientDetailsComponent extends Component {
 
 	isRequiredFieldsEmpty() {
 
-		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? "This is a Required field" : "";
-		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? "Choose an Identification Method" : "";
+		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? `This is a Required field` : ``;
+		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? `Choose an Identification Method` : ``;
 
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
 
 	clearErrors() {
-		this.errMessage.searchFieldText = "";
-		this.errMessage.identificationMethods = "";
-		this.alertBanner_Message = "";
+		this.errMessage.searchFieldText = ``;
+		this.errMessage.identificationMethods = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
 	_handleSearchClientException(exception) {
-		let event = {
-			from: 'UI-CS',
-			status: "error",
-			message: ""
-		}
+		const event = {
+			from: `UI-CS`,
+			status: `error`,
+			message: ``
+		};
 
 		if (exception instanceof TypeError) {
 			event.message = exception.message;
-		}
-		else if (exception instanceof HttpStatusError) {
+		} else if (exception instanceof HttpStatusError) {
 			if (exception.status === 412 || exception.status === 400) {
-				this.alertBanner_Message = ERROR_MESSAGES[this.identificationMethods.value];
+				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
 				return true;
 			}
-			else {
-				event.message = `${exception.status}: ${exception.message}`;
-			}
-		}
-		else {
+			event.message = `${exception.status}: ${exception.message}`;
+		} else {
 			event.message = `UNEXPECTED ERROR: ${exception.message}`;
 		}
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		return true;
-	}
-
-	_getIvrOptionKey(ivrOption) {
-		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
-		return result.key;
 	}
 
 	// ---------
@@ -360,7 +363,7 @@ export class SearchClientDetailsComponent extends Component {
 				}
 				.id-options{
 					text-align: justify;
-					line-height: 12px	
+					line-height: 12px
 				}
 				.search-fields{
 					margin-top: 26px;
@@ -385,8 +388,8 @@ export class SearchClientDetailsComponent extends Component {
 
 				#id-search-button {
 					--theme-button-padding-top: 12px;
-				}
-		`];
+				}`
+		];
 	}
 
 	render() {
@@ -396,7 +399,9 @@ export class SearchClientDetailsComponent extends Component {
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
 								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}">
+								@on-end-call="${() => this._onEndCall()}"
+								@on-need-changed="${(event) => this._onNeedChanged(event)}"
+								>
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -409,14 +414,16 @@ export class SearchClientDetailsComponent extends Component {
 				return html`${this.renderEndCallModal()}`;
 			case RENDER_MODE.INSURE_SEARCH_CALLER:
 				return html`${this.renderInsureSearchModal()}`;
+			default:
 		}
 	}
 
 	renderLoadingIndicator() {
-		if (!this.isBusy)
+		if (!this.isBusy) {
 			return html``;
-		else
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	renderSearchClientDetails() {
@@ -425,13 +432,13 @@ export class SearchClientDetailsComponent extends Component {
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
 			${this.renderAlertBanner()}
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" 
-						   class="search-fields ${this.alertBanner_Message ? `override-margin-top` : ``}">
+						   class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select	id="identificationMethods"
+					<capitec-select id="identificationMethods"
 									error="${this.errMessage.identificationMethods}" 
 									label="Choose identification method" 
 									class="id-options"
-									.items="${this.identificationMethods != undefined ? this.identificationMethods.possibleValues : [{ displayText: "ID Number" }]}"
+									.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
 									@value-changed="${(e) => this._valueChanged(e)}"
 									tabindex="${getTabIndex(this.identificationMethods)}"
 									?hidden=${isHidden(this.identificationMethods)}
@@ -458,9 +465,9 @@ export class SearchClientDetailsComponent extends Component {
 
 	renderAlertBanner() {
 
-		if (!isNullorEmpty(this.alertBanner_Message)) {
+		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error" label="${this.alertBanner_Message}" closable></capitec-alert-banner>
+				<capitec-alert-banner type="error" label="${this.alertBannerMessage}" closable></capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -479,10 +486,11 @@ export class SearchClientDetailsComponent extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {

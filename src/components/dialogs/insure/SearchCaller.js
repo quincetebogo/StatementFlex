@@ -1,17 +1,18 @@
 /*
- *		Horizon Insure Search Client Details Dialog
+ *     Horizon Insure Search Client Details Dialog
  *
  */
-import { Component, html, css } from 'platform/elements';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { EventAggregator } from 'platform/EventAggregator';
+import { Component, css, html } from 'platform/elements';
 
-import { isNullorEmpty, getTabIndex, isHidden } from '../../../utils/channelServiceUtilities';
-import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../../common/HorizonSelect';
 import '../../common/HorizonCallerDialog';
+import '../EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -21,83 +22,83 @@ const RENDER_MODE = {
 const CLIENT_TYPE = {
 	CAPITEC_CLIENT: 0,
 	NON_CLIENT: 1
-}
+};
 
-//ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-	NONCLIENT_REQUIRED_FIELDS_EMPTY: 'Name and surname must be completed',
-	REQUIRED_FIELDS_EMPTY: 'All fields are required',
+	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
+	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: 'The ID/Passport number not found. This is not a valid ID/Passport number',
-			FIELD_ERROR: 'ID/Passport number not found'
+			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: 'The foreign passport number not found. This is not a valid foreign passport number',
-			FIELD_ERROR: 'Foreign passport number not found'
+			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: 'The account number not found. This is not a valid account number',
-			FIELD_ERROR: 'Account number not found'
+			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: 'The reference number not found. This is not a valid reference number',
-			FIELD_ERROR: 'Reference number not found'
+			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: 'The cellphone number not found. This is not a verified Capitec number',
-			FIELD_ERROR: 'Cellphone number not found'
+			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
-}
+};
 
 const NONCLIENT_REGEX_PATTERN = {
 	nameValue: {
 		PATTERN: /^[A-Za-z]$/,
-		FIELD_ERROR: 'Enter a name',
-		ALERT_BANNER: 'Name and surname must be completed'
+		FIELD_ERROR: `Enter a name`,
+		ALERT_BANNER: `Name and surname must be completed`
 	},
 	surNameValue: {
 		PATTERN: /^[A-Za-z]$/,
-		FIELD_ERROR: 'Enter a surname',
-		ALERT_BANNER: 'Name and surname must be completed'
+		FIELD_ERROR: `Enter a surname`,
+		ALERT_BANNER: `Name and surname must be completed`
 	},
 	cellPhoneNumberValue: {
 		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: 'Must be 10 digits',
-		ALERT_BANNER: 'Incorrect cellphone number'
+		FIELD_ERROR: `Must be 10 digits`,
+		ALERT_BANNER: `Incorrect cellphone number`
 	},
-}
+};
 
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
-		FIELD_ERROR: 'ID Number must be 13 characters long',
-		ALERT_BANNER: 'Incorrect ID/Passport number'
+		FIELD_ERROR: `ID Number must be 13 characters long`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
 		PATTERN: /^/,
-		FIELD_ERROR: ''
+		FIELD_ERROR: ``
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: 'Account number must be 10 characters long',
-		ALERT_BANNER: 'Incorrect Account number'
+		FIELD_ERROR: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
 		PATTERN: /^[0-9]{6}$/,
-		FIELD_ERROR: 'Reference number must be 6 characters long',
-		ALERT_BANNER: 'Incorrect Reference number'
+		FIELD_ERROR: `Reference number must be 6 characters long`,
+		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
 		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: 'Enter a 10 digit cellphone number',
-		ALERT_BANNER: 'Incorrect Capitec cellphone number'
+		FIELD_ERROR: `Enter a 10 digit cellphone number`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
 	}
-}
+};
 
-const HEADER_LABEL = "Search Caller Details";
+const HEADER_LABEL = `Search Caller Details`;
 
 export class InsureSearchClient extends Component {
 
@@ -114,50 +115,53 @@ export class InsureSearchClient extends Component {
 		this.isBusy = false;
 		this.clientType = -1;
 		this.errMessage = {
-			searchType: "",
-			searchValue: "",
-			nameValue: "",
-			surNameValue: "",
-			cellPhoneNumberValue: ""
-		}
-		this.alertBanner_Message = "";
+			searchType: ``,
+			searchValue: ``,
+			nameValue: ``,
+			surNameValue: ``,
+			cellPhoneNumberValue: ``
+		};
+
+		this.alertBannerMessage = ``;
 
 		this.headerLabel = HEADER_LABEL;
 
-		//TODO: Remove this hardcoded values, once the channel service is ready
+		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.identificationMethods = [
 			{
-				"key": "0",
-				"value": "ID/Passport Number"
+				"key": `0`,
+				"value": `ID/Passport Number`
 			},
 			{
-				"key": "1",
-				"value": "Foreign Passport Number"
+				"key": `1`,
+				"value": `Foreign Passport Number`
 			},
 			{
-				"key": "2",
-				"value": "Account Number"
+				"key": `2`,
+				"value": `Account Number`
 			},
 			{
-				"key": "3",
-				"value": "Reference Number"
+				"key": `3`,
+				"value": `Reference Number`
 			},
 			{
-				"key": "4",
-				"value": "Verified Cellphone Number"
+				"key": `4`,
+				"value": `Verified Cellphone Number`
 			}
 		];
-		this.searchType = { "key": "", "value": "" };
-		this.searchValue = "";
-		this.nameValue = "";
-		this.surNameValue = "";
-		this.cellPhoneNumberValue = "";
+		this.searchType = { "key": ``, "value": `` };
+		this.searchValue = ``;
+		this.nameValue = ``;
+		this.surNameValue = ``;
+		this.cellPhoneNumberValue = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.channelService = HorizonChannelService.getInstance();
 
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
+			},
 			null // Don't register an exception handler, unless you need an exception handler generic to component
 		);
 	}
@@ -173,8 +177,8 @@ export class InsureSearchClient extends Component {
 			clientType: { type: Number },
 			incomingCallDetails: { type: Object },
 			unverifiedCaller: { type: Object },
-			alertBanner_Message: { type: String }
-		}
+			alertBannerMessage: { type: String }
+		};
 	}
 
 	// -------------------
@@ -184,7 +188,7 @@ export class InsureSearchClient extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		//Below references needs to be pulled from services, for now it's fetched from incoming call details
+		// Below references needs to be pulled from services, for now it's fetched from incoming call details
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
@@ -192,6 +196,8 @@ export class InsureSearchClient extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+
+		this.ivrOption = this.unverifiedCaller.ivrOption;
 
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
@@ -202,9 +208,9 @@ export class InsureSearchClient extends Component {
 
 	_clientTypeChanged(e) {
 		if (e.detail.new) {
-			this.clientType = e.target.id === "capitecClient" ? CLIENT_TYPE.CAPITEC_CLIENT : CLIENT_TYPE.NON_CLIENT;
+			this.clientType = e.target.id === `capitecClient` ? CLIENT_TYPE.CAPITEC_CLIENT : CLIENT_TYPE.NON_CLIENT;
 		}
-		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? "Search Caller Details" : "Add Caller Details";
+		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? `Search Caller Details` : `Add Caller Details`;
 		this._clearErrors(e);
 	}
 
@@ -220,35 +226,34 @@ export class InsureSearchClient extends Component {
 	async _onSearchClient() {
 
 		if (this._validaeFields()) {
-			let searchClient = {
+			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: 'StopCard', //hardcoded value to demo the flow
+				ivrOption: this.ivrOption.value,
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
-			}
+			};
 
-			let identifiedClient = await this.serviceCallHelper.asyncCall(this.channelService.searchCaller(searchClient),
-				(ex) => this._handleSearchClientException(ex));
+			const identifiedClient = await this.serviceCallHelper.asyncCall(
+				this.channelService.searchCaller(searchClient),
+				(ex) => this._handleSearchClientException(ex)
+			);
 
 			if (identifiedClient) {
-				//Service returns ivrOption as "StopCard", actually we are in "Insure".
-				identifiedClient.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
 				this._raiseOnClientIdentified(identifiedClient);
-			}
-			else {
-				let errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
-				this.alertBanner_Message = errMessages.ALERT_BANNER;
+			} else {
+				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			}
 		}
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new.value;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new.key;
+		this.ivrOption.value = e.detail.new;
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
 
 	_onContinue() {
@@ -258,7 +263,12 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent('call-ended', { detail: { unverifiedCaller: {}, endCallReason: reason.detail.endCallReason } }));
+		this.dispatchEvent(new CustomEvent(`call-ended`, {
+			detail: {
+				incidentRecId: this.incomingCallDetails.incidentReferenceNumber,
+				endCallReason: reason.detail.endCallReason
+			}
+		}));
 	}
 
 	_onEndCall() {
@@ -272,7 +282,7 @@ export class InsureSearchClient extends Component {
 	_validateNonClientFields() {
 		let isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
-			this.alertBanner_Message = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
+			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
 			return false;
 		}
 
@@ -280,7 +290,7 @@ export class InsureSearchClient extends Component {
 
 			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, 'g').test(this.cellPhoneNumberValue)) {
 				this.errMessage.cellPhoneNumberValue = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.FIELD_ERROR;
-				this.alertBanner_Message = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
+				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
 				return false;
 			}
 		}
@@ -290,18 +300,18 @@ export class InsureSearchClient extends Component {
 
 	_validaeFields() {
 
-		let isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
+		const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
-			this.alertBanner_Message = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
 			return false;
 		}
 
-		let regexValidation = REGEX_PATTERNS[this.searchType.key];
-		let REGEX_PATTERN = regexValidation.PATTERN;
+		const regexValidation = REGEX_PATTERNS[this.searchType.key];
+		const REGEX_PATTERN = regexValidation.PATTERN;
 
-		if (!RegExp(REGEX_PATTERN, 'g').test(this.searchValue)) {
+		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchValue)) {
 			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
-			this.alertBanner_Message = regexValidation.ALERT_BANNER;
+			this.alertBannerMessage = regexValidation.ALERT_BANNER;
 			return false;
 		}
 
@@ -309,42 +319,40 @@ export class InsureSearchClient extends Component {
 	}
 
 	_isRequiredNonClientFieldsEmpty() {
-		this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : "";
-		this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : "";
+		this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : ``;
+		this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : ``;
 
 		return this.errMessage.nameValue || this.errMessage.surNameValue;
 	}
 
 	_isRequiredFieldsEmpty() {
-		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? "This is a required field" : "";
-		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? "Choose an Identification Method" : "";
+		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? `This is a required field` : ``;
+		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? `Choose an Identification Method` : ``;
 
 		return this.errMessage.searchValue || this.errMessage.searchType;
 	}
 
 	_clearErrors(e) {
-		this.errMessage[e.currentTarget.id] = "";
-		this.alertBanner_Message = "";
+		this.errMessage[e.currentTarget.id] = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
 	_handleSearchClientException(exception) {
-		let event = {
-			from: 'UI-CS',
-			status: "error",
-			message: ""
-		}
+		const event = {
+			from: `UI-CS`,
+			status: `error`,
+			message: ``
+		};
 
 		if (exception instanceof TypeError) {
 			event.message = exception.message;
-		}
-		else if (exception instanceof HttpStatusError) {
+		} else if (exception instanceof HttpStatusError) {
 			event.message = `${exception.status}: ${exception.message}`;
-		}
-		else {
+		} else {
 			event.message = `UNEXPECTED ERROR: ${exception.message}`;
 		}
 
@@ -352,13 +360,8 @@ export class InsureSearchClient extends Component {
 		return true;
 	}
 
-	_getIvrOptionKey(ivrOption) {
-		let result = ivrOption.possibleValues.find((entry) => entry.value === ivrOption.value);
-		return result.key;
-	}
-
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent('on-client-identified', {
+		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
 			detail: {
 				identifiedClient: identifiedClient,
 				incomingCallDetails: this.incomingCallDetails
@@ -420,7 +423,7 @@ export class InsureSearchClient extends Component {
 				}
 				.id-options{
 					text-align: justify;
-					line-height: 12px	
+					line-height: 12px;
 				}
 				.search-field-row{
 					height: 72px;
@@ -454,7 +457,8 @@ export class InsureSearchClient extends Component {
 					<horizon-caller-dialog
 								.incomingCallDetails="${this.incomingCallDetails}"
 								.headerLabel="${this.headerLabel}"
-								@on-end-call="${() => this._onEndCall()}">
+								@on-end-call="${() => this._onEndCall()}"
+								@on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this._renderAlertBanner()}
@@ -470,14 +474,16 @@ export class InsureSearchClient extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
+			default:
 		}
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy)
+		if (!this.isBusy) {
 			return html``;
-		else
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		}
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderClientType() {
@@ -500,12 +506,12 @@ export class InsureSearchClient extends Component {
 	_renderCapitecClientFields() {
 		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
 			return html`
-					<capitec-label class="search-label ${this.alertBanner_Message ? `reset-margin-bottom` : ``}"
+					<capitec-label class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
 								   label="Search existing client">
 					</capitec-label>
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" >
 						<div class="search-field-row">
-							<capitec-select	id="searchType"
+							<capitec-select id="searchType"
 											class="id-options"
 											label="Choose identification method" 
 											.items="${this.identificationMethods}"
@@ -574,9 +580,9 @@ export class InsureSearchClient extends Component {
 
 	_renderAlertBanner() {
 
-		if (!isNullorEmpty(this.alertBanner_Message)) {
+		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error" label="${this.alertBanner_Message}" closable></capitec-alert-banner>
+				<capitec-alert-banner type="error" label="${this.alertBannerMessage}" closable></capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -600,10 +606,11 @@ export class InsureSearchClient extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				.incomingCallDetails = "${this.incomingCallDetails}">
+			</horizon-end-call-session>`;
 	}
 }
 

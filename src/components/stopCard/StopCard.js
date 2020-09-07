@@ -8,8 +8,10 @@ import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import '../dialogs/EndCallSessionReason';
+import '../dialogs/EndCallSession';
 import '../dialogs/stopCard/StopCard';
+
+import '../../components/common/HorizonRadioButtonsContainer';
 
 const COLUMNS = {
 	CARDTYPE: 'cardType',
@@ -19,7 +21,9 @@ const COLUMNS = {
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
 	CARD_STOP_MODAL: 1,
-	CARD_STOP_SUCCESS: 2
+	CARD_STOP_SUCCESS: 2,
+	END_CALLSESSION: 3,
+	ASSIGN: 4
 };
 
 const TABLE_STYLE = {
@@ -56,6 +60,7 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
+		this.isReassigned = false;
 
 		this.confirmedCaller = null; // Actually the view manager state passed in from the parent component
 	}
@@ -90,7 +95,6 @@ export class StopCard extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
-
 		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		let incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
 
@@ -107,13 +111,15 @@ export class StopCard extends Component {
 		this.callerInfo = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: incomingCallDetails.ivrOptionCode,
+			ivrOptionCode: "1",
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
 			incidentRecId: incomingCallDetails.incidentRecId,
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
-			isUnverifiedNumber: incomingCallDetails.isUnverifiedNumber
+			isUnverifiedNumber: incomingCallDetails.isUnverifiedNumber,
+			ivrOption: incomingCallDetails.ivrOption
 		};
 
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.publish('horizon-update-call_actionbar',
 			{
@@ -205,6 +211,7 @@ export class StopCard extends Component {
 	}
 
 	_onEndCallSession() {
+		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
@@ -224,6 +231,11 @@ export class StopCard extends Component {
 		// May be implemented later to render progress on endCall method
 	}
 
+	_onHandOff(e) {
+		this.isReassigned = true;
+		this.renderMode = RENDER_MODE.END_CALLSESSION;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -238,6 +250,10 @@ export class StopCard extends Component {
 			card["selected"] = false;
 			card.stopReason = STOPREASONS.CARD_LOST;
 		});
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	// ---------
@@ -303,24 +319,28 @@ export class StopCard extends Component {
 			`];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-card class="stop-card">
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
 					
-					${this.renderTitleBar()}
-					${this.renderNotifyClient()}
-					${this.renderCardDetails()}
-					${this.renderFooter()}
+					${this._renderTitleBar()}
+					${this._renderNotifyClient()}
+					${this._renderCardDetails()}
+					${this._renderFooter()}
 
 				</capitec-group>
 			</capitec-card>
-			${this.renderEndCallModal()}
-			${this.renderStopCardModal()}
+			${this._renderEndCallModal()}
+			${this._renderStopCardModal()}
+			${this._renderAssignModal()}
 		`;
 	}
 
-	renderTitleBar() {
+	_renderTitleBar() {
 		return html`<capitec-title-bar type="clear" 
 									   label="Stop Card" 
 									   row="1" 
@@ -328,7 +348,7 @@ export class StopCard extends Component {
 					</capitec-title-bar>`;
 	}
 
-	renderNotifyClient() {
+	_renderNotifyClient() {
 		return html`
 			<div class="horizon-notify-client" row="2" column="1">
 				<img src="../../images/info.svg" id="action-icon"/>
@@ -336,22 +356,22 @@ export class StopCard extends Component {
 			</div>`;
 	}
 
-	renderCardDetails() {
+	_renderCardDetails() {
 		return html`
 				<capitec-table .items="${this.cards}" row="3" column="1">
 					<capitec-table-column label=""
 										  field=""
 										  type="text"
 										  size="1064px;"
-										  .renderer="${(rowData) => this.renderRowData(rowData)}"
-										  .headerRenderer="${() => this.headerRenderer()}">
+										  .renderer="${(rowData) => this._renderRowData(rowData)}"
+										  .headerRenderer="${() => this._headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>
 				`;
 
 	}
 
-	headerRenderer() {
+	_headerRenderer() {
 		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="${TABLE_STYLE.CELL_HEIGHT}">
 						<div row="1" column="2" style="${TABLE_STYLE.HEADER_CELL}">
 							<capitec-label label="Card Type"
@@ -373,11 +393,11 @@ export class StopCard extends Component {
 	 * @returns {Object}
 	 * @memberof StopCard
 	 */
-	renderRowData(rowData) {
+	_renderRowData(rowData) {
 		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" 
 									style="${rowData.selected ? `height: 70px` : `height: 22px;`}">
 
-						${this.renderRowInput(rowData)}
+						${this._renderRowInput(rowData)}
 
 						<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
 							<capitec-label 
@@ -392,11 +412,11 @@ export class StopCard extends Component {
 									style="${TABLE_STYLE.CELL_HEIGHT}">
 							</capitec-label>
 						</div>
-						${this.renderReasonButtons(rowData)}
+						${this._renderReasonButtons(rowData)}
 					</capitec-group>`;
 	}
 
-	renderRowInput(rowData) {
+	_renderRowInput(rowData) {
 		return html`<div row="1" 
 						 column="1" 
 						 style="width: 35px; height: 22px;">
@@ -407,7 +427,7 @@ export class StopCard extends Component {
 					</div>`;
 	}
 
-	renderReasonButtons(rowData) {
+	_renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
 					<div row="2" column="2" colspan="2" style="display: flex; align-items: center;">
@@ -438,12 +458,12 @@ export class StopCard extends Component {
 		}
 	}
 
-	renderStopCardModal() {
+	_renderStopCardModal() {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card 
 					.callerInfo="${this.callerInfo}"
-					.cardsToStop="${this.cardsToStop}"			
+					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._onCardsStopped(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
 				</horizon-stop-card>
@@ -451,7 +471,7 @@ export class StopCard extends Component {
 		}
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">
@@ -464,14 +484,31 @@ export class StopCard extends Component {
 		}
 	}
 
-	renderEndCallModal() {
+	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}"
-				@on-reason-set="${async (reason) => this._onCallComplete(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
+				.incomingCallDetails = "${this.callerInfo}"
+				.isReassigned = "${this.isReassigned}">
+			</horizon-end-call-session>`;
 		}
+		return html``;
+	}
+
+	_renderAssignModal() {
+		if (this.renderMode == RENDER_MODE.ASSIGN) {
+			return html`
+				<horizon-assign-stop-card
+					.callerInfo=${this.callerInfo}
+					.cards=${this.cards}
+					@on-cancel="${() => { this.renderMode = -1 }}"
+					@on-handoff="${(e) => this._onHandOff(e)}">
+				</horizon-assign-stop-card>
+			`;
+		}
+
 		return html``;
 	}
 }
