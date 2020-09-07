@@ -12,7 +12,7 @@ import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
 import '../dialogs/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog'
-import '../dialogs/insure/AssignPayArrears'
+import '../dialogs/insure/AssignReasonSelected'
 import '../../shell/HorizonRouter';
 
 import { HorizonChannelService } from '../../services/HorizonChannelService';
@@ -195,7 +195,7 @@ export class InsureInformation extends Component {
 	}
 
 	_onAssignReasonSelected(e) {
-		this.assignReason = e.detail.assignReason;
+		this.assignReason = e.detail.reason;
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
@@ -882,10 +882,10 @@ export class InsureInformation extends Component {
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-pay-arrears
-							@on-cancel=${() => this._onCancelAssign()}
-							@on-assign=${() => this._onAssign()}>
-						</horizon-assign-pay-arrears>`;
+			return html`<horizon-assign-reason-selected
+						.selectedReason="${this.assignReason}"
+						@on-cancel=${() => this._onCancelAssign()}>
+					</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
