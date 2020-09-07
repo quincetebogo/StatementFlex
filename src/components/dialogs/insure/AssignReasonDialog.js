@@ -62,17 +62,8 @@ export class AssignReasonDialog extends Component {
 		this.checked = !this.checked;
 
 		if (this.checked) {
-			this.alertBannerMessage = '';
-
-			if (e.detail.selectedReason === "System error") {
-				this.selected = 0;
-			}
-			else if (e.detail.selectedReason === "Client is not in arrears, but was told they are") {
-				this.selected = 1;
-			}
-			else if (e.detail.selectedReason === "Refunds") {
-				this.selected = 2;
-			}
+			this.alertBannerMessage = ``;
+			this.selected = e.detail.key;
 		}
 
 	}

@@ -8,7 +8,7 @@ import '../dialogs/insure/ChooseAnUpdateOption';
 import '../dialogs/insure/SolutionPayArrears';
 import './InsureHowToClaim';
 import '../dialogs/insure/SolutionEmailPlan';
-import '../dialogs/insure/EndCallSession';
+import '../dialogs/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignReasonSelected';
 
@@ -79,6 +79,19 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
 		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+
+		this.incomingCallDetails.ivrOption = {
+			possibleValues: [
+				{
+					"key": "1",
+					"value": "Stop Card"
+				},
+				{
+					"key": "2",
+					"value": "Insure"
+				}
+			]
+		}
 	}
 
 	// ---------------
@@ -116,6 +129,11 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_onCancelAssign() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssign() {
+		this.isReassigned = true;
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	// ---------
@@ -357,8 +375,9 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`<horizon-end-call-session 
-							@on-cancel="{${() => this._onCancelEndCall()}}">
+			return html`<horizon-end-call-session
+							@on-cancel="{${() => this._onCancelEndCall()}}"
+							.incomingCallDetails = "${this.incomingCallDetails}">
 						</horizon-end-call-session>`;
 		}
 		return html``;
@@ -379,6 +398,7 @@ export class ThirdPartyOrExisingClient extends Component {
 			return html`<horizon-assign-reason-selected
 							.selectedReason = "${this.selectedAssignReason}"
 							@on-cancel=${() => this._onCancelAssign()}>
+							@on-assign=${() => this._onAssign()}>
 						</horizon-assign-reason-selected>`;
 		}
 		return html``;

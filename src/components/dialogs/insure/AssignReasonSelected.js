@@ -1,7 +1,7 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
-const ALERT_ERROR_MESSAGE = "Choose a team to continue.";
-const ERROR_MESSAGE = "Required field";
+const ALERT_ERROR_MESSAGE = `Choose a team to continue.`;
+const ERROR_MESSAGE = `Required field`;
 
 export class AssignReasonSelected extends Component {
 
@@ -13,19 +13,19 @@ export class AssignReasonSelected extends Component {
 		super();
 		this.selectedReason = null;
 		this.assignDialogDetails = {
-			dialogHeader: "",
+			dialogHeader: ``,
 			dialogImage: null,
-			dialogText: "",
+			dialogText: ``
 		};
 		this.teamsList = [
 
-			{ code: '0', text: 'VR34345' },
-			{ code: '1', text: 'VR34556' },
-			{ code: '2', text: 'VR34567' }
+			{ code: `0`, text: `VR34345` },
+			{ code: `1`, text: `VR34556` },
+			{ code: `2`, text: `VR34567` }
 		];
-		this.alertBannerMessage = "";
-		this.selectedTeam = "";
-		this.errMessage = "";
+		this.alertBannerMessage = ``;
+		this.selectedTeam = ``;
+		this.errMessage = ``;
 	}
 
 	// --------------
@@ -39,7 +39,7 @@ export class AssignReasonSelected extends Component {
 			alertBannerMessage: { type: String },
 			errMessage: { type: String },
 			selectedTeam: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -50,20 +50,20 @@ export class AssignReasonSelected extends Component {
 		super.connectedCallback();
 
 		switch (this.selectedReason) {
-			case 0:
-				this.assignDialogDetails.dialogHeader = "Assign - System Error";
-				this.assignDialogDetails.dialogImage = "../../images/insure/system-error.svg";
-				this.assignDialogDetails.dialogText = "System error occurred. Assign to the relevant team for assistance.";
+			case `0`:
+				this.assignDialogDetails.dialogHeader = `Assign - System Error`;
+				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-system-error.svg`;
+				this.assignDialogDetails.dialogText = `System error occurred. Assign to the relevant team for assistance.`;
 				break;
-			case 1:
-				this.assignDialogDetails.dialogHeader = "Assign - Pay Arrears";
-				this.assignDialogDetails.dialogImage = "../../images/insure/pay-arrears-error.svg";
-				this.assignDialogDetails.dialogText = "Client has been informed that they are not in arrears";
+			case `1`:
+				this.assignDialogDetails.dialogHeader = `Assign - Pay Arrears`;
+				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-pay-arrears.svg`;
+				this.assignDialogDetails.dialogText = `Client has been informed that they are not in arrears`;
 				break;
-			case 2:
-				this.assignDialogDetails.dialogHeader = "Assign - Refund";
-				this.assignDialogDetails.dialogImage = "../../images/insure/assign-refund.svg";
-				this.assignDialogDetails.dialogText = "System error occurred. Assign to the relevant team for assistance.";
+			case `2`:
+				this.assignDialogDetails.dialogHeader = `Assign - Refund`;
+				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-refund.svg`;
+				this.assignDialogDetails.dialogText = `System error occurred. Assign to the relevant team for assistance.`;
 				break;
 			default:
 				break;
@@ -75,23 +75,21 @@ export class AssignReasonSelected extends Component {
 	// --------------
 
 	_onCancel() {
-		console.log("cancelling pay arrears");
-		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
 	_valueChanged(e) {
 		this.selectedTeam = e.detail.new.value;
-		this.alertBannerMessage = "";
-		this.errMessage = "";
+		this.alertBannerMessage = ``;
+		this.errMessage = ``;
 	}
 
 	_onAssignClick() {
-		if (this.selectedTeam === "") {
+		if (this.selectedTeam === ``) {
 			this.alertBannerMessage = ALERT_ERROR_MESSAGE;
 			this.errMessage = ERROR_MESSAGE;
-		}
-		else {
-			this.dispatchEvent(new CustomEvent('team-selected', {}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`team-selected`, {}));
 		}
 	}
 
@@ -208,8 +206,8 @@ export class AssignReasonSelected extends Component {
 					--theme-alert-banner-font-weight: 500;
 					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-				}
-		`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -244,7 +242,7 @@ export class AssignReasonSelected extends Component {
 
 		return html`
 		<capitec-group layout="vertical" halign="center" valign="top"  gap="clear">
-			<img src="${this.assignDialogDetails.dialogImage}" class="${(this.selectedReason === 1) ? "image-pay-arrear" : "image-error"}"/>
+			<img src="${this.assignDialogDetails.dialogImage}" class="${this.selectedReason === 1 ? `image-pay-arrear` : `image-error`}"/>
 
 			<capitec-group class="error-group" layout="horizontal">
 			<capitec-icon size="small" icon="status/error-trans"></capitec-icon>
@@ -272,9 +270,6 @@ export class AssignReasonSelected extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onCancel()}">
 				</capitec-button>
 
@@ -282,9 +277,6 @@ export class AssignReasonSelected extends Component {
 					id="id-assign-button"
 					type="primary"
 					label="Assign"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onAssignClick()}">
 				</capitec-button>
 			</capitec-group>
@@ -292,4 +284,4 @@ export class AssignReasonSelected extends Component {
 	}
 }
 
-window.customElements.define(`horizon-assign-reason-selected`, AssignReasonSelected)
+window.customElements.define(`horizon-assign-reason-selected`, AssignReasonSelected);

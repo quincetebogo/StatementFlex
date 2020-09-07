@@ -1,10 +1,17 @@
-import { Component, html, css } from 'platform/elements';
-
-import '../common/HorizonCallerInfoBar';
+import { Component, css, html } from 'platform/elements';
 
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
+import '../common/HorizonCallerInfoBar';
+
+/**
+ * A Dialog with a Caller Information Bar. This is a common dialog format in the Horizon Project.
+ * 
+ * @export
+ * @class HorizonCallerDialog
+ * @extends {Component}
+ */
 export class HorizonCallerDialog extends Component {
 
 	// --------------
@@ -14,17 +21,31 @@ export class HorizonCallerDialog extends Component {
 	constructor() {
 		super();
 		this.displayButton = true;
+		this.headerLabel = ``;
+		this.incomingCallDetails = null;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {String} headerLabel - The label string for the dialog heading
+	 * @property {Boolean} [displayButton=true] - Whether to display the End Call button or not 
+	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails)
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof HorizonCallerDialog
+	 */
 	static get properties() {
 		return {
 			headerLabel: { type: String },
-			displayButton: { type: Boolean }
-		}
+			displayButton: { type: Boolean },
+			incomingCallDetails: { type: Object }
+		};
 	}
 
 	// -------------------
@@ -41,7 +62,13 @@ export class HorizonCallerDialog extends Component {
 	// --------------
 
 	_onEndCall() {
-		this.dispatchEvent(new CustomEvent('on-end-call', {}));
+		this.dispatchEvent(new CustomEvent(`on-end-call`, {}));
+	}
+
+	_onNeedChanged(event) {
+		this.dispatchEvent(new CustomEvent(`on-need-changed`, {
+			detail: event.detail
+		}));
 	}
 
 	// --------------
@@ -85,8 +112,8 @@ export class HorizonCallerDialog extends Component {
 				--theme-container-padding-bottom: 0px;
 				--theme-container-padding-left: 0px;
 				--theme-container-padding-right: 0px;
-			}
-		`];
+			}`
+		];
 
 	}
 
@@ -104,7 +131,7 @@ export class HorizonCallerDialog extends Component {
 						</capitec-label>
 						<capitec-spacer></capitec-spacer>
 						<capitec-button
-									style="visibility:${!this.displayButton ? "hidden" : "visible"}"
+									style="visibility:${!this.displayButton ? `hidden` : `visible`}"
 									label="End Call"
 									@click="${() => this._onEndCall()}">
 							<img class="end-call-icon" src="../../images/hangup.svg"/>
@@ -128,11 +155,12 @@ export class HorizonCallerDialog extends Component {
 	_renderCallInformation() {
 		return html`
 			<horizon-caller-info-bar
-							.incomingCallDetails="${this.incomingCallDetails}">
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-need-changed=${(event) => this._onNeedChanged(event)}>
 			</horizon-caller-info-bar>
 			`;
 	}
 
 }
 
-window.customElements.define(`horizon-caller-dialog`, HorizonCallerDialog)
+window.customElements.define(`horizon-caller-dialog`, HorizonCallerDialog);

@@ -1,5 +1,5 @@
 import { Component, html, css } from 'platform/elements';
-import './HorizonRadioButtonsContainer';
+import '../common/HorizonRadioButtonsContainer';
 
 const ERROR_MESSAGE = "Choose a feedback reason to continue.";
 

@@ -1,5 +1,5 @@
-import { SecurityContext } from 'platform/SecurityContext';
 import { HorizonChannelService } from './HorizonChannelService';
+import { SecurityContext } from 'platform/SecurityContext';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
 
 export class IncidentManagementService {
@@ -29,22 +29,20 @@ export class IncidentManagementService {
 	// PUBLIC METHODS
 	// --------------
 
-	async createIncident(incidentData, toggleBusyFunc, errorHandler = null) {
-		let createIncidentRequest = {
+	createIncident(incidentData, toggleBusyFunc, errorHandler = null) {
+		const createIncidentRequest = {
 			"networkUserName": SecurityContext.getInstance().username,
 			"cli": incidentData.IncomingTelephoneNumber,
 			"vdn": incidentData.VDN,
 			"ucid": incidentData.VoiceReferenceNumber
 		};
 
-		//createIncidentRequest.vdn = '211377';
-
-		let serviceCallHelper = new ServiceCallHelper(
+		const serviceCallHelper = new ServiceCallHelper(
 			toggleBusyFunc,
 			errorHandler
 		);
 
-		return await serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest));
+		return serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest));
 	}
 
 

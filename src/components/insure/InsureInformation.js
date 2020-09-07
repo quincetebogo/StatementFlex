@@ -10,10 +10,13 @@ import 'platform/components/navigation/AppRouter';
 
 import '../dialogs/insure/SolutionCalculatePremium'
 import '../dialogs/insure/NonAdvisoryDisclaimer'
-import '../dialogs/insure/EndCallSession'
+import '../dialogs/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog'
 import '../dialogs/insure/AssignReasonSelected'
 import '../../shell/HorizonRouter';
+
+import { HorizonChannelService } from '../../services/HorizonChannelService';
+import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import { getTabIndex } from '../../utils/channelServiceUtilities';
 
@@ -63,6 +66,15 @@ export class InsureInformation extends Component {
 		];
 		this.displayNotification = true;
 		this.displayToast = true;
+		this.isReassigned = false;
+
+		this.incomingCallDetails = {
+			incomingTelephoneNumber: "0640987370",
+			voiceReferenceNumber: "34567893",
+			ivrOptionCode: "1",
+			incidentReferenceNumber: "123456",
+			agentTelephoneNumber: "0828404590"
+		};
 	}
 
 	// ----------
@@ -109,7 +121,7 @@ export class InsureInformation extends Component {
 			{
 				referenceNo: "73023022",
 				phoneNumber: "0631152973",
-				ivrOptionCode: "Insure"
+				ivrOptionCode: `2`
 			});
 
 		this.displayNotification = true;
@@ -117,6 +129,19 @@ export class InsureInformation extends Component {
 		this.displayClaimNotification = true;
 
 		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+
+		this.incomingCallDetails.ivrOption = {
+			possibleValues: [
+				{
+					"key": "1",
+					"value": "Stop Card"
+				},
+				{
+					"key": "2",
+					"value": "Insure"
+				}
+			]
+		}
 	}
 
 
@@ -170,13 +195,18 @@ export class InsureInformation extends Component {
 	}
 
 	_onAssignReasonSelected(e) {
-		this.assignReason = e.detail.assignReason;
+		this.assignReason = e.detail.reason;
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_onCancelAssign() {
 		console.log("Cancel assign received");
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssign() {
+		this.isReassigned = true;
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	// ---------
@@ -831,7 +861,11 @@ export class InsureInformation extends Component {
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"></horizon-end-call-session>`;
+			return html`<horizon-end-call-session 
+								@on-cancel="{${() => this._onCancelEndCall()}}"
+								.incomingCallDetails = "${this.incomingCallDetails}"
+								.isReassigned = "${this.isReassigned}">
+						</horizon-end-call-session>`;
 		}
 		return html``;
 	}
@@ -849,8 +883,9 @@ export class InsureInformation extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`<horizon-assign-reason-selected
-							@on-cancel=${() => this._onCancelAssign()}>
-						</horizon-assign-reason-selected>`;
+						.selectedReason="${this.assignReason}"
+						@on-cancel=${() => this._onCancelAssign()}>
+					</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
