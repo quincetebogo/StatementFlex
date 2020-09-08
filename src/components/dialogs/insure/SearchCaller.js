@@ -11,12 +11,14 @@ import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
 
 import '../../common/HorizonSelect';
+import '../stopCard/SearchClientDetails';
 import '../../common/HorizonCallerDialog';
 import '../EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
-	END_CALL: 1
+	END_CALL: 1,
+	STOPCARD_SEARCH_CALLER: 2
 };
 
 const CLIENT_TYPE = {
@@ -101,6 +103,7 @@ export class InsureSearchClient extends Component {
 		};
 
 		this.alertBannerMessage = ``;
+		this.unverifiedCaller = null;
 
 		this.headerLabel = HEADER_LABEL;
 
@@ -227,8 +230,13 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
+		this.incomingCallDetails.ivrOption.value = e.detail.new;
+		this.unverifiedCaller.ivrOption.value = e.detail.new;
+
+		if (e.detail.new === `StopCard`) {
+			this.renderMode = RENDER_MODE.STOPCARD_SEARCH_CALLER;
+		}
 	}
 
 	_onContinue() {
@@ -306,6 +314,10 @@ export class InsureSearchClient extends Component {
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		return true;
+	}
+
+	_onClientIdentfiedInsure(data) {
+		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
 
 	_raiseOnClientIdentified(identifiedClient) {
@@ -421,6 +433,8 @@ export class InsureSearchClient extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
+			case RENDER_MODE.STOPCARD_SEARCH_CALLER:
+				return html`${this._renderStopCardSearchModal()}`;
 			default:
 		}
 	}
@@ -546,6 +560,16 @@ export class InsureSearchClient extends Component {
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
+	}
+
+	_renderStopCardSearchModal() {
+		return html`
+			<horizon-search-client
+				.unverifiedCaller="${this.unverifiedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
+				@call-ended="${(data) => this._onCallCancelled(data)}">
+			</horizon-search-client>`;
 	}
 }
 
