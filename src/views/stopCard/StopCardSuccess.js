@@ -9,7 +9,7 @@ import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import '../../components/common/HorizonOptionButton'
-import '../../components/dialogs/EndCallSessionReason';
+import '../../components/dialogs/EndCallSession';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
@@ -349,10 +349,11 @@ export class StopCardSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<end-call-session
+			<horizon-end-call-session
 				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS }}"
-				@on-reason-set="${async (reason) => this._onCallComplete(reason)}">
-			</end-call-session>`;
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
+				.incomingCallDetails ="${this.callerInfo}">
+			</horizon-end-call-session>`;
 		}
 
 		return html``;

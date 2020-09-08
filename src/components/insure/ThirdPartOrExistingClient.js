@@ -8,9 +8,9 @@ import '../dialogs/insure/ChooseAnUpdateOption';
 import '../dialogs/insure/SolutionPayArrears';
 import './InsureHowToClaim';
 import '../dialogs/insure/SolutionEmailPlan';
-import '../dialogs/insure/EndCallSession';
+import '../dialogs/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog';
-import '../dialogs/insure/AssignPayArrears';
+import '../dialogs/insure/AssignReasonSelected';
 
 const SOLUTION_SET = {
 	VIEW_PLAN: 'View Plan',
@@ -19,7 +19,8 @@ const SOLUTION_SET = {
 	HOW_TO_CLAIM: 'How to Claim',
 	EMAIL_PLAN: 'Email Plan',
 	BENEFITS: 'Benefits',
-	CANCEL_PLAN: 'Cancel Plan'
+	CANCEL_PLAN: 'Cancel Plan',
+	VIEW_STATUS: 'View Status'
 }
 
 const RENDER_MODE = {
@@ -43,6 +44,7 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.solutionSelected = "";
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.displayToast = true;
+		this.selectedAssignReason = "";
 
 		this.eventAggregator = EventAggregator.getInstance();
 	}
@@ -77,6 +79,19 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
 		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+
+		this.incomingCallDetails.ivrOption = {
+			possibleValues: [
+				{
+					"key": "1",
+					"value": "Stop Card"
+				},
+				{
+					"key": "2",
+					"value": "Insure"
+				}
+			]
+		}
 	}
 
 	// ---------------
@@ -104,6 +119,7 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_onAssignReasonSelected(e) {
+		this.selectedAssignReason = e.detail.reason;
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
@@ -113,6 +129,11 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_onCancelAssign() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssign() {
+		this.isReassigned = true;
+		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
 	// ---------
@@ -311,9 +332,11 @@ export class ThirdPartyOrExisingClient extends Component {
 
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.VIEW_PLAN:
+			case SOLUTION_SET.VIEW_STATUS:
 				return html`<horizon-view-plan
 								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
+								@close-solution="${() => this.solutionSelected = ''}"
+								clientType = "${this.clientType}">
 							</horizon-view-plan>`;
 
 			case SOLUTION_SET.UPDATE_PLAN:
@@ -352,8 +375,9 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`<horizon-end-call-session 
-							@on-cancel="{${() => this._onCancelEndCall()}}">
+			return html`<horizon-end-call-session
+							@on-cancel="{${() => this._onCancelEndCall()}}"
+							.incomingCallDetails = "${this.incomingCallDetails}">
 						</horizon-end-call-session>`;
 		}
 		return html``;
@@ -371,9 +395,11 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-pay-arrears
+			return html`<horizon-assign-reason-selected
+							.selectedReason = "${this.selectedAssignReason}"
 							@on-cancel=${() => this._onCancelAssign()}>
-						</horizon-assign-pay-arrears>`;
+							@on-assign=${() => this._onAssign()}>
+						</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
