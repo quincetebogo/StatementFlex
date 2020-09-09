@@ -54,13 +54,15 @@ const ERROR_MESSAGES = {
 };
 
 const NONCLIENT_REGEX_PATTERN = {
+	CHARACTER_ERROR: `Invalid Special Character(s)`,
+	ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
 	nameValue: {
-		PATTERN: /^[A-Za-z]$/,
+		PATTERN: /^[A-Za-z]+$/,
 		FIELD_ERROR: `Enter a name`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
 	surNameValue: {
-		PATTERN: /^[A-Za-z]$/,
+		PATTERN: /^[A-Za-z]+$/,
 		FIELD_ERROR: `Enter a surname`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
@@ -286,6 +288,16 @@ export class InsureSearchClient extends Component {
 			return false;
 		}
 
+		if (this.nameValue || this.surNameValue) {
+
+			!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, 'g').test(this.nameValue) ? this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
+			!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, 'g').test(this.surNameValue) ? this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
+			if (!this.errMessage.nameValue == `` || !this.errMessage.surNameValue == ``) {
+				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
+			}
+			return false;
+		}
+
 		if (this.cellPhoneNumberValue) {
 
 			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, 'g').test(this.cellPhoneNumberValue)) {
@@ -443,9 +455,15 @@ export class InsureSearchClient extends Component {
 					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
-					
+
 					margin: 0px 0px 16px 0px;
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+				}
+				#id-label-enter-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
 				}`
 		];
 	}
@@ -543,6 +561,7 @@ export class InsureSearchClient extends Component {
 		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 					<div class="search-field-row">
 						<capitec-text-field id="nameValue" 
 											label="Name"
@@ -582,7 +601,7 @@ export class InsureSearchClient extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error" label="${this.alertBannerMessage}" closable></capitec-alert-banner>
+				<capitec-alert-banner type="error-trans" label="${this.alertBannerMessage}"></capitec-alert-banner>
 			`;
 		}
 		return html``;
