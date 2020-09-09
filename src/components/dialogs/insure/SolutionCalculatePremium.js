@@ -1,7 +1,9 @@
 import { Component, html, css } from 'platform/elements';
+import '../insure/AssignReasonSelected';
 
 const RENDER_MODE = {
-	CALCULATE_PREMIUM: 0
+	CALCULATE_PREMIUM: 0,
+	ASSIGN_SYSTEM_ERROR: 1
 };
 
 export class CalculatePremium extends Component {
@@ -16,6 +18,8 @@ export class CalculatePremium extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 		this.checked = false;
 		this.alertBannerMessage = '';
+		this.system_error = false;
+		this.selectedReason = "0";
 	}
 
 	// --------------
@@ -26,7 +30,8 @@ export class CalculatePremium extends Component {
 		return {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
-			checked: { type: Boolean }
+			checked: { type: Boolean },
+			system_error: { type: Boolean }
 		}
 	}
 
@@ -48,18 +53,33 @@ export class CalculatePremium extends Component {
 		}));
 	}
 
+	_onCancelAssign() {
+		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
+	}
+
+	_onAssign() {
+		//TODO: Functionality after assigning to be implemented here.
+	}
+
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = "Choose a feedback reason to continue.";
 			// Navigate to the next screen on no error
 			// TODO: Channel Services to be implemented here
 		}
+		if (this.system_error) {
+			this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
+		}
 	}
 
-	_onValueChanged() {
+	_onValueChanged(e) {
 		this.checked = !this.checked;
 		if (this.checked) {
 			this.alertBannerMessage = '';
+		}
+
+		if (e.target.id === "systemError") {
+			this.system_error = true;
 		}
 	}
 
@@ -209,18 +229,39 @@ export class CalculatePremium extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
-				<div slot="body">
-					<capitec-content-box class="body-box">
-						${this._renderAlertBanner()}
-						${this._renderNavigationToSBL()}
-						${this._renderFeedbackDetails()}
-					</capitec-content-box>
-				</div>
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
-			</capitec-modal>`;
+			${this._renderCalculatePremium()}
+			${this._renderAssignModal()}
+		`;
+	}
+
+	_renderCalculatePremium() {
+		if (this.renderMode == RENDER_MODE.CALCULATE_PREMIUM) {
+			return html`
+				<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
+					<div slot="body">
+						<capitec-content-box class="body-box">
+							${this._renderAlertBanner()}
+							${this._renderNavigationToSBL()}
+							${this._renderFeedbackDetails()}
+						</capitec-content-box>
+					</div>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
+				</capitec-modal>`;
+		}
+	}
+
+	_renderAssignModal() {
+		if (this.renderMode == RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
+			return html`
+				<horizon-assign-reason-selected
+					.selectedReason=${this.selectedReason}
+					@on-cancel=${() => this._onCancelAssign()}
+					@team-selected=${() => this._onAssign()}>
+				</horizon-assign-reason-selected>
+			`;
+		}
 	}
 
 	_renderAlertBanner() {
@@ -252,17 +293,19 @@ export class CalculatePremium extends Component {
 			<capitec-radio-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
+								id="completedCalculation"
 								class="radio-button-label"
 								label="Completed Calculation"
-								@value-change="${() => this._onValueChanged()}">
+								@value-change="${(e) => this._onValueChanged(e)}">
 					</capitec-radio>
 				</capitec-group>
  
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
+								id="systemError"
 								class="radio-button-label"
 								label="System error - assign now"
-								@value-change="${() => this._onValueChanged()}">
+								@value-change="${(e) => this._onValueChanged(e)}">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
