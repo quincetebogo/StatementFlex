@@ -5,6 +5,12 @@ const RENDER_MODE = {
 	CALCULATE_PREMIUM: 0,
 	ASSIGN_SYSTEM_ERROR: 1
 };
+const FEEDBACK_OPTIONS = {
+	COMPLETED: 0,
+	SYSTEM_ERR: 1
+};
+const ASSIGN_REASON = `0`;
+const ALTER_BANNER_MESSAGE = `Choose a feedback reason to continue.`;
 
 export class CalculatePremium extends Component {
 
@@ -16,10 +22,8 @@ export class CalculatePremium extends Component {
 		super();
 
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
-		this.checked = false;
-		this.alertBannerMessage = '';
-		this.system_error = false;
-		this.selectedReason = "0";
+		this.alertBannerMessage = ``;
+		this.selectedFeedback = -1;
 	}
 
 	// --------------
@@ -30,8 +34,7 @@ export class CalculatePremium extends Component {
 		return {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
-			checked: { type: Boolean },
-			system_error: { type: Boolean }
+			selectedFeedback: { type: Number }
 		}
 	}
 
@@ -62,25 +65,26 @@ export class CalculatePremium extends Component {
 	}
 
 	_onDoneClick() {
-		if (!this.checked) {
-			this.alertBannerMessage = "Choose a feedback reason to continue.";
-			// Navigate to the next screen on no error
-			// TODO: Channel Services to be implemented here
+
+		//If feeback not selected - Show alert banner
+		if (this.selectedFeedback === -1) {
+			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
 		}
-		if (this.system_error) {
+		//If System error feedback is selected - assign diaog will be shown
+		else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
 			this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
 		}
 	}
 
 	_onValueChanged(e) {
-		this.checked = !this.checked;
-		if (this.checked) {
-			this.alertBannerMessage = '';
-		}
 
-		if (e.target.id === "systemError") {
-			this.system_error = true;
+		if (e.detail.new && e.currentTarget.id === `completedCalculation`) {
+			this.selectedFeedback = FEEDBACK_OPTIONS.COMPLETED;
 		}
+		else if (e.detail.new && e.currentTarget.id === `systemError`) {
+			this.selectedFeedback = FEEDBACK_OPTIONS.SYSTEM_ERR;
+		}
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
@@ -256,7 +260,7 @@ export class CalculatePremium extends Component {
 		if (this.renderMode == RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
 			return html`
 				<horizon-assign-reason-selected
-					.selectedReason=${this.selectedReason}
+					.selectedReason=${ASSIGN_REASON}
 					@on-cancel=${() => this._onCancelAssign()}
 					@team-selected=${() => this._onAssign()}>
 				</horizon-assign-reason-selected>
@@ -296,7 +300,8 @@ export class CalculatePremium extends Component {
 								id="completedCalculation"
 								class="radio-button-label"
 								label="Completed Calculation"
-								@value-change="${(e) => this._onValueChanged(e)}">
+								@value-change="${(e) => this._onValueChanged(e)}"
+								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.COMPLETED}>
 					</capitec-radio>
 				</capitec-group>
  
@@ -305,7 +310,8 @@ export class CalculatePremium extends Component {
 								id="systemError"
 								class="radio-button-label"
 								label="System error - assign now"
-								@value-change="${(e) => this._onValueChanged(e)}">
+								@value-change="${(e) => this._onValueChanged(e)}"
+								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR}>
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
