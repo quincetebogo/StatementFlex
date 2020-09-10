@@ -57,12 +57,20 @@ export class HorizonRadioButtonsContainer extends Component {
 	// --------------
 
 	_onValueChange(event, item) {
-		this.dispatchEvent(new CustomEvent(`value-change`, {
-			detail: {
+		if (event.currentTarget.__checked) {
+			this.selectedReason = {
 				old: event.detail.old,
 				new: event.detail.new,
 				key: item.key,
 				value: item.value
+			}
+		}
+		this.dispatchEvent(new CustomEvent(`value-change`, {
+			detail: {
+				old: this.selectedReason.old,
+				new: this.selectedReason.new,
+				key: this.selectedReason.key,
+				value: this.selectedReason.value
 			}
 		}));
 		event.stopPropagation();

@@ -9,6 +9,8 @@ import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import { CardService } from '../../services/CardService';
 
 import '../../components/dialogs/EndCallSession';
+import '../../components/dialogs/insure/AssignReasonDialog';
+import '../../components/dialogs/insure/AssignReasonSelected';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -16,7 +18,9 @@ const RENDER_MODE = {
 };
 const RENDER_DIALOG = {
 	HANDOFF: 0,
-	ENDCALL: 1
+	ENDCALL: 1,
+	ASSIGN_REASON: 2,
+	ASSIGN_REASON_SELECTED: 3
 };
 const MAX_ATTEMPT = 2;
 
@@ -104,6 +108,11 @@ export class StopCardFailure extends View {
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
+	_onAssignReasonSelected(e) {
+		this.assignReason = e.detail.reason;
+		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON_SELECTED;
+	}
+
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
 
@@ -168,7 +177,8 @@ export class StopCardFailure extends View {
 	}
 
 	_onAssignIncident() {
-		this.renderDialog = RENDER_DIALOG.HANDOFF;
+		//Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
+		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
 	}
 
 	// ---------
@@ -334,6 +344,8 @@ export class StopCardFailure extends View {
 					</capitec-card>
 					${this._renderEndCallModal()}
 					${this._renderAssignModal()}
+					${this._renderAssignReason()}
+					${this._renderAssignReasonSelected()}
 				`;
 			case RENDER_MODE.IN_PROGRESS:
 				return html`
@@ -454,6 +466,29 @@ export class StopCardFailure extends View {
 			`;
 		}
 
+		return html``;
+	}
+
+	_renderAssignReason() {
+		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON) {
+			return html`
+				<horizon-insure-assign-reason 
+					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+					@on-cancel="${() => { this.renderDialog = -1 }}">
+				</horizon-insure-assign-reason>
+			`;
+		}
+		return html``;
+	}
+
+	_renderAssignReasonSelected() {
+		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON_SELECTED) {
+			return html`<horizon-assign-reason-selected
+						.selectedReason="${this.assignReason}"
+						@on-cancel="${() => { this.renderDialog = -1 }}"
+						@team-selected="${(e) => this._onHandOff(e)}">
+					</horizon-assign-reason-selected>`;
+		}
 		return html``;
 	}
 

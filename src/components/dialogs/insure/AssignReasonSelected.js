@@ -89,7 +89,9 @@ export class AssignReasonSelected extends Component {
 			this.alertBannerMessage = ALERT_ERROR_MESSAGE;
 			this.errMessage = ERROR_MESSAGE;
 		} else {
-			this.dispatchEvent(new CustomEvent(`team-selected`, {}));
+			this.dispatchEvent(new CustomEvent(`team-selected`, {
+				detail: {}
+			}));
 		}
 	}
 

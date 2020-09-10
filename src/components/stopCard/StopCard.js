@@ -10,6 +10,8 @@ import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 import '../dialogs/EndCallSession';
 import '../dialogs/stopCard/StopCard';
+import '../dialogs/insure/AssignReasonDialog';
+import '../dialogs/insure/AssignReasonSelected';
 
 import '../../components/common/HorizonRadioButtonsContainer';
 
@@ -23,7 +25,8 @@ const RENDER_MODE = {
 	CARD_STOP_MODAL: 1,
 	CARD_STOP_SUCCESS: 2,
 	END_CALLSESSION: 3,
-	ASSIGN: 4
+	ASSIGN: 4,
+	ASSIGN_REASON_SELECTED: 5
 };
 
 const TABLE_STYLE = {
@@ -210,6 +213,11 @@ export class StopCard extends Component {
 			}));
 	}
 
+	_onAssignReasonSelected(e) {
+		this.assignReason = e.detail.reason;
+		this.renderMode = RENDER_MODE.ASSIGN_REASON_SELECTED;
+	}
+
 	_onEndCallSession() {
 		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
@@ -253,6 +261,7 @@ export class StopCard extends Component {
 	}
 
 	_onAssignIncident() {
+		//Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
@@ -337,6 +346,7 @@ export class StopCard extends Component {
 			${this._renderEndCallModal()}
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
+			${this._renderAssignReasonSelected()}
 		`;
 	}
 
@@ -500,15 +510,23 @@ export class StopCard extends Component {
 	_renderAssignModal() {
 		if (this.renderMode == RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-stop-card
-					.callerInfo=${this.callerInfo}
-					.cards=${this.cards}
-					@on-cancel="${() => { this.renderMode = -1 }}"
-					@on-handoff="${(e) => this._onHandOff(e)}">
-				</horizon-assign-stop-card>
+				<horizon-insure-assign-reason 
+					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+					@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}">
+				</horizon-insure-assign-reason>
 			`;
 		}
+		return html``;
+	}
 
+	_renderAssignReasonSelected() {
+		if (this.renderMode === RENDER_MODE.ASSIGN_REASON_SELECTED) {
+			return html`<horizon-assign-reason-selected
+						.selectedReason="${this.assignReason}"
+						@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}"
+						@team-selected="${(e) => this._onHandOff(e)}">
+					</horizon-assign-reason-selected>`;
+		}
 		return html``;
 	}
 }
