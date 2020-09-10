@@ -6,6 +6,7 @@ import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/insure/SolutionViewPlan';
 import '../dialogs/insure/ChooseAnUpdateOption';
 import '../dialogs/insure/SolutionPayArrears';
+import '../dialogs/insure/SolutionCancelPlan';
 import './InsureHowToClaim';
 import '../dialogs/insure/SolutionEmailPlan';
 import '../dialogs/EndCallSession';
@@ -366,7 +367,10 @@ export class ThirdPartyOrExisingClient extends Component {
 				return html``;
 
 			case SOLUTION_SET.CANCEL_PLAN:
-				return html``;
+				return html`<horizon-cancel-plan
+								@solution-provided="${() => this.solutionSelected = ''}"
+								@close-solution="${() => this.solutionSelected = ''}">
+							</horizon-cancel-plan>`;
 
 			default:
 				return html``;

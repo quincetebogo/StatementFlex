@@ -1,4 +1,7 @@
 import { Component, html, css } from 'platform/elements';
+import '../../../components/common/HorizonRadioButtonsContainer';
+
+const ERROR_MESSAGE = "Choose an update option to continue.";
 
 export class ChooseAnUpdateOption extends Component {
 
@@ -8,7 +11,14 @@ export class ChooseAnUpdateOption extends Component {
 
 	constructor() {
 		super();
-
+		this.radioButtonsAvailable = [
+			{ "key": "0", "value": "Add payout beneficiary" },
+			{ "key": "1", "value": "Update payout beneficiary" },
+			{ "key": "2", "value": "Update premium and cover amounts" },
+			{ "key": "3", "value": "Remove payout beneficiary" }
+		];
+		this.checked = false;
+		this.alertBannerMessage = '';
 	}
 
 	// --------------
@@ -17,7 +27,8 @@ export class ChooseAnUpdateOption extends Component {
 
 	static get properties() {
 		return {
-
+			checked: { type: Boolean },
+			alertBannerMessage: { type: String }
 		}
 	}
 
@@ -37,6 +48,22 @@ export class ChooseAnUpdateOption extends Component {
 		this.dispatchEvent(new CustomEvent('close-solution', {}));
 	}
 
+	_onContinueClick() {
+		if (!this.checked) {
+			this.alertBannerMessage = ERROR_MESSAGE;
+		}
+		else {
+			this.dispatchEvent(new CustomEvent('solution-provided', {}));
+		}
+	}
+
+	_onValueChanged() {
+		this.checked = !this.checked;
+		if (this.checked) {
+			this.alertBannerMessage = '';
+		}
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -54,7 +81,7 @@ export class ChooseAnUpdateOption extends Component {
 			super.styles,
 			css`
 				capitec-modal {
-					height: 384px;
+					height: auto;
 					width: 578px;
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
@@ -67,14 +94,18 @@ export class ChooseAnUpdateOption extends Component {
 
 				div[slot="body"] {
 					width: 578px;
-					height: 256px;
+					height: auto;
 				}
 
 				.body-box {
-					height: 256px;
+					height: auto;
 					margin: 0px 0px 0px 0px;
 					--theme-container-padding-top : 13px;
 					--theme-container-padding-bottom: 0px;
+				}
+
+				.radio-button {
+					--horizon-radio-button-container-margin-bottom: 19px;
 				}
 
 				#id-cancel-button {
@@ -99,34 +130,16 @@ export class ChooseAnUpdateOption extends Component {
 					--theme-button-padding-left: 24px;
 					--theme-button-primary-border-width: 0px;
 				}
-		
-				.radio-button-container {
-					margin: 8px 0px 0px 0px;
-					height: 48px;
-					padding: 0px;
-					box-sizing: border-box;
-					border-style: solid;
-					border-width: thin;
-					border-radius: 5px;
-					border-color: lightgrey;
+
+				capitec-alert-banner {
+					margin: 0px 0px 15px 0px;
+					--theme-alert-banner-info-border: 0px;
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-font-weight: 500;
+					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 				}
 
-				.radio-button-label {
-					height: 24px;
-					margin: 11px 0px 10px 16px;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					color: #545D60;
-					line-height: 20px;
-				}
-
-				.group-navigate {
-					margin-left: 16px;
-					margin-top: 24px;
-					padding: 0px;
-					width: 640px;
-					height: 125px;
-				}
 		`];
 
 	}
@@ -139,6 +152,7 @@ export class ChooseAnUpdateOption extends Component {
 			<capitec-modal type="free" header-align="left" header="Choose an Update Option">
 				<div slot="body">
 					<capitec-content-box class="body-box">
+						${this._renderAlertBanner()}
 						${this._renderFeedbackDetails()}
 					</capitec-content-box>
 				</div>
@@ -150,40 +164,23 @@ export class ChooseAnUpdateOption extends Component {
 
 	_renderFeedbackDetails() {
 		return html`
-			<capitec-radio-group>
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio
-								class="radio-button-label"
-								label="Add payout beneficiary"
-								@value-change="">
-					</capitec-radio>
-				</capitec-group>
- 
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio
-								class="radio-button-label"
-								label="Update payout beneficiary"
-								@value-change="">
-					</capitec-radio>
-				</capitec-group>
-
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio
-								class="radio-button-label"
-								label="Update premium and cover amounts"
-								@value-change="">
-					</capitec-radio>
-				</capitec-group>
-
-				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-					<capitec-radio
-								class="radio-button-label"
-								label="Remove payout beneficiary"
-								@value-change="">
-					</capitec-radio>
-				</capitec-group>
-			</capitec-radio-group>
+			<horizon-radio-button 
+				class="radio-button"
+				.radioButtonsAvailable="${this.radioButtonsAvailable}"
+				@value-change="${() => this._onValueChanged()}">
+			</horizon-radio-button>
 		`;
+	}
+
+	_renderAlertBanner() {
+		if (this.alertBannerMessage) {
+			return html`
+				<capitec-alert-banner
+						label="${this.alertBannerMessage}"
+						type="error">
+				</capitec-alert-banner>
+			`;
+		}
 	}
 
 	_renderFooter() {
@@ -206,7 +203,7 @@ export class ChooseAnUpdateOption extends Component {
 					?hidden=""
 					.disabled=""
 					tabindex=""
-					@click="">
+					@click="${() => this._onContinueClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
