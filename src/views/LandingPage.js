@@ -209,6 +209,10 @@ export class LandingPage extends View {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
+	_onNonClientCaptured(event) {
+		this.horizonRouter.navigateToInsureNonClient();
+	}
+
 	_onConfirmedCaller(data) {
 
 		/**
@@ -369,6 +373,7 @@ export class LandingPage extends View {
 				<horizon-insure-search-client
 					.unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-insure-search-client>`;

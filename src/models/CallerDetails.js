@@ -1,0 +1,18 @@
+/**
+ * The details of the incoming caller (before verification)
+ */
+export default class CallerDetails {
+	constructor() {
+		this.idNumber = ``;
+		this.incomingTelephoneNumber = ``;
+		this.voiceReferenceNumber = ``;
+		this.ivrOptionCode = ``;
+		this.incidentReferenceNumber = ``;
+		this.incidentRecId = ``;
+		this.agentTelephoneNumber = ``;
+		this.nonClientFullName = ``;
+		this.nonClientCellPhone = ``;
+		this.nonClientIDNumber = ``;
+		this.nonClientRelationship = ``;
+	}
+};

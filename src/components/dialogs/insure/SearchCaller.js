@@ -4,6 +4,7 @@
  */
 import { Component, css, html } from 'platform/elements';
 
+import { CallerDetails } from '../../../models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
@@ -14,6 +15,7 @@ import '../../common/HorizonSelect';
 import '../stopCard/SearchClientDetails';
 import '../../common/HorizonCallerDialog';
 import '../EndCallSession';
+
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -240,7 +242,27 @@ export class InsureSearchClient extends Component {
 	}
 
 	_onContinue() {
-		// TODO: Add non client details comes here
+		const callerDetails = new CallerDetails();
+
+		callerDetails.idNumber = ``;
+		callerDetails.incomingTelephoneNumber = ``;
+		callerDetails.voiceReferenceNumber = incomingCallDetails.voiceReferenceNumber;
+		callerDetails.ivrOptionCode = incomingCallDetails.ivrOptionCode;
+		callerDetails.incidentReferenceNumber = incomingCallDetails.incidentReferenceNumber;
+		callerDetails.incidentRecId = incomingCallDetails.incidentRecId;
+		callerDetails.agentTelephoneNumber = ``;
+		callerDetails.nonClientFullName = ``;
+		callerDetails.nonClientCellPhone = ``;
+		callerDetails.nonClientIDNumber = ``;
+		callerDetails.nonClientRelationship = ``;
+
+		callerDetails.incomingCallDetails =
+
+			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 	}
 
 	_onCallCancelled(reason) {

@@ -31,7 +31,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.LANDING_PAGE,
 		load: () => import(`../views/LandingPage`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		},
 		isDefault: true,
 		isFallback: true
@@ -43,8 +43,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-savings-plan`,
@@ -53,8 +53,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-flexible-savings-plan`,
@@ -63,8 +63,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-fixed-term-savings-plan`,
@@ -73,8 +73,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-taxfree-savings-plan`,
@@ -83,8 +83,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-insure`,
@@ -93,8 +93,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `product-insure-non-client`,
@@ -103,8 +103,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,
 		load: () => import(`../views/insure/InsureProductNonClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+		}
 	},
 	{
 		name: `horizon-insure-unverified-prospective`,
@@ -113,8 +113,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
 		load: () => import(`../views/insure/UnverifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+		}
 	},
 	{
 		name: `horizon-insure-verified-prospective`,
@@ -123,8 +123,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE,
 		load: () => import(`../views/insure/VerifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+		}
 	},
 	{
 		name: `product-credit`,
@@ -133,8 +133,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+		}
 	},
 	{
 		name: `client-profile`,
@@ -143,7 +143,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
 		}
 	},
 	{
@@ -153,7 +153,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
 		}
 	},
 	{
@@ -163,7 +163,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP)
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
 		}
 	},
 	{
@@ -173,8 +173,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT,
 		load: () => import(`../views/insure/VerifiedExistingClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE);
+		}
 	},
 	{
 		name: `insure-unverified-existing-client`,
@@ -183,8 +183,8 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT,
 		load: () => import(`../views/insure/UnverifiedExistingClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE);
+		}
 	},
 	{
 		name: `insure-third-party-client`,
@@ -193,10 +193,10 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT,
 		load: () => import(`../views/insure/ThirdPartyBeneficiaryClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.THIRDPARTYCLIENT_INSURE)
-		},
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.THIRDPARTYCLIENT_INSURE);
+		}
 	}
-]
+];
 export class HorizonRouter {
 
 	constructor() {
