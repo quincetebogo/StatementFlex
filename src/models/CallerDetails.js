@@ -1,7 +1,7 @@
 /**
  * The details of the incoming caller (before verification)
  */
-export default class CallerDetails {
+export class CallerDetails {
 	constructor() {
 		this.idNumber = ``;
 		this.incomingTelephoneNumber = ``;

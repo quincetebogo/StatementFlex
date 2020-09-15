@@ -1,8 +1,16 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import '../insure/AssignReasonSelected';
 
 const RENDER_MODE = {
-	CALCULATE_PREMIUM: 0
+	CALCULATE_PREMIUM: 0,
+	ASSIGN_SYSTEM_ERROR: 1
 };
+const FEEDBACK_OPTIONS = {
+	COMPLETED: 0,
+	SYSTEM_ERR: 1
+};
+const ASSIGN_REASON = `0`;
+const ALTER_BANNER_MESSAGE = `Choose a feedback reason to continue.`;
 
 export class CalculatePremium extends Component {
 
@@ -14,8 +22,8 @@ export class CalculatePremium extends Component {
 		super();
 
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
-		this.checked = false;
-		this.alertBannerMessage = '';
+		this.alertBannerMessage = ``;
+		this.selectedFeedback = -1;
 	}
 
 	// --------------
@@ -26,8 +34,8 @@ export class CalculatePremium extends Component {
 		return {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
-			checked: { type: Boolean }
-		}
+			selectedFeedback: { type: Number }
+		};
 	}
 
 	// -------------------
@@ -48,19 +56,33 @@ export class CalculatePremium extends Component {
 		}));
 	}
 
+	_onCancelAssign() {
+		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
+	}
+
+	_onAssign() {
+		// TODO: Functionality after assigning to be implemented here.
+	}
+
 	_onDoneClick() {
-		if (!this.checked) {
-			this.alertBannerMessage = "Choose a feedback reason to continue.";
-			// Navigate to the next screen on no error
-			// TODO: Channel Services to be implemented here
+
+		// If feeback not selected - Show alert banner
+		if (this.selectedFeedback === -1) {
+			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
+		} else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
+		// If System error feedback is selected - assign diaog will be shown
+		this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
 		}
 	}
 
-	_onValueChanged() {
-		this.checked = !this.checked;
-		if (this.checked) {
-			this.alertBannerMessage = '';
+	_onValueChanged(e) {
+
+		if (e.detail.new && e.currentTarget.id === `completedCalculation`) {
+			this.selectedFeedback = FEEDBACK_OPTIONS.COMPLETED;
+		} else if (e.detail.new && e.currentTarget.id === `systemError`) {
+			this.selectedFeedback = FEEDBACK_OPTIONS.SYSTEM_ERR;
 		}
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
@@ -199,8 +221,8 @@ export class CalculatePremium extends Component {
 					--theme-alert-banner-font-weight: 500;
 					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-				}
-		`];
+				}`
+		];
 
 	}
 
@@ -209,22 +231,43 @@ export class CalculatePremium extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
-				<div slot="body">
-					<capitec-content-box class="body-box">
-						${this._renderAlertBanner()}
-						${this._renderNavigationToSBL()}
-						${this._renderFeedbackDetails()}
-					</capitec-content-box>
-				</div>
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
-			</capitec-modal>`;
+			${this._renderCalculatePremium()}
+			${this._renderAssignModal()}
+		`;
+	}
+
+	_renderCalculatePremium() {
+		if (this.renderMode = RENDER_MODE.CALCULATE_PREMIUM) {
+			return html`
+				<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
+					<div slot="body">
+						<capitec-content-box class="body-box">
+							${this._renderAlertBanner()}
+							${this._renderNavigationToSBL()}
+							${this._renderFeedbackDetails()}
+						</capitec-content-box>
+					</div>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
+				</capitec-modal>`;
+		}
+	}
+
+	_renderAssignModal() {
+		if (this.renderMode === RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
+			return html`
+				<horizon-assign-reason-selected
+					.selectedReason=${ASSIGN_REASON}
+					@on-cancel=${() => this._onCancelAssign()}
+					@team-selected=${() => this._onAssign()}>
+				</horizon-assign-reason-selected>
+			`;
+		}
 	}
 
 	_renderAlertBanner() {
-		if (!this.alertBannerMessage == '') {
+		if (!this.alertBannerMessage === ``) {
 			return html`
 				<capitec-alert-banner
 									label="${this.alertBannerMessage}"
@@ -252,17 +295,21 @@ export class CalculatePremium extends Component {
 			<capitec-radio-group>
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
+								id="completedCalculation"
 								class="radio-button-label"
 								label="Completed Calculation"
-								@value-change="${() => this._onValueChanged()}">
+								@value-change="${(e) => this._onValueChanged(e)}"
+								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.COMPLETED}>
 					</capitec-radio>
 				</capitec-group>
  
 				<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
 					<capitec-radio
+								id="systemError"
 								class="radio-button-label"
 								label="System error - assign now"
-								@value-change="${() => this._onValueChanged()}">
+								@value-change="${(e) => this._onValueChanged(e)}"
+								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR}>
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
@@ -276,9 +323,6 @@ export class CalculatePremium extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
@@ -286,9 +330,6 @@ export class CalculatePremium extends Component {
 					id="id-done-button"
 					type="primary"
 					label="Done"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onDoneClick()}">
 				</capitec-button>
 			</capitec-group>
@@ -296,4 +337,4 @@ export class CalculatePremium extends Component {
 	}
 }
 
-window.customElements.define(`horizon-calculate-premium`, CalculatePremium)
+window.customElements.define(`horizon-calculate-premium`, CalculatePremium);
