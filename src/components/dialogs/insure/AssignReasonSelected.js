@@ -35,7 +35,7 @@ export class AssignReasonSelected extends Component {
 	static get properties() {
 		return {
 			assignDialogDetails: { type: Object },
-			selectedReason: { type: Number },
+			selectedReason: { type: String },
 			alertBannerMessage: { type: String },
 			errMessage: { type: String },
 			selectedTeam: { type: String }

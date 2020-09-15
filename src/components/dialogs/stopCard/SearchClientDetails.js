@@ -219,6 +219,14 @@ export class SearchClientDetailsComponent extends Component {
 		}
 	}
 
+	_onNonClientCapturedInsure(event) {
+		this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
+			detail: {
+				incomingCallDetails: event.detail.incomingCallDetails
+			}
+		}));
+	}
+
 	_onClientIdentfiedInsure(data) {
 		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
@@ -396,12 +404,11 @@ export class SearchClientDetailsComponent extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(event) => this._onNeedChanged(event)}"
-								>
+					<horizon-caller-dialog 
+							.incomingCallDetails="${this.incomingCallDetails}" 
+							.headerLabel="${HEADER_LABEL}"
+							@on-end-call="${() => this._onEndCall()}" 
+							@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -431,32 +438,38 @@ export class SearchClientDetailsComponent extends Component {
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" 
-						   class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
+			<capitec-group 
+					layout="vertical" 
+					gap="none" 
+					halign="stretch" 
+					valign="top"
+					class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select id="identificationMethods"
-									error="${this.errMessage.identificationMethods}" 
-									label="Choose identification method" 
-									class="id-options"
-									.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-									@value-changed="${(e) => this._valueChanged(e)}"
-									tabindex="${getTabIndex(this.identificationMethods)}"
-									?hidden=${isHidden(this.identificationMethods)}
-									id-field="key"
-									display-field="displayText">
+					<capitec-select 
+						id="identificationMethods" 
+						error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" 
+						class="id-options"
+						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+						@value-changed="${(e) => this._valueChanged(e)}" 
+						tabindex="${getTabIndex(this.identificationMethods)}"
+						?hidden=${isHidden(this.identificationMethods)} 
+						id-field="key" 
+						display-field="displayText">
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
-					<capitec-text-field id="searchFieldText" 
-										type="search"
-										keyboardMode ="numeric" 
-										label="Search" 
-										error="${this.errMessage.searchFieldText}" 
-										focussed
-										hint="" 
-										@key-input="${(e) => this._onKeyPress(e)}"
-										@value-changed="${(e) => this._valueChanged(e)}" 
-										value="">
+					<capitec-text-field 
+						id="searchFieldText" 
+						type="search" 
+						keyboardMode="numeric" 
+						label="Search"
+						error="${this.errMessage.searchFieldText}" 
+						focussed 
+						hint="" 
+						@key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" 
+						value="">
 					</capitec-text-field>
 				</div>
 			</capitec-group>
@@ -476,33 +489,34 @@ export class SearchClientDetailsComponent extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button id="id-search-button"
-								type="primary"
-								@click="${(e) => this._onSearchClick(e)}"
-								label="Search Client">
+				<capitec-button 
+					id="id-search-button" 
+					type="primary" 
+					@click="${(e) => this._onSearchClick(e)}"
+					label="Search Client">
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session
+			<horizon-end-call-session 
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
-				.incomingCallDetails = "${this.incomingCallDetails}">
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" 
+				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {
 		return html`
-			<horizon-insure-search-client
+			<horizon-insure-search-client 
 				.unverifiedCaller="${this.unverifiedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-insure-search-client>`;
 	}
 }
-
 
 window.customElements.define(`horizon-search-client`, SearchClientDetailsComponent);

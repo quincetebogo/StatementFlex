@@ -105,7 +105,7 @@ export class HorizonChannelService {
 			{
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
-				"team": assignData.team
+				"team": assignData.Everyteam
 			}
 		);
 	}
@@ -115,8 +115,8 @@ export class HorizonChannelService {
 	// -----------------------
 
 	// confirmedClientProfileRequest
-	async identifyCaller(callerData) {
-		return await this._getClient().post(`/clientcare/${this.version}/LoadConfirmedClientProfile`, {
+	identifyCaller(callerData) {
+		return this._getClient().post(`/clientcare/card/${this.version}/LoadConfirmedClientProfile`, {
 			'incidentRecId': callerData.incidentRecId,
 			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,

@@ -4,6 +4,7 @@
  */
 import { Component, css, html } from 'platform/elements';
 
+import { CallerDetails } from '../../../models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
@@ -14,6 +15,7 @@ import '../../common/HorizonSelect';
 import '../stopCard/SearchClientDetails';
 import '../../common/HorizonCallerDialog';
 import '../EndCallSession';
+
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -72,7 +74,7 @@ const NONCLIENT_REGEX_PATTERN = {
 		PATTERN: /^[0-9]{10}$/,
 		FIELD_ERROR: `Must be 10 digits`,
 		ALERT_BANNER: `Incorrect cellphone number`
-	},
+	}
 };
 
 const REGEX_PATTERNS = {
@@ -268,7 +270,25 @@ export class InsureSearchClient extends Component {
 
 	_onContinue() {
 		if (this._validateNonClientFields()) {
-			//TODO: Functionality after validation must be implemented here
+			const callerDetails = new CallerDetails();
+
+			callerDetails.idNumber = ``;
+			callerDetails.incomingTelephoneNumber = ``;
+			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+			callerDetails.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+			callerDetails.incidentRecId = this.incomingCallDetails.incidentRecId;
+			callerDetails.agentTelephoneNumber = ``;
+			callerDetails.nonClientFullName = ``;
+			callerDetails.nonClientCellPhone = ``;
+			callerDetails.nonClientIDNumber = ``;
+			callerDetails.nonClientRelationship = ``;
+
+			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 		}
 	}
 
@@ -290,7 +310,7 @@ export class InsureSearchClient extends Component {
 	// ---------------
 
 	_validateNonClientFields() {
-		let isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
+		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
 			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
 			return false;
@@ -298,17 +318,18 @@ export class InsureSearchClient extends Component {
 
 		if (this.nameValue || this.surNameValue) {
 
-			!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, 'g').test(this.nameValue) ? this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
-			!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, 'g').test(this.surNameValue) ? this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
-			if (!this.errMessage.nameValue == `` || !this.errMessage.surNameValue == ``) {
+			!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue) ? this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
+			!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue) ? this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
+
+			if (!this.errMessage.nameValue === `` || !this.errMessage.surNameValue === ``) {
 				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
+				return false;
 			}
-			return false;
 		}
 
 		if (this.cellPhoneNumberValue) {
 
-			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, 'g').test(this.cellPhoneNumberValue)) {
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
 				this.errMessage.cellPhoneNumberValue = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.FIELD_ERROR;
 				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
 				return false;
@@ -484,11 +505,11 @@ export class InsureSearchClient extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${this.headerLabel}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
+					<horizon-caller-dialog 
+							.incomingCallDetails="${this.incomingCallDetails}" 
+							.headerLabel="${this.headerLabel}"
+							@on-end-call="${() => this._onEndCall()}" 
+							@on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this._renderAlertBanner()}
@@ -523,13 +544,17 @@ export class InsureSearchClient extends Component {
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio id="capitecClient" label="Capitec Client"
-								@value-changed="${(e) => this._clientTypeChanged(e)}"
-								row="1" column="1">
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
+						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio id="nonCient" label="Non Client"
-								@value-changed="${(e) => this._clientTypeChanged(e)}"
-								row="1" column="2">
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" 
+						row="1" column="2">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>`;
@@ -539,31 +564,26 @@ export class InsureSearchClient extends Component {
 		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
 			return html`
 					<capitec-label class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
-								   label="Search existing client">
+						label="Search existing client">
 					</capitec-label>
-					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" >
+					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 						<div class="search-field-row">
-							<capitec-select id="searchType"
-											class="id-options"
-											label="Choose identification method" 
-											.items="${this.identificationMethods}"
-											.value="${this.searchType}"
-											id-field="key"
-											display-field="value"
-											@value-changed="${(e) => this._valueChanged(e)}"
-											error="${this.errMessage.searchType}">
+							<capitec-select 
+								id="searchType" 
+								class="id-options" 
+								label="Choose identification method"
+								.items="${this.identificationMethods}" 
+								.value="${this.searchType}" 
+								id-field="key" 
+								display-field="value"
+								@value-changed="${(e) => this._valueChanged(e)}" 
+								error="${this.errMessage.searchType}">
 							</capitec-select>
 						</div>
 						<div class="search-field-row">
-							<capitec-text-field id="searchValue"
-												type="search"
-												keyboardMode ="numeric" 
-												label="Search" 
-												focussed
-												value="${this.searchValue}"
-												@value-changed="${(e) => this._valueChanged(e)}"
-												@key-input="${(e) => this._onKeyPress(e)}"
-												error="${this.errMessage.searchValue}">
+							<capitec-text-field id="searchValue" type="search" keyboardMode="numeric" label="Search" focussed
+								value="${this.searchValue}" @value-changed="${(e) => this._valueChanged(e)}"
+								@key-input="${(e) => this._onKeyPress(e)}" error="${this.errMessage.searchValue}">
 							</capitec-text-field>
 						</div>
 					</capitec-group>`;
@@ -577,33 +597,35 @@ export class InsureSearchClient extends Component {
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
 					<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 					<div class="search-field-row">
-						<capitec-text-field id="nameValue" 
-											label="Name"
-											hint="Required Field"
-											.value="${this.nameValue}"
-											@value-changed="${(e) => this._valueChanged(e)}"
-											@key-input="${(e) => this._onKeyPress(e)}"
-											error="${this.errMessage.nameValue}">
+						<capitec-text-field 
+							id="nameValue" 
+							label="Name" 
+							hint="Required Field" 
+							.value="${this.nameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}" 
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.nameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="surNameValue" 
-											label="Surname"
-											hint="Required Field"
-											.value="${this.surNameValue}"
-											@value-changed="${(e) => this._valueChanged(e)}"
-											@key-input="${(e) => this._onKeyPress(e)}"
-											error="${this.errMessage.surNameValue}">
+						<capitec-text-field 
+							id="surNameValue" 
+							label="Surname" hint="Required Field" 
+							.value="${this.surNameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}" 
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.surNameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="cellPhoneNumberValue"
-											label="Cellphone number (optional)"
-											type="numeric"
-											.value="${this.cellPhoneNumberValue}"
-											@value-changed="${(e) => this._valueChanged(e)}"
-											@key-input="${(e) => this._onKeyPress(e)}"
-											error="${this.errMessage.cellPhoneNumberValue}">
+						<capitec-text-field 
+							id="cellPhoneNumberValue" 
+							label="Cellphone number (optional)" 
+							type="numeric"
+							.value="${this.cellPhoneNumberValue}" 
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}" 
+							error="${this.errMessage.cellPhoneNumberValue}">
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
@@ -624,38 +646,35 @@ export class InsureSearchClient extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button type="primary"
-								@click="${(e) => this._onSearchClient(e)}"
-								label="Search Client"
-								?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
+				<capitec-button 
+					type="primary" @click="${(e) => this._onSearchClient(e)}" 
+					label="Search Client"
+					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button type="primary"
-								@click="${(e) => this._onContinue(e)}"
-								label="Continue"
-								?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button 
+					type="primary" @click="${(e) => this._onContinue(e)}" 
+					label="Continue" 
+					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session
-				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
-				.incomingCallDetails = "${this.incomingCallDetails}">
+			<horizon-end-call-session @on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	_renderStopCardSearchModal() {
 		return html`
-			<horizon-search-client
-				.unverifiedCaller="${this.unverifiedCaller}"
+			<horizon-search-client 
+				.unverifiedCaller="${this.unverifiedCaller}" 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
 	}
 }
-
 
 window.customElements.define(`horizon-insure-search-client`, InsureSearchClient);
