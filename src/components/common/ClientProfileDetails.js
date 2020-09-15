@@ -3,6 +3,7 @@ import { Component, html, css } from 'platform/elements';
 import 'platform/components/buttons/ProductTile';
 import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
 import { HorizonStore } from '../../store/HorizonStore';
+import { EventAggregator } from 'platform/EventAggregator';
 
 export class ClientProfileDetails extends Component {
 
@@ -13,19 +14,25 @@ export class ClientProfileDetails extends Component {
 	constructor() {
 		super();
 
-		this.confirmedCaller = null;
-		this.clientProfileDetails = null;
+		this.EventAggregator = EventAggregator.getInstance();
+
+		this.miniProfile = {
+			title: ``,
+			name: ``,
+			lastName: ``,
+			idNumber: ``,
+			phoneNumber: ``,
+			livesIn: ``,
+			languagePreference: ``,
+			birthday: ``,
+			isConfirmed: false
+		};
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 
-	static get properties() {
-		return {
-			clientProfileDetails: { type: Object }
-		}
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -33,21 +40,26 @@ export class ClientProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
+	}
 
-		this.confirmedCaller = HorizonStore.getInstance().recoverState();
-		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-		this.clientPersonalInfo = clientProfileDetails && clientProfileDetails.clientPersonalInformation;
+	// ---------
+	// EVENTS
+	// ---------
 
-		if (this.clientPersonalInfo) {
-			this.name = this.clientPersonalInfo.value.name;
-			this.southAfricanIDNumber = this.clientPersonalInfo.value.southAfricanIDNumber;
-			this.verifiedTelephoneNumber = this.clientPersonalInfo.value.verifiedTelephoneNumber;
-			this.livesIn = this.clientPersonalInfo.value.livesIn;
-			this.languagePreference = this.clientPersonalInfo.value.languagePreference;
-			this.birthdate = this.clientPersonalInfo.value.birthdate;
-			this.viewProfileButton = this.clientPersonalInfo.value.viewProfileButton;
-			this.documentsButton = this.clientPersonalInfo.value.documentsButton;
-		}
+	_onUpdateMiniClientProfile(profile) {
+
+		this.miniProfile = {
+			title: profile.title,
+			name: profile.name,
+			lastName: profile.lastName,
+			idNumber: profile.idNumber,
+			phoneNumber: profile.phoneNumber,
+			livesIn: profile.livesIn,
+			languagePreference: profile.languagePreference,
+			birthday: profile.birthday,
+			isConfirmed: profile.isConfirmed
+		};
 	}
 
 	// ---------
@@ -178,116 +190,78 @@ export class ClientProfileDetails extends Component {
 					</capitec-content-box>
 					${this.renderActionButtons()}
 				</capitec-group>
-
+			
 				<div class="horizon-client-authorised">
 					<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
 					<a id="authorised-text" href="">Not Authorised</a>
 				</div>
-			</capitec-card>	
+			</capitec-card>
 			`;
 	}
 
 	renderClientImage() {
 		return html`<div class="client-img">
-						<capitec-icon size="large" icon="system/client-insights-error"></capitec-icon>
-					</div>`;
+	<capitec-icon size="large" icon="system/client-insights-error"></capitec-icon>
+</div>`;
 	}
 
 	renderClientPersonalInfo() {
 		return html`<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-						<capitec-label row="1" column="1"
-										label="${getValue(this.name)}"
-										type="subtitle"
-										tabindex="${getTabIndex(this.name)}"
-										?hidden=${isHidden(this.name)}>
-						</capitec-label>
-						<span row="2" column="1">
-							<capitec-label label="ID Number: "
-										type="subtitle"
-										tabindex="${getTabIndex(this.southAfricanIDNumber)}"
-										?hidden=${isHidden(this.southAfricanIDNumber)}>
-							</capitec-label>
-							<capitec-label label="${getValue(this.southAfricanIDNumber)}" 
-										type="subtitle"
-										tabindex="${getTabIndex(this.southAfricanIDNumber)}"
-										?hidden=${isHidden(this.southAfricanIDNumber)}>
-							</capitec-label>
-						</span>
-						<span row="3" column="1">
-							<capitec-label label="Verified Number: "
-										type="subtitle"
-										tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
-										?hidden=${isHidden(this.verifiedTelephoneNumber)}>
-							</capitec-label>
-							<capitec-label label="${getValue(this.verifiedTelephoneNumber)}" 
-										type="subtitle"
-										tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
-										?hidden=${isHidden(this.verifiedTelephoneNumber)}>
-							</capitec-label>
-						</span>
-						<span row="4" column="1">
-							<capitec-label label="Lives In: "
-										type="subtitle"
-										tabindex="${getTabIndex(this.livesIn)}"
-										?hidden=${isHidden(this.livesIn)}>
-							</capitec-label>
-							<capitec-label label="${getValue(this.livesIn)}" 
-										type="subtitle"
-										tabindex="${getTabIndex(this.livesIn)}"
-										?hidden=${isHidden(this.livesIn)}>
-							</capitec-label>
-						</span>
-						<span row="5" column="1">
-							<capitec-label label="Language Preference: "
-										type="subtitle"
-										tabindex="${getTabIndex(this.languagePreference)}"
-										?hidden=${isHidden(this.languagePreference)}>
-							</capitec-label>
-							<capitec-label label="${getValue(this.languagePreference)}" 
-										type="subtitle"
-										tabindex="${getTabIndex(this.languagePreference)}"
-										?hidden=${isHidden(this.languagePreference)}>
-							</capitec-label>
-						</span>
-						<span row="6" column="1">
-							<capitec-label label="Birthday: "
-										type="subtitle"
-										tabindex="${getTabIndex(this.birthdate)}"
-										?hidden=${isHidden(this.birthdate)}>
-							</capitec-label>
-							<capitec-label label="${getValue(this.birthdate)}" 
-										type="subtitle"
-										tabindex="${getTabIndex(this.birthdate)}"
-										?hidden=${isHidden(this.birthdate)}>
-							</capitec-label>
-						</span>
-					</capitec-group>`;
+	<capitec-label row="1" column="1" label="${this.miniProfile.name} ${this.miniProfile.lastName}" type="subtitle">
+	</capitec-label>
+	<span row="2" column="1">
+		<capitec-label label="ID Number: " type="subtitle">
+		</capitec-label>
+		<capitec-label label="${this.miniProfile.idNumber}" type="subtitle">
+		</capitec-label>
+	</span>
+	<span row="3" column="1">
+		<capitec-label label="Contact Number: " type="subtitle">
+		</capitec-label>
+		<capitec-label label="${this.miniProfile.phoneNumber}" type="subtitle">
+		</capitec-label>
+	</span>
+	<span row="4" column="1">
+		<capitec-label label="Lives In: " type="subtitle">
+		</capitec-label>
+		<capitec-label label="${this.miniProfile.livesIn}" type="subtitle">
+		</capitec-label>
+	</span>
+	<span row="5" column="1">
+		<capitec-label label="Language Preference: " type="subtitle">
+		</capitec-label>
+		<capitec-label label="${this.miniProfile.languagePreference}" type="subtitle">
+		</capitec-label>
+	</span>
+	<span row="6" column="1">
+		<capitec-label label="Birthday: " type="subtitle">
+		</capitec-label>
+		<capitec-label label="${this.miniProfile.birthday}" type="subtitle">
+		</capitec-label>
+	</span>
+</capitec-group>`;
 	}
 
 	renderActionButtons() {
 		return html`<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
-						<div>
-							<capitec-button class="view-button" 
-											?hidden=${isHidden(this.viewProfileButton)}
-											.disabled="${isDisabled(this.viewProfileButton)}"
-											tabindex="${getTabIndex(this.viewProfileButton)}">
-								<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
-									<capitec-icon size="small" icon="system/profile"></capitec-icon>
-									<capitec-label label="View profile"></capitec-label>
-								</capitec-content-box> 
-							</capitec-button>
+	<div>
+		<capitec-button class="view-button" ?hidden=${isHidden(this.viewProfileButton)}
+			.disabled="${isDisabled(this.viewProfileButton)}" tabindex="${getTabIndex(this.viewProfileButton)}">
+			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
+				<capitec-icon size="small" icon="system/profile"></capitec-icon>
+				<capitec-label label="View profile"></capitec-label>
+			</capitec-content-box>
+		</capitec-button>
 
-							<capitec-button class="document-button"
-											?hidden=${isHidden(this.documentsButton)}
-											.disabled="${isDisabled(this.documentsButton)}"
-											tabindex="${getTabIndex(this.documentsButton)}">
-								<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
-									<capitec-icon size="small" icon="system/documents"></capitec-icon>
-									<capitec-label label="Document"></capitec-label>
-								</capitec-content-box> 
-							</capitec-button>
-						</div>
-					</capitec-content-box>`;
+		<capitec-button class="document-button" ?hidden=${isHidden(this.documentsButton)}
+			.disabled="${isDisabled(this.documentsButton)}" tabindex="${getTabIndex(this.documentsButton)}">
+			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
+				<capitec-icon size="small" icon="system/documents"></capitec-icon>
+				<capitec-label label="Document"></capitec-label>
+			</capitec-content-box>
+		</capitec-button>
+	</div>
+</capitec-content-box>`;
 	}
 }
 

@@ -301,7 +301,12 @@ export class InsureSearchClient extends Component {
 
 			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails
+					incomingCallDetails: this.incomingCallDetails,
+					nonClient: {
+						firstName: this.nameValue,
+						surname: this.surNameValue,
+						cellphone: this.cellPhoneNumberValue
+					}
 				}
 			}));
 		}
@@ -632,10 +637,10 @@ export class InsureSearchClient extends Component {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
-					?hidden=${this.clientType !==CLIENT_TYPE.CAPITEC_CLIENT}>
+					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
 				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType
-					!==CLIENT_TYPE.NON_CLIENT}>
+			!== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
