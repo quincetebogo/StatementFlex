@@ -17,8 +17,8 @@ import '../dialogs/insure/AssignReasonSelected';
 import '../../components/common/HorizonRadioButtonsContainer';
 
 const COLUMNS = {
-	CARDTYPE: `cardType`,
-	CARDNUMBER: `encryptedCardId`
+	CARDTYPE: `cardDisplayName`,
+	CARDNUMBER: `maskedCardNumber`
 };
 
 const RENDER_MODE = {

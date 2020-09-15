@@ -114,7 +114,7 @@ export class StopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = this.isBusy;
 	}
 
 	// ---------
