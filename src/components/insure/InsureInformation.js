@@ -1,5 +1,5 @@
-import { Component, html, css } from 'platform/elements';
-import { Router, NavigationContext, EventAggregator } from 'platform/core';
+import { Component, css, html } from 'platform/elements';
+import { EventAggregator, NavigationContext, Router } from 'platform/core';
 
 import 'platform/components/layouts/Layout';
 import 'platform/components/containers/Expander';
@@ -8,17 +8,12 @@ import 'platform/components/containers/TabGroup';
 import 'platform/components/data/Table';
 import 'platform/components/navigation/AppRouter';
 
-import '../dialogs/insure/SolutionCalculatePremium'
-import '../dialogs/insure/NonAdvisoryDisclaimer'
+import '../dialogs/insure/SolutionCalculatePremium';
+import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/EndCallSession';
-import '../dialogs/insure/AssignReasonDialog'
-import '../dialogs/insure/AssignReasonSelected'
+import '../dialogs/insure/AssignReasonDialog';
+import '../dialogs/insure/AssignReasonSelected';
 import '../../shell/HorizonRouter';
-
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-
-import { getTabIndex } from '../../utils/channelServiceUtilities';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -32,8 +27,8 @@ const RENDER_MODE = {
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
-	VERIFIED_PROSPECTIVE_CLIENT: 2,
-}
+	VERIFIED_PROSPECTIVE_CLIENT: 2
+};
 
 export class InsureInformation extends Component {
 
@@ -54,26 +49,26 @@ export class InsureInformation extends Component {
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.renderAlertBanner = 0;
-		this.displayMode = "";
+		this.displayMode = ``;
 		this.records = [
-			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
-			{ columnOne: 'Spouse(18 - 64)', columnTwo: 'R100 000' },
-			{ columnOne: 'Children (newborn - 5 years)', columnTwo: 'R20 000 each*' },
-			{ columnOne: 'Children (6 - 13 years)', columnTwo: 'R50 000 each*' },
-			{ columnOne: 'Children (14 years and older)', columnTwo: 'R60 000 each*' },
-			{ columnOne: 'Parents (26 - 85 years)', columnTwo: 'R50 000 each*' },
-			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
+			{ columnOne: `Policyholder`, columnTwo: `R100 000` },
+			{ columnOne: `Spouse(18 - 64)`, columnTwo: `R100 000` },
+			{ columnOne: `Children (newborn - 5 years)`, columnTwo: `R20 000 each*` },
+			{ columnOne: `Children (6 - 13 years)`, columnTwo: `R50 000 each*` },
+			{ columnOne: `Children (14 years and older)`, columnTwo: `R60 000 each*` },
+			{ columnOne: `Parents (26 - 85 years)`, columnTwo: `R50 000 each*` },
+			{ columnOne: `Extended Family (0 - 85 years)`, columnTwo: `R20 000 each*` }
 		];
 		this.displayNotification = true;
 		this.displayToast = true;
 		this.isReassigned = false;
 
 		this.incomingCallDetails = {
-			incomingTelephoneNumber: "0640987370",
-			voiceReferenceNumber: "34567893",
-			ivrOptionCode: "1",
-			incidentReferenceNumber: "123456",
-			agentTelephoneNumber: "0828404590"
+			incomingTelephoneNumber: `0640987370`,
+			voiceReferenceNumber: `34567893`,
+			ivrOptionCode: `1`,
+			incidentReferenceNumber: `123456`,
+			agentTelephoneNumber: `0828404590`
 		};
 	}
 
@@ -104,25 +99,25 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.displayMode === "non-client") {
+		if (this.displayMode === `non-client`) {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
-		}
-		else if (this.displayMode === "unverified-prospective") {
+		} else if (this.displayMode === `unverified-prospective`) {
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
-		}
-		else if (this.displayMode === "verified-prospective") {
+		} else if (this.displayMode === `verified-prospective`) {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
-		this.eventAggregator.publish('horizon-update-call_actionbar',
+		this.eventAggregator.publish(
+`horizon-update-call_actionbar`,
 			{
-				referenceNo: "73023022",
-				phoneNumber: "0631152973",
+				referenceNo: `73023022`,
+				phoneNumber: `0631152973`,
 				ivrOptionCode: `2`
-			});
+			}
+);
 
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
@@ -133,15 +128,15 @@ export class InsureInformation extends Component {
 		this.incomingCallDetails.ivrOption = {
 			possibleValues: [
 				{
-					"key": "1",
-					"value": "Stop Card"
+					"key": `1`,
+					"value": `Stop Card`
 				},
 				{
-					"key": "2",
-					"value": "Insure"
+					"key": `2`,
+					"value": `Insure`
 				}
 			]
-		}
+		};
 	}
 
 
@@ -170,18 +165,22 @@ export class InsureInformation extends Component {
 	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+
 	_onCloseClick() {
-		console.log('closable button clicked');
+		console.log(`closable button clicked`);
 		this.displayNotification = false;
 	}
+
 	_onCloseCover() {
-		console.log('closable cover alert clicked');
+		console.log(`closable cover alert clicked`);
 		this.displayCoverNotification = false;
 	}
+
 	_onCloseClaimAlert() {
-		console.log('closable claim alert clicked');
+		console.log(`closable claim alert clicked`);
 		this.displayClaimNotification = false;
 	}
+
 	_onToggleToastDisplay() {
 		this.displayToast = false;
 	}
@@ -200,7 +199,7 @@ export class InsureInformation extends Component {
 	}
 
 	_onCancelAssign() {
-		console.log("Cancel assign received");
+		console.log(`Cancel assign received`);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -211,7 +210,7 @@ export class InsureInformation extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -224,7 +223,7 @@ export class InsureInformation extends Component {
 			p{
 				margin: 0px 0px 0px 0px;
 			
-			}	
+			}
 			ul{
 				height: auto;
 				width: 975px;
@@ -363,7 +362,7 @@ export class InsureInformation extends Component {
 			.premium-text-area{
 				height: 48px;
 				width: 1015px;
-				color: #545D60;	
+				color: #545D60;
 				font-family: "Hind Vadodara";
 				font-size: 15px;
 				letter-spacing: 0;
@@ -529,12 +528,12 @@ export class InsureInformation extends Component {
 				height: 64px;
 				z-index: 201;
 				left: calc(50.8% - 200px);
-				justify-content: center;	
+				justify-content: center;
 				align-items: center;
 			}
-			`];
+			`
+		];
 	}
-
 
 
 	_mobileTemplate() {
@@ -578,7 +577,7 @@ export class InsureInformation extends Component {
 	_renderBenefitContent() {
 		return html`
 				${this._renderNonClientBanner()}
-				${this._renderUnverifiedProspectiveClientBanner()}	
+				${this._renderUnverifiedProspectiveClientBanner()}
 				${this._renderVerifiedProspectiveClientBanner()}
 				<capitec-group class="group">
 					<capitec-label class="label" label="What makes our funeral plan unique?" type="strong">
@@ -666,20 +665,20 @@ export class InsureInformation extends Component {
     				<capitec-expander label="Relationship to you">
 					<capitec-group layout="grid" rows="uniform" columns="auto" gap="none" class="expander">
       			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your parents’ male child"></capitec-label>
-						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your parents’ female child"></capitec-label>
-						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your brother or sister"></capitec-label>
-						<capitec-label label="Niece:" row="4" column="1"></capitec-label>	<capitec-label row="4" column="2" label="The female child of your brother or sister"></capitec-label>
+						<capitec-label label="Sister:" row="2" column="1"></capitec-label><capitec-label row="2" column="2" label="Your parents’ female child"></capitec-label>
+						<capitec-label label="Nephew:" row="3" column="1"></capitec-label><capitec-label row="3" column="2" label="The male child of your brother or sister"></capitec-label>
+						<capitec-label label="Niece:" row="4" column="1"></capitec-label><capitec-label row="4" column="2" label="The female child of your brother or sister"></capitec-label>
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
 						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
-						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
+						<capitec-label label="Uncle:" row="10" column="1"></capitec-label><capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
 						<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label><capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
-						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>	<capitec-label row="13" column="2" label="Your parents’ parent"></capitec-label>
-						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label>	<capitec-label row="14" column="2" label="Your parents’ grandparent"></capitec-label>
-						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>	<capitec-label row="15" column="2" label="Your child’s child"></capitec-label>
+						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label><capitec-label row="13" column="2" label="Your parents’ parent"></capitec-label>
+						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label><capitec-label row="14" column="2" label="Your parents’ grandparent"></capitec-label>
+						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label><capitec-label row="15" column="2" label="Your child’s child"></capitec-label>
 						<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label><capitec-label row="16" column="2" label="Greatgrandchild who is your grandchild’s child"></capitec-label>
 					</capitec-group>
    				 </capitec-expander>
@@ -687,20 +686,20 @@ export class InsureInformation extends Component {
    				 <capitec-expander  label="Relationship to your spouse">
 					<capitec-group layout="grid" rows="uniform" columns="auto" gap="none" class="expander">
       			 		 <capitec-label label="Brother:" row="1" column="1"></capitec-label><capitec-label row="1" column="2" label="Your spouse’s male child"></capitec-label>
-						<capitec-label label="Sister:" row="2" column="1"></capitec-label>	<capitec-label row="2" column="2" label="Your spouse’s female child"></capitec-label>
-						<capitec-label label="Nephew:" row="3" column="1"></capitec-label> 	<capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
-						<capitec-label label="Niece:" row="4" column="1"></capitec-label>	<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister"></capitec-label>
+						<capitec-label label="Sister:" row="2" column="1"></capitec-label><capitec-label row="2" column="2" label="Your spouse’s female child"></capitec-label>
+						<capitec-label label="Nephew:" row="3" column="1"></capitec-label><capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
+						<capitec-label label="Niece:" row="4" column="1"></capitec-label><capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister"></capitec-label>
 						<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label> <capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>  <capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
 						<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label><capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
 						<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label><capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
 						<capitec-label label="Aunt:" row="9" column="1"></capitec-label><capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
-						<capitec-label label="Uncle:" row="10" column="1"></capitec-label>	<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
+						<capitec-label label="Uncle:" row="10" column="1"></capitec-label><capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
 						<capitec-label label="First cousin:" row="11" column="1"></capitec-label><capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
 						<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label><capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
-						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>	<capitec-label row="13" column="2" label="Your spouse’s parents’ parent"></capitec-label>
-						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label>	<capitec-label row="14" column="2" label="Your spouse’s parents’ grandparent"></capitec-label>
-						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>	<capitec-label row="15" column="2" label="Your spouse’s child’s child"></capitec-label>
+						<capitec-label label="Grandparent:" row="13" column="1"></capitec-label><capitec-label row="13" column="2" label="Your spouse’s parents’ parent"></capitec-label>
+						<capitec-label label="Great-grandparent:" row="14" column="1"></capitec-label><capitec-label row="14" column="2" label="Your spouse’s parents’ grandparent"></capitec-label>
+						<capitec-label label="Grandchild:" row="15" column="1"></capitec-label><capitec-label row="15" column="2" label="Your spouse’s child’s child"></capitec-label>
 						<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label><capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child"></capitec-label>
 					</capitec-group>
   				  </capitec-expander>
@@ -713,7 +712,7 @@ export class InsureInformation extends Component {
 			${this._renderClaimAlert()}
 			<capitec-label class="claim-label" type="Subtitle" label="Ways to claim"></capitec-label>
 				<ul>
-					<li>Email FuneralClaims@capitecbank.co.za</li>	
+					<li>Email FuneralClaims@capitecbank.co.za</li>
 					<li>Visit a branch</li>
 				</ul>
 				<capitec-label class="claim-label"  type="Subtitle" label="Documents needed"></capitec-label>
@@ -751,7 +750,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderDislaimer() {
-		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
+		if (this.renderMode = RENDER_MODE.DISCLAIMER) {
 			return html`<horizon-non-advisory-disclaimer @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-non-advisory-disclaimer>`;
 		}
 	}
