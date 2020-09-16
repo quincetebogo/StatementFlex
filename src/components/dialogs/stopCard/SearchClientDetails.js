@@ -221,9 +221,7 @@ export class SearchClientDetailsComponent extends Component {
 
 	_onNonClientCapturedInsure(event) {
 		this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
-			detail: {
-				incomingCallDetails: event.detail.incomingCallDetails
-			}
+			detail: event.detail
 		}));
 	}
 
@@ -273,7 +271,7 @@ export class SearchClientDetailsComponent extends Component {
 
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
-			Object.assign(identificationMethod, identificationMethod[`value`]);
+			Object.assign(identificationMethod, identificationMethod.value);
 			delete identificationMethod.value;
 			return identificationMethod;
 		});

@@ -221,7 +221,7 @@ export class LandingPage extends View {
 		 * Updating whether the incoming number is verified or unverified, which will be used in action bar
 		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
 		 */
-		data.detail.incomingCallDetails.isUnverifiedNumber = this.unVerifiedCaller ? true : false;
+		data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
 
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;

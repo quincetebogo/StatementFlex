@@ -116,11 +116,9 @@ export class InsureInformation extends Component {
 				birthday: ``,
 				isConfirmed: false
 			});
-		}
-		else if (this.displayMode === "unverified-prospective") {
+		} else if (this.displayMode === "unverified-prospective") {
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
-		}
-		else if (this.displayMode === "verified-prospective") {
+		} else if (this.displayMode === "verified-prospective") {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 

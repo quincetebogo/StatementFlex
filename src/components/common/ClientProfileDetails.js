@@ -1,7 +1,7 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 import 'platform/components/buttons/ProductTile';
-import { isDisabled, isHidden, getTabIndex, getValue } from '../../utils/channelServiceUtilities';
+import { getTabIndex, getValue, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
 import { HorizonStore } from '../../store/HorizonStore';
 import { EventAggregator } from 'platform/EventAggregator';
 
@@ -33,6 +33,11 @@ export class ClientProfileDetails extends Component {
 	// PROPERTIES
 	// ----------
 
+	static get properties() {
+		return {
+			miniProfile: { type: Object }
+		};
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
