@@ -297,8 +297,12 @@ export class InsureSearchClient extends Component {
 
 			const insureService = new InsureService();
 
-			await insureService.addNonClientDetails(nonClientData, this._toggleBusyFlag, null);
-
+			await insureService.addNonClientDetails(
+				nonClientData, 
+				() => this._toggleBusyFlag(),
+				(ex) => this._handleAddNonClientException(ex)
+			);
+	
 			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
@@ -400,6 +404,25 @@ export class InsureSearchClient extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_handleAddNonClientException(exception) {
+		const event = {
+			from: `UI-CS`,
+			status: `error`,
+			message: ``
+		};
+
+		if (exception instanceof TypeError) {
+			event.message = exception.message;
+		} else if (exception instanceof HttpStatusError) {
+			event.message = `${exception.status}: ${exception.message}`;
+		} else {
+			event.message = `UNEXPECTED ERROR: ${exception.message}`;
+		}
+
+		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		return true;
 	}
 
 	_handleSearchClientException(exception) {
@@ -639,8 +662,8 @@ export class InsureSearchClient extends Component {
 				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType
-			!== CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType !==
+			CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}

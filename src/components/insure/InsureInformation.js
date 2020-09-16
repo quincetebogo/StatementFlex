@@ -1,6 +1,6 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from '../../store/HorizonStore';
-import { Router, NavigationContext, EventAggregator } from 'platform/core';
+import { EventAggregator, NavigationContext, Router } from 'platform/core';
 
 import 'platform/components/layouts/Layout';
 import 'platform/components/containers/Expander';
@@ -9,11 +9,11 @@ import 'platform/components/containers/TabGroup';
 import 'platform/components/data/Table';
 import 'platform/components/navigation/AppRouter';
 
-import '../dialogs/insure/SolutionCalculatePremium'
-import '../dialogs/insure/NonAdvisoryDisclaimer'
+import '../dialogs/insure/SolutionCalculatePremium';
+import '../dialogs/insure/NonAdvisoryDisclaimer';
 import '../dialogs/EndCallSession';
-import '../dialogs/insure/AssignReasonDialog'
-import '../dialogs/insure/AssignReasonSelected'
+import '../dialogs/insure/AssignReasonDialog';
+import '../dialogs/insure/AssignReasonSelected';
 import '../../shell/HorizonRouter';
 
 
@@ -29,8 +29,8 @@ const RENDER_MODE = {
 const RENDER_BANNER = {
 	NON_CLIENT: 0,
 	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
-	VERIFIED_PROSPECTIVE_CLIENT: 2,
-}
+	VERIFIED_PROSPECTIVE_CLIENT: 2
+};
 
 export class InsureInformation extends Component {
 
@@ -51,26 +51,26 @@ export class InsureInformation extends Component {
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.renderAlertBanner = 0;
-		this.displayMode = "";
+		this.displayMode = ``;
 		this.records = [
-			{ columnOne: 'Policyholder', columnTwo: 'R100 000' },
-			{ columnOne: 'Spouse(18 - 64)', columnTwo: 'R100 000' },
-			{ columnOne: 'Children (newborn - 5 years)', columnTwo: 'R20 000 each*' },
-			{ columnOne: 'Children (6 - 13 years)', columnTwo: 'R50 000 each*' },
-			{ columnOne: 'Children (14 years and older)', columnTwo: 'R60 000 each*' },
-			{ columnOne: 'Parents (26 - 85 years)', columnTwo: 'R50 000 each*' },
-			{ columnOne: 'Extended Family (0 - 85 years)', columnTwo: 'R20 000 each*' }
+			{ columnOne: `Policyholder`, columnTwo: `R100 000` },
+			{ columnOne: `Spouse(18 - 64)`, columnTwo: `R100 000` },
+			{ columnOne: `Children (newborn - 5 years)`, columnTwo: `R20 000 each*` },
+			{ columnOne: `Children (6 - 13 years)`, columnTwo: `R50 000 each*` },
+			{ columnOne: `Children (14 years and older)`, columnTwo: `R60 000 each*` },
+			{ columnOne: `Parents (26 - 85 years)`, columnTwo: `R50 000 each*` },
+			{ columnOne: `Extended Family (0 - 85 years)`, columnTwo: `R20 000 each*` }
 		];
 		this.displayNotification = true;
 		this.displayToast = true;
 		this.isReassigned = false;
 
 		this.incomingCallDetails = {
-			incomingTelephoneNumber: "0640987370",
-			voiceReferenceNumber: "34567893",
-			ivrOptionCode: "1",
-			incidentReferenceNumber: "123456",
-			agentTelephoneNumber: "0828404590"
+			incomingTelephoneNumber: `0640987370`,
+			voiceReferenceNumber: `34567893`,
+			ivrOptionCode: `1`,
+			incidentReferenceNumber: `123456`,
+			agentTelephoneNumber: `0828404590`
 		};
 	}
 
@@ -101,36 +101,39 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.displayMode === "non-client") {
+		if (this.displayMode === `non-client`) {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 			this.state = this.horizonStore.recoverState();
 
-			this.eventAggregator.publish(`mini-client-profile`, {
-				title: ``,
-				name: this.state.nonClient.firstName,
-				lastName: this.state.nonClient.surname,
-				idNumber: ``,
-				phoneNumber: this.state.nonClient.cellphone,
-				livesIn: ``,
-				languagePreference: ``,
-				birthday: ``,
-				isConfirmed: false
-			});
-		} else if (this.displayMode === "unverified-prospective") {
+			this.eventAggregator.publish(
+				`mini-client-profile`,
+				{
+					name: `${this.state.nonClient.firstName} ${this.state.nonClient.surname}`,
+					idNumber: ``,
+					phoneNumber: this.state.nonClient.cellphone,
+					livesIn: ``,
+					languagePreference: ``,
+					birthday: ``,
+					isConfirmed: false
+				}
+			);
+		} else if (this.displayMode === `unverified-prospective`) {
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
-		} else if (this.displayMode === "verified-prospective") {
+		} else if (this.displayMode === `verified-prospective`) {
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 
-		this.eventAggregator.publish('horizon-update-call_actionbar',
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
 			{
-				referenceNo: "73023022",
-				phoneNumber: "0631152973",
+				referenceNo: `73023022`,
+				phoneNumber: `0631152973`,
 				ivrOptionCode: `2`
-			});
+			}
+);
 
 
 		this.displayNotification = true;
@@ -142,15 +145,15 @@ export class InsureInformation extends Component {
 		this.incomingCallDetails.ivrOption = {
 			possibleValues: [
 				{
-					"key": "1",
-					"value": "Stop Card"
+					"key": `1`,
+					"value": `Stop Card`
 				},
 				{
-					"key": "2",
-					"value": "Insure"
+					"key": `2`,
+					"value": `Insure`
 				}
 			]
-		}
+		};
 	}
 
 
@@ -179,18 +182,22 @@ export class InsureInformation extends Component {
 	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+
 	_onCloseClick() {
-		console.log('closable button clicked');
+		console.log(`closable button clicked`);
 		this.displayNotification = false;
 	}
+
 	_onCloseCover() {
-		console.log('closable cover alert clicked');
+		console.log(`closable cover alert clicked`);
 		this.displayCoverNotification = false;
 	}
+
 	_onCloseClaimAlert() {
-		console.log('closable claim alert clicked');
+		console.log(`closable claim alert clicked`);
 		this.displayClaimNotification = false;
 	}
+
 	_onToggleToastDisplay() {
 		this.displayToast = false;
 	}
@@ -209,7 +216,7 @@ export class InsureInformation extends Component {
 	}
 
 	_onCancelAssign() {
-		console.log("Cancel assign received");
+		console.log(`Cancel assign received`);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -541,9 +548,9 @@ export class InsureInformation extends Component {
 				justify-content: center;	
 				align-items: center;
 			}
-			`];
+			`
+];
 	}
-
 
 
 	_mobileTemplate() {
@@ -916,7 +923,7 @@ export class InsureInformation extends Component {
 
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
-			return html`<horizon-insure-assign-reason @on-assign-reason=${(e)=> this._onAssignReasonSelected(e)}
+			return html`<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 	@on-cancel=${() => this._onCancelSelectAssignReason()}>
 </horizon-insure-assign-reason>`;
 		}
@@ -925,7 +932,7 @@ export class InsureInformation extends Component {
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-reason-selected .selectedReason="${this.assignReason}" @on-cancel=${()=> this._onCancelAssign()}>
+			return html`<horizon-assign-reason-selected .selectedReason="${this.assignReason}" @on-cancel=${() => this._onCancelAssign()}>
 </horizon-assign-reason-selected>`;
 		}
 		return html``;

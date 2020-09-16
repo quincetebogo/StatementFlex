@@ -17,9 +17,7 @@ export class ClientProfileDetails extends Component {
 		this.EventAggregator = EventAggregator.getInstance();
 
 		this.miniProfile = {
-			title: ``,
 			name: ``,
-			lastName: ``,
 			idNumber: ``,
 			phoneNumber: ``,
 			livesIn: ``,
@@ -55,9 +53,7 @@ export class ClientProfileDetails extends Component {
 	_onUpdateMiniClientProfile(profile) {
 
 		this.miniProfile = {
-			title: profile.title,
 			name: profile.name,
-			lastName: profile.lastName,
 			idNumber: profile.idNumber,
 			phoneNumber: profile.phoneNumber,
 			livesIn: profile.livesIn,
@@ -65,6 +61,40 @@ export class ClientProfileDetails extends Component {
 			birthday: profile.birthday,
 			isConfirmed: profile.isConfirmed
 		};
+	}
+
+	// --------- 
+	// PRIVATE
+	// ---------
+
+	_replaceEmptyValue(value) {
+		if (value === null || value === ``) {
+			return `-`;
+		}
+		return value;
+	}
+
+	_formatBirthDate(birthdate) {
+		if (birthdate === null || birthdate === ``) {
+			return `-`;
+		}
+		
+		let dob = null;
+
+		if (birthdate instanceof Date) {
+			dob = birthdate;
+		} else if (birthdate) {
+			dob = new Date(birthdate);
+		} else {
+			dob = null;
+		}
+
+		const months = [
+			`January`, `February`, `March`, `April`, `May`, `June`,
+			`July`, `August`, `September`, `October`, `November`, `December`
+		];
+
+		return `${dob.getDate()} ${months[dob.getMonth()]}`;
 	}
 
 	// ---------
@@ -212,39 +242,28 @@ export class ClientProfileDetails extends Component {
 
 	renderClientPersonalInfo() {
 		return html`<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-	<capitec-label row="1" column="1" label="${this.miniProfile.name} ${this.miniProfile.lastName}" type="subtitle">
-	</capitec-label>
-	<span row="2" column="1">
-		<capitec-label label="ID Number: " type="subtitle">
-		</capitec-label>
-		<capitec-label label="${this.miniProfile.idNumber}" type="subtitle">
-		</capitec-label>
-	</span>
-	<span row="3" column="1">
-		<capitec-label label="Contact Number: " type="subtitle">
-		</capitec-label>
-		<capitec-label label="${this.miniProfile.phoneNumber}" type="subtitle">
-		</capitec-label>
-	</span>
-	<span row="4" column="1">
-		<capitec-label label="Lives In: " type="subtitle">
-		</capitec-label>
-		<capitec-label label="${this.miniProfile.livesIn}" type="subtitle">
-		</capitec-label>
-	</span>
-	<span row="5" column="1">
-		<capitec-label label="Language Preference: " type="subtitle">
-		</capitec-label>
-		<capitec-label label="${this.miniProfile.languagePreference}" type="subtitle">
-		</capitec-label>
-	</span>
-	<span row="6" column="1">
-		<capitec-label label="Birthday: " type="subtitle">
-		</capitec-label>
-		<capitec-label label="${this.miniProfile.birthday}" type="subtitle">
-		</capitec-label>
-	</span>
-</capitec-group>`;
+			<capitec-label row="1" column="1" label="${this.miniProfile.name}" type="subtitle"></capitec-label>
+			<span row="2" column="1">
+				<capitec-label label="ID Number: " type="subtitle"></capitec-label>
+				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle"></capitec-label>
+			</span>
+			<span row="3" column="1">
+				<capitec-label label="Contact Number: " type="subtitle"></capitec-label>
+				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle"></capitec-label>
+			</span>
+			<span row="4" column="1">
+				<capitec-label label="Lives In: " type="subtitle"></capitec-label>
+				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle"></capitec-label>
+			</span>
+			<span row="5" column="1">
+				<capitec-label label="Language Preference: " type="subtitle"></capitec-label>
+				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle"></capitec-label>
+			</span>
+			<span row="6" column="1">
+				<capitec-label label="Birthday: " type="subtitle"></capitec-label>
+				<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle"></capitec-label>
+			</span>
+		</capitec-group>`;
 	}
 
 	renderActionButtons() {
