@@ -40,7 +40,7 @@ export class ClientProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
+		this.EventAggregator.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
 	}
 
 	// ---------

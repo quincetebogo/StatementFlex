@@ -104,6 +104,18 @@ export class InsureInformation extends Component {
 		if (this.displayMode === "non-client") {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 			this.state = this.horizonStore.recoverState();
+
+			this.eventAggregator.publish(`mini-client-profile`, {
+				title: ``,
+				name: this.state.nonClient.firstName,
+				lastName: this.state.nonClient.surname,
+				idNumber: ``,
+				phoneNumber: this.state.nonClient.cellphone,
+				livesIn: ``,
+				languagePreference: ``,
+				birthday: ``,
+				isConfirmed: false
+			});
 		}
 		else if (this.displayMode === "unverified-prospective") {
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
@@ -121,6 +133,7 @@ export class InsureInformation extends Component {
 				phoneNumber: "0631152973",
 				ivrOptionCode: `2`
 			});
+
 
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
