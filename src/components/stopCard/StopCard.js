@@ -1,9 +1,9 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { Utilities } from '@cb/platform-web-core';
 import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components';
 
-import { HorizonRouter } from '../../shell/HorizonRouter'
+import { HorizonRouter } from '../../shell/HorizonRouter';
 import { HorizonStore } from '../../store/HorizonStore';
 import { DesktopAgentService } from '../../services/DesktopAgentService';
 import { HorizonChannelService } from '../../services/HorizonChannelService';
@@ -14,9 +14,9 @@ import '../dialogs/stopCard/StopCard';
 import '../../components/common/HorizonRadioButtonsContainer';
 
 const COLUMNS = {
-	CARDTYPE: 'cardType',
-	CARDNUMBER: 'encryptedCardId'
-}
+	CARDTYPE: `cardDisplayName`,
+	CARDNUMBER: `maskedCardNumber`
+};
 
 const RENDER_MODE = {
 	CLIENT_PROFILE: 0,
@@ -34,10 +34,10 @@ const TABLE_STYLE = {
 };
 
 const STOPREASONS = {
-	CARD_DAMAGED: 'DAMAGED',
-	CARD_LOST: 'LOST',
-	CARD_STOLEN: 'STOLEN',
-	SUSPECTED_FRAUD: 'SUSPECTED_FRAUD'
+	CARD_DAMAGED: `DAMAGED`,
+	CARD_LOST: `LOST`,
+	CARD_STOLEN: `STOLEN`,
+	SUSPECTED_FRAUD: `SUSPECTED_FRAUD`
 };
 
 export class StopCard extends Component {
@@ -76,7 +76,7 @@ export class StopCard extends Component {
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
 			cardsToStop: { type: Array }
-		}
+		};
 	}
 
 
@@ -91,12 +91,14 @@ export class StopCard extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => {
+ this._toggleBusyFlag(); 
+}, // ServiceCallHelper will toggle the busy flag
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
-		let clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-		let incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
+		const clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
+		const incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
 
 		this.instruction = clientProfileDetails.instruction;
 		this.cards = clientProfileDetails.cards;
@@ -111,7 +113,7 @@ export class StopCard extends Component {
 		this.callerInfo = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: "1",
+			ivrOptionCode: incomingCallDetails.ivrOptionCode,
 			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
 			incidentRecId: incomingCallDetails.incidentRecId,
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
@@ -121,13 +123,28 @@ export class StopCard extends Component {
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish('horizon-update-call_actionbar',
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
 			{
 				referenceNo: this.callerInfo.incidentReferenceNumber,
 				phoneNumber: this.callerInfo.incomingTelephoneNumber,
 				ivrOptionCode: this.callerInfo.ivrOptionCode,
 				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
-			});
+			}
+);
+
+		this.eventAggregator.publish(
+			`mini-client-profile`,
+			{
+				name: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.name.value,
+				idNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
+				phoneNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
+				livesIn: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
+				languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
+				birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
+				isConfirmed: true
+			}
+		);
 	}
 
 	// --------------
@@ -185,29 +202,27 @@ export class StopCard extends Component {
 
 
 	_onStopCards() {
-		this.cardsToStop = this.cards.map(
-			card => {
-				return {
+		this.cardsToStop = this.cards.map(card => ({
 					cardId: card.cardId,
 					accountNumber: card.accountNumber,
 					encryptedCardId: card.encryptedCardId,
 					cardType: card.cardType,
-					stopReason: card.selected ? card.stopReason : ''
-				}
-			}
-		).filter(card => card.stopReason != '');
+					stopReason: card.selected ? card.stopReason : ``
+				})).filter(card => card.stopReason != ``);
 
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 	}
 
 	_onCardsStopped(event) {
-		this.dispatchEvent(new CustomEvent('cards-stopped',
+		this.dispatchEvent(new CustomEvent(
+`cards-stopped`,
 			{
 				detail: {
 					callerInfo: this.callerInfo,
 					stoppedCards: event.detail.stoppedCards
 				}
-			}));
+			}
+));
 	}
 
 	_onEndCallSession() {
@@ -246,8 +261,8 @@ export class StopCard extends Component {
 
 	addFieldsToCardsArray() {
 		this.cards.map((card, index) => {
-			card["rowIndex"] = index;
-			card["selected"] = false;
+			card.rowIndex = index;
+			card.selected = false;
 			card.stopReason = STOPREASONS.CARD_LOST;
 		});
 	}
@@ -316,7 +331,8 @@ export class StopCard extends Component {
 					line-height: 24px;
 					margin: 20px 0px 0px 23px;
 				}
-			`];
+			`
+];
 	}
 
 	_mobileTemplate() {
@@ -326,12 +342,12 @@ export class StopCard extends Component {
 		return html`
 			<capitec-card class="stop-card">
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
-					
+			
 					${this._renderTitleBar()}
 					${this._renderNotifyClient()}
 					${this._renderCardDetails()}
 					${this._renderFooter()}
-
+			
 				</capitec-group>
 			</capitec-card>
 			${this._renderEndCallModal()}
@@ -341,17 +357,14 @@ export class StopCard extends Component {
 	}
 
 	_renderTitleBar() {
-		return html`<capitec-title-bar type="clear" 
-									   label="Stop Card" 
-									   row="1" 
-									   column="1">
-					</capitec-title-bar>`;
+		return html`<capitec-title-bar type="clear" label="Stop Card" row="1" column="1">
+</capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
 		return html`
 			<div class="horizon-notify-client" row="2" column="1">
-				<img src="../../images/info.svg" id="action-icon"/>
+				<img src="../../images/info.svg" id="action-icon" />
 				<p id="action-display">&nbsp;${this.instruction}</p>
 			</div>`;
 	}
@@ -359,12 +372,8 @@ export class StopCard extends Component {
 	_renderCardDetails() {
 		return html`
 				<capitec-table .items="${this.cards}" row="3" column="1">
-					<capitec-table-column label=""
-										  field=""
-										  type="text"
-										  size="1064px;"
-										  .renderer="${(rowData) => this._renderRowData(rowData)}"
-										  .headerRenderer="${() => this._headerRenderer()}">
+					<capitec-table-column label="" field="" type="text" size="1064px;"
+						.renderer="${(rowData) => this._renderRowData(rowData)}" .headerRenderer="${() => this._headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>
 				`;
@@ -372,20 +381,16 @@ export class StopCard extends Component {
 	}
 
 	_headerRenderer() {
-		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="${TABLE_STYLE.CELL_HEIGHT}">
-						<div row="1" column="2" style="${TABLE_STYLE.HEADER_CELL}">
-							<capitec-label label="Card Type"
-										   style="${TABLE_STYLE.CELL_HEIGHT}"
-										   type="subtitle">
-							</capitec-label>
-						</div>
-						<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
-							<capitec-label label="Card Number"
-										   style="${TABLE_STYLE.CELL_HEIGHT}"
-										   type="subtitle">
-							</capitec-label>
-						</div>
-					</capitec-group>`;
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="xxxxxxxxxxxxxxxxxxxxxxxxxx">
+	<div row="1" column="2" style="xxxxxxxxxxxxxxxxxxxxxxxxxx">
+		<capitec-label label="Card Type" style="xxxxxxxxxxxxxxxxxxxxxxxxxx" type="subtitle">
+		</capitec-label>
+	</div>
+	<div row="1" column="3" style="xxxxxxxxxxxxxxxxxxxxxxxxxx">
+		<capitec-label label="Card Number" style="xxxxxxxxxxxxxxxxxxxxxxxxxx" type="subtitle">
+		</capitec-label>
+	</div>
+</capitec-group>`;
 	}
 
 	/**
@@ -394,65 +399,53 @@ export class StopCard extends Component {
 	 * @memberof StopCard
 	 */
 	_renderRowData(rowData) {
-		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" 
-									style="${rowData.selected ? `height: 70px` : `height: 22px;`}">
+		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none"
+	style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
 
-						${this._renderRowInput(rowData)}
+	${this._renderRowInput(rowData)}
 
-						<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
-							<capitec-label 
-									label="${rowData[COLUMNS.CARDTYPE]}"
-									style="${TABLE_STYLE.CELL_HEIGHT}">
-							</capitec-label>
-						</div>
-						
-						<div row="1" column="3" style="${TABLE_STYLE.BODY_CELL}">
-							<capitec-label 
-									label="${rowData[COLUMNS.CARDNUMBER]}"
-									style="${TABLE_STYLE.CELL_HEIGHT}">
-							</capitec-label>
-						</div>
-						${this._renderReasonButtons(rowData)}
-					</capitec-group>`;
+	<div row="1" column="2" style="xxxxxxxxxxxxxxxxxxxxxxxx">
+		<capitec-label label="${rowData[COLUMNS.CARDTYPE]}" style="xxxxxxxxxxxxxxxxxxxxxxxxxx">
+		</capitec-label>
+	</div>
+
+	<div row="1" column="3" style="xxxxxxxxxxxxxxxxxxxxxxxx">
+		<capitec-label label="${rowData[COLUMNS.CARDNUMBER]}" style="xxxxxxxxxxxxxxxxxxxxxxxxxx">
+		</capitec-label>
+	</div>
+	${this._renderReasonButtons(rowData)}
+</capitec-group>`;
 	}
 
 	_renderRowInput(rowData) {
-		return html`<div row="1" 
-						 column="1" 
-						 style="width: 35px; height: 22px;">
-						<capitec-check label=""
-									   style="--theme-check-width: 21px; --theme-check-height: 21px;"
-									   @value-changed="${(e) => this._valueChanged(e, rowData)}">
-						</capitec-check>
-					</div>`;
+		return html`<div row="1" column="1" style="width: 35px; height: 22px;">
+	<capitec-check label="" style="--theme-check-width: 21px; --theme-check-height: 21px;"
+		@value-changed="${(e) => this._valueChanged(e, rowData)}">
+	</capitec-check>
+</div>`;
 	}
 
 	_renderReasonButtons(rowData) {
 		if (rowData.selected) {
 			return html`
 					<div row="2" column="2" colspan="2" style="display: flex; align-items: center;">
-						<capitec-label label="Choose a Reason"
-									   style="line-height: 21px; width: 102px;">
+						<capitec-label label="Choose a Reason" style="line-height: 21px; width: 102px;">
 						</capitec-label>
-						<capitec-button label="Card Damaged"
-										style="${TABLE_STYLE.REASON_BUTTONS}"
-										.disabled="${rowData.stopReason === STOPREASONS.CARD_DAMAGED}"
-										@click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
+						<capitec-button label="Card Damaged" style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+							.disabled="${rowData.stopReason === STOPREASONS.CARD_DAMAGED}"
+							@click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Lost"
-										style="${TABLE_STYLE.REASON_BUTTONS}"
-										.disabled="${rowData.stopReason === STOPREASONS.CARD_LOST}"
-										@click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
+						<capitec-button label="Card Lost" style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+							.disabled="${rowData.stopReason === STOPREASONS.CARD_LOST}"
+							@click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Stolen"
-										style="${TABLE_STYLE.REASON_BUTTONS}"
-										.disabled="${rowData.stopReason === STOPREASONS.CARD_STOLEN}"
-										@click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
+						<capitec-button label="Card Stolen" style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+							.disabled="${rowData.stopReason === STOPREASONS.CARD_STOLEN}"
+							@click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
 						</capitec-button>
-						<capitec-button label="Suspected Fraud"
-										style="${TABLE_STYLE.REASON_BUTTONS}"
-										.disabled="${rowData.stopReason === STOPREASONS.SUSPECTED_FRAUD}"
-										@click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">
+						<capitec-button label="Suspected Fraud" style="xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+							.disabled="${rowData.stopReason === STOPREASONS.SUSPECTED_FRAUD}"
+							@click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">
 						</capitec-button>
 					</div>`;
 		}
@@ -461,9 +454,7 @@ export class StopCard extends Component {
 	_renderStopCardModal() {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
-				<horizon-stop-card 
-					.callerInfo="${this.callerInfo}"
-					.cardsToStop="${this.cardsToStop}"
+				<horizon-stop-card .callerInfo="${this.callerInfo}" .cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._onCardsStopped(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
 				</horizon-stop-card>
@@ -476,9 +467,7 @@ export class StopCard extends Component {
 			return html`
 				<button-bar row="4" column="1">
 					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
-					<capitec-button label="Stop Card(s)"
-									type="primary"
-									@click="${() => this._onStopCards()}">
+					<capitec-button label="Stop Card(s)" type="primary" @click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}
@@ -487,11 +476,11 @@ export class StopCard extends Component {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CLIENT_PROFILE }}"
-				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
-				.incomingCallDetails = "${this.callerInfo}"
-				.isReassigned = "${this.isReassigned}">
+			<horizon-end-call-session @on-cancel="${() => {
+ this.renderMode = RENDER_MODE.CLIENT_PROFILE; 
+}}"
+				@on-reason-set="${async (reason) => this._onCallComplete(reason)}" .incomingCallDetails="${this.callerInfo}"
+				.isReassigned="${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
 		return html``;
@@ -500,11 +489,10 @@ export class StopCard extends Component {
 	_renderAssignModal() {
 		if (this.renderMode == RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-stop-card
-					.callerInfo=${this.callerInfo}
-					.cards=${this.cards}
-					@on-cancel="${() => { this.renderMode = -1 }}"
-					@on-handoff="${(e) => this._onHandOff(e)}">
+				<horizon-assign-stop-card .callerInfo=${this.callerInfo} .cards=${this.cards}
+					@on-cancel="${() => {
+ this.renderMode = -1; 
+}}" @on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>
 			`;
 		}
