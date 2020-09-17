@@ -11,8 +11,11 @@ import 'platform/components';
 
 import '../dialogs/EndCallSession';
 import '../dialogs/stopCard/StopCard';
+
+/*
 import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignReasonSelected';
+*/
 
 import '../../components/common/HorizonRadioButtonsContainer';
 
@@ -363,7 +366,6 @@ export class StopCard extends Component {
 			${this._renderEndCallModal()}
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
-			${this._renderAssignReasonSelected()}
 		`;
 	}
 
@@ -532,6 +534,23 @@ export class StopCard extends Component {
 	_renderAssignModal() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
+				<horizon-assign-stop-card
+					.callerInfo=${this.callerInfo}
+					.cards=${this.cards}
+					@on-cancel="${() => { 
+						this.renderMode = RENDER_MODE.CLIENT_PROFILE; 
+					}}"
+					@on-handoff="${(e) => this._onHandOff(e)}">
+				</horizon-assign-stop-card>
+			`;
+		}
+		return html``;
+	}
+
+	/*
+	_renderAssignModal() {
+		if (this.renderMode === RENDER_MODE.ASSIGN) {
+			return html`
 				<horizon-insure-assign-reason 
 					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel="${() => { 
@@ -555,6 +574,7 @@ export class StopCard extends Component {
 		}
 		return html``;
 	}
+	*/
 }
 
 customElements.define(`stop-card`, StopCard);

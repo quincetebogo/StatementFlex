@@ -78,20 +78,23 @@ export class HorizonChannelService {
 
 	// stopCardRequest
 	async stopCard(stopCardRequest) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/StopCard`,
+		return await this._getClient().post(
+`/clientcare/card/${this.version}/StopCard`,
 			{
 				"cards": stopCardRequest.cards,
 				"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
 				"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
 				"ivrOptionCode": stopCardRequest.ivrOptionCode,
 				"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-				"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
-			});
+				"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
+			}
+);
 	}
 
 	// loadAssignRequest
-	async assignTeams(incidentData) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/Assign/Teams`,
+	assignTeams(incidentData) {
+		return this._getClient().post(
+`/clientcare/card/${this.version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
 				"incidentRecId": incidentData.incidentRecId
@@ -101,7 +104,8 @@ export class HorizonChannelService {
 
 	// assignRequest
 	async assign(assignData) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/Assign`,
+		return await this._getClient().post(
+`/clientcare/card/${this.version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
