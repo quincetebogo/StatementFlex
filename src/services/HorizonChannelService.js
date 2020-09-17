@@ -198,4 +198,19 @@ export class HorizonChannelService {
 	_getClient() {
 		return HttpClient.getInstance(this._getChannelUrl());
 	}
+
+	// ---------------
+	// INSURE METHODS
+	// ---------------
+
+	addNonClientDetails(callerData) {
+		return this._getClient().post(`/clientcare/insure/${this.version}/addCaller/nonclient`, {
+			'incidentRecId': callerData.incidentRecId,
+			'ivrOptionCode': callerData.ivrOptionCode,
+			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
+			'firstName': callerData.firstName,
+			'surname': callerData.surname,
+			'cellPhone': callerData.cellPhone
+		});
+	}
 }

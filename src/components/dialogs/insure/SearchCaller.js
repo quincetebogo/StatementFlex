@@ -8,8 +8,10 @@ import { CallerDetails } from '../../../models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { InsureService } from '../../../services/InsureService';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+
 
 import '../../common/HorizonSelect';
 import '../stopCard/SearchClientDetails';
@@ -268,25 +270,47 @@ export class InsureSearchClient extends Component {
 		}
 	}
 
-	_onContinue() {
+	async _onContinue() {
 		if (this._validateNonClientFields()) {
 			const callerDetails = new CallerDetails();
 
 			callerDetails.idNumber = ``;
-			callerDetails.incomingTelephoneNumber = ``;
+			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
 			callerDetails.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 			callerDetails.incidentRecId = this.incomingCallDetails.incidentRecId;
-			callerDetails.agentTelephoneNumber = ``;
-			callerDetails.nonClientFullName = ``;
-			callerDetails.nonClientCellPhone = ``;
+			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
+			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
 			callerDetails.nonClientIDNumber = ``;
 			callerDetails.nonClientRelationship = ``;
 
+			const nonClientData = {
+				incidentRecId: this.incomingCallDetails.incidentRecId,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.nameValue,
+				surname: this.surNameValue,
+				cellphone: this.cellPhoneNumberValue
+			};
+
+			const insureService = new InsureService();
+
+			await insureService.addNonClientDetails(
+				nonClientData, 
+				() => this._toggleBusyFlag(),
+				(ex) => this._handleAddNonClientException(ex)
+			);
+	
 			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails
+					incomingCallDetails: this.incomingCallDetails,
+					nonClient: {
+						firstName: this.nameValue,
+						surname: this.surNameValue,
+						cellphone: this.cellPhoneNumberValue
+					}
 				}
 			}));
 		}
@@ -380,6 +404,25 @@ export class InsureSearchClient extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_handleAddNonClientException(exception) {
+		const event = {
+			from: `UI-CS`,
+			status: `error`,
+			message: ``
+		};
+
+		if (exception instanceof TypeError) {
+			event.message = exception.message;
+		} else if (exception instanceof HttpStatusError) {
+			event.message = `${exception.status}: ${exception.message}`;
+		} else {
+			event.message = `UNEXPECTED ERROR: ${exception.message}`;
+		}
+
+		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		return true;
 	}
 
 	_handleSearchClientException(exception) {
@@ -505,11 +548,8 @@ export class InsureSearchClient extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog 
-							.incomingCallDetails="${this.incomingCallDetails}" 
-							.headerLabel="${this.headerLabel}"
-							@on-end-call="${() => this._onEndCall()}" 
-							@on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${this.headerLabel}"
+						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this._renderAlertBanner()}
@@ -544,17 +584,11 @@ export class InsureSearchClient extends Component {
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio 
-						id="capitecClient" 
-						label="Capitec Client" 
-						@value-changed="${(e) => this._clientTypeChanged(e)}"
+					<capitec-radio id="capitecClient" label="Capitec Client" @value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio 
-						id="nonCient" 
-						label="Non Client" 
-						@value-changed="${(e) => this._clientTypeChanged(e)}" 
-						row="1" column="2">
+					<capitec-radio id="nonCient" label="Non Client" @value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+						column="2">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>`;
@@ -568,16 +602,9 @@ export class InsureSearchClient extends Component {
 					</capitec-label>
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 						<div class="search-field-row">
-							<capitec-select 
-								id="searchType" 
-								class="id-options" 
-								label="Choose identification method"
-								.items="${this.identificationMethods}" 
-								.value="${this.searchType}" 
-								id-field="key" 
-								display-field="value"
-								@value-changed="${(e) => this._valueChanged(e)}" 
-								error="${this.errMessage.searchType}">
+							<capitec-select id="searchType" class="id-options" label="Choose identification method"
+								.items="${this.identificationMethods}" .value="${this.searchType}" id-field="key" display-field="value"
+								@value-changed="${(e) => this._valueChanged(e)}" error="${this.errMessage.searchType}">
 							</capitec-select>
 						</div>
 						<div class="search-field-row">
@@ -597,35 +624,21 @@ export class InsureSearchClient extends Component {
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
 					<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 					<div class="search-field-row">
-						<capitec-text-field 
-							id="nameValue" 
-							label="Name" 
-							hint="Required Field" 
-							.value="${this.nameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" 
-							@key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field id="nameValue" label="Name" hint="Required Field" .value="${this.nameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.nameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field 
-							id="surNameValue" 
-							label="Surname" hint="Required Field" 
-							.value="${this.surNameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" 
-							@key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field id="surNameValue" label="Surname" hint="Required Field" .value="${this.surNameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.surNameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field 
-							id="cellPhoneNumberValue" 
-							label="Cellphone number (optional)" 
-							type="numeric"
-							.value="${this.cellPhoneNumberValue}" 
-							@value-changed="${(e) => this._valueChanged(e)}"
-							@key-input="${(e) => this._onKeyPress(e)}" 
-							error="${this.errMessage.cellPhoneNumberValue}">
+						<capitec-text-field id="cellPhoneNumberValue" label="Cellphone number (optional)" type="numeric"
+							.value="${this.cellPhoneNumberValue}" @value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}" error="${this.errMessage.cellPhoneNumberValue}">
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
@@ -646,15 +659,11 @@ export class InsureSearchClient extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button 
-					type="primary" @click="${(e) => this._onSearchClient(e)}" 
-					label="Search Client"
+				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button 
-					type="primary" @click="${(e) => this._onContinue(e)}" 
-					label="Continue" 
-					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType !==
+			CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
@@ -668,9 +677,7 @@ export class InsureSearchClient extends Component {
 
 	_renderStopCardSearchModal() {
 		return html`
-			<horizon-search-client 
-				.unverifiedCaller="${this.unverifiedCaller}" 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-search-client .unverifiedCaller="${this.unverifiedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-search-client>`;
