@@ -2,16 +2,15 @@
  * The Assign Stop Card dialog is used to assign a task to handle the failure
  * to stop a card to a team.
  */
-import { Component, html, css } from 'platform/elements';
-
-import 'platform/components/inputs/Select';
-import 'platform/components/popups/AlertBanner';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-
 import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
+import 'platform/components/inputs/Select';
+import 'platform/components/popups/AlertBanner';
 import '../../views/stopCard/StopCardFailure';
+
 export class AssignStopCard extends Component {
 
 	// --------------
@@ -27,14 +26,16 @@ export class AssignStopCard extends Component {
 		this.teamsResponse = null;
 
 		this.errorAlert = false;
-		this.errorMessage = ``;  // "Please select a team to assign";
+		this.errorMessage = ``; // "Please select a team to assign";
 
 
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
+			() => { 
+				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
+			}, 
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
@@ -55,7 +56,7 @@ export class AssignStopCard extends Component {
 			team: { type: Object },
 			errorAlert: { type: Boolean },
 			errorMessage: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -65,33 +66,33 @@ export class AssignStopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		let cardsAndIncident = {
-			cardIds: this.cards.map(card => card.cardId),
+		const cardsAndIncident = {
+			cardIds: this.cards.map(card => card.cardNumber),
 			incidentRecId: this.callerInfo.incidentRecId
-		}
+		};
 
 		this.serviceCallHelper.call(
 			this.channelService.assignTeams(cardsAndIncident),
 			(teams) => {
 				this.teamsResponse = teams;
 				this.teamItems = this.teamsResponse.teams.possibleValues;
-			});
+			}
+		);
 	}
 
 
 	// --------------
 	// EVENT HANDLERS
-	// --------------	
+	// --------------
 
 	async _onAssignClick(e) {
 		if (!this.team) {
 			this.errorAlert = true;
-		}
-		else {
+		} else {
 
-			let assignRequest =
+			const assignRequest =
 			{
-				"cardIds": this.cards.map(card => card.cardId),
+				"cardIds": this.cards.map(card => card.cardNumber),
 				"incidentRecId": this.callerInfo.incidentRecId,
 				"team": this.team.value
 			};
@@ -100,7 +101,7 @@ export class AssignStopCard extends Component {
 			await this.serviceCallHelper.asyncCall(this.channelService.assign(assignRequest), (ex) => this._assignErrorHandler(ex));
 
 			if (this.success) {
-				this.dispatchEvent(new CustomEvent('on-handoff', {
+				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
 			}
@@ -113,7 +114,7 @@ export class AssignStopCard extends Component {
 	}
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent('on-cancel'));
+		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
 
 	// --------------
@@ -127,37 +128,34 @@ export class AssignStopCard extends Component {
 
 	_assignErrorHandler(exception) {
 		try {
-			this.error = 'Failed to assign card';
+			this.error = `Failed to assign card`;
 
 			if (exception instanceof TypeError) {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `assign: ${exception.message}`
-				}
+				};
 				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-			else if (exception instanceof HttpStatusError) {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+			} else if (exception instanceof HttpStatusError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `assign: ${exception.status} - ${exception.message}`
-				}
+				};
 				this.error = `${exception.status}: ${exception.message}`;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-			else {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+			} else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `assign: UNEXPECTED ERROR - ${exception.message}`
-				}
+				};
 				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
-		}
-		finally {
+		} finally {
 			this.success = false;
 		}
 
@@ -165,7 +163,7 @@ export class AssignStopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -261,7 +259,8 @@ export class AssignStopCard extends Component {
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-color: #3E4547;	
 				}
-			`];
+			`
+];
 	}
 
 	_mobileTemplate() {
@@ -277,13 +276,13 @@ export class AssignStopCard extends Component {
 				type="free" 
 				header="Assign Stop Card" 
 				header-align="left">
-			<div slot="body">
-				${this.renderBody()}
-			</div>
-			<div slot="footer" class="footer-buttons">
-				${this.renderFooter()}					
-			</div>
-			</capitec-modal>	
+					<div slot="body">
+						${this.renderBody()}
+					</div>
+					<div slot="footer" class="footer-buttons">
+						${this.renderFooter()}
+					</div>
+			</capitec-modal>
 		`;
 	}
 
@@ -317,11 +316,10 @@ export class AssignStopCard extends Component {
 
 		// if even number begining of line
 		if (index / 2 === 0 && index + 1 < cards.length) {
-			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span> and ${cards[index + 1].cardType} <span class="bold-text">${cards[index + 1].encryptedCardId}</span></p>`;
-		}
-		else if (index / 2 == 0 && index + 1 >= cards.length) {
+			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span> and ${cards[index + 1].cardDisplayName} <span class="bold-text">${cards[index + 1].maskedCardNumber}</span></p>`;
+		} else if (index / 2 === 0 && index + 1 >= cards.length) {
 			// If odd number, second on line
-			return html`<p class="failed-cards">${cards[index].cardType} <span class="bold-text">${cards[index].encryptedCardId}</span></p>`;
+			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span></p>`;
 		}
 	}
 
@@ -335,9 +333,9 @@ export class AssignStopCard extends Component {
 				</capitec-alert-banner>
 			`;
 		}
-		else {
+		
 			return html``;
-		}
+		
 	}
 
 	renderFooter() {

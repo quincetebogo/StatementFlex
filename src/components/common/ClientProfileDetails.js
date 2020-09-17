@@ -1,9 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { getTabIndex, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/buttons/ProductTile';
-import { getTabIndex, getValue, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
-import { HorizonStore } from '../../store/HorizonStore';
-import { EventAggregator } from 'platform/EventAggregator';
 
 export class ClientProfileDetails extends Component {
 

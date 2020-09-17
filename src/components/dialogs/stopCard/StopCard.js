@@ -114,7 +114,7 @@ export class StopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = this.isBusy;
 	}
 
 	// ---------
@@ -208,9 +208,7 @@ export class StopCard extends Component {
 		return html`
 		<capitec-group class="dialogSize" layout="vertical" gap="none">
 			<p class="first-line">Are you sure you want to stop:</p>
-			${this.cardsToStop.map((line, index, cards) => { 
-				return this._renderLine(line, index, cards); 
-			})}
+			${this.cardsToStop.map((line, index, cards) => this._renderLine(line, index, cards))}
 		</capitec-group>
 		`;
 	}
@@ -220,8 +218,8 @@ export class StopCard extends Component {
 		this.firstLine = false;
 
 		return html`
-		<p class="${classes}">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
-		<p class="left-margin">Reason: <span class="bold-text">${line.stopReason}</span></p>
+		<p class="${classes}">${line.cardDisplayName} <span class="bold-text">${line.maskedCardNumber}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.cardStopReason}</span></p>
 		${this._renderGreyLine(index, cards)}
 		`;
 	}

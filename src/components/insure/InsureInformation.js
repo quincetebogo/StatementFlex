@@ -16,7 +16,6 @@ import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignReasonSelected';
 import '../../shell/HorizonRouter';
 
-
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	CALCULATE_PREMIUM: 1,
@@ -135,7 +134,6 @@ export class InsureInformation extends Component {
 			}
 );
 
-
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
 		this.displayClaimNotification = true;
@@ -227,7 +225,7 @@ export class InsureInformation extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -240,7 +238,7 @@ export class InsureInformation extends Component {
 			p{
 				margin: 0px 0px 0px 0px;
 			
-			}	
+			}
 			ul{
 				height: auto;
 				width: 975px;
@@ -379,7 +377,7 @@ export class InsureInformation extends Component {
 			.premium-text-area{
 				height: 48px;
 				width: 1015px;
-				color: #545D60;	
+				color: #545D60;
 				font-family: "Hind Vadodara";
 				font-size: 15px;
 				letter-spacing: 0;
@@ -545,11 +543,10 @@ export class InsureInformation extends Component {
 				height: 64px;
 				z-index: 201;
 				left: calc(50.8% - 200px);
-				justify-content: center;	
+				justify-content: center;
 				align-items: center;
-			}
-			`
-];
+			}`
+		];
 	}
 
 
@@ -699,21 +696,17 @@ export class InsureInformation extends Component {
 							<capitec-label label="Niece:" row="4" column="1"></capitec-label>
 							<capitec-label row="4" column="2" label="The female child of your brother or sister"></capitec-label>
 							<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label>
-							<capitec-label row="5" column="2" label="The male person married to the child of your parents">
-							</capitec-label>
+							<capitec-label row="5" column="2" label="The male person married to the child of your parents"></capitec-label>
 							<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>
-							<capitec-label row="6" column="2" label="The female person married to the child of your parents">
-							</capitec-label>
+							<capitec-label row="6" column="2" label="The female person married to the child of your parents"></capitec-label>
 							<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label>
 							<capitec-label row="7" column="2" label="The male person married your the child"></capitec-label>
 							<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label>
 							<capitec-label row="8" column="2" label="The female person married your the child"></capitec-label>
 							<capitec-label label="Aunt:" row="9" column="1"></capitec-label>
-							<capitec-label row="9" column="2"
-								label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
+							<capitec-label row="9" column="2" label="The sister of your father or mother, or your uncle’s female spouse"></capitec-label>
 							<capitec-label label="Uncle:" row="10" column="1"></capitec-label>
-							<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse">
-							</capitec-label>
+							<capitec-label row="10" column="2" label="The brother of your father or mother, or your aunt’s male spouse"></capitec-label>
 							<capitec-label label="First cousin:" row="11" column="1"></capitec-label>
 							<capitec-label row="11" column="2" label="The child of your aunt or uncle as defined above"></capitec-label>
 							<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label>
@@ -738,29 +731,21 @@ export class InsureInformation extends Component {
 							<capitec-label label="Nephew:" row="3" column="1"></capitec-label>
 							<capitec-label row="3" column="2" label="The male child of your spouse’s brother or sister"></capitec-label>
 							<capitec-label label="Niece:" row="4" column="1"></capitec-label>
-							<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister">
-							</capitec-label>
+							<capitec-label row="4" column="2" label="The female child of your spouse’s brother or sister"></capitec-label>
 							<capitec-label label="Brother-in-law:" row="5" column="1"></capitec-label>
-							<capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents">
-							</capitec-label>
+							<capitec-label row="5" column="2" label="The male person married to the child of your spouse’s parents"></capitec-label>
 							<capitec-label label="Sister-in-law:" row="6" column="1"></capitec-label>
-							<capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents">
-							</capitec-label>
+							<capitec-label row="6" column="2" label="The female person married to the child of your spouse’s parents"></capitec-label>
 							<capitec-label label="Son-in-law:" row="7" column="1"></capitec-label>
 							<capitec-label row="7" column="2" label="The male person married your spouse’s child"></capitec-label>
 							<capitec-label label="Daughter-in-law:" row="8" column="1"></capitec-label>
 							<capitec-label row="8" column="2" label="The female person married your spouse’s child"></capitec-label>
 							<capitec-label label="Aunt:" row="9" column="1"></capitec-label>
-							<capitec-label row="9" column="2"
-								label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse">
-							</capitec-label>
+							<capitec-label row="9" column="2" label="The sister of your spouse’s father or mother, or your spouse’s uncle’s female spouse"></capitec-label>
 							<capitec-label label="Uncle:" row="10" column="1"></capitec-label>
-							<capitec-label row="10" column="2"
-								label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse">
-							</capitec-label>
+							<capitec-label row="10" column="2" label="The brother of your spouse’s father or mother, or your spouse’s aunt’s male spouse"></capitec-label>
 							<capitec-label label="First cousin:" row="11" column="1"></capitec-label>
-							<capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above">
-							</capitec-label>
+							<capitec-label row="11" column="2" label="The child of your spouse’s aunt or uncle as defined above"></capitec-label>
 							<capitec-label label="First cousin' child:" row="12" column="1"></capitec-label>
 							<capitec-label row="12" column="2" label="The child of your first cousin as defined above"></capitec-label>
 							<capitec-label label="Grandparent:" row="13" column="1"></capitec-label>
@@ -770,8 +755,7 @@ export class InsureInformation extends Component {
 							<capitec-label label="Grandchild:" row="15" column="1"></capitec-label>
 							<capitec-label row="15" column="2" label="Your spouse’s child’s child"></capitec-label>
 							<capitec-label label="Great-grandchild:" row="16" column="1"></capitec-label>
-							<capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child">
-							</capitec-label>
+							<capitec-label row="16" column="2" label="Greatgrandchild who is your spouse’s grandchild’s child"></capitec-label>
 						</capitec-group>
 					</capitec-expander>
 				</capitec-expander-group>
@@ -825,8 +809,9 @@ export class InsureInformation extends Component {
 
 	_renderDislaimer() {
 		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
-			return html`<horizon-non-advisory-disclaimer @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-</horizon-non-advisory-disclaimer>`;
+			return html`<horizon-non-advisory-disclaimer 
+				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-non-advisory-disclaimer>`;
 		}
 	}
 

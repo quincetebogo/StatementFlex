@@ -375,7 +375,7 @@ export class LandingPage extends View {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">
+					@call-ended="${(data) => this._onCallEnded(data)}">  
 				</horizon-insure-search-client>`;
 		}
 	}
