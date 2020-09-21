@@ -209,13 +209,19 @@ export class LandingPage extends View {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
+	_onNonClientCaptured(event) {
+		this.horizonStore.saveState(event.detail);
+		this.renderMode = RENDER_MODE.PAGE_ONLY;
+		this.horizonRouter.navigateToInsureNonClient();
+	}
+
 	_onConfirmedCaller(data) {
 
 		/**
 		 * Updating whether the incoming number is verified or unverified, which will be used in action bar
 		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
 		 */
-		data.detail.incomingCallDetails.isUnverifiedNumber = this.unVerifiedCaller ? true : false;
+		data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
 
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
@@ -344,11 +350,8 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller 
-					.confirmedCaller="${this.confirmedCaller}"
-					.incomingCallDetails = "${this.incomingCallDetails}" 
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">
+				<horizon-confirm-caller .confirmedCaller="${this.confirmedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" @call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-confirm-caller>`;
 		}
 	}
@@ -358,19 +361,21 @@ export class LandingPage extends View {
 			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-search-client 
-					.unverifiedCaller="${this.unVerifiedCaller}"
+					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
 		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
 			return html`
-				<horizon-insure-search-client
+				<horizon-insure-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">
+					@call-ended="${(data) => this._onCallEnded(data)}">  
 				</horizon-insure-search-client>`;
 		}
 	}
@@ -382,7 +387,11 @@ export class LandingPage extends View {
 					<div slot="body">
 						Cannot connect to Desktop Agent Service!
 					</div>
-					<capitec-button slot="footer" type="clear" label="Retry" @click=${() => this.renderMode = RENDER_MODE.PAGE_ONLY}></capitec-button>
+					<capitec-button 
+						slot="footer" 
+						type="clear" 
+						label="Retry" @click=${() => this.renderMode = RENDER_MODE.PAGE_ONLY}>
+					</capitec-button>
 				</capitec-modal>
 			`;
 		}

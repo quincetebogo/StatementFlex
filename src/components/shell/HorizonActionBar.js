@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components/layouts/Group';
 
@@ -7,13 +7,13 @@ import '../common/HorizonLabel';
 export class HorizonActionBar extends Component {
 	// --------------
 	// INITIALISATION
-	// --------------	
+	// --------------
 
 	constructor() {
 		super();
-		this.referenceNo = '';
-		this.phoneNumber = '';
-		this.clientNeed = '';
+		this.referenceNo = ``;
+		this.phoneNumber = ``;
+		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
 	}
 
@@ -27,7 +27,7 @@ export class HorizonActionBar extends Component {
 			phoneNumber: { type: String },
 			clientNeed: { type: String },
 			isUnverifiedNumber: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -61,7 +61,7 @@ export class HorizonActionBar extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------		
+	// ---------
 	static get styles() {
 		return [
 			super.styles,
@@ -121,8 +121,7 @@ export class HorizonActionBar extends Component {
 			
 				.end-call-icon{
 					margin-left: 12px;
-				}	
-			`
+				}`
 		];
 	}
 

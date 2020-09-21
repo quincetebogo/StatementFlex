@@ -35,7 +35,7 @@ export class AssignReasonSelected extends Component {
 	static get properties() {
 		return {
 			assignDialogDetails: { type: Object },
-			selectedReason: { type: Number },
+			selectedReason: { type: String },
 			alertBannerMessage: { type: String },
 			errMessage: { type: String },
 			selectedTeam: { type: String }
@@ -89,7 +89,9 @@ export class AssignReasonSelected extends Component {
 			this.alertBannerMessage = ALERT_ERROR_MESSAGE;
 			this.errMessage = ERROR_MESSAGE;
 		} else {
-			this.dispatchEvent(new CustomEvent(`team-selected`, {}));
+			this.dispatchEvent(new CustomEvent(`team-selected`, {
+				detail: {}
+			}));
 		}
 	}
 

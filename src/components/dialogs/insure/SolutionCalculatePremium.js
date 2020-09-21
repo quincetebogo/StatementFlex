@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import '../insure/AssignReasonSelected';
 
 const RENDER_MODE = {
@@ -35,7 +35,7 @@ export class CalculatePremium extends Component {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
 			selectedFeedback: { type: Number }
-		}
+		};
 	}
 
 	// -------------------
@@ -61,18 +61,17 @@ export class CalculatePremium extends Component {
 	}
 
 	_onAssign() {
-		//TODO: Functionality after assigning to be implemented here.
+		// TODO: Functionality after assigning to be implemented here.
 	}
 
 	_onDoneClick() {
 
-		//If feeback not selected - Show alert banner
+		// If feeback not selected - Show alert banner
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
-		}
-		//If System error feedback is selected - assign diaog will be shown
-		else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
-			this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
+		} else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
+		// If System error feedback is selected - assign diaog will be shown
+		this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
 		}
 	}
 
@@ -80,8 +79,7 @@ export class CalculatePremium extends Component {
 
 		if (e.detail.new && e.currentTarget.id === `completedCalculation`) {
 			this.selectedFeedback = FEEDBACK_OPTIONS.COMPLETED;
-		}
-		else if (e.detail.new && e.currentTarget.id === `systemError`) {
+		} else if (e.detail.new && e.currentTarget.id === `systemError`) {
 			this.selectedFeedback = FEEDBACK_OPTIONS.SYSTEM_ERR;
 		}
 		this.alertBannerMessage = ``;
@@ -223,8 +221,8 @@ export class CalculatePremium extends Component {
 					--theme-alert-banner-font-weight: 500;
 					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-				}
-		`];
+				}`
+		];
 
 	}
 
@@ -239,7 +237,7 @@ export class CalculatePremium extends Component {
 	}
 
 	_renderCalculatePremium() {
-		if (this.renderMode == RENDER_MODE.CALCULATE_PREMIUM) {
+		if (this.renderMode = RENDER_MODE.CALCULATE_PREMIUM) {
 			return html`
 				<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
 					<div slot="body">
@@ -257,7 +255,7 @@ export class CalculatePremium extends Component {
 	}
 
 	_renderAssignModal() {
-		if (this.renderMode == RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
+		if (this.renderMode === RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
 			return html`
 				<horizon-assign-reason-selected
 					.selectedReason=${ASSIGN_REASON}
@@ -269,7 +267,7 @@ export class CalculatePremium extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (!this.alertBannerMessage == '') {
+		if (!this.alertBannerMessage === ``) {
 			return html`
 				<capitec-alert-banner
 									label="${this.alertBannerMessage}"
@@ -325,9 +323,6 @@ export class CalculatePremium extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
@@ -335,9 +330,6 @@ export class CalculatePremium extends Component {
 					id="id-done-button"
 					type="primary"
 					label="Done"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onDoneClick()}">
 				</capitec-button>
 			</capitec-group>
@@ -345,4 +337,4 @@ export class CalculatePremium extends Component {
 	}
 }
 
-window.customElements.define(`horizon-calculate-premium`, CalculatePremium)
+window.customElements.define(`horizon-calculate-premium`, CalculatePremium);

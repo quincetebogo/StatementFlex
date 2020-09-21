@@ -1,8 +1,7 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { CardService } from '../../../services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-
-import { CardService } from '../../../services/CardService'
 
 export class StopCard extends Component {
 
@@ -27,13 +26,13 @@ export class StopCard extends Component {
 		return {
 			isBusy: { type: Boolean },
 			callerInfo: { type: Object },
-			cardsToStop: { type: Array },
-		}
+			cardsToStop: { type: Array }
+		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
-	// -------------------	
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
@@ -44,17 +43,17 @@ export class StopCard extends Component {
 
 	// --------------
 	// EVENT HANDLERS
-	// --------------	
+	// --------------
 
 	async _onConfirmClick() {
 		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
 
-		this.dispatchEvent(new CustomEvent('on-confirm', { detail: { stoppedCards: this.cardStopResults } }));
+		this.dispatchEvent(new CustomEvent(`on-confirm`, { detail: { stoppedCards: this.cardStopResults } }));
 	}
 
 	_onCancelClick() {
 
-		this.dispatchEvent(new CustomEvent('on-cancel'));
+		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
 
 	// --------------
@@ -65,50 +64,49 @@ export class StopCard extends Component {
 	// PRIVATE METHODS
 	// ---------------
 	async _stopCards(cardsToStop, callerInfo) {
-		let cardService = new CardService();
+		const cardService = new CardService();
 
-		let cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
+		const cardStopResults = await cardService.stopCards(
+			cardsToStop, callerInfo,
 			() => this._toggleBusyFlag(),
-			(ex) => this._stopCardErrorHandler(ex));
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 
 		return cardStopResults;
 	}
 
 	_stopCardErrorHandler(exception) {
 		try {
-			this.error = 'Failed to stop card';
+			this.error = `Failed to stop card`;
 
-			console.log('stop card exception', exception);
+			console.log(`stop card exception`, exception);
 
 			if (exception instanceof TypeError) {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `stopCard: ${exception.message}`
-				}
+				};
 				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-			else if (exception instanceof HttpStatusError) {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+			} else if (exception instanceof HttpStatusError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `stopCard: ${exception.status} - ${exception.message}`
-				}
+				};
 				this.error = `${exception.status}: ${exception.message}`;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-			else {
-				let event = {
-					from: 'UI-CS',
-					status: "error",
+			} else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
 					message: `stopCard: UNEXPECTED ERROR - ${exception.message}`
-				}
+				};
 				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
-		}
-		finally {
+		} finally {
 			this.success = false;
 		}
 
@@ -116,7 +114,7 @@ export class StopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		this.isBusy = this.isBusy ? false : true;
+		this.isBusy = this.isBusy;
 	}
 
 	// ---------
@@ -161,7 +159,7 @@ export class StopCard extends Component {
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 20px;
-			  }			
+			  }
 
 			.left-margin{
 				margin-top:0px;
@@ -181,8 +179,8 @@ export class StopCard extends Component {
 			capitec-modal {
 				--theme-modal-header-background-color: #F7F7F7;
 				--theme-modal-header-color: #3E4547;
-			}
-			`];
+			}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -190,17 +188,17 @@ export class StopCard extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal
-				type="free"
-				header="Stop Card"
+			<capitec-modal 
+				type="free" 
+				header="Stop Card" 
 				header-align="left">
 				<div slot="body">
-					${this._renderConfirmStopCard()} 
+					${this._renderConfirmStopCard()}
 					${this._renderLoadingIndicator()}
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
-				</div> 
+				</div>
 			</capitec-modal>
 			`;
 	}
@@ -208,27 +206,27 @@ export class StopCard extends Component {
 	_renderConfirmStopCard() {
 		this.firstLine = true;
 		return html`
-		<capitec-group class="dialogSize" layout="vertical" gap="none">		
-				<p class="first-line">Are you sure you want to stop:</p>
-				${this.cardsToStop.map((line, index, cards) => { return this._renderLine(line, index, cards) })}
+		<capitec-group class="dialogSize" layout="vertical" gap="none">
+			<p class="first-line">Are you sure you want to stop:</p>
+			${this.cardsToStop.map((line, index, cards) => this._renderLine(line, index, cards))}
 		</capitec-group>
 		`;
 	}
 
 	_renderLine(line, index, cards) {
-		let classes = this.firstLine ? 'top-margin left-margin' : 'left-margin'
+		const classes = this.firstLine ? `top-margin left-margin` : `left-margin`;
 		this.firstLine = false;
 
 		return html`
-		<p class="${classes}">${line.cardType} <span class="bold-text">${line.encryptedCardId}</span></p>
-		<p class="left-margin">Reason: <span class="bold-text">${line.stopReason}</span></p>
+		<p class="${classes}">${line.cardDisplayName} <span class="bold-text">${line.maskedCardNumber}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.cardStopReason}</span></p>
 		${this._renderGreyLine(index, cards)}
 		`;
 	}
 
 	_renderGreyLine(index, cards) {
-		if (index < (cards.length - 1)) {
-			return html`<div class="line"></div>`
+		if (index < cards.length - 1) {
+			return html`<div class="line"></div>`;
 		}
 
 		return html``;
@@ -237,19 +235,23 @@ export class StopCard extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button
-					type="clear"
-					label="Cancel"
-					@click="${() => { this._onCancelClick() }}">
+				<capitec-button 
+					type="clear" 
+					label="Cancel" 
+					@click="${() => { 
+						this._onCancelClick();
+					}}">
 				</capitec-button>
-
-				<capitec-button
-					id="id-confirm-button"
-					type="primary"
+			
+				<capitec-button 
+					id="id-confirm-button" 
+					type="primary" 
 					label="Confirm"
-					@click="${async () => { this._onConfirmClick() }}">
+					@click="${async () => { 
+						this._onConfirmClick();
+					}}">
 				</capitec-button>
-			</capitec-group>			
+			</capitec-group>
 			`;
 	}
 
@@ -257,8 +259,8 @@ export class StopCard extends Component {
 		if (!this.isBusy) {
 			return html``;
 		}
-		else
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 
