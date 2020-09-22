@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from '../../shell/HorizonRouter';
 
 import 'platform/components/buttons/ProductTile';
@@ -14,7 +14,7 @@ export class HorizonProductBar extends Component {
 	static get properties() {
 		return {
 			disableNavigation: { type: Boolean }
-		}
+		};
 	}
 
 	// TODO: remove top margin for top most button. 
@@ -34,31 +34,32 @@ export class HorizonProductBar extends Component {
 				width: 440px;
 				margin-top: 16px;
 			}
-			`];
+			`
+];
 	}
 
 	// TODO: Raise events and handle navigation in the client of this component
 	onSavingsAccountClick() {
 		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToSavingsAccountProduct()
+			this.horizonRouter.navigateToSavingsAccountProduct();
 		}
 	}
 
 	onSavingsPlanClick() {
 		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToSavingsPlanProduct()
+			this.horizonRouter.navigateToSavingsPlanProduct();
 		}
 	}
 
 	onInsureClick() {
 		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToInsureProduct()
+			this.horizonRouter.navigateToInsureProduct();
 		}
 	}
 
 	onCreditClick() {
 		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToCreditProduct()
+			this.horizonRouter.navigateToCreditProduct();
 		}
 	}
 

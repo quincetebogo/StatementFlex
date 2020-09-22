@@ -4,16 +4,16 @@
  * the user interface must be returned to this page in order top accept a new call.
  */
 import { View, css, html } from 'platform/elements';
+import { CallHandleService } from '../services/CallHandleService';
 import { DesktopAgentService } from '../services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../services/HorizonChannelService';
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonStore } from '../store/HorizonStore';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { IncidentManagementService } from '../services/IncidentManagementService';
 import { IncomingCallDetails } from '../models/IncomingCallDetails';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { InitialiseService } from '../services/InitialiseService';
 import { tempFixIVROption } from '../utils/channelServiceUtilities';
 
 import 'platform/components/buttons/Button';
@@ -50,16 +50,9 @@ export class LandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.channelService = HorizonChannelService.getInstance();
+		this.callHandleService = CallHandleService.getInstance();
 
 		this.incomingCallDetails = new IncomingCallDetails();
-
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag();
-			}, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
 
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
@@ -139,8 +132,11 @@ export class LandingPage extends View {
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const acceptedCall = await this.serviceCallHelper.asyncCall(
-			this.channelService.acceptCall(newCallInfo),
+		const acceptedCall = await this.callHandleService.acceptCall(
+			newCallInfo,
+			() => {
+				this._toggleBusyFlag();
+			},
 			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
 		);
 
@@ -165,13 +161,13 @@ export class LandingPage extends View {
 				break;
 			case `StopCard`: // StopCard
 				// Based on need and verfication status, dispatch to the appropriate dialog
-				if (this.channelService.isConfirmedCaller(acceptedCall)) {
+				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.confirmedCaller = acceptedCall;
 					this.unVerifiedCaller = null;
 
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 					console.log(`landing page - show confirmed caller`);
-				} else if (this.channelService.isUnverifiedCaller(acceptedCall)) {
+				} else if (this.callHandleService.isUnverifiedCaller(acceptedCall)) {
 					this.unVerifiedCaller = acceptedCall;
 					this.confirmedCaller = null;
 
@@ -231,7 +227,13 @@ export class LandingPage extends View {
 	async _onCallEnded(data) {
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
+		await this.callHandleService.endCall(
+			data.detail,
+			() => {
+ 				this._toggleBusyFlag(); 
+			}
+		);
+
 		this.desktopAgentService.callComplete();
 		this.horizonStore.eraseState();
 	}
@@ -248,7 +250,11 @@ export class LandingPage extends View {
 
 	async _GetLandingPageData() {
 		let landingPageData = null;
-		landingPageData = await this.serviceCallHelper.asyncCall(this.channelService.initialise());
+
+		landingPageData = await InitialiseService.getInstance().initialise(() => {
+			this._toggleBusyFlag();
+		});
+
 		if (landingPageData) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });

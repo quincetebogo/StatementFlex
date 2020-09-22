@@ -4,6 +4,11 @@ import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
 
+/**
+ * The Horizon Action Bar is the top most bar on most Horizon Applications screens. 
+ * The bar displays caller information and provides quick access to assign, hand off 
+ * or end calls.
+ */
 export class HorizonActionBar extends Component {
 	// --------------
 	// INITIALISATION

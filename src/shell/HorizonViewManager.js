@@ -24,8 +24,8 @@
 	shell components based on the view set in the OnPreNavigate event.
 	
 */
-import { html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { html } from 'platform/elements';
 
 const LAYOUT_COMPONENT = {
 	CALL_BAR: 0,
@@ -33,7 +33,7 @@ const LAYOUT_COMPONENT = {
 	MARKETING_BAR: 2,
 	ACCESS_BAR: 3,
 	PROFILE_MENU_BAR: 4,
-	AGENT_BAR: 5,
+	AGENT_BAR: 5
 };
 
 export const HORIZON_VIEW_SET = {
@@ -42,7 +42,7 @@ export const HORIZON_VIEW_SET = {
 	NONCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
 	EXISTINGCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
 	THIRDPARTYCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
-}
+};
 
 export class HorizonViewManager {
 
@@ -61,22 +61,22 @@ export class HorizonViewManager {
 
 		this.shellComponents = [
 			{
-				load: () => import(`../components/shell/HorizonActionBar`),
+				load: () => import(`../components/shell/HorizonActionBar`)
 			},
 			{
-				load: () => import(`../components/landingPage/WelcomeBar`),
+				load: () => import(`../components/landingPage/WelcomeBar`)
 			},
 			{
-				load: () => import(`../components/landingPage/LandingPageMarketing`),
+				load: () => import(`../components/landingPage/LandingPageMarketing`)
 			},
 			{
-				load: () => import(`../components/common/AccessMenuBar`),
+				load: () => import(`../components/common/AccessMenuBar`)
 			},
 			{
-				load: () => import(`../components/common/ClientProfileDetails`),
+				load: () => import(`../components/common/ClientProfileDetails`)
 			},
 			{
-				load: () => import(`../components/landingPage/TitleBar`),
+				load: () => import(`../components/landingPage/TitleBar`)
 			}
 		];
 	}
@@ -89,7 +89,7 @@ export class HorizonViewManager {
 		return this.currentView;
 	}
 
-	/// Usually set from the OnPreNavigate event in the routing table
+	// Usually set from the OnPreNavigate event in the routing table
 	transitionToView(nextView) {
 		this.currentView = nextView;
 		this._importComponents(this.currentView);
@@ -98,8 +98,7 @@ export class HorizonViewManager {
 	renderTopBar(viewSet) {
 		if (viewSet.has(LAYOUT_COMPONENT.AGENT_BAR)) {
 			return html`<horizon-title-bar></horizon-title-bar>`;
-		}
-		else if (viewSet.has(LAYOUT_COMPONENT.CALL_BAR)) {
+		} else if (viewSet.has(LAYOUT_COMPONENT.CALL_BAR)) {
 			return html`<horizon-actionbar></horizon-actionbar>`;
 		}
 
@@ -109,8 +108,7 @@ export class HorizonViewManager {
 	renderLeftBar(viewSet) {
 		if (viewSet.has(LAYOUT_COMPONENT.WELCOME_MENU_BAR)) {
 			return html`<horizon-welcome-bar></horizon-welcome-bar>`;
-		}
-		else if (viewSet.has(LAYOUT_COMPONENT.PROFILE_MENU_BAR)) {
+		} else if (viewSet.has(LAYOUT_COMPONENT.PROFILE_MENU_BAR)) {
 			return html`<client-details></client-details>`;
 		}
 
@@ -120,32 +118,30 @@ export class HorizonViewManager {
 	renderRightBar(viewSet) {
 		if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
 			return html`<landingpage-marketing></landingpage-marketing>`;
-		}
-		else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
+		} else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
 			return html`<access-component></access-component>`;
 		}
 
 		return html``;
 	}
 
-	/// Used from the Landing Page & Product Pages to update the toolbar and the 
-	/// welcome box on the left hand user interface. 
+	// Used from the Landing Page & Product Pages to update the toolbar and the 
+	// welcome box on the left hand user interface. 
 	UpdateLoggedInUser(userData) {
 		if (this.currentView.has(LAYOUT_COMPONENT.AGENT_BAR)) {
-			if (userData != undefined && userData != null) {
+			if (userData !== undefined && userData !== null) {
 
 				// We may replace the event publishing mechanism below with a registered callback
 
-				this.eventAggregator.publish('horizon-update-title-bar', {
+				this.eventAggregator.publish(`horizon-update-title-bar`, {
 					agentFullName: userData.agentFullName,
 					employeeId: userData.employeeId
-				})
-			}
-			else {
+				});
+			} else {
 
 				// We may replace the event publishing mechanism below with a registered callback
 
-				this.eventAggregator.publish('horizon-update-title-bar', { agentFullName: `unknown`, employeeId: `unknown` });
+				this.eventAggregator.publish(`horizon-update-title-bar`, { agentFullName: `unknown`, employeeId: `unknown` });
 				this.fullname = `unknown`;
 			}
 		}

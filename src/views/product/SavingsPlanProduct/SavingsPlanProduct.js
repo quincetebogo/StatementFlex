@@ -1,16 +1,35 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { InitialiseService } from '../../../services/InitialiseService';
+
 import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { type: Boolean }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	async connectedCallback() {
 		super.connectedCallback();
@@ -18,20 +37,45 @@ export class SavingsPlanProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await HorizonChannelService.getInstance().initialise();
-		}
-		catch (ex) {
+			landingPageData = await InitialiseService.getInstance().initialise(() => {
+				this._toggleBusyFlag();
+			});
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
 
 		return landingPageData;
 	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -50,15 +94,18 @@ export class SavingsPlanProduct extends View {
 				.margin-wrapper{
 					width:auto;
 					margin: 0px 24px 0px 24px;
-				}				
+				}
 				horizon-product-tile{
 					width : 100%;
 					margin: 24px 0px 0px 0px;
-				}
-			`];
+				}`
+		];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-card class="savingsproduct-info">
 			<capitec-title-bar type="save" label="Savings Plan"></capitec-title-bar>
@@ -66,24 +113,33 @@ export class SavingsPlanProduct extends View {
 					<horizon-product-tile type="save" 
 										  label="Flexible Savings" 
 										  subtitle="Earn from 5.1% interest per year on your daily balances. You have immediate access to your money."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToFlexibleSavingsPlanProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Fixed-term Savings" 
 										  subtitle="Earn up to 9.25% interest when you fix your savings plan for 6 - 60 months. You can calculate your estimated payout."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToFixedTermSavingsProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Tax-free Savings" 
 										  subtitle="Save up to R33 000 per year for 12 - 24 months and pay no tax on your interest earned."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToTaxFreeSavingsProduct()}">
 					</horizon-product-tile>
 					</div>
 			</capitec-card>
+			${this._renderLoadingIndicator()}
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

@@ -1,18 +1,35 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { InitialiseService } from '../../../services/InitialiseService';
 
 import 'platform/components';
 
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-
-
 export class FlexibleSavingsPlanProduct extends View {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { type: Boolean }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	async connectedCallback() {
 		super.connectedCallback();
@@ -20,20 +37,45 @@ export class FlexibleSavingsPlanProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await HorizonChannelService.getInstance().initialise();
-		}
-		catch (ex) {
+			landingPageData = await InitialiseService.getInstance().initialise(() => {
+				this._toggleBusyFlag();
+			});
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
 
 		return landingPageData;
 	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -97,11 +139,14 @@ export class FlexibleSavingsPlanProduct extends View {
 					padding: 5px 0px 0px 24px;
 					color: #003652;
 					font:  13px/30px Hind Vadodara;
-				}
-			`];
+				}`
+		];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-group layout="vertical" halign="stretch" valign="top" gap="none" class="savingsproduct-info">
 					<capitec-title-bar type="save">
@@ -129,16 +174,25 @@ export class FlexibleSavingsPlanProduct extends View {
 						<span>Use our app to open a flexible savings plan</span>
 						<p>
 							Create a flexible savings plan the easy way:
-							<ul class="list-items">
+						</p>
+						<ul class="list-items">
 								<li>Open our app</li>
 								<li>Tap on Save</li>
 								<li>Enter your Remote PIN</li>
 								<li>Tap on Add Flexible Savings</li>
 							</ul>
-						</p>
 					</capitec-content-box>
 			</capitec-group>
+			${this._renderLoadingIndicator()}
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

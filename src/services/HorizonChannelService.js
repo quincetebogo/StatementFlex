@@ -79,7 +79,7 @@ export class HorizonChannelService {
 	// stopCardRequest
 	async stopCard(stopCardRequest) {
 		return await this._getClient().post(
-`/clientcare/card/${this.version}/StopCard`,
+			`/clientcare/card/${this.version}/StopCard`,
 			{
 				"cards": stopCardRequest.cards,
 				"incomingTelephoneNumber": stopCardRequest.incomingTelephoneNumber,
@@ -88,13 +88,13 @@ export class HorizonChannelService {
 				"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
 				"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
 			}
-);
+		);
 	}
 
 	// loadAssignRequest
 	assignTeams(incidentData) {
 		return this._getClient().post(
-`/clientcare/card/${this.version}/Assign/Teams`,
+			`/clientcare/card/${this.version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
 				"incidentRecId": incidentData.incidentRecId
@@ -105,7 +105,7 @@ export class HorizonChannelService {
 	// assignRequest
 	async assign(assignData) {
 		return await this._getClient().post(
-`/clientcare/card/${this.version}/Assign`,
+			`/clientcare/card/${this.version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
@@ -169,23 +169,6 @@ export class HorizonChannelService {
 	// newIncidentRequest
 	createIncident(createIncidentRequest) {
 		return this._getClient().post(`/clientcare/initialise/${this.version}/CreateIncident`, createIncidentRequest);
-	}
-
-	// ------------------------------------------
-	// Utility Methods - not part of API Contract
-	// ------------------------------------------
-	isConfirmedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return acceptedCall.addCallerDetailsButton !== undefined;
-	}
-
-	isUnverifiedCaller(acceptedCall) {
-		if (acceptedCall === null || acceptedCall === undefined) {
-			return false;
-		}
-		return !this.isConfirmedCaller(acceptedCall);
 	}
 
 	// ---------------

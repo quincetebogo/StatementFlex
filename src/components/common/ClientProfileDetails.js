@@ -210,7 +210,7 @@ export class ClientProfileDetails extends Component {
 			<div>
 				${this.renderClientDetails()}
 			</div>
-			<horizon-product-bar disableNavigation=true></horizon-product-bar>
+			<horizon-product-bar ?disablenavigation=${true}></horizon-product-bar>
 		</section>`;
 	}
 

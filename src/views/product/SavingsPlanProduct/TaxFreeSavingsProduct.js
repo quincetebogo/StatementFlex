@@ -1,17 +1,36 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+
+
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { InitialiseService } from '../../../services/InitialiseService';
 
 import 'platform/components';
 
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-
 export class TaxFreeSavingsProduct extends View {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { type: Boolean }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	async connectedCallback() {
 		super.connectedCallback();
@@ -19,20 +38,45 @@ export class TaxFreeSavingsProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await HorizonChannelService.getInstance().initialise();
-		}
-		catch (ex) {
+			landingPageData = await InitialiseService.getInstance().initialise(() => {
+				this._toggleBusyFlag();
+			});
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
 
 		return landingPageData;
 	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -92,11 +136,14 @@ export class TaxFreeSavingsProduct extends View {
 				}
 				capitec-title-bar > capitec-icon{
 					cursor: pointer;
-				}
-			`];
+				}`
+		];
 	}
 
-	render() {
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
 		return html`
 			<capitec-group layout="vertical" halign="stretch" valign="top" gap="none" class="savingsproduct-info">
 					<capitec-title-bar type="save">
@@ -136,8 +183,18 @@ export class TaxFreeSavingsProduct extends View {
 						</ul>
 					</capitec-content-box>
 			</capitec-group>
-			`;
+			${this._renderLoadingIndicator()}
+		`;
 	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
 }
 
 customElements.define(`product-taxfree-savings-plan`, TaxFreeSavingsProduct);
