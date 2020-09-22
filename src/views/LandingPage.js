@@ -235,6 +235,7 @@ export class LandingPage extends View {
 		);
 
 		this.desktopAgentService.callComplete();
+		this.horizonStore.eraseState();
 	}
 
 	// --------------

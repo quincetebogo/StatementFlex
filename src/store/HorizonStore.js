@@ -1,4 +1,6 @@
-export class HorizonStore {
+import { Store } from 'platform/core';
+
+export class HorizonStore extends Store {
 
 	// --------------
 	// INITIALISATION
@@ -9,29 +11,34 @@ export class HorizonStore {
 	}
 
 	constructor() {
-		this.state = null;
+		super({
+			name: `caller-info`,
+			persistence: `sessionStorage`,
+			logStateChanges: true
+		});
+
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	// Before navigating to another view, save any state information the next view may require 
-	// by calling this method (replace with Redux or something later)
-	saveState(stateToSave) {
-		this.state = stateToSave;
-	}
-
 	// Recover state information saved by the previous view.
-	// Recovering clears the saved state. If the new view wishes to 
-	// save state it must do so explicity.
 	recoverState() {
-		// let tmpState = this.state;
-		// this.state = null;
-		return this.state;
+		const state = this.getState();
+		if (state) {
+			return state;
+		}
 	}
 
-	clearState() {
-		this.state = null;
+	// Before navigating to another view, save any state information the next view may require by calling this method.
+	saveState(stateToSave) {
+		this.setState(stateToSave, `SAVE-STATE`);
 	}
+
+	// Clears the state information that is being saved.
+	eraseState() {
+		this.clearState();
+	}
+
 }
