@@ -1,21 +1,22 @@
+import { HORIZON_VIEW_SET, HorizonViewManager } from './shell/HorizonViewManager';
+
 import { Shell, css, html } from 'platform/elements';
+import { Configuration } from 'platform/Configuration';
+import { DesktopAgentService } from './services/DesktopAgentService.js';
+import { EventAggregator } from 'platform/EventAggregator';
 import { ExecutionContext } from 'platform/ExecutionContext';
 import { Logger } from 'platform/Logger';
-import { Platform } from 'platform/Platform';
-import { SecurityContext } from 'platform/SecurityContext';
-import { Router } from 'platform/Router';
 import { NavigationContext } from 'platform/NavigationContext';
-import { EventAggregator } from 'platform/EventAggregator';
-import { Configuration } from 'platform/Configuration';
+import { Platform } from 'platform/Platform';
+import { Router } from 'platform/Router';
+import { SecurityContext } from 'platform/SecurityContext';
+
+// Import Horizon Routes
+import horizonRoutes from './shell/HorizonRouter';
 
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
-
-//Import Horizon Routes
-import horizonRoutes from './shell/HorizonRouter';
-import { HorizonViewManager, HORIZON_VIEW_SET } from './shell/HorizonViewManager';
-import { DesktopAgentService } from './services/DesktopAgentService.js';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -72,8 +73,8 @@ export class AppShell extends Shell {
 		this.platformVersion = null;
 		this.applicationName = null;
 		this.applicationVersion = null;
-		this.currentStatus = "success";
-		this.currentMessage = "";
+		this.currentStatus = `success`;
+		this.currentMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
@@ -113,6 +114,7 @@ export class AppShell extends Shell {
 
 		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
+			console.log(`Current view has changed from ${this.currentView} to ${nextView}`);
 			this.currentView = nextView;
 		}
 	}
@@ -126,7 +128,7 @@ export class AppShell extends Shell {
 		// Put your logic here to handle allow the
 
 		this.isBusy = false;
-		this.roles = this.securityContext.roles != null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : 'n/a';
+		this.roles = this.securityContext.roles !== null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : `n/a`;
 		console.log(this.roles);
 		this.platformVersion = await this.executionContext.platformVersion;
 		this.applicationName = await this.executionContext.applicationName;
@@ -135,12 +137,12 @@ export class AppShell extends Shell {
 	}
 
 	_onUserLoginError() {
-		console.log('onUserLoginError');
+		console.log(`onUserLoginError`);
 		// Put your logic here to handle a login error.
 	}
 
 	_onUserLoggedOut() {
-		console.log('onUserLoggedOut');
+		console.log(`onUserLoggedOut`);
 		// Put your logic here, e.g. to inform the user that he / she
 		// is now logged out and that the application will now perform a hard reload.
 	}
