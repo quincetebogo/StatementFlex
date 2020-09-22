@@ -71,8 +71,8 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} [confirmedCaller] - Information on confirmed client.
-	 * @property {Object} [incomingCallDetails] - Incoming call information
+	 * @property {Object} confirmedCaller - Information on confirmed client.
+	 * @property {Object} incomingCallDetails - Incoming call information
 	 *
 	 * @readonly
 	 * @static

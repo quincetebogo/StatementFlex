@@ -57,8 +57,8 @@ export class HorizonChannelService {
 	// End Call Methods
 	// ----------------
 
-	async endCallOptions(endCallDetails) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/Options`, {
+	endCallOptions(endCallDetails) {
+		return this._getClient().post(`/clientcare/card/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
 			'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
 			'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
@@ -154,7 +154,7 @@ export class HorizonChannelService {
 			"ivrOptionCode": clientInfo.ivrOption,
 			"incidentReferenceNumber": clientInfo.incidentNo,
 			"agentTelephoneNumber": clientInfo.agentTelephoneNumber,
-			"identificationMethod": parseInt(clientInfo.identificationMethod),
+			"identificationMethod": parseInt(clientInfo.identificationMethod, 10),
 			"value": clientInfo.searchValue
 		});
 	}
