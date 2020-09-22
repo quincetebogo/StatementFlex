@@ -1,10 +1,10 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { InitialiseService } from '../../../services/InitialiseService';
 
 import 'platform/components';
-
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-import { InitialiseService } from '../../../services/InitialiseService';
 
 export class FlexibleSavingsPlanProduct extends View {
 
@@ -24,7 +24,7 @@ export class FlexibleSavingsPlanProduct extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -37,7 +37,7 @@ export class FlexibleSavingsPlanProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
 	// --------------
@@ -61,8 +61,7 @@ export class FlexibleSavingsPlanProduct extends View {
 			landingPageData = await InitialiseService.getInstance().initialise(() => {
 				this._toggleBusyFlag();
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
@@ -140,8 +139,8 @@ export class FlexibleSavingsPlanProduct extends View {
 					padding: 5px 0px 0px 24px;
 					color: #003652;
 					font:  13px/30px Hind Vadodara;
-				}
-			`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -175,13 +174,13 @@ export class FlexibleSavingsPlanProduct extends View {
 						<span>Use our app to open a flexible savings plan</span>
 						<p>
 							Create a flexible savings plan the easy way:
-							<ul class="list-items">
+						</p>
+						<ul class="list-items">
 								<li>Open our app</li>
 								<li>Tap on Save</li>
 								<li>Enter your Remote PIN</li>
 								<li>Tap on Add Flexible Savings</li>
 							</ul>
-						</p>
 					</capitec-content-box>
 			</capitec-group>
 			${this._renderLoadingIndicator()}

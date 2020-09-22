@@ -4,16 +4,15 @@
  * the user interface must be returned to this page in order top accept a new call.
  */
 import { View, css, html } from 'platform/elements';
+import { CallHandleService } from '../services/CallHandleService';
 import { DesktopAgentService } from '../services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../services/HorizonChannelService';
 import { HorizonRouter } from '../shell/HorizonRouter';
 import { HorizonStore } from '../store/HorizonStore';
 import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { IncidentManagementService } from '../services/IncidentManagementService';
 import { IncomingCallDetails } from '../models/IncomingCallDetails';
-import { CallHandleService } from '../services/CallHandleService';
 import { InitialiseService } from '../services/InitialiseService';
 import { tempFixIVROption } from '../utils/channelServiceUtilities';
 
@@ -51,7 +50,6 @@ export class LandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.channelService = HorizonChannelService.getInstance();
 		this.callHandleService = CallHandleService.getInstance();
 
 		this.incomingCallDetails = new IncomingCallDetails();
@@ -231,7 +229,9 @@ export class LandingPage extends View {
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
 		await this.callHandleService.endCall(
 			data.detail,
-			() => { this._toggleBusyFlag(); }
+			() => {
+ 				this._toggleBusyFlag(); 
+			}
 		);
 
 		this.desktopAgentService.callComplete();

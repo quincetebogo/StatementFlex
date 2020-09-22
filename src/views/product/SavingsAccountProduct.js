@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
-
-import '../../components/product/SavingsAccountproductDetails';
+import { View, css, html } from 'platform/elements';
 
 import { HorizonViewManager } from '../../shell/HorizonViewManager';
 import { InitialiseService } from '../../services/InitialiseService';
+
+import '../../components/product/SavingsAccountproductDetails';
 
 export class SavingsAccountProduct extends View {
 
@@ -22,7 +22,7 @@ export class SavingsAccountProduct extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -35,7 +35,7 @@ export class SavingsAccountProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
 	// --------------
@@ -59,8 +59,7 @@ export class SavingsAccountProduct extends View {
 			landingPageData = await InitialiseService.getInstance().initialise(() => {
 				this._toggleBusyFlag();
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
@@ -83,8 +82,8 @@ export class SavingsAccountProduct extends View {
 				.savings-details{
 					width:100%;
 					height:100%;
-				}
-				`];
+			}`
+		];
 	}
 
 	_mobileTemplate() {

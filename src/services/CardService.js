@@ -22,32 +22,28 @@ export class CardService {
 	async stopCards(cardsToStop, callerInfo, toggleBusyFunc, errorHandler = null) {
 		let cardStopResults = [];
 
-		let stopCardRequest = {
-			cards: cardsToStop.map((card) => {
-				return {
+		const stopCardRequest = {
+			cards: cardsToStop.map((card) => ({
 					"cardId": card.cardId,
 					"accountNumber": card.accountNumber,
 					"stopReason": card.stopReason
-				}
-			}),
+				})),
 			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
 			ivrOptionCode: callerInfo.ivrOptionCode,
 			incidentReferenceNumber: callerInfo.incidentReferenceNumber,
 			agentTelephoneNumber: callerInfo.agentTelephoneNumber
-		}
+		};
 
-		let serviceCallHelper = new ServiceCallHelper(
+		const serviceCallHelper = new ServiceCallHelper(
 			toggleBusyFunc,
 			errorHandler
 		);
 
-		let stopCardResponse = await serviceCallHelper.asyncCall(
-			this.channelService.stopCard(stopCardRequest));
+		const stopCardResponse = await serviceCallHelper.asyncCall(this.channelService.stopCard(stopCardRequest));
 
 		if (stopCardResponse && stopCardResponse.cardResponses) {
-			cardStopResults = stopCardResponse.cardResponses.map((response, index) => {
-				return {
+			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
 					cardId: cardsToStop[index].cardId,
 					cardType: cardsToStop[index].cardType,
 					encryptedCardId: cardsToStop[index].encryptedCardId,
@@ -55,8 +51,7 @@ export class CardService {
 					stopReason: cardsToStop[index].stopReason,
 					stopped: response.result.statusCode === 200,
 					errorMessage: response.result.statusCode
-				}
-			})
+				}));
 		}
 
 		return cardStopResults;

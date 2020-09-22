@@ -12,22 +12,11 @@ export class InitialiseService {
 	}
 
 	constructor() {
-
-		this.isBusy = false;
-		this.errorHandled = false;
-
 		if (this.instance) {
 			return this.instance;
 		}
 
 		this.channelService = HorizonChannelService.getInstance();
-	}
-
-	static get properties() {
-		return {
-			isBusy: { type: Boolean },
-			errorHandled: { type: Boolean }
-		};
 	}
 
 	// --------------

@@ -1,9 +1,9 @@
-import { View, html, css } from 'platform/elements';
-
-import '../../components/product/InsureProductDetails';
+import { View, css, html } from 'platform/elements';
 
 import { HorizonViewManager } from '../../shell/HorizonViewManager';
 import { InitialiseService } from '../../services/InitialiseService';
+
+import '../../components/product/InsureProductDetails';
 
 // TODO: Review as per SavingsAccountProduct page
 export class InsureProduct extends View {
@@ -23,7 +23,7 @@ export class InsureProduct extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -36,7 +36,7 @@ export class InsureProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
 	// --------------
@@ -60,8 +60,7 @@ export class InsureProduct extends View {
 			landingPageData = await InitialiseService.getInstance().initialise(() => {
 				this._toggleBusyFlag();
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
@@ -84,8 +83,8 @@ export class InsureProduct extends View {
 				.insure-details{
 					width:100%;
 					height:100%;
-				}					
-				`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {

@@ -45,7 +45,6 @@ export class CallHandleService {
 		return !this.isConfirmedCaller(acceptedCall);
 	}
 
-	//TODO: Parameterise the client need
 	acceptCall(acceptCallData, toggleBusyFunc, errorHandler = null) {
 
 		const serviceCallHelper = new ServiceCallHelper(

@@ -1,8 +1,9 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 import { InitialiseService } from '../../../services/InitialiseService';
+
 import '../../../components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
@@ -23,7 +24,7 @@ export class SavingsPlanProduct extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -36,7 +37,7 @@ export class SavingsPlanProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
 	// --------------
@@ -60,8 +61,7 @@ export class SavingsPlanProduct extends View {
 			landingPageData = await InitialiseService.getInstance().initialise(() => {
 				this._toggleBusyFlag();
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
@@ -94,12 +94,12 @@ export class SavingsPlanProduct extends View {
 				.margin-wrapper{
 					width:auto;
 					margin: 0px 24px 0px 24px;
-				}				
+				}
 				horizon-product-tile{
 					width : 100%;
 					margin: 24px 0px 0px 0px;
-				}
-			`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -113,19 +113,19 @@ export class SavingsPlanProduct extends View {
 					<horizon-product-tile type="save" 
 										  label="Flexible Savings" 
 										  subtitle="Earn from 5.1% interest per year on your daily balances. You have immediate access to your money."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToFlexibleSavingsPlanProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Fixed-term Savings" 
 										  subtitle="Earn up to 9.25% interest when you fix your savings plan for 6 - 60 months. You can calculate your estimated payout."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToFixedTermSavingsProduct()}">
 					</horizon-product-tile>
 					<horizon-product-tile type="save" 
 										  label="Tax-free Savings" 
 										  subtitle="Save up to R33 000 per year for 12 - 24 months and pay no tax on your interest earned."
-										  navigational="true"
+										  ?navigational="${true}"
 										  @click="${() => this.horizonRouter.navigateToTaxFreeSavingsProduct()}">
 					</horizon-product-tile>
 					</div>

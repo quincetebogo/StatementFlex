@@ -1,10 +1,11 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+
+
+import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { HorizonViewManager } from '../../../shell/HorizonViewManager';
+import { InitialiseService } from '../../../services/InitialiseService';
 
 import 'platform/components';
-
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-import { InitialiseService } from '../../../services/InitialiseService';
 
 export class TaxFreeSavingsProduct extends View {
 
@@ -24,7 +25,7 @@ export class TaxFreeSavingsProduct extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -37,7 +38,7 @@ export class TaxFreeSavingsProduct extends View {
 		let landingPageData = null;
 
 		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
+		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
 	// --------------
@@ -61,8 +62,7 @@ export class TaxFreeSavingsProduct extends View {
 			landingPageData = await InitialiseService.getInstance().initialise(() => {
 				this._toggleBusyFlag();
 			});
-		}
-		catch (ex) {
+		} catch (ex) {
 			// TODO: better handling must come here
 			console.log(ex);
 		}
@@ -136,8 +136,8 @@ export class TaxFreeSavingsProduct extends View {
 				}
 				capitec-title-bar > capitec-icon{
 					cursor: pointer;
-				}
-			`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
