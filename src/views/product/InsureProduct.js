@@ -2,8 +2,8 @@ import { View, html, css } from 'platform/elements';
 
 import '../../components/product/InsureProductDetails';
 
-import { HorizonChannelService } from '../../services/HorizonChannelService';
 import { HorizonViewManager } from '../../shell/HorizonViewManager';
+import { InitialiseService } from '../../services/InitialiseService';
 
 // TODO: Review as per SavingsAccountProduct page
 export class InsureProduct extends View {
@@ -23,7 +23,7 @@ export class InsureProduct extends View {
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await HorizonChannelService.getInstance().initialise();
+			landingPageData = await InitialiseService.getInstance().initialise();
 		}
 		catch (ex) {
 			// TODO: better handling must come here

@@ -9,6 +9,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+import { CallHandleService } from '../../../services/CallHandleService';
 
 import '../ConfirmCallerDetails';
 import '../../common/HorizonSelect';
@@ -81,6 +82,7 @@ export class SearchClientDetailsComponent extends Component {
 		this.renderMode = -1;
 
 		this.channelService = HorizonChannelService.getInstance();
+		this.callHandleService = CallHandleService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => {
 				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
@@ -138,7 +140,7 @@ export class SearchClientDetailsComponent extends Component {
 
 		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
 
-		if (this.channelService.isConfirmedCaller(this.unverifiedCaller)) {
+		if (this.callHandleService.isConfirmedCaller(this.unverifiedCaller)) {
 			// We are coming from the confirmed user dialog
 			this._loadSearchOptions();
 

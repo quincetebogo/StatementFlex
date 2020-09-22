@@ -2,9 +2,9 @@ import { View, html, css } from 'platform/elements';
 
 import 'platform/components';
 
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HorizonViewManager } from '../../../shell/HorizonViewManager';
 import { HorizonRouter } from '../../../shell/HorizonRouter';
+import { InitialiseService } from '../../../services/InitialiseService';
 
 export class FixedTermSavingsProduct extends View {
 
@@ -24,7 +24,7 @@ export class FixedTermSavingsProduct extends View {
 
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await HorizonChannelService.getInstance().initialise();
+			landingPageData = await InitialiseService.getInstance().initialise();
 		}
 		catch (ex) {
 			// TODO: better handling must come here
