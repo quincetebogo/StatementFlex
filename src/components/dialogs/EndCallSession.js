@@ -95,8 +95,6 @@ export class EndCallSession extends Component {
 	// ---------------
 
 	async _fetchEndCallReasons() {
-
-		this.incomingCallDetails.ivrOptionCode = `1`; // Hardcoded for now
 		const endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
 
 		if (endCallDialog) {

@@ -233,6 +233,7 @@ export class LandingPage extends View {
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
 		await this.serviceCallHelper.asyncCall(this.channelService.endCall(data.detail.incidentRecId, data.detail.endCallReason.key));
 		this.desktopAgentService.callComplete();
+		this.horizonStore.eraseState();
 	}
 
 	// --------------

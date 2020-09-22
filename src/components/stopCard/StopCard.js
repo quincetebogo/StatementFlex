@@ -76,6 +76,13 @@ export class StopCard extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} confirmedCaller - Information on confirmed client.
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof StopCard
+	 */
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
@@ -126,6 +133,19 @@ export class StopCard extends Component {
 			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
 			isUnverifiedNumber: incomingCallDetails.isUnverifiedNumber,
 			ivrOption: incomingCallDetails.ivrOption
+		};
+
+		// The End Call Modal is using a different modal to the Stop Card Modal
+		this.endCallCallerInfo = {
+			ivrOption: {
+				possibleValues: incomingCallDetails.ivrOption,
+				value: incomingCallDetails.ivrOptionCode
+			},
+			ivrOptionCode: incomingCallDetails.ivrOptionCode,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
 		};
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
@@ -245,12 +265,9 @@ export class StopCard extends Component {
 
 	async _onCallComplete(reason) {
 		// Clear any state and return to landing page.
-		this.horizonStore.saveState({});
-
 		await this.serviceCallHelper.asyncCall(this.channelService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
-
 		this.desktopAgentService.callComplete();
-
+		this.horizonStore.eraseState();
 		this.horizonRouter.navigateToLandingPage();
 	}
 
@@ -524,7 +541,7 @@ export class StopCard extends Component {
  					this.renderMode = RENDER_MODE.CLIENT_PROFILE; 
 				}}"
 				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
-				.incomingCallDetails = "${this.callerInfo}"
+				.incomingCallDetails = "${this.endCallCallerInfo}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
