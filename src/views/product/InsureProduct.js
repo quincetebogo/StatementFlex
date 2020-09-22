@@ -8,9 +8,27 @@ import { InitialiseService } from '../../services/InitialiseService';
 // TODO: Review as per SavingsAccountProduct page
 export class InsureProduct extends View {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { type: Boolean }
+		}
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	async connectedCallback() {
 		super.connectedCallback();
@@ -21,9 +39,27 @@ export class InsureProduct extends View {
 		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId })
 	}
 
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	// n/a
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	// n/a
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
 	async GetLandingPageData(landingPageData) {
 		try {
-			landingPageData = await InitialiseService.getInstance().initialise();
+			landingPageData = await InitialiseService.getInstance().initialise(() => {
+				this._toggleBusyFlag();
+			});
 		}
 		catch (ex) {
 			// TODO: better handling must come here
@@ -32,6 +68,14 @@ export class InsureProduct extends View {
 
 		return landingPageData;
 	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -44,8 +88,22 @@ export class InsureProduct extends View {
 				`];
 	}
 
-	render() {
-		return html`<insureproduct-details class="insure-details"></insureproduct-details>`;
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`
+			<insureproduct-details class="insure-details"></insureproduct-details>
+			${this._renderLoadingIndicator()}
+		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

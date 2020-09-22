@@ -13,7 +13,6 @@ import { HorizonViewManager } from '../shell/HorizonViewManager';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { IncidentManagementService } from '../services/IncidentManagementService';
 import { IncomingCallDetails } from '../models/IncomingCallDetails';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
 import { CallHandleService } from '../services/CallHandleService';
 import { InitialiseService } from '../services/InitialiseService';
 import { tempFixIVROption } from '../utils/channelServiceUtilities';
@@ -56,13 +55,6 @@ export class LandingPage extends View {
 		this.callHandleService = CallHandleService.getInstance();
 
 		this.incomingCallDetails = new IncomingCallDetails();
-
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag();
-			}, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
 
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
@@ -239,10 +231,7 @@ export class LandingPage extends View {
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
 		await this.callHandleService.endCall(
 			data.detail,
-			() => {
-				this._toggleBusyFlag();
-			},
-			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
+			() => { this._toggleBusyFlag(); }
 		);
 
 		this.desktopAgentService.callComplete();
@@ -261,7 +250,10 @@ export class LandingPage extends View {
 	async _GetLandingPageData() {
 		let landingPageData = null;
 
-		landingPageData = await InitialiseService.getInstance().initialise();
+		landingPageData = await InitialiseService.getInstance().initialise(() => {
+			this._toggleBusyFlag();
+		});
+
 		if (landingPageData) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });

@@ -1,5 +1,4 @@
 import { HorizonChannelService } from './HorizonChannelService';
-import { SecurityContext } from 'platform/SecurityContext';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
 
 export class CallHandleService {

@@ -1,5 +1,4 @@
 import { HorizonChannelService } from './HorizonChannelService';
-import { SecurityContext } from 'platform/SecurityContext';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
 
 export class InitialiseService {
@@ -39,13 +38,9 @@ export class InitialiseService {
 	// PUBLIC METHODS
 	// --------------
 
-	initialise() {
+	initialise(toggleFunc, errorHandler = null) {
 
-		const serviceCallHelper = new ServiceCallHelper(() => {
-			this._toggleBusyFlag();
-		},
-			(ex) => this.landingPageErrorHandler(ex, `inilialise service`)
-		);
+		const serviceCallHelper = new ServiceCallHelper(toggleFunc, errorHandler);
 
 		return serviceCallHelper.asyncCall(this.channelService.initialise());
 	}
@@ -54,45 +49,4 @@ export class InitialiseService {
 	// PRIVATE METHODS
 	// ---------------
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
-	landingPageErrorHandler(exception, context) {
-		try {
-			if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.status} - ${exception.message}`
-				};
-				console.log(exception.message);
-				console.log(exception.output);
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} finally {
-			// Just a flag to inform _dispatchCall that the error was handled.
-			this.errorHandled = true;
-
-			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
-			// we flag the call that we tied to take as complete...
-			this.desktopAgentService.callComplete();
-		}
-
-		return true;
-	}
 }
