@@ -1,8 +1,8 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import '../../Common/HorizonSolutionDialog';
+import '../../common/HorizonSolutionDialog';
 
-const ERROR_MESSAGE = "Choose a reason for assigning to continue";
+const ERROR_MESSAGE = `Choose a reason for assigning to continue`;
 
 export class AssignReasonDialog extends Component {
 
@@ -13,12 +13,12 @@ export class AssignReasonDialog extends Component {
 		super();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.radioButtonsAvailable = [
-			{ "key": "0", "value": "System error" },
-			{ "key": "1", "value": "Client is not in arrears, but was told they are" },
-			{ "key": "2", "value": "Refunds" }
+			{ "key": `0`, "value": `System error` },
+			{ "key": `1`, "value": `Client is not in arrears, but was told they are` },
+			{ "key": `2`, "value": `Refunds` }
 		];
 		this.checked = false;
-		this.alertBannerMessage = '';
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
@@ -30,7 +30,7 @@ export class AssignReasonDialog extends Component {
 			assignReason: { type: Object },
 			checked: { type: Boolean },
 			alertBannerMessage: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -42,15 +42,14 @@ export class AssignReasonDialog extends Component {
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent('on-cancel', {}));
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
 	_onContinueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-		else {
-			this.dispatchEvent(new CustomEvent('on-assign-reason', {
+		} else {
+			this.dispatchEvent(new CustomEvent(`on-assign-reason`, {
 				detail: { reason: this.selected }
 			}));
 		}
@@ -132,10 +131,8 @@ export class AssignReasonDialog extends Component {
 				--theme-alert-banner-font-weight: 500;
 				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-			}
-
-		`];
-
+			}`
+		];
 	}
 
 	_webTemplate() {
@@ -195,4 +192,4 @@ export class AssignReasonDialog extends Component {
 
 }
 
-window.customElements.define(`horizon-insure-assign-reason`, AssignReasonDialog)
+window.customElements.define(`horizon-insure-assign-reason`, AssignReasonDialog);

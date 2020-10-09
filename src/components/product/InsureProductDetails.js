@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import '../../../Horizon/UI/src/components/common/node_modules/platform/components/core/Label';
+import 'platform/components/core/Label';
 
 export class InsureProductDetails extends Component {
 
@@ -42,7 +42,7 @@ export class InsureProductDetails extends Component {
 			ul{
 				margin: 0px;
 				font:  12px/30px Hind Vadodara;
-			}	
+			}
 
 			p{
 				text-align:left;

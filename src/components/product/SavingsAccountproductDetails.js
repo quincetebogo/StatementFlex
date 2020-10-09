@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import '../../../Horizon/UI/src/components/common/node_modules/platform/components/core/Label';
+import 'platform/components/core/Label';
 
 // TODO: Review styling (fonts, sizes etc. on page) against Invision
 
@@ -80,7 +80,7 @@ export class SavingsAccountProductDetails extends Component {
 					<ul class="list-items">
 						<li>Access to Mastercard<sup>@</sup> Priceless<sup>@</sup> Cities worldwide</li>
 						<li>Easy transactions at lower, transparent bank costs</li>
-						<li>Manage your savings plans and your money using our app, cellphone *120*3279#, the internet and your Global One Card</li>	
+						<li>Manage your savings plans and your money using our app, cellphone *120*3279#, the internet and your Global One Card</li>
 					</ul>
 				</capitec-content-box>
 			</capitec-card>
