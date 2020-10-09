@@ -1,5 +1,5 @@
-import { Component, html, css } from 'platform/elements';
-import '../../Common/HorizonSolutionDialog';
+import { Component, css, html } from 'platform/elements';
+import '../../common/HorizonSolutionDialog';
 
 export class ViewPlan extends Component {
 
@@ -9,13 +9,13 @@ export class ViewPlan extends Component {
 
 	constructor() {
 		super();
-		this.clientType = "";
+		this.clientType = ``;
 		this.solutionDetails = {
-			solutionHeader: " ",
+			solutionHeader: ` `,
 			radioButtonsAvailable: [
-				{ "key": "0", "value": "Informed client about their Capitec Funeral Plan" },
-				{ "key": "1", "value": "System error - assign now" }
-			],
+				{ "key": `0`, "value": `Informed client about their Capitec Funeral Plan` },
+				{ "key": `1`, "value": `System error - assign now` }
+			]
 		};
 	}
 
@@ -27,7 +27,7 @@ export class ViewPlan extends Component {
 		return {
 			clientType: { type: String },
 			solutionDetails: { type: Object }
-		}
+		};
 	}
 
 	// -------------------
@@ -37,11 +37,10 @@ export class ViewPlan extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.clientType == "verified-existing-client") {
-			this.solutionDetails.solutionHeader = "How to View Plan";
-		}
-		else {
-			this.solutionDetails.solutionHeader = "Solution - View Plan";
+		if (this.clientType === `verified-existing-client`) {
+			this.solutionDetails.solutionHeader = `How to View Plan`;
+		} else {
+			this.solutionDetails.solutionHeader = `Solution - View Plan`;
 		}
 	}
 
@@ -50,11 +49,11 @@ export class ViewPlan extends Component {
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent('close-solution', {}));
+		this.dispatchEvent(new CustomEvent(`close-solution`, {}));
 	}
 
 	_onDoneClick() {
-		this.dispatchEvent(new CustomEvent('solution-provided', {}));
+		this.dispatchEvent(new CustomEvent(`solution-provided`, {}));
 	}
 
 	// --------------
@@ -125,4 +124,4 @@ export class ViewPlan extends Component {
 	}
 }
 
-window.customElements.define(`horizon-view-plan`, ViewPlan)
+window.customElements.define(`horizon-view-plan`, ViewPlan);

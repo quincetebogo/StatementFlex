@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
 export class InsureProductDetails extends Component {
@@ -42,7 +42,7 @@ export class InsureProductDetails extends Component {
 			ul{
 				margin: 0px;
 				font:  12px/30px Hind Vadodara;
-			}	
+			}
 
 			p{
 				text-align:left;
@@ -55,7 +55,8 @@ export class InsureProductDetails extends Component {
 			hr{
 				margin:0px;
 			}
-		`];
+		`
+];
 	}
 
 	render() {
@@ -117,6 +118,6 @@ export class InsureProductDetails extends Component {
 		`;
 	}
 }
-console.log('on thr insure view');
+console.log(`on thr insure view`);
 
 window.customElements.define(`insureproduct-details`, InsureProductDetails);

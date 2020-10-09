@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
 // TODO: Review styling (fonts, sizes etc. on page) against Invision
@@ -60,7 +60,8 @@ export class SavingsAccountProductDetails extends Component {
 			sup{
 				font: 6px/15px  Hind Vadodara;
 			}
-			`];
+			`
+];
 	}
 
 	render() {
@@ -79,7 +80,7 @@ export class SavingsAccountProductDetails extends Component {
 					<ul class="list-items">
 						<li>Access to Mastercard<sup>@</sup> Priceless<sup>@</sup> Cities worldwide</li>
 						<li>Easy transactions at lower, transparent bank costs</li>
-						<li>Manage your savings plans and your money using our app, cellphone *120*3279#, the internet and your Global One Card</li>	
+						<li>Manage your savings plans and your money using our app, cellphone *120*3279#, the internet and your Global One Card</li>
 					</ul>
 				</capitec-content-box>
 			</capitec-card>

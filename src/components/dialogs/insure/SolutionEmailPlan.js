@@ -1,5 +1,5 @@
-import { Component, html, css } from 'platform/elements';
-import '../../Common/HorizonSolutionDialog';
+import { Component, css, html } from 'platform/elements';
+import '../../common/HorizonSolutionDialog';
 
 export class EmailPlan extends Component {
 
@@ -10,11 +10,11 @@ export class EmailPlan extends Component {
 	constructor() {
 		super();
 		this.solutionDetails = {
-			solutionHeader: "Solution - Email plan",
+			solutionHeader: `Solution - Email plan`,
 			radioButtonsAvailable: [
-				{ "key": "0", "value": "Email sent" },
-				{ "key": "1", "value": "System error - assign now" }
-			],
+				{ "key": `0`, "value": `Email sent` },
+				{ "key": `1`, "value": `System error - assign now` }
+			]
 		};
 	}
 
@@ -25,7 +25,7 @@ export class EmailPlan extends Component {
 	static get properties() {
 		return {
 			solutionDetails: { type: Object }
-		}
+		};
 	}
 
 	// -------------------
@@ -41,11 +41,11 @@ export class EmailPlan extends Component {
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent('close-solution', {}));
+		this.dispatchEvent(new CustomEvent(`close-solution`, {}));
 	}
 
 	_onDoneClick() {
-		this.dispatchEvent(new CustomEvent('solution-provided', {}));
+		this.dispatchEvent(new CustomEvent(`solution-provided`, {}));
 	}
 
 	// --------------
@@ -126,4 +126,4 @@ export class EmailPlan extends Component {
 	}
 }
 
-window.customElements.define(`horizon-email-plan`, EmailPlan)
+window.customElements.define(`horizon-email-plan`, EmailPlan);

@@ -25,13 +25,16 @@
     "lit-html.format.enabled": false,
     // Exclude platform-specific files from the user's project.
     "files.exclude": {
-        "jsconfig.json": true
+        "jsconfig.json": true,
+        "src/types.d.ts": true,
+        "ocwp": true
     },
-    "eslint.nodePath": "C:/ocwp/0.27.0/node_modules",
-    "eslint.runtime": "C:/ocwp/0.27.0/node/node.exe",
+    "eslint.nodePath": "./ocwp/0.29.1/node_modules",
+    "eslint.runtime": "./ocwp/0.29.1/node/node.exe",
     "eslint.options": {
         "configFile": "./.eslintrc.json"
     },
     "eslint.enable": true,
-    "eslint.alwaysShowStatus": true
+    "eslint.alwaysShowStatus": true,
+    "cordova.cordovaExecutable": "ocwp\\0.29.1\\node_modules\\cordova\\bin\\cordova.cmd"
 }

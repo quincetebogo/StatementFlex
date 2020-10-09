@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 /**
  * A button control with an icon above a label.
@@ -8,7 +8,7 @@ import { Component, html, css } from 'platform/elements';
  * <horizon-option-button
  *   label="Label Test"
  *   icon="platform icon | null"
- * 	 img-src="path to image | null"
+ *   img-src="path to image | null"
  	>
  * </horizon-option-button>
  * ```
@@ -20,16 +20,16 @@ export class HorizonOptionButton extends Component {
 
 	// --------------
 	// INITIALISATION
-	// --------------	
+	// --------------
 
 	constructor() {
 
 		super();
-		this.label = '';
+		this.label = ``;
 		this.icon = null;
 		this.image = null;
-		this.type = "";
-		this.iconSize = "";
+		this.type = ``;
+		this.iconSize = ``;
 	}
 
 	// ----------
@@ -47,11 +47,11 @@ export class HorizonOptionButton extends Component {
 		return {
 			label: { type: String },
 			icon: { type: String },
-			image: { type: String, attribute: 'img-src' },
+			image: { type: String, attribute: `img-src` },
 			disabled: { type: Boolean },
 			type: { type: String },
 			iconSize: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -92,7 +92,7 @@ export class HorizonOptionButton extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -114,23 +114,23 @@ export class HorizonOptionButton extends Component {
 				line-height: var(--horizon-option-btn-text-line-height, 24px);
 				cursor: pointer;
 			}`
-		]
+		];
 	}
 
 	_webTemplate() {
 		return html`
-			<capitec-button @click="${this._buttonClicked}" type="${this.type ? this.type : "secondary"}">
+			<capitec-button @click="${this._buttonClicked}" type="${this.type ? this.type : `secondary`}">
 				<capitec-group layout="vertical" halign="center" valign="top" gap="none">
 					${this.renderIcon()}
 					<capitec-label class="label-text" label="${this.label}"></capitec-label> 
-				</capitec-content-box>
+				</capitec-group>
 			</capitec-button>
 		`;
 	}
 
 	renderIcon() {
 		return this.icon
-			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : 'small'}" icon="${this.icon}"></capitec-icon>`
+			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : `small`}" icon="${this.icon}"></capitec-icon>`
 			: html`<img class="icon-size" src="${this.image}"/>`;
 	}
 }
