@@ -1,7 +1,7 @@
-import { Component, html, css } from 'platform/elements';
-import '../common/HorizonRadioButtonsContainer';
+import { Component, css, html } from 'platform/elements';
+import './HorizonRadioButtonsContainer';
 
-const ERROR_MESSAGE = "Choose a feedback reason to continue.";
+const ERROR_MESSAGE = `Choose a feedback reason to continue.`;
 
 export class HorizonSolutionDialog extends Component {
 
@@ -13,7 +13,7 @@ export class HorizonSolutionDialog extends Component {
 		super();
 		this.solutionDetails = null;
 		this.checked = false;
-		this.alertBannerMessage = '';
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
@@ -25,7 +25,7 @@ export class HorizonSolutionDialog extends Component {
 			solutionDetails: { type: Object },
 			checked: { type: Boolean },
 			alertBannerMessage: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -51,16 +51,15 @@ export class HorizonSolutionDialog extends Component {
 	_onDoneClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-		else {
-			this.dispatchEvent(new CustomEvent('on-done', {}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`on-done`, {}));
 		}
 	}
 
 	_onValueChanged() {
 		this.checked = !this.checked;
 		if (this.checked) {
-			this.alertBannerMessage = '';
+			this.alertBannerMessage = ``;
 		}
 	}
 
@@ -248,4 +247,4 @@ export class HorizonSolutionDialog extends Component {
 	}
 }
 
-window.customElements.define(`horizon-solution-dialog`, HorizonSolutionDialog)
+window.customElements.define(`horizon-solution-dialog`, HorizonSolutionDialog);

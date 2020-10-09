@@ -1,5 +1,5 @@
-import { Component, html, css } from 'platform/elements';
-import 'platform/components/core/Label';
+import { Component, css, html } from 'platform/elements';
+import '../../../Horizon/UI/src/components/common/node_modules/platform/components/core/Label';
 
 // TODO: Review styling (fonts, sizes etc. on page) against Invision
 
@@ -60,7 +60,8 @@ export class SavingsAccountProductDetails extends Component {
 			sup{
 				font: 6px/15px  Hind Vadodara;
 			}
-			`];
+			`
+];
 	}
 
 	render() {

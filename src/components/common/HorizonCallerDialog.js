@@ -3,7 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
 import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
 
-import '../common/HorizonCallerInfoBar';
+import './HorizonCallerInfoBar';
 
 /**
  * A Dialog with a Caller Information Bar. This is a common dialog format in the Horizon Project.

@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from '../../store/HorizonStore';
 import 'platform/components';
 import '../dialogs/AccessChannelError';
@@ -25,7 +25,7 @@ export class AccessMenuBar extends Component {
 		return {
 			showAlert: { type: Boolean },
 			clientProfileDetails: { type: Object }
-		}
+		};
 	}
 
 	// -------------------
@@ -108,9 +108,8 @@ export class AccessMenuBar extends Component {
 				align-self:flex-end;
 				padding:0px 30px 0px 0px;
 				cursor:pointer;
-			}
-
-			`];
+			}`
+		];
 	}
 
 	render() {
@@ -131,9 +130,9 @@ export class AccessMenuBar extends Component {
 			<capitec-card class="insights-card">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
 					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-						<capitec-icon class="header-icon" size="small" icon="system/info"></capitec-icon>	
+						<capitec-icon class="header-icon" size="small" icon="system/info"></capitec-icon>
 						<capitec-label class="header-label" label="Client Insights"></capitec-label>
-					</capitec-content-box>	
+					</capitec-content-box>
 					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
 						<capitec-label class="box-label" label="Incomplete Credit Estimate"></capitec-label>
 						<capitec-spacer></capitec-spacer>
@@ -153,7 +152,7 @@ export class AccessMenuBar extends Component {
 							<capitec-icon class="header-icon" 
 										  size="medium" 
 										  icon="system/unlock-files-action">
-							</capitec-icon>	
+							</capitec-icon>
 							<capitec-label class="header-label" label="Access"></capitec-label>
 						</capitec-content-box>
 						${this.renderAccessChannels()}
@@ -163,8 +162,7 @@ export class AccessMenuBar extends Component {
 	}
 
 	renderAccessChannels() {
-		return this.accessChannels.map(access => {
-			return html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
 							<capitec-label class="box-label" label="${access}"></capitec-label>
 							<capitec-icon class="box-icon" 
 											size="small" 
@@ -172,8 +170,7 @@ export class AccessMenuBar extends Component {
 											@click="${() => this.showAlert = true}">
 							</capitec-icon>
 							<capitec-label class="subtitle" label="Active"></capitec-label>
-						</capitec-content-box>`
-		})
+						</capitec-content-box>`);
 	}
 
 	renderAccessChannelError() {

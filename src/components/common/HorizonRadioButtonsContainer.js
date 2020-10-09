@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 /**
  * A radio button with a border around it.
@@ -9,7 +9,7 @@ import { Component, html, css } from 'platform/elements';
  * <horizon-radio-button
  *   label="Label Test"
  *   .radioButtonsAvailable= "set of radio buttons available as an array | null"
- * 	 @value-change="function to be called on value cahnge event | null">
+ *   @value-change="function to be called on value cahnge event | null">
  * </horizon-radio-button>
  * 
  * ```
@@ -19,11 +19,11 @@ export class HorizonRadioButtonsContainer extends Component {
 
 	// --------------
 	// INITIALISATION
-	// --------------	
+	// --------------
 
 	constructor() {
 		super();
-		this.label = '';
+		this.label = ``;
 		this.radioButtonsAvailable = [];
 	}
 
@@ -41,7 +41,7 @@ export class HorizonRadioButtonsContainer extends Component {
 		return {
 			label: { type: String },
 			radioButtonsAvailable: { type: Array }
-		}
+		};
 	}
 
 	// -------------------
@@ -63,7 +63,7 @@ export class HorizonRadioButtonsContainer extends Component {
 				new: event.detail.new,
 				key: item.key,
 				value: item.value
-			}
+			};
 		}
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
@@ -86,7 +86,7 @@ export class HorizonRadioButtonsContainer extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -116,7 +116,7 @@ export class HorizonRadioButtonsContainer extends Component {
 					margin-bottom: var(--horizon-radio-button-container-margin-bottom, 41px);
 				}
 			}`
-		]
+		];
 	}
 
 	_webTemplate() {

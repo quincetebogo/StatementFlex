@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
 export class HorizonLabel extends Component {
@@ -30,7 +30,7 @@ export class HorizonLabel extends Component {
 			label: { type: String },
 			value: { type: String },
 			icon: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -55,7 +55,7 @@ export class HorizonLabel extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	static get styles() {
 		return [
@@ -65,10 +65,6 @@ export class HorizonLabel extends Component {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
-				}
-
-				.wrapper{
-
 				}
 
 				capitec-icon {
@@ -97,8 +93,8 @@ export class HorizonLabel extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: var(--horizon-label-value-line-height, 27px);
-				}
-			`]
+				}`
+		];
 	}
 
 	render() {
@@ -115,7 +111,7 @@ export class HorizonLabel extends Component {
 						label="${this.value}">
 					</capitec-label>
 				</div>
-			</div>`
+			</div>`;
 	}
 
 	_renderIcon() {

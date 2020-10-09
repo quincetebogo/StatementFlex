@@ -1,5 +1,5 @@
-import { Component, html, css } from 'platform/elements';
-import 'platform/components/core/Label';
+import { Component, css, html } from 'platform/elements';
+import '../../../Horizon/UI/src/components/common/node_modules/platform/components/core/Label';
 
 export class InsureProductDetails extends Component {
 
@@ -55,7 +55,8 @@ export class InsureProductDetails extends Component {
 			hr{
 				margin:0px;
 			}
-		`];
+		`
+];
 	}
 
 	render() {
@@ -117,6 +118,6 @@ export class InsureProductDetails extends Component {
 		`;
 	}
 }
-console.log('on thr insure view');
+console.log(`on thr insure view`);
 
 window.customElements.define(`insureproduct-details`, InsureProductDetails);

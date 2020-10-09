@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'platform/components/core/Label';
 
 export class CreditProductDetails extends Component {
@@ -78,7 +78,8 @@ export class CreditProductDetails extends Component {
 			hr{
 				margin:0px;
 			}
-			`];
+			`
+];
 	}
 
 	render() {
