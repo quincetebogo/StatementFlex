@@ -138,8 +138,6 @@ export class AppShell extends Shell {
 		// Put your logic here to execute post login success,
 		// for example loading application data.
 
-		this._appStore.setState({ isBusy: false }, `USER_LOGGED_IN`);
-		this.isAuthenticating = false;
 
 		this.roles = this._securityContext.roles !== null && Array.isArray(this._securityContext.roles) ? this._securityContext.roles.join(`, `) : `n/a`;
 
@@ -148,9 +146,19 @@ export class AppShell extends Shell {
 		this.applicationVersion = await this._executionContext.applicationVersion;
 		this.clientIp = this._executionContext.clientIp;
 
-		// Listening for events from the Desktop Agent
+		this.sblUrl = await this._configuration.getSetting(`StatusBar.sblUrl`);
+		this.cdsUrl = await this._configuration.getSetting(`StatusBar.cdsUrl`);
+		this.cnetUrl = await this._configuration.getSetting(`StatusBar.cnetUrl`);
+
+		// Start the Desktop Agent service to subscribe to incoming call events from the Desktop Agent Application
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
+
+		this._appStore.setState({ isBusy: false }, `USER_LOGGED_IN`);
+
+		// We are authenticated and done loading config
+		// trigger the display of the initial landing page.
+		this.isAuthenticating = false;
 	}
 
 	_userLoginError() {

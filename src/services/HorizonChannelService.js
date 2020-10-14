@@ -178,7 +178,6 @@ export class HorizonChannelService {
 	async _getChannelUrl() {
 		// getting the channel url setting from URIs
 		const url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
-		console.log(url);
 		return url;
 	}
 
