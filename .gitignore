@@ -2,3 +2,4 @@ dist
 jsconfig.json
 /src/types.d.ts
 ocwp
+debug.log

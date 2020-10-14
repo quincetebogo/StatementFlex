@@ -1,4 +1,4 @@
-import { HORIZON_VIEW_SET, HorizonViewManager } from '../shell/HorizonViewManager';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
 import { Configuration } from 'platform/Configuration';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -6,7 +6,7 @@ import { HorizonRouter } from '../shell/HorizonRouter';
 import { NavigationContext } from 'platform/NavigationContext';
 import { NewCallEvent } from '../models//NewCallEvent';
 import { Router } from 'platform/Router';
-import { validate } from '../utils/channelServiceUtilities';
+import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -68,6 +68,7 @@ export class DesktopAgentService {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.HorizonRouter = HorizonRouter.getInstance();
 		this.router = Router.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 	}
@@ -270,10 +271,11 @@ export class DesktopAgentService {
 	_handleIncomingCall() {
 		console.log(`_handleIncomingCall`);
 
-		if (!this.nextCall) {
+		// Don't handle incoming call if if application is still starting up
+		if (!this.nextCall || this.navigationContext.current === undefined) {
 			return;
 		}
-
+		
 		// TODO: Fix the onCall handling - removed for now
 
 		// Get current view from router. Note that we are still on the landing page when presenting
@@ -306,11 +308,15 @@ export class DesktopAgentService {
 	}
 
 	_productLandingPagesActive() {
-		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
+		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
 	_landingPageActive() {
 		// TODO: Restore onCall check once all screens for insure etc. are properly wired up again
-		return NavigationContext.getInstance().current.route.name === `landing-page`; /* && !this.onCall */
+		if (this.navigationContext.current !== undefined) {
+			return this.navigationContext.current.route.name === `landing-page`; /* && !this.onCall */
+		}
+
+		return false;
 	}
 }
