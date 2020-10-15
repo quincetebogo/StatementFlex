@@ -50,8 +50,22 @@ export class LandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.callHandleService = CallHandleService.getInstance();
+
 		this.initialiseService = new InitialiseService(
+			() => {
+				this._toggleBusyFlag();
+			},
+			null
+		);
+
+		this.incidentManagementService = new IncidentManagementService(
+			() => {
+				this._toggleBusyFlag();
+			},
+			null
+		);
+
+		this.callHandleService = new CallHandleService(
 			() => {
 				this._toggleBusyFlag();
 			},
@@ -111,17 +125,15 @@ export class LandingPage extends View {
 	async _onNewCall(newCallInfo) {
 		console.log(`landing page - _onNewCall(): creating incident`);
 
-		const incident = await IncidentManagementService.getInstance().createIncident(
+		const returnValue = await this.incidentManagementService.createIncident(
 			newCallInfo,
-			() => {
-				this._toggleBusyFlag();
-			},
 			(ex) => {
 				this.landingPageErrorHandler(ex, `createIncident`);
 			}
 		);
 
-		if (incident) {
+		const incident = returnValue.result;
+		if (returnValue.succeeded && incident) {
 			console.log(`landing page - _onNewCall(): incident created, accepting call`);
 			await this._acceptCall(newCallInfo, incident);
 		} else {
@@ -138,16 +150,13 @@ export class LandingPage extends View {
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const acceptedCall = await this.callHandleService.acceptCall(
+		const returnValue = await this.callHandleService.acceptCall(
 			newCallInfo,
-			() => {
-				this._toggleBusyFlag();
-			},
 			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
 		);
 
-		if (acceptedCall) {
-			this._dispatchCall(acceptedCall, newCallInfo);
+		if (returnValue.succeeded) {
+			this._dispatchCall(returnValue.result, newCallInfo);
 		} else {
 			console.log(`Failed to accept call`);
 		}
@@ -232,13 +241,11 @@ export class LandingPage extends View {
 
 	async _onCallEnded(data) {
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
+		const returnValue = await this.callHandleService.endCall(data.detail);
+
+		if (!returnValue.succeeded) {
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		await this.callHandleService.endCall(
-			data.detail,
-			() => {
- 				this._toggleBusyFlag(); 
-			}
-		);
+		}
 
 		this.desktopAgentService.callComplete();
 		this.horizonStore.eraseState();
@@ -409,4 +416,4 @@ export class LandingPage extends View {
 	}
 }
 
-customElements.define(`landing-page`, LandingPage);
+customElements.define(`horizon-landing-page`, LandingPage);

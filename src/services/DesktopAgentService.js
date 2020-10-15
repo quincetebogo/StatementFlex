@@ -166,7 +166,7 @@ export class DesktopAgentService {
 		switch (this.eventSource.readyState) {
 			case 0:
 				this.connectionTries++;
-				console.log(`Event Source State: CONNECTING`, this.connectionTries);
+				// console.log(`Event Source State: CONNECTING`, this.connectionTries);
 				break;
 			case 1:
 				console.log(`Event Source State: OPEN`);
@@ -174,7 +174,7 @@ export class DesktopAgentService {
 				break;
 			case 2:
 				this.connectionTries++;
-				console.log(`Event Source State: CLOSED`, this.connectionTries++);
+				// console.log(`Event Source State: CLOSED`, this.connectionTries++);
 				break;
 			default:
 				break;
@@ -314,7 +314,7 @@ export class DesktopAgentService {
 	_landingPageActive() {
 		// TODO: Restore onCall check once all screens for insure etc. are properly wired up again
 		if (this.navigationContext.current !== undefined) {
-			return this.navigationContext.current.route.name === `landing-page`; /* && !this.onCall */
+			return this.navigationContext.current.route.name === `horizon-landing-page`; /* && !this.onCall */
 		}
 
 		return false;

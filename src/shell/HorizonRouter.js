@@ -25,7 +25,7 @@ let horizonRoutes = [];
 
 export default horizonRoutes = [
 	{
-		name: `landing-page`,
+		name: `horizon-landing-page`,
 		title: `LandingPageView`,
 		icon: null,
 		path: HORIZON_ROUTES.LANDING_PAGE,
