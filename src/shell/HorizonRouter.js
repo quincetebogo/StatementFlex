@@ -37,7 +37,7 @@ export default horizonRoutes = [
 		isFallback: true
 	},
 	{
-		name: `product-savings-account`,
+		name: `horizon-savings-account-product`,
 		title: `SavingsAccountProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
@@ -47,7 +47,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-savings-plan`,
+		name: `horizon-savings-plan-product`,
 		title: `SavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
@@ -57,7 +57,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-flexible-savings-plan`,
+		name: `horizon-flexible-savings-plan-product`,
 		title: `FlexibleSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
@@ -67,7 +67,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-fixed-term-savings-plan`,
+		name: `horizon-fixed-term-savings-product`,
 		title: `FixedTermSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
@@ -77,7 +77,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-taxfree-savings-plan`,
+		name: `horizon-tax-free-savings-product`,
 		title: `TaxFreeSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
@@ -87,7 +87,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-insure`,
+		name: `horizon-insure-product`,
 		title: `InsureProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
@@ -127,7 +127,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-credit`,
+		name: `horizon-credit-product`,
 		title: `CreditProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,

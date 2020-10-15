@@ -1,9 +1,9 @@
 import { Service } from 'platform/core';
 
 /**
- * Channel Service Proxy (Resource Access) for Stop Card channel. This is probably badly named as other 
- * needs such as Insure will probably be implemented using some of the same operations as below. 
- * The class may require a more generic name. 
+ * Channel Service Proxy (Resource Access) for the Horizon Channel Service.
+ * It is not recommended to use this class directly. Instead Service classes
+ * should be created to wrap portions of functionality (cards, insure, incident management, calls etc.)
  */
 export class HorizonChannelService extends Service {
 

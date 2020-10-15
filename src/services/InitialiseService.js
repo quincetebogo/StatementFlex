@@ -1,41 +1,20 @@
-import { HorizonChannelService } from './HorizonChannelService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class InitialiseService {
+export class InitialiseService extends ServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-
-	static getInstance() {
-		return this.instance || (this.instance = new InitialiseService());
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
-
-	constructor() {
-		if (this.instance) {
-			return this.instance;
-		}
-
-		this.channelService = HorizonChannelService.getInstance();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	initialise(toggleFunc, errorHandler = null) {
+	initialise(errorHandler = null) {
 
-		const serviceCallHelper = new ServiceCallHelper(toggleFunc, errorHandler);
-
-		return serviceCallHelper.asyncCall(this.channelService.initialise());
+		return this.serviceCallHelper.asyncCall(this.channelService.initialise(), errorHandler);
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 }

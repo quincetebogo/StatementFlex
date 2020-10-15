@@ -88,4 +88,4 @@ export class SavingsAccountProductDetails extends Component {
 	}
 }
 
-window.customElements.define(`savingsaccountproduct-details`, SavingsAccountProductDetails);
+window.customElements.define(`horizon-savings-account-product-details`, SavingsAccountProductDetails);

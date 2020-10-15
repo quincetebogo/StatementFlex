@@ -4,25 +4,25 @@
  * the user interface must be returned to this page in order top accept a new call.
  */
 import { View, css, html } from 'platform/elements';
-import { CallHandleService } from '../services/CallHandleService';
-import { DesktopAgentService } from '../services/DesktopAgentService';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from '../shell/HorizonRouter';
-import { HorizonStore } from '../store/HorizonStore';
-import { HorizonViewManager } from '../shell/HorizonViewManager';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { IncidentManagementService } from '../services/IncidentManagementService';
-import { IncomingCallDetails } from '../models/IncomingCallDetails';
-import { InitialiseService } from '../services/InitialiseService';
-import { tempFixIVROption } from '../utils/channelServiceUtilities';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
+import { InitialiseService } from 'app/services/InitialiseService';
+import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/buttons/Button';
 
-import '../components/landingPage/LandingPageWaitForCall';
-import '../components/dialogs/ConfirmCallerDetails';
-import '../components/dialogs/stopCard/SearchClientDetails';
-import '../components/dialogs/AssignStopCard';
-import '../components/dialogs/insure/SearchCaller';
+import 'app/components/landingPage/LandingPageWaitForCall';
+import 'app/components/dialogs/ConfirmCallerDetails';
+import 'app/components/dialogs/stopCard/SearchClientDetails';
+import 'app/components/dialogs/AssignStopCard';
+import 'app/components/dialogs/insure/SearchCaller';
 
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
@@ -51,6 +51,12 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.callHandleService = CallHandleService.getInstance();
+		this.initialiseService = new InitialiseService(
+			() => {
+				this._toggleBusyFlag();
+			},
+			null
+		);
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
@@ -249,13 +255,11 @@ export class LandingPage extends View {
 	// ---------------
 
 	async _GetLandingPageData() {
-		let landingPageData = null;
 
-		landingPageData = await InitialiseService.getInstance().initialise(() => {
-			this._toggleBusyFlag();
-		});
+		const returnValue = await this.initialiseService.initialise();
+		const landingPageData = returnValue.result;
 
-		if (landingPageData) {
+		if (returnValue.succeeded) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
