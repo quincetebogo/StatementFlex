@@ -1,15 +1,12 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-
-import { HorizonRouter } from '../../shell/HorizonRouter';
-import { HorizonStore } from '../../store/HorizonStore';
-import { DesktopAgentService } from '../../services/DesktopAgentService';
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-
-import '../../components/common/HorizonOptionButton'
-import '../../components/dialogs/EndCallSession';
+import 'app/components/common/HorizonOptionButton';
+import 'app/components/dialogs/EndCallSession';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
@@ -37,28 +34,24 @@ export class StopCardSuccess extends View {
 		return {
 			displayNotification: { type: Boolean },
 			renderMode: { type: Number }
-		}
+		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
-	// -------------------	
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
 
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.stopCardService = HorizonChannelService.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 
-		let state = this.horizonStore.recoverState();
+		const state = this.horizonStore.recoverState();
 
 		this.stoppedCards = [];
 
@@ -67,7 +60,7 @@ export class StopCardSuccess extends View {
 			this.stoppedCards = state.stoppedCards;
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-			this.eventAggregator.publish('horizon-update-call_actionbar', {
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.callerInfo.incidentReferenceNumber,
 				phoneNumber: this.callerInfo.incomingTelephoneNumber,
 				ivrOptionCode: this.callerInfo.ivrOptionCode,
@@ -93,7 +86,18 @@ export class StopCardSuccess extends View {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.stopCardService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
+		const callToEnd = {
+			incidentRecId: this.callerInfo.incidentReferenceNumber,
+			endCallReason: {
+				key: reason.detail.endCallReason.key
+			}
+		};
+
+		const returnValue = await this.callHandleService.endCall(callToEnd, null);
+
+		if (!returnValue.succeeded) {
+			// TODO: handle failure to end call
+		}
 
 		this.desktopAgentService.callComplete();
 
@@ -120,7 +124,7 @@ export class StopCardSuccess extends View {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 36px;
-				}			
+				}
 
 				.success-toast{
 					position: absolute;
@@ -140,7 +144,7 @@ export class StopCardSuccess extends View {
 
 				#action-icon{
 					margin-left: 24px;
-				}	
+				}
 				
 				#action-display{
 					margin-top:20px;
@@ -151,8 +155,8 @@ export class StopCardSuccess extends View {
 					font-size: 16px;
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 24px;					
-				}	
+					line-height: 24px;
+				};
 				
 				.card-image {
 					margin-top: 41px;
@@ -169,7 +173,7 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 36px;
 					text-align: center;
-				}		
+				}
 				  
 				.stop-card-text {
 					margin: 0px 0px 0px 0px;
@@ -179,7 +183,7 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
-				}	
+				}
   
 				.related-options {
 					margin-top:152px;
@@ -198,7 +202,7 @@ export class StopCardSuccess extends View {
 					font-size: 15px;
 					font-weight: 600;
 					letter-spacing: 0;
-					line-height: 30px;					  
+					line-height: 30px;
 				}
 
 				.options-group{
@@ -248,7 +252,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_webTemplate() {
-		return html`		
+		return html`
 		<capitec-card>
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
 				${this._renderTitleBar()}
@@ -278,7 +282,7 @@ export class StopCardSuccess extends View {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
 			<div 
-				style="visibility:${!this.displayNotification ? "hidden" : "visible"}"
+				style="visibility:${!this.displayNotification ? `hidden` : `visible`}"
 				class="horizon-notify-client">
 				<img 
 					src="../../images/info.svg" 
@@ -295,7 +299,7 @@ export class StopCardSuccess extends View {
 	_renderStoppedCards() {
 		return html`
 			<div class="status-group">
-				${this.stoppedCards.map((card) => { return this._renderSuccessStatus(card) })}
+				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
 			</div>
 		`;
 	}
@@ -350,7 +354,7 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS }}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
 				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails ="${this.callerInfo}">
 			</horizon-end-call-session>`;

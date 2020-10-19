@@ -123,6 +123,7 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
+		// TODO: Perhaps fold this into callHandleService.acceptCall and get rid of incidentManagement Service
 		console.log(`landing page - _onNewCall(): creating incident`);
 
 		const returnValue = await this.incidentManagementService.createIncident(
@@ -167,14 +168,15 @@ export class LandingPage extends View {
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
-			case `Insure`:
-				// Temporary code until the contract is available for loading the client/non-client search dialog
+			case `Insure`: 
+				// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.incomingCallDetails.ivrOption.value = `Insure`;
 				this.unVerifiedCaller = acceptedCall;
 				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 				break;
-			case `StopCard`: // StopCard
+			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog
 				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.confirmedCaller = acceptedCall;

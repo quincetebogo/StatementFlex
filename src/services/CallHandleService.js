@@ -74,6 +74,10 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
 	}
 
+	endCallOptions(endCallDetails, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), errorHandler);
+	}
+
 	/**
 	 *  Closes the incident that was created to track the call.
 	 * 

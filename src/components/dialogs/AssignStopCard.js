@@ -3,13 +3,12 @@
  * to stop a card to a team.
  */
 import { Component, css, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
-import '../../views/stopCard/StopCardFailure';
+import 'app/views/stopCard/StopCardFailure'; // TODO: Why is a component impporting a view. This should be a no no
 
 export class AssignStopCard extends Component {
 
@@ -31,13 +30,7 @@ export class AssignStopCard extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.channelService = HorizonChannelService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => { 
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
-			}, 
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 		this.success = true;
@@ -71,13 +64,15 @@ export class AssignStopCard extends Component {
 			incidentRecId: this.callerInfo.incidentRecId
 		};
 
-		this.serviceCallHelper.call(
-			this.channelService.assignTeams(cardsAndIncident),
-			(teams) => {
-				this.teamsResponse = teams;
-				this.teamItems = this.teamsResponse.teams.possibleValues;
-			}
-		);
+		this.cardService.assignTeams(cardsAndIncident, null)
+			.then((returnValue) => {
+				if (returnValue.succeeded) {
+					this.teamsResponse = returnValue.result;
+					this.teamItems = this.teamsResponse.teams.possibleValues;
+				} else {
+					// TODO: How to handle failure to load teams?
+				}
+		});
 	}
 
 
@@ -97,14 +92,15 @@ export class AssignStopCard extends Component {
 				"team": this.team.value
 			};
 
-			this.success = true;
-			await this.serviceCallHelper.asyncCall(this.channelService.assign(assignRequest), (ex) => this._assignErrorHandler(ex));
+			const returnValue = await this.cardService.assign(assignRequest, (ex) => this._assignErrorHandler());
 
-			if (this.success) {
+			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
-			}
+			} else {
+				// TODO: Handle failure to assign
+			};
 		}
 	}
 
@@ -127,38 +123,29 @@ export class AssignStopCard extends Component {
 	// ----------
 
 	_assignErrorHandler(exception) {
-		try {
-			this.error = `Failed to assign card`;
-
-			if (exception instanceof TypeError) {
+		if (exception instanceof TypeError) {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
 					message: `assign: ${exception.message}`
 				};
-				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
+		} else if (exception instanceof HttpStatusError) {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
 					message: `assign: ${exception.status} - ${exception.message}`
 				};
-				this.error = `${exception.status}: ${exception.message}`;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
+		} else {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
 					message: `assign: UNEXPECTED ERROR - ${exception.message}`
 				};
-				this.error = exception.message;
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} finally {
-			this.success = false;
 		}
-
+		
 		return true;
 	}
 

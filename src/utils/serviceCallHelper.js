@@ -70,31 +70,6 @@ export class ServiceCallHelper {
 		return returnValue;
 	}
 
-	/*
-	 *  Web Service Call Wrapper function that provides error handling. By default errors
-	 *  are sent to the Application's status bar by publishing a 'horizon-status-bar-update'
-	 *  event. 
-	 * 
-	 * @param {*} serviceCall - A function that calls a web service
-	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
-	 */
-	call(serviceCall, resultHandler, errorHandler = null) {
-		this._clearError();
-		this.toggleBusyFlag();
-
-		serviceCall
-			.then((result) => {
-				resultHandler(result);
-			})
-			.catch((exception) => {
-				this._handleException(errorHandler, exception);
-				return null;
-			})
-			.finally(() => {
-				this.toggleBusyFlag();
-			});
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
