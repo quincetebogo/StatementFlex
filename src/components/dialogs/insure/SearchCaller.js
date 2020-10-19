@@ -1,7 +1,3 @@
-/*
- *     Horizon Insure Search Client Details Dialog
- *
- */
 import { Component, css, html } from 'platform/elements';
 
 import { CallerDetails } from 'app/models/CallerDetails';
@@ -106,6 +102,13 @@ const REGEX_PATTERNS = {
 
 const HEADER_LABEL = `Search Caller Details`;
 
+/**
+ * Search Dialog for all needs except Stop Card. Stop Card has a specialized search dialog.
+ *
+ * @export
+ * @class InsureSearchClient
+ * @extends {Component}
+ */
 export class InsureSearchClient extends Component {
 
 	// --------------
@@ -165,7 +168,7 @@ export class InsureSearchClient extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-		this.callService = new CardService(() => this._toggleBusyFlag(), null); // TODO: remove calls to card service from here.
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null); // TODO: remove calls to card service from here.
 	}
 
 	// ----------
@@ -238,14 +241,13 @@ export class InsureSearchClient extends Component {
 				searchValue: this.searchValue
 			};
 
-			const identifiedClient = await this.serviceCallHelper.asyncCall(
-				this.channelService.searchCaller(searchClient),
-				(ex) => this._handleSearchClientException(ex)
-			);
+			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const identifiedClient = returnValue.result;
 
-			if (identifiedClient) {
+			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else {
+				// TODO: handle case where search failes due to an exception differently?
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
