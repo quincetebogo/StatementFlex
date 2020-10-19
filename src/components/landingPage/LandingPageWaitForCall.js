@@ -29,8 +29,27 @@ export class LandingPageWaitForCall extends Component {
 			}
 
 			#waiting-text{
-				color: #003652;
+				height: 32px;
+				width: 100%;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 24px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 32px;
+				text-align: center;
 			}
+
+			#please-wait-text {
+				height: 24px;
+				width: 100%;
+				color: #545D60;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				letter-spacing: 0;
+				line-height: 24px;
+				text-align: center;
+				}
 			`];
 	}
 
@@ -50,9 +69,10 @@ export class LandingPageWaitForCall extends Component {
 		let debug_flag = false;
 
 		return html`
-			<img src="../images/landingPageImages/need.svg" class="needimage"/>
-			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..." ></capitec-label>
-			<capitec-label type="default" label="Please wait while we connect you to your next caller"></capitec-label>
+			<img src="../images/landingPageImages/Client_First.svg" class="needimage" />
+			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..."></capitec-label>
+			<capitec-label id="please-wait-text" type="default" label="Please wait while we connect you to your next caller">
+			</capitec-label>
 			`;
 	}
 }
