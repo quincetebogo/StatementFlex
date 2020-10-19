@@ -6,6 +6,7 @@ import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
@@ -79,12 +80,8 @@ export class SearchClientDetailsComponent extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.callHandleService = new CallHandleService(
-			() => {
-				this._toggleBusyFlag();
-			},
-			null
-		);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -262,8 +259,7 @@ export class SearchClientDetailsComponent extends Component {
 					if (this.identificationMethodsList !== undefined) {
 						this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 					}
-				}
-				else {
+				} else {
 					// TODO: Handle error when searchOptions call failes
 				}
 			});

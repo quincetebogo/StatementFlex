@@ -52,7 +52,7 @@ export class ConfirmCallerDetails extends Component {
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
-		this.cardService = new CardService(this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 	}

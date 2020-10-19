@@ -51,26 +51,9 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 
-		this.initialiseService = new InitialiseService(
-			() => {
-				this._toggleBusyFlag();
-			},
-			null
-		);
-
-		this.incidentManagementService = new IncidentManagementService(
-			() => {
-				this._toggleBusyFlag();
-			},
-			null
-		);
-
-		this.callHandleService = new CallHandleService(
-			() => {
-				this._toggleBusyFlag();
-			},
-			null
-		);
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), null);
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
