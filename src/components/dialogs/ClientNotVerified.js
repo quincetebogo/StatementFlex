@@ -1,8 +1,16 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
-import '../dialogs/insure/VerifyCaller';
+import 'app/components/dialogs/insure/VerifyCaller';
 
+/**
+ * A warning dialog that indicates that the client is not verified and offers the user
+ * the opportunity to invoke the verification process.
+ *
+ * @export
+ * @class ClientNotVerified
+ * @extends {Component}
+ */
 export class ClientNotVerified extends Component {
 
 	// --------------
@@ -25,7 +33,7 @@ export class ClientNotVerified extends Component {
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent(`click`, {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
@@ -122,8 +130,8 @@ export class ClientNotVerified extends Component {
 						line-height: 24px;
 				}
 
-				capitec-icon {
-					--theme-icon-size-small: 24px;
+				.status-icon {
+					height: var(--theme-icon-size-default,24px);
 					width: 24px;
 					margin-right: 0px;
 				}
@@ -155,10 +163,8 @@ export class ClientNotVerified extends Component {
 					--theme-button-padding-right: 22px;
 					--theme-button-padding-bottom: 14px;
 					--theme-button-padding-left: 22px;
-				}
-		
-			`];
-
+				}`
+		];
 	}
 
 	_webTemplate() {
@@ -167,7 +173,7 @@ export class ClientNotVerified extends Component {
 				<div slot="header">
 					<span>
 						<capitec-group layout="horizontal">
-							<capitec-icon size="small" icon="status/warning-trans"></capitec-icon>
+							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
 							<capitec-label class="header-text" label="Client Not Verified"></capitec-label>
 						</capitec-group>
 					</span>
@@ -205,4 +211,4 @@ Do you want to continue?">
 
 }
 
-window.customElements.define(`horizon-client-not-verified`, ClientNotVerified)
+window.customElements.define(`horizon-client-not-verified`, ClientNotVerified);
