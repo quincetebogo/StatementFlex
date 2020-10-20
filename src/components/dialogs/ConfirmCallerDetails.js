@@ -5,6 +5,8 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -52,6 +54,8 @@ export class ConfirmCallerDetails extends Component {
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
@@ -201,7 +205,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ConfirmCallerDetails.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
@@ -213,6 +217,16 @@ export class ConfirmCallerDetails extends Component {
 		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
+	}
+	
+	_onSkipVerification(e) {
+		const state = {
+			incomingCallDetails: this.incomingCallDetails
+		};
+
+		// TODO: Still need to determine if client has insure products or not
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToInsureUnverifiedExistingClient();
 	}
 
 	// --------------
@@ -582,7 +596,10 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		return html`
-			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}"></horizon-verify-caller>
+			<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@skip="${(e) => this._onSkipVerification(e)}">
+			</horizon-verify-caller>
 		`;
 	}
 

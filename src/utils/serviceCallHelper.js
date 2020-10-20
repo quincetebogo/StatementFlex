@@ -92,7 +92,7 @@ export class ServiceCallHelper {
 			handled = this.generalErrorHandler(exception);
 		}
 
-		if (!handled && !disableDefaultErrorHandler) {
+		if (!handled && !this.disableDefaultErrorHandler) {
 			// Call the default error handler
 			handled = this._defaultErrorHandler(exception);
 		}
