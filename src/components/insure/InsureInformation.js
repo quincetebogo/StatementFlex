@@ -132,7 +132,7 @@ export class InsureInformation extends Component {
 				phoneNumber: `0631152973`,
 				ivrOptionCode: `2`
 			}
-);
+		);
 
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
@@ -817,7 +817,11 @@ export class InsureInformation extends Component {
 
 	_renderCalculatePremium() {
 		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
-			return html`<horizon-calculate-premium @on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-calculate-premium>`;
+			let state = this.horizonStore.recoverState();
+			return html`<horizon-calculate-premium 
+							.incomingCallDetails="${state.incomingCallDetails}"
+							@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+						</horizon-calculate-premium>`;
 		}
 		return html``;
 	}

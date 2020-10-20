@@ -200,4 +200,12 @@ export class HorizonChannelService {
 			'cellPhone': callerData.cellPhone
 		});
 	}
+
+	calculatePremiumDone(feedbackDetails) {
+		return this._getClient().post(`/clientcare/insure/${this.version}/CalculatePremium/done`, {
+			'incidentRecId': feedbackDetails.incidentRecId,
+			'feedback': feedbackDetails.feedback,
+			'updateIncident': feedbackDetails.updateIncident
+		});
+	}
 }

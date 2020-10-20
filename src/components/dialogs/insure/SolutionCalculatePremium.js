@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import '../insure/AssignReasonSelected';
 
+import { HorizonChannelService } from '../../../services/HorizonChannelService';
+import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
+
 const RENDER_MODE = {
 	CALCULATE_PREMIUM: 0,
 	ASSIGN_SYSTEM_ERROR: 1
@@ -24,6 +27,16 @@ export class CalculatePremium extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
+
+		this.channelService = HorizonChannelService.getInstance();
+		this.serviceCallHelper = new ServiceCallHelper(
+			() => {
+				this._toggleBusyFlag();
+			}, // ServiceCallHelper will toggle the busy flag
+			null // Don't register an exception handler, ServiceCallHelper provides a default handler
+		);
+
+		this.isBusy = false;
 	}
 
 	// --------------
@@ -34,7 +47,8 @@ export class CalculatePremium extends Component {
 		return {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
-			selectedFeedback: { type: Number }
+			selectedFeedback: { type: Number },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -44,6 +58,10 @@ export class CalculatePremium extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// --------------
@@ -69,9 +87,20 @@ export class CalculatePremium extends Component {
 		// If feeback not selected - Show alert banner
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
-		} else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
-		// If System error feedback is selected - assign diaog will be shown
-		this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
+		}
+		else {
+			const feedbackDetails = {
+				incidentRecId: this.incomingCallDetails.incidentRecId,
+				feedback: this.selectedFeedback == '0' ? 'SUCCESS' : 'ASSIGN',
+				updateIncident: true,
+			};
+
+			this.serviceCallHelper.call(this.channelService.calculatePremiumDone(feedbackDetails));
+
+			if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
+				// If System error feedback is selected - assign dialog will be shown
+				this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
+			}
 		}
 	}
 
@@ -233,11 +262,12 @@ export class CalculatePremium extends Component {
 		return html`
 			${this._renderCalculatePremium()}
 			${this._renderAssignModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
 	_renderCalculatePremium() {
-		if (this.renderMode = RENDER_MODE.CALCULATE_PREMIUM) {
+		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
 			return html`
 				<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
 					<div slot="body">
@@ -264,6 +294,15 @@ export class CalculatePremium extends Component {
 				</horizon-assign-reason-selected>
 			`;
 		}
+	}
+
+	_renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderAlertBanner() {
