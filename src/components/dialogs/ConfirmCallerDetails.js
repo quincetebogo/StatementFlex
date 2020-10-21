@@ -204,7 +204,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ConfirmCallerDetails.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
