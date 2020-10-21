@@ -1,9 +1,5 @@
 import { View, css, html } from 'platform/elements';
-
-import { HorizonViewManager } from '../../shell/HorizonViewManager';
-import { InitialiseService } from '../../services/InitialiseService';
-
-import '../../components/product/SavingsAccountproductDetails';
+import 'app/components/product/SavingsAccountproductDetails';
 
 export class SavingsAccountProduct extends View {
 
@@ -15,61 +11,14 @@ export class SavingsAccountProduct extends View {
 		super();
 	}
 
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { type: Boolean }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		let landingPageData = null;
-
-		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 	}
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// n/a
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-
-	// n/a
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await InitialiseService.getInstance().initialise(() => {
-				this._toggleBusyFlag();
-			});
-		} catch (ex) {
-			// TODO: better handling must come here
-			console.log(ex);
-		}
-
-		return landingPageData;
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	// ---------
 	// RENDERING
@@ -90,20 +39,8 @@ export class SavingsAccountProduct extends View {
 	}
 
 	_webTemplate() {
-		return html`
-			<savingsaccountproduct-details class="savings-details"></savingsaccountproduct-details>
-			${this._renderLoadingIndicator()}
-		`;
+		return html`<horizon-savings-account-product-details class="savings-details"></horizon-savings-account-product-details>`;
 	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
 }
 
-customElements.define(`product-savings-account`, SavingsAccountProduct);
+customElements.define(`horizon-savings-account-product`, SavingsAccountProduct);

@@ -4,25 +4,25 @@
  * the user interface must be returned to this page in order top accept a new call.
  */
 import { View, css, html } from 'platform/elements';
-import { CallHandleService } from '../services/CallHandleService';
-import { DesktopAgentService } from '../services/DesktopAgentService';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from '../shell/HorizonRouter';
-import { HorizonStore } from '../store/HorizonStore';
-import { HorizonViewManager } from '../shell/HorizonViewManager';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { IncidentManagementService } from '../services/IncidentManagementService';
-import { IncomingCallDetails } from '../models/IncomingCallDetails';
-import { InitialiseService } from '../services/InitialiseService';
-import { tempFixIVROption } from '../utils/channelServiceUtilities';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
+import { InitialiseService } from 'app/services/InitialiseService';
+import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/buttons/Button';
 
-import '../components/landingPage/LandingPageWaitForCall';
-import '../components/dialogs/ConfirmCallerDetails';
-import '../components/dialogs/stopCard/SearchClientDetails';
-import '../components/dialogs/AssignStopCard';
-import '../components/dialogs/insure/SearchCaller';
+import 'app/components/landingPage/LandingPageWaitForCall';
+import 'app/components/dialogs/ConfirmCallerDetails';
+import 'app/components/dialogs/stopCard/SearchClientDetails';
+import 'app/components/dialogs/AssignStopCard';
+import 'app/components/dialogs/insure/SearchCaller';
 
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
@@ -50,7 +50,10 @@ export class LandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.callHandleService = CallHandleService.getInstance();
+
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), null);
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
@@ -103,19 +106,18 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
+		// TODO: Perhaps fold this into callHandleService.acceptCall and get rid of incidentManagement Service
 		console.log(`landing page - _onNewCall(): creating incident`);
 
-		const incident = await IncidentManagementService.getInstance().createIncident(
+		const returnValue = await this.incidentManagementService.createIncident(
 			newCallInfo,
-			() => {
-				this._toggleBusyFlag();
-			},
 			(ex) => {
 				this.landingPageErrorHandler(ex, `createIncident`);
 			}
 		);
 
-		if (incident) {
+		const incident = returnValue.result;
+		if (returnValue.succeeded && incident) {
 			console.log(`landing page - _onNewCall(): incident created, accepting call`);
 			await this._acceptCall(newCallInfo, incident);
 		} else {
@@ -132,16 +134,13 @@ export class LandingPage extends View {
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const acceptedCall = await this.callHandleService.acceptCall(
+		const returnValue = await this.callHandleService.acceptCall(
 			newCallInfo,
-			() => {
-				this._toggleBusyFlag();
-			},
 			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
 		);
 
-		if (acceptedCall) {
-			this._dispatchCall(acceptedCall, newCallInfo);
+		if (returnValue.succeeded) {
+			this._dispatchCall(returnValue.result, newCallInfo);
 		} else {
 			console.log(`Failed to accept call`);
 		}
@@ -152,14 +151,22 @@ export class LandingPage extends View {
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
-			case `Insure`:
-				// Temporary code until the contract is available for loading the client/non-client search dialog
+			case `Insure`: 
+				// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.incomingCallDetails.ivrOption.value = `Insure`;
 				this.unVerifiedCaller = acceptedCall;
-				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+
+				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
+					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+					this.confirmedCaller = acceptedCall;
+					this.unVerifiedCaller = null;
+				} else {
+				   this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+				}
 				break;
-			case `StopCard`: // StopCard
+			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog
 				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.confirmedCaller = acceptedCall;
@@ -226,13 +233,11 @@ export class LandingPage extends View {
 
 	async _onCallEnded(data) {
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
+		const returnValue = await this.callHandleService.endCall(data.detail);
+
+		if (!returnValue.succeeded) {
 		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		await this.callHandleService.endCall(
-			data.detail,
-			() => {
- 				this._toggleBusyFlag(); 
-			}
-		);
+		}
 
 		this.desktopAgentService.callComplete();
 		this.horizonStore.eraseState();
@@ -249,13 +254,11 @@ export class LandingPage extends View {
 	// ---------------
 
 	async _GetLandingPageData() {
-		let landingPageData = null;
 
-		landingPageData = await InitialiseService.getInstance().initialise(() => {
-			this._toggleBusyFlag();
-		});
+		const returnValue = await this.initialiseService.initialise();
+		const landingPageData = returnValue.result;
 
-		if (landingPageData) {
+		if (returnValue.succeeded) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
@@ -357,8 +360,12 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller .confirmedCaller="${this.confirmedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" @call-ended="${(data) => this._onCallEnded(data)}">
+				<horizon-confirm-caller 
+					.confirmedCaller="${this.confirmedCaller}" 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
+					@call-ended="${(data) => this._onCallEnded(data)}"
+					@non-client-captured=${event => this._onNonClientCaptured(event)}>
 				</horizon-confirm-caller>`;
 		}
 	}
@@ -370,7 +377,7 @@ export class LandingPage extends View {
 				<horizon-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
+					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
@@ -380,7 +387,7 @@ export class LandingPage extends View {
 				<horizon-insure-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
+					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">  
 				</horizon-insure-search-client>`;
@@ -405,4 +412,4 @@ export class LandingPage extends View {
 	}
 }
 
-customElements.define(`landing-page`, LandingPage);
+customElements.define(`horizon-landing-page`, LandingPage);

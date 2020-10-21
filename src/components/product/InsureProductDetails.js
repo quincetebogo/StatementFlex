@@ -118,6 +118,5 @@ export class InsureProductDetails extends Component {
 		`;
 	}
 }
-console.log(`on thr insure view`);
 
-window.customElements.define(`insureproduct-details`, InsureProductDetails);
+window.customElements.define(`horizon-insure-product-details`, InsureProductDetails);

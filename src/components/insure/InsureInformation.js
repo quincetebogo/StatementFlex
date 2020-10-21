@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from '../../store/HorizonStore';
 import { EventAggregator, NavigationContext, Router } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/layouts/Layout';
 import 'platform/components/containers/Expander';
@@ -9,13 +9,12 @@ import 'platform/components/containers/TabGroup';
 import 'platform/components/data/Table';
 import 'platform/components/navigation/AppRouter';
 
-import '../dialogs/insure/SolutionCalculatePremium';
-import '../dialogs/insure/NonAdvisoryDisclaimer';
-import '../dialogs/EndCallSession';
-import '../dialogs/insure/AssignReasonDialog';
-import '../dialogs/insure/AssignReasonSelected';
-import '../../shell/HorizonRouter';
-import '../dialogs/insure/VerifyCaller';
+import 'app/components/dialogs/insure/CalculatePremium';
+import 'app/components/dialogs/insure/NonAdvisoryDisclaimer';
+import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/insure/AssignReasonDialog';
+import 'app/components/dialogs/insure/AssignReasonSelected';
+import 'app/shell/HorizonRouter';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -33,6 +32,14 @@ const RENDER_BANNER = {
 	VERIFIED_PROSPECTIVE_CLIENT: 2
 };
 
+/**
+ * The InsureInformation comopnent displays information on insurance products. The component is used by 
+ * the non-client, unverified prospective client  and verified prospective client views.
+ * 
+ * @export
+ * @class InsureInformation
+ * @extends {Component}
+ */
 export class InsureInformation extends Component {
 
 	// --------------
@@ -66,13 +73,10 @@ export class InsureInformation extends Component {
 		this.displayToast = true;
 		this.isReassigned = false;
 
-		this.incomingCallDetails = {
-			incomingTelephoneNumber: `0640987370`,
-			voiceReferenceNumber: `34567893`,
-			ivrOptionCode: `1`,
-			incidentReferenceNumber: `123456`,
-			agentTelephoneNumber: `0828404590`
-		};
+		const state = this.horizonStore.recoverState();
+
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.nonClient = state.nonClient;
 	}
 
 	// ----------
@@ -104,77 +108,82 @@ export class InsureInformation extends Component {
 
 		if (this.displayMode === `non-client`) {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
-			this.state = this.horizonStore.recoverState();
 
 			this.eventAggregator.publish(
 				`mini-client-profile`,
 				{
-					name: `${this.state.nonClient.firstName} ${this.state.nonClient.surname}`,
+					name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
 					idNumber: ``,
-					phoneNumber: this.state.nonClient.cellphone,
+					phoneNumber: this.nonClient.cellphone,
 					livesIn: ``,
 					languagePreference: ``,
 					birthday: ``,
 					isConfirmed: false
 				}
 			);
-			this.eventAggregator.publish('horizon-update-left-hand-bar',
+			this.eventAggregator.publish(
+`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: false,
 					isDocumentsButtonVisible: false,
 					subtitle: {
-						savingsAccount: "Active",
-						savingsPlan: "Active",
-						insure: "Active",
-						credit: "Rethink credit, realise dreams"
+						savingsAccount: `Active`,
+						savingsPlan: `Active`,
+						insure: `Active`,
+						credit: `Rethink credit, realise dreams`
 					},
 					detail: {
-						savingsAccount: "",
-						savingsPlan: "",
-						insure: "",
-						credit: ""
+						savingsAccount: ``,
+						savingsPlan: ``,
+						insure: ``,
+						credit: ``
 					}
-				});
+				}
+);
 		} else if (this.displayMode === `unverified-prospective`) {
-			this.eventAggregator.publish('horizon-update-left-hand-bar',
+			this.eventAggregator.publish(
+`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: false,
 					isDocumentsButtonVisible: false,
 					subtitle: {
-						savingsAccount: "Active",
-						savingsPlan: "Active",
-						insure: "One plan, more cover",
-						credit: "Rethink credit, realise dreams"
+						savingsAccount: `Active`,
+						savingsPlan: `Active`,
+						insure: `One plan, more cover`,
+						credit: `Rethink credit, realise dreams`
 					},
 					detail: {
-						savingsAccount: "",
-						savingsPlan: "",
-						insure: "",
-						credit: ""
+						savingsAccount: ``,
+						savingsPlan: ``,
+						insure: ``,
+						credit: ``
 					}
-				});
+				}
+);
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
 		} else if (this.displayMode === `verified-prospective`) {
-			this.eventAggregator.publish('horizon-update-left-hand-bar',
+			this.eventAggregator.publish(
+`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: true,
 					isDocumentsButtonVisible: true,
 					subtitle: {
-						savingsAccount: "Active",
-						savingsPlan: "Active",
-						insure: "Active",
-						credit: "Rethink credit, realise dreams"
+						savingsAccount: `Active`,
+						savingsPlan: `Active`,
+						insure: `Active`,
+						credit: `Rethink credit, realise dreams`
 					},
 					detail: {
-						savingsAccount: "",
-						savingsPlan: "",
-						insure: "",
-						credit: ""
+						savingsAccount: ``,
+						savingsPlan: ``,
+						insure: ``,
+						credit: ``
 					}
-				});
+				}
+);
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
@@ -185,9 +194,9 @@ export class InsureInformation extends Component {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: `73023022`,
-				phoneNumber: `0631152973`,
-				ivrOptionCode: `2`
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
 		);
 
@@ -196,20 +205,6 @@ export class InsureInformation extends Component {
 		this.displayClaimNotification = true;
 
 		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
-
-		this.incomingCallDetails.ivrOption = {
-			possibleValues: [
-				{
-					"key": `1`,
-					"value": `Stop Card`
-				},
-				{
-					"key": `2`,
-					"value": `Insure`
-				}
-			],
-			value: '2'
-		};
 	}
 
 
@@ -283,6 +278,15 @@ export class InsureInformation extends Component {
 
 	_onVerifyNowClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+	
+	_onCalculatedPremium(e) {
+		if (e.detail.assign) {
+			this.assignReason = e.detail.assignReason;
+			this.renderMode = RENDER_MODE.ASSIGN;
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
 	}
 
 	// ---------
@@ -871,18 +875,23 @@ export class InsureInformation extends Component {
 	}
 
 	_renderDislaimer() {
-		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
-            return html`<horizon-non-advisory-disclaimer 
-                @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-</horizon-non-advisory-disclaimer>`;
+		if (this.renderMode === RENDER_MODE.DISCLAIMER) {
+			return html`<horizon-non-advisory-disclaimer 
+				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-non-advisory-disclaimer>`;
 		}
 	}
 
 	_renderCalculatePremium() {
 		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
-			return html`<horizon-calculate-premium @on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-calculate-premium>`;
-        }
-        return html``;
+			return html`
+				<horizon-calculate-premium 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@done="${(e) => this._onCalculatedPremium(e)}">
+				</horizon-calculate-premium>`;
+		}
+		return html``;
 	}
 
 	_renderNonClientBanner() {
@@ -962,35 +971,41 @@ export class InsureInformation extends Component {
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`<horizon-end-call-session @on-cancel="{${() => this._onCancelEndCall()}}"
-	.incomingCallDetails="${this.incomingCallDetails}" .isReassigned="${this.isReassigned}">
-</horizon-end-call-session>`;
+			return html`
+				<horizon-end-call-session 
+					@on-cancel="{${() => this._onCancelEndCall()}}"
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isReassigned="${this.isReassigned}">
+				</horizon-end-call-session>`;
 		}
 		return html``;
 	}
 
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
-			return html`<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
-	@on-cancel=${() => this._onCancelSelectAssignReason()}>
-</horizon-insure-assign-reason>`;
+			return html`
+				<horizon-insure-assign-reason 
+					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+					@on-cancel=${() => this._onCancelSelectAssignReason()}>
+				</horizon-insure-assign-reason>`;
 		}
 		return html``;
 	}
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-reason-selected .selectedReason="${this.assignReason}" @on-cancel=${() => this._onCancelAssign()}>
-</horizon-assign-reason-selected>`;
+			return html`
+				<horizon-assign-reason-selected 
+					.selectedReason="${this.assignReason}" 
+					@on-cancel=${() => this._onCancelAssign()}>
+				</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
+
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`
-					<horizon-verify-caller .incomingCallDetails=${this.incomingCallDetails}>
-					</horizon-verify-caller>
-			`;
+			return html`<horizon-verify-caller .incomingCallDetails=${this.incomingCallDetails}></horizon-verify-caller>`;
 		}
 		return html``;
 	}

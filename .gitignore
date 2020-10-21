@@ -1,4 +1,9 @@
 dist
 jsconfig.json
 /src/types.d.ts
+<<<<<<< HEAD
 ocwp
+=======
+ocwp
+*.log
+>>>>>>> develop

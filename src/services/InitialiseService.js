@@ -1,41 +1,45 @@
-import { HorizonChannelService } from './HorizonChannelService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class InitialiseService {
+/**
+ * The InitializeService is used on the Horizon Landing Page primarily to load the the 
+ * current agent/user's details
+ *
+ * @export
+ * @class InitialiseService
+ * @extends {ServiceBase}
+ */
+export class InitialiseService extends ServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-
-	static getInstance() {
-		return this.instance || (this.instance = new InitialiseService());
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
-
-	constructor() {
-		if (this.instance) {
-			return this.instance;
-		}
-
-		this.channelService = HorizonChannelService.getInstance();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	initialise(toggleFunc, errorHandler = null) {
+	/**
+	 * @callback initialiseCallback
+	 * @param {object} exception - The exception from the failing service call
+	 */
 
-		const serviceCallHelper = new ServiceCallHelper(toggleFunc, errorHandler);
+	 /**
+	  * @typedef {Object} ReturnValue
+	  * @property {boolean} succeeded - Indicates if the service call succeeded
+	  * @property {object} result - The result of the service call if succeeded is true
+	  */
 
-		return serviceCallHelper.asyncCall(this.channelService.initialise());
+	/**
+	 * Returns information on the logged in agent/user
+	 *
+	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @memberof InitialiseService
+	 */
+	initialise(errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.initialise(), errorHandler);
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 }

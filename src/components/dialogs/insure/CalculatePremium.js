@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import '../insure/AssignReasonSelected';
+import { InsureService } from 'app/services/InsureService';
 
 const RENDER_MODE = {
 	CALCULATE_PREMIUM: 0,
@@ -12,6 +12,15 @@ const FEEDBACK_OPTIONS = {
 const ASSIGN_REASON = `0`;
 const ALTER_BANNER_MESSAGE = `Choose a feedback reason to continue.`;
 
+
+/**
+ * The Calculate Premium Dialog presents information that currently directs the 
+ * user to the SBL solutoin for calculating the insurance premium.
+ *
+ * @export
+ * @class CalculatePremium
+ * @extends {Component}
+ */
 export class CalculatePremium extends Component {
 
 	// --------------
@@ -24,6 +33,9 @@ export class CalculatePremium extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
+
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
+		this.isBusy = false;
 	}
 
 	// --------------
@@ -34,7 +46,8 @@ export class CalculatePremium extends Component {
 		return {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
-			selectedFeedback: { type: Number }
+			selectedFeedback: { type: Number },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -46,32 +59,42 @@ export class CalculatePremium extends Component {
 		super.connectedCallback();
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
-			detail: {}
-		}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onCancelAssign() {
-		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
-	}
-
-	_onAssign() {
-		// TODO: Functionality after assigning to be implemented here.
-	}
-
-	_onDoneClick() {
+	async _onDoneClick() {
 
 		// If feeback not selected - Show alert banner
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
-		} else if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
-		// If System error feedback is selected - assign diaog will be shown
-		this.renderMode = RENDER_MODE.ASSIGN_SYSTEM_ERROR;
+		} else {
+			const feedbackDetails = {
+				incidentRecId: this.incomingCallDetails.incidentRecId,
+				feedback: this.selectedFeedback === `0` ? `SUCCESS` : `ASSIGN`,
+				updateIncident: true
+			};
+
+			const returnValue = await this.insureService.calculatePremiumDone(feedbackDetails, null);
+		
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`done`, { 
+						detail: { 
+							assign: this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR,
+							assignReason: ASSIGN_REASON
+						} 
+				}));
+			} else {
+				// TODO: Handle failure to call service
+			}
 		}
 	}
 
@@ -232,12 +255,12 @@ export class CalculatePremium extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderCalculatePremium()}
-			${this._renderAssignModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
 	_renderCalculatePremium() {
-		if (this.renderMode = RENDER_MODE.CALCULATE_PREMIUM) {
+		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
 			return html`
 				<capitec-modal type="free" header-align="left" header="Solution - Calculate Premium">
 					<div slot="body">
@@ -254,16 +277,13 @@ export class CalculatePremium extends Component {
 		}
 	}
 
-	_renderAssignModal() {
-		if (this.renderMode === RENDER_MODE.ASSIGN_SYSTEM_ERROR) {
-			return html`
-				<horizon-assign-reason-selected
-					.selectedReason=${ASSIGN_REASON}
-					@on-cancel=${() => this._onCancelAssign()}
-					@team-selected=${() => this._onAssign()}>
-				</horizon-assign-reason-selected>
-			`;
-		}
+	_renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderAlertBanner() {
@@ -299,7 +319,7 @@ export class CalculatePremium extends Component {
 								class="radio-button-label"
 								label="Completed Calculation"
 								@value-change="${(e) => this._onValueChanged(e)}"
-								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.COMPLETED}>
+								?checked = "${this.selectedFeedback === FEEDBACK_OPTIONS.COMPLETED}">
 					</capitec-radio>
 				</capitec-group>
  
@@ -309,7 +329,7 @@ export class CalculatePremium extends Component {
 								class="radio-button-label"
 								label="System error - assign now"
 								@value-change="${(e) => this._onValueChanged(e)}"
-								.checked = ${this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR}>
+								?checked = "${this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR}">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
