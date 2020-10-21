@@ -87,9 +87,6 @@ export class DesktopAgentService {
 	_onNewCall(event) {
 		console.log(`_onNewCall: new call event received`);
 
-		// We have received an event so we must be connected to the Desktop Agent
-		this.connectionTries = 0;
-
 		const eventData = JSON.parse(event.data);
 
 		// Do nothing with hearbeats. They are just to keep the connecction alive
@@ -100,6 +97,9 @@ export class DesktopAgentService {
 			this.connectionTries = 0;
 			return;
 		}
+
+		// We have received an event so we must be connected to the Desktop Agent
+		this.connectionTries = 0;
 
 		const newCallEvent = new NewCallEvent();
 
@@ -165,15 +165,15 @@ export class DesktopAgentService {
 		switch (this.eventSource.readyState) {
 			case 0:
 				this.connectionTries++;
-				console.log(`Event Source State: CONNECTING`, this.connectionTries);
+				// console.log(`Event Source State: CONNECTING`, this.connectionTries);
 				break;
 			case 1:
-				console.log(`Event Source State: OPEN`);
+				// console.log(`Event Source State: OPEN`);
 				// this.connectionTries = 0;
 				break;
 			case 2:
 				this.connectionTries++;
-				console.log(`Event Source State: CLOSED`, this.connectionTries++);
+				// console.log(`Event Source State: CLOSED`, this.connectionTries++);
 				break;
 			default:
 				break;
