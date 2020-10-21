@@ -24,4 +24,8 @@ export class InsureService extends ServiceBase {
 
 		return this.serviceCallHelper.asyncCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), errorHandler);
 	}
+
+	calculatePremiumDone(feedbackDetails, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.calculatePremiumDone(feedbackDetails), errorHandler);
+	}
 }

@@ -1,7 +1,14 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import '../../components/insure/InsureInformation';
+import 'app/components/insure/InsureInformation';
 
+/**
+ * The Insure view for a non-client. Only information about insurance productw will be accessible.
+ *
+ * @export
+ * @class InsureProductNonClient
+ * @extends {View}
+ */
 export class InsureProductNonClient extends View {
 
 	constructor() {
@@ -17,7 +24,8 @@ export class InsureProductNonClient extends View {
 				width:100%;
 				height:100%;
 			}					
-			`];
+			`
+];
 	}
 
 	_mobileTemplate() {
@@ -28,4 +36,4 @@ export class InsureProductNonClient extends View {
 	}
 }
 
-customElements.define(`product-insure-non-client`, InsureProductNonClient);
+customElements.define(`horizon-product-insure-non-client`, InsureProductNonClient);

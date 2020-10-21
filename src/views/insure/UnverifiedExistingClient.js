@@ -1,6 +1,6 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import '../../components/insure/ThirdPartOrExistingClient';
+import 'app/components/insure/ThirdPartyOrExistingClient';
 
 export class UnerifiedExistingClient extends View {
 
@@ -25,7 +25,7 @@ export class UnerifiedExistingClient extends View {
 					height: 100%;
 				}
 			`
-		]
+		];
 	}
 
 	// -------------------
@@ -37,16 +37,16 @@ export class UnerifiedExistingClient extends View {
 
 		this.solutionsAvailable = [
 			{
-				"icon": "system/documents-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "How to Claim"
+				"icon": `system/documents-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `How to Claim`
 			},
 			{
-				"icon": "system/notes-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "View Status"
+				"icon": `system/notes-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `View Status`
 			}
 		];
 	}
@@ -55,9 +55,11 @@ export class UnerifiedExistingClient extends View {
 	}
 
 	_webTemplate() {
-		return html`<insure-third-party-or-existing-client .solutionsAvailable="${this.solutionsAvailable}" 
-															clientType="unverified-existing-client">
-					</insure-third-party-or-existing-client>`;
+		return html`
+			<horizon-third-party-or-existing-client 
+				.solutionsAvailable="${this.solutionsAvailable}" 
+				clientType="unverified-existing-client">
+			</horizon-third-party-or-existing-client>`;
 	}
 }
 

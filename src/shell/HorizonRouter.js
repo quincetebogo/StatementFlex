@@ -1,5 +1,5 @@
 import { Router } from 'platform/Router';
-import { HorizonViewManager, HORIZON_VIEW_SET } from './HorizonViewManager';
+import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
 
 const HORIZON_ROUTES = {
 	LANDING_PAGE: `/landingPage`,
@@ -97,7 +97,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `product-insure-non-client`,
+		name: `horizon-product-insure-non-client`,
 		title: `InsureProductNonClientView`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,

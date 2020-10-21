@@ -192,7 +192,7 @@ export class HorizonChannelService extends Service {
 	}
 
 	calculatePremiumDone(feedbackDetails) {
-		return this._getClient().post(`/clientcare/insure/${this.version}/CalculatePremium/done`, {
+		return super.httpClient.post(`/clientcare/insure/${this.version}/CalculatePremium/done`, {
 			'incidentRecId': feedbackDetails.incidentRecId,
 			'feedback': feedbackDetails.feedback,
 			'updateIncident': feedbackDetails.updateIncident

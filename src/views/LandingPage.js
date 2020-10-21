@@ -360,8 +360,12 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller .confirmedCaller="${this.confirmedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" @call-ended="${(data) => this._onCallEnded(data)}">
+				<horizon-confirm-caller 
+					.confirmedCaller="${this.confirmedCaller}" 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
+					@call-ended="${(data) => this._onCallEnded(data)}"
+					@non-client-captured=${event => this._onNonClientCaptured(event)}>
 				</horizon-confirm-caller>`;
 		}
 	}
@@ -373,7 +377,7 @@ export class LandingPage extends View {
 				<horizon-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
+					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
 				</horizon-search-client>`;
@@ -383,7 +387,7 @@ export class LandingPage extends View {
 				<horizon-insure-search-client 
 					.unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
+					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">  
 				</horizon-insure-search-client>`;
