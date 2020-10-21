@@ -1,22 +1,16 @@
-/*
- *     Horizon Insure Search Client Details Dialog
- *
- */
 import { Component, css, html } from 'platform/elements';
 
-import { CallerDetails } from '../../../models/CallerDetails';
+import { CallerDetails } from 'app/models/CallerDetails';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { InsureService } from '../../../services/InsureService';
-import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
-import { isNullorEmpty } from '../../../utils/channelServiceUtilities';
+import { InsureService } from 'app/services/InsureService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
-
-import '../../common/HorizonSelect';
-import '../stopCard/SearchClientDetails';
-import '../../common/HorizonCallerDialog';
-import '../EndCallSession';
+import 'app/components/common/HorizonSelect';
+import 'app/components/dialogs/stopCard/SearchClientDetails';
+import 'app/components/common/HorizonCallerDialog';
+import 'app/components/dialogs/EndCallSession';
 
 
 const RENDER_MODE = {
@@ -108,6 +102,13 @@ const REGEX_PATTERNS = {
 
 const HEADER_LABEL = `Search Caller Details`;
 
+/**
+ * Search Dialog for all needs except Stop Card. Stop Card has a specialized search dialog.
+ *
+ * @export
+ * @class InsureSearchClient
+ * @extends {Component}
+ */
 export class InsureSearchClient extends Component {
 
 	// --------------
@@ -165,14 +166,9 @@ export class InsureSearchClient extends Component {
 		this.cellPhoneNumberValue = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.channelService = HorizonChannelService.getInstance();
 
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
-			},
-			null // Don't register an exception handler, unless you need an exception handler generic to component
-		);
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null); // TODO: remove calls to card service from here.
 	}
 
 	// ----------
@@ -245,14 +241,13 @@ export class InsureSearchClient extends Component {
 				searchValue: this.searchValue
 			};
 
-			const identifiedClient = await this.serviceCallHelper.asyncCall(
-				this.channelService.searchCaller(searchClient),
-				(ex) => this._handleSearchClientException(ex)
-			);
+			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const identifiedClient = returnValue.result;
 
-			if (identifiedClient) {
+			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else {
+				// TODO: handle case where search failes due to an exception differently?
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
@@ -295,13 +290,11 @@ export class InsureSearchClient extends Component {
 				cellphone: this.cellPhoneNumberValue
 			};
 
-			const insureService = new InsureService();
+			const returnValue = await this.insureService.addNonClientDetails(nonClientData);
 
-			await insureService.addNonClientDetails(
-				nonClientData, 
-				() => this._toggleBusyFlag(),
-				(ex) => this._handleAddNonClientException(ex)
-			);
+			if (!returnValue.succeeded) {
+				// TODO: Handle errors if call fails
+			}
 	
 			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
 				detail: {

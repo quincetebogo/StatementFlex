@@ -12,7 +12,7 @@ export class HorizonStore extends Store {
 
 	constructor() {
 		super({
-			name: `caller-info`,
+			name: `horizon-store`,
 			persistence: `sessionStorage`,
 			logStateChanges: true
 		});

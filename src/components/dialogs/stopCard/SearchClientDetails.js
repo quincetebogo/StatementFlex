@@ -3,20 +3,19 @@
  *
  */
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isHidden, isNullorEmpty } from '../../../utils/channelServiceUtilities';
+import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
+import { CallHandleService } from 'app/services/CallHandleService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
-import { CallHandleService } from '../../../services/CallHandleService';
 
-import '../ConfirmCallerDetails';
-import '../../common/HorizonSelect';
-import '../insure/SearchCaller';
+import 'app/components/dialogs/ConfirmCallerDetails';
+import 'app/components/common/HorizonSelect';
+import 'app/components/dialogs/insure/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
 
-import '../../common/HorizonCallerDialog';
-import '../EndCallSession';
+import 'app/components/common/HorizonCallerDialog';
+import 'app/components/dialogs/EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -81,14 +80,9 @@ export class SearchClientDetailsComponent extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.channelService = HorizonChannelService.getInstance();
-		this.callHandleService = CallHandleService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag 
-			},
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
 	}
@@ -188,14 +182,13 @@ export class SearchClientDetailsComponent extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const identifiedClient = await this.serviceCallHelper.asyncCall(
-				this.channelService.searchCaller(searchClient),
-				(ex) => this._handleSearchClientException(ex)
-			);
+			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const identifiedClient = returnValue.result;
 
-			if (identifiedClient) {
+			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
 			} else {
+				// TODO: check error handling for when the error is a service call failure
 				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
 				return true;
 			}
@@ -257,16 +250,19 @@ export class SearchClientDetailsComponent extends Component {
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		this.serviceCallHelper.call(
-			this.channelService.searchOptions(clientInfo),
-			(options) => {
-				console.log(`resolved - result`, options);
-				this.identificationMethodsList = options.identificationMethods;
-				if (this.identificationMethodsList !== undefined) {
-					this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+		this.cardService.searchOptions(clientInfo, null)
+			.then((returnValue) => {
+				const options = returnValue.result;
+
+				if (returnValue.succeeded) {
+					this.identificationMethodsList = options.identificationMethods;
+					if (this.identificationMethodsList !== undefined) {
+						this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+					}
+				} else {
+					// TODO: Handle error when searchOptions call failes
 				}
-			}
-		);
+			});
 	}
 
 	extractIdentificationMethods(identificationMethods) {

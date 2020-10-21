@@ -1,6 +1,5 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { isNullorEmpty } from '../utils/channelServiceUtilities';
 
 /**
  *  Helper class for handling errors when making web service calls. 
@@ -27,10 +26,12 @@ export class ServiceCallHelper {
 	 * 
 	 * @param {*} toggleBusyFunc - A function that can be called to toggle a busy indicator
 	 * @param {*} generalErrorHandler - An error handling function to use in place of the default handler
-	 */
-	constructor(toggleBusyFunc, generalErrorHandler = null) {
+	 * @param {*} disableDefaultErrorHandler - Disable the default error handler that sends notification messages to the Horizon Status Bar
+ 	 */
+	constructor(toggleBusyFunc, generalErrorHandler = null, disableDefaultErrorHandler = false) {
 		this.toggleBusyFlag = toggleBusyFunc;
 		this.generalErrorHandler = generalErrorHandler;
+		this.disableDefaultErrorHandler = disableDefaultErrorHandler;
 		this.eventAggregator = EventAggregator.getInstance();
 	}
 
@@ -47,70 +48,59 @@ export class ServiceCallHelper {
 	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
 	 */
 	async asyncCall(serviceCall, errorHandler = null) {
+		const returnValue = {
+			succeeded: true,
+            result: null
+		};
+
 		try {
 			this._clearError();
 			this.toggleBusyFlag();
 
-			const result = await serviceCall;
+			returnValue.result = await serviceCall;
 
-			return result;
+			return returnValue;
 		} catch (exception) {
 			this._handleException(errorHandler, exception);
 		} finally {
 			this.toggleBusyFlag();
 		}
 
-		return null;
-	}
-
-	/*
-	 *  Web Service Call Wrapper function that provides error handling. By default errors
-	 *  are sent to the Application's status bar by publishing a 'horizon-status-bar-update'
-	 *  event. 
-	 * 
-	 * @param {*} serviceCall - A function that calls a web service
-	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
-	 */
-	call(serviceCall, resultHandler, errorHandler = null) {
-		this._clearError();
-		this.toggleBusyFlag();
-
-		serviceCall
-			.then((result) => {
-				resultHandler(result);
-			})
-			.catch((exception) => {
-				this._handleException(errorHandler, exception);
-				return null;
-			})
-			.finally(() => {
-				this.toggleBusyFlag();
-			});
+		returnValue.succeeded = false;
+		return returnValue;
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 	_clearError() {
-		this.eventAggregator.publish(`horizon-status-bar-update`, { from: `UI-CS`, status: `success`, message: `` });
+		if (!this.disableDefaultErrorHandler) {
+			this.eventAggregator.publish(`horizon-status-bar-update`, { from: `UI-CS`, status: `success`, message: `` });
+		}
 	}
 
 	_handleException(errorHandler, exception) {
 		let handled = false;
+
 		if (errorHandler !== null) {
-			// Call the specific error handler if passed to this method
+			// Call any error handler attached to the method invoking the service call
 			handled = errorHandler(exception);
-		} else if (this.generalErrorHandler !== null) {
-			// No specific error handler, then call the general one if passed in the constructor
+		}
+
+		// Call any error hander attached to the class invoking the service call
+		if (!handled && this.generalErrorHandler !== null) {
 			handled = this.generalErrorHandler(exception);
-		} else {
-			// Error handlers not overridded, use the default error handler
+		}
+
+		if (!handled && !this.disableDefaultErrorHandler) {
+			// Call the default error handler
 			handled = this._defaultErrorHandler(exception);
 		}
+
 		// Throw an exception if none of the error handlers handled the error.
 		if (!handled) {
 			throw exception;
-		}
+		};
 	}
 
 	_defaultErrorHandler(exception) {
@@ -139,6 +129,6 @@ export class ServiceCallHelper {
 		};
 
 		this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		return true;
+		return false;
 	}
 }

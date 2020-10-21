@@ -1,10 +1,6 @@
 import { View, css, html } from 'platform/elements';
-
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { InitialiseService } from '../../../services/InitialiseService';
-
-import '../../../components/common/HorizonProductTile';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import 'app/components/common/HorizonProductTile';
 
 export class SavingsPlanProduct extends View {
 
@@ -17,60 +13,12 @@ export class SavingsPlanProduct extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { type: Boolean }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		let landingPageData = null;
-
-		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// n/a
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-
-	// n/a
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await InitialiseService.getInstance().initialise(() => {
-				this._toggleBusyFlag();
-			});
-		} catch (ex) {
-			// TODO: better handling must come here
-			console.log(ex);
-		}
-
-		return landingPageData;
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -130,17 +78,8 @@ export class SavingsPlanProduct extends View {
 					</horizon-product-tile>
 					</div>
 			</capitec-card>
-			${this._renderLoadingIndicator()}
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 
-customElements.define(`product-savings-plan`, SavingsPlanProduct);
+customElements.define(`horizon-savings-plan-product`, SavingsPlanProduct);
