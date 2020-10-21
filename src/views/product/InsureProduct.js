@@ -1,11 +1,6 @@
 import { View, css, html } from 'platform/elements';
+import 'app/components/product/InsureProductDetails';
 
-import { HorizonViewManager } from '../../shell/HorizonViewManager';
-import { InitialiseService } from '../../services/InitialiseService';
-
-import '../../components/product/InsureProductDetails';
-
-// TODO: Review as per SavingsAccountProduct page
 export class InsureProduct extends View {
 
 	// --------------
@@ -16,60 +11,12 @@ export class InsureProduct extends View {
 		super();
 	}
 
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { type: Boolean }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		let landingPageData = null;
-
-		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// n/a
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-
-	// n/a
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await InitialiseService.getInstance().initialise(() => {
-				this._toggleBusyFlag();
-			});
-		} catch (ex) {
-			// TODO: better handling must come here
-			console.log(ex);
-		}
-
-		return landingPageData;
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -91,19 +38,8 @@ export class InsureProduct extends View {
 	}
 
 	_webTemplate() {
-		return html`
-			<insureproduct-details class="insure-details"></insureproduct-details>
-			${this._renderLoadingIndicator()}
-		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html`<horizon-insure-product-details class="insure-details"></horizon-insure-product-details>`;
 	}
 }
 
-customElements.define(`product-insure`, InsureProduct);
+customElements.define(`horizon-insure-product`, InsureProduct);

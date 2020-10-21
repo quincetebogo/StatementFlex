@@ -1,22 +1,23 @@
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
  */
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-import '../../common/HorizonOptionButton';
-import '../../common/HorizonCallerDialog';
-import './VerifyCallerSecurityQuestions';
-import '../EndCallSession';
+import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/HorizonCallerDialog';
+import 'app/components/dialogs/insure/VerifyCallerSecurityQuestions';
+import 'app/components/dialogs/EndCallSession';
 
-import { HorizonRouter } from '../../../shell/HorizonRouter';
 
 const RENDER_MODE = {
 	VERIFY_CALLER: 0,
 	END_CALL: 1,
 	SECURITY_QUESTIONS: 2
-}
+};
 
-const HEADER_LABEL = "Verify Caller";
+const HEADER_LABEL = `Verify Caller`;
 
 export class VerifyCaller extends Component {
 
@@ -30,7 +31,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = 0;
 		this.incomingCallDetails = null;
-		this.timeLeft = "1:00";
+		this.timeLeft = `1:00`;
 		this.minutes = 1;
 		this.seconds = 60;
 		this.notVerified = false;
@@ -38,16 +39,17 @@ export class VerifyCaller extends Component {
 		// TODO: Remove this hardcoded values, once the channel service is ready
 		this.ivrOptions = [
 			{
-				"key": "1",
-				"value": "Stop Card"
+				"key": `1`,
+				"value": `Stop Card`
 			},
 			{
-				"key": "2",
-				"value": "Insure"
+				"key": `2`,
+				"value": `Insure`
 			}
 		];
 
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -60,7 +62,7 @@ export class VerifyCaller extends Component {
 			incomingCallDetails: { type: Object },
 			timeLeft: { type: String },
 			notVerified: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -85,19 +87,20 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	_verifyUsingSQ() {
-		//Show Security Questions dialog
+		// Show Security Questions dialog
 		this.minutes = 0;
 		this.seconds = 0;
 		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	_skip() {
-		//TODO: Navigate to Insure Landing Page
-		this.horizonRouter.navigateToInsureNonClient();
+		this.dispatchEvent(new CustomEvent(`skip`, {
+			detail: { incomingCallDetails: this.incomingCallDetails }
+		}));
 	}
 
 	_tryAgain() {
-		//TODO: Channel service comes here, on success of it need to do the below reset
+		// TODO: Channel service comes here, on success of it need to do the below reset
 		this.notVerified = false;
 		this.minutes = 1;
 		this.seconds = 60;
@@ -117,19 +120,20 @@ export class VerifyCaller extends Component {
 	// ---------------
 
 	_startTimer() {
-		var startTimer = setInterval(() => {
-			this.minutes = this.minutes != 0 ? this.minutes - 1 : this.minutes;
+		const startTimer = setInterval(() => {
+			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
 			this.seconds--;
+
+			const _stopTimer = () => clearInterval(startTimer);
 
 			if (this.seconds <= 0) {
 				_stopTimer();
 				this.notVerified = true;
 			}
 
-			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? '0' : ''}${this.seconds.toString()}`;
+			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
-		var _stopTimer = () => clearInterval(startTimer);
 	}
 
 	// ---------
@@ -237,7 +241,8 @@ export class VerifyCaller extends Component {
 					--horizon-option-btn-text-color: #3E4547;
 					--horizon-option-btn-text-font-weight: 600;
 				}
-			`];
+			`
+		];
 	}
 
 	_mobileTemplate() {
@@ -266,6 +271,8 @@ export class VerifyCaller extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
+			default: 
+				return html`Incorrect Render mode specified`;
 		}
 	}
 
@@ -362,11 +369,11 @@ export class VerifyCaller extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 }
 
-window.customElements.define(`horizon-verify-caller`, VerifyCaller)
+window.customElements.define(`horizon-verify-caller`, VerifyCaller);

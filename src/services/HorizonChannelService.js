@@ -1,12 +1,11 @@
-import { Configuration } from 'platform/Configuration';
-import { HttpClient } from 'platform/HttpClient';
+import { Service } from 'platform/core';
 
 /**
- * Channel Service Proxy (Resource Access) for Stop Card channel. This is probably badly named as other 
- * needs such as Insure will probably be implemented using some of the same operations as below. 
- * The class may require a more generic name. 
+ * Channel Service Proxy (Resource Access) for the Horizon Channel Service.
+ * It is not recommended to use this class directly. Instead Service classes
+ * should be created to wrap portions of functionality (cards, insure, incident management, calls etc.)
  */
-export class HorizonChannelService {
+export class HorizonChannelService extends Service {
 
 	// --------------
 	// INITIALISATION
@@ -17,9 +16,11 @@ export class HorizonChannelService {
 	}
 
 	constructor() {
+		super({
+				baseUrlKey: `serviceURIs.channelServiceUrl`,
+				name: `HorizonChannelService`
+		});
 
-		// channel url settings to be acquired from back end and set in config files
-		this.channelUrlSetting = `serviceURIs.channelServiceUrl`;
 		this.version = `v1`;
 	}
 
@@ -33,7 +34,7 @@ export class HorizonChannelService {
 
 	// callerConfirmRequest
 	acceptCall(incomingCallData) {
-		return this._getClient().post(`/clientcare/card/${this.version}/caller`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/caller`, {
 			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
 			'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
 			'ivrOptionCode': incomingCallData.IVROptionCode,
@@ -43,8 +44,8 @@ export class HorizonChannelService {
 	}
 
 	// addCallerDetailsRequest
-	async addCallerDetails(callerData) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/caller/addcallerdetails`, {
+	addCallerDetails(callerData) {
+		return super.httpClient.post(`/clientcare/card/${this.version}/caller/addcallerdetails`, {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
 			'ivrOptionCode': callerData.ivrOption,
@@ -58,7 +59,7 @@ export class HorizonChannelService {
 	// ----------------
 
 	endCallOptions(endCallDetails) {
-		return this._getClient().post(`/clientcare/card/${this.version}/Options`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
 			'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
 			'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
@@ -70,15 +71,15 @@ export class HorizonChannelService {
 
 	// endCallSession
 	endCall(incidentRecId, reasonCode) {
-		return this._getClient().post(`/clientcare/card/${this.version}/EndCallerSession`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/EndCallerSession`, {
 			"incidentRecId": incidentRecId,
 			"endReason": reasonCode
 		});
 	}
 
 	// stopCardRequest
-	async stopCard(stopCardRequest) {
-		return await this._getClient().post(
+	stopCard(stopCardRequest) {
+		return super.httpClient.post(
 			`/clientcare/card/${this.version}/StopCard`,
 			{
 				"cards": stopCardRequest.cards,
@@ -93,7 +94,7 @@ export class HorizonChannelService {
 
 	// loadAssignRequest
 	assignTeams(incidentData) {
-		return this._getClient().post(
+		return super.httpClient.post(
 			`/clientcare/card/${this.version}/Assign/Teams`,
 			{
 				"cardIds": incidentData.cardIds,
@@ -103,8 +104,8 @@ export class HorizonChannelService {
 	}
 
 	// assignRequest
-	async assign(assignData) {
-		return await this._getClient().post(
+	assign(assignData) {
+		return super.httpClient.post(
 			`/clientcare/card/${this.version}/Assign`,
 			{
 				"cardIds": assignData.cardIds,
@@ -120,7 +121,7 @@ export class HorizonChannelService {
 
 	// confirmedClientProfileRequest
 	identifyCaller(callerData) {
-		return this._getClient().post(`/clientcare/card/${this.version}/LoadConfirmedClientProfile`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/LoadConfirmedClientProfile`, {
 			'incidentRecId': callerData.incidentRecId,
 			'idNumber': callerData.idNumber,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,
@@ -136,8 +137,8 @@ export class HorizonChannelService {
 	}
 
 	// searchOptionsRequest
-	async searchOptions(incomingCallData) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/search/options`, {
+	searchOptions(incomingCallData) {
+		return super.httpClient.post(`/clientcare/card/${this.version}/search/options`, {
 			"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
 			"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
 			"ivrOptionCode": incomingCallData.ivrOptionCode,
@@ -147,8 +148,8 @@ export class HorizonChannelService {
 	}
 
 	// searchForClientRequest
-	async searchCaller(clientInfo) {
-		return await this._getClient().post(`/clientcare/card/${this.version}/search`, {
+	searchCaller(clientInfo) {
+		return super.httpClient.post(`/clientcare/card/${this.version}/search`, {
 			"incomingTelephoneNumber": clientInfo.incomingTelephoneNumber,
 			"voiceReferenceNumber": clientInfo.voiceReferenceNumber,
 			"ivrOptionCode": clientInfo.ivrOption,
@@ -163,35 +164,24 @@ export class HorizonChannelService {
 	// Initialise Method
 	// -----------------
 	initialise() {
-		return this._getClient().get(`/clientcare/initialise/${this.version}`);
+		return super.httpClient.get(`/clientcare/initialise/${this.version}`);
 	}
 
 	// newIncidentRequest
 	createIncident(createIncidentRequest) {
-		return this._getClient().post(`/clientcare/initialise/${this.version}/CreateIncident`, createIncidentRequest);
+		return super.httpClient.post(`/clientcare/initialise/${this.version}/CreateIncident`, createIncidentRequest);
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	async _getChannelUrl() {
-		// getting the channel url setting from URIs
-		const url = await Configuration.getInstance().getSetting(this.channelUrlSetting);
-		console.log(url);
-		return url;
-	}
-
-	_getClient() {
-		return HttpClient.getInstance(this._getChannelUrl());
-	}
-
 	// ---------------
 	// INSURE METHODS
 	// ---------------
 
 	addNonClientDetails(callerData) {
-		return this._getClient().post(`/clientcare/insure/${this.version}/addCaller/nonclient`, {
+		return super.httpClient.post(`/clientcare/insure/${this.version}/addCaller/nonclient`, {
 			'incidentRecId': callerData.incidentRecId,
 			'ivrOptionCode': callerData.ivrOptionCode,
 			'incomingTelephoneNumber': callerData.incomingTelephoneNumber,

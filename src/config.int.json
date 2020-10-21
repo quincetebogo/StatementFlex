@@ -8,5 +8,10 @@
 	},
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
+	},
+	"StatusBar": {
+		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
+		"cdsUrl": "",
+		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	}
 }

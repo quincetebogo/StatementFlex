@@ -1,36 +1,33 @@
-import { HorizonChannelService } from './HorizonChannelService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class CallHandleService {
+/**
+ * CallHandleService is used to start the tracking of a call against an incident. It is also
+ * used to close off the tracking of a call against an incident.
+ *
+ * @export
+ * @class CallHandleService
+ * @extends {ServiceBase}
+ */
+export class CallHandleService extends ServiceBase {
 
 	// --------------
 	// INITIALISATION
 	// --------------
-
-	static getInstance() {
-		return this.instance || (this.instance = new CallHandleService());
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
-
-	constructor() {
-
-		if (this.instance) {
-			return this.instance;
-		}
-
-		this.channelService = HorizonChannelService.getInstance();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
 
 	// ------------------------------------------
 	// Utility Methods - not part of API Contract
 	// ------------------------------------------
+
+	/**
+	 * A utility method to determine if the return type from acceptCall represents a 
+	 * confirmed caller
+	 * 
+	 * @param { object } acceptedCall An object returned from acceptCall()
+	 * @returns {boolean} Returns true if acceptedCall parameter is a confirmed caller object 
+	 */
 	isConfirmedCaller(acceptedCall) {
 		if (acceptedCall === null || acceptedCall === undefined) {
 			return false;
@@ -38,6 +35,13 @@ export class CallHandleService {
 		return acceptedCall.addCallerDetailsButton !== undefined;
 	}
 
+	/**
+	 * A utility method to determine if the return type from acceptCall represents an 
+	 * unverified caller
+	 * 
+	 * @param { object } acceptedCall An object returned from acceptCall()
+	 * @returns {boolean} Returns true if acceptedCall parameter is an unverified caller object 
+	 */
 	isUnverifiedCaller(acceptedCall) {
 		if (acceptedCall === null || acceptedCall === undefined) {
 			return false;
@@ -45,27 +49,47 @@ export class CallHandleService {
 		return !this.isConfirmedCaller(acceptedCall);
 	}
 
-	acceptCall(acceptCallData, toggleBusyFunc, errorHandler = null) {
+	/**
+	 * @callback errorHandlerCallback
+	 * @param {object} exception - The exception from the failing service call
+	 */
 
-		const serviceCallHelper = new ServiceCallHelper(
-			toggleBusyFunc,
-			errorHandler
-		);
+	 /**
+	  * @typedef {Object} ReturnValue
+	  * @property {boolean} succeeded - Indicates if the service call succeeded
+	  * @property {object} result - The result of the service call if succeeded is true
+	  */
 
-		return serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
+
+	/**
+	 * Determines if the caller is phoning from a verified number. The returned object is 
+	 * different depending on if the incoming call is from an unverified number or not.
+	 * 
+	 * @param {object} acceptCallData Information about the incoming call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @memberof CallHandleService
+	 */
+	acceptCall(acceptCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
 	}
 
-	endCall(details, toggleBusyFunc, errorHandler = null) {
+	endCallOptions(endCallDetails, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), errorHandler);
+	}
+
+	/**
+	 *  Closes the incident that was created to track the call.
+	 * 
+	 * @param { object } details An object containg the incident for the call and the reason for ending the call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @memberof CallHandleService
+	 */
+	endCall(details, errorHandler = null) {
 		const incidentRecId = details.incidentRecId;
 		const endCallReasonKey = details.endCallReason.key;
-		const serviceCallHelper = new ServiceCallHelper(
-			toggleBusyFunc,
-			errorHandler
-		);
-		return serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
-	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
+	}
 }

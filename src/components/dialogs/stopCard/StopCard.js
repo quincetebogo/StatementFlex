@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { CardService } from '../../../services/CardService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
@@ -38,6 +38,11 @@ export class StopCard extends Component {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.cardService = new CardService(
+			() => this._toggleBusyFlag(),
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 	}
 
 
@@ -66,11 +71,8 @@ export class StopCard extends Component {
 	async _stopCards(cardsToStop, callerInfo) {
 		const cardService = new CardService();
 
-		const cardStopResults = await cardService.stopCards(
-			cardsToStop, callerInfo,
-			() => this._toggleBusyFlag(),
-			(ex) => this._stopCardErrorHandler(ex)
-		);
+		const returnValue = await cardService.stopCards(cardsToStop, callerInfo);
+		const cardStopResults = returnValue.result;
 
 		return cardStopResults;
 	}
@@ -247,9 +249,7 @@ export class StopCard extends Component {
 					id="id-confirm-button" 
 					type="primary" 
 					label="Confirm"
-					@click="${async () => { 
-						this._onConfirmClick();
-					}}">
+					@click="${() => this._onConfirmClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;

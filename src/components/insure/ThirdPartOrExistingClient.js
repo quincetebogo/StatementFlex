@@ -1,34 +1,38 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-import '../common/HorizonOptionButton';
-import '../dialogs/insure/NonAdvisoryDisclaimer';
-import '../dialogs/insure/SolutionViewPlan';
-import '../dialogs/insure/ChooseAnUpdateOption';
-import '../dialogs/insure/SolutionPayArrears';
-import '../dialogs/insure/SolutionCancelPlan';
+import 'app/components/common/HorizonOptionButton';
+import 'app/components/dialogs/insure/NonAdvisoryDisclaimer';
+import 'app/components/dialogs/insure/SolutionViewPlan';
+import 'app/components/dialogs/insure/ChooseAnUpdateOption';
+import 'app/components/dialogs/insure/SolutionPayArrears';
+import 'app/components/dialogs/insure/SolutionCancelPlan';
 import './InsureHowToClaim';
-import '../dialogs/insure/SolutionEmailPlan';
-import '../dialogs/EndCallSession';
-import '../dialogs/insure/AssignReasonDialog';
-import '../dialogs/insure/AssignReasonSelected';
+import 'app/components/dialogs/insure/SolutionEmailPlan';
+import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/insure/AssignReasonDialog';
+import 'app/components/dialogs/insure/AssignReasonSelected';
+import 'app/components/dialogs/ClientNotVerified';
+import 'app/components/dialogs/insure/VerifyCaller';
 
 const SOLUTION_SET = {
-	VIEW_PLAN: 'View Plan',
-	UPDATE_PLAN: 'Update Plan',
-	PAY_ARREARS: 'Pay Arrears',
-	HOW_TO_CLAIM: 'How to Claim',
-	EMAIL_PLAN: 'Email Plan',
-	BENEFITS: 'Benefits',
-	CANCEL_PLAN: 'Cancel Plan',
-	VIEW_STATUS: 'View Status'
-}
+	VIEW_PLAN: `View Plan`,
+	UPDATE_PLAN: `Update Plan`,
+	PAY_ARREARS: `Pay Arrears`,
+	HOW_TO_CLAIM: `How to Claim`,
+	EMAIL_PLAN: `Email Plan`,
+	BENEFITS: `Benefits`,
+	CANCEL_PLAN: `Cancel Plan`,
+	VIEW_STATUS: `View Status`
+};
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	DISCLAIMER: 1,
 	ASSIGN: 2,
-	END_CALL: 3
+	END_CALL: 3,
+	VERIFY_NOW: 4
 };
 
 export class ThirdPartyOrExisingClient extends Component {
@@ -40,14 +44,15 @@ export class ThirdPartyOrExisingClient extends Component {
 	constructor() {
 		super();
 
-		this.clientType = "";
+		this.clientType = ``;
 		this.solutionsAvailable = [];
-		this.solutionSelected = "";
+		this.solutionSelected = ``;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-		this.displayToast = true;
-		this.selectedAssignReason = "";
+		this.displayToast = false;
+		this.selectedAssignReason = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -70,29 +75,21 @@ export class ThirdPartyOrExisingClient extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.eventAggregator.publish('horizon-update-call_actionbar',
+		const state = this.horizonStore.recoverState();
+
+		this.incomingCallDetails = state.incomingCallDetails;
+
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
 			{
-				referenceNo: "73023022",
-				phoneNumber: "0631152973",
-				ivrOptionCode: "Insure"
-			});
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
+
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-
-		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
-
-		this.incomingCallDetails.ivrOption = {
-			possibleValues: [
-				{
-					"key": "1",
-					"value": "Stop Card"
-				},
-				{
-					"key": "2",
-					"value": "Insure"
-				}
-			]
-		}
 	}
 
 	// ---------------
@@ -124,6 +121,10 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
 	_onCancelSelectAssignReason() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -136,6 +137,12 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.isReassigned = true;
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
+
+	_onSkipVerification(e) {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.solutionSelected = ``;
+	}
+
 
 	// ---------
 	// RENDERING
@@ -229,9 +236,9 @@ export class ThirdPartyOrExisingClient extends Component {
 	_webTemplate() {
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.HOW_TO_CLAIM:
-				return html`<insure-how-to-claim
-								@close-solution="${() => this.solutionSelected = ''}">
-							</insure-how-to-claim>`;
+                return html`<insure-how-to-claim
+                                @close-solution="${() => this.solutionSelected = ``}">
+                            </insure-how-to-claim>`;
 			default:
 				return html`
 						<capitec-card class="card">
@@ -240,12 +247,12 @@ export class ThirdPartyOrExisingClient extends Component {
 								<capitec-label label="Insure" type="title"></capitec-label>
 								<capitec-spacer></capitec-spacer>
 							</capitec-title-bar>
-							<capitec-content-box class="${this.clientType === 'verified-existing-client' ? 'verified-existing-client-cb' : 'third-party-client-cb'}">
+							<capitec-content-box class="${this.clientType === `verified-existing-client` ? `verified-existing-client-cb` : `third-party-client-cb`}">
 								${this._render3rdPartyAlertBanner()}
 								${this._renderUnverifiedExistingClientAlert()}
-								<capitec-label type="default" 
-											label="Choose an Option"
-											class="${this.clientType === 'verified-existing-client' ? '' : 'third-party-client-label'}">
+								<capitec-label type="default"
+                                            label="Choose an Option"
+									        class="${this.clientType === `verified-existing-client` ? `` : `third-party-client-label`}">
 								</capitec-label>
 								<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
 									${this.solutionsAvailable.map((item) => this._renderOptionButtons(item))}
@@ -259,15 +266,20 @@ export class ThirdPartyOrExisingClient extends Component {
 						${this._renderEndCallSessionDialog()}
 						${this._renderSelectAssignReason()}
 						${this._renderAssign()}
+						${this._renderVerifyNowModal()}
 				`;
 		}
 	}
 
 	_renderDislaimer() {
-		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
+		if (this.renderMode === RENDER_MODE.DISCLAIMER) {
 			return html`
-					<horizon-non-advisory-disclaimer 
-							@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					<horizon-non-advisory-disclaimer
+							@click="${() => { 
+								this.renderMode = RENDER_MODE.MAIN_PAGE;
+								this.displayToast = true;
+								window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+							 }}">
 					</horizon-non-advisory-disclaimer>
 			`;
 		}
@@ -275,31 +287,31 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_renderVerifiedToast() {
-		if (this.clientType === 'verified-existing-client' && this.displayToast) {
-			return html`<capitec-toast class="toast" 
-										type="success" 
-										header="Successfull" 
-										detail="Client has been verified">
-						</capitec-toast>`;
+		if (this.clientType === `verified-existing-client` && this.displayToast) {
+            return html`<capitec-toast class="toast"
+                                        type="success" 
+                                        header="Successfull" 
+                                        detail="Client has been verified">
+                        </capitec-toast>`;
 		}
 	}
 
 	_renderUnverifiedToast() {
-		if (this.clientType === 'unverified-existing-client' && this.displayToast) {
-			return html`<capitec-toast class="toast" 
-										type="warning" 
-										header="Not Verified" 
-										detail="Only limited information will be displayed.">
-						</capitec-toast>`;
+		if (this.clientType === `unverified-existing-client` && this.displayToast) {
+            return html`<capitec-toast class="toast" 
+                                        type="warning" 
+                                        header="Not Verified" 
+                                        detail="Only limited information will be displayed.">
+                        </capitec-toast>`;
 		}
 	}
 
 	_render3rdPartyAlertBanner() {
-		if (this.clientType === 'third-party-client') {
+		if (this.clientType === `third-party-client`) {
 			return html`
 				<capitec-alert-banner type="warning" 
-									label="Caller is a beneficiary or 3rd party - only limited information available." 
-									closable>
+                                    label="Caller is a beneficiary or 3rd party - only limited information available."
+					                closable>
 				</capitec-alert-banner>
 			`;
 		}
@@ -307,11 +319,11 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 
 	_renderUnverifiedExistingClientAlert() {
-		if (this.clientType === 'unverified-existing-client') {
+		if (this.clientType === `unverified-existing-client`) {
 			return html`
 				<capitec-alert-banner type="warning" closable>
 					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink label="Verify Now"></capitec-hyperlink> 
+					<capitec-hyperlink label="Verify Now"></capitec-hyperlink>
 				</capitec-alert-banner>
 			`;
 		}
@@ -320,90 +332,109 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderOptionButtons(item) {
 		return html`
-				<horizon-option-button label="${item.label}"
-										icon="${item.icon}"
-										iconSize="${item.iconSize}"
-										img-src="../../../images/insure/${item.imgSRC}"
-										@click="${() => this.solutionSelected = item.label}">
+				<horizon-option-button label="${item.label}" 
+                                        icon="${item.icon}"
+                                        iconSize="${item.iconSize}"
+					                    img-src="../../../images/insure/${item.imgSRC}" 
+                                        @click="${() => this.solutionSelected = item.label}">
 				</horizon-option-button>
 		`;
 	}
 
-	_renderSolutionDialog() {
+    _renderSolutionDialog() {
 
-		switch (this.solutionSelected) {
-			case SOLUTION_SET.VIEW_PLAN:
-			case SOLUTION_SET.VIEW_STATUS:
-				return html`<horizon-view-plan
-								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}"
-								clientType = "${this.clientType}">
-							</horizon-view-plan>`;
-
-			case SOLUTION_SET.UPDATE_PLAN:
-				return html`<horizon-choose-update-option
-								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
-							</horizon-choose-update-option>`;
-
-			case SOLUTION_SET.PAY_ARREARS:
-				return html`<horizon-pay-arrears
-								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
-							</horizon-pay-arrears>`;
-
-			case SOLUTION_SET.HOW_TO_CLAIM:
-				return html`<insure-how-to-claim
-								@close-solution="${() => this.solutionSelected = ''}">
-							</insure-how-to-claim>`;
-
-			case SOLUTION_SET.EMAIL_PLAN:
-				return html`<horizon-email-plan 
-								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
-							</horizon-email-plan>`;
-
-			case SOLUTION_SET.BENEFITS:
-				return html``;
-
-			case SOLUTION_SET.CANCEL_PLAN:
-				return html`<horizon-cancel-plan
-								@solution-provided="${() => this.solutionSelected = ''}"
-								@close-solution="${() => this.solutionSelected = ''}">
-							</horizon-cancel-plan>`;
-
-			default:
-				return html``;
+		if (this.clientType === `unverified-existing-client` && this.solutionSelected) {
+			return html`
+				<horizon-client-not-verified @cancel="${() => this.solutionSelected = ``}"
+					                         @verify-now="${() => this._onVerifyNowClick()}">
+				</horizon-client-not-verified>
+			`;
 		}
+		
+			switch (this.solutionSelected) {
+				case SOLUTION_SET.VIEW_PLAN:
+				case SOLUTION_SET.VIEW_STATUS:
+                    return html`<horizon-view-plan
+                                    @solution-provided="${() => this.solutionSelected = ``}"
+	                                @close-solution="${() => this.solutionSelected = ``}"
+                                    clientType = "${this.clientType}">
+                                </horizon-view-plan>`;
+
+				case SOLUTION_SET.UPDATE_PLAN:
+                    return html`<horizon-choose-update-option
+                                    @solution-provided="${() => this.solutionSelected = ``}"
+	                                @close-solution="${() => this.solutionSelected = ``}">
+                                </horizon-choose-update-option>`;
+
+				case SOLUTION_SET.PAY_ARREARS:
+                    return html`<horizon-pay-arrears
+                                    @solution-provided="${() => this.solutionSelected = ``}"
+	                                @close-solution="${() => this.solutionSelected = ``}">
+                                </horizon-pay-arrears>`;
+
+				case SOLUTION_SET.HOW_TO_CLAIM:
+                    return html`<insure-how-to-claim
+                                    @close-solution="${() => this.solutionSelected = ``}">
+                                </insure-how-to-claim>`;
+
+				case SOLUTION_SET.EMAIL_PLAN:
+                    return html`<horizon-email-plan
+                                    @solution-provided="${() => this.solutionSelected = ``}"
+	                                @close-solution="${() => this.solutionSelected = ``}">
+                                </horizon-email-plan>`;
+
+				case SOLUTION_SET.BENEFITS:
+					return html``;
+
+				case SOLUTION_SET.CANCEL_PLAN:
+                    return html`<horizon-cancel-plan
+                                    @solution-provided="${() => this.solutionSelected = ``}"
+	                                @close-solution="${() => this.solutionSelected = ``}">
+                                </horizon-cancel-plan>`;
+
+				default:
+					return html``;
+			}
+		
 	}
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`<horizon-end-call-session
-							@on-cancel="{${() => this._onCancelEndCall()}}"
-							.incomingCallDetails = "${this.incomingCallDetails}">
-						</horizon-end-call-session>`;
+            return html`<horizon-end-call-session
+                            @on-cancel="{${() => this._onCancelEndCall()}}"
+	                        .incomingCallDetails = "${this.incomingCallDetails}">
+                        </horizon-end-call-session>`;
 		}
 		return html``;
 	}
 
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
-			return html`<horizon-insure-assign-reason 
-							@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
-							@on-cancel=${() => this._onCancelSelectAssignReason()}>
-						</horizon-insure-assign-reason>`;
+            return html`<horizon-insure-assign-reason
+                            @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+	                        @on-cancel=${() => this._onCancelSelectAssignReason()}>
+                        </horizon-insure-assign-reason>`;
 		}
 		return html``;
 	}
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`<horizon-assign-reason-selected
-							.selectedReason = "${this.selectedAssignReason}"
-							@on-cancel=${() => this._onCancelAssign()}>
-							@on-assign=${() => this._onAssign()}>
-						</horizon-assign-reason-selected>`;
+            return html`<horizon-assign-reason-selected
+                            .selectedReason = "${this.selectedAssignReason}"
+                            @on-cancel=${() => this._onCancelAssign()}>
+	@on-assign=${() => this._onAssign()}>
+</horizon-assign-reason-selected>`;
+		}
+		return html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@skip="${(e) => this._onSkipVerification(e)}">
+				</horizon-verify-caller>`;
 		}
 		return html``;
 	}

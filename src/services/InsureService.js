@@ -1,24 +1,18 @@
-import { HorizonChannelService } from './HorizonChannelService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class InsureService {
+export class InsureService extends ServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor() {
-		this.channelService = HorizonChannelService.getInstance();
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	addNonClientDetails(incidentData, toggleBusyFunc, errorHandler = null) {
+	addNonClientDetails(incidentData, errorHandler = null) {
 		const nonClientDetailsRequest = {
 			'incidentRecId': incidentData.incidentRecId,
 			'ivrOptionCode': incidentData.ivrOptionCode,
@@ -28,11 +22,6 @@ export class InsureService {
 			'cellPhone': incidentData.cellPhone
 		};
 
-		const serviceCallHelper = new ServiceCallHelper(
-			toggleBusyFunc,
-			errorHandler
-		);
-
-		return serviceCallHelper.asyncCall(this.channelService.addNonClientDetails(nonClientDetailsRequest));
+		return this.serviceCallHelper.asyncCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), errorHandler);
 	}
 }
