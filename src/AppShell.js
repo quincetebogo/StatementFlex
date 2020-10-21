@@ -75,6 +75,7 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.currentStatus = `success`;
 		this.currentMessage = ``;
+		this.onboardModal = false;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
@@ -97,7 +98,8 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			currentView: { type: String },
 			currentStatus: { type: String },
-			currentMessage: { type: String }
+			currentMessage: { type: String },
+			onboardModal: { type: Boolean }
 		};
 	}
 
@@ -178,6 +180,10 @@ export class AppShell extends Shell {
 
 	_toggleError() {
 		this.isError = !this.isError;
+	}
+
+	_toggleOnBoard() {
+		this.onboardModal = !this.onboardModal;
 	}
 
 	_onNavigationContextUpdated() {
@@ -304,6 +310,34 @@ export class AppShell extends Shell {
 					line-height: 16px;
 					text-align: center;
 				}
+				.error-label {
+					height: 32px;
+					width: 98px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 24px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 32px;
+					text-align: center;
+				}
+				
+				.error-message {
+					height: 24px;
+					width: 307px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: center;
+				}
+				.try-again-button {
+					height: 48px;
+					width: 115px;
+					border-radius: 4px;
+					background-color: #009DE0;
+				}
 				* {
 					/* Platform CSS - Overriding
 					 * If it is generic change(i.e., applies across application) please specify here
@@ -338,10 +372,11 @@ export class AppShell extends Shell {
 	 */
 	_webTemplate() {
 		return html`
-            ${this._renderLoadingIndicator()}
-            ${this._renderContent()}
-            ${this._renderSuccessModel()}
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+			${this._renderSuccessModel()}
 			${this._renderErrorModal()}
+			${this._renderErrorDialog()}
         `;
 	}
 
@@ -367,44 +402,42 @@ export class AppShell extends Shell {
 		}
 
 		return html`         
-                <div class="screen-size">
+				<div class="screen-size">
 					${this.horizonViewManager.renderTopBar(this.currentView)}
-					
-                    <capitec-content-box class="screen-content" nopadding>
+				
+					<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
 							<div class="left">
-							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
+								${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">
-								<capitec-app-router></capitec-app-router> 
+								<capitec-app-router></capitec-app-router>
 							</div>
 							<div class="right">
 								${this.horizonViewManager.renderRightBar(this.currentView)}
 							</div>
 						</div>
 					</capitec-content-box>
-					
+				
 					<div class="status-bar-group">
-						<capitec-status-bar class="status-bar" 
-											status="${this.currentStatus}" 
-											label="${this.currentMessage}">
+						<capitec-status-bar class="status-bar" status="${this.currentStatus}" label="${this.currentMessage}">
 						</capitec-status-bar>
 						<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
 							<div class="status-bar-icon" column="1" row="1">
 								<a href="http://standardbancslinkv3.int.capinet:8080/" target="_blank">
-									<img src="../images/statusBar/SBL.svg" alt=""/>
+									<img src="../images/statusBar/SBL.svg" alt="" />
 								</a>
 								<capitec-label class="icon-caption" label="SBL"></capitec-label>
 							</div>
 							<div class="status-bar-icon" column="2" row="1">
 								<a href="" target="_blank">
-									<img src="../images/statusBar/CDS.svg" alt=""/>
+									<img src="../images/statusBar/CDS.svg" alt="" />
 								</a>
 								<capitec-label class="icon-caption" label="CDS"></capitec-label>
 							</div>
 							<div class="status-bar-icon" column="3" row="1">
 								<a href="http://c-net.int.capinet:51001/Pages/default.aspx" target="_blank">
-									<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
+									<img id="image" src="../images/statusBar/C-Net.svg" alt="" />
 								</a>
 								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
 							</div>
@@ -420,7 +453,7 @@ export class AppShell extends Shell {
 		}
 
 		return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
+			<capitec-loading-indicator></capitec-loading-indicator>
         `;
 	}
 
@@ -431,10 +464,10 @@ export class AppShell extends Shell {
 		}
 
 		return html`
-            <capitec-modal type="result" result="success" header="Success">
+			<capitec-modal type="result" result="success" header="Success">
 				<capitec-label slot="body" label="Logged via channel service."></capitec-label>
-                <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleSuccess}"></capitec-button>
-            </capitec-modal>
+				<capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleSuccess}"></capitec-button>
+			</capitec-modal>
 				`;
 	}
 
@@ -445,11 +478,29 @@ export class AppShell extends Shell {
 		}
 
 		return html`
-            <capitec-modal type="result" result="error" header="Error">
+			<capitec-modal type="result" result="error" header="Error">
 				<capitec-label slot="body" label="Unable to log via channel service."></capitec-label>
-                <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
-            </capitec-modal>
+				<capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
+			</capitec-modal>
 		`;
+	}
+
+
+	_renderErrorDialog() {
+		if (!this.onboardModal) {
+			return html``;
+		}
+
+		return html`
+			<capitec-modal type="onboard">
+				<img src="../images/error.svg" alt="" />
+				<capitec-label class="error-label" slot="body" label="Error 404"></capitec-label>
+				<capitec-label class="error-message" slot="body" label="There seems to be an issue please be patient">
+				</capitec-label>
+				<capitec-button class="try-again-button" slot="body" type="primary" label="Try Again"
+					@click="${this._toggleOnBoard}"></capitec-button>
+			</capitec-modal>
+				`;
 	}
 }
 
