@@ -198,6 +198,10 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
+	_onNonClientCaptured(data) {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: data.detail }));
+	}
+
 	_onNonClientDetailsAdded(data) {
 		this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 			detail: data.detail
@@ -590,6 +594,7 @@ export class ConfirmCallerDetails extends Component {
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
+				@non-client-captured="${data => this._onNonClientCaptured(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-insure-search-client>`;
 	}

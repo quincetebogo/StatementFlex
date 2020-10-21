@@ -215,7 +215,7 @@ export class SearchClientDetailsComponent extends Component {
 	}
 
 	_onNonClientCapturedInsure(event) {
-		this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 			detail: event.detail
 		}));
 	}

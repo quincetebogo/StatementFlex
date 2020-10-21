@@ -296,7 +296,7 @@ export class InsureSearchClient extends Component {
 				// TODO: Handle errors if call fails
 			}
 	
-			this.dispatchEvent(new CustomEvent(`on-non-client-captured`, {
+			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
 					nonClient: {

@@ -190,4 +190,12 @@ export class HorizonChannelService extends Service {
 			'cellPhone': callerData.cellPhone
 		});
 	}
+
+	calculatePremiumDone(feedbackDetails) {
+		return super.httpClient.post(`/clientcare/insure/${this.version}/CalculatePremium/done`, {
+			'incidentRecId': feedbackDetails.incidentRecId,
+			'feedback': feedbackDetails.feedback,
+			'updateIncident': feedbackDetails.updateIncident
+		});
+	}
 }

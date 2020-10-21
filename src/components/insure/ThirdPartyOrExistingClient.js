@@ -440,4 +440,4 @@ export class ThirdPartyOrExisingClient extends Component {
 	}
 }
 
-window.customElements.define(`insure-third-party-or-existing-client`, ThirdPartyOrExisingClient);
+window.customElements.define(`horizon-third-party-or-existing-client`, ThirdPartyOrExisingClient);
