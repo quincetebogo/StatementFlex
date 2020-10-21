@@ -15,6 +15,7 @@ import '../dialogs/EndCallSession';
 import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignReasonSelected';
 import '../../shell/HorizonRouter';
+import '../dialogs/insure/VerifyCaller';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -22,7 +23,8 @@ const RENDER_MODE = {
 	DISCLAIMER: 2,
 	END_CALL: 3,
 	SELECT_ASSIGN_REASON: 4,
-	ASSIGN: 5
+	ASSIGN: 5,
+	VERIFY_NOW: 6
 };
 
 const RENDER_BANNER = {
@@ -116,14 +118,69 @@ export class InsureInformation extends Component {
 					isConfirmed: false
 				}
 			);
+			this.eventAggregator.publish('horizon-update-left-hand-bar',
+				{
+					clientType: this.displayMode,
+					isProfileButtonVisible: false,
+					isDocumentsButtonVisible: false,
+					subtitle: {
+						savingsAccount: "Active",
+						savingsPlan: "Active",
+						insure: "Active",
+						credit: "Rethink credit, realise dreams"
+					},
+					detail: {
+						savingsAccount: "",
+						savingsPlan: "",
+						insure: "",
+						credit: ""
+					}
+				});
 		} else if (this.displayMode === `unverified-prospective`) {
+			this.eventAggregator.publish('horizon-update-left-hand-bar',
+				{
+					clientType: this.displayMode,
+					isProfileButtonVisible: false,
+					isDocumentsButtonVisible: false,
+					subtitle: {
+						savingsAccount: "Active",
+						savingsPlan: "Active",
+						insure: "One plan, more cover",
+						credit: "Rethink credit, realise dreams"
+					},
+					detail: {
+						savingsAccount: "",
+						savingsPlan: "",
+						insure: "",
+						credit: ""
+					}
+				});
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
 		} else if (this.displayMode === `verified-prospective`) {
+			this.eventAggregator.publish('horizon-update-left-hand-bar',
+				{
+					clientType: this.displayMode,
+					isProfileButtonVisible: true,
+					isDocumentsButtonVisible: true,
+					subtitle: {
+						savingsAccount: "Active",
+						savingsPlan: "Active",
+						insure: "Active",
+						credit: "Rethink credit, realise dreams"
+					},
+					detail: {
+						savingsAccount: "",
+						savingsPlan: "",
+						insure: "",
+						credit: ""
+					}
+				});
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`verify-now-click`, () => this._onVerifyNowClick());
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -132,7 +189,7 @@ export class InsureInformation extends Component {
 				phoneNumber: `0631152973`,
 				ivrOptionCode: `2`
 			}
-);
+		);
 
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
@@ -150,7 +207,8 @@ export class InsureInformation extends Component {
 					"key": `2`,
 					"value": `Insure`
 				}
-			]
+			],
+			value: '2'
 		};
 	}
 
@@ -221,6 +279,10 @@ export class InsureInformation extends Component {
 	_onAssign() {
 		this.isReassigned = true;
 		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 
 	// ---------
@@ -582,6 +644,7 @@ export class InsureInformation extends Component {
 			${this._renderEndCallSessionDialog()}
 			${this._renderSelectAssignReason()}
 			${this._renderAssign()}
+			${this._renderVerifyNowModal()}
 		`;
 	}
 
@@ -809,17 +872,17 @@ export class InsureInformation extends Component {
 
 	_renderDislaimer() {
 		if (this.renderMode == RENDER_MODE.DISCLAIMER) {
-			return html`<horizon-non-advisory-disclaimer 
-				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-non-advisory-disclaimer>`;
+            return html`<horizon-non-advisory-disclaimer 
+                @click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+</horizon-non-advisory-disclaimer>`;
 		}
 	}
 
 	_renderCalculatePremium() {
 		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
 			return html`<horizon-calculate-premium @on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></horizon-calculate-premium>`;
-		}
-		return html``;
+        }
+        return html``;
 	}
 
 	_renderNonClientBanner() {
@@ -919,6 +982,15 @@ export class InsureInformation extends Component {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`<horizon-assign-reason-selected .selectedReason="${this.assignReason}" @on-cancel=${() => this._onCancelAssign()}>
 </horizon-assign-reason-selected>`;
+		}
+		return html``;
+	}
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+					<horizon-verify-caller .incomingCallDetails=${this.incomingCallDetails}>
+					</horizon-verify-caller>
+			`;
 		}
 		return html``;
 	}

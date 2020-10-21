@@ -38,6 +38,7 @@ export class HorizonProductTile extends Component {
 		this.detail = ``;
 		this.type = `transact`;
 		this.navigational = false;
+		this.addIcon = false;
 		this.icon = ``;
 	}
 
@@ -60,6 +61,7 @@ export class HorizonProductTile extends Component {
 			detail: { type: String },
 			type: { type: String },
 			navigational: { type: Boolean },
+			addIcon: { type: Boolean },
 			icon: { type: String }
 		};
 	}
@@ -163,8 +165,18 @@ export class HorizonProductTile extends Component {
 
                 .tile:hover {
                     cursor: pointer;
-                }
+				}
+				
+				.tile.favourites:hover {
+					border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
+					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
 
+				.tile.favourites:focus {
+                    border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
+                    box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
+				}
+				
                 .tile.transact:hover {
                     border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
@@ -241,7 +253,15 @@ export class HorizonProductTile extends Component {
                     font-weight: var(--theme-product-tile-title-font-weight, 600);
 					line-height: var(--theme-product-tile-title-height, 36px);
 					text-align: left;
-                }
+				}
+				.fav-icon{
+					height:23px;
+					width:24px;
+					margin: 24px 0px 24px 23px;
+				}
+				.title.favourites{
+					color: black;
+				}
 
                 .title.transact {
                     color: var(--theme-product-tile-transact-colour, #009DE0);
@@ -282,15 +302,20 @@ export class HorizonProductTile extends Component {
                     font-size: var(--theme-product-tile-detail-font-size, 20px);
                     font-weight: var(--theme-product-tile-title-font-weight, 600);
                     line-height: var(--theme-product-tile-detail-height, 30px);
-                    text-align: right;
+					text-align: right;
+					--theme-product-tile-detail-height:20px;
                 }
 
                 .detail.nav {
-                    right: var(--theme-product-tile-nav-right, 16px);
+					right: var(--theme-product-tile-nav-right, 16px);
                 }
 
                 .nav-icon {
                     margin-left: var(--theme-product-tile-nav-icon-margin-left, 16.25px);
+				}
+				.nav-icon-right{
+					width : 20px;
+					height : 20px;
 				}
 				.hide-icon{
 					display: none;
@@ -317,23 +342,23 @@ export class HorizonProductTile extends Component {
 	_webTemplate() {
 
 		return html`
-			<button class="tile ${this.type ? this.type : `transact`}" 
-				@click="${this._tileClicked}}" 
-				@keydown="${e => this._keyDown(e)}"
-                tabindex="${this.disabled ? `` : 0}">
-                        <div class="tile-container">
-                            <div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
-                                <capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
-                            </div>
-                            <div class="heading">
-                                <div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
-                                <div class="subtitle">${this.subtitle}</div>
-                            </div>
-                            <div class="detail${this.navigational ? ` nav` : ``}">
-                                ${this.detail}
-                                ${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
-                            </div>
-                        </div>
+			<button class="tile ${this.type ? this.type : `transact`}" @click="${this._tileClicked}}"
+				@keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
+				<div class="tile-container">
+					<img src="../../../images/favourites.svg" class=${this.icon ? `hide-icon` : `fav-icon`} />
+					<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
+						<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
+					</div>
+					<div class="heading">
+						<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
+						<div class="subtitle">${this.subtitle}</div>
+					</div>
+					<div class="detail${this.navigational ? ` nav` : ``}">
+						${this.detail}
+						${this.addIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
+						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
+					</div>
+				</div>
 			</button>
 		`;
 	}
