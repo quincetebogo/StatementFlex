@@ -157,7 +157,14 @@ export class LandingPage extends View {
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.incomingCallDetails.ivrOption.value = `Insure`;
 				this.unVerifiedCaller = acceptedCall;
-				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+
+				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
+					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+					this.confirmedCaller = acceptedCall;
+					this.unVerifiedCaller = null;
+				} else {
+				   this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+				}
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog

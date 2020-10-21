@@ -106,7 +106,7 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService(this.addCallerDetails, null);
+		const returnValue = await this.cardService.addCallerDetails(this.addCallerDetails, null);
 		this.addCallerDetails = this.cardService.result;
 
 		if (returnValue.succeeded) {

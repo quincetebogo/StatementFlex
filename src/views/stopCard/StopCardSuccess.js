@@ -23,6 +23,13 @@ export class StopCardSuccess extends View {
 		super();
 		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
+
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+		this.desktopAgentService = DesktopAgentService.getInstance();
+
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 
@@ -44,16 +51,9 @@ export class StopCardSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.desktopAgentService = DesktopAgentService.getInstance();
-
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.stoppedCards = [];
 
 		const state = this.horizonStore.recoverState();
-
-		this.stoppedCards = [];
 
 		if (state) {
 			this.callerInfo = state.callerInfo;
@@ -245,7 +245,8 @@ export class StopCardSuccess extends View {
 					text-align: start;
 					margin: 0px 0px 0px 7px;
 				}
-			`];
+			`
+];
 	}
 
 	_mobileTemplate() {

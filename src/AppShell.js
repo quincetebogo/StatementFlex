@@ -354,9 +354,9 @@ export class AppShell extends Shell {
 					<horizon-statusbar 
 						currentStatus="${this.currentStatus}" 
 						currentMessage="${this.currentMessage}"
-						sblLink="http://standardbancslinkv3.int.capinet:8080/"
-						cdsLink=""
-						cnetLink="http://c-net.int.capinet:51001/Pages/default.aspx">
+						sblLink="${this.sblUrl}"
+						cdsLink="${this.cdsUrl}"
+						cnetLink="${this.cnetUrl}">
 					</horizon-statusbar>
 				</div>`;
 	}
