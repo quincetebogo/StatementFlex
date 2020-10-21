@@ -3,7 +3,7 @@ import { HorizonRouter } from '../../shell/HorizonRouter';
 
 import { EventAggregator } from 'platform/EventAggregator';
 import 'platform/components/buttons/ProductTile';
-import '../Common/HorizonProductTile';
+import '../common/HorizonProductTile';
 
 export class HorizonProductBar extends Component {
 
@@ -91,6 +91,7 @@ export class HorizonProductBar extends Component {
                                               type="favourites" 
                                               label="Favourites"
 							                  subtitle="Transact, dispute, cards and more"
+											  tileIcon = '../../../images/favourites.svg'
                                               @click="">
 						</horizon-product-tile>
 					
@@ -123,8 +124,9 @@ export class HorizonProductBar extends Component {
                                               label="Credit"
                                               subtitle=${this.subtitle.credit ? this.subtitle.credit : " Rethink credit, realise dreams"} 
                                               icon="product/credit-white"
-                                              detail=${this.detail ?
-							this.detail.credit : "" } addIcon @click="${() => this.onCreditClick()}">
+                                              detail=${this.detail ? this.detail.credit : "" } 
+											  ?detailIcon="${true}"
+											  @click="${() => this.onCreditClick()}">
 						</horizon-product-tile>
 					</div>
 					</div>

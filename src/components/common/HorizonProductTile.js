@@ -38,7 +38,8 @@ export class HorizonProductTile extends Component {
 		this.detail = ``;
 		this.type = `transact`;
 		this.navigational = false;
-		this.addIcon = false;
+		this.detailIcon = false;
+		this.tileIcon = ``;
 		this.icon = ``;
 	}
 
@@ -61,7 +62,8 @@ export class HorizonProductTile extends Component {
 			detail: { type: String },
 			type: { type: String },
 			navigational: { type: Boolean },
-			addIcon: { type: Boolean },
+			detailIcon: { type: Boolean },
+			tileIcon: {type: String},
 			icon: { type: String }
 		};
 	}
@@ -345,17 +347,18 @@ export class HorizonProductTile extends Component {
 			<button class="tile ${this.type ? this.type : `transact`}" @click="${this._tileClicked}}"
 				@keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
 				<div class="tile-container">
-					<img src="../../../images/favourites.svg" class=${this.icon ? `hide-icon` : `fav-icon`} />
-					<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
-						<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
-					</div>
+					${this.tileIcon  ?  html`<img src = "${this.tileIcon}" class="fav-icon" />` :
+										html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
+												<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
+											</div>`
+					}
 					<div class="heading">
 						<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
 						<div class="subtitle">${this.subtitle}</div>
 					</div>
 					<div class="detail${this.navigational ? ` nav` : ``}">
 						${this.detail}
-						${this.addIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
+						${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
 						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
 					</div>
 				</div>
