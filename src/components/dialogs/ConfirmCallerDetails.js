@@ -3,27 +3,26 @@
  * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
  */
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
-
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-
+import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
+import { CardService } from 'app/services/CardService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import './AddCallerDetails';
-import './EndCallSession';
-import './stopCard/SearchClientDetails';
-import './insure/VerifyCaller';
+import 'app/components/dialogs/AddCallerDetails';
+import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/stopCard/SearchClientDetails'; // TODO: Remove direct access to stop card dialog
+import 'app/components/dialogs/insure/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
 
-import '../../components/common/HorizonLabel';
-import '../../components/common/HorizonSelect';
+import 'app/components/common/HorizonLabel';
+import 'app/components/common/HorizonSelect';
 
-import '../common/HorizonCallerInfoBar';
-import '../common/HorizonCallerDialog';
+import 'app/components/common/HorizonCallerInfoBar';
+import 'app/components/common/HorizonCallerDialog';
 
 
 /**
@@ -55,13 +54,9 @@ export class ConfirmCallerDetails extends Component {
 		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
-		this.channelService = HorizonChannelService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag();
-			}, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 	}
@@ -111,9 +106,13 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		this.addCallerDetails = await this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callDetails));
-		if (this.addCallerDetails) {
+		const returnValue = await this.cardService.addCallerDetails(this.addCallerDetails, null);
+		this.addCallerDetails = this.cardService.result;
+
+		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		} else {
+			// TODO: handle failure to add caller details
 		}
 	}
 
@@ -127,7 +126,7 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
 		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this._fetchInsureDetails();
+			this._fetchInsureDetails(); // TODO: We go to verify caller if need is not Stop Card. This should not be tied to insure
 		} else {
 			this._fetchClientCards();
 		}
@@ -152,8 +151,10 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ``
 		};
 
-		const clientProfileDetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
-		if (clientProfileDetails) {
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const clientProfileDetails = returnValue.result;
+		
+		if (returnValue.succeeded) {
 			this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 				detail: {
 					incomingCallDetails: {
@@ -197,6 +198,10 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
+	_onNonClientCaptured(data) {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: data.detail }));
+	}
+
 	_onNonClientDetailsAdded(data) {
 		this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 			detail: data.detail
@@ -204,7 +209,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.ConfirmCallerDetails.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
@@ -216,6 +221,16 @@ export class ConfirmCallerDetails extends Component {
 		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
+	}
+	
+	_onSkipVerification(e) {
+		const state = {
+			incomingCallDetails: this.incomingCallDetails
+		};
+
+		// TODO: Still need to determine if client has insure products or not
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToInsureUnverifiedExistingClient();
 	}
 
 	// --------------
@@ -579,13 +594,17 @@ export class ConfirmCallerDetails extends Component {
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
+				@non-client-captured="${data => this._onNonClientCaptured(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
 			</horizon-insure-search-client>`;
 	}
 
 	renderVerifyCallerModal() {
 		return html`
-			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}"></horizon-verify-caller>
+			<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@skip="${(e) => this._onSkipVerification(e)}">
+			</horizon-verify-caller>
 		`;
 	}
 

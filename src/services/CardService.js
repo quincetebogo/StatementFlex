@@ -1,13 +1,19 @@
 
-import { HorizonChannelService } from './HorizonChannelService';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class CardService {
+/**
+ *
+ *
+ * @export
+ * @class CardService
+ * @extends {ServiceBase}
+ */
+export class CardService extends ServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-	constructor() {
-		this.channelService = HorizonChannelService.getInstance();
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
 
 	// --------------
@@ -19,7 +25,23 @@ export class CardService {
 	// PUBLIC METHODS
 	// --------------
 
-	async stopCards(cardsToStop, callerInfo, toggleBusyFunc, errorHandler = null) {
+	identifyCaller(callerData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(callerData), errorHandler);
+	};
+
+	addCallerDetails(callerData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callerData), errorHandler);
+	}
+
+	searchCaller(clientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
+	}
+
+	searchOptions(incomingCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
+	}
+
+	async stopCards(cardsToStop, callerInfo, errorHandler = null) {
 		let cardStopResults = [];
 
 		const stopCardRequest = {
@@ -35,14 +57,10 @@ export class CardService {
 			agentTelephoneNumber: callerInfo.agentTelephoneNumber
 		};
 
-		const serviceCallHelper = new ServiceCallHelper(
-			toggleBusyFunc,
-			errorHandler
-		);
+		const returnValue = await this.serviceCallHelper.asyncCall(this.channelService.stopCard(stopCardRequest), errorHandler);
+		const stopCardResponse = returnValue.result;
 
-		const stopCardResponse = await serviceCallHelper.asyncCall(this.channelService.stopCard(stopCardRequest));
-
-		if (stopCardResponse && stopCardResponse.cardResponses) {
+		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
 			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
 					cardId: cardsToStop[index].cardId,
 					cardType: cardsToStop[index].cardType,
@@ -54,11 +72,15 @@ export class CardService {
 				}));
 		}
 
-		return cardStopResults;
+		return { succeeded: returnValue.succeeded, result: cardStopResults };
 	}
 
+	assignTeams(incidentData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.assignTeams(incidentData), errorHandler);
+	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+	// assignRequest
+	assign(assignData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.assignTeams(assignData), errorHandler);
+	}
 }

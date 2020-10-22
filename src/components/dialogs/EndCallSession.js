@@ -1,15 +1,13 @@
 import { Component, css, html } from 'platform/elements';
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { isNullorEmpty } from '../../utils/channelServiceUtilities';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
-import '../common/HorizonLabel';
-import '../common/HorizonSelect';
-import '../common/HorizonRadioButtonsContainer';
-import '../common/HorizonCallerDialog';
+import 'app/components/common/HorizonLabel';
+import 'app/components/common/HorizonSelect';
+import 'app/components/common/HorizonRadioButtonsContainer';
+import 'app/components/common/HorizonCallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 
@@ -27,8 +25,7 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
-
-		this.channelService = HorizonChannelService.getInstance();
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// --------------
@@ -46,26 +43,22 @@ export class EndCallSession extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	async connectedCallback() {
-
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
-			},
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+	connectedCallback() {
+		super.connectedCallback();
 
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
-		// this._fetchEndCallReasons();
+		this.callHandleService.endCallOptions(this.incomingCallDetails, null)
+			.then((returnValue) => {
+				const endCallDialog = returnValue.result;
 
-		const endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
-
-		if (endCallDialog) {
-			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
-			super.connectedCallback();
-		}
+				if (returnValue.succeeded) {
+					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+				} else {
+					// TODO: Handle not being able to load end call options
+				}
+		});
 	}
 
 	// --------------
@@ -93,15 +86,6 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	async _fetchEndCallReasons() {
-		const endCallDialog = await this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(this.incomingCallDetails));
-
-		if (endCallDialog) {
-			this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
-		}
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}

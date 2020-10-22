@@ -1,22 +1,18 @@
-import { HORIZON_VIEW_SET, HorizonViewManager } from './shell/HorizonViewManager';
-
+import { Configuration, EventAggregator, ExecutionContext, Logger, NavigationContext, Platform, Router, Security, SecurityContext } from 'platform/core';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { Shell, css, html } from 'platform/elements';
-import { Configuration } from 'platform/Configuration';
-import { DesktopAgentService } from './services/DesktopAgentService.js';
-import { EventAggregator } from 'platform/EventAggregator';
-import { ExecutionContext } from 'platform/ExecutionContext';
-import { Logger } from 'platform/Logger';
-import { NavigationContext } from 'platform/NavigationContext';
-import { Platform } from 'platform/Platform';
-import { Router } from 'platform/Router';
-import { SecurityContext } from 'platform/SecurityContext';
+
+import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 // Import Horizon Routes
-import horizonRoutes from './shell/HorizonRouter';
-
+import horizonRoutes from 'app/shell/HorizonRouter';
+ 
 // Import all UI Components. 
 import 'platform/components';
 import 'platform/components/navigation/AppRouter';
+
+import 'app/components/shell/HorizonStatusBar';
 
 /**
  * Physical entry-point of the application, based on a platform-provided base class.
@@ -39,24 +35,28 @@ export class AppShell extends Shell {
 		Platform.init();
 
 		// Callback for user authentication success.
-		Platform.onUserLoginSuccess(() => this._onUserLoginSuccess());
+		Platform.onUserLoginSuccess(() => this._userLoginSuccess());
 
 		// Callback for user authentication error.
-		Platform.onUserLoginError(() => this._onUserLoginError());
+		Platform.onUserLoginError(() => this._userLoginError());
 
 		// Callback for user authentication logout.
-		Platform.onUserLoggedOut(() => this._onUserLoggedOut());
+		Platform.onUserLoggedOut(() => this._userLoggedOut());
 
-		// Platform Non-UI Components.
-		this.securityContext = SecurityContext.getInstance();
-		this.executionContext = ExecutionContext.getInstance();
-		this.logger = Logger.getInstance();
-		this.router = Router.getInstance();
-		this.configuration = Configuration.getInstance();
+		// Variables
+		this._router = Router.getInstance();
+		this._navigationContext = NavigationContext.getInstance();
+		this._security = Security.getInstance();
+		this._securityContext = SecurityContext.getInstance();
+		this._executionContext = ExecutionContext.getInstance();
+		this._appStore = HorizonStore.getInstance();
+
+		this._logger = Logger.getInstance();
+		this._configuration = Configuration.getInstance();
 
 
 		// Adding routes to URL Routing Table
-		horizonRoutes.map(route => this.router.addRoute(route));
+		horizonRoutes.map(route => this._router.addRoute(route));
 
 		// Event Aggregator
 		this.eventAggregator = EventAggregator.getInstance();
@@ -65,9 +65,9 @@ export class AppShell extends Shell {
 		this.eventAggregator.subscribe(`horizon-status-bar-update`, (event) => this._onUpdateStatusBar(event));
 
 		// Property defaults.
-		this.isBusy = true;
-		this.isSuccess = false;
-		this.isError = false;
+		this.isBusy = false;
+		this.isAuthenticating = true;
+
 		this.errorMessage = null;
 		this.channelServiceUrl = document.location.origin;
 		this.platformVersion = null;
@@ -88,9 +88,8 @@ export class AppShell extends Shell {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
-			isError: { type: Boolean },
-			isSuccess: { type: Boolean },
-			securityContext: { type: SecurityContext },
+			isAuthenticating: { type: Boolean },
+
 			roles: { type: Array },
 			platformVersion: { type: String },
 			applicationName: { type: String },
@@ -108,76 +107,73 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Listening for events from the Desktop Agent
-		this.agentService = DesktopAgentService.getInstance();
-		this.agentService.open();
+		// Subscribe to store.
+		this._appStoreSub = this._appStore.stateChanged.subscribe(state => {
+
+		 	if (!state) {
+		 		return;
+		 	}
+
+		 	this.isBusy = state.isBusy;
+		 });
 
 		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
-			console.log(`Current view has changed from ${this.currentView} to ${nextView}`);
 			this.currentView = nextView;
 		}
+	}
+
+	disconnectedCallback() {
+
+		// Unsubscribe from store.
+		this._appStoreSub.unsubscribe();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	async _onUserLoginSuccess() {
+	async _userLoginSuccess() {
 
-		// Put your logic here to handle allow the
+		// Put your logic here to execute post login success,
+		// for example loading application data.
 
-		this.isBusy = false;
-		this.roles = this.securityContext.roles !== null && Array.isArray(this.securityContext.roles) ? this.securityContext.roles.join(`, `) : `n/a`;
-		console.log(this.roles);
-		this.platformVersion = await this.executionContext.platformVersion;
-		this.applicationName = await this.executionContext.applicationName;
-		this.applicationVersion = await this.executionContext.applicationVersion;
-		this.clientIp = this.executionContext.clientIp;
+
+		this.roles = this._securityContext.roles !== null && Array.isArray(this._securityContext.roles) ? this._securityContext.roles.join(`, `) : `n/a`;
+
+		this.platformVersion = await this._executionContext.platformVersion;
+		this.applicationName = await this._executionContext.applicationName;
+		this.applicationVersion = await this._executionContext.applicationVersion;
+		this.clientIp = this._executionContext.clientIp;
+
+		this.sblUrl = await this._configuration.getSetting(`StatusBar.sblUrl`);
+		this.cdsUrl = await this._configuration.getSetting(`StatusBar.cdsUrl`);
+		this.cnetUrl = await this._configuration.getSetting(`StatusBar.cnetUrl`);
+
+		// Start the Desktop Agent service to subscribe to incoming call events from the Desktop Agent Application
+		this.agentService = DesktopAgentService.getInstance();
+		this.agentService.open();
+
+		this._appStore.setState({ isBusy: false }, `USER_LOGGED_IN`);
+
+		// We are authenticated and done loading config
+		// trigger the display of the initial landing page.
+		this.isAuthenticating = false;
 	}
 
-	_onUserLoginError() {
-		console.log(`onUserLoginError`);
-		// Put your logic here to handle a login error.
+	_userLoginError() {
+		// Put your logic here to execute post login error,
+		// for example showing a login failure screen / dialog.
+
+		this.isAuthenticating = false;
 	}
 
-	_onUserLoggedOut() {
-		console.log(`onUserLoggedOut`);
-		// Put your logic here, e.g. to inform the user that he / she
-		// is now logged out and that the application will now perform a hard reload.
-	}
-
-	_openCatalogue() {
-		window.open(`https://web-component-catalogue.int.capinet`, `_blank`);
-	}
-
-	_openConfluenceDocs() {
-		window.open(`https://confluence.int.capinet:8443/display/CPT/Omni-channel+Web+Platform`, `_blank`);
-	}
-
-	_openShellDocs() {
-		window.open(`https://platform/elements.polymer-project.org/guide`, `_blank`);
-	}
-
-	async _logViaChannelService() {
-
-		try {
-			this.isBusy = true;
-			await this.logger.info(`Hello from [${this.applicationName}]`, `AppShell._logViaChannelService`);
-			this._toggleSuccess();
-		} catch (error) {
-			this._toggleError();
-		} finally {
-			this.isBusy = false;
-		}
-	}
-
-	_toggleSuccess() {
-		this.isSuccess = !this.isSuccess;
-	}
-
-	_toggleError() {
-		this.isError = !this.isError;
+	_userLoggedOut() {
+		// Put your logic here to execute post logout, 
+		// for example showing a logout screen / dialog
+		// explaining to the user that he /she is now logged out
+		// and that the application will now reload.
+		this.isAuthenticating = false;
 	}
 
 	_onNavigationContextUpdated() {
@@ -185,8 +181,6 @@ export class AppShell extends Shell {
 		if (nextView !== this.currentView) {
 			this.currentView = nextView;
 		}
-
-		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
 	};
 
 	_onUpdateStatusBar(event) {
@@ -205,7 +199,7 @@ export class AppShell extends Shell {
 	// ---------------
 
 	navigate(path) {
-		this.router.navigateByPath(`/${path}`);
+		this._router.navigateByPath(`/${path}`);
 	}
 
 	// ---------
@@ -267,43 +261,6 @@ export class AppShell extends Shell {
 					width:320px; 
 				}
 
-				.status-bar-group{
-					display: flex;
-					flex-direction: row;
-					background-color: #333;
-					column-count: 2;
-					height: 72px;
-					margin: 0px;
-					width: 100%;
-				}
-				.status-bar{
-					--theme-statusbar-min-height: 59px;
-					margin:0px;
-					width: 1716px;
-				}
-				.status-bar-icon{
-					float: right;
-					width: 33.3%;
-					height: 60px;
-					margin: 0px;
-					align-content: center;
-				}
-				img{
-					margin-left: 14px;
-				}
-				.status-bar-icon-group{
-					width: 204px;
-				}
-				.icon-caption{
-					height: 15px;
-					color: #FFFFFF;
-					font-family: "Hind Vadodara";
-					font-size: 13px;
-					font-weight: 500;
-					letter-spacing: 0;
-					line-height: 16px;
-					text-align: center;
-				}
 				* {
 					/* Platform CSS - Overriding
 					 * If it is generic change(i.e., applies across application) please specify here
@@ -338,14 +295,26 @@ export class AppShell extends Shell {
 	 */
 	_webTemplate() {
 		return html`
-            ${this._renderLoadingIndicator()}
-            ${this._renderContent()}
-            ${this._renderSuccessModel()}
-			${this._renderErrorModal()}
+			${this._renderLoadingIndicator()}
+			${this._renderLoginFailed()}
+			${this._renderAuthenticating()}
+       		${this._renderContent()}
         `;
 	}
 
 	_mobileTemplate() {
+	}
+
+    _renderLoginFailed() {
+		if (!this.isAuthenticating && !this._security.isAuthenticated) {
+			return html`Login Failed`;
+		}
+	}
+
+	_renderAuthenticating() {
+		if (this.isAuthenticating) {
+			return html``;
+		}
 	}
 
 	/*
@@ -361,18 +330,17 @@ export class AppShell extends Shell {
 	 * 
 	 */
 	_renderContent() {
-
-		if (this.isBusy) {
-			return html``;
+		if (this._security.isAuthenticated === undefined || !this._security.isAuthenticated) {
+			return ``;
 		}
 
 		return html`         
                 <div class="screen-size">
 					${this.horizonViewManager.renderTopBar(this.currentView)}
-					
-                    <capitec-content-box class="screen-content" nopadding>
+
+                	<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
-							<div class="left">
+						<div class="left">
 							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">
@@ -383,73 +351,20 @@ export class AppShell extends Shell {
 							</div>
 						</div>
 					</capitec-content-box>
-					
-					<div class="status-bar-group">
-						<capitec-status-bar class="status-bar" 
-											status="${this.currentStatus}" 
-											label="${this.currentMessage}">
-						</capitec-status-bar>
-						<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
-							<div class="status-bar-icon" column="1" row="1">
-								<a href="http://standardbancslinkv3.int.capinet:8080/" target="_blank">
-									<img src="../images/statusBar/SBL.svg" alt=""/>
-								</a>
-								<capitec-label class="icon-caption" label="SBL"></capitec-label>
-							</div>
-							<div class="status-bar-icon" column="2" row="1">
-								<a href="" target="_blank">
-									<img src="../images/statusBar/CDS.svg" alt=""/>
-								</a>
-								<capitec-label class="icon-caption" label="CDS"></capitec-label>
-							</div>
-							<div class="status-bar-icon" column="3" row="1">
-								<a href="http://c-net.int.capinet:51001/Pages/default.aspx" target="_blank">
-									<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
-								</a>
-								<capitec-label class="icon-caption" label="C-Net"></capitec-label>
-							</div>
-						</capitec-group>
-					</div>
-				</div>
-        `;
+					<horizon-statusbar 
+						currentStatus="${this.currentStatus}" 
+						currentMessage="${this.currentMessage}"
+						sblLink="${this.sblUrl}"
+						cdsLink="${this.cdsUrl}"
+						cnetLink="${this.cnetUrl}">
+					</horizon-statusbar>
+				</div>`;
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
+		if (this.isBusy || this.isAuthenticating) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		}
-
-		return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
-	}
-
-	_renderSuccessModel() {
-
-		if (!this.isSuccess) {
-			return html``;
-		}
-
-		return html`
-            <capitec-modal type="result" result="success" header="Success">
-				<capitec-label slot="body" label="Logged via channel service."></capitec-label>
-                <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleSuccess}"></capitec-button>
-            </capitec-modal>
-				`;
-	}
-
-	_renderErrorModal() {
-
-		if (!this.isError) {
-			return html``;
-		}
-
-		return html`
-            <capitec-modal type="result" result="error" header="Error">
-				<capitec-label slot="body" label="Unable to log via channel service."></capitec-label>
-                <capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
-            </capitec-modal>
-		`;
 	}
 }
 

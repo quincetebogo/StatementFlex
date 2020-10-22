@@ -4,16 +4,13 @@
  */
 
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from '../../utils/channelServiceUtilities';
-
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { CardService } from 'app/services/CardService';
 
 import 'platform/components/popups/Modal';
-import '../common/HorizonCallerInfoBar';
-import '../common/HorizonCallerDialog';
-import './EndCallSession';
-
+import 'app/components/common/HorizonCallerInfoBar';
+import 'app/components/common/HorizonCallerDialog';
+import 'app/components/dialogs/EndCallSession';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
@@ -49,13 +46,8 @@ export class AddCallerDetails extends Component {
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
-		this.channelService = HorizonChannelService.getInstance();
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => {
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
-			},
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+
 		this.isBusy = false;
 		this.validationFailed = false;
 		this.alertBannerMessage = ``;
@@ -163,14 +155,18 @@ export class AddCallerDetails extends Component {
 			nonClientRelationship: this.nonClientRelationship.value
 		};
 
-		const addedcallerdetails = await this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(confirmedCaller));
-		if (addedcallerdetails) {
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const addedcallerdetails = returnValue.result;
+
+		if (returnValue.succeeded) {
 			this.dispatchEvent(new CustomEvent(`caller-added`, {
 				detail: {
 					clientProfileDetails: addedcallerdetails,
 					incomingCallDetails: this.incomingCallDetails
 				}
 			}));
+		} else {
+			// TODO: Handle failure on call to identifyCaller
 		}
 	}
 

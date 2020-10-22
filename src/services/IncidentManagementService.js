@@ -1,35 +1,46 @@
-import { HorizonChannelService } from './HorizonChannelService';
 import { SecurityContext } from 'platform/SecurityContext';
-import { ServiceCallHelper } from '../utils/serviceCallHelper';
+import { ServiceBase } from 'app/services/ServiceBase';
 
-export class IncidentManagementService {
+/**
+ * The IncidentManagementService is used to create an incident for recording information
+ * about the handling of a call.
+ *
+ * @export
+ * @class IncidentManagementService
+ * @extends {ServiceBase}
+ */
+export class IncidentManagementService extends ServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
-
-	static getInstance() {
-		return this.instance || (this.instance = new IncidentManagementService());
+	constructor(toggleBusyFunc, errorHandler = null) {
+		super(toggleBusyFunc, errorHandler);
 	}
-
-	constructor() {
-
-		if (this.instance) {
-			return this.instance;
-		}
-
-		this.channelService = HorizonChannelService.getInstance();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	createIncident(incidentData, toggleBusyFunc, errorHandler = null) {
+	/**
+	 * @callback errorHandlerCallback
+	 * @param {object} exception - The exception from the failing service call
+	 */
+
+	 /**
+	  * @typedef {Object} ReturnValue
+	  * @property {boolean} succeeded - Indicates if the service call succeeded
+	  * @property {object} result - The result of the service call if succeeded is true
+	  */
+
+	/**
+	 * Creates a new incident. 
+	 *
+	 * @param {object} incidentData The incoming all information to record against the incident
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	createIncident(incidentData, errorHandler = null) {
 		const createIncidentRequest = {
 			"networkUserName": SecurityContext.getInstance().username,
 			"cli": incidentData.IncomingTelephoneNumber,
@@ -37,16 +48,6 @@ export class IncidentManagementService {
 			"ucid": incidentData.VoiceReferenceNumber
 		};
 
-		const serviceCallHelper = new ServiceCallHelper(
-			toggleBusyFunc,
-			errorHandler
-		);
-
-		return serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest));
+		return this.serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest), errorHandler);
 	}
-
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
 }

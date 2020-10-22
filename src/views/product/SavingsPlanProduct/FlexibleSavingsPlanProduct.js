@@ -1,9 +1,5 @@
 import { View, css, html } from 'platform/elements';
-
-import { HorizonRouter } from '../../../shell/HorizonRouter';
-import { HorizonViewManager } from '../../../shell/HorizonViewManager';
-import { InitialiseService } from '../../../services/InitialiseService';
-
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'platform/components';
 
 export class FlexibleSavingsPlanProduct extends View {
@@ -17,60 +13,12 @@ export class FlexibleSavingsPlanProduct extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
-	// --------------
-	// PROPERTIES
-	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { type: Boolean }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
-		let landingPageData = null;
-
-		landingPageData = await this.GetLandingPageData(landingPageData);
-		HorizonViewManager.getInstance().UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	// n/a
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-
-	// n/a
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	async GetLandingPageData(landingPageData) {
-		try {
-			landingPageData = await InitialiseService.getInstance().initialise(() => {
-				this._toggleBusyFlag();
-			});
-		} catch (ex) {
-			// TODO: better handling must come here
-			console.log(ex);
-		}
-
-		return landingPageData;
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -183,17 +131,8 @@ export class FlexibleSavingsPlanProduct extends View {
 							</ul>
 					</capitec-content-box>
 			</capitec-group>
-			${this._renderLoadingIndicator()}
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 
-customElements.define(`product-flexible-savings-plan`, FlexibleSavingsPlanProduct);
+customElements.define(`horizon-flexible-savings-plan-product`, FlexibleSavingsPlanProduct);
