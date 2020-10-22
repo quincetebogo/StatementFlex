@@ -345,7 +345,7 @@ export class LandingPage extends View {
 
 	_renderMiddleSection() {
 		return html`
-			<landingpage-waitforcall class="wait-for-call"></landingpage-waitforcall>
+			<horizon-landing-page-wait-for-call class="wait-for-call"></horizon-landing-page-wait-for-call>
 		`;
 	}
 

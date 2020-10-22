@@ -15,6 +15,23 @@ export class ClientProfileDetails extends Component {
 
 		this.EventAggregator = EventAggregator.getInstance();
 
+		this.viewProfileButton = {
+			enabled: true,
+			tabIndex: 0,
+			visible: ``
+		};
+		
+		this.documentsButton = {
+				enabled: true,
+				tabIndex: 0,
+				visible: ``
+		};
+
+		this.isProfileButtonHidden = false;
+		this.isDocumentButtonHidden = false;
+		
+		this.clientType = ``;
+
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -32,7 +49,12 @@ export class ClientProfileDetails extends Component {
 
 	static get properties() {
 		return {
-			miniProfile: { type: Object }
+			miniProfile: { type: Object },
+			clientType: { type: String },
+			viewProfileButton: { type: Object },
+			documentsButton: { type: Object },
+			isProfileButtonHidden: { type: Boolean },
+			isDocumentButtonHidden: { type: Boolean }
 		};
 	}
 
@@ -42,12 +64,23 @@ export class ClientProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.EventAggregator.subscribe(`horizon-update-left-hand-bar`, (event) => this._onUpdateLeftButtons(event));
+
 		this.EventAggregator.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
 	}
 
 	// ---------
 	// EVENTS
 	// ---------
+
+	_onUpdateLeftButtons(event) {
+		this.viewProfileButton.visible = event.isProfileButtonVisible;
+		this.documentsButton.visible = event.isDocumentsButtonVisible;
+		this.clientType = event.clientType;
+		this.isProfileButtonHidden = isHidden(this.viewProfileButton);
+		this.isDocumentButtonHidden = isHidden(this.documentsButton);
+	}
 
 	_onUpdateMiniClientProfile(profile) {
 
@@ -66,6 +99,22 @@ export class ClientProfileDetails extends Component {
 	// PRIVATE
 	// ---------
 
+	_onDocumentClick() {
+		this.dispatchEvent(new CustomEvent(`on-document-click`, {
+			detail: {}
+		}));
+	}
+
+	_onViewProfileClick() {
+		this.dispatchEvent(new CustomEvent(`on-view-profile-click`, {
+			detail: {}
+		}));
+	}
+
+	_onVerifyNowClick() {
+		this.EventAggregator.publish(`verify-now-click`, {});
+	}
+
 	_replaceEmptyValue(value) {
 		if (value === null || value === ``) {
 			return `-`;
@@ -77,7 +126,7 @@ export class ClientProfileDetails extends Component {
 		if (birthdate === null || birthdate === ``) {
 			return `-`;
 		}
-		
+
 		let dob = null;
 
 		if (birthdate instanceof Date) {
@@ -111,12 +160,12 @@ export class ClientProfileDetails extends Component {
 			}
 			.hello-card {
 				width: 440px;
-				height: 344px;
+				height: auto;
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
 			}
 			.client-details-group{
-				height: 296px;
+				height: auto;
 			}
 			.client-image-box{
 				height: 176px;
@@ -160,7 +209,7 @@ export class ClientProfileDetails extends Component {
 				font-weight: normal;
 			}
 			.client-wrapper-box{
-				height: 120px;
+				height: auto;
 			}
 			.view-button{
 				height: 88px;
@@ -200,6 +249,38 @@ export class ClientProfileDetails extends Component {
 				line-height: 23px;
 				margin: 11px 0px 0px 0px;
 				padding: 0px;
+			}
+			.client-profile-alert{
+				height: 48px;
+				background-color:#F9EBDD;
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 700;
+				letter-spacing: 0;
+				line-height: 23px;
+				--theme-icon-size-default: 20px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+			}
+			.client-profile-error{
+				height: 48px;
+				background-color: #F7E2E1;
+				color: rgb(200, 59, 55);
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 700;
+				letter-spacing: 0;
+				line-height: 21px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+			}
+			.verify-now-link{
+				--theme-hyperlink-color:#D4781C;
+			}
+			.verify-via-app-link{
+				padding-left:55px;
+				--theme-hyperlink-color: rgb(200, 59, 55);
 			}`
 		];
 	}
@@ -225,10 +306,7 @@ export class ClientProfileDetails extends Component {
 					${this.renderActionButtons()}
 				</capitec-group>
 			
-				<div class="horizon-client-authorised">
-					<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
-					<a id="authorised-text" href="">Not Authorised</a>
-				</div>
+				${this.renderBanner()}
 			</capitec-card>
 			`;
 	}
@@ -241,43 +319,45 @@ export class ClientProfileDetails extends Component {
 
 	renderClientPersonalInfo() {
 		return html`<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-			<capitec-label row="1" column="1" label="${this.miniProfile.name}" type="subtitle"></capitec-label>
-			<span row="2" column="1">
-				<capitec-label label="ID Number: " type="subtitle"></capitec-label>
-				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle"></capitec-label>
-			</span>
-			<span row="3" column="1">
-				<capitec-label label="Contact Number: " type="subtitle"></capitec-label>
-				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle"></capitec-label>
-			</span>
-			<span row="4" column="1">
-				<capitec-label label="Lives In: " type="subtitle"></capitec-label>
-				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle"></capitec-label>
-			</span>
-			<span row="5" column="1">
-				<capitec-label label="Language Preference: " type="subtitle"></capitec-label>
-				<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle"></capitec-label>
-			</span>
-			<span row="6" column="1">
-				<capitec-label label="Birthday: " type="subtitle"></capitec-label>
-				<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle"></capitec-label>
-			</span>
-		</capitec-group>`;
+	<capitec-label row="1" column="1" label="${this.miniProfile.name}" type="subtitle"></capitec-label>
+	<span row="2" column="1">
+		<capitec-label label="ID Number: " type="subtitle"></capitec-label>
+		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle"></capitec-label>
+	</span>
+	<span row="3" column="1">
+		<capitec-label label="Contact Number: " type="subtitle"></capitec-label>
+		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle"></capitec-label>
+	</span>
+	<span row="4" column="1">
+		<capitec-label label="Lives In: " type="subtitle"></capitec-label>
+		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle"></capitec-label>
+	</span>
+	<span row="5" column="1">
+		<capitec-label label="Language Preference: " type="subtitle"></capitec-label>
+		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle"></capitec-label>
+	</span>
+	<span row="6" column="1">
+		<capitec-label label="Birthday: " type="subtitle"></capitec-label>
+		<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle"></capitec-label>
+	</span>
+</capitec-group>`;
 	}
 
 	renderActionButtons() {
 		return html`<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
 	<div>
-		<capitec-button class="view-button" ?hidden=${isHidden(this.viewProfileButton)}
-			.disabled="${isDisabled(this.viewProfileButton)}" tabindex="${getTabIndex(this.viewProfileButton)}">
+		<capitec-button class="view-button" ?hidden="${this.isProfileButtonHidden}"
+			.disabled="${isDisabled(this.viewProfileButton)}" tabindex="${getTabIndex(this.viewProfileButton)}"
+			@click="${() => this._onViewProfileClick()}">
 			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 				<capitec-icon size="small" icon="system/profile"></capitec-icon>
 				<capitec-label label="View profile"></capitec-label>
 			</capitec-content-box>
 		</capitec-button>
 
-		<capitec-button class="document-button" ?hidden=${isHidden(this.documentsButton)}
-			.disabled="${isDisabled(this.documentsButton)}" tabindex="${getTabIndex(this.documentsButton)}">
+		<capitec-button class="document-button" ?hidden="${this.isDocumentButtonHidden}"
+			.disabled="${isDisabled(this.documentsButton)}" tabindex="${getTabIndex(this.documentsButton)}"
+			@click=${() => this._onDocumentClick()}>
 			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 				<capitec-icon size="small" icon="system/documents"></capitec-icon>
 				<capitec-label label="Document"></capitec-label>
@@ -285,6 +365,39 @@ export class ClientProfileDetails extends Component {
 		</capitec-button>
 	</div>
 </capitec-content-box>`;
+	}
+
+	renderBanner() {
+		if (this.clientType === `verified-existing-client` || this.clientType === `verified-prospective`) {
+			return html``;
+		}
+		if (this.clientType === `unverified-existing-client` || this.clientType === `unverified-prospective`) {
+			return html`
+				<capitec-alert-banner class="client-profile-alert" type="warning-trans">
+					Client has not been verified
+					<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+					</capitec-hyperlink>
+				</capitec-alert-banner>
+				`;
+		}
+
+		// This is to handle banner on 'Verification failed' screen, Once the screen is ready, this snippet helps to dispaly the banner. 
+		/* if (this.clientType == 'verificationFailed') {
+			  return html`
+					<capitec-alert-banner class="client-profile-error" type="error-trans">
+						Client failed security questions
+						<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
+							label="Verify via the app"></capitec-hyperlink>
+					</capitec-alert-banner>
+					`;
+		 }*/
+
+	
+		return html`
+			<div class="horizon-client-authorised">
+				<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
+				<a id="authorised-text" href="">Not Authorised</a>
+			</div>`;
 	}
 }
 

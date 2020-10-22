@@ -1,13 +1,22 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import '../common/HorizonProductBar';
+import 'app/components/common/HorizonProductBar';
 
+/**
+ * The Landing Page Left Hand Welcome bar is displayed on the intial landing page 
+ * This component presents a greeting to the agent/user annd provides product buttons
+ * for accessing the various product information landing pages.
+ *
+ * @export
+ * @class LandingPageWelcome
+ * @extends {Component}
+ */
 export class LandingPageWelcome extends Component {
 
 	// --------------
 	// INITIALISATION
-	// --------------	
+	// --------------
 	constructor() {
 		super();
 
@@ -19,28 +28,28 @@ export class LandingPageWelcome extends Component {
 	// ----------
 	static get properties() {
 		return {
-			//to extract client details from the service
+			// to extract client details from the service
 			fullname: { type: String }
-		}
+		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`horizon-update-welcome-bar`, (event) => this._onUpdateWelcome(event));
 	}
 
-	async disconnectedCallback() {
+	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
 
 	// --------------
 	// EVENT HANDLERS
-	// --------------	
+	// --------------
 
 	_onUpdateWelcome(event) {
 		this.fullname = event.fullname;
@@ -57,7 +66,7 @@ export class LandingPageWelcome extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------		
+	// ---------
 	static get styles() {
 		return [
 			super.styles,
@@ -95,8 +104,8 @@ export class LandingPageWelcome extends Component {
 				text-align: center;
 				width:100%;
 				height:192px;
-			}
-			`];
+			}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -105,7 +114,7 @@ export class LandingPageWelcome extends Component {
 	_webTemplate() {
 		return html`
 				<div class="left-card">
-					<div>	
+					<div>
 						<capitec-card class="hello-card">
 								<capitec-group class="userrole" layout="absolute">
 								<div></div>
@@ -114,8 +123,8 @@ export class LandingPageWelcome extends Component {
  									<capitec-label  id="name-id" label="${this.fullname}" type="subtitle"></capitec-label>
 								</div>
 								</capitec-group>
-						</capitec-card>	
-					</div>		
+						</capitec-card>
+					</div>
 					<horizon-product-bar></horizon-product-bar>
 				</div>
 			`;
