@@ -78,6 +78,64 @@ export class ThirdPartyOrExisingClient extends Component {
 		const state = this.horizonStore.recoverState();
 
 		this.incomingCallDetails = state.incomingCallDetails;
+		this.unverifiedCaller = state.unverifiedCaller;
+
+		this.eventAggregator.publish(
+			`mini-client-profile`,
+			{
+				name: this.unverifiedCaller.fullName,
+				idNumber: this.unverifiedCaller.idNumber,
+				phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+				livesIn: ``,
+				languagePreference: ``,
+				birthday: this.unverifiedCaller.birthdate,
+				isConfirmed: true
+			}
+		);
+		
+		if (this.clientType === `unverified-existing-client`) {
+			this.eventAggregator.publish(
+				`horizon-update-left-hand-bar`,
+				{
+					clientType: this.clientType,
+					isProfileButtonVisible: false,
+					isDocumentsButtonVisible: false,
+					subtitle: {
+						savingsAccount: `Active`,
+						savingsPlan: `Active`,
+						insure: `Active`,
+						credit: `Rethink credit, realise dreams`
+					},
+					detail: {
+						savingsAccount: ``,
+						savingsPlan: ``,
+						insure: ``,
+						credit: ``
+					}
+				}
+			);
+		} else if (this.clientType === `verified-existing-client`) {
+			this.eventAggregator.publish(
+				`horizon-update-left-hand-bar`,
+				{
+					clientType: this.clientType,
+					isProfileButtonVisible: true,
+					isDocumentsButtonVisible: true,
+					subtitle: {
+						savingsAccount: `Active`,
+						savingsPlan: `Active`,
+						insure: `2 Funeral Plans`,
+						credit: `Rethink credit, realise dreams`
+					},
+					detail: {
+						savingsAccount: ``,
+						savingsPlan: ``,
+						insure: ``,
+						credit: ``
+					}
+				}
+			);
+		};
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -121,10 +179,6 @@ export class ThirdPartyOrExisingClient extends Component {
 		this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
-	_onVerifyNowClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
-	}
-
 	_onCancelSelectAssignReason() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -136,6 +190,10 @@ export class ThirdPartyOrExisingClient extends Component {
 	_onAssign() {
 		this.isReassigned = true;
 		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 
 	_onSkipVerification(e) {
@@ -332,12 +390,13 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderOptionButtons(item) {
 		return html`
-				<horizon-option-button label="${item.label}" 
-                                        icon="${item.icon}"
-                                        iconSize="${item.iconSize}"
-					                    img-src="../../../images/insure/${item.imgSRC}" 
-                                        @click="${() => this.solutionSelected = item.label}">
-				</horizon-option-button>
+			<horizon-option-button 
+				label="${item.label}" 
+                icon="${item.icon}"
+                iconSize="${item.iconSize}"
+				img-src="../../../images/insure/${item.imgSRC}" 
+                @click="${() => this.solutionSelected = item.label}">
+			</horizon-option-button>
 		`;
 	}
 
@@ -345,8 +404,9 @@ export class ThirdPartyOrExisingClient extends Component {
 
 		if (this.clientType === `unverified-existing-client` && this.solutionSelected) {
 			return html`
-				<horizon-client-not-verified @cancel="${() => this.solutionSelected = ``}"
-					                         @verify-now="${() => this._onVerifyNowClick()}">
+				<horizon-client-not-verified 
+					@cancel="${() => this.solutionSelected = ``}"
+					@verify-now="${() => this._onVerifyNowClick()}">
 				</horizon-client-not-verified>
 			`;
 		}
@@ -400,44 +460,49 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
-            return html`<horizon-end-call-session
-                            @on-cancel="{${() => this._onCancelEndCall()}}"
-	                        .incomingCallDetails = "${this.incomingCallDetails}">
-                        </horizon-end-call-session>`;
+			return html`
+				<horizon-end-call-session
+                    @on-cancel="{${() => this._onCancelEndCall()}}"
+	                .incomingCallDetails = "${this.incomingCallDetails}">
+                </horizon-end-call-session>`;
 		}
 		return html``;
 	}
 
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
-            return html`<horizon-insure-assign-reason
-                            @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
-	                        @on-cancel=${() => this._onCancelSelectAssignReason()}>
-                        </horizon-insure-assign-reason>`;
+			return html`
+				<horizon-insure-assign-reason
+                    @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+	                @on-cancel=${() => this._onCancelSelectAssignReason()}>
+                </horizon-insure-assign-reason>`;
 		}
 		return html``;
 	}
 
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
-            return html`<horizon-assign-reason-selected
-                            .selectedReason = "${this.selectedAssignReason}"
-                            @on-cancel=${() => this._onCancelAssign()}>
-	@on-assign=${() => this._onAssign()}>
-</horizon-assign-reason-selected>`;
+			return html`
+				<horizon-assign-reason-selected
+                    .selectedReason = "${this.selectedAssignReason}"
+                    @on-cancel=${() => this._onCancelAssign()}
+					@on-assign=${() => this._onAssign()}>
+				</horizon-assign-reason-selected>`;
 		}
 		return html``;
 	}
 
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`<horizon-verify-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
-				@skip="${(e) => this._onSkipVerification(e)}">
+			return html`
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@skip="${(e) => this._onSkipVerification(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;
 	}
+
 }
 
 window.customElements.define(`horizon-third-party-or-existing-client`, ThirdPartyOrExisingClient);

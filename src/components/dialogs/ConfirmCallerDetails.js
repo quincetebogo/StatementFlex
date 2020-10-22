@@ -224,7 +224,15 @@ export class ConfirmCallerDetails extends Component {
 	}
 	
 	_onSkipVerification(e) {
+		const confirmedCaller = {
+			fullName: this.callerFullName.value,
+			idNumber: this.southAfricanIDNumber.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			birthdate: this.birthdate.value
+		};
+
 		const state = {
+			unverifiedCaller: confirmedCaller,
 			incomingCallDetails: this.incomingCallDetails
 		};
 

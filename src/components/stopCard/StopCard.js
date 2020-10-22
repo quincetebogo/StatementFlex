@@ -172,6 +172,27 @@ export class StopCard extends Component {
 				isConfirmed: true
 			}
 		);
+
+		this.eventAggregator.publish(
+			`horizon-update-left-hand-bar`,
+			{
+				clientType: `unverified-existing-client`,
+				isProfileButtonVisible: false,
+				isDocumentsButtonVisible: false,
+				subtitle: {
+					savingsAccount: `Active`,
+					savingsPlan: `Active`,
+					insure: `Active`,
+					credit: `Rethink credit, realise dreams`
+				},
+				detail: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				}
+			}
+		);
 	}
 
 	// --------------
