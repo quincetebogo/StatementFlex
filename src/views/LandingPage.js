@@ -29,8 +29,7 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3,
-	ERROR_DIALOG: 4
+	INSURE_SEARCH_CALLER: 3
 };
 
 export class LandingPage extends View {
@@ -239,12 +238,6 @@ export class LandingPage extends View {
 		this.horizonStore.eraseState();
 	}
 
-	onShowErrorDialog() {
-		console.log(`navigating to error dialog`);
-		// this.horizonViewManager.saveState();
-		this.renderMode = RENDER_MODE.ERROR_DIALOG;
-		// this.router.navigateByPath(`/`);
-	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -330,7 +323,49 @@ export class LandingPage extends View {
 				.wait-for-call{
 					width:100%;
 					height:100%;
-				}`
+				}
+				#error-label {
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 24px;
+					font-weight: 600;
+					line-height: 32px;
+					text-align: center;
+					display: block;
+				}
+				
+				#error-message {
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: center;
+					display: block;
+					margin-left: 0px;
+					margin-right: 0px ;
+					padding-top: 24px;
+					padding-bottom: 24px;
+				}
+	
+				#try-again-button {
+					padding-bottom: 24px;
+					align-items: center;
+					display: inline-block;
+					// -ms-transform: translateX(50%);
+					transform: translateX(135%);
+				}
+				div[slot="body"] {
+					background-color: #FFFFFF;
+				}
+			
+				.image {
+					padding-top: 30px;
+					align-items: center;
+					display: inline-flex;
+					transform: translateX(50%);
+				}
+				`
 		];
 	}
 
@@ -394,27 +429,17 @@ export class LandingPage extends View {
 	_renderStartAgentPrompt() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
-				<capitec-modal type="result" result="error" header="Error">
+				<capitec-modal type="onboard">
 					<div slot="body">
-						Cannot connect to Desktop Agent Service!
+						<img class="image" src="../images/error.svg" alt="" />
+						<capitec-label id="error-label" label="Error 404" type="strong"></capitec-label>
+						<capitec-label id="error-message" label="There seems to be an issue please be patient"></capitec-label>
+				
+						<capitec-button id="try-again-button" type="primary" label="Try Again" @click=${()=> this.renderMode =
+					RENDER_MODE.PAGE_ONLY}>
+						</capitec-button>
 					</div>
-					<capitec-button slot="footer" type="clear" label="Retry" @click=${()=> this.renderMode = RENDER_MODE.PAGE_ONLY}>
-					</capitec-button>
 				</capitec-modal>
-			`;
-		}
-	}
-
-	_renderDesktopAgentErrorModal() {
-		if (this.renderMode === RENDER_MODE.ERROR_DIALOG) {
-			return html`
-			<capitec-modal type="onboard">
-				<img src="../images/error.svg" alt="" />
-				<capitec-label class="error-label" slot="body" label="Error 404"></capitec-label>
-				<capitec-label class="error-message" slot="body" label="There seems to be an issue please be patient">
-				</capitec-label>
-				<capitec-button class="try-again-button" slot="body" type="primary" label="Try Again"></capitec-button>
-			</capitec-modal>
 			`;
 		}
 	}

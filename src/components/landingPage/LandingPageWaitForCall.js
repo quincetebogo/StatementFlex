@@ -1,23 +1,14 @@
 import { Component, html, css } from 'platform/elements';
-import "../dialogs/DesktopNotFound";
 
 export class LandingPageWaitForCall extends Component {
 
 	constructor() {
 		super();
-		this.isShowDialog = false;
 	}
 
 	static get properties() {
 		return {
-			isShowDialog: { type: Boolean }
 		};
-	}
-
-
-	_onShowDialog() {
-		console.log(`show dialog`);
-		this.isShowDialog = true;
 	}
 
 	static get styles() {
@@ -75,7 +66,6 @@ export class LandingPageWaitForCall extends Component {
 			<capitec-card class="call-waiting-card">
 				<div>
 					${this.renderWaitingForCall()}
-					${this._render404Dialog()}
 				</div>
 			</capitec-card>
 
@@ -90,17 +80,8 @@ export class LandingPageWaitForCall extends Component {
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..."></capitec-label>
 			<capitec-label id="please-wait-text" type="default" label="Please wait while we connect you to your next caller">
 			</capitec-label>
-			<capitec-button type="primary" label="Show Error Dialog" @click="${() => this._onShowDialog()}"></capitec-button>
 			`;
 	}
-	_render404Dialog() {
-		if (this.isShowDialog === true) {
-			return html`
-			<horizon-error-modal></horizon-error-modal>
-			`;
-		}
-	}
-
 }
 
 window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall); 
