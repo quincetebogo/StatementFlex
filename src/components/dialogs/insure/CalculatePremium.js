@@ -84,7 +84,7 @@ export class CalculatePremium extends Component {
 		} else {
 			const feedbackDetails = {
 				incidentRecId: this.incomingCallDetails.incidentRecId,
-				feedback: this.selectedFeedback === `0` ? `3` : `4`,
+				feedback: this.selectedFeedback === `0` ? `SUCCESS` : `ASSIGN`,
 				updateIncident: true
 			};
 
