@@ -88,7 +88,7 @@ export class CalculatePremium extends Component {
 				updateIncident: true
 			};
 
-			const returnValue = await this.insureService.calculatePremiumDone(feedbackDetails, null);
+			const returnValue = await this.insureService.calculatePremiumDone(feedbackDetails);
 
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`done`, {
@@ -98,7 +98,7 @@ export class CalculatePremium extends Component {
 					}
 				}));
 			} else {
-				// TODO: Handle failure to call service
+				this.alertBannerMessage = `Failed to update incident, please retry`;
 			}
 		}
 	}
@@ -319,13 +319,13 @@ export class CalculatePremium extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (!this.alertBannerMessage === ``) {
+		 if (this.alertBannerMessage !== ``) {
 			return html`
 				<capitec-alert-banner
 									label="${this.alertBannerMessage}"
 									type="error">
 				</capitec-alert-banner>`;
-		}
+		 }
 	}
 
 	_renderNavigationToSBL() {
