@@ -1,6 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import '../insure/AssignReasonSelected';
 
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { EventAggregator } from 'platform/EventAggregator';
+
 import { HorizonChannelService } from '../../../services/HorizonChannelService';
 import { ServiceCallHelper } from '../../../utils/serviceCallHelper';
 
@@ -28,6 +31,7 @@ export class CalculatePremium extends Component {
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.channelService = HorizonChannelService.getInstance();
 		this.serviceCallHelper = new ServiceCallHelper(
 			() => {
@@ -36,6 +40,7 @@ export class CalculatePremium extends Component {
 			null // Don't register an exception handler, ServiceCallHelper provides a default handler
 		);
 
+		this.resultResponse = null;
 		this.isBusy = false;
 	}
 
@@ -48,7 +53,8 @@ export class CalculatePremium extends Component {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
 			selectedFeedback: { type: Number },
-			isBusy: { type: Boolean }
+			isBusy: { type: Boolean },
+			resultResponse: { type: Object }
 		};
 	}
 
@@ -95,7 +101,13 @@ export class CalculatePremium extends Component {
 				updateIncident: true,
 			};
 
-			this.serviceCallHelper.call(this.channelService.calculatePremiumDone(feedbackDetails));
+			this.serviceCallHelper.call(
+				this.channelService.calculatePremiumDone(feedbackDetails),
+				(result) => {
+					this.resultResponse = result;
+				},
+				(ex) => this._handleCalculatePremiumException(ex)
+			);
 
 			if (this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR) {
 				// If System error feedback is selected - assign dialog will be shown
@@ -121,6 +133,25 @@ export class CalculatePremium extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_handleCalculatePremiumException(exception) {
+		const event = {
+			from: `UI-CS`,
+			status: `error`,
+			message: ``
+		};
+
+		if (exception instanceof TypeError) {
+			event.message = exception.message;
+		} else if (exception instanceof HttpStatusError) {
+			event.message = `${exception.status}: ${exception.message}`;
+		} else {
+			event.message = `UNEXPECTED ERROR: ${exception.message}`;
+		}
+
+		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		return true;
+	}
 
 	// ---------
 	// RENDERING
