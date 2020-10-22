@@ -310,34 +310,7 @@ export class AppShell extends Shell {
 					line-height: 16px;
 					text-align: center;
 				}
-				.error-label {
-					height: 32px;
-					width: 98px;
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 32px;
-					text-align: center;
-				}
 				
-				.error-message {
-					height: 24px;
-					width: 307px;
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-				}
-				.try-again-button {
-					height: 48px;
-					width: 115px;
-					border-radius: 4px;
-					background-color: #009DE0;
-				}
 				* {
 					/* Platform CSS - Overriding
 					 * If it is generic change(i.e., applies across application) please specify here
@@ -376,7 +349,7 @@ export class AppShell extends Shell {
 			${this._renderContent()}
 			${this._renderSuccessModel()}
 			${this._renderErrorModal()}
-			${this._renderErrorDialog()}
+
         `;
 	}
 
@@ -483,24 +456,6 @@ export class AppShell extends Shell {
 				<capitec-button slot="footer" type="clear" label="Ok" @click="${this._toggleError}"></capitec-button>
 			</capitec-modal>
 		`;
-	}
-
-
-	_renderErrorDialog() {
-		if (!this.onboardModal) {
-			return html``;
-		}
-
-		return html`
-			<capitec-modal type="onboard">
-				<img src="../images/error.svg" alt="" />
-				<capitec-label class="error-label" slot="body" label="Error 404"></capitec-label>
-				<capitec-label class="error-message" slot="body" label="There seems to be an issue please be patient">
-				</capitec-label>
-				<capitec-button class="try-again-button" slot="body" type="primary" label="Try Again"
-					@click="${this._toggleOnBoard}"></capitec-button>
-			</capitec-modal>
-				`;
 	}
 }
 

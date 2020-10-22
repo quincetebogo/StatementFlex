@@ -29,7 +29,8 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	SEARCH_CALLER: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3
+	INSURE_SEARCH_CALLER: 3,
+	ERROR_DIALOG: 4
 };
 
 export class LandingPage extends View {
@@ -230,7 +231,7 @@ export class LandingPage extends View {
 		await this.callHandleService.endCall(
 			data.detail,
 			() => {
- 				this._toggleBusyFlag(); 
+				this._toggleBusyFlag();
 			}
 		);
 
@@ -238,6 +239,12 @@ export class LandingPage extends View {
 		this.horizonStore.eraseState();
 	}
 
+	onShowErrorDialog() {
+		console.log(`navigating to error dialog`);
+		// this.horizonViewManager.saveState();
+		this.renderMode = RENDER_MODE.ERROR_DIALOG;
+		// this.router.navigateByPath(`/`);
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -367,9 +374,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for stop card`);
 			return html`
-				<horizon-search-client 
-					.unverifiedCaller="${this.unVerifiedCaller}" 
-					.incomingCallDetails="${this.incomingCallDetails}"
+				<horizon-search-client .unverifiedCaller="${this.unVerifiedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
 					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
@@ -377,12 +382,11 @@ export class LandingPage extends View {
 		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
 			return html`
-				<horizon-insure-search-client 
-					.unverifiedCaller="${this.unVerifiedCaller}"
+				<horizon-insure-search-client .unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@on-non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">  
+					@call-ended="${(data) => this._onCallEnded(data)}">
 				</horizon-insure-search-client>`;
 		}
 	}
@@ -394,12 +398,23 @@ export class LandingPage extends View {
 					<div slot="body">
 						Cannot connect to Desktop Agent Service!
 					</div>
-					<capitec-button 
-						slot="footer" 
-						type="clear" 
-						label="Retry" @click=${() => this.renderMode = RENDER_MODE.PAGE_ONLY}>
+					<capitec-button slot="footer" type="clear" label="Retry" @click=${()=> this.renderMode = RENDER_MODE.PAGE_ONLY}>
 					</capitec-button>
 				</capitec-modal>
+			`;
+		}
+	}
+
+	_renderDesktopAgentErrorModal() {
+		if (this.renderMode === RENDER_MODE.ERROR_DIALOG) {
+			return html`
+			<capitec-modal type="onboard">
+				<img src="../images/error.svg" alt="" />
+				<capitec-label class="error-label" slot="body" label="Error 404"></capitec-label>
+				<capitec-label class="error-message" slot="body" label="There seems to be an issue please be patient">
+				</capitec-label>
+				<capitec-button class="try-again-button" slot="body" type="primary" label="Try Again"></capitec-button>
+			</capitec-modal>
 			`;
 		}
 	}
