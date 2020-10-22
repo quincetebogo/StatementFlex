@@ -121,8 +121,9 @@ export class InsureInformation extends Component {
 					isConfirmed: false
 				}
 			);
+
 			this.eventAggregator.publish(
-`horizon-update-left-hand-bar`,
+				`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: false,
@@ -140,10 +141,11 @@ export class InsureInformation extends Component {
 						credit: ``
 					}
 				}
-);
+			);
+
 		} else if (this.displayMode === `unverified-prospective`) {
 			this.eventAggregator.publish(
-`horizon-update-left-hand-bar`,
+				`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: false,
@@ -165,7 +167,7 @@ export class InsureInformation extends Component {
 			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
 		} else if (this.displayMode === `verified-prospective`) {
 			this.eventAggregator.publish(
-`horizon-update-left-hand-bar`,
+				`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: true,
@@ -183,7 +185,7 @@ export class InsureInformation extends Component {
 						credit: ``
 					}
 				}
-);
+		);
 			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
 		}
 

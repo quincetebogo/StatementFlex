@@ -74,6 +74,24 @@ export class ThirdPartyOrExisingClient extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		const state = this.horizonStore.recoverState();
+
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.unverifiedCaller = state.unverifiedCaller;
+
+		this.eventAggregator.publish(
+			`mini-client-profile`,
+			{
+				name: this.unverifiedCaller.fullName,
+				idNumber: this.unverifiedCaller.idNumber,
+				phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+				livesIn: ``,
+				languagePreference: ``,
+				birthday: this.unverifiedCaller.birthdate,
+				isConfirmed: true
+			}
+		);
 		
 		if (this.clientType === `unverified-existing-client`) {
 			this.eventAggregator.publish(
@@ -118,10 +136,6 @@ export class ThirdPartyOrExisingClient extends Component {
 				}
 			);
 		};
-
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,

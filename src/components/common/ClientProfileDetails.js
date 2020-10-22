@@ -18,16 +18,20 @@ export class ClientProfileDetails extends Component {
 		this.viewProfileButton = {
 			enabled: true,
 			tabIndex: 0,
-			visible: ''
-		},
-			this.documentsButton = {
+			visible: ``
+		};
+		
+		this.documentsButton = {
 				enabled: true,
 				tabIndex: 0,
-				visible: ''
-			},
-			this.isProfileButtonHidden = "";
-		this.isDocumentButtonHidden = "";
-		this.clientType = "";
+				visible: ``
+		};
+
+		this.isProfileButtonHidden = false;
+		this.isDocumentButtonHidden = false;
+		
+		this.clientType = ``;
+
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -64,7 +68,6 @@ export class ClientProfileDetails extends Component {
 		this.EventAggregator.subscribe(`horizon-update-left-hand-bar`, (event) => this._onUpdateLeftButtons(event));
 
 		this.EventAggregator.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
-
 	}
 
 	// ---------
@@ -76,7 +79,7 @@ export class ClientProfileDetails extends Component {
 		this.documentsButton.visible = event.isDocumentsButtonVisible;
 		this.clientType = event.clientType;
 		this.isProfileButtonHidden = isHidden(this.viewProfileButton);
-		this.isDocumentButtonHidden = isHidden(this.documentsButton)
+		this.isDocumentButtonHidden = isHidden(this.documentsButton);
 	}
 
 	_onUpdateMiniClientProfile(profile) {
@@ -343,18 +346,18 @@ export class ClientProfileDetails extends Component {
 	renderActionButtons() {
 		return html`<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
 	<div>
-		<capitec-button class="view-button" ?hidden=${this.isProfileButtonHidden}
+		<capitec-button class="view-button" ?hidden="${this.isProfileButtonHidden}"
 			.disabled="${isDisabled(this.viewProfileButton)}" tabindex="${getTabIndex(this.viewProfileButton)}"
-			@click=${this._onViewProfileClick()}>
+			@click="${() => this._onViewProfileClick()}">
 			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 				<capitec-icon size="small" icon="system/profile"></capitec-icon>
 				<capitec-label label="View profile"></capitec-label>
 			</capitec-content-box>
 		</capitec-button>
 
-		<capitec-button class="document-button" ?hidden=${this.isDocumentButtonHidden}
+		<capitec-button class="document-button" ?hidden="${this.isDocumentButtonHidden}"
 			.disabled="${isDisabled(this.documentsButton)}" tabindex="${getTabIndex(this.documentsButton)}"
-			@click=${this._onDocumentClick()}>
+			@click=${() => this._onDocumentClick()}>
 			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
 				<capitec-icon size="small" icon="system/documents"></capitec-icon>
 				<capitec-label label="Document"></capitec-label>
@@ -365,10 +368,10 @@ export class ClientProfileDetails extends Component {
 	}
 
 	renderBanner() {
-		if (this.clientType === 'verified-existing-client' || this.clientType === `verified-prospective`) {
+		if (this.clientType === `verified-existing-client` || this.clientType === `verified-prospective`) {
 			return html``;
 		}
-		if (this.clientType == 'unverified-existing-client' || this.clientType === `unverified-prospective`) {
+		if (this.clientType === `unverified-existing-client` || this.clientType === `unverified-prospective`) {
 			return html`
 				<capitec-alert-banner class="client-profile-alert" type="warning-trans">
 					Client has not been verified
@@ -389,13 +392,12 @@ export class ClientProfileDetails extends Component {
 					`;
 		 }*/
 
-		else {
-			return html`
-				<div class="horizon-client-authorised">
-					<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
-					<a id="authorised-text" href="">Not Authorised</a>
-				</div>`;
-		}
+	
+		return html`
+			<div class="horizon-client-authorised">
+				<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
+				<a id="authorised-text" href="">Not Authorised</a>
+			</div>`;
 	}
 }
 
