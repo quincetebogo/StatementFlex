@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+
 import { InsureService } from 'app/services/InsureService';
 
 const RENDER_MODE = {
@@ -33,9 +36,10 @@ export class CalculatePremium extends Component {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
-
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
 		this.isBusy = false;
+
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleCalculatePremiumException(ex, `calculatePremium`));
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------
@@ -47,7 +51,8 @@ export class CalculatePremium extends Component {
 			renderMode: { type: Number },
 			alertBannerMessage: { type: String },
 			selectedFeedback: { type: Number },
-			isBusy: { type: Boolean }
+			isBusy: { type: Boolean },
+			resultResponse: { type: Object }
 		};
 	}
 
@@ -83,17 +88,17 @@ export class CalculatePremium extends Component {
 				updateIncident: true
 			};
 
-			const returnValue = await this.insureService.calculatePremiumDone(feedbackDetails, null);
-		
+			const returnValue = await this.insureService.calculatePremiumDone(feedbackDetails);
+
 			if (returnValue.succeeded) {
-				this.dispatchEvent(new CustomEvent(`done`, { 
-						detail: { 
-							assign: this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR,
-							assignReason: ASSIGN_REASON
-						} 
+				this.dispatchEvent(new CustomEvent(`done`, {
+					detail: {
+						assign: this.selectedFeedback === FEEDBACK_OPTIONS.SYSTEM_ERR,
+						assignReason: ASSIGN_REASON
+					}
 				}));
 			} else {
-				// TODO: Handle failure to call service
+				this.alertBannerMessage = `Failed to update incident, please retry`;
 			}
 		}
 	}
@@ -115,6 +120,33 @@ export class CalculatePremium extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_handleCalculatePremiumException(exception, context) {
+		if (exception instanceof TypeError) {
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: `${context}: ${exception.message}`
+			};
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		} else if (exception instanceof HttpStatusError) {
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: `${context}: ${exception.status} - ${exception.message}`
+			};
+			console.log(exception.message);
+			console.log(exception.output);
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		} else {
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: `${context}: UNEXPECTED ERROR - ${exception.message}`
+			};
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		}
+	}
 
 	// ---------
 	// RENDERING
@@ -287,13 +319,13 @@ export class CalculatePremium extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (!this.alertBannerMessage === ``) {
+		 if (this.alertBannerMessage !== ``) {
 			return html`
 				<capitec-alert-banner
 									label="${this.alertBannerMessage}"
 									type="error">
 				</capitec-alert-banner>`;
-		}
+		 }
 	}
 
 	_renderNavigationToSBL() {
