@@ -1,6 +1,6 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import '../../components/insure/ThirdPartOrExistingClient';
+import 'app/components/insure/ThirdPartyOrExistingClient';
 
 export class VerifiedExistingClient extends View {
 
@@ -25,7 +25,7 @@ export class VerifiedExistingClient extends View {
 					height: 100%;
 				}
 			`
-		]
+		];
 	}
 
 	// -------------------
@@ -37,46 +37,46 @@ export class VerifiedExistingClient extends View {
 
 		this.solutionsAvailable = [
 			{
-				"icon": "system/notes-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "View Plan"
+				"icon": `system/notes-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `View Plan`
 			},
 			{
-				"icon": "system/edit-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "Update Plan"
+				"icon": `system/edit-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `Update Plan`
 			},
 			{
-				"icon": "system/cash-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "Pay Arrears"
+				"icon": `system/cash-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `Pay Arrears`
 			},
 			{
-				"icon": "system/documents-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "How to Claim"
+				"icon": `system/documents-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `How to Claim`
 			},
 			{
-				"icon": "",
-				"imgSRC": "email-action.svg",
-				"iconSize": "default",
-				"label": "Email Plan"
+				"icon": ``,
+				"imgSRC": `email-action.svg`,
+				"iconSize": `default`,
+				"label": `Email Plan`
 			},
 			{
-				"icon": "system/info-action",
-				"imgSRC": "",
-				"iconSize": "default",
-				"label": "Benefits"
+				"icon": `system/info-action`,
+				"imgSRC": ``,
+				"iconSize": `default`,
+				"label": `Benefits`
 			},
 			{
-				"icon": "",
-				"imgSRC": "close-action.svg",
-				"iconSize": "default",
-				"label": "Cancel Plan"
+				"icon": ``,
+				"imgSRC": `close-action.svg`,
+				"iconSize": `default`,
+				"label": `Cancel Plan`
 			}
 		];
 	}
@@ -85,9 +85,11 @@ export class VerifiedExistingClient extends View {
 	}
 
 	_webTemplate() {
-		return html`<insure-third-party-or-existing-client .solutionsAvailable="${this.solutionsAvailable}" 
-															clientType="verified-existing-client">
-					</insure-third-party-or-existing-client>`;
+		return html`
+			<horizon-third-party-or-existing-client 
+				.solutionsAvailable="${this.solutionsAvailable}" 
+				clientType="verified-existing-client">
+			</horizon-third-party-or-existing-client>`;
 	}
 }
 

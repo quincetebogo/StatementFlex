@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 export class LandingPageWaitForCall extends Component {
 
@@ -54,10 +54,9 @@ export class LandingPageWaitForCall extends Component {
 				letter-spacing: 0;
 				line-height: 24px;
 				text-align: center;
-				padding-top: 12px;
-				padding-bottom: 48px;
-			}
-			`];
+				}
+			`
+		];
 	}
 
 
@@ -73,8 +72,6 @@ export class LandingPageWaitForCall extends Component {
 	}
 
 	renderWaitingForCall() {
-		let debug_flag = false;
-
 		return html`
 			<img src="../images/landingPageImages/Client_First.svg" class="needimage" />
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..."></capitec-label>
@@ -84,4 +81,4 @@ export class LandingPageWaitForCall extends Component {
 	}
 }
 
-window.customElements.define(`landingpage-waitforcall`, LandingPageWaitForCall); 
+window.customElements.define(`horizon-landing-page-wait-for-call`, LandingPageWaitForCall);

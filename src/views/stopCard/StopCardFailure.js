@@ -1,16 +1,14 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { CardService } from 'app/services/CardService';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-import { HorizonRouter } from '../../shell/HorizonRouter';
-import { HorizonStore } from '../../store/HorizonStore';
-import { DesktopAgentService } from '../../services/DesktopAgentService';
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
-import { CardService } from '../../services/CardService';
-
-import '../../components/dialogs/EndCallSession';
-import '../../components/dialogs/insure/AssignReasonDialog';
-import '../../components/dialogs/insure/AssignReasonSelected';
+import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/insure/AssignReasonDialog';
+import 'app/components/dialogs/insure/AssignReasonSelected';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -37,10 +35,8 @@ export class StopCardFailure extends View {
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.cardsToStop = [];
 
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => { this._toggleBusyFlag() }, // ServiceCallHelper will toggle the busy flag
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 
 		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
@@ -62,7 +58,7 @@ export class StopCardFailure extends View {
 			renderMode: { type: Number },
 			renderDialog: { type: Number },
 			retry: { type: Number }
-		}
+		};
 	}
 
 	// -------------------
@@ -73,9 +69,8 @@ export class StopCardFailure extends View {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.channelService = HorizonChannelService.getInstance();
 
-		let state = this.horizonStore.recoverState();
+		const state = this.horizonStore.recoverState();
 
 		if (state) {
 			this.callerInfo = state.callerInfo;
@@ -117,20 +112,20 @@ export class StopCardFailure extends View {
 		console.log(`cards to stop`, this.failedCards);
 
 		this.retry++;
-		//Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
+		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
 		if (this.retry > MAX_ATTEMPT) {
 			this.renderDialog = RENDER_DIALOG.HANDOFF;
 			return;
 		}
 
-		//Toggling to InProgress
+		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 		this.cardsToStop = await this._stopCards(this.cardsToStop, this.callerInfo);
 
-		//Toggling back to Network Error summary
+		// Toggling back to Network Error summary
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 
-		let isAllSuccess = this.cardsToStop.every(cards => cards.stopped == true);
+		const isAllSuccess = this.cardsToStop.every(cards => cards.stopped === true);
 		if (isAllSuccess) {
 			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
 			this.horizonRouter.navigateToStoppedCards();
@@ -141,7 +136,19 @@ export class StopCardFailure extends View {
 		// Clear any state and return to landing page.
 		this.horizonStore.saveState({});
 
-		await this.serviceCallHelper.asyncCall(this.channelService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
+		const callToEnd = {
+			incidentRecId: this.callerInfo.incidentRecId, 
+			endCallReason: {
+				key: reason.detail.endCallReason.key
+			}
+		};
+
+		const returnValue = await this.callHandleService.endCall(callToEnd, null);
+
+		if (!returnValue.succeeded) {
+			// TODO: Handle endCallFailing
+		};
+
 		this.desktopAgentService.callComplete();
 
 		this.horizonRouter.navigateToLandingPage();
@@ -166,18 +173,15 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	async _stopCards(cardsToStop, callerInfo) {
-		const cardService = new CardService();
 
-		const cardStopResults = await cardService.stopCards(cardsToStop, callerInfo,
-			() => this._toggleBusyFlag(),
-			(ex) => this._stopCardErrorHandler(ex)
-		);
+		 const returnValue = await this.cardService.stopCards(cardsToStop, callerInfo, (ex) => this._stopCardErrorHandler(ex));
+		 const cardStopResults = returnValue.result;
 
 		return cardStopResults;
 	}
 
 	_onAssignIncident() {
-		//Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
+		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
 	}
 
@@ -192,7 +196,7 @@ export class StopCardFailure extends View {
 				capitec-title-bar {
 					--theme-label-title-font-size : 24px;
 					--theme-label-title-font-weight: 600;
-				}			
+				}
 
 				.failure-toast{
 					position: absolute;
@@ -388,7 +392,7 @@ export class StopCardFailure extends View {
 	_renderStoppedCards() {
 		return html`
 			<div class="status-group">
-				${this.cardsToStop.map((card) => { return this._renderCardStatus(card) })}
+				${this.cardsToStop.map((card) => this._renderCardStatus(card))}
 			</div>
 		`;
 	}
@@ -397,9 +401,8 @@ export class StopCardFailure extends View {
 		if (card.stopped) {
 			return html`${this._renderSuccessStatus(card)}`;
 		}
-		else {
-			return html`${this._renderErrorStatus(card)}`;
-		}
+		
+		return html`${this._renderErrorStatus(card)}`;
 	}
 
 	_renderSuccessStatus(card) {
@@ -433,7 +436,7 @@ export class StopCardFailure extends View {
 				</capitec-button>
 				<capitec-button class="button-tryAgain"
 								type="primary"
-								@click="${async () => this._onTryAgain()}"
+								@click="${() => this._onTryAgain()}"
 								label="Try Again">
 				</capitec-button>
 			</capitec-group>
@@ -441,10 +444,10 @@ export class StopCardFailure extends View {
 	}
 
 	_renderEndCallModal() {
-		if (this.renderDialog == RENDER_DIALOG.ENDCALL) {
+		if (this.renderDialog === RENDER_DIALOG.ENDCALL) {
 			return html`
 			<horizon-end-call-session
-				@on-cancel="${() => { this.renderDialog = -1 }}"
+				@on-cancel="${() => this.renderDialog = -1}"
 				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails = "${this.callerInfo}"
 				.isReassigned = "${this.isReassigned}">
@@ -455,12 +458,12 @@ export class StopCardFailure extends View {
 	}
 
 	_renderAssignModal() {
-		if (this.renderDialog == RENDER_DIALOG.HANDOFF) {
+		if (this.renderDialog === RENDER_DIALOG.HANDOFF) {
 			return html`
 				<horizon-assign-stop-card
 					.callerInfo=${this.callerInfo}
 					.cards=${this.failedCards}
-					@on-cancel="${() => { this.renderDialog = -1 }}"
+					@on-cancel="${() => this.renderDialog = -1}"
 					@on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>
 			`;
@@ -474,7 +477,7 @@ export class StopCardFailure extends View {
 			return html`
 				<horizon-insure-assign-reason 
 					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
-					@on-cancel="${() => { this.renderDialog = -1 }}">
+					@on-cancel="${() => this.renderDialog = -1}">
 				</horizon-insure-assign-reason>
 			`;
 		}
@@ -485,7 +488,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON_SELECTED) {
 			return html`<horizon-assign-reason-selected
 						.selectedReason="${this.assignReason}"
-						@on-cancel="${() => { this.renderDialog = -1 }}"
+						@on-cancel="${() => this.renderDialog = -1}"
 						@team-selected="${(e) => this._onHandOff(e)}">
 					</horizon-assign-reason-selected>`;
 		}

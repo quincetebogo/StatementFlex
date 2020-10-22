@@ -134,4 +134,4 @@ export class CreditProductDetails extends Component {
 		`;
 	}
 }
-window.customElements.define(`creditproduct-details`, CreditProductDetails);
+window.customElements.define(`horizon-credit-product-details`, CreditProductDetails);

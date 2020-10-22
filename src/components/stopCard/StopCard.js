@@ -1,23 +1,22 @@
 import { Component, css, html } from 'platform/elements';
-import { DesktopAgentService } from '../../services/DesktopAgentService';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonChannelService } from '../../services/HorizonChannelService';
-import { HorizonRouter } from '../../shell/HorizonRouter';
-import { HorizonStore } from '../../store/HorizonStore';
-import { ServiceCallHelper } from '../../utils/serviceCallHelper';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
 
-import '../dialogs/EndCallSession';
-import '../dialogs/stopCard/StopCard';
+import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/stopCard/StopCard';
 
 /*
 import '../dialogs/insure/AssignReasonDialog';
 import '../dialogs/insure/AssignReasonSelected';
 */
 
-import '../../components/common/HorizonRadioButtonsContainer';
+import 'app/components/common/HorizonRadioButtonsContainer';
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
@@ -47,6 +46,13 @@ const STOPREASONS = {
 	SUSPECTED_FRAUD: `SUSPECTED_FRAUD`
 };
 
+/**
+ * 
+ *
+ * @export
+ * @class StopCard
+ * @extends {Component}
+ */
 export class StopCard extends Component {
 
 	// --------------
@@ -57,7 +63,6 @@ export class StopCard extends Component {
 		super();
 
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.channelService = HorizonChannelService.getInstance();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
@@ -70,6 +75,8 @@ export class StopCard extends Component {
 		this.isReassigned = false;
 
 		this.confirmedCaller = null; // Actually the view manager state passed in from the parent component
+
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ----------
@@ -103,13 +110,6 @@ export class StopCard extends Component {
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-
-		this.serviceCallHelper = new ServiceCallHelper(
-			() => { 
-				this._toggleBusyFlag(); // ServiceCallHelper will toggle the busy flag
-			}, 
-			null // Don't register an exception handler, ServiceCallHelper provides a default handler
-		);
 
 		const clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		const incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
@@ -170,6 +170,27 @@ export class StopCard extends Component {
 				languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
 				birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
 				isConfirmed: true
+			}
+		);
+
+		this.eventAggregator.publish(
+			`horizon-update-left-hand-bar`,
+			{
+				clientType: `unverified-existing-client`,
+				isProfileButtonVisible: false,
+				isDocumentsButtonVisible: false,
+				subtitle: {
+					savingsAccount: `Active`,
+					savingsPlan: `Active`,
+					insure: `Active`,
+					credit: `Rethink credit, realise dreams`
+				},
+				detail: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				}
 			}
 		);
 	}
@@ -265,7 +286,19 @@ export class StopCard extends Component {
 
 	async _onCallComplete(reason) {
 		// Clear any state and return to landing page.
-		await this.serviceCallHelper.asyncCall(this.channelService.endCall(this.callerInfo.incidentRecId, reason.detail.endCallReason.key));
+		const callToEnd = {
+			incidentRecId: this.callerInfo.incidentRecId,  
+			endCallReason: {
+				key: reason.detail.endCallReason.key
+			}
+		};
+
+		const returnValue = await this.callHandleService.endCall(callToEnd, null);
+
+		if (!returnValue.succeeded) {
+			// TODO: Handle end call failing
+		}
+
 		this.desktopAgentService.callComplete();
 		this.horizonStore.eraseState();
 		this.horizonRouter.navigateToLandingPage();
