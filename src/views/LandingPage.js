@@ -23,6 +23,7 @@ import 'app/components/dialogs/ConfirmCallerDetails';
 import 'app/components/dialogs/stopCard/SearchClientDetails';
 import 'app/components/dialogs/AssignStopCard';
 import 'app/components/dialogs/insure/SearchCaller';
+import 'app/components/dialogs/DesktopAgentNotFound';
 
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
@@ -151,7 +152,7 @@ export class LandingPage extends View {
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
-			case `Insure`: 
+			case `Insure`:
 				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -163,7 +164,7 @@ export class LandingPage extends View {
 					this.confirmedCaller = acceptedCall;
 					this.unVerifiedCaller = null;
 				} else {
-				   this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 				}
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
@@ -236,7 +237,7 @@ export class LandingPage extends View {
 		const returnValue = await this.callHandleService.endCall(data.detail);
 
 		if (!returnValue.succeeded) {
-		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
+			// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
 		}
 
 		this.desktopAgentService.callComplete();
@@ -327,47 +328,6 @@ export class LandingPage extends View {
 					width:100%;
 					height:100%;
 				}
-				#error-label {
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					line-height: 32px;
-					text-align: center;
-					display: block;
-				}
-				
-				#error-message {
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-					display: block;
-					margin-left: 0px;
-					margin-right: 0px ;
-					padding-top: 24px;
-					padding-bottom: 24px;
-				}
-	
-				#try-again-button {
-					padding-bottom: 24px;
-					align-items: center;
-					display: inline-block;
-					// -ms-transform: translateX(50%);
-					transform: translateX(135%);
-				}
-				div[slot="body"] {
-					background-color: #FFFFFF;
-				}
-			
-				.image {
-					padding-top: 30px;
-					align-items: center;
-					display: inline-flex;
-					transform: translateX(50%);
-				}
 				`
 		];
 	}
@@ -402,12 +362,9 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller 
-					.confirmedCaller="${this.confirmedCaller}" 
-					.incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
-					@call-ended="${(data) => this._onCallEnded(data)}"
-					@non-client-captured=${event => this._onNonClientCaptured(event)}>
+				<horizon-confirm-caller .confirmedCaller="${this.confirmedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" @call-ended="${(data) => this._onCallEnded(data)}"
+					@non-client-captured=${event=> this._onNonClientCaptured(event)}>
 				</horizon-confirm-caller>`;
 		}
 	}
@@ -416,9 +373,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for stop card`);
 			return html`
-				<horizon-search-client 
-					.unverifiedCaller="${this.unVerifiedCaller}" 
-					.incomingCallDetails="${this.incomingCallDetails}"
+				<horizon-search-client .unverifiedCaller="${this.unVerifiedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${async (data) => this._onCallEnded(data)}">
@@ -438,17 +393,9 @@ export class LandingPage extends View {
 	_renderStartAgentPrompt() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
-				<capitec-modal type="onboard">
-					<div slot="body">
-						<img class="image" src="../images/error.svg" alt="" />
-						<capitec-label id="error-label" label="Error 404" type="strong"></capitec-label>
-						<capitec-label id="error-message" label="There seems to be an issue please be patient"></capitec-label>
+				<horizon-desktop-error @on-click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
 				
-						<capitec-button id="try-again-button" type="primary" label="Try Again" @click=${() => this.renderMode =
-					RENDER_MODE.PAGE_ONLY}>
-						</capitec-button>
-					</div>
-				</capitec-modal>
+				</horizon-desktop-error>
 			`;
 		}
 	}
