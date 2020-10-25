@@ -1,9 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
-import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
@@ -62,8 +58,6 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
-		this.desktopAgentService = DesktopAgentService.getInstance();
-
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
@@ -75,8 +69,6 @@ export class StopCard extends Component {
 		this.isReassigned = false;
 
 		this.confirmedCaller = null; // Actually the view manager state passed in from the parent component
-
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ----------
@@ -107,9 +99,6 @@ export class StopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 
 		const clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		const incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
@@ -282,26 +271,6 @@ export class StopCard extends Component {
 	_onEndCallSession() {
 		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
-
-	async _onCallComplete(reason) {
-		// Clear any state and return to landing page.
-		const callToEnd = {
-			incidentRecId: this.callerInfo.incidentRecId,  
-			endCallReason: {
-				key: reason.detail.endCallReason.key
-			}
-		};
-
-		const returnValue = await this.callHandleService.endCall(callToEnd, null);
-
-		if (!returnValue.succeeded) {
-			// TODO: Handle end call failing
-		}
-
-		this.desktopAgentService.callComplete();
-		this.horizonStore.eraseState();
-		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_toggleBusyFlag() {
@@ -572,7 +541,6 @@ export class StopCard extends Component {
 				@on-cancel="${() => {
  					this.renderMode = RENDER_MODE.CLIENT_PROFILE; 
 				}}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails = "${this.endCallCallerInfo}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;

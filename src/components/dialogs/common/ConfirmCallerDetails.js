@@ -174,19 +174,6 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_onCallCancelled(event) {
-		this.dispatchEvent(new CustomEvent(
-			`call-ended`,
-			{
-				detail: {
-					incidentReferenceNumber: this.incidentReferenceNumber,
-					incidentRecId: this.incidentRecId,
-					endCallReason: event.detail.endCallReason
-				}
-			}
-		));
-	}
-
 	_onIdentifiedClient(data) {
 		// After a search we need to replace whatever we might have had for the confirmed caller with 
 		// the results of the search
@@ -570,7 +557,6 @@ export class ConfirmCallerDetails extends Component {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
 				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;
 	}
@@ -578,10 +564,7 @@ export class ConfirmCallerDetails extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@on-cancel="${() => {
-				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-			}}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
@@ -591,8 +574,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-stop-card-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
+				@on-client-identified="${(data) => this._onIdentifiedClient(data)}">
 			</horizon-stop-card-search-caller>`;
 	}
 
@@ -602,8 +584,7 @@ export class ConfirmCallerDetails extends Component {
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
-				@non-client-captured="${data => this._onNonClientCaptured(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
+				@non-client-captured="${data => this._onNonClientCaptured(data)}">
 			</horizon-search-caller>`;
 	}
 

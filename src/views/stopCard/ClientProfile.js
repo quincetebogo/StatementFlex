@@ -1,11 +1,12 @@
-import { View, html, css } from 'platform/elements';
-import 'platform/components/buttons/Button';
+import { View, html } from 'platform/elements';
 
-import { HorizonStore } from '../../store/HorizonStore';
-import { HorizonRouter } from '../../shell/HorizonRouter';
-import '../../components/stopCard/StopCard'
-import '../../components/common/AccessMenuBar';
-import '../../components/common/ClientProfileDetails';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+
+import 'platform/components/buttons/Button';
+import 'app/components/stopCard/StopCard';
+import 'app/components/common/AccessMenuBar';
+import 'app/components/common/ClientProfileDetails';
 
 export class ClientProfile extends View {
 
@@ -17,19 +18,18 @@ export class ClientProfile extends View {
 
 	_onCardsStopped(event) {
 		this.horizonStore.saveState(event.detail);
-		let stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
+		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
-		}
-		else {
+		} else {
 			this.horizonRouter.navigateToStoppedCards();
 		}
 	}
 
 	render() {
-		console.log('render client profile');
-		let tempState = this.horizonStore.recoverState();
+		console.log(`render client profile`);
+		const tempState = this.horizonStore.recoverState();
 		return html`
 		<stop-card 
 			.confirmedCaller="${tempState}"

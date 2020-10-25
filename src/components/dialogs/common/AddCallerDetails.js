@@ -182,15 +182,6 @@ export class AddCallerDetails extends Component {
 		}));
 	};
 
-	onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent(`call-ended`, {
-			detail: {
-				confirmedCaller: {},
-				endCallReason: reason.detail.endCallReason
-			}
-		}));
-	}
-
 	_onIvrOptionChanged(e) {
 		this.addCallerDialog.ivrOption.value = e.detail.new;
 		this.confirmedCaller.ivrOption.value = e.detail.new;
@@ -431,7 +422,6 @@ export class AddCallerDetails extends Component {
 	renderEndCallModal() {
 		return html`<horizon-end-call-session 
 						@on-cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
-						@on-reason-set="${(reason) => this.onCallCancelled(reason)}"
 						.incomingCallDetails = "${this.incomingCallDetails}">
 					</horizon-end-call-session>`;
 	}

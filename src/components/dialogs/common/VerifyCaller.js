@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
@@ -52,7 +51,6 @@ export class VerifyCaller extends Component {
 			}
 		];
 
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -374,7 +372,6 @@ export class VerifyCaller extends Component {
 		return html`
 			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

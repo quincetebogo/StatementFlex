@@ -1,8 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, NavigationContext, Router } from 'platform/core';
-import { CallHandleService } from 'app/services/CallHandleService';
-import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { HorizonRouter } from 'app/shell/HorizonRouter'; 
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/layouts/Layout';
@@ -79,10 +76,6 @@ export class InsureInformation extends Component {
 
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.nonClient = state.nonClient;
-
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
-		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -242,26 +235,6 @@ export class InsureInformation extends Component {
 
 	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	async _endCallSession(reason) {
-		// Clear any state and return to landing page.
-		const callToEnd = {
-			incidentRecId: this.incomingCallDetails.incidentRecId,  
-			endCallReason: {
-				key: reason.detail.endCallReason.key
-			}
-		};
-
-		const returnValue = await this.callHandleService.endCall(callToEnd, null);
-
-		if (!returnValue.succeeded) {
-			// TODO: Handle end call failing
-		}
-
-		this.desktopAgentService.callComplete();
-		this.horizonStore.eraseState();
-		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_onCloseClick() {
@@ -1004,7 +977,6 @@ export class InsureInformation extends Component {
 			return html`
 				<horizon-end-call-session 
 					@on-cancel="{${() => this._onCancelEndCall()}}"
-					@on-reason-set="${(reason) => this._endCallSession(reason)}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isReassigned="${this.isReassigned}">
 				</horizon-end-call-session>`;

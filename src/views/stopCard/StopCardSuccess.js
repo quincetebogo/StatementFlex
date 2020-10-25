@@ -1,8 +1,5 @@
 import { View, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
-import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
@@ -24,12 +21,8 @@ export class StopCardSuccess extends View {
 		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.desktopAgentService = DesktopAgentService.getInstance();
-
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 
@@ -82,27 +75,6 @@ export class StopCardSuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	async _onCallComplete(reason) {
-		// Clear any state and return to landing page.
-		this.horizonStore.saveState({});
-
-		const callToEnd = {
-			incidentRecId: this.callerInfo.incidentReferenceNumber,
-			endCallReason: {
-				key: reason.detail.endCallReason.key
-			}
-		};
-
-		const returnValue = await this.callHandleService.endCall(callToEnd, null);
-
-		if (!returnValue.succeeded) {
-			// TODO: handle failure to end call
-		}
-
-		this.desktopAgentService.callComplete();
-
-		this.horizonRouter.navigateToLandingPage();
-	}
 
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
@@ -356,7 +328,6 @@ export class StopCardSuccess extends View {
 			return html`
 			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails ="${this.callerInfo}">
 			</horizon-end-call-session>`;
 		}

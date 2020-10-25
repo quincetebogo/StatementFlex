@@ -195,16 +195,6 @@ export class StopCardSearchCaller extends Component {
 		}
 	}
 
-	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent(`call-ended`, {
-			detail: {
-				unverifiedCaller: {},
-				incidentRecId: this.incidentRecId,
-				endCallReason: reason.detail.endCallReason
-			}
-		}));
-	}
-
 	_onNeedChanged(e) {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
@@ -498,7 +488,6 @@ export class StopCardSearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" 
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
@@ -509,8 +498,7 @@ export class StopCardSearchCaller extends Component {
 				.unverifiedCaller="${this.unverifiedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
+				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-search-caller>`;
 	}
 }

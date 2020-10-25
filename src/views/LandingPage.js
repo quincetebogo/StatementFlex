@@ -47,7 +47,6 @@ export class LandingPage extends View {
 		super();
 
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.renderDialog = 0;
 		this.isBusy = false;
 		this.errorHandled = false;
 
@@ -66,6 +65,17 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
 		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._onPromptStartDesktopAgent());
+
+		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
+			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
+			if (this.callStatus === `CALL-ENDED`) {
+				this.horizonStore.eraseState();
+				this.callStatus = `WAITING-FOR-CALL`;
+				this.horizonStore.setState({ callStatus: this.callStatus });
+				this.desktopAgentService.callComplete();
+				this.renderMode = RENDER_MODE.PAGE_ONLY;
+			}
+		});
 	}
 
 	// ----------
@@ -79,8 +89,7 @@ export class LandingPage extends View {
 			isBusy: { type: Boolean },
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
-			ivrOption: { type: String },
-			renderDialog: { type: Number }
+			ivrOption: { type: String }
 		};
 	}
 
@@ -95,6 +104,11 @@ export class LandingPage extends View {
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish(`landing-page-loaded`, {});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.callStatusSubscription.unsubscribe();
 	}
 
 	// --------------
@@ -153,6 +167,10 @@ export class LandingPage extends View {
 	}
 
 	_dispatchCall(acceptedCall, newCallInfo) {
+		this.callStatus = `CALL-IN-PROGRESS`;
+		const state = { callStatus: this.callStatus };
+		this.horizonStore.saveState(state);
+
 		this.incomingCallDetails = new IncomingCallDetails();
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
@@ -235,18 +253,6 @@ export class LandingPage extends View {
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
 		this.horizonRouter.navigateToStopCard();
-	}
-
-	async _onCallEnded(data) {
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		const returnValue = await this.callHandleService.endCall(data.detail);
-
-		if (!returnValue.succeeded) {
-			// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		}
-
-		this.desktopAgentService.callComplete();
-		this.horizonStore.eraseState();
 	}
 
 	// --------------
@@ -371,7 +377,6 @@ export class LandingPage extends View {
 					.confirmedCaller="${this.confirmedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
-					@call-ended="${(data) => this._onCallEnded(data)}"
 					@non-client-captured=${event => this._onNonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
@@ -385,8 +390,7 @@ export class LandingPage extends View {
 					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">
+					@on-client-identified="${(data) => this._onClientIdentified(data)}">
 				</horizon-stop-card-search-caller>`;
 		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
@@ -394,8 +398,7 @@ export class LandingPage extends View {
 				<horizon-search-caller .unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">
+					@on-client-identified="${(data) => this._onClientIdentified(data)}">
 				</horizon-search-caller>`;
 		}
 	}
@@ -403,8 +406,8 @@ export class LandingPage extends View {
 	_renderStartAgentPrompt() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
-				<horizon-desktop-error @on-click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
-				
+				<horizon-desktop-error 
+					@on-click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
 				</horizon-desktop-error>
 			`;
 		}

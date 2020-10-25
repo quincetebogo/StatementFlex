@@ -309,15 +309,6 @@ export class SearchCaller extends Component {
 		}
 	}
 
-	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent(`call-ended`, {
-			detail: {
-				incidentRecId: this.incomingCallDetails.incidentReferenceNumber,
-				endCallReason: reason.detail.endCallReason
-			}
-		}));
-	}
-
 	_onEndCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -672,8 +663,9 @@ export class SearchCaller extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
@@ -682,8 +674,7 @@ export class SearchCaller extends Component {
 			<horizon-stop-card-search-caller 
 				.unverifiedCaller="${this.unverifiedCaller}" 
 				.incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
+				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-stop-card-search-caller>`;
 	}
 }
