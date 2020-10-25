@@ -327,7 +327,7 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				@on-cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
 				.incomingCallDetails ="${this.callerInfo}">
 			</horizon-end-call-session>`;
 		}

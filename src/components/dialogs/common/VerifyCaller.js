@@ -371,7 +371,7 @@ export class VerifyCaller extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

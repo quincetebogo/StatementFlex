@@ -424,7 +424,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.ENDCALL) {
 			return html`
 			<horizon-end-call-session
-				@on-cancel="${() => this.renderDialog = -1}"
+				@cancel="${() => this.renderDialog = -1}"
 				.incomingCallDetails = "${this.callerInfo}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;

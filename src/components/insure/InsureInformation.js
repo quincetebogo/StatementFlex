@@ -976,7 +976,7 @@ export class InsureInformation extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 
-					@on-cancel="{${() => this._onCancelEndCall()}}"
+					@cancel="{${() => this._onCancelEndCall()}}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isReassigned="${this.isReassigned}">
 				</horizon-end-call-session>`;

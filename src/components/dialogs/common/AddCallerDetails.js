@@ -421,7 +421,7 @@ export class AddCallerDetails extends Component {
 
 	renderEndCallModal() {
 		return html`<horizon-end-call-session 
-						@on-cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
+						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
 						.incomingCallDetails = "${this.incomingCallDetails}">
 					</horizon-end-call-session>`;
 	}

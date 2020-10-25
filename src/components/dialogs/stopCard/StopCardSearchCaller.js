@@ -487,7 +487,7 @@ export class StopCardSearchCaller extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
-				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

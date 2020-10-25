@@ -77,7 +77,7 @@ export class EndCallSession extends Component {
 	// --------------
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	async _onReasonSelected() {
