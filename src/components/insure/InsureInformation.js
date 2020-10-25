@@ -14,7 +14,7 @@ import 'platform/components/navigation/AppRouter';
 
 import 'app/components/dialogs/insure/CalculatePremium';
 import 'app/components/dialogs/insure/NonAdvisoryDisclaimer';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/insure/AssignReasonDialog';
 import 'app/components/dialogs/insure/AssignReasonSelected';
 

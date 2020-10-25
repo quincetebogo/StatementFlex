@@ -1,6 +1,6 @@
-import { Component, html, css } from 'platform/elements';
-//import all UI components
-//import 'platform/components/navigation/AppRouter';
+import { Component, css, html } from 'platform/elements';
+// import all UI components
+// import 'platform/components/navigation/AppRouter';
 
 export class LandingPageMarketing extends Component {
 
@@ -13,7 +13,7 @@ export class LandingPageMarketing extends Component {
 	static get properties() {
 		return {
 			userDetails: { type: Object }
-		}
+		};
 	}
 
 	static get styles() {
@@ -30,7 +30,7 @@ export class LandingPageMarketing extends Component {
 
 	render() {
 		return html`
-			<img class="landingpage-marketing-img" src="../images/landingPageImages/Banner.png" alt="banner" />
+			<img class="landingpage-marketing-img" src="/images/landingPageImages/Banner.png" alt="banner" />
 		`;
 	}
 

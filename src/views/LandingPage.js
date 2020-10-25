@@ -1,8 +1,3 @@
-/**
- * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
- * This is the only page that can accept an incoming call. On completing the handling of a call
- * the user interface must be returned to this page in order top accept a new call.
- */
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
@@ -19,10 +14,11 @@ import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 import 'platform/components/buttons/Button';
 
 import 'app/components/landingPage/LandingPageWaitForCall';
-import 'app/components/dialogs/ConfirmCallerDetails';
-import 'app/components/dialogs/stopCard/SearchClientDetails';
-import 'app/components/dialogs/AssignStopCard';
-import 'app/components/dialogs/insure/SearchCaller';
+
+import 'app/components/dialogs/common/ConfirmCallerDetails';
+import 'app/components/dialogs/common/SearchCaller';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
+import 'app/components/dialogs/stopCard/AssignStopCard';
 import 'app/components/dialogs/DesktopAgentNotFound';
 
 const RENDER_MODE = {
@@ -33,6 +29,15 @@ const RENDER_MODE = {
 	INSURE_SEARCH_CALLER: 3
 };
 
+/**
+ * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
+ * This is the only page that can accept an incoming call. On completing the handling of a call
+ * the user interface must be returned to this page in order top accept a new call.
+ *
+ * @export
+ * @class LandingPage
+ * @extends {View}
+ */
 export class LandingPage extends View {
 
 	// --------------
@@ -362,10 +367,13 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller .confirmedCaller="${this.confirmedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" @call-ended="${(data) => this._onCallEnded(data)}"
-					@non-client-captured=${event=> this._onNonClientCaptured(event)}>
-				</horizon-confirm-caller>`;
+				<horizon-confirm-caller-details 
+					.confirmedCaller="${this.confirmedCaller}" 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
+					@call-ended="${(data) => this._onCallEnded(data)}"
+					@non-client-captured=${event => this._onNonClientCaptured(event)}>
+				</horizon-confirm-caller-details>`;
 		}
 	}
 
@@ -373,20 +381,22 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for stop card`);
 			return html`
-				<horizon-search-client .unverifiedCaller="${this.unVerifiedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
-					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${async (data) => this._onCallEnded(data)}">
-				</horizon-search-client>`;
-		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
-			console.log(`render search caller for insure`);
-			return html`
-				<horizon-insure-search-client .unverifiedCaller="${this.unVerifiedCaller}"
+				<horizon-stop-card-search-caller 
+					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}"
 					@call-ended="${(data) => this._onCallEnded(data)}">
-				</horizon-insure-search-client>`;
+				</horizon-stop-card-search-caller>`;
+		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
+			console.log(`render search caller for insure`);
+			return html`
+				<horizon-search-caller .unverifiedCaller="${this.unVerifiedCaller}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@non-client-captured="${event => this._onNonClientCaptured(event)}"
+					@on-client-identified="${(data) => this._onClientIdentified(data)}"
+					@call-ended="${(data) => this._onCallEnded(data)}">
+				</horizon-search-caller>`;
 		}
 	}
 

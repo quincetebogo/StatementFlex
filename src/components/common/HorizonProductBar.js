@@ -98,7 +98,7 @@ export class HorizonProductBar extends Component {
                                               type="favourites" 
                                               label="Favourites"
 							                  subtitle="Transact, dispute, cards and more"
-											  tileIcon = '../../../images/favourites.svg'>
+											  tileIcon = '/images/favourites.svg'>
 						</horizon-product-tile>
 					
 						<horizon-product-tile class="product-button" 

@@ -13,10 +13,10 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import 'app/components/dialogs/AddCallerDetails';
-import 'app/components/dialogs/EndCallSession';
-import 'app/components/dialogs/stopCard/SearchClientDetails'; // TODO: Remove direct access to stop card dialog
-import 'app/components/dialogs/insure/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
+import 'app/components/dialogs/common/AddCallerDetails';
+import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
+import 'app/components/dialogs/common/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -588,23 +588,23 @@ export class ConfirmCallerDetails extends Component {
 
 	renderSearchCallerModal() {
 		return html`
-			<horizon-search-client
+			<horizon-stop-card-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-search-client>`;
+			</horizon-stop-card-search-caller>`;
 	}
 
 	renderInsureSearchCallerModal() {
 		return html`
-			<horizon-insure-search-client
+			<horizon-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@non-client-captured="${data => this._onNonClientCaptured(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-insure-search-client>`;
+			</horizon-search-caller>`;
 	}
 
 	renderVerifyCallerModal() {
@@ -618,4 +618,4 @@ export class ConfirmCallerDetails extends Component {
 
 }
 
-window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails);
+window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

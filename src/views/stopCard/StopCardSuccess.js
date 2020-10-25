@@ -6,7 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
@@ -286,7 +286,7 @@ export class StopCardSuccess extends View {
 				style="visibility:${!this.displayNotification ? `hidden` : `visible`}"
 				class="horizon-notify-client">
 				<img 
-					src="../../images/info.svg" 
+					src="/images/info.svg" 
 					id="action-icon" 
 					/>
 				<p id="action-display">&nbsp;See related options to assist if the client needs to stop their Remote Banking (app/USSD) channels</p>
@@ -294,7 +294,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" src="../../images/cardStop/cards.svg"/>`;
+		return html`<img class="card-image" src="/images/cardStop/cards.svg"/>`;
 	}
 
 	_renderStoppedCards() {
@@ -326,10 +326,10 @@ export class StopCardSuccess extends View {
 	_renderOptionsButtons() {
 		return html`
 			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="../../../images/access.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Card Skimming Case" img-src="../../../images/cards.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="../../../images/atm.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Find A Branch" img-src="../../../images/atm.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="/images/access.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="Card Skimming Case" img-src="/images/cards.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="/images/atm.svg"></horizon-option-button>
+				<horizon-option-button class="button-margin" label="Find A Branch" img-src="/images/atm.svg"></horizon-option-button>
 			</capitec-group>
 			`;
 	}
@@ -356,7 +356,7 @@ export class StopCardSuccess extends View {
 			return html`
 			<horizon-end-call-session
 				@on-cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
-				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
+				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails ="${this.callerInfo}">
 			</horizon-end-call-session>`;
 		}
@@ -366,4 +366,4 @@ export class StopCardSuccess extends View {
 
 }
 
-customElements.define(`horizon-summary-success`, StopCardSuccess);
+customElements.define(`horizon-stop-card-success`, StopCardSuccess);

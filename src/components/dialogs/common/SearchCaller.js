@@ -8,9 +8,9 @@ import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
-import 'app/components/dialogs/stopCard/SearchClientDetails';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
+import 'app/components/dialogs/common/EndCallSession';
 
 
 const RENDER_MODE = {
@@ -106,10 +106,10 @@ const HEADER_LABEL = `Search Caller Details`;
  * Search Dialog for all needs except Stop Card. Stop Card has a specialized search dialog.
  *
  * @export
- * @class InsureSearchClient
+ * @class SearchCaller
  * @extends {Component}
  */
-export class InsureSearchClient extends Component {
+export class SearchCaller extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -335,8 +335,17 @@ export class InsureSearchClient extends Component {
 
 		if (this.nameValue || this.surNameValue) {
 
-			!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue) ? this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
-			!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue) ? this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR : ``;
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue)) {
+				this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.nameValue = ``;
+			};
+
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) { 
+				this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.surNameValue = ``;
+			}
 
 			if (!this.errMessage.nameValue === `` || !this.errMessage.surNameValue === ``) {
 				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
@@ -670,11 +679,13 @@ export class InsureSearchClient extends Component {
 
 	_renderStopCardSearchModal() {
 		return html`
-			<horizon-search-client .unverifiedCaller="${this.unverifiedCaller}" .incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-stop-card-search-caller 
+				.unverifiedCaller="${this.unverifiedCaller}" 
+				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
 				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-search-client>`;
+			</horizon-stop-card-search-caller>`;
 	}
 }
 
-window.customElements.define(`horizon-insure-search-client`, InsureSearchClient);
+window.customElements.define(`horizon-search-caller`, SearchCaller);

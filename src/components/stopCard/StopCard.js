@@ -8,7 +8,7 @@ import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
 
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCard';
 
 /*
@@ -47,7 +47,7 @@ const STOPREASONS = {
 };
 
 /**
- * 
+ * The StopCard component is the main component of the Horizon Stop Card View.
  *
  * @export
  * @class StopCard
@@ -327,6 +327,7 @@ export class StopCard extends Component {
 			card.rowIndex = index;
 			card.selected = false;
 			card.cardStopReason = STOPREASONS.CARD_LOST;
+			return card;
 		});
 	}
 
@@ -430,7 +431,7 @@ export class StopCard extends Component {
 	_renderNotifyClient() {
 		return html`
 			<div class="horizon-notify-client" row="2" column="1">
-				<img src="../../images/info.svg" id="action-icon" />
+				<img src="/images/info.svg" id="action-icon" />
 				<p id="action-display">&nbsp;${this.instruction}</p>
 			</div>`;
 	}
@@ -468,31 +469,29 @@ export class StopCard extends Component {
 	}
 
 	/**
-	 * @param {*} rowData
-	 * @returns {Object}
+	 * @param {Object} rowData - A row of data to render
 	 * @memberof StopCard
+	 * @returns {html} HTML for a row of data
 	 */
 	_renderRowData(rowData) {
-		return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none"
+		return html`
+			<capitec-group layout="grid" rows="auto" columns="uniform" gap="none"
 									style="${rowData.selected ? `height: 70px` : `height: 22px;`}">
-
-	${this._renderRowInput(rowData)}
-
-						<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
-							<capitec-label 
-									label="${rowData[COLUMNS.CARDTYPE]}"
-									style="${TABLE_STYLE.CELL_HEIGHT}">
-		</capitec-label>
-	</div>
-
-						<div row="1" column="3" style="${TABLE_STYLE.BODY_CELL}">
-							<capitec-label 
-									label="${rowData[COLUMNS.CARDNUMBER]}"
-									style="${TABLE_STYLE.CELL_HEIGHT}">
-		</capitec-label>
-	</div>
-	${this._renderReasonButtons(rowData)}
-</capitec-group>`;
+				${this._renderRowInput(rowData)}
+				<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
+					<capitec-label 
+						label="${rowData[COLUMNS.CARDTYPE]}"
+						style="${TABLE_STYLE.CELL_HEIGHT}">
+					</capitec-label>
+				</div>
+				<div row="1" column="3" style="${TABLE_STYLE.BODY_CELL}">
+					<capitec-label 
+						label="${rowData[COLUMNS.CARDNUMBER]}"
+						style="${TABLE_STYLE.CELL_HEIGHT}">
+					</capitec-label>
+				</div>
+				${this._renderReasonButtons(rowData)}
+			</capitec-group>`;
 	}
 
 	_renderRowInput(rowData) {
@@ -573,7 +572,7 @@ export class StopCard extends Component {
 				@on-cancel="${() => {
  					this.renderMode = RENDER_MODE.CLIENT_PROFILE; 
 				}}"
-				@on-reason-set="${async (reason) => this._onCallComplete(reason)}"
+				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
 				.incomingCallDetails = "${this.endCallCallerInfo}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;

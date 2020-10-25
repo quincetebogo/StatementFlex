@@ -1,5 +1,5 @@
-import { Router } from 'platform/Router';
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { Router } from 'platform/Router';
 
 const HORIZON_ROUTES = {
 	LANDING_PAGE: `/landingPage`,
@@ -147,7 +147,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `horizon-summary-success`,
+		name: `horizon-stop-card-success`,
 		title: `StopCard`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
@@ -157,7 +157,7 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `horizon-summary-failure`,
+		name: `horizon-stop-card-failure`,
 		title: `StopCardFail`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE,

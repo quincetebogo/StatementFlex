@@ -6,7 +6,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/insure/AssignReasonDialog';
 import 'app/components/dialogs/insure/AssignReasonSelected';
 
@@ -323,7 +323,8 @@ export class StopCardFailure extends View {
 					text-align: center;
 					margin: 15px 0px 0px 0px;
 				}
-			`];
+			`
+		];
 	}
 
 	_mobileTemplate() {
@@ -358,6 +359,8 @@ export class StopCardFailure extends View {
 						${this._renderGraphicInProgress()}
 					</capitec-card>
 				`;
+			default:
+				return html``;
 		}
 	}
 
@@ -386,7 +389,7 @@ export class StopCardFailure extends View {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" src="../../images/cardStop/network-error.svg"/>`;
+		return html`<img class="card-image" src="/images/cardStop/network-error.svg"/>`;
 	}
 
 	_renderStoppedCards() {
@@ -496,8 +499,8 @@ export class StopCardFailure extends View {
 	}
 
 	_renderGraphicInProgress() {
-		return html`<img class="card-image-inprogress" src="../../images/cardStop/in-progress.svg"/>`;
+		return html`<img class="card-image-inprogress" src="/images/cardStop/in-progress.svg"/>`;
 	}
 }
 
-customElements.define(`horizon-summary-failure`, StopCardFailure);
+customElements.define(`horizon-stop-card-failure`, StopCardFailure);

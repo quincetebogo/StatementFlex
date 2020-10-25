@@ -3,18 +3,21 @@ import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
+
+import 'app/components/insure/InsureHowToClaim';
+
+import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/EndCallSession';
+
 import 'app/components/dialogs/insure/NonAdvisoryDisclaimer';
 import 'app/components/dialogs/insure/SolutionViewPlan';
 import 'app/components/dialogs/insure/ChooseAnUpdateOption';
 import 'app/components/dialogs/insure/SolutionPayArrears';
 import 'app/components/dialogs/insure/SolutionCancelPlan';
-import './InsureHowToClaim';
 import 'app/components/dialogs/insure/SolutionEmailPlan';
-import 'app/components/dialogs/EndCallSession';
 import 'app/components/dialogs/insure/AssignReasonDialog';
 import 'app/components/dialogs/insure/AssignReasonSelected';
-import 'app/components/dialogs/ClientNotVerified';
-import 'app/components/dialogs/insure/VerifyCaller';
 
 const SOLUTION_SET = {
 	VIEW_PLAN: `View Plan`,
@@ -35,7 +38,15 @@ const RENDER_MODE = {
 	VERIFY_NOW: 4
 };
 
-export class ThirdPartyOrExisingClient extends Component {
+/**
+ * The Insure ThirdPartyOrExistingClient component is used to implement the views for the 
+ * third party, unverified existing client and verified existing client insure landing pages. 
+ *
+ * @export
+ * @class ThirdPartyOrExisingClient
+ * @extends {Component}
+ */
+export class ThirdPartyOrExistingClient extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -58,11 +69,18 @@ export class ThirdPartyOrExisingClient extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+	/**
+	 * @property {string} clientType - Must be 'unverified-existing-client', 'verified-existing-client' or 'third-party-client. 
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof ThirdPartyOrExistingClient
+	 */
 	static get properties() {
 		return {
+			clientType: { type: String },
 			renderMode: { type: String },
 			solutionsAvailable: { type: Array },
-			clientType: { type: String },
 			solutionSelected: { type: String },
 			displayToast: { type: Boolean }
 		};
@@ -294,9 +312,9 @@ export class ThirdPartyOrExisingClient extends Component {
 	_webTemplate() {
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.HOW_TO_CLAIM:
-                return html`<insure-how-to-claim
+                return html`<horizon-how-to-claim
                                 @close-solution="${() => this.solutionSelected = ``}">
-                            </insure-how-to-claim>`;
+                            </horizon-how-to-claim>`;
 			default:
 				return html`
 						<capitec-card class="card">
@@ -394,7 +412,7 @@ export class ThirdPartyOrExisingClient extends Component {
 				label="${item.label}" 
                 icon="${item.icon}"
                 iconSize="${item.iconSize}"
-				img-src="../../../images/insure/${item.imgSRC}" 
+				img-src="/images/insure/${item.imgSRC}" 
                 @click="${() => this.solutionSelected = item.label}">
 			</horizon-option-button>
 		`;
@@ -433,9 +451,9 @@ export class ThirdPartyOrExisingClient extends Component {
                                 </horizon-pay-arrears>`;
 
 				case SOLUTION_SET.HOW_TO_CLAIM:
-                    return html`<insure-how-to-claim
+                    return html`<horizon-how-to-claim
                                     @close-solution="${() => this.solutionSelected = ``}">
-                                </insure-how-to-claim>`;
+                                </horizon-how-to-claim>`;
 
 				case SOLUTION_SET.EMAIL_PLAN:
                     return html`<horizon-email-plan
@@ -505,4 +523,4 @@ export class ThirdPartyOrExisingClient extends Component {
 
 }
 
-window.customElements.define(`horizon-third-party-or-existing-client`, ThirdPartyOrExisingClient);
+window.customElements.define(`horizon-third-party-or-existing-client`, ThirdPartyOrExistingClient);

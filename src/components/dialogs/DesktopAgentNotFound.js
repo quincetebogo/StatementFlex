@@ -7,6 +7,7 @@ export class DesktopAgentNotFound extends Component {
 	constructor() {
 		super();
 	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
@@ -15,12 +16,14 @@ export class DesktopAgentNotFound extends Component {
 
 		};
 	}
+
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
 	async connectedCallback() {
 		super.connectedCallback();
 	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -30,6 +33,7 @@ export class DesktopAgentNotFound extends Component {
 			detail: {}
 		}));
 	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -39,6 +43,7 @@ export class DesktopAgentNotFound extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -88,10 +93,13 @@ export class DesktopAgentNotFound extends Component {
 				display: inline-flex;
 				transform: translateX(50%);
 			}
-		`];
+		`
+];
 	}
+
 	_mobileTemplate() {
 	}
+
 	_webTemplate() {
 		return html`
 		<capitec-modal type="onboard">
@@ -101,15 +109,17 @@ export class DesktopAgentNotFound extends Component {
 		</capitec-modal>
 		`;
 	}
+
 	_renderErrorMessage() {
 		return html`
-		<img class="image" src="../images/error.svg" alt="" />
+		<img class="image" src="/images/error.svg" alt="" />
 		<capitec-label id="error-label" label="Error 404" type="strong"></capitec-label>
 		<capitec-label id="error-message" label="There seems to be an issue please be patient"></capitec-label>
 		<capitec-button id="try-again-button" type="primary" label="Try Again" @click="${() => this._onTryAgain()}">
 		</capitec-button>
 		`;
 	}
+
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {
 			return html``;

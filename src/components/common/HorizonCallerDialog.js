@@ -134,7 +134,7 @@ export class HorizonCallerDialog extends Component {
 									style="visibility:${!this.displayButton ? `hidden` : `visible`}"
 									label="End Call"
 									@click="${() => this._onEndCall()}">
-							<img class="end-call-icon" src="../../images/hangup.svg"/>
+							<img class="end-call-icon" src="/images/hangup.svg"/>
 						</capitec-button>
 					</capitec-group>
 				<div slot="body">

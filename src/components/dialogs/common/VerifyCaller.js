@@ -1,14 +1,11 @@
-/**
- * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
- */
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/insure/VerifyCallerSecurityQuestions';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/VerifyCallerSecurityQuestions';
+import 'app/components/dialogs/common/EndCallSession';
 
 
 const RENDER_MODE = {
@@ -19,6 +16,13 @@ const RENDER_MODE = {
 
 const HEADER_LABEL = `Verify Caller`;
 
+/**
+ * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
+ *
+ * @export
+ * @class VerifyCaller
+ * @extends {Component}
+ */
 export class VerifyCaller extends Component {
 
 	// --------------
@@ -292,7 +296,7 @@ export class VerifyCaller extends Component {
 										valign="top" 
 										gap="clear"
 										id="notification-status-group">
-							<img src="../../../images/insure/sms.svg" class="sms-svg"/>
+							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
 							</div>
@@ -323,7 +327,7 @@ export class VerifyCaller extends Component {
 										valign="top" 
 										gap="clear"
 										id="notification-status-error-group">
-							<img src="../../../images/insure/connection-error.svg" class="connection-error-svg"/>
+							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
 							</div>
@@ -356,7 +360,7 @@ export class VerifyCaller extends Component {
 											@click="${() => this._skip()}">
 					</horizon-option-button>
 					<horizon-option-button label="Try Again" 
-											img-src="../../../images/insure/refresh.svg"
+											img-src="/images/insure/refresh.svg"
 											iconSize="default"
 											type="clear"
 											@click="${() => this._tryAgain()}">
