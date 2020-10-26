@@ -4,6 +4,15 @@ import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/buttons/ProductTile';
 
+/**
+ * ClientProfileDetails displays the left hand bar of the Horizon display. This contains
+ * the mini client profile, product buttons and various short cuts depending on the
+ * state of the system
+ *
+ * @export
+ * @class ClientProfileDetails
+ * @extends {Component}
+ */
 export class ClientProfileDetails extends Component {
 
 	// --------------
@@ -178,6 +187,7 @@ export class ClientProfileDetails extends Component {
 				height: 160px;
 				padding: 55px 55px 55px 55px;
 				margin: 0px;
+				background-color: #F7F7F7;
 			}
 			.client-details-box{
 				width: 230px;
@@ -188,14 +198,15 @@ export class ClientProfileDetails extends Component {
 				color: #003652;
 			}
 			capitec-group > capitec-label:first-child {
-				height: 30px;
+				height: 28px;
 				width: auto;
-				color: #003652;
+				color: #3E4547;
 				font-family: "Hind Vadodara";
 				font-size: 20px;
 				font-weight: 600;
 				letter-spacing: 0;
-				line-height: 30px;
+				line-height: 28px;
+				margin-bottom: 8px;
 			}
 			capitec-group > span {
 				display: flex;
@@ -203,10 +214,22 @@ export class ClientProfileDetails extends Component {
 			}
 			capitec-group > span > capitec-label:first-child {
 				--theme-label-font-weight: 400;
-				line-height: 23px;
-				height: 24px;
+				line-height: 20px;
+				height: 20px;
+				color: #545D60;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
 				letter-spacing: 0;
 				font-weight: normal;
+			}
+			capitec-group > span > capitec-label:nth-child(2) {
+				line-height: 20px;
+				height: 20px;
+				color: #545D60;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				letter-spacing: 0;
+				font-weight: 600;
 			}
 			.client-wrapper-box{
 				height: auto;
@@ -312,74 +335,142 @@ export class ClientProfileDetails extends Component {
 	}
 
 	renderClientImage() {
-		return html`<div class="client-img">
-	<capitec-icon size="large" icon="system/client-insights-error"></capitec-icon>
-</div>`;
+		return html`
+			<div class="client-img">
+				<capitec-icon 
+					size="large" 
+					icon="system/client-insights-error">
+				</capitec-icon>
+			</div>`;
 	}
 
 	renderClientPersonalInfo() {
-		return html`<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-	<capitec-label row="1" column="1" label="${this.miniProfile.name}" type="subtitle"></capitec-label>
-	<span row="2" column="1">
-		<capitec-label label="ID Number: " type="subtitle"></capitec-label>
-		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle"></capitec-label>
-	</span>
-	<span row="3" column="1">
-		<capitec-label label="Contact Number: " type="subtitle"></capitec-label>
-		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle"></capitec-label>
-	</span>
-	<span row="4" column="1">
-		<capitec-label label="Lives In: " type="subtitle"></capitec-label>
-		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle"></capitec-label>
-	</span>
-	<span row="5" column="1">
-		<capitec-label label="Language Preference: " type="subtitle"></capitec-label>
-		<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle"></capitec-label>
-	</span>
-	<span row="6" column="1">
-		<capitec-label label="Birthday: " type="subtitle"></capitec-label>
-		<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle"></capitec-label>
-	</span>
-</capitec-group>`;
+		return html`
+			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
+				<capitec-label 
+					row="1" column="1" 
+					label="${this.miniProfile.name}" 
+					type="subtitle">
+				</capitec-label>
+				<span row="2" column="1">
+					<capitec-label 
+						label="ID Number: " 
+						type="subtitle">
+					</capitec-label>
+					<capitec-label 
+						label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" 
+						type="subtitle">
+					</capitec-label>
+				</span>
+				<span row="3" column="1">
+					<capitec-label 
+						label="Contact Number: " 
+						type="subtitle">
+					</capitec-label>
+					<capitec-label 
+						label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" 
+						type="subtitle">
+					</capitec-label>
+				</span>
+				<span row="4" column="1">
+					<capitec-label 
+						label="Lives In: " 
+						type="subtitle">
+					</capitec-label>
+					<capitec-label 
+						label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" 
+						type="subtitle">
+					</capitec-label>
+				</span>
+				<span row="5" column="1">
+					<capitec-label 
+						label="Language Preference: " 
+						type="subtitle">
+					</capitec-label>
+					<capitec-label 
+						label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" 
+						type="subtitle">
+					</capitec-label>
+				</span>
+				<span row="6" column="1">
+					<capitec-label 
+						label="Birthday: " 
+						type="subtitle">
+					</capitec-label>
+					<capitec-label 
+						label="${this._formatBirthDate(this.miniProfile.birthday)}" 
+						type="subtitle">
+					</capitec-label>
+				</span>
+			</capitec-group>`;
 	}
 
 	renderActionButtons() {
-		return html`<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
-	<div>
-		<capitec-button class="view-button" ?hidden="${this.isProfileButtonHidden}"
-			.disabled="${isDisabled(this.viewProfileButton)}" tabindex="${getTabIndex(this.viewProfileButton)}"
-			@click="${() => this._onViewProfileClick()}">
-			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
-				<capitec-icon size="small" icon="system/profile"></capitec-icon>
-				<capitec-label label="View profile"></capitec-label>
-			</capitec-content-box>
-		</capitec-button>
+		return html`
+			<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
+				<div>
+					<capitec-button 
+						class="view-button" 
+						?hidden="${this.isProfileButtonHidden}"
+						.disabled="${isDisabled(this.viewProfileButton)}" 
+						tabindex="${getTabIndex(this.viewProfileButton)}"
+						@click="${() => this._onViewProfileClick()}">
+							<capitec-content-box 
+								class="view-Document-box" 
+								layout="vertical" 
+								halign="center" 
+								valign="top" 
+								gap="clear">
+									<capitec-icon 
+										size="small" 
+										icon="system/profile">
+									</capitec-icon>
+									<capitec-label label="View profile"></capitec-label>
+							</capitec-content-box>
+					</capitec-button>
 
-		<capitec-button class="document-button" ?hidden="${this.isDocumentButtonHidden}"
-			.disabled="${isDisabled(this.documentsButton)}" tabindex="${getTabIndex(this.documentsButton)}"
-			@click=${() => this._onDocumentClick()}>
-			<capitec-content-box class="view-Document-box" layout="vertical" halign="center" valign="top" gap="clear">
-				<capitec-icon size="small" icon="system/documents"></capitec-icon>
-				<capitec-label label="Document"></capitec-label>
-			</capitec-content-box>
-		</capitec-button>
-	</div>
-</capitec-content-box>`;
+					<capitec-button 
+						class="document-button" 
+						?hidden="${this.isDocumentButtonHidden}"
+						.disabled="${isDisabled(this.documentsButton)}" 
+						tabindex="${getTabIndex(this.documentsButton)}"
+						@click=${() => this._onDocumentClick()}>
+							<capitec-content-box 
+								class="view-Document-box" 
+								layout="vertical" 
+								halign="center" 
+								valign="top" 
+								gap="clear">
+									<capitec-icon 
+										size="small" 
+										icon="system/documents">
+									</capitec-icon>
+									<capitec-label label="Document"></capitec-label>
+							</capitec-content-box>
+					</capitec-button>
+				</div>
+			</capitec-content-box>`;
 	}
 
 	renderBanner() {
-		if (this.clientType === `verified-existing-client` || this.clientType === `verified-prospective`) {
-			return html``;
-		}
-		if (this.clientType === `unverified-existing-client` || this.clientType === `unverified-prospective`) {
-			return html`
+		switch (this.clientType) {
+			case `unverified-existing-client`:
+			case `unverified-prospective`:
+				return html`
 				<capitec-alert-banner class="client-profile-alert" type="warning-trans">
 					Client has not been verified
 					<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
 					</capitec-hyperlink>
 				</capitec-alert-banner>
 				`;
+			case `verified-existing-client`:
+			case `verified-prospective`:
+			case `non-client:`:
+				return html``;
+			default:
+				return html``;
 		}
+		
 
 		// This is to handle banner on 'Verification failed' screen, Once the screen is ready, this snippet helps to dispaly the banner. 
 		/* if (this.clientType == 'verificationFailed') {

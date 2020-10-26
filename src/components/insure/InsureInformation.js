@@ -126,19 +126,7 @@ export class InsureInformation extends Component {
 				{
 					clientType: this.displayMode,
 					isProfileButtonVisible: false,
-					isDocumentsButtonVisible: false,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `Active`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
+					isDocumentsButtonVisible: false
 				}
 			);
 
