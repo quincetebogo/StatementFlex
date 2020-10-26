@@ -1,6 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import 'platform/components/popups/Modal';
-export class DesktopAgentNotFound extends Component {
+
+/**
+ * A 404 error dialgo that Horizon can display when a resource/service cannot be found
+ *
+ * @export
+ * @class Error404
+ * @extends {Component}
+ */
+export class Error404 extends Component {
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -9,39 +17,13 @@ export class DesktopAgentNotFound extends Component {
 	}
 
 	// --------------
-	// PROPERTIES
-	// --------------
-	static get properties() {
-		return {
-
-		};
-	}
-
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
-	async connectedCallback() {
-		super.connectedCallback();
-	}
-
-	// --------------
 	// EVENT HANDLERS
 	// --------------
 	_onTryAgain() {
 		console.log(`dispatch new event`);
-		this.dispatchEvent(new CustomEvent(`on-click`, {
+		this.dispatchEvent(new CustomEvent(`click`, {
 			detail: {}
 		}));
-	}
-
-	// --------------
-	// PUBLIC METHODS
-	// --------------
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -119,12 +101,5 @@ export class DesktopAgentNotFound extends Component {
 		</capitec-button>
 		`;
 	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
 }
-window.customElements.define(`horizon-desktop-error`, DesktopAgentNotFound);
+window.customElements.define(`horizon-error-404`, Error404);

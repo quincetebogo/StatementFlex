@@ -17,9 +17,9 @@ import 'app/components/landingPage/LandingPageWaitForCall';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/dialogs/common/SearchCaller';
+import 'app/components/dialogs/common/Error404';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/stopCard/AssignStopCard';
-import 'app/components/dialogs/DesktopAgentNotFound';
 
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
@@ -406,9 +406,9 @@ export class LandingPage extends View {
 	_renderStartAgentPrompt() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
-				<horizon-desktop-error 
-					@on-click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
-				</horizon-desktop-error>
+				<horizon-error-404 
+					@click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
+				</horizon-error-404>
 			`;
 		}
 	}
