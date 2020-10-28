@@ -83,7 +83,7 @@ export class CallHandleService extends ServiceBase {
 	 * 
 	 * @param { object } details An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @returns {Promise|ReturnValue} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
 	endCall(details, errorHandler = null) {

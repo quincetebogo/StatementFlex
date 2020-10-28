@@ -13,10 +13,10 @@ import 'platform/components/data/Table';
 import 'platform/components/layouts/Spacer';
 import 'platform/components/core/Icon';
 
-import 'app/components/dialogs/AddCallerDetails';
-import 'app/components/dialogs/EndCallSession';
-import 'app/components/dialogs/stopCard/SearchClientDetails'; // TODO: Remove direct access to stop card dialog
-import 'app/components/dialogs/insure/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
+import 'app/components/dialogs/common/AddCallerDetails';
+import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
+import 'app/components/dialogs/common/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -172,19 +172,6 @@ export class ConfirmCallerDetails extends Component {
 		} else {
 			// TODO: Handle Identify Caller failing
 		}
-	}
-
-	_onCallCancelled(event) {
-		this.dispatchEvent(new CustomEvent(
-			`call-ended`,
-			{
-				detail: {
-					incidentReferenceNumber: this.incidentReferenceNumber,
-					incidentRecId: this.incidentRecId,
-					endCallReason: event.detail.endCallReason
-				}
-			}
-		));
 	}
 
 	_onIdentifiedClient(data) {
@@ -570,7 +557,6 @@ export class ConfirmCallerDetails extends Component {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
 				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
 			</horizon-add-caller>`;
 	}
@@ -578,33 +564,28 @@ export class ConfirmCallerDetails extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@on-cancel="${() => {
-				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-			}}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderSearchCallerModal() {
 		return html`
-			<horizon-search-client
+			<horizon-stop-card-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-search-client>`;
+				@on-client-identified="${(data) => this._onIdentifiedClient(data)}">
+			</horizon-stop-card-search-caller>`;
 	}
 
 	renderInsureSearchCallerModal() {
 		return html`
-			<horizon-insure-search-client
+			<horizon-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
-				@non-client-captured="${data => this._onNonClientCaptured(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-insure-search-client>`;
+				@non-client-captured="${data => this._onNonClientCaptured(data)}">
+			</horizon-search-caller>`;
 	}
 
 	renderVerifyCallerModal() {
@@ -618,4 +599,4 @@ export class ConfirmCallerDetails extends Component {
 
 }
 
-window.customElements.define(`horizon-confirm-caller`, ConfirmCallerDetails);
+window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

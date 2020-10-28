@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 const RENDER_MODE = {
 	HOW_TO_CLAIM: 0
@@ -20,7 +20,7 @@ export class HowToClaim extends Component {
 	// EVENT HANDLERS
 
 	_back() {
-		this.dispatchEvent(new CustomEvent('close-solution', {}));
+		this.dispatchEvent(new CustomEvent(`close-solution`, {}));
 	}
 
 	// ---------
@@ -160,7 +160,8 @@ export class HowToClaim extends Component {
 				margin: 5px 10px 5px 5px; 
 			}
 
-		`];
+		`
+];
 	}
 
 	_mobileTemplate() {
@@ -170,7 +171,7 @@ export class HowToClaim extends Component {
 		return html`
 			<capitec-card class="howtoclaim-info">
 				<capitec-title-bar type="insure">
-					<img class="left-arrow-icon" src="../images/insure/left-arrow.svg" @click="${() => this._back()}"/>
+					<img class="left-arrow-icon" src="/images/insure/left-arrow.svg" @click="${() => this._back()}"/>
 					<capitec-label label="How to Claim" type="title"></capitec-label>
 				</capitec-title-bar>
 
@@ -229,4 +230,4 @@ export class HowToClaim extends Component {
 	}
 }
 
-window.customElements.define(`insure-how-to-claim`, HowToClaim);
+window.customElements.define(`horizon-how-to-claim`, HowToClaim);

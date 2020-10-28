@@ -75,6 +75,7 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.currentStatus = `success`;
 		this.currentMessage = ``;
+		this.onboardModal = false;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
@@ -96,7 +97,8 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			currentView: { type: String },
 			currentStatus: { type: String },
-			currentMessage: { type: String }
+			currentMessage: { type: String },
+			onboardModal: { type: Boolean }
 		};
 	}
 
@@ -335,7 +337,7 @@ export class AppShell extends Shell {
 		}
 
 		return html`         
-                <div class="screen-size">
+				<div class="screen-size">
 					${this.horizonViewManager.renderTopBar(this.currentView)}
 
                 	<capitec-content-box class="screen-content" nopadding>
@@ -344,7 +346,7 @@ export class AppShell extends Shell {
 							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">
-								<capitec-app-router></capitec-app-router> 
+								<capitec-app-router></capitec-app-router>
 							</div>
 							<div class="right">
 								${this.horizonViewManager.renderRightBar(this.currentView)}

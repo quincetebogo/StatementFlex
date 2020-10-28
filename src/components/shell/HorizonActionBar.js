@@ -147,7 +147,7 @@ export class HorizonActionBar extends Component {
 						value="${this.clientNeed}">
 					</horizon-label>
 					<div class="vertical-line"></div>
-					<img class="end-call-icon" src="../../images/incoming-call.svg"/>
+					<img class="end-call-icon" src="/images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
 						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
@@ -163,7 +163,7 @@ export class HorizonActionBar extends Component {
 					<capitec-button type="clear" label="Handoff"></capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">
-						<img class="end-call-icon" src="../../images/hangup.svg"/>
+						<img class="end-call-icon" src="/images/hangup.svg"/>
 					</capitec-button>
 				</capitec-group>
 			</capitec-title-bar>

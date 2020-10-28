@@ -52,17 +52,17 @@ export class AssignReasonSelected extends Component {
 		switch (this.selectedReason) {
 			case `0`:
 				this.assignDialogDetails.dialogHeader = `Assign - System Error`;
-				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-system-error.svg`;
+				this.assignDialogDetails.dialogImage = `/images/insure/assign-system-error.svg`;
 				this.assignDialogDetails.dialogText = `System error occurred. Assign to the relevant team for assistance.`;
 				break;
 			case `1`:
 				this.assignDialogDetails.dialogHeader = `Assign - Pay Arrears`;
-				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-pay-arrears.svg`;
+				this.assignDialogDetails.dialogImage = `/images/insure/assign-pay-arrears.svg`;
 				this.assignDialogDetails.dialogText = `Client has been informed that they are not in arrears`;
 				break;
 			case `2`:
 				this.assignDialogDetails.dialogHeader = `Assign - Refund`;
-				this.assignDialogDetails.dialogImage = `../../../images/insure/assign-refund.svg`;
+				this.assignDialogDetails.dialogImage = `/images/insure/assign-refund.svg`;
 				this.assignDialogDetails.dialogText = `System error occurred. Assign to the relevant team for assistance.`;
 				break;
 			default:

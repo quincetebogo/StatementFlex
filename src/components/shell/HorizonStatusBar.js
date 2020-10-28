@@ -115,19 +115,19 @@ export class HorizonStatusBar extends Component {
 				<capitec-group class="status-bar-icon-group" layout="horizontal" halign="right" valign="center" gap="clear">
 				<div class="status-bar-icon" column="1" row="1">
 					<a href="${this.sblLink}" target="_blank">
-						<img src="../images/statusBar/SBL.svg" alt=""/>
+						<img src="/images/statusBar/SBL.svg" alt=""/>
 					</a>
 					<capitec-label class="icon-caption" label="SBL"></capitec-label>
 				</div>
 				<div class="status-bar-icon" column="2" row="1">
 					<a href="${this.cdsLink}" target="_blank">
-						<img src="../images/statusBar/CDS.svg" alt=""/>
+						<img src="/images/statusBar/CDS.svg" alt=""/>
 					</a>
 					<capitec-label class="icon-caption" label="CDS"></capitec-label>
 				</div>
 				<div class="status-bar-icon" column="3" row="1">
 					<a href="${this.cnetLink}" target="_blank">
-						<img id="image" src="../images/statusBar/C-Net.svg" alt=""/>
+						<img id="image" src="/images/statusBar/C-Net.svg" alt=""/>
 					</a>
 					<capitec-label class="icon-caption" label="C-Net"></capitec-label>
 				</div>

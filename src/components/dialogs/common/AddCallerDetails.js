@@ -1,8 +1,3 @@
-/**
- * Add Caller Details is used to record the information of a non-Capitec client calling into the contact centre.
- * This component is currently shared between the Stop Card and Insure Needs.
- */
-
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
@@ -10,7 +5,7 @@ import { CardService } from 'app/services/CardService';
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonCallerInfoBar';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	ADD_CALLER: 0,
@@ -29,6 +24,15 @@ const REGEX_CELLPHONE = {
 	ERR_MESSAGE: `Incorrect cellphone number`
 };
 
+/**
+/**
+ * Add Caller Details is used to record the information of a non-Capitec client calling into the contact centre.
+ * This component is invoked from the Confirm Caller Details Dialog
+ * 
+ * @export
+ * @class AddCallerDetails
+ * @extends {Component}
+ */
 export class AddCallerDetails extends Component {
 
 	// --------------
@@ -177,15 +181,6 @@ export class AddCallerDetails extends Component {
 			}
 		}));
 	};
-
-	onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent(`call-ended`, {
-			detail: {
-				confirmedCaller: {},
-				endCallReason: reason.detail.endCallReason
-			}
-		}));
-	}
 
 	_onIvrOptionChanged(e) {
 		this.addCallerDialog.ivrOption.value = e.detail.new;
@@ -426,8 +421,7 @@ export class AddCallerDetails extends Component {
 
 	renderEndCallModal() {
 		return html`<horizon-end-call-session 
-						@on-cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
-						@on-reason-set="${(reason) => this.onCallCancelled(reason)}"
+						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
 						.incomingCallDetails = "${this.incomingCallDetails}">
 					</horizon-end-call-session>`;
 	}

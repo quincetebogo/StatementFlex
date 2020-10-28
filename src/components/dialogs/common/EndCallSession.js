@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -25,6 +27,8 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
@@ -32,6 +36,13 @@ export class EndCallSession extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 *
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof EndCallSession
+	 */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
@@ -66,16 +77,31 @@ export class EndCallSession extends Component {
 	// --------------
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_onReasonSelected() {
-		this.dispatchEvent(new CustomEvent(`on-reason-set`, { detail: { endCallReason: this.endCallReason } }));
+	async _onReasonSelected() {
+		const callToEnd = {
+			incidentRecId: this.incomingCallDetails.incidentRecId,  
+			endCallReason: {
+				key: this.endCallReason.key
+			}
+		};
+
+		const returnValue = await this.callHandleService.endCall(callToEnd, null);
+
+		if (!returnValue.succeeded) {
+			// TODO: Handle end call failing
+		}
+
+		const state = { callStatus: `CALL-ENDED` };
+		this.horizonStore.setState(state);
+		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_onValueChanged(e) {
 		if (e.detail.new) {
-			this.endCallReason = this.endCallReasons.find(reason => reason.key == e.detail.key);
+			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
 		}
 	}
 

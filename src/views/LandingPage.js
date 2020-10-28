@@ -1,8 +1,3 @@
-/**
- * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
- * This is the only page that can accept an incoming call. On completing the handling of a call
- * the user interface must be returned to this page in order top accept a new call.
- */
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
@@ -19,10 +14,12 @@ import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 import 'platform/components/buttons/Button';
 
 import 'app/components/landingPage/LandingPageWaitForCall';
-import 'app/components/dialogs/ConfirmCallerDetails';
-import 'app/components/dialogs/stopCard/SearchClientDetails';
-import 'app/components/dialogs/AssignStopCard';
-import 'app/components/dialogs/insure/SearchCaller';
+
+import 'app/components/dialogs/common/ConfirmCallerDetails';
+import 'app/components/dialogs/common/SearchCaller';
+import 'app/components/dialogs/common/Error404';
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
+import 'app/components/dialogs/stopCard/AssignStopCard';
 
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
@@ -32,6 +29,15 @@ const RENDER_MODE = {
 	INSURE_SEARCH_CALLER: 3
 };
 
+/**
+ * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
+ * This is the only page that can accept an incoming call. On completing the handling of a call
+ * the user interface must be returned to this page in order top accept a new call.
+ *
+ * @export
+ * @class LandingPage
+ * @extends {View}
+ */
 export class LandingPage extends View {
 
 	// --------------
@@ -41,7 +47,6 @@ export class LandingPage extends View {
 		super();
 
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.renderDialog = 0;
 		this.isBusy = false;
 		this.errorHandled = false;
 
@@ -60,6 +65,17 @@ export class LandingPage extends View {
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
 		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._onPromptStartDesktopAgent());
+
+		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
+			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
+			if (this.callStatus === `CALL-ENDED`) {
+				this.horizonStore.eraseState();
+				this.callStatus = `WAITING-FOR-CALL`;
+				this.horizonStore.setState({ callStatus: this.callStatus });
+				this.desktopAgentService.callComplete();
+				this.renderMode = RENDER_MODE.PAGE_ONLY;
+			}
+		});
 	}
 
 	// ----------
@@ -73,8 +89,7 @@ export class LandingPage extends View {
 			isBusy: { type: Boolean },
 			incomingTelephoneNumber: { type: String },
 			voiceReferenceNumber: { type: String },
-			ivrOption: { type: String },
-			renderDialog: { type: Number }
+			ivrOption: { type: String }
 		};
 	}
 
@@ -89,6 +104,11 @@ export class LandingPage extends View {
 
 		// Notify the desktop agent service that we are now on the landing page and can therefore handle an incoming call
 		this.eventAggregator.publish(`landing-page-loaded`, {});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.callStatusSubscription.unsubscribe();
 	}
 
 	// --------------
@@ -147,11 +167,15 @@ export class LandingPage extends View {
 	}
 
 	_dispatchCall(acceptedCall, newCallInfo) {
+		this.callStatus = `CALL-IN-PROGRESS`;
+		const state = { callStatus: this.callStatus };
+		this.horizonStore.saveState(state);
+
 		this.incomingCallDetails = new IncomingCallDetails();
 		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
-			case `Insure`: 
+			case `Insure`:
 				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -163,7 +187,7 @@ export class LandingPage extends View {
 					this.confirmedCaller = acceptedCall;
 					this.unVerifiedCaller = null;
 				} else {
-				   this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 				}
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
@@ -229,18 +253,6 @@ export class LandingPage extends View {
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
 		this.horizonRouter.navigateToStopCard();
-	}
-
-	async _onCallEnded(data) {
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		const returnValue = await this.callHandleService.endCall(data.detail);
-
-		if (!returnValue.succeeded) {
-		// TODO: Consider how to recover if the web service call fails. Should this call perhaps be in the end call modal after all
-		}
-
-		this.desktopAgentService.callComplete();
-		this.horizonStore.eraseState();
 	}
 
 	// --------------
@@ -326,7 +338,8 @@ export class LandingPage extends View {
 				.wait-for-call{
 					width:100%;
 					height:100%;
-				}`
+				}
+				`
 		];
 	}
 
@@ -360,13 +373,12 @@ export class LandingPage extends View {
 	_renderConfirmedUser() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
-				<horizon-confirm-caller 
+				<horizon-confirm-caller-details 
 					.confirmedCaller="${this.confirmedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
-					@call-ended="${(data) => this._onCallEnded(data)}"
 					@non-client-captured=${event => this._onNonClientCaptured(event)}>
-				</horizon-confirm-caller>`;
+				</horizon-confirm-caller-details>`;
 		}
 	}
 
@@ -374,39 +386,29 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for stop card`);
 			return html`
-				<horizon-search-client 
+				<horizon-stop-card-search-caller 
 					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${async (data) => this._onCallEnded(data)}">
-				</horizon-search-client>`;
+					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+				</horizon-stop-card-search-caller>`;
 		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
 			return html`
-				<horizon-insure-search-client 
-					.unverifiedCaller="${this.unVerifiedCaller}"
+				<horizon-search-caller .unverifiedCaller="${this.unVerifiedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}"
-					@call-ended="${(data) => this._onCallEnded(data)}">  
-				</horizon-insure-search-client>`;
+					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+				</horizon-search-caller>`;
 		}
 	}
 
 	_renderStartAgentPrompt() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
-				<capitec-modal type="result" result="error" header="Error">
-					<div slot="body">
-						Cannot connect to Desktop Agent Service!
-					</div>
-					<capitec-button 
-						slot="footer" 
-						type="clear" 
-						label="Retry" @click=${() => this.renderMode = RENDER_MODE.PAGE_ONLY}>
-					</capitec-button>
-				</capitec-modal>
+				<horizon-error-404 
+					@click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
+				</horizon-error-404>
 			`;
 		}
 	}

@@ -6,6 +6,11 @@ export class LandingPageWaitForCall extends Component {
 		super();
 	}
 
+	static get properties() {
+		return {
+		};
+	}
+
 	static get styles() {
 		return [
 			super.styles,
@@ -51,7 +56,7 @@ export class LandingPageWaitForCall extends Component {
 				text-align: center;
 				}
 			`
-];
+		];
 	}
 
 
@@ -68,7 +73,7 @@ export class LandingPageWaitForCall extends Component {
 
 	renderWaitingForCall() {
 		return html`
-			<img src="../images/landingPageImages/Client_First.svg" class="needimage" />
+			<img src="/images/landingPageImages/Client_First.svg" class="needimage" />
 			<capitec-label id="waiting-text" type="title" label="Waiting for your next call..."></capitec-label>
 			<capitec-label id="please-wait-text" type="default" label="Please wait while we connect you to your next caller">
 			</capitec-label>

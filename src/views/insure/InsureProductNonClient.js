@@ -3,7 +3,7 @@ import { View, css, html } from 'platform/elements';
 import 'app/components/insure/InsureInformation';
 
 /**
- * The Insure view for a non-client. Only information about insurance productw will be accessible.
+ * The Insure view for a non-client. Only information about insurance products will be accessible.
  *
  * @export
  * @class InsureProductNonClient
@@ -23,7 +23,7 @@ export class InsureProductNonClient extends View {
 			.non-client-benefits{
 				width:100%;
 				height:100%;
-			}					
+			}
 			`
 ];
 	}

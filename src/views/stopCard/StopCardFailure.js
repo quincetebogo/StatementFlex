@@ -1,12 +1,10 @@
 import { View, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
 import { CardService } from 'app/services/CardService';
-import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/insure/AssignReasonDialog';
 import 'app/components/dialogs/insure/AssignReasonSelected';
 
@@ -32,11 +30,9 @@ export class StopCardFailure extends View {
 		super();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.cardsToStop = [];
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 
 		this.displayNotification = true;
 		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
@@ -130,28 +126,6 @@ export class StopCardFailure extends View {
 			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
 			this.horizonRouter.navigateToStoppedCards();
 		}
-	}
-
-	async _onCallComplete(reason) {
-		// Clear any state and return to landing page.
-		this.horizonStore.saveState({});
-
-		const callToEnd = {
-			incidentRecId: this.callerInfo.incidentRecId, 
-			endCallReason: {
-				key: reason.detail.endCallReason.key
-			}
-		};
-
-		const returnValue = await this.callHandleService.endCall(callToEnd, null);
-
-		if (!returnValue.succeeded) {
-			// TODO: Handle endCallFailing
-		};
-
-		this.desktopAgentService.callComplete();
-
-		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_onHandOff(e) {
@@ -323,7 +297,8 @@ export class StopCardFailure extends View {
 					text-align: center;
 					margin: 15px 0px 0px 0px;
 				}
-			`];
+			`
+		];
 	}
 
 	_mobileTemplate() {
@@ -358,6 +333,8 @@ export class StopCardFailure extends View {
 						${this._renderGraphicInProgress()}
 					</capitec-card>
 				`;
+			default:
+				return html``;
 		}
 	}
 
@@ -386,7 +363,7 @@ export class StopCardFailure extends View {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" src="../../images/cardStop/network-error.svg"/>`;
+		return html`<img class="card-image" src="/images/cardStop/network-error.svg"/>`;
 	}
 
 	_renderStoppedCards() {
@@ -447,8 +424,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.ENDCALL) {
 			return html`
 			<horizon-end-call-session
-				@on-cancel="${() => this.renderDialog = -1}"
-				@on-reason-set="${(reason) => this._onCallComplete(reason)}"
+				@cancel="${() => this.renderDialog = -1}"
 				.incomingCallDetails = "${this.callerInfo}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
@@ -496,8 +472,8 @@ export class StopCardFailure extends View {
 	}
 
 	_renderGraphicInProgress() {
-		return html`<img class="card-image-inprogress" src="../../images/cardStop/in-progress.svg"/>`;
+		return html`<img class="card-image-inprogress" src="/images/cardStop/in-progress.svg"/>`;
 	}
 }
 
-customElements.define(`horizon-summary-failure`, StopCardFailure);
+customElements.define(`horizon-stop-card-failure`, StopCardFailure);

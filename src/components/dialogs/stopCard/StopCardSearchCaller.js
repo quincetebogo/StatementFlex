@@ -10,12 +10,12 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
-import 'app/components/dialogs/ConfirmCallerDetails';
+import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
-import 'app/components/dialogs/insure/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
+import 'app/components/dialogs/common/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
 
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/EndCallSession';
+import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	SEARCH_CALLER: 0,
@@ -58,7 +58,7 @@ const REGEX_PATTERNS = {
 	}
 };
 
-export class SearchClientDetailsComponent extends Component {
+export class StopCardSearchCaller extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -193,16 +193,6 @@ export class SearchClientDetailsComponent extends Component {
 				return true;
 			}
 		}
-	}
-
-	_onCallCancelled(reason) {
-		this.dispatchEvent(new CustomEvent(`call-ended`, {
-			detail: {
-				unverifiedCaller: {},
-				incidentRecId: this.incidentRecId,
-				endCallReason: reason.detail.endCallReason
-			}
-		}));
 	}
 
 	_onNeedChanged(e) {
@@ -497,22 +487,20 @@ export class SearchClientDetailsComponent extends Component {
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
-				@on-cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" 
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {
 		return html`
-			<horizon-insure-search-client 
+			<horizon-search-caller 
 				.unverifiedCaller="${this.unverifiedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}"
-				@call-ended="${(data) => this._onCallCancelled(data)}">
-			</horizon-insure-search-client>`;
+				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
+			</horizon-search-caller>`;
 	}
 }
 
-window.customElements.define(`horizon-search-client`, SearchClientDetailsComponent);
+window.customElements.define(`horizon-stop-card-search-caller`, StopCardSearchCaller);
