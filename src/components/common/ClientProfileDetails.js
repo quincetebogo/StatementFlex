@@ -183,8 +183,8 @@ export class ClientProfileDetails extends Component {
 				flex-direction: row;
 			}
 			.client-img{
-				width: 160px;
-				height: 160px;
+				width: 158px;
+				height: 158px;
 				padding: 55px 55px 55px 55px;
 				margin: 0px;
 				background-color: #F7F7F7;
@@ -198,14 +198,14 @@ export class ClientProfileDetails extends Component {
 				color: #003652;
 			}
 			capitec-group > capitec-label:first-child {
-				height: 28px;
+				height: 24px;
+				line-height: 24px;
 				width: auto;
 				color: #3E4547;
 				font-family: "Hind Vadodara";
-				font-size: 20px;
+				font-size: 18px;
 				font-weight: 600;
 				letter-spacing: 0;
-				line-height: 28px;
 				margin-bottom: 8px;
 			}
 			capitec-group > span {
@@ -218,7 +218,7 @@ export class ClientProfileDetails extends Component {
 				height: 20px;
 				color: #545D60;
 				font-family: "Hind Vadodara";
-				font-size: 16px;
+				font-size: 14px;
 				letter-spacing: 0;
 				font-weight: normal;
 			}
@@ -227,7 +227,7 @@ export class ClientProfileDetails extends Component {
 				height: 20px;
 				color: #545D60;
 				font-family: "Hind Vadodara";
-				font-size: 16px;
+				font-size: 14px;
 				letter-spacing: 0;
 				font-weight: 600;
 			}
@@ -454,7 +454,7 @@ export class ClientProfileDetails extends Component {
 
 	renderBanner() {
 		switch (this.clientType) {
-			case `unverified-existing-client`:
+			case `unverified-existing-client`: // banner checked
 			case `unverified-prospective`:
 				return html`
 				<capitec-alert-banner class="client-profile-alert" type="warning-trans">

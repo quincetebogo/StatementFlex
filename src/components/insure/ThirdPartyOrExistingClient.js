@@ -450,11 +450,6 @@ export class ThirdPartyOrExistingClient extends Component {
 	                                @close-solution="${() => this.solutionSelected = ``}">
                                 </horizon-pay-arrears>`;
 
-				case SOLUTION_SET.HOW_TO_CLAIM:
-                    return html`<horizon-how-to-claim
-                                    @close-solution="${() => this.solutionSelected = ``}">
-                                </horizon-how-to-claim>`;
-
 				case SOLUTION_SET.EMAIL_PLAN:
                     return html`<horizon-email-plan
                                     @solution-provided="${() => this.solutionSelected = ``}"

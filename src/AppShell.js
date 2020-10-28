@@ -178,10 +178,6 @@ export class AppShell extends Shell {
 		this.isAuthenticating = false;
 	}
 
-	_toggleOnBoard() {
-		this.onboardModal = !this.onboardModal;
-	}
-
 	_onNavigationContextUpdated() {
 		const nextView = this.horizonViewManager.getCurrentView();
 		if (nextView !== this.currentView) {
