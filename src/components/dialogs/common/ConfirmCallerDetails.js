@@ -16,7 +16,7 @@ import 'platform/components/core/Icon';
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
-import 'app/components/dialogs/common/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
+import 'app/components/dialogs/common/VerifyCaller'; 
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -32,9 +32,9 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
 	END_CALL: 2,
-	SEARCH_CALLER: 3,
-	INSURE_SEARCH_CALLER: 4,
-	INSURE_VERIFY_CALLER: 5
+	STOP_CARD_SEARCH_CALLER: 3,
+	SEARCH_CALLER: 4,
+	VERIFY_CALLER: 5
 };
 
 const HEADER_LABEL = `Confirm Caller Details`;
@@ -125,15 +125,11 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this._fetchInsureDetails(); // TODO: We go to verify caller if need is not Stop Card. This should not be tied to insure
-		} else {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._fetchClientCards();
+		} else {
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
-	}
-
-	_fetchInsureDetails() {
-		this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
 	}
 
 	async _fetchClientCards() {
@@ -204,9 +200,9 @@ export class ConfirmCallerDetails extends Component {
 	_onSearchClick() {
 
 		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
-		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		} else {
+			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 		}
 	}
 	
@@ -214,6 +210,7 @@ export class ConfirmCallerDetails extends Component {
 		const confirmedCaller = {
 			fullName: this.callerFullName.value,
 			idNumber: this.southAfricanIDNumber.value,
+			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			birthdate: this.birthdate.value
 		};
@@ -430,13 +427,13 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
 
+			case RENDER_MODE.STOP_CARD_SEARCH_CALLER:
+				return html`${this.renderStopCardSearchModal()}`;
+
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`${this.renderSearchCallerModal()}`;
+				return html`${this.renderSearchModal()}`;
 
-			case RENDER_MODE.INSURE_SEARCH_CALLER:
-				return html`${this.renderInsureSearchCallerModal()}`;
-
-			case RENDER_MODE.INSURE_VERIFY_CALLER:
+			case RENDER_MODE.VERIFY_CALLER:
 				return html`${this.renderVerifyCallerModal()}`;
 			default:
 				return html``;
@@ -569,7 +566,7 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-end-call-session>`;
 	}
 
-	renderSearchCallerModal() {
+	renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"
@@ -578,7 +575,7 @@ export class ConfirmCallerDetails extends Component {
 			</horizon-stop-card-search-caller>`;
 	}
 
-	renderInsureSearchCallerModal() {
+	renderSearchModal() {
 		return html`
 			<horizon-search-caller
 				.unverifiedCaller="${this.confirmedCaller}"

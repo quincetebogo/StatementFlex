@@ -29,7 +29,7 @@ export default horizonRoutes = [
 		title: `LandingPageView`,
 		icon: null,
 		path: HORIZON_ROUTES.LANDING_PAGE,
-		load: () => import(`../views/LandingPage`),
+		load: () => import(`../views/waitingForCall/LandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		},

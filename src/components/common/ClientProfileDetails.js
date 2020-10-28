@@ -121,7 +121,7 @@ export class ClientProfileDetails extends Component {
 	}
 
 	_onVerifyNowClick() {
-		this.EventAggregator.publish(`verify-now-click`, {});
+		this.EventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
 	_replaceEmptyValue(value) {

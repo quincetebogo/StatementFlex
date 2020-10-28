@@ -10,6 +10,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/EndCallSession';
 
+import 'app/components/dialogs/insure/CalculatePremium';
 import 'app/components/dialogs/insure/NonAdvisoryDisclaimer';
 import 'app/components/dialogs/insure/SolutionViewPlan';
 import 'app/components/dialogs/insure/ChooseAnUpdateOption';
@@ -35,7 +36,8 @@ const RENDER_MODE = {
 	DISCLAIMER: 1,
 	ASSIGN: 2,
 	END_CALL: 3,
-	VERIFY_NOW: 4
+	VERIFY_NOW: 4,
+	CALCULATE_PREMIUM: 5
 };
 
 /**
@@ -104,7 +106,7 @@ export class ThirdPartyOrExistingClient extends Component {
 				name: this.unverifiedCaller.fullName,
 				idNumber: this.unverifiedCaller.idNumber,
 				phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-				livesIn: ``,
+				livesIn: this.unverifiedCaller.livesIn,
 				languagePreference: ``,
 				birthday: this.unverifiedCaller.birthdate,
 				isConfirmed: true
@@ -166,6 +168,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
 	}
 
 	// ---------------
@@ -217,6 +220,19 @@ export class ThirdPartyOrExistingClient extends Component {
 	_onSkipVerification(e) {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.solutionSelected = ``;
+	}
+
+	_onCalculatePremium() {
+		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
+	}
+
+	_onCalculatedPremium(e) {
+		if (e.detail.assign) {
+			this.selectedAssignReason = e.detail.assignReason;
+			this.renderMode = RENDER_MODE.ASSIGN;
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
 	}
 
 
@@ -322,6 +338,9 @@ export class ThirdPartyOrExistingClient extends Component {
 								<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 								<capitec-label label="Insure" type="title"></capitec-label>
 								<capitec-spacer></capitec-spacer>
+								<capitec-button class="calculate-button" type="white" label="Calculate Premium"
+									@click="${() => this._onCalculatePremium()}">
+								</capitec-button>
 							</capitec-title-bar>
 							<capitec-content-box class="${this.clientType === `verified-existing-client` ? `verified-existing-client-cb` : `third-party-client-cb`}">
 								${this._render3rdPartyAlertBanner()}
@@ -337,6 +356,7 @@ export class ThirdPartyOrExistingClient extends Component {
 						</capitec-card>
 						${this._renderVerifiedToast()}
 						${this._renderUnverifiedToast()}
+						${this._renderCalculatePremium()}
 						${this._renderDislaimer()}
 						${this._renderSolutionDialog()}
 						${this._renderEndCallSessionDialog()}
@@ -397,9 +417,12 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderUnverifiedExistingClientAlert() {
 		if (this.clientType === `unverified-existing-client`) {
 			return html`
-				<capitec-alert-banner type="warning" closable>
+				<capitec-alert-banner type="warning">
 					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink label="Verify Now"></capitec-hyperlink>
+					<capitec-hyperlink 
+						label="Verify Now"
+						@click="${() => this._onVerifyNowClick()}">
+					</capitec-hyperlink>
 				</capitec-alert-banner>
 			`;
 		}
@@ -515,6 +538,19 @@ export class ThirdPartyOrExistingClient extends Component {
 		}
 		return html``;
 	}
+
+	_renderCalculatePremium() {
+		if (this.renderMode === RENDER_MODE.CALCULATE_PREMIUM) {
+			return html`
+				<horizon-calculate-premium 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@done="${(e) => this._onCalculatedPremium(e)}">
+				</horizon-calculate-premium>`;
+		}
+		return html``;
+	}
+
 
 }
 

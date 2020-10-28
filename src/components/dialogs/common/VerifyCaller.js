@@ -39,18 +39,6 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": `1`,
-				"value": `Stop Card`
-			},
-			{
-				"key": `2`,
-				"value": `Insure`
-			}
-		];
-
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -75,6 +63,7 @@ export class VerifyCaller extends Component {
 
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.posssibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;

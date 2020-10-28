@@ -178,7 +178,7 @@ export class InsureInformation extends Component {
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`verify-now-click`, () => this._onVerifyNowClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -921,7 +921,7 @@ export class InsureInformation extends Component {
 		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.displayNotification) {
 			return html`
 				${this._renderUnverifiedToast()}
-				<capitec-alert-banner class="unverfied-caller-alert" type="warning" closable @click="${() => this._onCloseClick()}">
+				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink href="#" label="Verify Now">
 					</capitec-hyperlink>
