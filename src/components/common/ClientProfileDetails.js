@@ -457,7 +457,7 @@ export class ClientProfileDetails extends Component {
 			case `unverified-existing-client`: // banner checked
 			case `unverified-prospective`:
 				return html`
-				<capitec-alert-banner class="client-profile-alert" type="warning-trans">
+				<capitec-alert-banner class="client-profile-alert" type="warning">
 					Client has not been verified
 					<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
 					</capitec-hyperlink>
