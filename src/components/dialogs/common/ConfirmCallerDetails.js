@@ -222,7 +222,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// TODO: Still need to determine if client has insure products or not
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToInsureUnverifiedExistingClient();
+		this.horizonRouter.navigateToInsureVerifiedExistingClient();
 	}
 
 	// --------------

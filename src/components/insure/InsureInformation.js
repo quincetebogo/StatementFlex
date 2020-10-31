@@ -109,7 +109,7 @@ export class InsureInformation extends Component {
 			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 
 			this.eventAggregator.publish(
-				`mini-client-profile`,
+				`horizon-update-mini--profile`,
 				{
 					name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
 					idNumber: ``,
@@ -117,16 +117,15 @@ export class InsureInformation extends Component {
 					livesIn: ``,
 					languagePreference: ``,
 					birthday: ``,
-					isConfirmed: false
+					isConfirmed: false,
+					showButtons: false
 				}
 			);
 
 			this.eventAggregator.publish(
 				`horizon-update-left-hand-bar`,
 				{
-					clientType: this.displayMode,
-					isProfileButtonVisible: false,
-					isDocumentsButtonVisible: false
+					clientType: this.displayMode
 				}
 			);
 
@@ -135,8 +134,6 @@ export class InsureInformation extends Component {
 				`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
-					isProfileButtonVisible: false,
-					isDocumentsButtonVisible: false,
 					subtitle: {
 						savingsAccount: `Active`,
 						savingsPlan: `Active`,
@@ -157,8 +154,6 @@ export class InsureInformation extends Component {
 				`horizon-update-left-hand-bar`,
 				{
 					clientType: this.displayMode,
-					isProfileButtonVisible: true,
-					isDocumentsButtonVisible: true,
 					subtitle: {
 						savingsAccount: `Active`,
 						savingsPlan: `Active`,

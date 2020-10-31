@@ -16,7 +16,7 @@ import { Component, css, html } from 'platform/elements';
  * **Events**
  * - ```click``` When the button is clicked.
  */
-export class HorizonOptionButton extends Component {
+export class OptionButton extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -135,4 +135,4 @@ export class HorizonOptionButton extends Component {
 	}
 }
 
-window.customElements.define(`horizon-option-button`, HorizonOptionButton);
+window.customElements.define(`horizon-option-button`, OptionButton);

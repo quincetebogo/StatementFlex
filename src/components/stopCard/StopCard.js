@@ -150,7 +150,7 @@ export class StopCard extends Component {
 		);
 
 		this.eventAggregator.publish(
-			`mini-client-profile`,
+			`horizon-update-mini-profile`,
 			{
 				name: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.name.value,
 				idNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
@@ -158,7 +158,8 @@ export class StopCard extends Component {
 				livesIn: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
 				languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
 				birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-				isConfirmed: true
+				isConfirmed: true,
+				showButtons: false
 			}
 		);
 

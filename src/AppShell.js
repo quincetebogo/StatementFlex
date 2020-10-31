@@ -75,7 +75,6 @@ export class AppShell extends Shell {
 		this.applicationVersion = null;
 		this.currentStatus = `success`;
 		this.currentMessage = ``;
-		this.onboardModal = false;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
@@ -97,8 +96,7 @@ export class AppShell extends Shell {
 			applicationVersion: { type: String },
 			currentView: { type: String },
 			currentStatus: { type: String },
-			currentMessage: { type: String },
-			onboardModal: { type: Boolean }
+			currentMessage: { type: String }
 		};
 	}
 
@@ -110,14 +108,7 @@ export class AppShell extends Shell {
 		super.connectedCallback();
 
 		// Subscribe to store.
-		this._appStoreSub = this._appStore.stateChanged.subscribe(state => {
-
-		 	if (!state) {
-		 		return;
-		 	}
-
-		 	this.isBusy = state.isBusy;
-		 });
+		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._restoreState(state));
 
 		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
@@ -200,9 +191,16 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
-	navigate(path) {
-		this._router.navigateByPath(`/${path}`);
-	}
+	_restoreState() {
+
+		/* Restore application state here
+
+		if (!state) {
+			return;
+		}
+
+		*/ 
+	};
 
 	// ---------
 	// RENDERING

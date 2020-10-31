@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/OptionButton';
 
 import 'app/components/insure/InsureHowToClaim';
 
@@ -101,7 +101,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		this.unverifiedCaller = state.unverifiedCaller;
 
 		this.eventAggregator.publish(
-			`mini-client-profile`,
+			`horizon-update-mini-profile`,
 			{
 				name: this.unverifiedCaller.fullName,
 				idNumber: this.unverifiedCaller.idNumber,
@@ -109,7 +109,8 @@ export class ThirdPartyOrExistingClient extends Component {
 				livesIn: this.unverifiedCaller.livesIn,
 				languagePreference: ``,
 				birthday: this.unverifiedCaller.birthdate,
-				isConfirmed: true
+				isConfirmed: true,
+				showButtons: false
 			}
 		);
 		
@@ -443,6 +444,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
     _renderSolutionDialog() {
 
+		/*
 		if (this.clientType === `unverified-existing-client` && this.solutionSelected) {
 			return html`
 				<horizon-client-not-verified 
@@ -451,46 +453,46 @@ export class ThirdPartyOrExistingClient extends Component {
 				</horizon-client-not-verified>
 			`;
 		}
+		*/
 		
-			switch (this.solutionSelected) {
-				case SOLUTION_SET.VIEW_PLAN:
-				case SOLUTION_SET.VIEW_STATUS:
-                    return html`<horizon-view-plan
+		switch (this.solutionSelected) {
+			case SOLUTION_SET.VIEW_PLAN:
+			case SOLUTION_SET.VIEW_STATUS:
+                return html`<horizon-view-plan
                                     @solution-provided="${() => this.solutionSelected = ``}"
 	                                @close-solution="${() => this.solutionSelected = ``}"
                                     clientType = "${this.clientType}">
                                 </horizon-view-plan>`;
 
-				case SOLUTION_SET.UPDATE_PLAN:
-                    return html`<horizon-choose-update-option
+			case SOLUTION_SET.UPDATE_PLAN:
+                return html`<horizon-choose-update-option
                                     @solution-provided="${() => this.solutionSelected = ``}"
 	                                @close-solution="${() => this.solutionSelected = ``}">
                                 </horizon-choose-update-option>`;
 
-				case SOLUTION_SET.PAY_ARREARS:
-                    return html`<horizon-pay-arrears
+			case SOLUTION_SET.PAY_ARREARS:
+                return html`<horizon-pay-arrears
                                     @solution-provided="${() => this.solutionSelected = ``}"
 	                                @close-solution="${() => this.solutionSelected = ``}">
                                 </horizon-pay-arrears>`;
 
-				case SOLUTION_SET.EMAIL_PLAN:
-                    return html`<horizon-email-plan
+			case SOLUTION_SET.EMAIL_PLAN:
+                return html`<horizon-email-plan
                                     @solution-provided="${() => this.solutionSelected = ``}"
 	                                @close-solution="${() => this.solutionSelected = ``}">
                                 </horizon-email-plan>`;
 
-				case SOLUTION_SET.BENEFITS:
-					return html``;
+			case SOLUTION_SET.BENEFITS:
+				return html``;
 
-				case SOLUTION_SET.CANCEL_PLAN:
-                    return html`<horizon-cancel-plan
+			case SOLUTION_SET.CANCEL_PLAN:
+                return html`<horizon-cancel-plan
                                     @solution-provided="${() => this.solutionSelected = ``}"
 	                                @close-solution="${() => this.solutionSelected = ``}">
                                 </horizon-cancel-plan>`;
-
-				default:
-					return html``;
-			}
+			default:
+				return html``;
+		}
 		
 	}
 
