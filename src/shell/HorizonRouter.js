@@ -10,15 +10,18 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	CLIENT_PROFILE_PAGE: `/client/profile`,
-	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
-	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
+	CARD_STOP_VERIFIED_PAGE: `/card-stop/verified`,
+	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
+	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
+	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_NONCLIENT: `/insure/non-client`,
 	INSURE_VERIFIED_PROSPECTIVE: `/insure/prospective-verified`,
 	INSURE_UNVERIFIED_PROSPECTIVE: `/insure/prospective-unverified`,
 	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client-verified`,
 	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client-unverified`,
-	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party-client`
+	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party`,
+	TRANSACT_FAVOURITES_VERIFIED_PAGE: `/transact/favourites-verified`,
+	TRANSACT_FAVOURITES_UNVERIFIED_PAGE: `/transact/favourites-unverified`
 };
 
 let horizonRoutes = [];
@@ -140,7 +143,7 @@ export default horizonRoutes = [
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
-		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
+		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
@@ -150,7 +153,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-success`,
 		title: `StopCard`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
+		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
@@ -160,7 +163,7 @@ export default horizonRoutes = [
 		name: `horizon-stop-card-failure`,
 		title: `StopCardFail`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
+		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
@@ -197,6 +200,7 @@ export default horizonRoutes = [
 		}
 	}
 ];
+
 export class HorizonRouter {
 
 	constructor() {
@@ -246,15 +250,15 @@ export class HorizonRouter {
 	}
 
 	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CLIENT_PROFILE_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
 	}
 
 	navigateToStoppedCards() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
 	}
 
 	navigateToStopCardFailed() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
 	}
 
 	navigateToInsureNonClient() {

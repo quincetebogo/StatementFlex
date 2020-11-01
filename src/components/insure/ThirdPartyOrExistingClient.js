@@ -100,27 +100,24 @@ export class ThirdPartyOrExistingClient extends Component {
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.unverifiedCaller = state.unverifiedCaller;
 
-		this.eventAggregator.publish(
-			`horizon-update-mini-profile`,
-			{
-				name: this.unverifiedCaller.fullName,
-				idNumber: this.unverifiedCaller.idNumber,
-				phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-				livesIn: this.unverifiedCaller.livesIn,
-				languagePreference: ``,
-				birthday: this.unverifiedCaller.birthdate,
-				isConfirmed: true,
-				showButtons: false
-			}
-		);
-		
-		if (this.clientType === `unverified-existing-client`) {
-			this.eventAggregator.publish(
-				`horizon-update-left-hand-bar`,
-				{
+		switch (this.clientType) {
+		   case `third-party-client`: 
+				this.eventAggregator.publish(`horizon-update-mini-profile`, {
+					name: this.unverifiedCaller.fullName,
+					idNumber: this.unverifiedCaller.idNumber,
+					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+					livesIn: this.unverifiedCaller.livesIn,
+					languagePreference: ``,
+					birthday: this.unverifiedCaller.birthdate,
+					isConfirmed: true,
+					isVerified: false,
+					verificationFailed: false,
+					is3rdParty: true
+				});
+				break;
+			case `unverified-existing-client`:
+				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
 					clientType: this.clientType,
-					isProfileButtonVisible: false,
-					isDocumentsButtonVisible: false,
 					subtitle: {
 						savingsAccount: `Active`,
 						savingsPlan: `Active`,
@@ -133,12 +130,10 @@ export class ThirdPartyOrExistingClient extends Component {
 						insure: ``,
 						credit: ``
 					}
-				}
-			);
-		} else if (this.clientType === `verified-existing-client`) {
-			this.eventAggregator.publish(
-				`horizon-update-left-hand-bar`,
-				{
+				});
+				break;
+			case `verified-existing-client`:
+				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
 					clientType: this.clientType,
 					isProfileButtonVisible: true,
 					isDocumentsButtonVisible: true,
@@ -154,8 +149,10 @@ export class ThirdPartyOrExistingClient extends Component {
 						insure: ``,
 						credit: ``
 					}
-				}
-			);
+				});
+				break;
+			default: 
+				// Do nothing. Thi should never happen
 		};
 
 		this.eventAggregator.publish(

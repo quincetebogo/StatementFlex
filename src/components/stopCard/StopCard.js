@@ -149,9 +149,7 @@ export class StopCard extends Component {
 			}
 		);
 
-		this.eventAggregator.publish(
-			`horizon-update-mini-profile`,
-			{
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
 				name: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.name.value,
 				idNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
 				phoneNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
@@ -159,9 +157,10 @@ export class StopCard extends Component {
 				languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
 				birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
 				isConfirmed: true,
-				showButtons: false
-			}
-		);
+				isVerified: false,
+				verificationFailed: false,
+				is3rdParty: false
+			});
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,

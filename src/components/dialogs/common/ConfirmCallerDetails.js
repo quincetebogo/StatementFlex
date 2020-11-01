@@ -106,8 +106,8 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService.addCallerDetails(this.addCallerDetails, null);
-		this.addCallerDetails = this.cardService.result;
+		const returnValue = await this.cardService.addCallerDetails(callDetails, null);
+		this.addCallerDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
@@ -549,13 +549,13 @@ export class ConfirmCallerDetails extends Component {
 
 	renderAddCallerDetailsModal() {
 		return html`
-			<horizon-add-caller
+			<horizon-add-caller-details
 				.confirmedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
 				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
-			</horizon-add-caller>`;
+			</horizon-add-caller-details>`;
 	}
 
 	renderEndCallModal() {

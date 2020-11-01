@@ -105,31 +105,40 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.displayMode === `non-client`) {
-			this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
+		switch (this.displayMode) {
+			case `non-client`:
+				this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 
-			this.eventAggregator.publish(
-				`horizon-update-mini--profile`,
-				{
-					name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
-					idNumber: ``,
-					phoneNumber: this.nonClient.cellphone,
-					livesIn: ``,
-					languagePreference: ``,
-					birthday: ``,
-					isConfirmed: false,
-					showButtons: false
-				}
-			);
+				this.eventAggregator.publish(
+					`horizon-update-mini-profile`,
+					{
+						name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
+						idNumber: ``,
+						phoneNumber: this.nonClient.cellphone,
+						livesIn: ``,
+						languagePreference: ``,
+						birthday: ``,
+						isConfirmed: false,
+						isVerified: false,
+						verificationFailed: false,
+						is3rdParty: false
+	
+					}
+				);
+		
+				this.eventAggregator.publish(
+					`horizon-update-left-hand-bar`,
+					{
+						clientType: this.displayMode
+					}
+				);
+			break;
 
-			this.eventAggregator.publish(
-				`horizon-update-left-hand-bar`,
-				{
-					clientType: this.displayMode
-				}
-			);
+			default:
 
-		} else if (this.displayMode === `unverified-prospective`) {
+		}
+
+		if (this.displayMode === `unverified-prospective`) {
 			this.eventAggregator.publish(
 				`horizon-update-left-hand-bar`,
 				{
