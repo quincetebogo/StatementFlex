@@ -121,8 +121,8 @@ export class InsureInformation extends Component {
 						isConfirmed: false,
 						isVerified: false,
 						verificationFailed: false,
-						is3rdParty: false
-	
+						is3rdParty: false,
+						isNonClient: true
 					}
 				);
 		

@@ -215,14 +215,16 @@ export class ConfirmCallerDetails extends Component {
 			birthdate: this.birthdate.value
 		};
 
-		const state = {
-			unverifiedCaller: confirmedCaller,
-			incomingCallDetails: this.incomingCallDetails
-		};
 
-		// TODO: Still need to determine if client has insure products or not
-		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToInsureVerifiedExistingClient();
+		if (this.ivrOption.value === `Insure`) {
+			// TODO: Still need to determine if client has insure products or not
+			const state = {
+				unverifiedCaller: confirmedCaller,
+				incomingCallDetails: this.incomingCallDetails
+			};
+			this.horizonStore.saveState(state);
+			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
+		}
 	}
 
 	// --------------

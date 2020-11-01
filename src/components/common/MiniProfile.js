@@ -23,7 +23,8 @@ export class MiniProfile extends Component {
 			isConfirmed: false,
 			isVerified: false,
 			verificationFailed: false,
-			is3rdParty: false
+			is3rdParty: false,
+			isNonClient: false
 		};
 	}
 
@@ -59,7 +60,8 @@ export class MiniProfile extends Component {
 			isConfirmed: profile.isConfirmed,
 			isVerified: profile.isVerified,
 			verificationFailed: profile.verificationFailed,
-			is3rdParty: profile.is3rdParty
+			is3rdParty: profile.is3rdParty,
+			isNonClient: profile.isNonClient
 		};
 	}
 
@@ -340,9 +342,7 @@ export class MiniProfile extends Component {
 	}
 
 	_renderBanner() {
-		if (this.miniProfile.isVerified) {
-			return html``;
-		} else if (!this.miniProfile.isVerified && !this.miniProfile.is3rdParty) {
+		if (this.miniProfile.isVerified || this.miniProfile.isNonClient) {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`

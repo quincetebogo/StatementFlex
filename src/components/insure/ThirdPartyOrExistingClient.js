@@ -112,24 +112,23 @@ export class ThirdPartyOrExistingClient extends Component {
 					isConfirmed: true,
 					isVerified: false,
 					verificationFailed: false,
-					is3rdParty: true
+					is3rdParty: true,
+					isNonClient: false
 				});
 				break;
 			case `unverified-existing-client`:
-				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-					clientType: this.clientType,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `Active`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
+				this.eventAggregator.publish(`horizon-update-mini-profile`, {
+					name: this.unverifiedCaller.fullName,
+					idNumber: this.unverifiedCaller.idNumber,
+					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+					livesIn: this.unverifiedCaller.livesIn,
+					languagePreference: ``,
+					birthday: this.unverifiedCaller.birthdate,
+					isConfirmed: true,
+					isVerified: false,
+					verificationFailed: false,
+					is3rdParty: false,
+					isNonClient: false
 				});
 				break;
 			case `verified-existing-client`:
