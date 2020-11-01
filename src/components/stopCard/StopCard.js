@@ -165,14 +165,12 @@ export class StopCard extends Component {
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
-				clientType: `unverified-existing-client`,
-				isProfileButtonVisible: false,
-				isDocumentsButtonVisible: false,
+				hasFavourites: true,
 				subtitle: {
-					savingsAccount: `Active`,
-					savingsPlan: `Active`,
-					insure: `Active`,
-					credit: `Rethink credit, realise dreams`
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
 				},
 				detail: {
 					savingsAccount: ``,

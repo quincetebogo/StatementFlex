@@ -23,18 +23,36 @@ export class ProfileAndProductSummaryBar extends Component {
 	constructor() {
 		super();
 
-		this.EventAggregator = EventAggregator.getInstance();
-		
-		this.clientType = ``;
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.miniProfile = null;
+		this.disableNavigation = true;
+		this.hasFavourites = false;
+		this.subtitle = {};
+		this.detail = null;
+
+		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this.miniProfile = miniProfile);
+		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
 
+	/**
+	 *
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof ProfileAndProductSummaryBar
+	 */
 	static get properties() {
 		return {
-			clientType: { type: String }
+			miniProfile: { type: Object },
+			disableNavigation: { type: Boolean },
+			hasFavourites: { type: Boolean },
+			subtitle: { type: Object },
+			detail: { type: Object }
 		};
 	}
 
@@ -44,11 +62,18 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 	}
 
 	// ---------
 	// EVENTS
 	// ---------
+
+	_onUpdatePageDetails(buttonConfig) {
+		this.hasFavourites = buttonConfig.hasFavourites;
+		this.subtitle = buttonConfig.subtitle;
+		this.detail = buttonConfig.detail;
+	}
 
 	// --------- 
 	// PRIVATE
@@ -76,13 +101,29 @@ export class ProfileAndProductSummaryBar extends Component {
 		];
 	}
 
-	render() {
+	_webTemplate() {
 		return html`
 		<section class="left-card">
-		 	<horizon-mini-profile></horizon-mini-profile>
-			 <horizon-favourites-tile class="favourites-button" label="Favourites" subtitle="Transact, dispute, cards and more"></horizon-favourites-tile>
-			<horizon-product-bar ?disablenavigation=${true}></horizon-product-bar>
+		 	<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
+			 ${this._renderFavourites()}
+			<horizon-product-button-panel 
+				.subtitle="${this.subtitle}"
+				.detail="${this.detail}"
+				?disablenavigation=${true}>
+			</horizon-product-button-panel>
 		</section>`;
+	}
+
+	_renderFavourites() {
+		if (this.hasFavourites) {
+			return html`
+				<horizon-favourites-tile 
+					class="favourites-button" 
+					label="Favourites" 
+					subtitle="Transact, dispute, cards and more">
+				</horizon-favourites-tile>`;
+		};
+		return html``;
 	}
 }
 

@@ -146,7 +146,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{

@@ -109,9 +109,7 @@ export class InsureInformation extends Component {
 			case `non-client`:
 				this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
 
-				this.eventAggregator.publish(
-					`horizon-update-mini-profile`,
-					{
+				this.eventAggregator.publish(`horizon-update-mini-profile`, {
 						name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
 						idNumber: ``,
 						phoneNumber: this.nonClient.cellphone,
@@ -123,15 +121,23 @@ export class InsureInformation extends Component {
 						verificationFailed: false,
 						is3rdParty: false,
 						isNonClient: true
-					}
-				);
+					});
 		
-				this.eventAggregator.publish(
-					`horizon-update-left-hand-bar`,
-					{
-						clientType: this.displayMode
-					}
-				);
+				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+						hasFavourites: true,
+						subtitle: {
+							savingsAccount: ``,
+							savingsPlan: ``,
+							insure: ``,
+							credit: ``
+						},
+						detail: {
+							savingsAccount: ``,
+							savingsPlan: ``,
+							insure: ``,
+							credit: ``
+						}
+					});
 			break;
 
 			default:

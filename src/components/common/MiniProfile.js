@@ -1,8 +1,16 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
 
 import 'app/components/common/OptionButton';
 
+/**
+ * A component for displaying a mini-client profile. This component also displays buttons and 
+ * banners that vary according according ot the state of the incoming caller 
+ * (verified, unverified, failed verification, third party, non-client etc.)
+ *
+ * @export
+ * @class MiniProfile
+ * @extends {Component}
+ */
 export class MiniProfile extends Component {
 
 	// INITIALISATION
@@ -10,8 +18,6 @@ export class MiniProfile extends Component {
 
 	constructor() {
 		super();
-
-		this.EventAggregator = EventAggregator.getInstance();
 
 		this.miniProfile = {
 			name: ``,
@@ -28,6 +34,13 @@ export class MiniProfile extends Component {
 		};
 	}
 
+	/**
+	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof MiniProfile
+	 */
 	static get properties() {
 		return {
 			miniProfile: { type: Object }
@@ -40,8 +53,6 @@ export class MiniProfile extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.EventAggregator.subscribe(`horizon-update-mini-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
 	}
 
 	// ---------
