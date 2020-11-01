@@ -21,7 +21,9 @@ export class MiniProfile extends Component {
 			languagePreference: ``,
 			birthday: ``,
 			isConfirmed: false,
-			showButtons: false
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false
 		};
 	}
 
@@ -55,20 +57,22 @@ export class MiniProfile extends Component {
 			languagePreference: profile.languagePreference,
 			birthday: profile.birthday,
 			isConfirmed: profile.isConfirmed,
-			showButtons: profile.showButtons
+			isVerified: profile.isVerified,
+			verificationFailed: profile.verificationFailed,
+			is3rdParty: profile.is3rdParty
 		};
 	}
 
 	_onDocumentClick() {
-		this.dispatchEvent(new CustomEvent(`document-click`, {
-			detail: {}
-		}));
+		this.EventAggregator.publish(`horizon-view-documents-click`, {});
 	}
 
 	_onViewProfileClick() {
-		this.dispatchEvent(new CustomEvent(`view-profile-click`, {
-			detail: {}
-		}));
+		this.EventAggregator.publish(`horizon-view-profile-click`, {});
+	}
+
+	_onVerifyNowClick() {
+		this.EventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
 	// --------- 
@@ -187,6 +191,38 @@ export class MiniProfile extends Component {
 				width: 195px;
 				float: right;
 			}
+			.client-profile-alert{
+				height: 48px;
+				background-color:#F9EBDD;
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 700;
+				letter-spacing: 0;
+				line-height: 23px;
+				--theme-icon-size-default: 20px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+			}
+			.client-profile-error{
+				height: 48px;
+				background-color: #F7E2E1;
+				color: rgb(200, 59, 55);
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 700;
+				letter-spacing: 0;
+				line-height: 21px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+			}
+			.verify-now-link{
+				--theme-hyperlink-color:#D4781C;
+			}
+			.verify-via-app-link{
+				padding-left:55px;
+				--theme-hyperlink-color: rgb(200, 59, 55);
+			}
 			`
 		];
 	}
@@ -202,6 +238,7 @@ export class MiniProfile extends Component {
 					${this._renderActionButtons()}
 				</capitec-group>
 			</capitec-card>
+			${this._renderBanner()}
 		`;
 	}
 
@@ -301,6 +338,37 @@ export class MiniProfile extends Component {
 			</capitec-content-box>
 		`;
 	}
+
+	_renderBanner() {
+		if (this.miniProfile.isVerified) {
+			return html``;
+		} else if (!this.miniProfile.isVerified && !this.miniProfile.is3rdParty) {
+			return html``;
+		} else if (this.miniProfile.is3rdParty) {
+			return html`
+			<capitec-alert-banner class="client-profile-alert" type="warning">
+				Client has not been verified
+				</capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+		} else if (this.miniProfile.verificationFailed) {
+			return html`
+			<capitec-alert-banner class="client-profile-error" type="error-trans">
+				Client failed security questions
+				<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
+					label="Verify via the app"></capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+		};
+
+		return html`
+			<capitec-alert-banner class="client-profile-alert" type="warning">
+				Client has not been verified
+				<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+				</capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+	} 
 }
 
 window.customElements.define(`horizon-mini-profile`, MiniProfile);
