@@ -54,11 +54,11 @@ export class CallHandleService extends ServiceBase {
 	 * @param {object} exception - The exception from the failing service call
 	 */
 
-	 /**
-	  * @typedef {Object} ReturnValue
-	  * @property {boolean} succeeded - Indicates if the service call succeeded
-	  * @property {object} result - The result of the service call if succeeded is true
-	  */
+	/**
+	 * @typedef {Object} ReturnValue
+	 * @property {boolean} succeeded - Indicates if the service call succeeded
+	 * @property {object} result - The result of the service call if succeeded is true
+	 */
 
 
 	/**
@@ -91,5 +91,9 @@ export class CallHandleService extends ServiceBase {
 		const endCallReasonKey = details.endCallReason.key;
 
 		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
+	}
+
+	XDS_Questions(clientID, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.XDS_Questions(clientID), errorHandler);
 	}
 }
