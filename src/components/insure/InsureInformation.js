@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, NavigationContext, Router } from 'platform/core';
+import { EventAggregator, Router } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/layouts/Layout';
@@ -49,9 +49,8 @@ export class InsureInformation extends Component {
 		super();
 		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-
-		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
 		this.horizonStore = HorizonStore.getInstance();
+		
 		this.benefitScreen = true;
 		this.coverScreen = false;
 		this.claimScreen = false;
@@ -76,6 +75,8 @@ export class InsureInformation extends Component {
 
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.nonClient = state.nonClient;
+		this.unverifiedCaller = state.unverifiedCaller;
+		this.verifiedCaller = state.verifiedCaller;
 	}
 
 	// ----------
@@ -107,83 +108,16 @@ export class InsureInformation extends Component {
 
 		switch (this.displayMode) {
 			case `non-client`:
-				this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
-
-				this.eventAggregator.publish(`horizon-update-mini-profile`, {
-						name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
-						idNumber: ``,
-						phoneNumber: this.nonClient.cellphone,
-						livesIn: ``,
-						languagePreference: ``,
-						birthday: ``,
-						isConfirmed: false,
-						isVerified: false,
-						verificationFailed: false,
-						is3rdParty: false,
-						isNonClient: true
-					});
-		
-				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-						hasFavourites: true,
-						subtitle: {
-							savingsAccount: ``,
-							savingsPlan: ``,
-							insure: ``,
-							credit: ``
-						},
-						detail: {
-							savingsAccount: ``,
-							savingsPlan: ``,
-							insure: ``,
-							credit: ``
-						}
-					});
+				this._configureForNonClient();
 			break;
-
+			case `unverified-prospective`:
+				this._configureForUnverifiedProspective();
+				break;
+			case `verified-prospective`: 
+				this._configureForVerifiedProspective();
+				break;
 			default:
-
-		}
-
-		if (this.displayMode === `unverified-prospective`) {
-			this.eventAggregator.publish(
-				`horizon-update-left-hand-bar`,
-				{
-					clientType: this.displayMode,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `One plan, more cover`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
-				}
-);
-			this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
-		} else if (this.displayMode === `verified-prospective`) {
-			this.eventAggregator.publish(
-				`horizon-update-left-hand-bar`,
-				{
-					clientType: this.displayMode,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `Active`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
-				}
-		);
-			this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
+				break;
 		}
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
@@ -214,15 +148,112 @@ export class InsureInformation extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
+	_configureForVerifiedProspective() {
+		this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
+
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: `${this.verifiedCaller.fullName}`,
+			idNumber: this.verifiedCaller.idNumber,
+			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+			livesIn: this.verifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.verifiedCaller.birthdate,
+			showButtons: true,
+			isConfirmed: true,
+			isVerified: true,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
+
+		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+			hasFavourites: false,
+			subtitle: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			},
+			detail: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			}
+		});
+	}
+
+	_configureForUnverifiedProspective() {
+		this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
+
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: `${this.unverifiedCaller.fullName}`,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
+
+		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+			hasFavourites: false,
+			subtitle: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			},
+			detail: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			}
+		});
+	}
+
+	_configureForNonClient() {
+		this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
+
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
+			idNumber: ``,
+			phoneNumber: this.nonClient.cellphone,
+			livesIn: ``,
+			languagePreference: ``,
+			birthday: ``,
+			isConfirmed: false,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: true
+		});
+
+		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+			hasFavourites: true,
+			subtitle: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			},
+			detail: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			}
+		});
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_onNavigationContextUpdated() {
-		// Access the current route's information and log its name, e.g. "screen-one"
-		console.log(`Current screen is [${NavigationContext.getInstance().current.route.name}]`);
-	};
-
 	_onCalculatePremium() {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}

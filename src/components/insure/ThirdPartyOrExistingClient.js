@@ -102,56 +102,16 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		switch (this.clientType) {
 		   case `third-party-client`: 
-				this.eventAggregator.publish(`horizon-update-mini-profile`, {
-					name: this.unverifiedCaller.fullName,
-					idNumber: this.unverifiedCaller.idNumber,
-					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-					livesIn: this.unverifiedCaller.livesIn,
-					languagePreference: ``,
-					birthday: this.unverifiedCaller.birthdate,
-					isConfirmed: true,
-					isVerified: false,
-					verificationFailed: false,
-					is3rdParty: true,
-					isNonClient: false
-				});
+				this._configureForThirdParty();
 				break;
 			case `unverified-existing-client`:
-				this.eventAggregator.publish(`horizon-update-mini-profile`, {
-					name: this.unverifiedCaller.fullName,
-					idNumber: this.unverifiedCaller.idNumber,
-					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-					livesIn: this.unverifiedCaller.livesIn,
-					languagePreference: ``,
-					birthday: this.unverifiedCaller.birthdate,
-					isConfirmed: true,
-					isVerified: false,
-					verificationFailed: false,
-					is3rdParty: false,
-					isNonClient: false
-				});
+				this._configureForUnverifiedExisting();
 				break;
 			case `verified-existing-client`:
-				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-					clientType: this.clientType,
-					isProfileButtonVisible: true,
-					isDocumentsButtonVisible: true,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `2 Funeral Plans`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
-				});
+				this._configureForVerifiedExisting();
 				break;
 			default: 
-				// Do nothing. Thi should never happen
+				break;
 		};
 
 		this.eventAggregator.publish(
@@ -174,6 +134,58 @@ export class ThirdPartyOrExistingClient extends Component {
 
 	_onToggleToastDisplay() {
 		this.displayToast = false;
+	}
+
+	_configureForVerifiedExisting() {
+		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+			clientType: this.clientType,
+			isProfileButtonVisible: true,
+			isDocumentsButtonVisible: true,
+			subtitle: {
+				savingsAccount: `Active`,
+				savingsPlan: `Active`,
+				insure: `2 Funeral Plans`,
+				credit: `Rethink credit, realise dreams`
+			},
+			detail: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			}
+		});
+	}
+
+	_configureForUnverifiedExisting() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
+	}
+
+	_configureForThirdParty() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: true,
+			isNonClient: false
+		});
 	}
 
 	// --------------

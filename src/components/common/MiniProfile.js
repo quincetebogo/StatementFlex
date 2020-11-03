@@ -26,6 +26,7 @@ export class MiniProfile extends Component {
 			livesIn: ``,
 			languagePreference: ``,
 			birthday: ``,
+			showButtons: false,
 			isConfirmed: false,
 			isVerified: false,
 			verificationFailed: false,
@@ -68,6 +69,7 @@ export class MiniProfile extends Component {
 			livesIn: profile.livesIn,
 			languagePreference: profile.languagePreference,
 			birthday: profile.birthday,
+			showButtons: profile.showButtons,
 			isConfirmed: profile.isConfirmed,
 			isVerified: profile.isVerified,
 			verificationFailed: profile.verificationFailed,
@@ -337,14 +339,14 @@ export class MiniProfile extends Component {
 					<horizon-option-button
 						class="view-button"
 						label="View profile"
-						icon="system/profile"
+						icon="system/profile-action"
 						@click="${() => this._onViewProfileClick()}">
 					</horizon-option-button>
 
 					<horizon-option-button
 						class="document-button"
 						label="Document"
-						icon="system/documents"
+						icon="system/documents-action"
 						@click=${() => this._onDocumentClick()}>
 					</horizon-option-button>
 				</capitec-group>
