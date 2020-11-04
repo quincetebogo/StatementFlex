@@ -296,6 +296,6 @@ export class HorizonRouter {
 	}
 
 	navigateToVerifiedFavourites() {
-		this.router.navigateByPath(HORIZON_ROUTES.HORIZON_ROUTES_TRANSACT_FAVOURITES_VERIFIED_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
 	}
 }

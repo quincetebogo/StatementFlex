@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-//Unverified client screen
+// Unverified client screen
 export class TransactionFavourites extends Component {
 
 	// --------------
@@ -14,6 +16,9 @@ export class TransactionFavourites extends Component {
 		this.cardOptionSelected = ``;
 		this.documentsOptions = [];
 		this.documentsOptionsSelected = ``;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------
@@ -27,7 +32,7 @@ export class TransactionFavourites extends Component {
 			cardOptionSelected: { type: String },
 			documentsOptions: { type: Array },
 			documentsOptionsSelected: { type: String }
-		}
+		};
 	}
 
 	// -------------------
