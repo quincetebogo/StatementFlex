@@ -37,6 +37,34 @@ export class TransactionFavourites extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		const state = this.horizonStore.recoverState();
+
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.unverifiedCaller = state.unverifiedCaller;
+		this.verifiedCaller = state.verifiedCaller;
+
+		this._configureForVerifiedExisting();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_configureForVerifiedExisting() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.verifiedCaller.fullName,
+			idNumber: this.verifiedCaller.idNumber,
+			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+			livesIn: this.verifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.verifiedCaller.birthdate,
+			showButtons: true,
+			isConfirmed: true,
+			isVerified: true,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
 	}
 
 	// --------------
