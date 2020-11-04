@@ -76,26 +76,30 @@ export class TransactionFavourites extends Component {
 			}
 			capitec-button-bar {
 				--buttonbar-align: left;
+				margin-top: 0px;
+				padding-top: 0px;
 			}
-			::slotted(capitec-label) {
-				height: 20px;
-				width: 69px;
-				font-family: "Hind Vadodara";
-				font-size: 16px;
-				font-weight: 500;
-				letter-spacing: 0;
-				line-height: 20px;
-				text-align: center;
-			}
-				
-			#button {
-				box-sizing: border-box;
+		
+			horizon-option-button {
 				height: 80px;
 				width: 188px;
+				box-sizing: border-box;
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
 				background-color: #FFFFFF;
-				--theme-button-clear-font-color: #545D60;
+				margin-top: 16px;
+
+				--theme-layout-gap-spacing: 24px;
+				--theme-button-default-border-width: 0px;
+				--theme-button-padding-top: 14.5px;
+				--theme-button-padding-bottom: 14.5px;
+
+				--horizon-option-btn-icon-height: 26px;
+				--horizon-option-btn-icon-width: 26px;
+				--horizon-option-btn-text-margin-top: 3px;
+				--horizon-option-btn-text-line-height: 20px;
+				--horizon-option-btn-text-font-weight: 500;
+				--horizon-option-btn-text-color: #545D60;
 			}
 			#label {
 				height: 20px;
@@ -151,9 +155,8 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="transact-group">
 							<capitec-button-bar>
-								<capitec-button id="button" class="debi-check-button" label="DebiCheck" type="clear">
-									<capitec-icon class="icon" size="small" icon="system/debi-check-action"></capitec-icon>
-								</capitec-button>
+								<horizon-option-button icon="system/debi-check-action" label="DebiCheck">
+								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					
@@ -162,9 +165,9 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="cards-group">
 							<capitec-button-bar>
-								<capitec-button id="button" label="Stop Card" type="clear"></capitec-button>
-								<capitec-button id="button" label="Update Card Limits" type="clear"></capitec-button>
-								<capitec-button id="button" label="Tap to Pay" type="clear"></capitec-button>
+								<horizon-option-button label="Stop Card" icon="system/stop-card-action"></horizon-option-button>
+								<horizon-option-button label="Update Card Limits" icon="system/cards-action"></horizon-option-button>
+								<horizon-option-button label="Tap to Pay" icon="system/contactless-action"></horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					
@@ -173,9 +176,9 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="documents-group" class="documents">
 							<capitec-button-bar>
-								<capitec-button id="button" label="Statements" type="clear"></capitec-button>
-								<capitec-button id="button" label="Tax Certificate" type="clear"></capitec-button>
-								<capitec-button id="button" label="Proof of Account" type="clear"></capitec-button>
+								<horizon-option-button label="Statements" icon="system/documents-action"></horizon-option-button>
+								<horizon-option-button label="Tax Certificate" icon="system/sars-action"></horizon-option-button>
+								<horizon-option-button label="Proof of Account" icon="system/documents-action"></horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					</capitec-card>
