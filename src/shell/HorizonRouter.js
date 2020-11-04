@@ -114,7 +114,7 @@ export default horizonRoutes = [
 		title: `InsureProductUnverifiedProspective`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
-		load: () => import(`../views/insure/UnverifiedProspective`),
+		load: () => import(`../views/insure/InsureUnverifiedProspective`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
@@ -146,7 +146,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
@@ -281,6 +281,14 @@ export class HorizonRouter {
 
 	navigateToInsureUnverifiedExistingClient() {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT);
+	}
+
+	navigateToInsureVerifiedProspectiveClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE);
+	}
+
+	navigateToInsureUnverifiedProspectiveClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE);
 	}
 
 	navigateToInsureThirdPartyClient() {

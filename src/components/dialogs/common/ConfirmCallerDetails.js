@@ -218,12 +218,14 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.ivrOption.value === `Insure`) {
 			// TODO: Still need to determine if client has insure products or not
+			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
 			const state = {
 				unverifiedCaller: confirmedCaller,
+				verifiedCaller: confirmedCaller,
 				incomingCallDetails: this.incomingCallDetails
 			};
 			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
+			this.horizonRouter.navigateToInsureVerifiedExistingClient();
 		}
 	}
 

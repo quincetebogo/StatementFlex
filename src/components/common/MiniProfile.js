@@ -1,8 +1,16 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
 
 import 'app/components/common/OptionButton';
 
+/**
+ * A component for displaying a mini-client profile. This component also displays buttons and 
+ * banners that vary according according ot the state of the incoming caller 
+ * (verified, unverified, failed verification, third party, non-client etc.)
+ *
+ * @export
+ * @class MiniProfile
+ * @extends {Component}
+ */
 export class MiniProfile extends Component {
 
 	// INITIALISATION
@@ -11,8 +19,6 @@ export class MiniProfile extends Component {
 	constructor() {
 		super();
 
-		this.EventAggregator = EventAggregator.getInstance();
-
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -20,6 +26,7 @@ export class MiniProfile extends Component {
 			livesIn: ``,
 			languagePreference: ``,
 			birthday: ``,
+			showButtons: false,
 			isConfirmed: false,
 			isVerified: false,
 			verificationFailed: false,
@@ -28,6 +35,13 @@ export class MiniProfile extends Component {
 		};
 	}
 
+	/**
+	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof MiniProfile
+	 */
 	static get properties() {
 		return {
 			miniProfile: { type: Object }
@@ -40,8 +54,6 @@ export class MiniProfile extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.EventAggregator.subscribe(`horizon-update-mini-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
 	}
 
 	// ---------
@@ -57,6 +69,7 @@ export class MiniProfile extends Component {
 			livesIn: profile.livesIn,
 			languagePreference: profile.languagePreference,
 			birthday: profile.birthday,
+			showButtons: profile.showButtons,
 			isConfirmed: profile.isConfirmed,
 			isVerified: profile.isVerified,
 			verificationFailed: profile.verificationFailed,
@@ -326,14 +339,14 @@ export class MiniProfile extends Component {
 					<horizon-option-button
 						class="view-button"
 						label="View profile"
-						icon="system/profile"
+						icon="system/profile-action"
 						@click="${() => this._onViewProfileClick()}">
 					</horizon-option-button>
 
 					<horizon-option-button
 						class="document-button"
 						label="Document"
-						icon="system/documents"
+						icon="system/documents-action"
 						@click=${() => this._onDocumentClick()}>
 					</horizon-option-button>
 				</capitec-group>

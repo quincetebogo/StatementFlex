@@ -99,59 +99,20 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.unverifiedCaller = state.unverifiedCaller;
+		this.verifiedCaller = state.verifiedCaller;
 
 		switch (this.clientType) {
 			case `third-party-client`:
-				this.eventAggregator.publish(`horizon-update-mini-profile`, {
-					name: this.unverifiedCaller.fullName,
-					idNumber: this.unverifiedCaller.idNumber,
-					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-					livesIn: this.unverifiedCaller.livesIn,
-					languagePreference: ``,
-					birthday: this.unverifiedCaller.birthdate,
-					isConfirmed: true,
-					isVerified: false,
-					verificationFailed: false,
-					is3rdParty: true,
-					isNonClient: false
-				});
+				this._configureForThirdParty();
 				break;
 			case `unverified-existing-client`:
-				this.eventAggregator.publish(`horizon-update-mini-profile`, {
-					name: this.unverifiedCaller.fullName,
-					idNumber: this.unverifiedCaller.idNumber,
-					phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-					livesIn: this.unverifiedCaller.livesIn,
-					languagePreference: ``,
-					birthday: this.unverifiedCaller.birthdate,
-					isConfirmed: true,
-					isVerified: false,
-					verificationFailed: false,
-					is3rdParty: false,
-					isNonClient: false
-				});
+				this._configureForUnverifiedExisting();
 				break;
 			case `verified-existing-client`:
-				this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-					clientType: this.clientType,
-					isProfileButtonVisible: true,
-					isDocumentsButtonVisible: true,
-					subtitle: {
-						savingsAccount: `Active`,
-						savingsPlan: `Active`,
-						insure: `2 Funeral Plans`,
-						credit: `Rethink credit, realise dreams`
-					},
-					detail: {
-						savingsAccount: ``,
-						savingsPlan: ``,
-						insure: ``,
-						credit: ``
-					}
-				});
+				this._configureForVerifiedExisting();
 				break;
 			default:
-			// Do nothing. Thi should never happen
+				break;
 		};
 
 		this.eventAggregator.publish(
@@ -174,6 +135,55 @@ export class ThirdPartyOrExistingClient extends Component {
 
 	_onToggleToastDisplay() {
 		this.displayToast = false;
+	}
+
+	_configureForVerifiedExisting() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.verifiedCaller.fullName,
+			idNumber: this.verifiedCaller.idNumber,
+			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+			livesIn: this.verifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.verifiedCaller.birthdate,
+			showButtons: true,
+			isConfirmed: true,
+			isVerified: true,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
+	}
+
+	_configureForUnverifiedExisting() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
+	}
+
+	_configureForThirdParty() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: true,
+			isNonClient: false
+		});
 	}
 
 	// --------------
@@ -484,7 +494,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
 			return html`
-				<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+				<horizon-insure-assign-reason @on-assign-reason=${(e)=> this._onAssignReasonSelected(e)}
 					@on-cancel=${() => this._onCancelSelectAssignReason()}>
 				</horizon-insure-assign-reason>`;
 		}
@@ -494,7 +504,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-reason-selected .selectedReason="${this.selectedAssignReason}" @on-cancel=${() => this._onCancelAssign()}
+				<horizon-assign-reason-selected .selectedReason="${this.selectedAssignReason}" @on-cancel=${()=> this._onCancelAssign()}
 					@on-assign=${() => this._onAssign()}>
 				</horizon-assign-reason-selected>`;
 		}
