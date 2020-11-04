@@ -70,6 +70,22 @@ export class TransactionFavourites extends Component {
 			is3rdParty: false,
 			isNonClient: false
 		});
+
+		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+			hasFavourites: true,
+			subtitle: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			},
+			detail: {
+				savingsAccount: ``,
+				savingsPlan: ``,
+				insure: ``,
+				credit: ``
+			}
+		});
 	}
 
 	// --------------
