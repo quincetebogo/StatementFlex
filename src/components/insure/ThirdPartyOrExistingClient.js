@@ -99,6 +99,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.unverifiedCaller = state.unverifiedCaller;
+		this.verifiedCaller = state.verifiedCaller;
 
 		switch (this.clientType) {
 		   case `third-party-client`: 
@@ -137,22 +138,19 @@ export class ThirdPartyOrExistingClient extends Component {
 	}
 
 	_configureForVerifiedExisting() {
-		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-			clientType: this.clientType,
-			isProfileButtonVisible: true,
-			isDocumentsButtonVisible: true,
-			subtitle: {
-				savingsAccount: `Active`,
-				savingsPlan: `Active`,
-				insure: `2 Funeral Plans`,
-				credit: `Rethink credit, realise dreams`
-			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			}
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.verifiedCaller.fullName,
+			idNumber: this.verifiedCaller.idNumber,
+			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+			livesIn: this.verifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.verifiedCaller.birthdate,
+			showButtons: true,
+			isConfirmed: true,
+			isVerified: true,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
 		});
 	}
 
