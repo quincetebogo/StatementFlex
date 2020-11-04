@@ -1,9 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/common/VerifyCallerSecurityQuestions';
 import 'app/components/dialogs/common/EndCallSession';
 
 
@@ -88,7 +87,7 @@ export class VerifyCallerFailed extends Component {
 	}
 
 	_skip() {
-		//TODO: Functionality to skip Security questions to be implemented here.
+		// TODO: Functionality to skip Security questions to be implemented here.
 	}
 
 	_onEndCall() {

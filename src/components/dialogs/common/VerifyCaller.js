@@ -3,7 +3,6 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/common/VerifyCallerSecurityQuestions';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/SecurityQuestionsDialog';
 
