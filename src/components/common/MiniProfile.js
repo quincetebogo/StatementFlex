@@ -197,14 +197,22 @@ export class MiniProfile extends Component {
 				padding-top: 0px;
 				padding-bottom:16px;
 			}
-			.view-button{
+			horizon-option-button {
 				height: 88px;
 				width: 198px;
-			}
-			.document-button{
-				height: 88px;
-				width: 195px;
-				float: right;
+				box-sizing: border-box;
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
+				background-color: #FFFFFF;
+
+				--theme-button-default-border-width: 0px; 
+
+				--horizon-option-btn-icon-height: 26px;
+				--horizon-option-btn-icon-width: 26px;
+				--horizon-option-btn-text-margin-top: 3px;
+				--horizon-option-btn-text-line-height: 20px;
+				--horizon-option-btn-text-font-weight: 500;
+				--horizon-option-btn-text-color: #545D60;
 			}
 			.client-profile-alert{
 				height: 48px;
