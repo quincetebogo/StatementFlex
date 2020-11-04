@@ -208,6 +208,16 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
+	},
+	{
+		name: `horizon-unverified-favourites`,
+		title: `FavouritesUnverified`,
+		icon: null,
+		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE,
+		load: () => import(`../views/quickTransact/FavouritesUnverified`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
 	}
 ];
 
@@ -297,5 +307,8 @@ export class HorizonRouter {
 
 	navigateToVerifiedFavourites() {
 		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
+	}
+	navigateToUnverifiedFavourites() {
+		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE);
 	}
 }

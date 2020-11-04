@@ -172,16 +172,6 @@ export class TransactionFavourites extends Component {
 				display: flex;
 			}
 
-			.icon {
-				display: inline-block;
-				flex-direction: column;
-				align-items: center;
-			}
-			.debi-check-button {
-				display: inline-block;
-				flex-direction: column;
-				align-items: center;
-			}
 			`
 		];
 	}
