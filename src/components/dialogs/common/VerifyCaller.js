@@ -243,6 +243,9 @@ export class VerifyCaller extends Component {
 					--horizon-option-btn-text-color: #3E4547;
 					--horizon-option-btn-text-font-weight: 600;
 				}
+				horizon-caller-dialog {
+					--horizon-modal-footer-padding: 0px;
+				}
 			`
 		];
 	}
@@ -273,7 +276,7 @@ export class VerifyCaller extends Component {
 
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-			default: 
+			default:
 				return html`Incorrect Render mode specified`;
 		}
 	}
