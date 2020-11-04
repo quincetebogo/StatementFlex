@@ -276,7 +276,7 @@ export class VerifyCallerFailed extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
