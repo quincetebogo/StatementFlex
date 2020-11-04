@@ -348,6 +348,7 @@ export class MiniProfile extends Component {
 						class="view-button"
 						label="View profile"
 						icon="system/profile-action"
+						iconSize="default"
 						@click="${() => this._onViewProfileClick()}">
 					</horizon-option-button>
 
@@ -355,6 +356,7 @@ export class MiniProfile extends Component {
 						class="document-button"
 						label="Document"
 						icon="system/documents-action"
+						iconSize="default"
 						@click=${() => this._onDocumentClick()}>
 					</horizon-option-button>
 				</capitec-group>

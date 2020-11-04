@@ -11,6 +11,9 @@ export class TransactionFavourites extends Component {
 
 	constructor() {
 		super();
+
+		console.log(`TransactionFavourites - constructor`);
+
 		this.clientType = ``;
 		this.cardOptions = [];
 		this.cardOptionSelected = ``;
@@ -19,6 +22,7 @@ export class TransactionFavourites extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.state = this.horizonStore.recoverState();
 	}
 
 	// --------------
@@ -42,11 +46,11 @@ export class TransactionFavourites extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		console.log(`TransactionFavourites - connectedCallback`);
 
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.unverifiedCaller = state.unverifiedCaller;
-		this.verifiedCaller = state.verifiedCaller;
+		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.unverifiedCaller = this.state.unverifiedCaller;
+		this.verifiedCaller = this.state.verifiedCaller;
 
 		this._configureForVerifiedExisting();
 	}
@@ -56,7 +60,7 @@ export class TransactionFavourites extends Component {
 	// ---------------
 
 	_configureForVerifiedExisting() {
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+		this.state.miniProfile = {
 			name: this.verifiedCaller.fullName,
 			idNumber: this.verifiedCaller.idNumber,
 			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
@@ -69,9 +73,9 @@ export class TransactionFavourites extends Component {
 			verificationFailed: false,
 			is3rdParty: false,
 			isNonClient: false
-		});
+		};
 
-		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
+		this.state.leftBarButtonConfig = {
 			hasFavourites: true,
 			subtitle: {
 				savingsAccount: ``,
@@ -85,7 +89,9 @@ export class TransactionFavourites extends Component {
 				insure: ``,
 				credit: ``
 			}
-		});
+		};
+
+		this.horizonStore.saveState(this.state);
 	}
 
 	// --------------
@@ -194,7 +200,7 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="transact-group">
 							<capitec-button-bar>
-								<horizon-option-button icon="system/debi-check-action" label="DebiCheck">
+								<horizon-option-button icon="system/debi-check-action" iconSize="default" label="DebiCheck">
 								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
@@ -204,9 +210,9 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="cards-group">
 							<capitec-button-bar>
-								<horizon-option-button label="Stop Card" icon="system/stop-card-action"></horizon-option-button>
-								<horizon-option-button label="Update Card Limits" icon="system/cards-action"></horizon-option-button>
-								<horizon-option-button label="Tap to Pay" icon="system/contactless-action"></horizon-option-button>
+								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"></horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					
@@ -215,9 +221,9 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="documents-group" class="documents">
 							<capitec-button-bar>
-								<horizon-option-button label="Statements" icon="system/documents-action"></horizon-option-button>
-								<horizon-option-button label="Tax Certificate" icon="system/sars-action"></horizon-option-button>
-								<horizon-option-button label="Proof of Account" icon="system/documents-action"></horizon-option-button>
+								<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"></horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					</capitec-card>

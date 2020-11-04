@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -20,18 +21,37 @@ export class ProfileAndProductSummaryBar extends Component {
 	// INITIALISATION
 	// --------------
 
-	constructor() {
+	constructor() {		
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
+		console.log(`ProfileAndProductSummaryBar - constructor`);
 
-		this.miniProfile = null;
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.miniProfile = {
+			name: ``,
+			idNumber: ``,
+			phoneNumber: ``,
+			livesIn: ``,
+			languagePreference: ``,
+			birthday: ``,
+			showButtons: false,
+			isConfirmed: false,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		};
+
 		this.disableNavigation = true;
 		this.hasFavourites = false;
 		this.subtitle = {};
 		this.detail = null;
 
-		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this.miniProfile = miniProfile);
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+
+		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
 		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
 	}
 
@@ -63,11 +83,30 @@ export class ProfileAndProductSummaryBar extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
 	}
 
 	// ---------
 	// EVENTS
 	// ---------
+
+	_stateChanged(state) {
+		if (state.miniProfile) {
+			this.miniProfile = state.miniProfile;
+		}
+
+		if (state.leftBarButtonConfig) {
+			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
+			this.subtitle = state.leftBarButtonConfig.subtitle;
+			this.detail = state.leftBarButtonConfig.detail;
+		}
+	}
+
+	_updateMiniProfile(miniProfile) {
+		if (miniProfile) {
+			this.miniProfile = miniProfile;
+		}
+	}
 
 	_onUpdatePageDetails(buttonConfig) {
 		this.hasFavourites = buttonConfig.hasFavourites;

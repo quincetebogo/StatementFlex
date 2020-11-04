@@ -308,6 +308,7 @@ export class HorizonRouter {
 	navigateToVerifiedFavourites() {
 		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
 	}
+	
 	navigateToUnverifiedFavourites() {
 		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE);
 	}
