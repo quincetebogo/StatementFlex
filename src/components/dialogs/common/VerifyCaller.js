@@ -48,8 +48,9 @@ export class VerifyCaller extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
+			renderMode: { type: Number },
 			timeLeft: { type: String },
 			notVerified: { type: Boolean }
 		};
@@ -267,6 +268,7 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
+									.unverifiedCaller="${this.unverifiedCaller}"
                                     @cancel="${() => this._onSecurityQuestionsCancel()}" 
                                     @skip="${() => this._skip()}">
                             </horizon-security-question>`;

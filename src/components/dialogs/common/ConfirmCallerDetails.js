@@ -215,17 +215,25 @@ export class ConfirmCallerDetails extends Component {
 			birthdate: this.birthdate.value
 		};
 
+		// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
+		const state = {
+			unverifiedCaller: confirmedCaller,
+			verifiedCaller: confirmedCaller,
+			incomingCallDetails: this.incomingCallDetails
+		};
 
-		if (this.ivrOption.value === `Insure`) {
+		this.horizonStore.saveState(state);
+
+		switch (this.ivrOption.value) {
+			case `Insure`: 
 			// TODO: Still need to determine if client has insure products or not
-			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
-			const state = {
-				unverifiedCaller: confirmedCaller,
-				verifiedCaller: confirmedCaller,
-				incomingCallDetails: this.incomingCallDetails
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToVerifiedFavourites();
+			this.horizonRouter.navigateToUnverifiedFavourites();
+//			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
+				break;
+			case `Transact`:
+				this.horizonRouter.navigateToUnverifiedFavourites();
+				break;
+			default:
 		}
 	}
 
@@ -590,9 +598,18 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	renderVerifyCallerModal() {
+		const unverifiedCaller = {
+			fullName: this.callerFullName.value,
+			idNumber: this.southAfricanIDNumber.value,
+			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
+			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+			birthdate: this.birthdate.value
+		};
+
 		return html`
 			<horizon-verify-caller
                 .incomingCallDetails="${this.incomingCallDetails}" 
+				.unverifiedCaller="${unverifiedCaller}"
                 @skip="${(e) => this._onSkipVerification(e)}"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>

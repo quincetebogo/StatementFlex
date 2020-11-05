@@ -2,7 +2,24 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-// Unverified client screen
+import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/VerifyCaller';
+
+const RENDER_MODE = {
+	MAIN_PAGE: 0,
+	END_CALL: 1,
+	SELECT_ASSIGN_REASON: 2,
+	ASSIGN: 3,
+	VERIFY_NOW: 4
+};
+
+/**
+ * This component implements the Favourites Landing Page for Quick Transactions
+ *
+ * @export
+ * @class TransactionFavourites
+ * @extends {Component}
+ */
 export class TransactionFavourites extends Component {
 
 	// --------------
@@ -11,8 +28,6 @@ export class TransactionFavourites extends Component {
 
 	constructor() {
 		super();
-
-		console.log(`TransactionFavourites - constructor`);
 
 		this.clientType = ``;
 		this.cardOptions = [];
@@ -23,6 +38,11 @@ export class TransactionFavourites extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.state = this.horizonStore.recoverState();
+		this.displayMode = ``;
+		this.displayToast = false;
+		this.isReassigned = false;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// --------------
@@ -35,7 +55,10 @@ export class TransactionFavourites extends Component {
 			cardOptions: { type: Array },
 			cardOptionSelected: { type: String },
 			documentsOptions: { type: Array },
-			documentsOptionsSelected: { type: String }
+			documentsOptionsSelected: { type: String },
+			displayMode: { type: String },
+			displayToast: { type: Boolean },
+			renderMode: { type: Number }
 		};
 	}
 
@@ -46,13 +69,33 @@ export class TransactionFavourites extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		console.log(`TransactionFavourites - connectedCallback`);
-
 		this.incomingCallDetails = this.state.incomingCallDetails;
 		this.unverifiedCaller = this.state.unverifiedCaller;
 		this.verifiedCaller = this.state.verifiedCaller;
 
-		this._configureForVerifiedExisting();
+		// this._configureForUnVerifiedClient();
+		if (this.displayMode === `favourites-verified`) {
+			this.displayToast = true;
+			window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+			this._configureForVerifiedExisting();
+		}
+
+		if (this.displayMode === `favourites-unverified`) {
+			this._configureForUnverifiedClient();
+		}
+
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
+
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
+			{
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
 	}
 
 	// ---------------
@@ -75,28 +118,50 @@ export class TransactionFavourites extends Component {
 			isNonClient: false
 		};
 
-		this.state.leftBarButtonConfig = {
-			hasFavourites: true,
-			subtitle: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			}
+		this.horizonStore.saveState(this.state);
+	}
+
+	_configureForUnverifiedClient() {
+		this.state.miniProfile = {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.unverifiedCaller.birthdate,
+			showButtons: false,
+			isConfirmed: true,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
 		};
 
 		this.horizonStore.saveState(this.state);
 	}
 
+	_onToggleToastDisplay() {
+		this.displayToast = false;
+	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
+	_onSkipVerification() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// ---------
 	// RENDERING
@@ -109,6 +174,17 @@ export class TransactionFavourites extends Component {
 			.card{
 				width:100%;
 				height:100%;
+			}
+
+			.favourites {
+				height: 32px;
+				width: 111px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 24px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 32px;
 			}
 
 			.transact-section{
@@ -177,7 +253,41 @@ export class TransactionFavourites extends Component {
 				align-items: flex-start;
 				display: flex;
 			}
+			
+			.toast {
+				position: absolute;
+				top : 70px;
+				left: 790px;
+				height: 64px;
+				width: 428px;
+				border-radius: 4px;
+				color: #70AF00;
+				z-index: 201;
+				left: calc(50.8% - 200px);
+				justify-content: center;
+				align-items: center;
+			}
 
+			.banner {
+				padding: 18px;
+				--theme-alert-banner-warning-border: none;
+			}
+			#notify {
+				display: inline-block;
+				height: 20px;
+				width: 81px;
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+			}
+
+			capitec-spacer {
+				display: inline-block;
+				width: 20em;
+			}
 			`
 		];
 	}
@@ -186,15 +296,24 @@ export class TransactionFavourites extends Component {
 	}
 
 	_webTemplate() {
+		return html`
+		${this._renderVerifiedToast()}
+		
+		${this._renderFavourites()}
+		${this._renderEndCallSessionDialog()}
+		${this._renderVerifyNowModal()}
+		`;
+	}
 
+	_renderFavourites() {
 		return html`
 					<capitec-card class="card">
 						<capitec-title-bar class="title-bar" type="clear">
-							<img src="../images/transactions/fav_icon.svg">
-							<capitec-label label="Favourites" type="title"></capitec-label>
+							<img src="/src/images/transactions/fav_icon.svg">
+							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-title-bar>
-					
+						${this._renderUnverifiedAlertBanner()}
 						<div class="transact-section">
 							<capitec-label id="label" label="Transact" type="strong"></capitec-label>
 						</div>
@@ -210,9 +329,12 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="cards-group">
 							<capitec-button-bar>
-								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default">
+								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					
@@ -221,13 +343,64 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="documents-group" class="documents">
 							<capitec-button-bar>
-								<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default">
+								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					</capitec-card>
 						`;
+	}
+
+	_renderVerifiedToast() {
+
+		if (this.displayToast) {
+			return html`
+				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				</capitec-toast>`;
+		}
+		return html``;
+	}
+
+	_renderUnverifiedAlertBanner() {
+		if (this.displayMode === `favourites-unverified`) {
+			return html`
+				<capitec-alert-banner class="banner" type="warning">
+					<capitec-label id="notify" label="Notify client:" type="subtitle"></capitec-label>
+					We need to verify your details before doing any transactions on your account.
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink 
+						label="Verify Now" 
+						@click="${() => this._onVerifyNowClick()}"
+					></capitec-hyperlink>
+				</capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					@cancel="{${() => this._onCancelEndCall()}}"
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isReassigned="${this.isReassigned}">
+				</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" @skip="${(e) => this._onSkipVerification(e)}">
+				</horizon-verify-caller>`;
+		}
+		return html``;
 	}
 }
 

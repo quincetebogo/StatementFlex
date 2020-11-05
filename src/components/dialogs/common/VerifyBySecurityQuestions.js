@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+
 import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
 
 import 'app/components/common/HorizonLabel';
@@ -36,6 +38,7 @@ export class VerifyBySecurityQuestions extends Component {
 		super();
 
 		this.incomingCallDetails = {};
+		this.unverifiedCaller = {};
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
@@ -47,7 +50,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.response = securityQuestions;
 
 		this.horizonStore = HorizonStore.getInstance();
-
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -67,6 +70,7 @@ export class VerifyBySecurityQuestions extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
 			renderMode: { type: Number },
 			questionNumber: { type: Number },
 			retryCount: { type: Number }
@@ -115,7 +119,17 @@ export class VerifyBySecurityQuestions extends Component {
 			this.renderMode = RENDER_MODE.FIRST_FAILURE;
 			this.retryCount++;
 		} else {
-			console.log(`Navigate to failure screen`);
+			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
+
+			const state = {
+				unverifiedCaller: this.unverifiedCaller,
+				verifiedCaller: this.unverifiedCaller,
+				incomingCallDetails: this.incomingCallDetails
+			};
+	
+			this.horizonStore.saveState(state);
+	
+			this.horizonRouter.navigateToVerifiedFavourites();
 		}
 	}
 
