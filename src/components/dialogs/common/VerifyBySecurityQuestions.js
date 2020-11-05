@@ -1,13 +1,13 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
 
 const RENDER_MODE = {
 	SECURITY_QUESTIONS: 0,
@@ -15,7 +15,15 @@ const RENDER_MODE = {
 }
 const HEADER_LABEL = `Security Questions`;
 
-export class SecurityQuestions extends Component {
+/**
+ * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
+ *
+ * @export
+ * @class VerifyBySecurityQuestions
+ * @extends {Component}
+ */
+
+export class VerifyBySecurityQuestions extends Component {
 
 
 	// --------------
@@ -43,6 +51,16 @@ export class SecurityQuestions extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Object} incomingCallDetails - Incoming Caller Information
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof VerifyBySecurityQuestions
+	 */
+
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
@@ -60,7 +78,6 @@ export class SecurityQuestions extends Component {
 
 		this.questions = this.response.questions;
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
-		this.incomingCallDetails.ivrOption.value = `Insure`;
 
 	}
 
@@ -69,13 +86,13 @@ export class SecurityQuestions extends Component {
 	// --------------
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
 
 	_onSkip() {
-		this.dispatchEvent(new CustomEvent(`on-skip`, {
+		this.dispatchEvent(new CustomEvent(`skip`, {
 			detail: {}
 		}));
 	}
@@ -280,32 +297,20 @@ export class SecurityQuestions extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group class="footer-wrapper" layout="horizontal">
-				<capitec-button id="id-cancel-button"
-                                type="clear"
-                                label="Cancel"
-                                @click="${() => this._onCancel()}">
+				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._onCancel()}">
 				</capitec-button>
 			
 				<capitec-spacer></capitec-spacer>
 			
-				<capitec-button id="id-skip-button"
-                                type="clear"
-                                label="Skip Verification"
-                                @click="${() => this._onSkip()}">
+				<capitec-button id="id-skip-button" type="clear" label="Skip Verification" @click="${() => this._onSkip()}">
 				</capitec-button>
 			
-				<capitec-button id="id-continue-button" 
-                                type="primary" 
-                                label="Continue"
-                                ?hidden="${!(this.questionNumber != this.questions.length - 1)}" 
-                                @click="${() => this._onContinueClick()}">
+				<capitec-button id="id-continue-button" type="primary" label="Continue"
+					?hidden="${!(this.questionNumber != this.questions.length - 1)}" @click="${() => this._onContinueClick()}">
 				</capitec-button>
 			
-				<capitec-button id="id-verify-button" 
-                                type="primary" 
-                                label="Verify"
-					            ?hidden="${!(this.questionNumber == this.questions.length - 1)}" 
-                                @click="${() => this._verifyAnswers()}">
+				<capitec-button id="id-verify-button" type="primary" label="Verify"
+					?hidden="${!(this.questionNumber == this.questions.length - 1)}" @click="${() => this._verifyAnswers()}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -321,4 +326,4 @@ export class SecurityQuestions extends Component {
 }
 
 
-window.customElements.define(`horizon-security-question`, SecurityQuestions);
+window.customElements.define(`horizon-security-question`, VerifyBySecurityQuestions);
