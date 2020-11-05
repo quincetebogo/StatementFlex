@@ -3,7 +3,6 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonOptionButton';
 import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/common/VerifyCallerSecurityQuestions';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
@@ -102,7 +101,7 @@ export class VerifyCaller extends Component {
 		}));
 	}
 
-	_onSequrityQuestionsCancel() {
+	_onSecurityQuestionsCancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
@@ -276,7 +275,7 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
-                                    @cancel="${() => this._onSequrityQuestionsCancel()}" 
+                                    @cancel="${() => this._onSecurityQuestionsCancel()}" 
                                     @skip="${() => this._skip()}">
                             </horizon-security-question>`;
 

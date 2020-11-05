@@ -77,8 +77,6 @@ export class VerifyBySecurityQuestions extends Component {
 		super.connectedCallback();
 
 		this.questions = this.response.questions;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
-
 	}
 
 	// --------------
