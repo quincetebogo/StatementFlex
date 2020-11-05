@@ -2,7 +2,24 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-// Unverified client screen
+import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/VerifyCaller';
+
+const RENDER_MODE = {
+	MAIN_PAGE: 0,
+	END_CALL: 1,
+	SELECT_ASSIGN_REASON: 2,
+	ASSIGN: 3,
+	VERIFY_NOW: 4
+};
+
+/**
+ * This component implements the Favourites Landing Page for Quick Transactions
+ *
+ * @export
+ * @class TransactionFavourites
+ * @extends {Component}
+ */
 export class TransactionFavourites extends Component {
 
 	// --------------
@@ -11,8 +28,6 @@ export class TransactionFavourites extends Component {
 
 	constructor() {
 		super();
-
-		console.log(`TransactionFavourites - constructor`);
 
 		this.clientType = ``;
 		this.cardOptions = [];
@@ -25,6 +40,9 @@ export class TransactionFavourites extends Component {
 		this.state = this.horizonStore.recoverState();
 		this.displayMode = ``;
 		this.displayToast = false;
+		this.isReassigned = false;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// --------------
@@ -39,7 +57,8 @@ export class TransactionFavourites extends Component {
 			documentsOptions: { type: Array },
 			documentsOptionsSelected: { type: String },
 			displayMode: { type: String },
-			displayToast: { type: Boolean }
+			displayToast: { type: Boolean },
+			renderMode: { type: Number }
 		};
 	}
 
@@ -49,8 +68,6 @@ export class TransactionFavourites extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		console.log(`TransactionFavourites - connectedCallback`);
 
 		this.incomingCallDetails = this.state.incomingCallDetails;
 		this.unverifiedCaller = this.state.unverifiedCaller;
@@ -67,6 +84,18 @@ export class TransactionFavourites extends Component {
 			this._configureForUnverifiedClient();
 		}
 
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
+
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
+			{
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
 	}
 
 	// ---------------
@@ -88,37 +117,24 @@ export class TransactionFavourites extends Component {
 			is3rdParty: false,
 			isNonClient: false
 		};
+
+		this.horizonStore.saveState(this.state);
 	}
+
 	_configureForUnverifiedClient() {
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: this.verifiedCaller.fullName,
-			idNumber: this.verifiedCaller.idNumber,
-			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-			livesIn: this.verifiedCaller.livesIn,
+		this.state.miniProfile = {
+			name: this.unverifiedCaller.fullName,
+			idNumber: this.unverifiedCaller.idNumber,
+			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
+			livesIn: this.unverifiedCaller.livesIn,
 			languagePreference: ``,
-			birthday: this.verifiedCaller.birthdate,
-			showButtons: true,
+			birthday: this.unverifiedCaller.birthdate,
+			showButtons: false,
 			isConfirmed: true,
-			isVerified: true,
+			isVerified: false,
 			verificationFailed: false,
 			is3rdParty: false,
 			isNonClient: false
-		});
-
-		this.state.leftBarButtonConfig = {
-			hasFavourites: true,
-			subtitle: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			}
 		};
 
 		this.horizonStore.saveState(this.state);
@@ -130,6 +146,22 @@ export class TransactionFavourites extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
+	_onSkipVerification() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// ---------
 	// RENDERING
@@ -268,6 +300,8 @@ export class TransactionFavourites extends Component {
 		${this._renderVerifiedToast()}
 		
 		${this._renderFavourites()}
+		${this._renderEndCallSessionDialog()}
+		${this._renderVerifyNowModal()}
 		`;
 	}
 
@@ -275,7 +309,7 @@ export class TransactionFavourites extends Component {
 		return html`
 					<capitec-card class="card">
 						<capitec-title-bar class="title-bar" type="clear">
-							<img src="../images/transactions/fav_icon.svg">
+							<img src="/src/images/transactions/fav_icon.svg">
 							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-title-bar>
@@ -324,7 +358,6 @@ export class TransactionFavourites extends Component {
 	_renderVerifiedToast() {
 
 		if (this.displayToast) {
-			console.log(`Rendering toast`);
 			return html`
 				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
 				</capitec-toast>`;
@@ -339,9 +372,33 @@ export class TransactionFavourites extends Component {
 					<capitec-label id="notify" label="Notify client:" type="subtitle"></capitec-label>
 					We need to verify your details before doing any transactions on your account.
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink href="#" label="Verify Now" target="_blank"></capitec-hyperlink>
+					<capitec-hyperlink 
+						label="Verify Now" 
+						@click="${() => this._onVerifyNowClick()}"
+					></capitec-hyperlink>
 				</capitec-alert-banner>
 			`;
+		}
+		return html``;
+	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					@cancel="{${() => this._onCancelEndCall()}}"
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isReassigned="${this.isReassigned}">
+				</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" @skip="${(e) => this._onSkipVerification(e)}">
+				</horizon-verify-caller>`;
 		}
 		return html``;
 	}
