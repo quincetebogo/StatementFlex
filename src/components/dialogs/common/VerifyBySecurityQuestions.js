@@ -3,8 +3,6 @@ import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
-
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
@@ -44,10 +42,9 @@ export class VerifyBySecurityQuestions extends Component {
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
+		this.securityQuestions = {};
 		this.retryCount = 0;
 
-		// TODO: Response is Mocked for now,as channel service is not ready to get security questiosn list
-		this.response = securityQuestions;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -71,6 +68,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			unverifiedCaller: { type: Object },
+			securityQuestions: { type: Object },
 			renderMode: { type: Number },
 			questionNumber: { type: Number },
 			retryCount: { type: Number }
@@ -84,7 +82,7 @@ export class VerifyBySecurityQuestions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.questions = this.response.questions;
+		this.questions = this.securityQuestions.questions;
 	}
 
 	// --------------

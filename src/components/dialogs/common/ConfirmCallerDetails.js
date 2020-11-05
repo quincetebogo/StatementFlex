@@ -475,22 +475,22 @@ export class ConfirmCallerDetails extends Component {
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
-							label="${this.callerFullName.value}"
-							tabindex="${getTabIndex(this.callerFullName)}" 
-							?hidden=${isHidden(this.callerFullName)}>
+                            label="${this.callerFullName.value}"
+							tabindex="${getTabIndex(this.callerFullName)}"
+                            ?hidden=${isHidden(this.callerFullName)}>
 						</capitec-label>
 						<horizon-label
-							class="client-info-row" 
-							row = "2" column = "1"
-							label="ID Number"
+                            class="client-info-row" 
+                            row = "2" column = "1" 
+                            label="ID Number"
 							value="${this.southAfricanIDNumber.value}" 
 							tabindex="${getTabIndex(this.southAfricanIDNumber)}"
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</horizon-label>
-						<horizon-label 
-							class="client-info-row" 
-							row = "2" column = "2"
-							label="Verified Cellphone Number"
+						<horizon-label
+                            class="client-info-row" 
+                            row = "2" column = "2"
+                            label="Verified Cellphone Number"
 							value="${this._getVerifiedTelephoneNumber()}" 
 							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
 							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
@@ -503,20 +503,20 @@ export class ConfirmCallerDetails extends Component {
 							tabindex="${getTabIndex(this.livesIn)}" 
 							?hidden=${isHidden(this.livesIn)}>
 						</horizon-label>
-						<horizon-label 
-							class="client-info-row" 
-							row="3" columun = "2" 
-							label="Language Preference"
-							value="${this._getLanguagePreference()}"
-							tabindex="${getTabIndex(this.languagePreference)}"
+						<horizon-label
+                            class="client-info-row"
+                            row="3" columun = "2"
+                            label="Language Preference"
+							value="${this._getLanguagePreference()}" 
+                            tabindex="${getTabIndex(this.languagePreference)}"
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
-							class="client-info-row"
-							row="4" columun = "1"
-							label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}"
-							tabindex="${getTabIndex(this.birthdate)}"
+                            class="client-info-row"
+                            row="4" columun = "1" 
+                            label="Birthday"
+							value="${this._getBirthdate(this.birthdate)}" 
+                            tabindex="${getTabIndex(this.birthdate)}"
 							?hidden=${isHidden(this.birthdate)}>
 						</horizon-label>
 					</capitec-group>
@@ -528,11 +528,11 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-					id="id-search-button" 
-					type="clear"
-					label="Search Client"
-					?hidden=${isHidden(this.searchClientButton)} 
-					.disabled="${isDisabled(this.searchClientButton)}"
+                    id="id-search-button" 
+                    type="clear"
+                    label="Search Client"
+					?hidden=${isHidden(this.searchClientButton)}
+                    .disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}" 
 					@click="${() => this._onSearchClick()}">
 				</capitec-button>
