@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
 
 import 'app/components/common/OptionButton';
 
@@ -54,6 +55,7 @@ export class MiniProfile extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// ---------
@@ -79,15 +81,15 @@ export class MiniProfile extends Component {
 	}
 
 	_onDocumentClick() {
-		this.EventAggregator.publish(`horizon-view-documents-click`, {});
+		this.eventAggregator.publish(`horizon-view-documents-click`, {});
 	}
 
 	_onViewProfileClick() {
-		this.EventAggregator.publish(`horizon-view-profile-click`, {});
+		this.eventAggregator.publish(`horizon-view-profile-click`, {});
 	}
 
 	_onVerifyNowClick() {
-		this.EventAggregator.publish(`horizon-verify-now-click`, {});
+		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
 	// --------- 

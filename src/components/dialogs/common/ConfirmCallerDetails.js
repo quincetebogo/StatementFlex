@@ -592,9 +592,9 @@ export class ConfirmCallerDetails extends Component {
 	renderVerifyCallerModal() {
 		return html`
 			<horizon-verify-caller
-				.incomingCallDetails="${this.incomingCallDetails}" 
-				@skip="${(e) => this._onSkipVerification(e)}"
-				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+                .incomingCallDetails="${this.incomingCallDetails}" 
+                @skip="${(e) => this._onSkipVerification(e)}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}

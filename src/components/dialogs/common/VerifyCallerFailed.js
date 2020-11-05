@@ -8,8 +8,7 @@ import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	VERIFY_CALLER_FAILED: 0,
-	END_CALL: 1,
-	SECURITY_QUESTIONS: 2
+	END_CALL: 1
 };
 
 const HEADER_LABEL = `Verify Caller`;
@@ -34,19 +33,6 @@ export class VerifyCallerFailed extends Component {
 		// Property initialization
 		this.renderMode = 0;
 		this.incomingCallDetails = null;
-
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": `1`,
-				"value": `Stop Card`
-			},
-			{
-				"key": `2`,
-				"value": `Insure`
-			}
-		];
-
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -69,6 +55,7 @@ export class VerifyCallerFailed extends Component {
 		super.connectedCallback();
 
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
@@ -82,12 +69,15 @@ export class VerifyCallerFailed extends Component {
 	// --------------
 
 	_verifyUsingSQ() {
-		// Show Security Questions dialog
-		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+		this.dispatchEvent(new CustomEvent(`security-questions`, {
+			detail: {}
+		}));
 	}
 
 	_skip() {
-		// TODO: Functionality to skip Security questions to be implemented here.
+		this.dispatchEvent(new CustomEvent(`skip`, {
+			detail: {}
+		}));
 	}
 
 	_onEndCall() {
@@ -212,12 +202,6 @@ export class VerifyCallerFailed extends Component {
 						</div>
 					</horizon-caller-dialog>
 				`;
-
-			case RENDER_MODE.SECURITY_QUESTIONS:
-				return html`<horizon-verify-caller-secutity-questions
-										.incomingCallDetails="${this.incomingCallDetails}">
-							</horizon-verify-caller-secutity-questions>`;
-
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
 			default:
