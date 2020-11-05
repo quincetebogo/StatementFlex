@@ -23,6 +23,8 @@ export class TransactionFavourites extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.state = this.horizonStore.recoverState();
+		this.displayMode = ``;
+		this.displayToast = false;
 	}
 
 	// --------------
@@ -35,7 +37,9 @@ export class TransactionFavourites extends Component {
 			cardOptions: { type: Array },
 			cardOptionSelected: { type: String },
 			documentsOptions: { type: Array },
-			documentsOptionsSelected: { type: String }
+			documentsOptionsSelected: { type: String },
+			displayMode: { type: String },
+			displayMode: { type: Boolean }
 		};
 	}
 
@@ -52,7 +56,16 @@ export class TransactionFavourites extends Component {
 		this.unverifiedCaller = this.state.unverifiedCaller;
 		this.verifiedCaller = this.state.verifiedCaller;
 
-		this._configureForVerifiedExisting();
+		// this._configureForUnVerifiedClient();
+		if (this.displayMode === `favourites-verified`) {
+			this._configureForVerifiedExisting();
+			this.displayToast = true;
+		}
+		if (this.displayMode === `favourites-unverified`) {
+			this._configureForUnverifiedExisting();
+		}
+
+		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
 	}
 
 	// ---------------
@@ -74,6 +87,22 @@ export class TransactionFavourites extends Component {
 			is3rdParty: false,
 			isNonClient: false
 		};
+	}
+	_configureForUnverifiedClient() {
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
+			name: this.verifiedCaller.fullName,
+			idNumber: this.verifiedCaller.idNumber,
+			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+			livesIn: this.verifiedCaller.livesIn,
+			languagePreference: ``,
+			birthday: this.verifiedCaller.birthdate,
+			showButtons: true,
+			isConfirmed: true,
+			isVerified: true,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
+		});
 
 		this.state.leftBarButtonConfig = {
 			hasFavourites: true,
@@ -94,6 +123,9 @@ export class TransactionFavourites extends Component {
 		this.horizonStore.saveState(this.state);
 	}
 
+	_onToggleToastDisplay() {
+		this.displayToast = true;
+	}
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -177,7 +209,23 @@ export class TransactionFavourites extends Component {
 				align-items: flex-start;
 				display: flex;
 			}
+			
+			.toast {
+				position: absolute;
+				top : 70px;
+				left: 790px;
+				height: 64px;
+				width: 428px;
+				border-radius: 4px;
+				color: #70AF00;
+				--theme-toast-success-background-color: #EAF3D9;
+				z-index: 201;
+				left: calc(50.8% - 200px);
+				justify-content: center;
+				align-items: center;
+				--theme-toast-success-color: #70AF00;
 
+			}
 			`
 		];
 	}
@@ -186,7 +234,13 @@ export class TransactionFavourites extends Component {
 	}
 
 	_webTemplate() {
+		return html`
+		${this._renderVerifiedToast()}
+		${this._renderFavourites()}
+		`;
+	}
 
+	_renderFavourites() {
 		return html`
 					<capitec-card class="card">
 						<capitec-title-bar class="title-bar" type="clear">
@@ -210,9 +264,12 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="cards-group">
 							<capitec-button-bar>
-								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default">
+								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					
@@ -221,13 +278,26 @@ export class TransactionFavourites extends Component {
 						</div>
 						<capitec-group class="documents-group" class="documents">
 							<capitec-button-bar>
-								<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"></horizon-option-button>
-								<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"></horizon-option-button>
+								<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default">
+								</horizon-option-button>
+								<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default">
+								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>
 					</capitec-card>
 						`;
+	}
+
+	_renderVerifiedToast() {
+		console.log(`Rendering toast`);
+		if (!this.displayToast) {
+			return html`
+				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				</capitec-toast>`;
+		}
+		return html``;
 	}
 }
 
