@@ -32,7 +32,7 @@ export class FavouritesUnverified extends View {
 	}
 
 	_webTemplate() {
-		return html`<horizon-favourites-transations class="favourites" displayMode="favourites-verified"></horizon-favourites-transations>`;
+		return html`<horizon-favourites-transations class="favourites" displayMode="favourites-unverified"></horizon-favourites-transations>`;
 	}
 }
 

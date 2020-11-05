@@ -39,7 +39,7 @@ export class TransactionFavourites extends Component {
 			documentsOptions: { type: Array },
 			documentsOptionsSelected: { type: String },
 			displayMode: { type: String },
-			displayMode: { type: Boolean }
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -58,14 +58,15 @@ export class TransactionFavourites extends Component {
 
 		// this._configureForUnVerifiedClient();
 		if (this.displayMode === `favourites-verified`) {
-			this._configureForVerifiedExisting();
 			this.displayToast = true;
-		}
-		if (this.displayMode === `favourites-unverified`) {
-			this._configureForUnverifiedExisting();
+			window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+			this._configureForVerifiedExisting();
 		}
 
-		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+		if (this.displayMode === `favourites-unverified`) {
+			this._configureForUnverifiedClient();
+		}
+
 	}
 
 	// ---------------
@@ -124,7 +125,7 @@ export class TransactionFavourites extends Component {
 	}
 
 	_onToggleToastDisplay() {
-		this.displayToast = true;
+		this.displayToast = false;
 	}
 	// --------------
 	// EVENT HANDLERS
@@ -141,6 +142,17 @@ export class TransactionFavourites extends Component {
 			.card{
 				width:100%;
 				height:100%;
+			}
+
+			.favourites {
+				height: 32px;
+				width: 111px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 24px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 32px;
 			}
 
 			.transact-section{
@@ -218,13 +230,31 @@ export class TransactionFavourites extends Component {
 				width: 428px;
 				border-radius: 4px;
 				color: #70AF00;
-				--theme-toast-success-background-color: #EAF3D9;
 				z-index: 201;
 				left: calc(50.8% - 200px);
 				justify-content: center;
 				align-items: center;
-				--theme-toast-success-color: #70AF00;
+			}
 
+			.banner {
+				padding: 18px;
+				--theme-alert-banner-warning-border: none;
+			}
+			#notify {
+				display: inline-block;
+				height: 20px;
+				width: 81px;
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+			}
+
+			capitec-spacer {
+				display: inline-block;
+				width: 20em;
 			}
 			`
 		];
@@ -236,6 +266,7 @@ export class TransactionFavourites extends Component {
 	_webTemplate() {
 		return html`
 		${this._renderVerifiedToast()}
+		
 		${this._renderFavourites()}
 		`;
 	}
@@ -245,10 +276,10 @@ export class TransactionFavourites extends Component {
 					<capitec-card class="card">
 						<capitec-title-bar class="title-bar" type="clear">
 							<img src="../images/transactions/fav_icon.svg">
-							<capitec-label label="Favourites" type="title"></capitec-label>
+							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 							<capitec-spacer></capitec-spacer>
 						</capitec-title-bar>
-					
+						${this._renderUnverifiedAlertBanner()}
 						<div class="transact-section">
 							<capitec-label id="label" label="Transact" type="strong"></capitec-label>
 						</div>
@@ -291,11 +322,26 @@ export class TransactionFavourites extends Component {
 	}
 
 	_renderVerifiedToast() {
-		console.log(`Rendering toast`);
-		if (!this.displayToast) {
+
+		if (this.displayToast) {
+			console.log(`Rendering toast`);
 			return html`
 				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
 				</capitec-toast>`;
+		}
+		return html``;
+	}
+
+	_renderUnverifiedAlertBanner() {
+		if (this.displayMode === `favourites-unverified`) {
+			return html`
+				<capitec-alert-banner class="banner" type="warning">
+					<capitec-label id="notify" label="Notify client:" type="subtitle"></capitec-label>
+					We need to verify your details before doing any transactions on your account.
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink href="#" label="Verify Now" target="_blank"></capitec-hyperlink>
+				</capitec-alert-banner>
+			`;
 		}
 		return html``;
 	}
