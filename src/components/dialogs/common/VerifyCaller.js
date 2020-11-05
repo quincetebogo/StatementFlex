@@ -103,7 +103,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_onSequrityQuestionsCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
