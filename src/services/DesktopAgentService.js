@@ -2,9 +2,9 @@ import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManag
 
 import { Configuration } from 'platform/Configuration';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from '../shell/HorizonRouter';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NavigationContext } from 'platform/NavigationContext';
-import { NewCallEvent } from '../models//NewCallEvent';
+import { NewCallEvent } from 'app/models//NewCallEvent';
 import { Router } from 'platform/Router';
 import { validate } from 'app/utils/channelServiceUtilities';
 
@@ -90,13 +90,18 @@ export class DesktopAgentService {
 
 		const eventData = JSON.parse(event.data);
 
-		// Do nothing with hearbeats. They are just to keep the connecction alive
+		// Do nothing with hearbeats. They are just to keep the connection alive
 		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
 			if (this.connectionTries >= 3) {
 				this.eventAggregator.publish(`desktop-agent-up`, {});
 			}
 			this.connectionTries = 0;
 			return;
+		}
+
+		// If we get a call before a heartbeat, also automatically notify that the desktop agent is up.
+		if (this.connectionTries >= 3) {
+			this.eventAggregator.publish(`desktop-agent-up`, {});
 		}
 
 		// We have received an event so we must be connected to the Desktop Agent

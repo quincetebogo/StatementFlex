@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import 'app/components/common/HorizonProductBar';
+import 'app/components/common/ProductButtonPanel';
 
 /**
  * The Landing Page Left Hand Welcome bar is displayed on the intial landing page 
@@ -125,7 +125,7 @@ export class LandingPageWelcome extends Component {
 								</capitec-group>
 						</capitec-card>
 					</div>
-					<horizon-product-bar></horizon-product-bar>
+					<horizon-product-button-panel></horizon-product-button-panel>
 				</div>
 			`;
 	}
