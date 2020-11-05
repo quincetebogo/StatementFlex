@@ -8,7 +8,7 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyCallerFailed';
+import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = {
 	SECURITY_QUESTIONS: 0,
@@ -111,8 +111,12 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_verifyAnswers() {
 		// TODO: To be handled -service call to verify answers after going through all the security questions
-		this.renderMode = RENDER_MODE.FIRST_FAILURE;
-		this.retryCount++;
+		if (this.retryCount < 1) {
+			this.renderMode = RENDER_MODE.FIRST_FAILURE;
+			this.retryCount++;
+		} else {
+			console.log(`Navigate to failure screen`);
+		}
 	}
 
 	_onEndCall() {
@@ -139,9 +143,6 @@ export class VerifyBySecurityQuestions extends Component {
 		if (this.retryCount <= 1) {
 			this.questionNumber = 0;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-		} else {
-			// TODO: Navigate to security questions failure screen
-			console.log(`Navigate to failure screen`);
 		}
 	}
 
@@ -282,7 +283,7 @@ export class VerifyBySecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-			case RENDER_MODE.FIRST_FAILURE: 
+			case RENDER_MODE.FIRST_FAILURE:
 				return html`${this._renderFailureModal()}`;
 			default:
 				return html``;
@@ -293,10 +294,10 @@ export class VerifyBySecurityQuestions extends Component {
 
 		let answers = this.questions[index].answers;
 		answers = answers.map(item => ({
-				"key": item.answerId,
-				"value": item.answer,
-				"checked": item.isEnteredAnswerYN
-			}));
+			"key": item.answerId,
+			"value": item.answer,
+			"checked": item.isEnteredAnswerYN
+		}));
 
 		if (index === this.questionNumber) {
 			return html`
@@ -335,19 +336,19 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderFailureModal() {
 		return html`
-			<horizon-verify-caller-failed 
+			<horizon-security-questions-failed
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@security-questions="${() => this._retrySecurityQuestions()}"
 				@skip="${() => this._onSkip()}">
-			</horizon-verify-caller-failed>`;
+			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
 				@on-cancel="${() => {
- 					this.renderMode = RENDER_MODE.CONFIRM_CALLER; 
-				}}"
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

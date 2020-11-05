@@ -5,7 +5,6 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
-
 const RENDER_MODE = {
 	VERIFY_CALLER_FAILED: 0,
 	END_CALL: 1
@@ -21,7 +20,7 @@ const HEADER_LABEL = `Verify Caller`;
  * @extends {Component}
  */
 
-export class VerifyCallerFailed extends Component {
+export class SecurityQuestionsFailed extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -39,6 +38,16 @@ export class VerifyCallerFailed extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Object} incomingCallDetails - Incoming Caller Information
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof SecurityQuestionsFailed
+	 */
 
 	static get properties() {
 		return {
@@ -68,7 +77,7 @@ export class VerifyCallerFailed extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_verifyUsingSQ() {
+	_retrySecurityQuestions() {
 		this.dispatchEvent(new CustomEvent(`security-questions`, {
 			detail: {}
 		}));
@@ -240,16 +249,22 @@ export class VerifyCallerFailed extends Component {
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button label="Security Questions" 
-											icon="system/apply-now-action"
+											icon="system/knowledge-action"
 											iconSize="default"
 											type="clear"
-											@click="${() => this._verifyUsingSQ()}">
+											@click="${() => this._retrySecurityQuestions()}">
 					</horizon-option-button>
-					<horizon-option-button label="Skip" 
+					<horizon-option-button label="Skip Verification" 
 											icon="system/arrow-right-action"
 											iconSize="default"
 											type="clear"
 											@click="${() => this._skip()}">
+					</horizon-option-button>
+					<horizon-option-button label="Verify via Banking App" 
+											icon="system/cellphone-action"
+											iconSize="default"
+											type="clear"
+											@click="${() => this._verifyUsingMobileApp()}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-content-box>
@@ -265,4 +280,4 @@ export class VerifyCallerFailed extends Component {
 	}
 }
 
-window.customElements.define(`horizon-verify-caller-failed`, VerifyCallerFailed);
+window.customElements.define(`horizon-security-questions-failed`, SecurityQuestionsFailed);
