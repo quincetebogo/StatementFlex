@@ -93,7 +93,7 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
 	}
 
-	XDS_Questions(clientID, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.XDS_Questions(clientID), errorHandler);
+	xdsQuestions(clientID, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), errorHandler);
 	}
 }

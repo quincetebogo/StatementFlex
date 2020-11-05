@@ -98,7 +98,8 @@ export class HorizonCallerDialog extends Component {
 				--theme-modal-header-padding-bottom: 32px;
 				--theme-modal-header-padding-right: 31px;
 				--theme-modal-header-padding-left: 31px;
-				--theme-modal-footer-padding: 7px 16px 9px 0px;
+				--theme-modal-footer-padding: var(--horizon-modal-footer-padding, 7px 16px 9px 0px);
+				
 			}
 
 			div[slot="body"] {

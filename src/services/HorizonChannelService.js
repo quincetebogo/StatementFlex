@@ -199,7 +199,7 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
-	XDS_Questions(clientID) {
-		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`)
+	xdsQuestions(clientID) {
+		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
 	}
 }

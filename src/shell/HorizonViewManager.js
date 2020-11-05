@@ -38,10 +38,8 @@ const LAYOUT_COMPONENT = {
 
 export const HORIZON_VIEW_SET = {
 	LANDING_PAGES: new Set([LAYOUT_COMPONENT.AGENT_BAR, LAYOUT_COMPONENT.WELCOME_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
-	CARD_STOP: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.ACCESS_BAR]),
-	NONCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
-	EXISTINGCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
-	THIRDPARTYCLIENT_INSURE: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
+	VERIFIED_PAGES: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.ACCESS_BAR]),
+	UNVERIFIED_PAGES: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
 };
 
 export class HorizonViewManager {
@@ -73,7 +71,7 @@ export class HorizonViewManager {
 				load: () => import(`../components/common/AccessMenuBar`)
 			},
 			{
-				load: () => import(`../components/common/ClientProfileDetails`)
+				load: () => import(`../components/common/ProfileAndProductSummaryBar`)
 			},
 			{
 				load: () => import(`../components/landingPage/TitleBar`)
@@ -109,7 +107,7 @@ export class HorizonViewManager {
 		if (viewSet.has(LAYOUT_COMPONENT.WELCOME_MENU_BAR)) {
 			return html`<horizon-welcome-bar></horizon-welcome-bar>`;
 		} else if (viewSet.has(LAYOUT_COMPONENT.PROFILE_MENU_BAR)) {
-			return html`<client-details></client-details>`;
+			return html`<horizon-profile-and-product-summary-bar></horizon-profile-and-product-summary-bar>`;
 		}
 
 		return html``;

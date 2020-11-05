@@ -149,30 +149,28 @@ export class StopCard extends Component {
 			}
 		);
 
-		this.eventAggregator.publish(
-			`mini-client-profile`,
-			{
+		this.eventAggregator.publish(`horizon-update-mini-profile`, {
 				name: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.name.value,
 				idNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
 				phoneNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
 				livesIn: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
 				languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
 				birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-				isConfirmed: true
-			}
-		);
+				isConfirmed: true,
+				isVerified: false,
+				verificationFailed: false,
+				is3rdParty: false
+			});
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
-				clientType: `unverified-existing-client`,
-				isProfileButtonVisible: false,
-				isDocumentsButtonVisible: false,
+				hasFavourites: true,
 				subtitle: {
-					savingsAccount: `Active`,
-					savingsPlan: `Active`,
-					insure: `Active`,
-					credit: `Rethink credit, realise dreams`
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
 				},
 				detail: {
 					savingsAccount: ``,

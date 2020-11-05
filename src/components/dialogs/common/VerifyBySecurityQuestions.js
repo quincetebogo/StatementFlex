@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonLabel';
@@ -7,11 +8,13 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = {
 	SECURITY_QUESTIONS: 0,
-	END_CALL: 1
-}
+	END_CALL: 1,
+	FIRST_FAILURE: 2
+};
 const HEADER_LABEL = `Security Questions`;
 
 /**
@@ -32,16 +35,19 @@ export class VerifyBySecurityQuestions extends Component {
 	constructor() {
 		super();
 
-		this.incomingCallDetails = null;
+		this.incomingCallDetails = {};
+		this.unverifiedCaller = {};
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-		this.securityQuestions = ``;
+		this.securityQuestions = {};
+		this.retryCount = 0;
+
 
 		this.horizonStore = HorizonStore.getInstance();
-
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -61,8 +67,11 @@ export class VerifyBySecurityQuestions extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
+			securityQuestions: { type: Object },
 			renderMode: { type: Number },
-			questionNumber: { type: Number }
+			questionNumber: { type: Number },
+			retryCount: { type: Number }
 		};
 	}
 
@@ -95,8 +104,7 @@ export class VerifyBySecurityQuestions extends Component {
 	_onContinueClick() {
 		if (!this.checked) {
 			// show an Alert Banner for radio button validation - To Do
-		}
-		else {
+		} else {
 			this.questionNumber++;
 			this.checked = false;
 		}
@@ -104,7 +112,23 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_verifyAnswers() {
-		// To be handled -service call to verify answers after going through all the security questions
+		// TODO: To be handled -service call to verify answers after going through all the security questions
+		if (this.retryCount < 1) {
+			this.renderMode = RENDER_MODE.FIRST_FAILURE;
+			this.retryCount++;
+		} else {
+			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
+
+			const state = {
+				unverifiedCaller: this.unverifiedCaller,
+				verifiedCaller: this.unverifiedCaller,
+				incomingCallDetails: this.incomingCallDetails
+			};
+	
+			this.horizonStore.saveState(state);
+	
+			this.horizonRouter.navigateToVerifiedFavourites();
+		}
 	}
 
 	_onEndCall() {
@@ -123,7 +147,14 @@ export class VerifyBySecurityQuestions extends Component {
 			};
 
 			// saving to the state - answers selected by the caller for each question
-			this.horizonStore.saveState({ "securityQuestions": this.state })
+			this.horizonStore.saveState({ "securityQuestions": this.state });
+		}
+	}
+
+	_retrySecurityQuestions() {
+		if (this.retryCount <= 1) {
+			this.questionNumber = 0;
+			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
 	}
 
@@ -264,25 +295,29 @@ export class VerifyBySecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
+			case RENDER_MODE.FIRST_FAILURE:
+				return html`${this._renderFailureModal()}`;
+			default:
+				return html``;
 		}
 	}
 
 	_renderSecurityQuestions(item, index) {
 
 		let answers = this.questions[index].answers;
-		answers = answers.map(item => {
-			return {
-				"key": item.answerId,
-				"value": item.answer,
-				"checked": item.isEnteredAnswerYN
-			}
-		});
+		answers = answers.map(item => ({
+			"key": item.answerId,
+			"value": item.answer,
+			"checked": item.isEnteredAnswerYN
+		}));
 
 		if (index === this.questionNumber) {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question}"></capitec-label>
-				<horizon-radio-button class="radio-button" .radioButtonsAvailable="${answers}"
+				<horizon-radio-button 
+					class="radio-button" 
+					.radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button>
 		`;
@@ -301,19 +336,31 @@ export class VerifyBySecurityQuestions extends Component {
 				</capitec-button>
 			
 				<capitec-button id="id-continue-button" type="primary" label="Continue"
-					?hidden="${!(this.questionNumber != this.questions.length - 1)}" @click="${() => this._onContinueClick()}">
+					?hidden="${!(this.questionNumber !== this.questions.length - 1)}" @click="${() => this._onContinueClick()}">
 				</capitec-button>
 			
 				<capitec-button id="id-verify-button" type="primary" label="Verify"
-					?hidden="${!(this.questionNumber == this.questions.length - 1)}" @click="${() => this._verifyAnswers()}">
+					?hidden="${!(this.questionNumber === this.questions.length - 1)}" @click="${() => this._verifyAnswers()}">
 				</capitec-button>
 			</capitec-group>
 		`;
 	}
 
+	_renderFailureModal() {
+		return html`
+			<horizon-security-questions-failed
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@security-questions="${() => this._retrySecurityQuestions()}"
+				@skip="${() => this._onSkip()}">
+			</horizon-security-questions-failed>`;
+	}
+
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
+			<horizon-end-call-session 
+				@on-cancel="${() => {
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

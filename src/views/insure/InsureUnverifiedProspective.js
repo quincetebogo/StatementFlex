@@ -1,6 +1,6 @@
-import { View, html, css } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 
-import '../../components/insure/InsureInformation';
+import 'app/components/insure/InsureInformation';
 
 export class InsureUnverifiedProspective extends View {
 
@@ -16,8 +16,8 @@ export class InsureUnverifiedProspective extends View {
 				.unverified-caller{
 					width:100%;
 					height:100%;
-				}					
-				`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {

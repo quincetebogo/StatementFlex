@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
@@ -40,18 +40,6 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": `1`,
-				"value": `Stop Card`
-			},
-			{
-				"key": `2`,
-				"value": `Insure`
-			}
-		];
-
 		this.horizonStore = HorizonStore.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
@@ -63,8 +51,9 @@ export class VerifyCaller extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
+			renderMode: { type: Number },
 			timeLeft: { type: String },
 			notVerified: { type: Boolean }
 		};
@@ -78,6 +67,7 @@ export class VerifyCaller extends Component {
 
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.posssibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
@@ -93,14 +83,13 @@ export class VerifyCaller extends Component {
 
     async _verifyUsingSQ() {
 
-		const clientID = this.confirmedCaller.callerInformation.southAfricanIDNumber.value;
-		const returnValue = await this.callHandleService.XDS_Questions(clientID, null);
+		const clientID = this.unverifiedCaller.idNumber;
+		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-		}
-		else {
+		} else {
 			this.notVerified = true;
 		}
 	}
@@ -262,6 +251,9 @@ export class VerifyCaller extends Component {
 					--horizon-option-btn-text-color: #3E4547;
 					--horizon-option-btn-text-font-weight: 600;
 				}
+				horizon-caller-dialog {
+					--horizon-modal-footer-padding: 0px;
+				}
 			`
 		];
 	}
@@ -289,8 +281,9 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
+									.unverifiedCaller="${this.unverifiedCaller}"
                                     .securityQuestions="${this.securityQuestions}" 
-                                    @cancel="${() => this._onSecurityQuestionsCancel()}"
+                                    @cancel="${() => this._onSecurityQuestionsCancel()}" 
                                     @skip="${() => this._skip()}">
                             </horizon-security-question>`;
 
