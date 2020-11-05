@@ -408,9 +408,9 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
 					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}" 
+                                .incomingCallDetails="${this.incomingCallDetails}"
                                 .headerLabel="${HEADER_LABEL}"
-						        @on-end-call="${() => this._onEndCall()}"
+						        @on-end-call="${() => this._onEndCall()}" 
                                 @on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
@@ -467,18 +467,18 @@ export class ConfirmCallerDetails extends Component {
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
                             label="${this.callerFullName.value}"
-							tabindex="${getTabIndex(this.callerFullName)}" 
+							tabindex="${getTabIndex(this.callerFullName)}"
                             ?hidden=${isHidden(this.callerFullName)}>
 						</capitec-label>
 						<horizon-label
                             class="client-info-row" 
-                            row = "2" column = "1"
+                            row = "2" column = "1" 
                             label="ID Number"
 							value="${this.southAfricanIDNumber.value}" 
                             tabindex="${getTabIndex(this.southAfricanIDNumber)}"
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</horizon-label>
-						<horizon-label 
+						<horizon-label
                             class="client-info-row" 
                             row = "2" column = "2"
                             label="Verified Cellphone Number"
@@ -494,19 +494,19 @@ export class ConfirmCallerDetails extends Component {
 							tabindex="${getTabIndex(this.livesIn)}" 
                             ?hidden=${isHidden(this.livesIn)}>
 						</horizon-label>
-						<horizon-label 
-                            class="client-info-row" 
-                            row="3" columun = "2" 
+						<horizon-label
+                            class="client-info-row"
+                            row="3" columun = "2"
                             label="Language Preference"
-							value="${this._getLanguagePreference()}"
+							value="${this._getLanguagePreference()}" 
                             tabindex="${getTabIndex(this.languagePreference)}"
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
                             class="client-info-row"
-                            row="4" columun = "1"
+                            row="4" columun = "1" 
                             label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}"
+							value="${this._getBirthdate(this.birthdate)}" 
                             tabindex="${getTabIndex(this.birthdate)}"
 							?hidden=${isHidden(this.birthdate)}>
 						</horizon-label>
@@ -522,7 +522,7 @@ export class ConfirmCallerDetails extends Component {
                     id="id-search-button" 
                     type="clear"
                     label="Search Client"
-					?hidden=${isHidden(this.searchClientButton)} 
+					?hidden=${isHidden(this.searchClientButton)}
                     .disabled="${isDisabled(this.searchClientButton)}"
 					tabindex="${getTabIndex(this.searchClientButton)}" 
                     @click="${() => this._onSearchClick()}">
@@ -591,9 +591,10 @@ export class ConfirmCallerDetails extends Component {
 	renderVerifyCallerModal() {
 		return html`
 			<horizon-verify-caller
-                .incomingCallDetails="${this.incomingCallDetails}" 
-                @skip="${(e) => this._onSkipVerification(e)}"
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+                .incomingCallDetails="${this.incomingCallDetails}"
+                .confirmedCaller="${this.confirmedCaller}"
+				@skip="${(e) => this._onSkipVerification(e)}"
+                @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}

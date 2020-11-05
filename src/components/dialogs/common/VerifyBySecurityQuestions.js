@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -33,15 +32,13 @@ export class VerifyBySecurityQuestions extends Component {
 	constructor() {
 		super();
 
-		this.incomingCallDetails = {};
+		this.incomingCallDetails = null;
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-
-		//Response is Mocked for now,as channel service is not ready to get security questiosn list
-		this.response = securityQuestions;
+		this.securityQuestions = ``;
 
 		this.horizonStore = HorizonStore.getInstance();
 
@@ -76,7 +73,7 @@ export class VerifyBySecurityQuestions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.questions = this.response.questions;
+		this.questions = this.securityQuestions.questions;
 	}
 
 	// --------------

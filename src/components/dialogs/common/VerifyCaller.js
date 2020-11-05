@@ -91,14 +91,17 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _verifyUsingSQ() {
-		// Show Security Questions dialog
-		this.minutes = 0;
-		this.seconds = 0;
-        const clientID = '7511140151084';
+    async _verifyUsingSQ() {
+
+		const clientID = this.confirmedCaller.callerInformation.southAfricanIDNumber.value;
 		const returnValue = await this.callHandleService.XDS_Questions(clientID, null);
+
 		if (returnValue.succeeded) {
+			this.securityQuestions = returnValue.result;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+		}
+		else {
+			this.notVerified = true;
 		}
 	}
 
@@ -271,13 +274,14 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.VERIFY_CALLER:
 				return html`
 					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}" 
+                                .incomingCallDetails="${this.incomingCallDetails}"
                                 .headerLabel="${HEADER_LABEL}"
 						        @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}
 							${this._renderPushNotificationError()}
 							${this._renderOtherOptions()}
+							${this._renderLoadingIndicator()}
 						</div>
 					</horizon-caller-dialog>
 				`;
@@ -285,7 +289,8 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
-                                    @cancel="${() => this._onSecurityQuestionsCancel()}" 
+                                    .securityQuestions="${this.securityQuestions}" 
+                                    @cancel="${() => this._onSecurityQuestionsCancel()}"
                                     @skip="${() => this._skip()}">
                             </horizon-security-question>`;
 
@@ -310,7 +315,7 @@ export class VerifyCaller extends Component {
 						<capitec-group layout="vertical" 
                                     halign="center" 
                                     valign="top" 
-                                    gap="clear"
+                                    gap="clear" 
                                     id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
@@ -331,15 +336,15 @@ export class VerifyCaller extends Component {
 		if (this.notVerified) {
 			return html`
 				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical"
+					<capitec-group layout="vertical" 
                                     halign="stretch"
                                     valign="top" 
                                     gap="clear">
 						<capitec-alert-banner type="error">
 							Notification didn't send due to a system error.
 						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-                                        halign="center" 
+						<capitec-group layout="vertical" 
+                                        halign="center"
                                         valign="top" 
                                         gap="clear"
                                         id="notification-status-error-group">
@@ -358,22 +363,31 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
+	_renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
 	_renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button label="Security Questions"
-                                            icon="system/apply-now-action"
-                                            iconSize="default"
+					<horizon-option-button label="Security Questions" 
+                                            icon="system/apply-now-action" 
+                                            iconSize="default" 
                                             type="clear"
 						                    @click="${() => this._verifyUsingSQ()}">
 					</horizon-option-button>
-					<horizon-option-button label="Skip"
+					<horizon-option-button label="Skip" 
                                             icon="system/arrow-right-action"
-                                            iconSize="default"
+                                            iconSize="default" 
                                             type="clear"
-						                    @click="${() => this._skip()}">
+						@click="${() => this._skip()}">
 					</horizon-option-button>
 					<horizon-option-button label="Try Again" 
                                             img-src="/images/insure/refresh.svg" 
