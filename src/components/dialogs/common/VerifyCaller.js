@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
@@ -39,18 +39,6 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.ivrOptions = [
-			{
-				"key": `1`,
-				"value": `Stop Card`
-			},
-			{
-				"key": `2`,
-				"value": `Insure`
-			}
-		];
-
 		this.horizonStore = HorizonStore.getInstance();
 	}
 
@@ -75,6 +63,7 @@ export class VerifyCaller extends Component {
 
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.posssibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
@@ -248,6 +237,9 @@ export class VerifyCaller extends Component {
 					--horizon-option-btn-text-margin-top: 4px;
 					--horizon-option-btn-text-color: #3E4547;
 					--horizon-option-btn-text-font-weight: 600;
+				}
+				horizon-caller-dialog {
+					--horizon-modal-footer-padding: 0px;
 				}
 			`
 		];

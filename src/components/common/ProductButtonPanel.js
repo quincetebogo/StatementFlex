@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'platform/components/buttons/ProductTile';
@@ -9,25 +8,27 @@ import 'app/components/common/HorizonProductTile';
  *
  *
  * @export
- * @class HorizonProductBar
+ * @class ProductButtonPanel
  * @extends {Component}
  */
-export class HorizonProductBar extends Component {
+export class ProductButtonPanel extends Component {
 
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (event) => this._onUpdatePageDetails(event));
-
 		this.disableNavigation = false;
-		// Boolean value to diaplay or hide the Favourites Tile according to the page on which we are
-        this.displayFavTile = false;
-        this.subtitle = {};
-		this.details = {};
+		this.subtitle = {};
+		this.detail = null;
 	}
 
+	/**
+	 *
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof ProductButtonPanel
+	 */
 	static get properties() {
 		return {
 			disableNavigation: { type: Boolean },
@@ -60,13 +61,6 @@ export class HorizonProductBar extends Component {
 		];
 	}
 
-	// TODO: Raise events and handle navigation in the client of this component
-
-	_onUpdatePageDetails(event) {
-		this.subtitle = event.subtitle;
-		this.detail = event.detail;
-	}
-
 	onSavingsAccountClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
@@ -93,18 +87,10 @@ export class HorizonProductBar extends Component {
 
 	render() {
 		return html`
-					<div class="products-card">
-					    <horizon-product-tile class="product-button ${this.displayFavTile ? `` : `hide-tile`}" 
-                                              type="favourites" 
-                                              label="Favourites"
-							                  subtitle="Transact, dispute, cards and more"
-											  tileIcon = '/images/favourites.svg'>
-						</horizon-product-tile>
-					
 						<horizon-product-tile class="product-button" 
                                               type="transact" 
                                               label="Savings Account"
-							                  subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
+											  subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
                                               detail="${this.detail ? this.detail.savingsAccount : ``}"
                                               icon="product/transact-white"
 							                  @click="${() => this.onSavingsAccountClick()}">
@@ -140,4 +126,4 @@ export class HorizonProductBar extends Component {
 	}
 }
 
-window.customElements.define(`horizon-product-bar`, HorizonProductBar);
+window.customElements.define(`horizon-product-button-panel`, ProductButtonPanel);

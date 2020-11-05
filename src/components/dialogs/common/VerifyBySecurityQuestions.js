@@ -8,11 +8,13 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/VerifyCallerFailed';
 
 const RENDER_MODE = {
 	SECURITY_QUESTIONS: 0,
-	END_CALL: 1
-}
+	END_CALL: 1,
+	FIRST_FAILURE: 2
+};
 const HEADER_LABEL = `Security Questions`;
 
 /**
@@ -40,7 +42,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.questions = [];
 		this.checked = false;
 
-		//Response is Mocked for now,as channel service is not ready to get security questiosn list
+		// TODO: Response is Mocked for now,as channel service is not ready to get security questiosn list
 		this.response = securityQuestions;
 
 		this.horizonStore = HorizonStore.getInstance();
@@ -98,8 +100,7 @@ export class VerifyBySecurityQuestions extends Component {
 	_onContinueClick() {
 		if (!this.checked) {
 			// show an Alert Banner for radio button validation - To Do
-		}
-		else {
+		} else {
 			this.questionNumber++;
 			this.checked = false;
 		}
@@ -107,7 +108,8 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_verifyAnswers() {
-		// To be handled -service call to verify answers after going through all the security questions
+		// TODO: To be handled -service call to verify answers after going through all the security questions
+		this.renderMode = RENDER_MODE.FIRST_FAILURE;
 	}
 
 	_onEndCall() {
@@ -126,7 +128,7 @@ export class VerifyBySecurityQuestions extends Component {
 			};
 
 			// saving to the state - answers selected by the caller for each question
-			this.horizonStore.saveState({ "securityQuestions": this.state })
+			this.horizonStore.saveState({ "securityQuestions": this.state });
 		}
 	}
 
@@ -267,19 +269,21 @@ export class VerifyBySecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
+			case RENDER_MODE.FIRST_FAILURE: 
+				return html`${this._renderFailureModal()}`;
+			default:
+				return html``;
 		}
 	}
 
 	_renderSecurityQuestions(item, index) {
 
 		let answers = this.questions[index].answers;
-		answers = answers.map(item => {
-			return {
+		answers = answers.map(item => ({
 				"key": item.answerId,
 				"value": item.answer,
 				"checked": item.isEnteredAnswerYN
-			}
-		});
+			}));
 
 		if (index === this.questionNumber) {
 			return html`
@@ -314,9 +318,16 @@ export class VerifyBySecurityQuestions extends Component {
 		`;
 	}
 
+	_renderFailureModal() {
+		return html`<horizon-verify-caller-failed .incomingCallDetails="${this.incomingCallDetails}"></horizon-verify-caller-failed>`;
+	}
+
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @on-cancel="${() => { this.renderMode = RENDER_MODE.CONFIRM_CALLER }}"
+			<horizon-end-call-session 
+				@on-cancel="${() => {
+ 					this.renderMode = RENDER_MODE.CONFIRM_CALLER; 
+				}}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

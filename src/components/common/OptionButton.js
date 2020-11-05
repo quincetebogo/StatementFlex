@@ -6,9 +6,11 @@ import { Component, css, html } from 'platform/elements';
  * **Usage**
  * ```html
  * <horizon-option-button
- *   label="Label Test"
+ *   label="The label string to display"
  *   icon="platform icon | null"
+ *   iconSize="platform icon size | null"
  *   img-src="path to image | null"
+ *   type="platform button type or null"
  	>
  * </horizon-option-button>
  * ```
@@ -16,7 +18,8 @@ import { Component, css, html } from 'platform/elements';
  * **Events**
  * - ```click``` When the button is clicked.
  */
-export class HorizonOptionButton extends Component {
+
+export class OptionButton extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -41,7 +44,9 @@ export class HorizonOptionButton extends Component {
  * 
  * @property {String} [label] - The label string to display.
  * @property {String} [icon] - A platform icon to display.
+ * @property {String} [iconSize] - Used in conjunction with the icon attribute. This is a <capitec-icon>, icon size setting.
  * @property {String} [img-src] - Path to an image to display. This will only be displayed if icon is NOT provided.
+ * @property {String} [type] - A <capitec-button> type
  */
 	static get properties() {
 		return {
@@ -135,4 +140,4 @@ export class HorizonOptionButton extends Component {
 	}
 }
 
-window.customElements.define(`horizon-option-button`, HorizonOptionButton);
+window.customElements.define(`horizon-option-button`, OptionButton);

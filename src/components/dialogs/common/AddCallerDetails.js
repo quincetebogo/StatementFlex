@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonCallerInfoBar';
@@ -55,6 +57,9 @@ export class AddCallerDetails extends Component {
 		this.isBusy = false;
 		this.validationFailed = false;
 		this.alertBannerMessage = ``;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -136,14 +141,14 @@ export class AddCallerDetails extends Component {
 		this.validationFailed = false;
 	}
 
-	addCallerDetails() {
+	_onAddCallerDetails() {
 
 		if (!this.validateData()) {
-			this.callerDetailsAdded();
+			this._callerDetailsAdded();
 		}
 	}
 
-	async callerDetailsAdded() {
+	async _callerDetailsAdded() {
 
 		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
@@ -159,18 +164,40 @@ export class AddCallerDetails extends Component {
 			nonClientRelationship: this.nonClientRelationship.value
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
-		const addedcallerdetails = returnValue.result;
-
-		if (returnValue.succeeded) {
-			this.dispatchEvent(new CustomEvent(`caller-added`, {
-				detail: {
-					clientProfileDetails: addedcallerdetails,
-					incomingCallDetails: this.incomingCallDetails
-				}
-			}));
+		if (this.ivrOption.value === `StopCard`) {
+			const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+			const addedcallerdetails = returnValue.result;
+	
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`caller-added`, {
+					detail: {
+						clientProfileDetails: addedcallerdetails,
+						incomingCallDetails: this.incomingCallDetails
+					}
+				}));
+				
+				// TODO: Move navigatin to stop card screen here
+				// this.horizonRouter.navigateToStopCard();
+			} else {
+				// TODO: Handle failure on call to identifyCaller
+			}
+	
 		} else {
-			// TODO: Handle failure on call to identifyCaller
+			// TODO: Should there be a channel service call to record the third party against the incident
+			const state = {
+				incomingCallDetails: this.incomingCallDetails,
+				unverifiedCaller: {
+					fullName: this.confirmedCaller.callerInformation.name.value,
+					idNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+					incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+					livesIn: this.confirmedCaller.callerInformation.livesIn.value,
+					languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
+					birthdate: this.confirmedCaller.callerInformation.birthdate.value
+				}
+			};
+
+			this.horizonStore.saveState(state);
+			this.horizonRouter.navigateToInsureThirdPartyClient();
 		}
 	}
 
@@ -414,7 +441,7 @@ export class AddCallerDetails extends Component {
 								?hidden=${isHidden(this.confirmButton)}
 								.disabled="${isDisabled(this.confirmButton)}"
 								tabindex="${getTabIndex(this.confirmButton)}"
-								@click="${() => this.addCallerDetails()}">
+								@click="${() => this._onAddCallerDetails()}">
 				</capitec-button>
 			</capitec-group>`;
 	}
@@ -427,4 +454,4 @@ export class AddCallerDetails extends Component {
 	}
 }
 
-window.customElements.define(`horizon-add-caller`, AddCallerDetails);
+window.customElements.define(`horizon-add-caller-details`, AddCallerDetails);
