@@ -6,7 +6,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
 import 'app/components/common/AccessMenuBar';
-import 'app/components/common/ClientProfileDetails';
+import 'app/components/common/ProfileAndProductSummaryBar';
 
 export class ClientProfile extends View {
 

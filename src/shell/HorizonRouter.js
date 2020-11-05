@@ -10,15 +10,18 @@ const HORIZON_ROUTES = {
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	CLIENT_PROFILE_PAGE: `/client/profile`,
-	CARD_STOP_SUCCESS: `/client/profile/stoppedcards`,
-	CARD_STOP_FAILURE: `/client/profile/stopcardfailed`,
+	CARD_STOP_VERIFIED_PAGE: `/card-stop/verified`,
+	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
+	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
+	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_NONCLIENT: `/insure/non-client`,
-	INSURE_VERIFIED_PROSPECTIVE: `/insure/verified-prospective`,
-	INSURE_UNVERIFIED_PROSPECTIVE: `/insure/unverified-prospective`,
-	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client/verified`,
-	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client/unverified`,
-	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party-client`
+	INSURE_VERIFIED_PROSPECTIVE: `/insure/prospective-verified`,
+	INSURE_UNVERIFIED_PROSPECTIVE: `/insure/prospective-unverified`,
+	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client-verified`,
+	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client-unverified`,
+	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party`,
+	TRANSACT_FAVOURITES_VERIFIED_PAGE: `/transact/favourites-verified`,
+	TRANSACT_FAVOURITES_UNVERIFIED_PAGE: `/transact/favourites-unverified`
 };
 
 let horizonRoutes = [];
@@ -29,7 +32,7 @@ export default horizonRoutes = [
 		title: `LandingPageView`,
 		icon: null,
 		path: HORIZON_ROUTES.LANDING_PAGE,
-		load: () => import(`../views/LandingPage`),
+		load: () => import(`../views/waitingForCall/LandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		},
@@ -103,7 +106,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_NONCLIENT,
 		load: () => import(`../views/insure/InsureProductNonClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
@@ -111,9 +114,9 @@ export default horizonRoutes = [
 		title: `InsureProductUnverifiedProspective`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
-		load: () => import(`../views/insure/UnverifiedProspective`),
+		load: () => import(`../views/insure/InsureUnverifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
@@ -123,7 +126,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE,
 		load: () => import(`../views/insure/VerifiedProspective`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.NONCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
@@ -140,30 +143,30 @@ export default horizonRoutes = [
 		name: `client-profile`,
 		title: `ClientProfile`,
 		icon: null,
-		path: HORIZON_ROUTES.CLIENT_PROFILE_PAGE,
+		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/ClientProfile`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
 		name: `horizon-stop-card-success`,
 		title: `StopCard`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_SUCCESS,
+		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
 	},
 	{
 		name: `horizon-stop-card-failure`,
 		title: `StopCardFail`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_FAILURE,
+		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.CARD_STOP);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
 	},
 	{
@@ -173,7 +176,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT,
 		load: () => import(`../views/insure/VerifiedExistingClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
 	},
 	{
@@ -183,7 +186,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT,
 		load: () => import(`../views/insure/UnverifiedExistingClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.EXISTINGCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	},
 	{
@@ -193,10 +196,31 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT,
 		load: () => import(`../views/insure/ThirdPartyBeneficiaryClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.THIRDPARTYCLIENT_INSURE);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-favourites`,
+		title: `Favourites`,
+		icon: null,
+		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE,
+		load: () => import(`../views/quickTransact/Favourites`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-unverified-favourites`,
+		title: `FavouritesUnverified`,
+		icon: null,
+		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE,
+		load: () => import(`../views/quickTransact/FavouritesUnverified`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	}
 ];
+
 export class HorizonRouter {
 
 	constructor() {
@@ -246,15 +270,15 @@ export class HorizonRouter {
 	}
 
 	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CLIENT_PROFILE_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
 	}
 
 	navigateToStoppedCards() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
 	}
 
 	navigateToStopCardFailed() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
 	}
 
 	navigateToInsureNonClient() {
@@ -269,7 +293,23 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT);
 	}
 
+	navigateToInsureVerifiedProspectiveClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE);
+	}
+
+	navigateToInsureUnverifiedProspectiveClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE);
+	}
+
 	navigateToInsureThirdPartyClient() {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT);
+	}
+
+	navigateToVerifiedFavourites() {
+		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
+	}
+	
+	navigateToUnverifiedFavourites() {
+		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE);
 	}
 }

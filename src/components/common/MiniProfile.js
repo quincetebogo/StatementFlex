@@ -1,45 +1,23 @@
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isDisabled, isHidden } from '../../utils/channelServiceUtilities';
-import { EventAggregator } from 'platform/EventAggregator';
 
-import 'platform/components/buttons/ProductTile';
+import 'app/components/common/OptionButton';
 
 /**
- * ClientProfileDetails displays the left hand bar of the Horizon display. This contains
- * the mini client profile, product buttons and various short cuts depending on the
- * state of the system
+ * A component for displaying a mini-client profile. This component also displays buttons and 
+ * banners that vary according according ot the state of the incoming caller 
+ * (verified, unverified, failed verification, third party, non-client etc.)
  *
  * @export
- * @class ClientProfileDetails
+ * @class MiniProfile
  * @extends {Component}
  */
-export class ClientProfileDetails extends Component {
+export class MiniProfile extends Component {
 
-	// --------------
 	// INITIALISATION
 	// --------------
 
 	constructor() {
 		super();
-
-		this.EventAggregator = EventAggregator.getInstance();
-
-		this.viewProfileButton = {
-			enabled: true,
-			tabIndex: 0,
-			visible: ``
-		};
-		
-		this.documentsButton = {
-				enabled: true,
-				tabIndex: 0,
-				visible: ``
-		};
-
-		this.isProfileButtonHidden = false;
-		this.isDocumentButtonHidden = false;
-		
-		this.clientType = ``;
 
 		this.miniProfile = {
 			name: ``,
@@ -48,22 +26,25 @@ export class ClientProfileDetails extends Component {
 			livesIn: ``,
 			languagePreference: ``,
 			birthday: ``,
-			isConfirmed: false
+			showButtons: false,
+			isConfirmed: false,
+			isVerified: false,
+			verificationFailed: false,
+			is3rdParty: false,
+			isNonClient: false
 		};
 	}
 
-	// ----------
-	// PROPERTIES
-	// ----------
-
+	/**
+	 * @property {Object} miniProfile Data and flags for updating the mini-profile panel view
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof MiniProfile
+	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object },
-			clientType: { type: String },
-			viewProfileButton: { type: Object },
-			documentsButton: { type: Object },
-			isProfileButtonHidden: { type: Boolean },
-			isDocumentButtonHidden: { type: Boolean }
+			miniProfile: { type: Object }
 		};
 	}
 
@@ -73,23 +54,11 @@ export class ClientProfileDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.EventAggregator.subscribe(`horizon-update-left-hand-bar`, (event) => this._onUpdateLeftButtons(event));
-
-		this.EventAggregator.subscribe(`mini-client-profile`, (profile) => this._onUpdateMiniClientProfile(profile));
 	}
 
 	// ---------
 	// EVENTS
 	// ---------
-
-	_onUpdateLeftButtons(event) {
-		this.viewProfileButton.visible = event.isProfileButtonVisible;
-		this.documentsButton.visible = event.isDocumentsButtonVisible;
-		this.clientType = event.clientType;
-		this.isProfileButtonHidden = isHidden(this.viewProfileButton);
-		this.isDocumentButtonHidden = isHidden(this.documentsButton);
-	}
 
 	_onUpdateMiniClientProfile(profile) {
 
@@ -100,29 +69,30 @@ export class ClientProfileDetails extends Component {
 			livesIn: profile.livesIn,
 			languagePreference: profile.languagePreference,
 			birthday: profile.birthday,
-			isConfirmed: profile.isConfirmed
+			showButtons: profile.showButtons,
+			isConfirmed: profile.isConfirmed,
+			isVerified: profile.isVerified,
+			verificationFailed: profile.verificationFailed,
+			is3rdParty: profile.is3rdParty,
+			isNonClient: profile.isNonClient
 		};
+	}
+
+	_onDocumentClick() {
+		this.EventAggregator.publish(`horizon-view-documents-click`, {});
+	}
+
+	_onViewProfileClick() {
+		this.EventAggregator.publish(`horizon-view-profile-click`, {});
+	}
+
+	_onVerifyNowClick() {
+		this.EventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
 	// --------- 
 	// PRIVATE
 	// ---------
-
-	_onDocumentClick() {
-		this.dispatchEvent(new CustomEvent(`on-document-click`, {
-			detail: {}
-		}));
-	}
-
-	_onViewProfileClick() {
-		this.dispatchEvent(new CustomEvent(`on-view-profile-click`, {
-			detail: {}
-		}));
-	}
-
-	_onVerifyNowClick() {
-		this.EventAggregator.publish(`verify-now-click`, {});
-	}
 
 	_replaceEmptyValue(value) {
 		if (value === null || value === ``) {
@@ -162,11 +132,6 @@ export class ClientProfileDetails extends Component {
 		return [
 			super.styles,
 			css`
-			.left-card {
-				width: 440px;
-				height: 770px;
-				padding: 0px 0px 0px 0px;
-			}
 			.hello-card {
 				width: 440px;
 				height: auto;
@@ -177,8 +142,8 @@ export class ClientProfileDetails extends Component {
 				height: auto;
 			}
 			.client-image-box{
-				height: 176px;
-				padding: 16px 16px 0px 16px;
+				height: auto;
+				padding: 16px 16px 16px 16px;
 				display: flex;
 				flex-direction: row;
 			}
@@ -192,10 +157,6 @@ export class ClientProfileDetails extends Component {
 			.client-details-box{
 				width: 230px;
 				margin-left: 16px;
-			}
-			b{
-				font: bold 20px/30px Hind Vadodara;
-				color: #003652;
 			}
 			capitec-group > capitec-label:first-child {
 				height: 24px;
@@ -233,45 +194,25 @@ export class ClientProfileDetails extends Component {
 			}
 			.client-wrapper-box{
 				height: auto;
+				padding-top: 0px;
+				padding-bottom:16px;
 			}
-			.view-button{
+			horizon-option-button {
 				height: 88px;
 				width: 198px;
-			}
-			.document-button{
-				height: 88px;
-				width: 195px;
-				float: right;
-			}
-			.view-Document-box{
-				height:50px;
-				width:150px;
-				padding: 0px 0px 0px 0px;
-			}
-			.horizon-client-authorised{
-				display: flex;
-				flex-direction: row;
-				width: 438px;
-				height: 48px;
-				border-radius: 0 0 4px 4px;
-				background-color: rgba(212,120,28,0.15);
-			}
-			#authorised-icon{
-				margin: 13px 12px 0px 23px;
-				height: 24px;
-				width: 24px;
-			}
-			#authorised-text{
-				height: 23px;
-				width: 279px;
-				color: #E47C28;
-				font-family: "Hind Vadodara";
-				font-size: 15px;
-				font-weight: 500;
-				letter-spacing: 0;
-				line-height: 23px;
-				margin: 11px 0px 0px 0px;
-				padding: 0px;
+				box-sizing: border-box;
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
+				background-color: #FFFFFF;
+
+				--theme-button-default-border-width: 0px; 
+
+				--horizon-option-btn-icon-height: 26px;
+				--horizon-option-btn-icon-width: 26px;
+				--horizon-option-btn-text-margin-top: 3px;
+				--horizon-option-btn-text-line-height: 20px;
+				--horizon-option-btn-text-font-weight: 500;
+				--horizon-option-btn-text-color: #545D60;
 			}
 			.client-profile-alert{
 				height: 48px;
@@ -304,37 +245,27 @@ export class ClientProfileDetails extends Component {
 			.verify-via-app-link{
 				padding-left:55px;
 				--theme-hyperlink-color: rgb(200, 59, 55);
-			}`
+			}
+			`
 		];
 	}
-
-	render() {
-		return html`
-		<section class="left-card">
-			<div>
-				${this.renderClientDetails()}
-			</div>
-			<horizon-product-bar ?disablenavigation=${true}></horizon-product-bar>
-		</section>`;
-	}
-
-	renderClientDetails() {
+	
+	_webTemplate() { 
 		return html`
 			<capitec-card class="hello-card">
 				<capitec-group class="client-details-group" layout="grid" gap="none" rows="auto" columns="auto">
 					<capitec-content-box class="client-image-box" row="1" column="1" colspan="2" nopadding>
-						${this.renderClientImage()}
-						${this.renderClientPersonalInfo()}
+						${this._renderClientImage()}
+						${this._renderClientPersonalInfo()}
 					</capitec-content-box>
-					${this.renderActionButtons()}
+					${this._renderActionButtons()}
 				</capitec-group>
-			
-				${this.renderBanner()}
 			</capitec-card>
-			`;
+			${this._renderBanner()}
+		`;
 	}
 
-	renderClientImage() {
+	_renderClientImage() {
 		return html`
 			<div class="client-img">
 				<capitec-icon 
@@ -344,7 +275,7 @@ export class ClientProfileDetails extends Component {
 			</div>`;
 	}
 
-	renderClientPersonalInfo() {
+	_renderClientPersonalInfo() {
 		return html`
 			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
 				<capitec-label 
@@ -405,91 +336,62 @@ export class ClientProfileDetails extends Component {
 			</capitec-group>`;
 	}
 
-	renderActionButtons() {
+	_renderActionButtons() {
+		if (!this.miniProfile.showButtons) {
+			return html``;
+		}
+
 		return html`
 			<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
-				<div>
-					<capitec-button 
-						class="view-button" 
-						?hidden="${this.isProfileButtonHidden}"
-						.disabled="${isDisabled(this.viewProfileButton)}" 
-						tabindex="${getTabIndex(this.viewProfileButton)}"
+				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
+					<horizon-option-button
+						class="view-button"
+						label="View profile"
+						icon="system/profile-action"
+						iconSize="default"
 						@click="${() => this._onViewProfileClick()}">
-							<capitec-content-box 
-								class="view-Document-box" 
-								layout="vertical" 
-								halign="center" 
-								valign="top" 
-								gap="clear">
-									<capitec-icon 
-										size="small" 
-										icon="system/profile">
-									</capitec-icon>
-									<capitec-label label="View profile"></capitec-label>
-							</capitec-content-box>
-					</capitec-button>
+					</horizon-option-button>
 
-					<capitec-button 
-						class="document-button" 
-						?hidden="${this.isDocumentButtonHidden}"
-						.disabled="${isDisabled(this.documentsButton)}" 
-						tabindex="${getTabIndex(this.documentsButton)}"
+					<horizon-option-button
+						class="document-button"
+						label="Document"
+						icon="system/documents-action"
+						iconSize="default"
 						@click=${() => this._onDocumentClick()}>
-							<capitec-content-box 
-								class="view-Document-box" 
-								layout="vertical" 
-								halign="center" 
-								valign="top" 
-								gap="clear">
-									<capitec-icon 
-										size="small" 
-										icon="system/documents">
-									</capitec-icon>
-									<capitec-label label="Document"></capitec-label>
-							</capitec-content-box>
-					</capitec-button>
-				</div>
-			</capitec-content-box>`;
+					</horizon-option-button>
+				</capitec-group>
+			</capitec-content-box>
+		`;
 	}
 
-	renderBanner() {
-		switch (this.clientType) {
-			case `unverified-existing-client`: // banner checked
-			case `unverified-prospective`:
-				return html`
-				<capitec-alert-banner class="client-profile-alert" type="warning-trans">
-					Client has not been verified
-					<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
-					</capitec-hyperlink>
-				</capitec-alert-banner>
-				`;
-			case `verified-existing-client`:
-			case `verified-prospective`:
-			case `non-client:`:
-				return html``;
-			default:
-				return html``;
-		}
-		
+	_renderBanner() {
+		if (this.miniProfile.isVerified || this.miniProfile.isNonClient) {
+			return html``;
+		} else if (this.miniProfile.is3rdParty) {
+			return html`
+			<capitec-alert-banner class="client-profile-alert" type="warning">
+				Client has not been verified
+				</capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+		} else if (this.miniProfile.verificationFailed) {
+			return html`
+			<capitec-alert-banner class="client-profile-error" type="error-trans">
+				Client failed security questions
+				<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
+					label="Verify via the app"></capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+		};
 
-		// This is to handle banner on 'Verification failed' screen, Once the screen is ready, this snippet helps to dispaly the banner. 
-		/* if (this.clientType == 'verificationFailed') {
-			  return html`
-					<capitec-alert-banner class="client-profile-error" type="error-trans">
-						Client failed security questions
-						<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
-							label="Verify via the app"></capitec-hyperlink>
-					</capitec-alert-banner>
-					`;
-		 }*/
-
-	
 		return html`
-			<div class="horizon-client-authorised">
-				<capitec-icon id="authorised-icon" size="small" icon="status/warning"></capitec-icon>
-				<a id="authorised-text" href="">Not Authorised</a>
-			</div>`;
-	}
+			<capitec-alert-banner class="client-profile-alert" type="warning">
+				Client has not been verified
+				<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+				</capitec-hyperlink>
+			</capitec-alert-banner>
+			`;
+	} 
 }
 
-window.customElements.define(`client-details`, ClientProfileDetails);
+window.customElements.define(`horizon-mini-profile`, MiniProfile);

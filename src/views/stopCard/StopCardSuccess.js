@@ -2,7 +2,7 @@ import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/HorizonOptionButton';
+import 'app/components/common/OptionButton';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {

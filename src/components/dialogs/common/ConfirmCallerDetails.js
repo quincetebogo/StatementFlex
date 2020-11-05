@@ -16,7 +16,7 @@ import 'platform/components/core/Icon';
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
-import 'app/components/dialogs/common/VerifyCaller'; // TODO: Verify Caller is common and not part of insure
+import 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -32,9 +32,9 @@ const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
 	END_CALL: 2,
-	SEARCH_CALLER: 3,
-	INSURE_SEARCH_CALLER: 4,
-	INSURE_VERIFY_CALLER: 5
+	STOP_CARD_SEARCH_CALLER: 3,
+	SEARCH_CALLER: 4,
+	VERIFY_CALLER: 5
 };
 
 const HEADER_LABEL = `Confirm Caller Details`;
@@ -106,8 +106,8 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService.addCallerDetails(this.addCallerDetails, null);
-		this.addCallerDetails = this.cardService.result;
+		const returnValue = await this.cardService.addCallerDetails(callDetails, null);
+		this.addCallerDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
@@ -125,15 +125,11 @@ export class ConfirmCallerDetails extends Component {
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this._fetchInsureDetails(); // TODO: We go to verify caller if need is not Stop Card. This should not be tied to insure
-		} else {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._fetchClientCards();
+		} else {
+			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
-	}
-
-	_fetchInsureDetails() {
-		this.renderMode = RENDER_MODE.INSURE_VERIFY_CALLER;
 	}
 
 	async _fetchClientCards() {
@@ -153,7 +149,7 @@ export class ConfirmCallerDetails extends Component {
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
 		const clientProfileDetails = returnValue.result;
-		
+
 		if (returnValue.succeeded) {
 			this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 				detail: {
@@ -204,28 +200,33 @@ export class ConfirmCallerDetails extends Component {
 	_onSearchClick() {
 
 		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
-		} else {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		} else {
+			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 		}
 	}
-	
+
 	_onSkipVerification(e) {
 		const confirmedCaller = {
 			fullName: this.callerFullName.value,
 			idNumber: this.southAfricanIDNumber.value,
+			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
 			birthdate: this.birthdate.value
 		};
 
-		const state = {
-			unverifiedCaller: confirmedCaller,
-			incomingCallDetails: this.incomingCallDetails
-		};
 
-		// TODO: Still need to determine if client has insure products or not
-		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToInsureUnverifiedExistingClient();
+		if (this.ivrOption.value === `Insure`) {
+			// TODO: Still need to determine if client has insure products or not
+			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
+			const state = {
+				unverifiedCaller: confirmedCaller,
+				verifiedCaller: confirmedCaller,
+				incomingCallDetails: this.incomingCallDetails
+			};
+			this.horizonStore.saveState(state);
+			this.horizonRouter.navigateToVerifiedFavourites();
+		}
 	}
 
 	// --------------
@@ -407,15 +408,15 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog 
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
+					<horizon-caller-dialog
+                                .incomingCallDetails="${this.incomingCallDetails}" 
+                                .headerLabel="${HEADER_LABEL}"
+						        @on-end-call="${() => this._onEndCall()}"
+                                @on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this.renderAddCallerDetails()}
-								${this.renderConfirmedCaller()} 
+								${this.renderConfirmedCaller()}
 								${this.renderLoadingIndicator()}
 							</capitec-content-box>
 						</div>
@@ -430,13 +431,13 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
 
+			case RENDER_MODE.STOP_CARD_SEARCH_CALLER:
+				return html`${this.renderStopCardSearchModal()}`;
+
 			case RENDER_MODE.SEARCH_CALLER:
-				return html`${this.renderSearchCallerModal()}`;
+				return html`${this.renderSearchModal()}`;
 
-			case RENDER_MODE.INSURE_SEARCH_CALLER:
-				return html`${this.renderInsureSearchCallerModal()}`;
-
-			case RENDER_MODE.INSURE_VERIFY_CALLER:
+			case RENDER_MODE.VERIFY_CALLER:
 				return html`${this.renderVerifyCallerModal()}`;
 			default:
 				return html``;
@@ -446,11 +447,11 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink 
-				label="Add Caller Details" 
-				tabindex="${getTabIndex(this.addCallerDetailsButton)}"
+			<capitec-hyperlink
+                label="Add Caller Details"
+                tabindex="${getTabIndex(this.addCallerDetailsButton)}"
 				@click="${() => this._onAddCallerDetails()}">
-			</capitec-hyperlink> 
+			</capitec-hyperlink>
 			if the caller is calling on another client's behalf
 		</capitec-alert-banner>`;
 	}
@@ -458,56 +459,56 @@ export class ConfirmCallerDetails extends Component {
 	renderConfirmedCaller() {
 		return html`
 				<capitec-group class="client-info" layout="horizontal" gap="none">
-					<capitec-avatar
-						class="image"
-						shape = "none"
-						value = ""
-						tabindex="-1">
+					<capitec-avatar 
+                        class="image" 
+                        shape = "none" 
+                        value = "" 
+                        tabindex="-1">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label row = "1" column = "1" colspan="2" class="fullname"
-							label="${this.callerFullName.value}"
-							tabindex="${getTabIndex(this.callerFullName)}"
-							?hidden=${isHidden(this.callerFullName)}>
+                            label="${this.callerFullName.value}"
+							tabindex="${getTabIndex(this.callerFullName)}" 
+                            ?hidden=${isHidden(this.callerFullName)}>
 						</capitec-label>
 						<horizon-label
-							class="client-info-row"
-							row = "2" column = "1" 
-							label="ID Number"
-							value="${this.southAfricanIDNumber.value}"
-							tabindex="${getTabIndex(this.southAfricanIDNumber)}"
+                            class="client-info-row" 
+                            row = "2" column = "1"
+                            label="ID Number"
+							value="${this.southAfricanIDNumber.value}" 
+                            tabindex="${getTabIndex(this.southAfricanIDNumber)}"
 							?hidden=${isHidden(this.southAfricanIDNumber)}>
 						</horizon-label>
-						<horizon-label
-							class="client-info-row"
-							row = "2" column = "2"
-							label="Verified Cellphone Number"
-							value="${this._getVerifiedTelephoneNumber()}"
-							tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
+						<horizon-label 
+                            class="client-info-row" 
+                            row = "2" column = "2"
+                            label="Verified Cellphone Number"
+							value="${this._getVerifiedTelephoneNumber()}" 
+                            tabindex="${getTabIndex(this.verifiedTelephoneNumber)}"
 							?hidden=${isHidden(this.verifiedTelephoneNumber)}>
 						</horizon-label>
 						<horizon-label
-						class="client-info-row"
-							row="3" columun = "1"
-							label="Lives In"
-							value="${this.livesIn.value}"
-							tabindex="${getTabIndex(this.livesIn)}"
-							?hidden=${isHidden(this.livesIn)}>
+                            class="client-info-row"
+                            row="3" columun = "1"
+                            label="Lives In"
+                            value="${this.livesIn.value}"
+							tabindex="${getTabIndex(this.livesIn)}" 
+                            ?hidden=${isHidden(this.livesIn)}>
 						</horizon-label>
-						<horizon-label
-							class="client-info-row"
-							row="3" columun = "2"
-							label="Language Preference"
+						<horizon-label 
+                            class="client-info-row" 
+                            row="3" columun = "2" 
+                            label="Language Preference"
 							value="${this._getLanguagePreference()}"
-							tabindex="${getTabIndex(this.languagePreference)}"
+                            tabindex="${getTabIndex(this.languagePreference)}"
 							?hidden=${isHidden(this.languagePreference)}>
 						</horizon-label>
 						<horizon-label
-							class="client-info-row"
-							row="4" columun = "1"
-							label="Birthday"
+                            class="client-info-row"
+                            row="4" columun = "1"
+                            label="Birthday"
 							value="${this._getBirthdate(this.birthdate)}"
-							tabindex="${getTabIndex(this.birthdate)}"
+                            tabindex="${getTabIndex(this.birthdate)}"
 							?hidden=${isHidden(this.birthdate)}>
 						</horizon-label>
 					</capitec-group>
@@ -519,22 +520,22 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-					id="id-search-button"
-					type="clear"
-					label="Search Client"
-					?hidden=${isHidden(this.searchClientButton)}
-					.disabled="${isDisabled(this.searchClientButton)}"
-					tabindex="${getTabIndex(this.searchClientButton)}"
-					@click="${() => this._onSearchClick()}">
+                    id="id-search-button" 
+                    type="clear"
+                    label="Search Client"
+					?hidden=${isHidden(this.searchClientButton)} 
+                    .disabled="${isDisabled(this.searchClientButton)}"
+					tabindex="${getTabIndex(this.searchClientButton)}" 
+                    @click="${() => this._onSearchClick()}">
 				</capitec-button>
-
+			
 				<capitec-button
-					id="id-confirm-button"
-					type="primary"
-					label="Confirm"
-					?hidden=${isHidden(this.confirmButton)}
-					.disabled="${isDisabled(this.confirmButton)}"
-					tabindex="${getTabIndex(this.confirmButton)}"
+                    id="id-confirm-button"
+                    type="primary"
+                    label="Confirm"
+                    ?hidden=${isHidden(this.confirmButton)}
+					.disabled="${isDisabled(this.confirmButton)}" 
+                    tabindex="${getTabIndex(this.confirmButton)}"
 					@click="${() => this._onConfirmClick()}">
 				</capitec-button>
 			</capitec-group>
@@ -553,36 +554,36 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		return html`
 			<horizon-add-caller
-				.confirmedCaller="${this.confirmedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.addCallerDialog="${this.addCallerDetails}"
-				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
+                .confirmedCaller="${this.confirmedCaller}" 
+                .incomingCallDetails="${this.incomingCallDetails}"
+				.addCallerDialog="${this.addCallerDetails}" 
+                @on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
 				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
-			</horizon-add-caller>`;
+			</horizon-add-caller-details>`;
 	}
 
 	renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+                @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				.incomingCallDetails = "${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
-	renderSearchCallerModal() {
+	renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller
-				.unverifiedCaller="${this.confirmedCaller}"
+                .unverifiedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}">
 			</horizon-stop-card-search-caller>`;
 	}
 
-	renderInsureSearchCallerModal() {
+	renderSearchModal() {
 		return html`
 			<horizon-search-caller
-				.unverifiedCaller="${this.confirmedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}"
+                .unverifiedCaller="${this.confirmedCaller}" 
+                .incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
 				@non-client-captured="${data => this._onNonClientCaptured(data)}">
 			</horizon-search-caller>`;
@@ -590,9 +591,10 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		return html`
-			<horizon-verify-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
-				@skip="${(e) => this._onSkipVerification(e)}">
+			<horizon-verify-caller
+                .incomingCallDetails="${this.incomingCallDetails}" 
+                @skip="${(e) => this._onSkipVerification(e)}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}
