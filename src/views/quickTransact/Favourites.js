@@ -13,8 +13,6 @@ export class Favourites extends View {
 
 	constructor() {
 		super();
-
-		this.displayMode = ``;
 	}
 
 	static get styles() {

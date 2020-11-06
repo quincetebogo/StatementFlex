@@ -13,8 +13,6 @@ export class FavouritesUnverified extends View {
 
 	constructor() {
 		super();
-
-		this.displayMode = ``;
 	}
 
 

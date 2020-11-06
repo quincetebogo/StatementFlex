@@ -30,12 +30,6 @@ export class TransactionFavourites extends Component {
 	constructor() {
 		super();
 
-		this.clientType = ``;
-		this.cardOptions = [];
-		this.cardOptionSelected = ``;
-		this.documentsOptions = [];
-		this.documentsOptionsSelected = ``;
-		this.clientVerified = ``;
 		this.displayMode = ``;
 		this.disabled = false;
 		this.displayToast = false;
