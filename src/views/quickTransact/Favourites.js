@@ -13,8 +13,9 @@ export class Favourites extends View {
 
 	constructor() {
 		super();
-	}
 
+		this.displayMode = ``;
+	}
 
 	static get styles() {
 		return [
@@ -32,7 +33,11 @@ export class Favourites extends View {
 	}
 
 	_webTemplate() {
-		return html`<horizon-favourites-transations class="favourites"></horizon-favourites-transations>`;
+		return html`
+			<horizon-favourites-transations 
+				displayMode="client-verified"
+				class="favourites">
+			</horizon-favourites-transations>`;
 	}
 }
 
