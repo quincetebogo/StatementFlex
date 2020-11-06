@@ -17,8 +17,8 @@ export class HorizonChannelService extends Service {
 
 	constructor() {
 		super({
-				baseUrlKey: `serviceURIs.channelServiceUrl`,
-				name: `HorizonChannelService`
+			baseUrlKey: `serviceURIs.channelServiceUrl`,
+			name: `HorizonChannelService`
 		});
 
 		this.version = `v1`;
@@ -197,5 +197,9 @@ export class HorizonChannelService extends Service {
 			'feedback': feedbackDetails.feedback,
 			'updateIncident': feedbackDetails.updateIncident
 		});
+	}
+
+	xdsQuestions(clientID) {
+		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
 	}
 }

@@ -1,10 +1,11 @@
 import { Component, css, html } from 'platform/elements';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/SecurityQuestionsDialog';
+import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 
 const RENDER_MODE = {
@@ -40,6 +41,8 @@ export class VerifyCaller extends Component {
 		this.notVerified = false;
 
 		this.horizonStore = HorizonStore.getInstance();
+
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ----------
@@ -48,8 +51,9 @@ export class VerifyCaller extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
+			renderMode: { type: Number },
 			timeLeft: { type: String },
 			notVerified: { type: Boolean }
 		};
@@ -77,11 +81,17 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_verifyUsingSQ() {
-		// Show Security Questions dialog
-		this.minutes = 0;
-		this.seconds = 0;
-		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+    async _verifyUsingSQ() {
+
+		const clientID = this.unverifiedCaller.idNumber;
+		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
+
+		if (returnValue.succeeded) {
+			this.securityQuestions = returnValue.result;
+			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+		} else {
+			this.notVerified = true;
+		}
 	}
 
 	_skip() {
@@ -90,8 +100,8 @@ export class VerifyCaller extends Component {
 		}));
 	}
 
-	_onSequrityQuestionsCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+	_onSecurityQuestionsCancel() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
@@ -115,6 +125,9 @@ export class VerifyCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
 	_startTimer() {
 		const startTimer = setInterval(() => {
@@ -253,13 +266,14 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.VERIFY_CALLER:
 				return html`
 					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}" 
+                                .incomingCallDetails="${this.incomingCallDetails}"
                                 .headerLabel="${HEADER_LABEL}"
 						        @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}
 							${this._renderPushNotificationError()}
 							${this._renderOtherOptions()}
+							${this._renderLoadingIndicator()}
 						</div>
 					</horizon-caller-dialog>
 				`;
@@ -267,8 +281,10 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
-	                                @on-cancel="${() => this._onSequrityQuestionsCancel()}" 
-                                    @on-skip="${() => this._skip()}">
+									.unverifiedCaller="${this.unverifiedCaller}"
+                                    .securityQuestions="${this.securityQuestions}" 
+                                    @cancel="${() => this._onSecurityQuestionsCancel()}" 
+                                    @skip="${() => this._skip()}">
                             </horizon-security-question>`;
 
 			case RENDER_MODE.END_CALL:
@@ -290,10 +306,10 @@ export class VerifyCaller extends Component {
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
-                                        halign="center" 
-                                        valign="top" 
-                                        gap="clear" 
-                                        id="notification-status-group">
+                                    halign="center" 
+                                    valign="top" 
+                                    gap="clear" 
+                                    id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
@@ -313,15 +329,15 @@ export class VerifyCaller extends Component {
 		if (this.notVerified) {
 			return html`
 				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical"
-                                    halign="stretch" 
+					<capitec-group layout="vertical" 
+                                    halign="stretch"
                                     valign="top" 
                                     gap="clear">
 						<capitec-alert-banner type="error">
 							Notification didn't send due to a system error.
 						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-                                        halign="center" 
+						<capitec-group layout="vertical" 
+                                        halign="center"
                                         valign="top" 
                                         gap="clear"
                                         id="notification-status-error-group">
@@ -340,6 +356,15 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
+	_renderLoadingIndicator() {
+
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
 	_renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -347,21 +372,21 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button label="Security Questions" 
                                             icon="system/apply-now-action" 
-                                            iconSize="default"
+                                            iconSize="default" 
                                             type="clear"
 						                    @click="${() => this._verifyUsingSQ()}">
 					</horizon-option-button>
 					<horizon-option-button label="Skip" 
                                             icon="system/arrow-right-action"
-                                            iconSize="default"
+                                            iconSize="default" 
                                             type="clear"
-						                    @click="${() => this._skip()}">
+						@click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button label="Try Again"
+					<horizon-option-button label="Try Again" 
                                             img-src="/images/insure/refresh.svg" 
                                             iconSize="default" 
                                             type="clear"
-						                    @click="${() => this._tryAgain()}">
+						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-content-box>

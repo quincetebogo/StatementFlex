@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonLabel';
@@ -7,19 +8,24 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/HorizonRadioButtonsContainer';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyCallerFailed';
-
-import { securityQuestions } from '../../../../mocks/SecurityQuestionsResponseMock';
+import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = {
 	SECURITY_QUESTIONS: 0,
 	END_CALL: 1,
 	FIRST_FAILURE: 2
 };
-
 const HEADER_LABEL = `Security Questions`;
 
-export class SecurityQuestions extends Component {
+/**
+ * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
+ *
+ * @export
+ * @class VerifyBySecurityQuestions
+ * @extends {Component}
+ */
+
+export class VerifyBySecurityQuestions extends Component {
 
 
 	// --------------
@@ -30,28 +36,42 @@ export class SecurityQuestions extends Component {
 		super();
 
 		this.incomingCallDetails = {};
+		this.unverifiedCaller = {};
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
+		this.securityQuestions = {};
+		this.retryCount = 0;
 
-		// Response is Mocked for now,as channel service is not ready to get security questiosn list
-		this.response = securityQuestions;
 
 		this.horizonStore = HorizonStore.getInstance();
-
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Object} incomingCallDetails - Incoming Caller Information
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof VerifyBySecurityQuestions
+	 */
+
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			unverifiedCaller: { type: Object },
+			securityQuestions: { type: Object },
 			renderMode: { type: Number },
-			questionNumber: { type: Number }
+			questionNumber: { type: Number },
+			retryCount: { type: Number }
 		};
 	}
 
@@ -62,10 +82,7 @@ export class SecurityQuestions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.questions = this.response.questions;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
-		this.incomingCallDetails.ivrOption.value = `Insure`;
-
+		this.questions = this.securityQuestions.questions;
 	}
 
 	// --------------
@@ -73,13 +90,13 @@ export class SecurityQuestions extends Component {
 	// --------------
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
 
 	_onSkip() {
-		this.dispatchEvent(new CustomEvent(`on-skip`, {
+		this.dispatchEvent(new CustomEvent(`skip`, {
 			detail: {}
 		}));
 	}
@@ -95,9 +112,23 @@ export class SecurityQuestions extends Component {
 	}
 
 	_verifyAnswers() {
-		// To be handled -service call to verify answers after going through all the security questions
-		this.renderMode = RENDER_MODE.FIRST_FAILURE;
+		// TODO: To be handled -service call to verify answers after going through all the security questions
+		if (this.retryCount < 1) {
+			this.renderMode = RENDER_MODE.FIRST_FAILURE;
+			this.retryCount++;
+		} else {
+			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
 
+			const state = {
+				unverifiedCaller: this.unverifiedCaller,
+				verifiedCaller: this.unverifiedCaller,
+				incomingCallDetails: this.incomingCallDetails
+			};
+	
+			this.horizonStore.saveState(state);
+	
+			this.horizonRouter.navigateToVerifiedFavourites();
+		}
 	}
 
 	_onEndCall() {
@@ -117,6 +148,13 @@ export class SecurityQuestions extends Component {
 
 			// saving to the state - answers selected by the caller for each question
 			this.horizonStore.saveState({ "securityQuestions": this.state });
+		}
+	}
+
+	_retrySecurityQuestions() {
+		if (this.retryCount <= 1) {
+			this.questionNumber = 0;
+			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
 	}
 
@@ -257,11 +295,10 @@ export class SecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-
-			case RENDER_MODE.FIRST_FAILURE: 
+			case RENDER_MODE.FIRST_FAILURE:
 				return html`${this._renderFailureModal()}`;
-
 			default:
+				return html``;
 		}
 	}
 
@@ -269,16 +306,18 @@ export class SecurityQuestions extends Component {
 
 		let answers = this.questions[index].answers;
 		answers = answers.map(item => ({
-				"key": item.answerId,
-				"value": item.answer,
-				"checked": item.isEnteredAnswerYN
-			}));
+			"key": item.answerId,
+			"value": item.answer,
+			"checked": item.isEnteredAnswerYN
+		}));
 
 		if (index === this.questionNumber) {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question}"></capitec-label>
-				<horizon-radio-button class="radio-button" .radioButtonsAvailable="${answers}"
+				<horizon-radio-button 
+					class="radio-button" 
+					.radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button>
 		`;
@@ -288,46 +327,40 @@ export class SecurityQuestions extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group class="footer-wrapper" layout="horizontal">
-				<capitec-button id="id-cancel-button"
-                                type="clear"
-                                label="Cancel"
-                                @click="${() => this._onCancel()}">
+				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._onCancel()}">
 				</capitec-button>
 			
 				<capitec-spacer></capitec-spacer>
 			
-				<capitec-button id="id-skip-button"
-                                type="clear"
-                                label="Skip Verification"
-                                @click="${() => this._onSkip()}">
+				<capitec-button id="id-skip-button" type="clear" label="Skip Verification" @click="${() => this._onSkip()}">
 				</capitec-button>
 			
-				<capitec-button id="id-continue-button" 
-                                type="primary" 
-                                label="Continue"
-                                ?hidden="${!(this.questionNumber != this.questions.length - 1)}" 
-                                @click="${() => this._onContinueClick()}">
+				<capitec-button id="id-continue-button" type="primary" label="Continue"
+					?hidden="${!(this.questionNumber !== this.questions.length - 1)}" @click="${() => this._onContinueClick()}">
 				</capitec-button>
 			
-				<capitec-button id="id-verify-button" 
-                                type="primary" 
-                                label="Verify"
-					            ?hidden="${!(this.questionNumber == this.questions.length - 1)}" 
-                                @click="${() => this._verifyAnswers()}">
+				<capitec-button id="id-verify-button" type="primary" label="Verify"
+					?hidden="${!(this.questionNumber === this.questions.length - 1)}" @click="${() => this._verifyAnswers()}">
 				</capitec-button>
 			</capitec-group>
 		`;
 	}
 
 	_renderFailureModal() {
-		return html`<horizon-verify-caller-failed .incomingCallDetails="${this.incomingCallDetails}"></horizon-verify-caller-failed>`;
+		return html`
+			<horizon-security-questions-failed
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@security-questions="${() => this._retrySecurityQuestions()}"
+				@skip="${() => this._onSkip()}">
+			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @on-cancel="${() => {
-					this.renderMode = RENDER_MODE.CONFIRM_CALLER; 
-				}}"
+			<horizon-end-call-session 
+				@on-cancel="${() => {
+				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+			}}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
@@ -335,4 +368,4 @@ export class SecurityQuestions extends Component {
 }
 
 
-window.customElements.define(`horizon-security-question`, SecurityQuestions);
+window.customElements.define(`horizon-security-question`, VerifyBySecurityQuestions);

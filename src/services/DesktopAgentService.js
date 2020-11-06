@@ -255,6 +255,7 @@ export class DesktopAgentService {
 	_mapIvrOption(IvrOptionCode) {
 		switch (IvrOptionCode) {
 			case `1`: return `StopCard`;
+			case `3`: return `Transact`;
 			case `5`: return `Insure`;
 			case `51`: return `Insure`;
 			case `52`: return `Insure`;

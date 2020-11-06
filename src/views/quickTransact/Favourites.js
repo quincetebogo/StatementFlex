@@ -3,7 +3,7 @@ import { View, css, html } from 'platform/elements';
 import 'app/components/quickTransactions/TransactionFavourites';
 
 /**
- * The Insure view for a non-client. Only information about insurance products will be accessible.
+ * The Favourites view for a verified-client.
  *
  * @export
  * @class Favourites
@@ -33,11 +33,7 @@ export class Favourites extends View {
 	}
 
 	_webTemplate() {
-		return html`
-			<horizon-favourites-transations 
-				displayMode="client-verified"
-				class="favourites">
-			</horizon-favourites-transations>`;
+		return html`<horizon-favourites-transations class="favourites" displayMode="favourites-verified"></horizon-favourites-transations>`;
 	}
 }
 
