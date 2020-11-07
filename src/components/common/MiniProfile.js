@@ -160,7 +160,7 @@ export class MiniProfile extends Component {
 				width: 230px;
 				margin-left: 16px;
 			}
-			capitec-group > capitec-label:first-child {
+			.name-row {
 				height: 24px;
 				line-height: 24px;
 				width: auto;
@@ -216,15 +216,28 @@ export class MiniProfile extends Component {
 				--horizon-option-btn-text-font-weight: 500;
 				--horizon-option-btn-text-color: #545D60;
 			}
-			.client-profile-alert{
-				height: 48px;
-				background-color:#F9EBDD;
+			#id-notify-banner-group {
+				width: 380px;
+			}
+			#id-notify-client-warning-msg {
 				color: #D4781C;
 				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 700;
+				font-weight: 600px;
+				font-size: 15px;
 				letter-spacing: 0;
-				line-height: 23px;
+			}
+			#id-verify-now-warning-link {
+				--theme-hyperlink-color: #D4781C;
+				--theme-font-family: "Hind Vadodara";
+				--theme-font-weight: 600;
+			}
+			.client-profile-alert{
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-unsuccessful-red-border: none;
+
 				--theme-icon-size-default: 20px;
 				--theme-alert-banner-warning-border: none;
 				--theme-alert-banner-height: 48px;
@@ -240,9 +253,6 @@ export class MiniProfile extends Component {
 				line-height: 21px;
 				--theme-alert-banner-warning-border: none;
 				--theme-alert-banner-height: 48px;
-			}
-			.verify-now-link{
-				--theme-hyperlink-color:#D4781C;
 			}
 			.verify-via-app-link{
 				padding-left:55px;
@@ -281,6 +291,7 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
 				<capitec-label 
+					class="name-row"
 					row="1" column="1" 
 					label="${this.miniProfile.name}" 
 					type="subtitle">
@@ -373,7 +384,6 @@ export class MiniProfile extends Component {
 			return html`
 			<capitec-alert-banner class="client-profile-alert" type="warning">
 				Client has not been verified
-				</capitec-hyperlink>
 			</capitec-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed) {
@@ -388,9 +398,12 @@ export class MiniProfile extends Component {
 
 		return html`
 			<capitec-alert-banner class="client-profile-alert" type="warning">
-				Client has not been verified
-				<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
-				</capitec-hyperlink>
+				<capitec-group id="id-notify-banner-group" layout="horizontal">
+					<capitec-label id = "id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink id="id-verify-now-warning-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+					</capitec-hyperlink>
+				</capitec-group>				
 			</capitec-alert-banner>
 			`;
 	} 

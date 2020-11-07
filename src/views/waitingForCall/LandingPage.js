@@ -138,10 +138,14 @@ export class LandingPage extends View {
 
 		const incident = returnValue.result;
 		if (returnValue.succeeded && incident) {
-			console.log(`landing page - _onNewCall(): incident created, accepting call`);
 			await this._acceptCall(newCallInfo, incident);
 		} else {
-			console.log(`Failed to create incident`);
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: returnValue.succeeded ? `Empty or NULL response received when creating incident` : `Unknown error when creating incident`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		}
 	}
 
