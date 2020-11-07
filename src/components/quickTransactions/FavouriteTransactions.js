@@ -170,7 +170,7 @@ export class FavouriteTransactions extends Component {
 				showButtons: true,
 				isConfirmed: true,
 				isVerified: false,
-				verificationFailed: false,
+				verificationFailed: true,
 				is3rdParty: false,
 				isNonClient: false
 			},

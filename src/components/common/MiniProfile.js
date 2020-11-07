@@ -92,6 +92,10 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
+	_onVerifyViaAppClick() {
+		this.eventAggregator.publish(`horizon-verify-via-app-click`, {});
+	}
+
 	// --------- 
 	// PRIVATE
 	// ---------
@@ -216,6 +220,18 @@ export class MiniProfile extends Component {
 				--horizon-option-btn-text-font-weight: 500;
 				--horizon-option-btn-text-color: #545D60;
 			}
+			.banner{
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-unsuccessful-red-border: none;
+				--theme-alert-banner-info-border: none;
+
+				--theme-icon-size-default: 20px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-height: 48px;
+			}
 			#id-notify-banner-group {
 				width: 380px;
 			}
@@ -231,32 +247,16 @@ export class MiniProfile extends Component {
 				--theme-font-family: "Hind Vadodara";
 				--theme-font-weight: 600;
 			}
-			.client-profile-alert{
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-unsuccessful-red-border: none;
-
-				--theme-icon-size-default: 20px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-height: 48px;
-			}
-			.client-profile-error{
-				height: 48px;
-				background-color: #F7E2E1;
-				color: rgb(200, 59, 55);
+			#id-verify-via-app-msg {
+				color:#0083BB;
 				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 700;
+				font-weight: 600px;
+				font-size: 15px;
 				letter-spacing: 0;
-				line-height: 21px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-height: 48px;
 			}
-			.verify-via-app-link{
-				padding-left:55px;
-				--theme-hyperlink-color: rgb(200, 59, 55);
+			#verify-via-app-link{
+				--theme-font-family: "Hind Vadodara";
+				--theme-font-weight: 600;
 			}
 			`
 		];
@@ -382,22 +382,25 @@ export class MiniProfile extends Component {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner class="client-profile-alert" type="warning">
+			<capitec-alert-banner class="banner" type="warning">
 				Client has not been verified
 			</capitec-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed) {
 			return html`
-			<capitec-alert-banner class="client-profile-error" type="error-trans">
-				Client failed security questions
-				<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
-					label="Verify via the app"></capitec-hyperlink>
+			<capitec-alert-banner class="banner" type="info">
+				<capitec-group id="id-notify-banner-group" layout="horizontal">
+					<capitec-label id="id-verify-via-app-msg" label="Client failed security questions"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaAppClick()}" label="Verify via the app">
+					</capitec-hyperlink>
+				</capitec-group>				
 			</capitec-alert-banner>
 			`;
 		};
 
 		return html`
-			<capitec-alert-banner class="client-profile-alert" type="warning">
+			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
 					<capitec-label id = "id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
 					<capitec-spacer></capitec-spacer>
