@@ -127,7 +127,7 @@ export class VerifyBySecurityQuestions extends Component {
 	
 			this.horizonStore.saveState(state);
 	
-			this.horizonRouter.navigateToVerifiedFavourites();
+			this.horizonRouter.navigateToQuickTransactionFavourites(`verified`);
 		}
 	}
 

@@ -85,7 +85,7 @@ export class CallerInfoBar extends Component {
 
 	_getNeedDisplayValue(need) {
 		const result = this.possibleNeedValues.find((entry) => entry.key === need);
-		return result.value;
+		return result ? result.value : ``;
 	}
 
 	// ---------

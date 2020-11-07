@@ -227,11 +227,11 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.ivrOption.value) {
 			case `Insure`: 
 			// TODO: Still need to determine if client has insure products or not
-			this.horizonRouter.navigateToUnverifiedFavourites();
+			this.horizonRouter.navigateToQuickTransactionFavourites(`failed`);
 //			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
 				break;
 			case `Transact`:
-				this.horizonRouter.navigateToUnverifiedFavourites();
+				this.horizonRouter.navigateToQuickTransactionFavourites(`verified`);
 				break;
 			default:
 		}

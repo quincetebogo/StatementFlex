@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { isDisabled } from '../../utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -21,7 +20,7 @@ const RENDER_MODE = {
  * @class TransactionFavourites
  * @extends {Component}
  */
-export class TransactionFavourites extends Component {
+export class FavouriteTransactions extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -30,7 +29,7 @@ export class TransactionFavourites extends Component {
 	constructor() {
 		super();
 
-		this.displayMode = ``;
+		this.verificationStatus = ``;
 		this.disabled = false;
 		this.displayToast = false;
 		this.isReassigned = false;
@@ -45,14 +44,17 @@ export class TransactionFavourites extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 *
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof FavouriteTransactions
+	 */
 	static get properties() {
 		return {
+			verificationStatus: { type: String },
 			clientType: { type: String },
-			cardOptions: { type: Array },
-			cardOptionSelected: { type: String },
-			documentsOptions: { type: Array },
-			documentsOptionsSelected: { type: String },
-			displayMode: { type: String },
 			displayToast: { type: Boolean },
 			renderMode: { type: Number }
 		};
@@ -69,18 +71,23 @@ export class TransactionFavourites extends Component {
 		this.unverifiedCaller = this.state.unverifiedCaller;
 		this.verifiedCaller = this.state.verifiedCaller;
 
-		// this._configureForUnVerifiedClient();
-		if (this.displayMode === `favourites-verified`) {
-			this.displayToast = true;
-			window.setTimeout(() => this._onToggleToastDisplay(), 3000);
-			this._configureForVerifiedExisting();
+		switch (this.verificationStatus) {
+			case `verified`: 
+				this.displayToast = true;
+				this.disabled = false;
+				window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+				this._configureForVerifiedExisting();
+				break;
+			case `unverified`:
+				this.disabled = false;
+				this._configureForUnverifiedClient();
+				break;
+			case `failed`:
+				this._configureForVerificationFailed();
+				this.disabled = true;
+				breaak;
 		}
-
-		if (this.displayMode === `favourites-unverified`) {
-			this.disabled = true;
-			this._configureForUnverifiedClient();
-		}
-
+		
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
@@ -100,41 +107,81 @@ export class TransactionFavourites extends Component {
 	// ---------------
 
 	_configureForVerifiedExisting() {
-		this.state.miniProfile = {
-			name: this.verifiedCaller.fullName,
-			idNumber: this.verifiedCaller.idNumber,
-			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-			livesIn: this.verifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.verifiedCaller.birthdate,
-			showButtons: true,
-			isConfirmed: true,
-			isVerified: true,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
+		const state = { 
+			miniProfile: {
+				name: this.verifiedCaller.fullName,
+				idNumber: this.verifiedCaller.idNumber,
+				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+				livesIn: this.verifiedCaller.livesIn,
+				languagePreference: ``,
+				birthday: this.verifiedCaller.birthdate,
+				showButtons: true,
+				isConfirmed: true,
+				isVerified: true,
+				verificationFailed: false,
+				is3rdParty: false,
+				isNonClient: false
+			},
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail:``
+			}
 		};
 
-		this.horizonStore.saveState(this.state);
+		this.horizonStore.saveState(state);
 	}
 
 	_configureForUnverifiedClient() {
-		this.state.miniProfile = {
-			name: this.unverifiedCaller.fullName,
-			idNumber: this.unverifiedCaller.idNumber,
-			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-			livesIn: this.unverifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.unverifiedCaller.birthdate,
-			showButtons: false,
-			isConfirmed: true,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
+		const state = { 
+			miniProfile: {
+				name: this.verifiedCaller.fullName,
+				idNumber: this.verifiedCaller.idNumber,
+				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+				livesIn: this.verifiedCaller.livesIn,
+				languagePreference: ``,
+				birthday: this.verifiedCaller.birthdate,
+				showButtons: true,
+				isConfirmed: true,
+				isVerified: false,
+				verificationFailed: false,
+				is3rdParty: false,
+				isNonClient: false
+			},
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail:``
+			}
 		};
 
-		this.horizonStore.saveState(this.state);
+		this.horizonStore.saveState(state);
+	}
+
+	_configureForVerificationFailed() {
+		const state = { 
+			miniProfile: {
+				name: this.verifiedCaller.fullName,
+				idNumber: this.verifiedCaller.idNumber,
+				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
+				livesIn: this.verifiedCaller.livesIn,
+				languagePreference: ``,
+				birthday: this.verifiedCaller.birthdate,
+				showButtons: true,
+				isConfirmed: true,
+				isVerified: false,
+				verificationFailed: false,
+				is3rdParty: false,
+				isNonClient: false
+			},
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail:``
+			}
+		};
+
+		this.horizonStore.saveState(state);
 	}
 
 	_onToggleToastDisplay() {
@@ -184,21 +231,13 @@ export class TransactionFavourites extends Component {
 				line-height: 32px;
 			}
 
-			.transact-section{
+			.section-heading{
 				width:100%;
 				box-sizing: border-box;
 				height: 32px;
 				width: 100%;
 				border: 1px solid #E1E1E1;
-				background-color: #F7F7F7;
-			}
-
-			.cards-section {
-				width: 100%;
-				box-sizing: border-box;
-				height: 32px;
-				width: 100%x;
-				border: 1px solid #E1E1E1;
+				border-bottom: 0px none;
 				background-color: #F7F7F7;
 			}
 
@@ -229,7 +268,7 @@ export class TransactionFavourites extends Component {
 				--horizon-option-btn-text-font-weight: 500;
 				--horizon-option-btn-text-color: #545D60;
 			}
-			#label {
+			.label {
 				height: 20px;
 				color: #3E4547;
 				font-family: "Hind Vadodara";
@@ -239,12 +278,6 @@ export class TransactionFavourites extends Component {
 				line-height: 20px;
 				padding-left: 24px;
 				margin-top: 4px;
-			}
-			.documents-section {
-				box-sizing: border-box;
-				height: 32px;
-				border: 1px solid #E1E1E1;
-				background-color: #F7F7F7;
 			}
 			.documents {
 				align-items: flex-start;
@@ -265,41 +298,46 @@ export class TransactionFavourites extends Component {
 				align-items: center;
 			}
 
-			#notify {
-				display: inline-block;
-				height: 20px;
-				width: 81px;
+			.banner {
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-unsuccessful-red-border: none;
+				margin: 16px 16px 16px 16px;
+			}
+
+			#id-notify-banner-group {
+				width: 962px;
+			}
+
+			#id-notify-client-warning {
 				color: #D4781C;
 				font-family: "Hind Vadodara";
 				font-size: 14px;
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 20px;
+				margin-right:3px;
 			}
 
-			capitec-spacer {
-				display: inline-block;
-				width: 20em;
+			#id-notify-client-warning-msg {
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				letter-spacing: 0;
+				line-height: 20px;
+			}
+			
+			#id-verify-now-warning-link {
+				--theme-hyperlink-color: #D4781C;
+				--theme-font-family: "Hind Vadodara";
+				--theme-font-weight: 600;
 			}
 
 			capitec-group {
 				--theme-layout-gap-spacing: 16px;
 				height: auto;
-			}
-
-			capitec-alert-banner {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-info-border: none;
-				--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
-				--theme-alert-banner-unsuccessful-red-border: none;
-				--theme-alert-banner-warning-border: none;
-
-				margin: 16px;
-				color: rgb(200, 59, 55);
-				font-size: 14px;
-				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 			}
 			`
 		];
@@ -321,14 +359,14 @@ export class TransactionFavourites extends Component {
 	_renderFavourites() {
 		return html`
 					<capitec-card class="card">
-						<capitec-title-bar class="title-bar" type="clear">
+						<capitec-title-bar type="clear">
 							<img src="/src/images/transactions/fav_icon.svg">
 							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
-							<capitec-spacer></capitec-spacer>
 						</capitec-title-bar>
 						${this._renderUnverifiedAlertBanner()}
-						<div class="transact-section">
-							<capitec-label id="label" label="Transact" type="strong"></capitec-label>
+						${this._renderFailedVerificationAlertBanner()}
+						<div class="section-heading">
+							<capitec-label class="label" label="Transact" type="strong"></capitec-label>
 						</div>
 						<capitec-group class="transact-group">
 							<capitec-button-bar>
@@ -336,10 +374,9 @@ export class TransactionFavourites extends Component {
 									icon="system/debi-check${this.disabled ? `` : `-action`}" iconSize="default" label="DebiCheck">
 								</horizon-option-button>
 							</capitec-button-bar>
-						</capitec-group>
-					
-						<div class="cards-section">
-							<capitec-label id="label" label="Cards" type="strong"></capitec-label>
+						</capitec-group>					
+						<div class="section-heading">
+							<capitec-label class="label" label="Cards" type="strong"></capitec-label>
 						</div>
 						<capitec-group class="cards-group">
 							<capitec-button-bar>
@@ -352,12 +389,11 @@ export class TransactionFavourites extends Component {
 									icon="system/contactless${this.disabled ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
 							</capitec-button-bar>
-						</capitec-group>
-					
-						<div class="documents-section">
-							<capitec-label id="label" label="Documents"></capitec-label>
+						</capitec-group>					
+						<div class="section-heading">
+							<capitec-label class="label" label="Document"></capitec-label>
 						</div>
-						<capitec-group class="documents-group" class="documents">
+						<capitec-group class="documents-group documents">
 							<capitec-button-bar>
 								<horizon-option-button .disabled="${this.disabled}" label="Statements"
 									icon="system/documents${this.disabled ? `` : `-action`}" iconSize="default">
@@ -385,18 +421,37 @@ export class TransactionFavourites extends Component {
 	}
 
 	_renderUnverifiedAlertBanner() {
-		if (this.displayMode === `favourites-unverified`) {
+		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner class="banner" type="warning">
-					<capitec-label id="notify" label="Notify client:" type="subtitle"></capitec-label>
-					We need to verify your details before doing any transactions on your account.
-					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink label="Verify Now" @click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
+				<capitec-alert-banner 					
+					class="banner" 
+					type="warning">
+					<capitec-group id="id-notify-banner-group" layout="horizontal">
+						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label> 
+						<capitec-label id = "id-notify-client-warning-msg" label="We need to verify your details before doing any transactions on your account."></capitec-label>
+						<capitec-spacer></capitec-spacer>
+						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
+					</capitec-group>
 				</capitec-alert-banner>
 			`;
 		}
 		return html``;
 	}
+
+	_renderFailedVerificationAlertBanner() {
+		if (this.verificationStatus === `failed`) {
+			return html`
+				<capitec-alert-banner 
+					class="banner" 
+					type="unsuccessful-red"
+					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
+				</capitec-alert-banner>
+				</capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
@@ -418,4 +473,4 @@ export class TransactionFavourites extends Component {
 	}
 }
 
-customElements.define(`horizon-favourites-transations`, TransactionFavourites);
+customElements.define(`horizon-favourites-transactions`, FavouriteTransactions);

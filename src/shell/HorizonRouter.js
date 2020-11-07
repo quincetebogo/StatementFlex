@@ -20,8 +20,7 @@ const HORIZON_ROUTES = {
 	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client-verified`,
 	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client-unverified`,
 	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party`,
-	TRANSACT_FAVOURITES_VERIFIED_PAGE: `/transact/favourites-verified`,
-	TRANSACT_FAVOURITES_UNVERIFIED_PAGE: `/transact/favourites-unverified`
+	TRANSACT_FAVOURITES: `/transact/favourites`,
 };
 
 let horizonRoutes = [];
@@ -203,20 +202,10 @@ export default horizonRoutes = [
 		name: `horizon-favourites`,
 		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE,
-		load: () => import(`../views/quickTransact/Favourites`),
+		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
+		load: () => import(`../views/quickTransactions/Favourites`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
-	},
-	{
-		name: `horizon-unverified-favourites`,
-		title: `FavouritesUnverified`,
-		icon: null,
-		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE,
-		load: () => import(`../views/quickTransact/FavouritesUnverified`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
 	}
 ];
@@ -305,11 +294,7 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT);
 	}
 
-	navigateToVerifiedFavourites() {
-		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
-	}
-	
-	navigateToUnverifiedFavourites() {
-		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE);
+	navigateToQuickTransactionFavourites(verificationStatus) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}?verificationStatus=${verificationStatus}`);
 	}
 }

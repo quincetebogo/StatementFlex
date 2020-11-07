@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonStore } from 'app/store/HorizonStore';
 
@@ -40,6 +41,7 @@ export class VerifyCaller extends Component {
 		this.seconds = 60;
 		this.notVerified = false;
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
@@ -81,14 +83,26 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-    async _verifyUsingSQ() {
+    async _verifyUsingSecurityQuestions() {
 
 		const clientID = this.unverifiedCaller.idNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+
+			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+			}
+			else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `Failed to retrieve security questions from XDS`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+				console.log (this.securityQuestions.errorMessage);
+			}
 		} else {
 			this.notVerified = true;
 		}
@@ -374,7 +388,7 @@ export class VerifyCaller extends Component {
                                             icon="system/apply-now-action" 
                                             iconSize="default" 
                                             type="clear"
-						                    @click="${() => this._verifyUsingSQ()}">
+						                    @click="${() => this._verifyUsingSecurityQuestions()}">
 					</horizon-option-button>
 					<horizon-option-button label="Skip" 
                                             icon="system/arrow-right-action"
