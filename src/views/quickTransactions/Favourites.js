@@ -13,9 +13,6 @@ export class Favourites extends View {
 
 	constructor() {
 		super();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
-		this.router = Router.getInstance();
 	}
 
 	static get styles() {
@@ -34,12 +31,7 @@ export class Favourites extends View {
 	}
 
 	_webTemplate() {
-		// valid parameters are verified | unverified | failed
-		const params = this.navigationContext.current.queryParams;
-
-		// TODO: Put a check in here that the verification status in state matches the verification status parameter
-
-		return html`<horizon-favourites-transactions class="favourites" verificationStatus="${params.verificationStatus}"></horizon-favourites-transactions>`;
+		return html`<horizon-favourites-transactions class="favourites"></horizon-favourites-transactions>`;
 	}
 }
 

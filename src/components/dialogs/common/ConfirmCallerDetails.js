@@ -51,7 +51,6 @@ export class ConfirmCallerDetails extends Component {
 		// Property initialization
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
-		this.nonClientCallerInfo = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 
 		this.horizonStore = HorizonStore.getInstance();
@@ -207,18 +206,25 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onSkipVerification(e) {
-		const confirmedCaller = {
-			fullName: this.callerFullName.value,
-			idNumber: this.southAfricanIDNumber.value,
+		const callerInformation = {
+			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
+			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			birthdate: this.birthdate.value
-		};
+			name: this.confirmedCaller.callerInformation.name.value,
+			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
+			nonClientFullName: ``,
+			nonClientCellPhone: ``,
+			nonClientIDNumber: ``,
+			nonClientRelationship: ``,
+			isConfirmed: true,
+			verificationStatus:`failed`,
+			is3rdParty: false,
+			isNonClient: false
+	};
 
-		// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
 		const state = {
-			unverifiedCaller: confirmedCaller,
-			verifiedCaller: confirmedCaller,
+			callerInformation: callerInformation,
 			incomingCallDetails: this.incomingCallDetails
 		};
 
@@ -227,11 +233,11 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.ivrOption.value) {
 			case `Insure`: 
 			// TODO: Still need to determine if client has insure products or not
-			this.horizonRouter.navigateToQuickTransactionFavourites(`failed`);
+			this.horizonRouter.navigateToQuickTransactionFavourites();
 //			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
 				break;
 			case `Transact`:
-				this.horizonRouter.navigateToQuickTransactionFavourites(`verified`);
+				this.horizonRouter.navigateToQuickTransactionFavourites();
 				break;
 			default:
 		}
@@ -598,18 +604,27 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	renderVerifyCallerModal() {
-		const unverifiedCaller = {
-			fullName: this.callerFullName.value,
-			idNumber: this.southAfricanIDNumber.value,
+		const callerInformation = {
+			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
+			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			birthdate: this.birthdate.value
-		};
+			name: this.confirmedCaller.callerInformation.name.value,
+			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
+			nonClientFullName: ``,
+			nonClientCellPhone: ``,
+			nonClientIDNumber: ``,
+			nonClientRelationship: ``,
+			isConfirmed: true,
+			verificationStatus: `unverified`,
+			is3rdParty: false,
+			isNonClient: false
+	};
 
 		return html`
 			<horizon-verify-caller
                 .incomingCallDetails="${this.incomingCallDetails}" 
-				.unverifiedCaller="${unverifiedCaller}"
+				.callerInformation="${callerInformation}"
                 @skip="${(e) => this._onSkipVerification(e)}"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>

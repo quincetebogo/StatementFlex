@@ -51,10 +51,13 @@ export class VerifyCaller extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * 
+	 */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			unverifiedCaller: { type: Object },
+			callerInformation: { type: Object },
 			renderMode: { type: Number },
 			timeLeft: { type: String },
 			notVerified: { type: Boolean }
@@ -85,7 +88,7 @@ export class VerifyCaller extends Component {
 
     async _verifyUsingSecurityQuestions() {
 
-		const clientID = this.unverifiedCaller.idNumber;
+		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
 
 		if (returnValue.succeeded) {
@@ -295,7 +298,7 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
                 return html`<horizon-security-question 
                                     .incomingCallDetails="${this.incomingCallDetails}"
-									.unverifiedCaller="${this.unverifiedCaller}"
+									.callerInformation="${this.callerInformation}"
                                     .securityQuestions="${this.securityQuestions}" 
                                     @cancel="${() => this._onSecurityQuestionsCancel()}" 
                                     @skip="${() => this._skip()}">

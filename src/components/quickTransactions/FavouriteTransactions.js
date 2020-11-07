@@ -30,7 +30,7 @@ export class FavouriteTransactions extends Component {
 		super();
 
 		this.verificationStatus = ``;
-		this.disabled = false;
+		this.disableButtons = false;
 		this.displayToast = false;
 		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -68,24 +68,24 @@ export class FavouriteTransactions extends Component {
 		super.connectedCallback();
 
 		this.incomingCallDetails = this.state.incomingCallDetails;
-		this.unverifiedCaller = this.state.unverifiedCaller;
-		this.verifiedCaller = this.state.verifiedCaller;
+		this.callerInformation = this.state.callerInformation;
+		this.verificationStatus = this.state.callerInformation.verificationStatus;
 
 		switch (this.verificationStatus) {
 			case `verified`: 
 				this.displayToast = true;
-				this.disabled = false;
+				this.disableButtons = false;
 				window.setTimeout(() => this._onToggleToastDisplay(), 3000);
 				this._configureForVerifiedExisting();
 				break;
 			case `unverified`:
-				this.disabled = false;
+				this.disableButtons = false;
 				this._configureForUnverifiedClient();
 				break;
 			case `failed`:
 				this._configureForVerificationFailed();
-				this.disabled = true;
-				breaak;
+				this.disableButtons = true;
+				break;
 		}
 		
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
@@ -109,12 +109,12 @@ export class FavouriteTransactions extends Component {
 	_configureForVerifiedExisting() {
 		const state = { 
 			miniProfile: {
-				name: this.verifiedCaller.fullName,
-				idNumber: this.verifiedCaller.idNumber,
-				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-				livesIn: this.verifiedCaller.livesIn,
-				languagePreference: ``,
-				birthday: this.verifiedCaller.birthdate,
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
 				showButtons: true,
 				isConfirmed: true,
 				isVerified: true,
@@ -135,12 +135,12 @@ export class FavouriteTransactions extends Component {
 	_configureForUnverifiedClient() {
 		const state = { 
 			miniProfile: {
-				name: this.verifiedCaller.fullName,
-				idNumber: this.verifiedCaller.idNumber,
-				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-				livesIn: this.verifiedCaller.livesIn,
-				languagePreference: ``,
-				birthday: this.verifiedCaller.birthdate,
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
 				showButtons: true,
 				isConfirmed: true,
 				isVerified: false,
@@ -161,12 +161,12 @@ export class FavouriteTransactions extends Component {
 	_configureForVerificationFailed() {
 		const state = { 
 			miniProfile: {
-				name: this.verifiedCaller.fullName,
-				idNumber: this.verifiedCaller.idNumber,
-				phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-				livesIn: this.verifiedCaller.livesIn,
-				languagePreference: ``,
-				birthday: this.verifiedCaller.birthdate,
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
 				showButtons: true,
 				isConfirmed: true,
 				isVerified: false,
@@ -370,8 +370,8 @@ export class FavouriteTransactions extends Component {
 						</div>
 						<capitec-group class="transact-group">
 							<capitec-button-bar>
-								<horizon-option-button .disabled="${this.disabled}"
-									icon="system/debi-check${this.disabled ? `` : `-action`}" iconSize="default" label="DebiCheck">
+								<horizon-option-button .disabled="${this.disableButtons}"
+									icon="system/debi-check${this.disableButtons ? `` : `-action`}" iconSize="default" label="DebiCheck">
 								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>					
@@ -382,11 +382,11 @@ export class FavouriteTransactions extends Component {
 							<capitec-button-bar>
 								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default">
 								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disabled}" label="Update Card Limits"
-									icon="system/cards${this.disabled ? `` : `-action`}" iconSize="default">
+								<horizon-option-button .disabled="${this.disableButtons}" label="Update Card Limits"
+									icon="system/cards${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disabled}" label="Tap to Pay"
-									icon="system/contactless${this.disabled ? `` : `-action`}" iconSize="default">
+								<horizon-option-button .disabled="${this.disableButtons}" label="Tap to Pay"
+									icon="system/contactless${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>					
@@ -395,14 +395,14 @@ export class FavouriteTransactions extends Component {
 						</div>
 						<capitec-group class="documents-group documents">
 							<capitec-button-bar>
-								<horizon-option-button .disabled="${this.disabled}" label="Statements"
-									icon="system/documents${this.disabled ? `` : `-action`}" iconSize="default">
+								<horizon-option-button .disabled="${this.disableButtons}" label="Statements"
+									icon="system/documents${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disabled}" label="Tax Certificate"
-									icon="system/sars${this.disabled ? `` : `-action`}" iconSize="default">
+								<horizon-option-button .disabled="${this.disableButtons}" label="Tax Certificate"
+									icon="system/sars${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disabled}" label="Proof of Account"
-									icon="system/documents${this.disabled ? `` : `-action`}" iconSize="default">
+								<horizon-option-button .disabled="${this.disableButtons}" label="Proof of Account"
+									icon="system/documents${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
 							</capitec-button-bar>
 						</capitec-group>

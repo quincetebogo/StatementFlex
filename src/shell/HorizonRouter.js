@@ -294,7 +294,7 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT);
 	}
 
-	navigateToQuickTransactionFavourites(verificationStatus) {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}?verificationStatus=${verificationStatus}`);
+	navigateToQuickTransactionFavourites() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
 	}
 }
