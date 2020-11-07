@@ -238,7 +238,6 @@ export class MiniProfile extends Component {
 			#id-notify-client-warning-msg {
 				color: #D4781C;
 				font-family: "Hind Vadodara";
-				font-weight: 600px;
 				font-size: 15px;
 				letter-spacing: 0;
 			}
@@ -248,13 +247,13 @@ export class MiniProfile extends Component {
 				--theme-font-weight: 600;
 			}
 			#id-verify-via-app-msg {
-				color:#0083BB;
+				color:#C83C37;
 				font-family: "Hind Vadodara";
-				font-weight: 600px;
 				font-size: 15px;
 				letter-spacing: 0;
 			}
 			#verify-via-app-link{
+				--theme-hyperlink-color:#C83C37;
 				--theme-font-family: "Hind Vadodara";
 				--theme-font-weight: 600;
 			}
@@ -388,7 +387,7 @@ export class MiniProfile extends Component {
 			`;
 		} else if (this.miniProfile.verificationFailed) {
 			return html`
-			<capitec-alert-banner class="banner" type="info">
+			<capitec-alert-banner class="banner" type="unsuccessful-red">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
 					<capitec-label id="id-verify-via-app-msg" label="Client failed security questions"></capitec-label>
 					<capitec-spacer></capitec-spacer>
