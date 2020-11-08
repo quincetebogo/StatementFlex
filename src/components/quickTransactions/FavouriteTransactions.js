@@ -86,6 +86,7 @@ export class FavouriteTransactions extends Component {
 				this._configureForVerificationFailed();
 				this.disableButtons = true;
 				break;
+			default:
 		}
 		
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
@@ -125,7 +126,7 @@ export class FavouriteTransactions extends Component {
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
-				detail:``
+				detail: ``
 			}
 		};
 
@@ -151,7 +152,7 @@ export class FavouriteTransactions extends Component {
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
-				detail:``
+				detail: ``
 			}
 		};
 
@@ -177,7 +178,7 @@ export class FavouriteTransactions extends Component {
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
-				detail:``
+				detail: ``
 			}
 		};
 
@@ -374,7 +375,7 @@ export class FavouriteTransactions extends Component {
 									icon="system/debi-check${this.disableButtons ? `` : `-action`}" iconSize="default" label="DebiCheck">
 								</horizon-option-button>
 							</capitec-button-bar>
-						</capitec-group>					
+						</capitec-group>
 						<div class="section-heading">
 							<capitec-label class="label" label="Cards" type="strong"></capitec-label>
 						</div>
@@ -389,7 +390,7 @@ export class FavouriteTransactions extends Component {
 									icon="system/contactless${this.disableButtons ? `` : `-action`}" iconSize="default">
 								</horizon-option-button>
 							</capitec-button-bar>
-						</capitec-group>					
+						</capitec-group>
 						<div class="section-heading">
 							<capitec-label class="label" label="Document"></capitec-label>
 						</div>
@@ -423,7 +424,7 @@ export class FavouriteTransactions extends Component {
 	_renderUnverifiedAlertBanner() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner 					
+				<capitec-alert-banner 
 					class="banner" 
 					type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">

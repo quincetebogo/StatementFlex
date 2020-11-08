@@ -57,7 +57,6 @@ export class ThirdPartyOrExistingClient extends Component {
 	constructor() {
 		super();
 
-		this.clientType = ``;
 		this.solutionsAvailable = [];
 		this.solutionSelected = ``;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
@@ -72,7 +71,6 @@ export class ThirdPartyOrExistingClient extends Component {
 	// PROPERTIES
 	// ----------
 	/**
-	 * @property {string} clientType - Must be 'unverified-existing-client', 'verified-existing-client' or 'third-party-client. 
 	 *
 	 * @readonly
 	 * @static
@@ -80,7 +78,6 @@ export class ThirdPartyOrExistingClient extends Component {
 	 */
 	static get properties() {
 		return {
-			clientType: { type: String },
 			renderMode: { type: String },
 			solutionsAvailable: { type: Array },
 			solutionSelected: { type: String },
@@ -98,22 +95,10 @@ export class ThirdPartyOrExistingClient extends Component {
 		const state = this.horizonStore.recoverState();
 
 		this.incomingCallDetails = state.incomingCallDetails;
-		this.unverifiedCaller = state.unverifiedCaller;
-		this.verifiedCaller = state.verifiedCaller;
+		this.callerInformation = state.callerInformation;
+		this.verificationStatus = state.callerInformation.verificationStatus;
 
-		switch (this.clientType) {
-			case `third-party-client`:
-				this._configureForThirdParty();
-				break;
-			case `unverified-existing-client`:
-				this._configureForUnverifiedExisting();
-				break;
-			case `verified-existing-client`:
-				this._configureForVerifiedExisting();
-				break;
-			default:
-				break;
-		};
+		this._updateMiniProfile();
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -136,54 +121,31 @@ export class ThirdPartyOrExistingClient extends Component {
 	_onToggleToastDisplay() {
 		this.displayToast = false;
 	}
+	
+	_updateMiniProfile() {
+		const state = { 
+			miniProfile: {
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
+				showButtons: true,
+				isConfirmed: this.callerInformation.isConfirmed,
+				isVerified: this.callerInformation.verificationStatus === `verified`,
+				verificationFailed: this.callerInformation.verificationStatus === `failed`,
+				is3rdParty: this.callerInformation.verificationStatus === `3rdparty`,
+				isNonClient: false
+			},
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
 
-	_configureForVerifiedExisting() {
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: this.verifiedCaller.fullName,
-			idNumber: this.verifiedCaller.idNumber,
-			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-			livesIn: this.verifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.verifiedCaller.birthdate,
-			showButtons: true,
-			isConfirmed: true,
-			isVerified: true,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		});
-	}
-
-	_configureForUnverifiedExisting() {
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: this.unverifiedCaller.fullName,
-			idNumber: this.unverifiedCaller.idNumber,
-			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-			livesIn: this.unverifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.unverifiedCaller.birthdate,
-			isConfirmed: true,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		});
-	}
-
-	_configureForThirdParty() {
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: this.unverifiedCaller.fullName,
-			idNumber: this.unverifiedCaller.idNumber,
-			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-			livesIn: this.unverifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.unverifiedCaller.birthdate,
-			isConfirmed: true,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: true,
-			isNonClient: false
-		});
+		this.horizonStore.saveState(state);
 	}
 
 	// --------------
@@ -349,11 +311,11 @@ export class ThirdPartyOrExistingClient extends Component {
 								</capitec-button>
 							</capitec-title-bar>
 							<capitec-content-box
-								class="${this.clientType === `verified-existing-client` ? `verified-existing-client-cb` : `third-party-client-cb`}">
+								class="${this.verificationStatus === `verified` ? `verified-existing-client-cb` : `third-party-client-cb`}">
 								${this._render3rdPartyAlertBanner()}
 								${this._renderUnverifiedExistingClientAlert()}
 								<capitec-label type="default" label="Choose an Option"
-									class="${this.clientType === `verified-existing-client` ? `` : `third-party-client-label`}">
+									class="${this.verificationStatus === `verified` ? `` : `third-party-client-label`}">
 								</capitec-label>
 								<capitec-group layout="horizontal" halign="left" valign="top" gap="clear" wrap>
 									${this.solutionsAvailable.map((item) => this._renderOptionButtons(item))}
@@ -388,21 +350,21 @@ export class ThirdPartyOrExistingClient extends Component {
 	}
 
 	_renderVerifiedToast() {
-		if (this.clientType === `verified-existing-client` && this.displayToast) {
+		if (this.verificationStatus === `verified` && this.displayToast) {
 			return html`<capitec-toast class="toast" type="success" header="Successfull" detail="Client has been verified">
 </capitec-toast>`;
 		}
 	}
 
 	_renderUnverifiedToast() {
-		if (this.clientType === `unverified-existing-client` && this.displayToast) {
+		if (this.verificationStatus === `unverified` && this.displayToast) {
 			return html`<capitec-toast class="toast" type="warning" header="Not Verified" detail="Only limited information will be displayed.">
 </capitec-toast>`;
 		}
 	}
 
 	_render3rdPartyAlertBanner() {
-		if (this.clientType === `third-party-client`) {
+		if (this.verificationStatus === `3rdparty`) {
 			return html`
 				<capitec-alert-banner type="warning" label="Caller is a beneficiary or 3rd party - only limited information available."
 					closable>
@@ -413,7 +375,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	}
 
 	_renderUnverifiedExistingClientAlert() {
-		if (this.clientType === `unverified-existing-client`) {
+		if (this.verificationStatus === `unverified`) {
 			return html`
 				<capitec-alert-banner type="warning">
 					Client has not been verified, so you are only able to see limited information.
@@ -449,36 +411,46 @@ export class ThirdPartyOrExistingClient extends Component {
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.VIEW_PLAN:
 			case SOLUTION_SET.VIEW_STATUS:
-				return html`<horizon-view-plan @solution-provided="${() => this.solutionSelected = ``}"
-	@close-solution="${() => this.solutionSelected = ``}" clientType="${this.clientType}">
-</horizon-view-plan>`;
+				return html`
+					<horizon-view-plan 
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}" 
+						clientType="${this.verificationStatus}">
+					</horizon-view-plan>`;
 
 			case SOLUTION_SET.UPDATE_PLAN:
-				return html`<horizon-choose-update-option @solution-provided="${() => this.solutionSelected = ``}"
-	@close-solution="${() => this.solutionSelected = ``}">
-</horizon-choose-update-option>`;
+				return html`
+					<horizon-choose-update-option 
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}">
+					</horizon-choose-update-option>`;
 
 			case SOLUTION_SET.PAY_ARREARS:
-				return html`<horizon-pay-arrears @solution-provided="${() => this.solutionSelected = ``}"
-	@close-solution="${() => this.solutionSelected = ``}">
-</horizon-pay-arrears>`;
+				return html`
+					<horizon-pay-arrears 
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}">
+					</horizon-pay-arrears>`;
 
 			case SOLUTION_SET.EMAIL_PLAN:
-				return html`<horizon-email-plan @solution-provided="${() => this.solutionSelected = ``}"
-	@close-solution="${() => this.solutionSelected = ``}">
-</horizon-email-plan>`;
+				return html`
+					<horizon-email-plan 
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}">
+					</horizon-email-plan>`;
 
 			case SOLUTION_SET.BENEFITS:
 				return html``;
 
 			case SOLUTION_SET.CANCEL_PLAN:
-				return html`<horizon-cancel-plan @solution-provided="${() => this.solutionSelected = ``}"
-	@close-solution="${() => this.solutionSelected = ``}">
-</horizon-cancel-plan>`;
+				return html`
+					<horizon-cancel-plan 
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}">
+					</horizon-cancel-plan>`;
 			default:
 				return html``;
 		}
-
 	}
 
 	_renderEndCallSessionDialog() {
@@ -494,7 +466,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
 			return html`
-				<horizon-insure-assign-reason @on-assign-reason=${(e)=> this._onAssignReasonSelected(e)}
+				<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel=${() => this._onCancelSelectAssignReason()}>
 				</horizon-insure-assign-reason>`;
 		}
@@ -504,7 +476,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-reason-selected .selectedReason="${this.selectedAssignReason}" @on-cancel=${()=> this._onCancelAssign()}
+				<horizon-assign-reason-selected 
+					.selectedReason="${this.selectedAssignReason}" 
+					@on-cancel=${() => this._onCancelAssign()}
 					@on-assign=${() => this._onAssign()}>
 				</horizon-assign-reason-selected>`;
 		}
@@ -514,7 +488,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" @skip="${(e) => this._onSkipVerification(e)}">
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					 @skip="${(e) => this._onSkipVerification(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;

@@ -1,5 +1,4 @@
 import { View, css, html } from 'platform/elements';
-import { EventAggregator, NavigationContext, Router } from 'platform/core';
 import 'app/components/quickTransactions/FavouriteTransactions';
 
 /**

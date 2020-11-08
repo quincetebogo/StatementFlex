@@ -182,22 +182,30 @@ export class AddCallerDetails extends Component {
 				// TODO: Handle failure on call to identifyCaller
 			}
 	
-		} else {
+		} else if (this.ivrOption.value === `Insure`) {
 			// TODO: Should there be a channel service call to record the third party against the incident
 			const state = {
 				incomingCallDetails: this.incomingCallDetails,
-				unverifiedCaller: {
-					fullName: this.confirmedCaller.callerInformation.name.value,
-					idNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-					incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					livesIn: this.confirmedCaller.callerInformation.livesIn.value,
+				callerInformation: {
+					birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 					languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-					birthdate: this.confirmedCaller.callerInformation.birthdate.value
+					livesIn: this.confirmedCaller.callerInformation.livesIn.value,
+					name: this.confirmedCaller.callerInformation.name.value,
+					southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+					verifiedTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+					nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
+					nonClientCellPhone: this.cellPhoneTextField.value,
+					nonClientIDNumber: ``,
+					nonClientRelationship: this.nonClientRelationship.value,
+					isConfirmed: true,
+					verificationStatus: `3rdparty`,
+					is3rdParty: false,
+					isNonClient: false
 				}
 			};
 
 			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToInsureThirdPartyClient();
+			this.horizonRouter.navigateToInsureExistingClient();
 		}
 	}
 
