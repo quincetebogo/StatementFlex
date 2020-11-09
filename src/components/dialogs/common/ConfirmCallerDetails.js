@@ -218,7 +218,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus:`failed`,
+			verificationStatus: `unverified`,
 			is3rdParty: false,
 			isNonClient: false
 	};
@@ -233,7 +233,7 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.ivrOption.value) {
 			case `Insure`: 
 			// TODO: Still need to determine if client has insure products or not
-			this.horizonRouter.navigateToQuickTransactionFavourites();
+			this.horizonRouter.navigateToInsureProspectiveClient();
 //			this.horizonRouter.navigateToInsureUnverifiedExistingClient();
 				break;
 			case `Transact`:

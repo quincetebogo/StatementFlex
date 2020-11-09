@@ -96,15 +96,13 @@ export class VerifyCaller extends Component {
 
 			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			}
-			else {
+			} else {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
 					message: `Failed to retrieve security questions from XDS`
 				};
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-				console.log (this.securityQuestions.errorMessage);
 			}
 		} else {
 			this.notVerified = true;
