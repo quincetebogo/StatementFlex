@@ -123,11 +123,11 @@ export class VerifyBySecurityQuestions extends Component {
 				incomingCallDetails: this.incomingCallDetails
 			};
 
-			this.callerInformation.verificationStatus = "verified";
+			this.callerInformation.verificationStatus = `verified`;
 	
 			this.horizonStore.saveState(state);
 	
-			this.horizonRouter.navigateToQuickTransactionFavourites();
+			this.horizonRouter.navigateToVerificationFailed();
 		}
 	}
 
