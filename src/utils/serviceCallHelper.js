@@ -47,24 +47,32 @@ export class ServiceCallHelper {
 	 * @param {*} serviceCall - A function that calls a web service
 	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
 	 */
-	async asyncCall(serviceCall, errorHandler = null) {
+	async asyncCall(serviceCall, errorHandler = null, autoRetries = 3) {
 		const returnValue = {
 			succeeded: true,
             result: null
 		};
 
-		try {
-			this._clearError();
-			this.toggleBusyFlag();
+		let retryCount = 0;
 
-			returnValue.result = await serviceCall;
+		while (retryCount < autoRetries) {
+			try {
+				this._clearError();
+				this.toggleBusyFlag();
+	
+				// eslint-disable-next-line no-await-in-loop
+				returnValue.result = await serviceCall;
+	
+				return returnValue;
+			} catch (exception) {
+				this._handleException(errorHandler, exception);
+			} finally {
+				this.toggleBusyFlag();
+			}
 
-			return returnValue;
-		} catch (exception) {
-			this._handleException(errorHandler, exception);
-		} finally {
-			this.toggleBusyFlag();
+			retryCount++;
 		}
+
 
 		returnValue.succeeded = false;
 		return returnValue;
