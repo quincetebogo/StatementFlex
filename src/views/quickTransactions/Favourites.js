@@ -1,6 +1,5 @@
 import { View, css, html } from 'platform/elements';
-
-import 'app/components/quickTransactions/TransactionFavourites';
+import 'app/components/quickTransactions/FavouriteTransactions';
 
 /**
  * The Favourites view for a verified-client.
@@ -14,7 +13,6 @@ export class Favourites extends View {
 	constructor() {
 		super();
 	}
-
 
 	static get styles() {
 		return [
@@ -32,7 +30,7 @@ export class Favourites extends View {
 	}
 
 	_webTemplate() {
-		return html`<horizon-favourites-transations class="favourites" displayMode="favourites-verified"></horizon-favourites-transations>`;
+		return html`<horizon-favourites-transactions class="favourites"></horizon-favourites-transactions>`;
 	}
 }
 

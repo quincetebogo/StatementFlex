@@ -92,6 +92,10 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
+	_onVerifyViaAppClick() {
+		this.eventAggregator.publish(`horizon-verify-via-app-click`, {});
+	}
+
 	// --------- 
 	// PRIVATE
 	// ---------
@@ -160,7 +164,7 @@ export class MiniProfile extends Component {
 				width: 230px;
 				margin-left: 16px;
 			}
-			capitec-group > capitec-label:first-child {
+			.name-row {
 				height: 24px;
 				line-height: 24px;
 				width: auto;
@@ -216,37 +220,42 @@ export class MiniProfile extends Component {
 				--horizon-option-btn-text-font-weight: 500;
 				--horizon-option-btn-text-color: #545D60;
 			}
-			.client-profile-alert{
-				height: 48px;
-				background-color:#F9EBDD;
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 700;
-				letter-spacing: 0;
-				line-height: 23px;
+			.banner{
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-alert-banner-warning-border: none;
+				--theme-alert-banner-unsuccessful-red-border: none;
+				--theme-alert-banner-info-border: none;
+
 				--theme-icon-size-default: 20px;
 				--theme-alert-banner-warning-border: none;
 				--theme-alert-banner-height: 48px;
 			}
-			.client-profile-error{
-				height: 48px;
-				background-color: #F7E2E1;
-				color: rgb(200, 59, 55);
+			#id-notify-banner-group {
+				width: 380px;
+			}
+			#id-notify-client-warning-msg {
+				color: #D4781C;
 				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 700;
+				font-size: 15px;
 				letter-spacing: 0;
-				line-height: 21px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-height: 48px;
 			}
-			.verify-now-link{
-				--theme-hyperlink-color:#D4781C;
+			#id-verify-now-warning-link {
+				--theme-hyperlink-color: #D4781C;
+				--theme-font-family: "Hind Vadodara";
+				--theme-font-weight: 600;
 			}
-			.verify-via-app-link{
-				padding-left:55px;
-				--theme-hyperlink-color: rgb(200, 59, 55);
+			#id-verify-via-app-msg {
+				color:#C83C37;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				letter-spacing: 0;
+			}
+			#verify-via-app-link{
+				--theme-hyperlink-color:#C83C37;
+				--theme-font-family: "Hind Vadodara";
+				--theme-font-weight: 600;
 			}
 			`
 		];
@@ -281,6 +290,7 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
 				<capitec-label 
+					class="name-row"
 					row="1" column="1" 
 					label="${this.miniProfile.name}" 
 					type="subtitle">
@@ -371,26 +381,31 @@ export class MiniProfile extends Component {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`
-			<capitec-alert-banner class="client-profile-alert" type="warning">
+			<capitec-alert-banner class="banner" type="warning">
 				Client has not been verified
-				</capitec-hyperlink>
 			</capitec-alert-banner>
 			`;
 		} else if (this.miniProfile.verificationFailed) {
 			return html`
-			<capitec-alert-banner class="client-profile-error" type="error-trans">
-				Client failed security questions
-				<capitec-hyperlink class="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
-					label="Verify via the app"></capitec-hyperlink>
+			<capitec-alert-banner class="banner" type="unsuccessful-red">
+				<capitec-group id="id-notify-banner-group" layout="horizontal">
+					<capitec-label id="id-verify-via-app-msg" label="Client failed security questions"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaAppClick()}" label="Verify via the app">
+					</capitec-hyperlink>
+				</capitec-group>				
 			</capitec-alert-banner>
 			`;
 		};
 
 		return html`
-			<capitec-alert-banner class="client-profile-alert" type="warning">
-				Client has not been verified
-				<capitec-hyperlink class="verify-now-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
-				</capitec-hyperlink>
+			<capitec-alert-banner class="banner" type="warning">
+				<capitec-group id="id-notify-banner-group" layout="horizontal">
+					<capitec-label id = "id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-hyperlink id="id-verify-now-warning-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+					</capitec-hyperlink>
+				</capitec-group>				
 			</capitec-alert-banner>
 			`;
 	} 

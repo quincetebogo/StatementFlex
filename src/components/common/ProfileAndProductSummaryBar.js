@@ -91,11 +91,11 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_stateChanged(state) {
-		if (state.miniProfile) {
+		if (state && state.miniProfile) {
 			this.miniProfile = state.miniProfile;
 		}
 
-		if (state.leftBarButtonConfig) {
+		if (state && state.leftBarButtonConfig) {
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;

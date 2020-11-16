@@ -147,7 +147,7 @@ export class AppShell extends Shell {
 		this.agentService = DesktopAgentService.getInstance();
 		this.agentService.open();
 
-		this._appStore.setState({ isBusy: false }, `USER_LOGGED_IN`);
+		this._appStore.setState({ }, `USER_LOGGED_IN`);
 
 		// We are authenticated and done loading config
 		// trigger the display of the initial landing page.

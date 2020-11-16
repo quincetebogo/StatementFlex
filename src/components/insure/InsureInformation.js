@@ -25,12 +25,6 @@ const RENDER_MODE = {
 	VERIFY_NOW: 6
 };
 
-const RENDER_BANNER = {
-	NON_CLIENT: 0,
-	UNVERIFIED_PROSPECTIVE_CLIENT: 1,
-	VERIFIED_PROSPECTIVE_CLIENT: 2
-};
-
 /**
  * The InsureInformation comopnent displays information on insurance products. The component is used by 
  * the non-client, unverified prospective client  and verified prospective client views.
@@ -56,8 +50,6 @@ export class InsureInformation extends Component {
 		this.claimScreen = false;
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
-		this.renderAlertBanner = 0;
-		this.displayMode = ``;
 		this.records = [
 			{ columnOne: `Policyholder`, columnTwo: `R100 000` },
 			{ columnOne: `Spouse(18 - 64)`, columnTwo: `R100 000` },
@@ -88,8 +80,6 @@ export class InsureInformation extends Component {
 			coverScreen: { type: Boolean },
 			claimScreen: { type: Boolean },
 			renderMode: { type: Number },
-			renderAlertBanner: { type: Number },
-			displayMode: { type: String },
 			displayNotification: { type: Boolean },
 			displayCoverNotification: { type: Boolean },
 			displayClaimNotification: { type: Boolean },
@@ -106,19 +96,22 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		switch (this.displayMode) {
-			case `non-client`:
-				this._configureForNonClient();
-			break;
-			case `unverified-prospective`:
-				this._configureForUnverifiedProspective();
-				break;
-			case `verified-prospective`: 
-				this._configureForVerifiedProspective();
-				break;
-			default:
-				break;
-		}
+		const state = this.horizonStore.recoverState();
+
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.callerInformation = state.callerInformation;
+		this.verificationStatus = state.callerInformation.verificationStatus;
+
+		this._updateMiniProfile();
+
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
+			{
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
@@ -148,107 +141,30 @@ export class InsureInformation extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_configureForVerifiedProspective() {
-		this.renderAlertBanner = RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT;
-
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: `${this.verifiedCaller.fullName}`,
-			idNumber: this.verifiedCaller.idNumber,
-			phoneNumber: this.verifiedCaller.incomingTelephoneNumber,
-			livesIn: this.verifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.verifiedCaller.birthdate,
-			showButtons: true,
-			isConfirmed: true,
-			isVerified: true,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		});
-
-		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-			hasFavourites: false,
-			subtitle: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
+	_updateMiniProfile() {
+		const state = { 
+			miniProfile: {
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
+				showButtons: true,
+				isConfirmed: this.callerInformation.isConfirmed,
+				isVerified: this.callerInformation.verificationStatus === `verified`,
+				verificationFailed: this.callerInformation.verificationStatus === `failed`,
+				is3rdParty: this.callerInformation.verificationStatus === `3rdparty`,
+				isNonClient: this.callerInformation.verificationStatus === `non-client`
 			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
 			}
-		});
-	}
+		};
 
-	_configureForUnverifiedProspective() {
-		this.renderAlertBanner = RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT;
-
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: `${this.unverifiedCaller.fullName}`,
-			idNumber: this.unverifiedCaller.idNumber,
-			phoneNumber: this.unverifiedCaller.incomingTelephoneNumber,
-			livesIn: this.unverifiedCaller.livesIn,
-			languagePreference: ``,
-			birthday: this.unverifiedCaller.birthdate,
-			isConfirmed: true,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		});
-
-		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-			hasFavourites: false,
-			subtitle: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			}
-		});
-	}
-
-	_configureForNonClient() {
-		this.renderAlertBanner = RENDER_BANNER.NON_CLIENT;
-
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: `${this.nonClient.firstName} ${this.nonClient.surname}`,
-			idNumber: ``,
-			phoneNumber: this.nonClient.cellphone,
-			livesIn: ``,
-			languagePreference: ``,
-			birthday: ``,
-			isConfirmed: false,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: true
-		});
-
-		this.eventAggregator.publish(`horizon-update-left-hand-bar`, {
-			hasFavourites: true,
-			subtitle: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			},
-			detail: {
-				savingsAccount: ``,
-				savingsPlan: ``,
-				insure: ``,
-				credit: ``
-			}
-		});
+		this.horizonStore.saveState(state);
 	}
 
 	// --------------
@@ -927,7 +843,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderNonClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.NON_CLIENT && this.displayNotification) {
+		if (this.verificationStatus === `non-client` && this.displayNotification) {
 			return html`
 				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
@@ -959,7 +875,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderUnverifiedProspectiveClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.displayNotification) {
+		if (this.verificationStatus === `unverified` && this.displayNotification) {
 			return html`
 				${this._renderUnverifiedToast()}
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
@@ -972,7 +888,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderVerifiedProspectiveClientBanner() {
-		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT && this.displayNotification) {
+		if (this.verificationStatus === `verified` && this.displayNotification) {
 			return html`
 				${this._renderVerifiedToast()}
 				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
@@ -983,7 +899,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderVerifiedToast() {
-		if (this.renderAlertBanner === RENDER_BANNER.VERIFIED_PROSPECTIVE_CLIENT && this.displayToast) {
+		if (this.verificationStatus === `verified` && this.displayToast) {
 			return html`
 				<capitec-toast class="toast" type="success" header="Successful" detail="Client has been verified">
 				</capitec-toast>`;
@@ -992,7 +908,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderUnverifiedToast() {
-		if (this.renderAlertBanner === RENDER_BANNER.UNVERIFIED_PROSPECTIVE_CLIENT && this.displayToast) {
+		if (this.renderAlertBanner === `unverified` && this.displayToast) {
 			return html`
 				<capitec-toast class="toast" type="warning" header="Not Verified" detail="Only limited information will be display">
 				</capitec-toast>

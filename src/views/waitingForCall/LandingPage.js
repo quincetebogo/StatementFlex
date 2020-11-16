@@ -138,10 +138,14 @@ export class LandingPage extends View {
 
 		const incident = returnValue.result;
 		if (returnValue.succeeded && incident) {
-			console.log(`landing page - _onNewCall(): incident created, accepting call`);
 			await this._acceptCall(newCallInfo, incident);
 		} else {
-			console.log(`Failed to create incident`);
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: returnValue.succeeded ? `Empty or NULL response received when creating incident` : `Unknown error when creating incident`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		}
 	}
 
@@ -172,12 +176,12 @@ export class LandingPage extends View {
 		this.horizonStore.saveState(state);
 
 		this.incomingCallDetails = new IncomingCallDetails();
-		this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 
 		switch (newCallInfo.IVROptionCode) {
 			case `Insure`:
 				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
+				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.incomingCallDetails.ivrOption.value = `Insure`;
 				this.unVerifiedCaller = acceptedCall;
@@ -193,17 +197,21 @@ export class LandingPage extends View {
 			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog
 				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
+					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
+					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
+					this.incomingCallDetails.ivrOption.value = acceptedCall.ivrOption.value;
 					this.confirmedCaller = acceptedCall;
 					this.unVerifiedCaller = null;
 
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-					console.log(`landing page - show confirmed caller`);
 				} else if (this.callHandleService.isUnverifiedCaller(acceptedCall)) {
+					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
+					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
+					this.incomingCallDetails.ivrOption.value = acceptedCall.ivrOption.value;
 					this.unVerifiedCaller = acceptedCall;
 					this.confirmedCaller = null;
 
 					this.renderMode = RENDER_MODE.SEARCH_CALLER;
-					console.log(`landing page - show search caller`);
 				} else {
 					if (!this.errorHandled) {
 						const event = {
@@ -225,6 +233,7 @@ export class LandingPage extends View {
 				}
 				break;
 			default:
+				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
 		}
@@ -295,8 +304,6 @@ export class LandingPage extends View {
 					status: `error`,
 					message: `${context}: ${exception.status} - ${exception.message}`
 				};
-				console.log(exception.message);
-				console.log(exception.output);
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			} else {
 				const event = {

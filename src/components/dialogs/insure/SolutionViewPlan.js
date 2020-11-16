@@ -37,7 +37,7 @@ export class ViewPlan extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.clientType === `verified-existing-client`) {
+		if (this.clientType === `verified`) {
 			this.solutionDetails.solutionHeader = `How to View Plan`;
 		} else {
 			this.solutionDetails.solutionHeader = `Solution - View Plan`;

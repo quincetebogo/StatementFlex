@@ -1,6 +1,10 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
+/**
+ * The Horizon URL Schema. 
+ */
 const HORIZON_ROUTES = {
 	LANDING_PAGE: `/landingPage`,
 	SAVINGS_ACCOUNT_PRODUCT_PAGE: `/product/savings-account`,
@@ -14,15 +18,123 @@ const HORIZON_ROUTES = {
 	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
-	INSURE_NONCLIENT: `/insure/non-client`,
-	INSURE_VERIFIED_PROSPECTIVE: `/insure/prospective-verified`,
-	INSURE_UNVERIFIED_PROSPECTIVE: `/insure/prospective-unverified`,
-	INSURE_VERIFIED_EXISTING_CLIENT: `/insure/existing-client-verified`,
-	INSURE_UNVERIFIED_EXISTING_CLIENT: `/insure/existing-client-unverified`,
-	INSURE_THIRD_PARTY_CLIENT: `/insure/third-party`,
-	TRANSACT_FAVOURITES_VERIFIED_PAGE: `/transact/favourites-verified`,
-	TRANSACT_FAVOURITES_UNVERIFIED_PAGE: `/transact/favourites-unverified`
+	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
+	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
+	TRANSACT_FAVOURITES: `/transact/favourites`
 };
+
+
+/**
+ * The HorizonRouter class provides a series of functions for navigating to pages.
+ * These functions simply wrap the platforms navigateByPath method.
+ * 
+ * The class also provides access to state information for the guard functions in
+ * the routing table. Information from state may be used by the guard functions to 
+ * prevent browsing to a URL unless required pre-conditions are met.
+ */
+export class HorizonRouter {
+
+	constructor() {
+		this.verificationStatus = ``; 
+		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
+		this.router = Router.getInstance();
+	}
+
+	static getInstance() {
+		return this.instance || (this.instance = new HorizonRouter());
+	}
+
+	_updateState(state) {
+		// On an F5/refresh, this function fires before state has been restored and does not fire
+		// again until after the guard functions in the routing table have fired. 
+		// If the guard functions rely on information from state, they then do not work properl;y
+		if (!state) {
+			state = HorizonStore.getInstance().recoverState();
+		}
+
+		// Now obtain information used by guard functions in the routing table from state
+		if (state && state.callerInformation && state.callerInformation.verificationStatus) {
+			// Some pages have different left/right layouts based on the verification status
+			// of the incoming caller.
+			this.verificationStatus = state.callerInformation.verificationStatus;
+		}
+	}
+
+	/**
+	 * Extracts information from state used by guard functions in the routing table
+	 *
+	 * @returns {Object} An object containing information recovered from state for the guard functions in the routing table.
+	 * @memberof HorizonRouter
+	 */
+	getRoutingInfo() {
+		return {
+			verificationStatus: this.verificationStatus
+		};
+	}
+
+	// --------------------
+	// Navigation functions  
+    // --------------------
+	navigateToLandingPage() {
+		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
+	}
+
+	navigateToSavingsAccountProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE);
+	}
+
+	navigateToSavingsPlanProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE);
+	}
+
+	navigateToFlexibleSavingsPlanProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE);
+	}
+
+	navigateToFixedTermSavingsProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE);
+	}
+
+	navigateToTaxFreeSavingsProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE);
+	}
+
+	navigateToInsureProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_INSURE);
+	}
+
+	navigateToCreditProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
+	}
+
+	navigateToStopCard() {
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
+	}
+
+	navigateToStoppedCards() {
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
+	}
+
+	navigateToStopCardFailed() {
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
+	}
+
+	navigateToInsureProspectiveClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT);
+	}
+
+	navigateToInsureExistingClient() {
+		this.router.navigateByPath(HORIZON_ROUTES.INSURE_EXISTING_CLIENT);
+	}
+
+	navigateToQuickTransactionFavourites() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
+	}
+}
+
+// -------------------------
+// The Horizon Routing Table
+// -------------------------
 
 let horizonRoutes = [];
 
@@ -100,36 +212,6 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `horizon-product-insure-non-client`,
-		title: `InsureProductNonClientView`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_NONCLIENT,
-		load: () => import(`../views/insure/InsureProductNonClient`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
-	},
-	{
-		name: `horizon-insure-unverified-prospective`,
-		title: `InsureProductUnverifiedProspective`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE,
-		load: () => import(`../views/insure/InsureUnverifiedProspective`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
-	},
-	{
-		name: `horizon-insure-verified-prospective`,
-		title: `InsureProductVerifiedProspective`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE,
-		load: () => import(`../views/insure/VerifiedProspective`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
-	},
-	{
 		name: `horizon-credit-product`,
 		title: `CreditProductView`,
 		icon: null,
@@ -170,146 +252,68 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `insure-verified-existing-client`,
+		name: `horizon-existing-client`,
 		title: `InsureVerifiedExistingClientView`,
 		icon: null,
-		path: HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT,
-		load: () => import(`../views/insure/VerifiedExistingClient`),
+		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
+		load: () => import(`../views/insure/ExistingClient`),
+		guard: () => {
+			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			switch (routingInfo.verificationStatus) {
+				case `verified`:
+				case `unverified`:
+				case `3rdparty`:
+					return true;
+				default:
+					return false;
+			}
+		},
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			switch (routingInfo.verificationStatus) {
+					case `verified`:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+						break;
+					case `unverified`:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+						break;
+					case `3rdparty`:
+					default:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+						break;
+			}
 		}
 	},
 	{
-		name: `insure-unverified-existing-client`,
-		title: `InsureUnverifiedExistingClientView`,
+		name: `horizon-prospective-client`,
+		title: `InsureProductVerifiedProspective`,
 		icon: null,
-		path: HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT,
-		load: () => import(`../views/insure/UnverifiedExistingClient`),
+		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
+		load: () => import(`../views/insure/ProspectiveClient`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
-	},
-	{
-		name: `insure-third-party-client`,
-		title: `InsureThirdPartyClientView`,
-		icon: null,
-		path: HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT,
-		load: () => import(`../views/insure/ThirdPartyBeneficiaryClient`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			switch (routingInfo.verificationStatus) {
+					case `verified`:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+						break;
+					case `unverified`:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+						break;
+					case `non-client`:
+					default:
+						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+						break;
+			}
 		}
 	},
 	{
 		name: `horizon-favourites`,
 		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE,
-		load: () => import(`../views/quickTransact/Favourites`),
+		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
+		load: () => import(`../views/quickTransactions/Favourites`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
-	},
-	{
-		name: `horizon-unverified-favourites`,
-		title: `FavouritesUnverified`,
-		icon: null,
-		path: HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE,
-		load: () => import(`../views/quickTransact/FavouritesUnverified`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
 	}
 ];
-
-export class HorizonRouter {
-
-	constructor() {
-		this.router = Router.getInstance();
-	}
-
-	static getInstance() {
-		return this.instance || (this.instance = new HorizonRouter());
-	}
-
-	configureRouting(routeConfigs) {
-		for (const route of routeConfigs) {
-			this.router.addRoute(route);
-		}
-	}
-
-	navigateToLandingPage() {
-		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
-	}
-
-	navigateToSavingsAccountProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE);
-	}
-
-	navigateToSavingsPlanProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE);
-	}
-
-	navigateToFlexibleSavingsPlanProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE);
-	}
-
-	navigateToFixedTermSavingsProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE);
-	}
-
-	navigateToTaxFreeSavingsProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE);
-	}
-
-	navigateToInsureProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_INSURE);
-	}
-
-	navigateToCreditProduct() {
-		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
-	}
-
-	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
-	}
-
-	navigateToStoppedCards() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE);
-	}
-
-	navigateToStopCardFailed() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE);
-	}
-
-	navigateToInsureNonClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_NONCLIENT);
-	}
-
-	navigateToInsureVerifiedExistingClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_VERIFIED_EXISTING_CLIENT);
-	}
-
-	navigateToInsureUnverifiedExistingClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_EXISTING_CLIENT);
-	}
-
-	navigateToInsureVerifiedProspectiveClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_VERIFIED_PROSPECTIVE);
-	}
-
-	navigateToInsureUnverifiedProspectiveClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_UNVERIFIED_PROSPECTIVE);
-	}
-
-	navigateToInsureThirdPartyClient() {
-		this.router.navigateByPath(HORIZON_ROUTES.INSURE_THIRD_PARTY_CLIENT);
-	}
-
-	navigateToVerifiedFavourites() {
-		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_VERIFIED_PAGE);
-	}
-	
-	navigateToUnverifiedFavourites() {
-		this.router.navigateByPath(HORIZON_ROUTES.TRANSACT_FAVOURITES_UNVERIFIED_PAGE);
-	}
-}

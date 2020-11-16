@@ -11,7 +11,7 @@ import { Component, css, html } from 'platform/elements';
  *   iconSize="platform icon size | null"
  *   img-src="path to image | null"
  *   type="platform button type or null"
- 	>
+	  >
  * </horizon-option-button>
  * ```
  * 
@@ -124,7 +124,7 @@ export class OptionButton extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-button @click="${this._buttonClicked}" type="${this.type ? this.type : `secondary`}">
+			<capitec-button .disabled="${this.disabled}" @click="${this._buttonClicked}" type="${this.type ? this.type : `secondary`}">
 				<capitec-group layout="vertical" halign="center" valign="top" gap="none">
 					${this.renderIcon()}
 					<capitec-label class="label-text" label="${this.label}"></capitec-label> 

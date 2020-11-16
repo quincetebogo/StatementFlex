@@ -13,5 +13,27 @@
 		"sblUrl": "https://standardbancslinkv3.int.capinet:8080/",
 		"cdsUrl": "",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
-	}
+	},
+	"ivrMapping": [
+		{
+			"option": "1",
+			"primaryNeed": "StopCard"
+		},
+		{
+			"option": "3",
+			"primaryNeed": "Transact"
+		},
+		{
+			"option": "5",
+			"primaryNeed": "Insure"
+		},
+		{
+			"option": "51",
+			"primaryNeed": "Insure"
+		},
+		{
+			"option": "52",
+			"primaryNeed": "Insure"
+		}
+	]
 }

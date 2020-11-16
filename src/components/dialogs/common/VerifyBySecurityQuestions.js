@@ -36,7 +36,7 @@ export class VerifyBySecurityQuestions extends Component {
 		super();
 
 		this.incomingCallDetails = {};
-		this.unverifiedCaller = {};
+		this.callerInformation = {};
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
@@ -67,7 +67,7 @@ export class VerifyBySecurityQuestions extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			unverifiedCaller: { type: Object },
+			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
 			renderMode: { type: Number },
 			questionNumber: { type: Number },
@@ -112,22 +112,22 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_verifyAnswers() {
-		// TODO: To be handled -service call to verify answers after going through all the security questions
+		//  TODO: To be handled -service call to verify answers after going through all the security questions
+
 		if (this.retryCount < 1) {
 			this.renderMode = RENDER_MODE.FIRST_FAILURE;
 			this.retryCount++;
 		} else {
-			// TODO: Probably best to collapse verified/unverified caller to a single state object. Verified or not is a flag on the object.
-
 			const state = {
-				unverifiedCaller: this.unverifiedCaller,
-				verifiedCaller: this.unverifiedCaller,
+				callerInformation: this.callerInformation,
 				incomingCallDetails: this.incomingCallDetails
 			};
+
+			this.callerInformation.verificationStatus = "verified";
 	
 			this.horizonStore.saveState(state);
 	
-			this.horizonRouter.navigateToVerifiedFavourites();
+			this.horizonRouter.navigateToQuickTransactionFavourites();
 		}
 	}
 
