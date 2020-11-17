@@ -4,15 +4,17 @@
  * model.
  */
 export class IncomingCallDetails {
-	constructor(incomingTelephoneNumber = ``, 
-				incidentReferenceNumber = ``, 
-				incidentRecId = ``, 
-				agentTelephoneNumber = ``, 
-				ivrOptionCode = ``, 
-				ivrOption = { 
-								'possibleValues': [], 
-								'value': ``
-				}) {
+	constructor(
+		incomingTelephoneNumber = ``, 
+		incidentReferenceNumber = ``, 
+		incidentRecId = ``, 
+		agentTelephoneNumber = ``, 
+		ivrOptionCode = ``, 
+		ivrOption = { 
+						'possibleValues': [], 
+						'value': ``
+				}
+		) {
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
@@ -22,6 +24,6 @@ export class IncomingCallDetails {
 		this.ivrOptionCode = ivrOptionCode;
 
 		// An array of possible needs (IVR Options are mapped onto one of the needs in this array)
-		this.ivrOption = ivrOption
+		this.ivrOption = ivrOption;
 	}
 }

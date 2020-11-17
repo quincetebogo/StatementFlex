@@ -152,13 +152,13 @@ export class LandingPage extends View {
 	async _acceptCall(newCallInfo, incident) {
 		console.log(`landing page - _acceptCall()`);
 
-		newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
-		newCallInfo.IncidentRecId = incident.incidentRecId;
+		newCallInfo.incidentReferenceNumber = incident.incidentNumber;
+		newCallInfo.incidentRecId = incident.incidentRecId;
 
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.acceptCall(
+		const returnValue = await this.callHandleService.caller(
 			newCallInfo,
 			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
 		);
@@ -173,7 +173,7 @@ export class LandingPage extends View {
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
-		switch (newCallInfo.IVROptionCode) {
+		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
 				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
@@ -320,12 +320,12 @@ export class LandingPage extends View {
 	}
 
 	_AddCallInfo(model, newCallInfo) {
-		model.incomingTelephoneNumber = newCallInfo.IncomingTelephoneNumber;
-		model.incidentReferenceNumber = newCallInfo.IncidentReferenceNumber;
-		model.incidentRecId = newCallInfo.IncidentRecId;
-		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
-		model.ivrOptionCode = newCallInfo.IVROptionCode;
-		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber;
+		model.incomingTelephoneNumber = newCallInfo.incomingTelephoneNumber;
+		model.incidentReferenceNumber = newCallInfo.incidentReferenceNumber;
+		model.incidentRecId = newCallInfo.incidentRecId;
+		model.agentTelephoneNumber = newCallInfo.agentTelephoneNumber;
+		model.ivrOptionCode = newCallInfo.ivrOptionCode;
+		model.voiceReferenceNumber = newCallInfo.voiceReferenceNumber;
 	}
 
 	// ---------

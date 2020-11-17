@@ -32,15 +32,37 @@ export class HorizonChannelService extends Service {
 	// Accept Call Methods
 	// -------------------
 
-	// callerConfirmRequest
-	acceptCall(incomingCallData) {
+	/**
+	 * @deprecated use acceptCall instead
+	 *
+	 * @param {Object} incomingCallData Incoming call information
+	 * @returns {Object} Caller information if the call is originating from a verified number
+	 * @memberof HorizonChannelService
+	 */
+	caller(incomingCallData) {
 		return super.httpClient.post(`/clientcare/card/${this.version}/caller`, {
-			'incomingTelephoneNumber': incomingCallData.IncomingTelephoneNumber,
-			'voiceReferenceNumber': incomingCallData.VoiceReferenceNumber,
-			'ivrOptionCode': incomingCallData.IVROptionCode,
-			'incidentReferenceNumber': incomingCallData.IncidentReferenceNumber,
-			'agentTelephoneNumber': incomingCallData.AgentTelephoneNumber
+			'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
+			'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
+			'ivrOptionCode': incomingCallData.IvrOptionCode,
+			'incidentReferenceNumber': incomingCallData.incidentReferenceNumber,
+			'agentTelephoneNumber': incomingCallData.agentTelephoneNumber
 		});
+	}
+
+	/**
+	 * 
+	 *
+	 * @param {Object} incomingCallData Incoming call information
+	 * @returns {Object} Caller information if the call is originating from a verified number
+	 * @memberof HorizonChannelService
+	 */
+	acceptCall(incomingCallData) {
+		return super.httpClient.get(`/clientcare/call/${this.version}/accept-call?` +
+										`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+										`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+										`ivrOptionCode=${incomingCallData.ivrOption}&` +
+										`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
+										`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`);
 	}
 
 	// addCallerDetailsRequest
@@ -147,7 +169,6 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
-	// searchForClientRequest
 	searchCaller(clientInfo) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/search-caller?` +
 										`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +

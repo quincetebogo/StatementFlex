@@ -9,10 +9,10 @@ export class NewCallEvent {
 		agentTelephoneNumber,
 		date
 	) {
-		this.IncomingTelephoneNumber = incomingTelephoneNumber;
-		this.VoiceReferenceNumber = voiceReferenceNumber;
-		this.IVROptionCode = ivrOptionCode;
-		this.AgentTelephoneNumber = agentTelephoneNumber;
-		this.Date = date;
+		this.incomingTelephoneNumber = incomingTelephoneNumber;
+		this.voiceReferenceNumber = voiceReferenceNumber;
+		this.ivrOptionCode = ivrOptionCode;
+		this.agentTelephoneNumber = agentTelephoneNumber;
+		this.date = date;
 	}
 };
