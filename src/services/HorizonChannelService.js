@@ -149,15 +149,14 @@ export class HorizonChannelService extends Service {
 
 	// searchForClientRequest
 	searchCaller(clientInfo) {
-		return super.httpClient.post(`/clientcare/card/${this.version}/search`, {
-			"incomingTelephoneNumber": clientInfo.incomingTelephoneNumber,
-			"voiceReferenceNumber": clientInfo.voiceReferenceNumber,
-			"ivrOptionCode": clientInfo.ivrOption,
-			"incidentReferenceNumber": clientInfo.incidentNo,
-			"agentTelephoneNumber": clientInfo.agentTelephoneNumber,
-			"identificationMethod": parseInt(clientInfo.identificationMethod, 10),
-			"value": clientInfo.searchValue
-		});
+		return super.httpClient.get(`/clientcare/call/${this.version}/search-caller?` +
+										`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+										`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+										`ivrOptionCode=${clientInfo.ivrOption}&` +
+										`incidentReferenceNumber=${clientInfo.incidentNo}&` +
+										`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` + 
+										`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+										`value=${clientInfo.searchValue}`);
 	}
 
 	// -----------------
