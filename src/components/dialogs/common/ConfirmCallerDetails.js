@@ -153,13 +153,13 @@ export class ConfirmCallerDetails extends Component {
 			this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
 				detail: {
 					incomingCallDetails: {
-						voiceReferenceNumber: this.voiceReferenceNumber.value,
-						incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+						voiceReferenceNumber: this.voiceReferenceNumber,
+						incomingTelephoneNumber: this.incomingTelephoneNumber,
 						ivrOptionCode: this.incomingCallDetails.ivrOption.value,
 						incidentReferenceNumber: this.incidentReferenceNumber,
 						incidentRecId: this.incidentRecId,
 						agentTelephoneNumber: this.agentTelephoneNumber,
-						ivrOption: this.ivrOption.possibleValues
+						ivrOption: this.ivrOption
 					},
 					clientProfileDetails: clientProfileDetails
 				}
@@ -232,7 +232,7 @@ export class ConfirmCallerDetails extends Component {
 
 		switch (this.ivrOption.value) {
 			case `Insure`: 
-			// TODO: Still need to determine if client has insure products or not			
+			// TODO: Still need to determine if client has insure products or not
 			// this.horizonRouter.navigateToInsureProspectiveClient();
 			this.horizonRouter.navigateToInsureExistingClient();
 				break;
@@ -256,7 +256,6 @@ export class ConfirmCallerDetails extends Component {
 		// passed into this dialog or returned to this dialog after a Search.
 
 		// Confirmed caller shortcut referencews
-		this.incomingTelephoneNumber = this.confirmedCaller.incomingTelephoneNumber;
 		this.callerInformation = this.confirmedCaller.callerInformation;
 		this.callerFullName = this.confirmedCaller.callerInformation.name;
 		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
@@ -265,6 +264,7 @@ export class ConfirmCallerDetails extends Component {
 		this.languagePreference = this.confirmedCaller.callerInformation.languagePreference;
 		this.birthdate = this.confirmedCaller.callerInformation.birthdate;
 
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOption = this.incomingCallDetails.ivrOption;
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;

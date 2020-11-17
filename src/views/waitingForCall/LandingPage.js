@@ -24,9 +24,9 @@ import 'app/components/dialogs/stopCard/AssignStopCard';
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
 	CONFIRM_CALLER: 0,
-	SEARCH_CALLER: 1,
+	STOP_CARD_SEARCH: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3
+	SEARCH_CALLER: 3
 };
 
 /**
@@ -175,7 +175,8 @@ export class LandingPage extends View {
 
 		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
-				// TODO: below code will actuall fire for all needs but StopCard. 
+			case `Transact`:
+					// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -185,7 +186,7 @@ export class LandingPage extends View {
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 					this.confirmedCaller = acceptedCall;
 				} else {
-					this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.SEARCH_CALLER;
 				}
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
@@ -193,20 +194,17 @@ export class LandingPage extends View {
 				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
-					this.incomingCallDetails.ivrOption.value = acceptedCall.ivrOption.value;
+					this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 					this.confirmedCaller = acceptedCall;
-					// this.unVerifiedCaller = null;
 
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 				} else if (forceSearch || this.callHandleService.isUnverifiedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 					tempFixIVROption(this.incomingCallDetails.ivrOption);
-					// this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
 					this.incomingCallDetails.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
-					// this.unVerifiedCaller = acceptedCall;
 					this.confirmedCaller = null;
 
-					this.renderMode = RENDER_MODE.SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 				} else {
 					if (!this.errorHandled) {
 						const event = {
@@ -229,7 +227,7 @@ export class LandingPage extends View {
 			default:
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+				this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
 
@@ -384,7 +382,7 @@ export class LandingPage extends View {
 	}
 
 	_renderUnverifiedUser() {
-		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
+		if (this.renderMode === RENDER_MODE.STOP_CARD_SEARCH) {
 			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-stop-card-search-caller 
@@ -392,7 +390,7 @@ export class LandingPage extends View {
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}">
 				</horizon-stop-card-search-caller>`;
-		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
+		} else if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
 			return html`
 				<horizon-search-caller
