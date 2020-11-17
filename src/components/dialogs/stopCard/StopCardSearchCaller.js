@@ -76,7 +76,6 @@ export class StopCardSearchCaller extends Component {
 			searchFieldText: ``
 		};
 
-		this.unverifiedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
@@ -92,7 +91,6 @@ export class StopCardSearchCaller extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} unverifiedCaller  - Incoming caller without a verified telephone number
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * 
 	 * @readonly
@@ -101,12 +99,12 @@ export class StopCardSearchCaller extends Component {
 	 */
 	static get properties() {
 		return {
-			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			renderMode: { type: Number },
-			alertBannerMessage: { type: String }
+			alertBannerMessage: { type: String },
+			identificationMethods: { type: Object }
 		};
 	}
 
@@ -123,27 +121,18 @@ export class StopCardSearchCaller extends Component {
 
 		// Setup references into the incoming model. The following sets up references to 
 		// fields commmon to both incoming models
-		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 
-		this.ivrOption = this.unverifiedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
+		this.ivrOption = this.incomingCallDetails.ivrOption;
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
+		this._loadSearchOptions();
 
-		if (this.callHandleService.isConfirmedCaller(this.unverifiedCaller)) {
-			// We are coming from the confirmed user dialog
-			this._loadSearchOptions();
-
-			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
-		} else {
-			// We are coming from the landing page/Desktop Agent event.
-			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
-			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-		}
+		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.searchFieldText = null;
 	}
@@ -173,8 +162,8 @@ export class StopCardSearchCaller extends Component {
 			console.log(`service call`);
 
 			const searchClient = {
-				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber,
+				voiceReferenceNumber: this.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
 				ivrOption: this.ivrOption.value,
@@ -231,28 +220,26 @@ export class StopCardSearchCaller extends Component {
 		}));
 	};
 
-	_loadSearchOptions() {
+	async _loadSearchOptions() {
 		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
-			"voiceReferenceNumber": this.voiceReferenceNumber.value,
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"ivrOptionCode": this.ivrOption.value,
 			"incidentReferenceNumber": this.incidentReferenceNumber,
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		this.cardService.searchOptions(clientInfo, null)
-			.then((returnValue) => {
-				const options = returnValue.result;
+		const returnValue = await this.cardService.searchOptions(clientInfo, null);
+		const options = returnValue.result;
 
-				if (returnValue.succeeded) {
-					this.identificationMethodsList = options.identificationMethods;
-					if (this.identificationMethodsList !== undefined) {
-						this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-					}
-				} else {
-					// TODO: Handle error when searchOptions call failes
-				}
-			});
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		} else {
+			// TODO: Handle error when searchOptions call failes
+		};
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -437,11 +424,11 @@ export class StopCardSearchCaller extends Component {
 						label="Choose identification method" 
 						class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+						id-field="key" 
+						display-field="displayText"
 						@value-changed="${(e) => this._valueChanged(e)}" 
 						tabindex="${getTabIndex(this.identificationMethods)}"
-						?hidden=${isHidden(this.identificationMethods)} 
-						id-field="key" 
-						display-field="displayText">
+						?hidden=${isHidden(this.identificationMethods)}></capitec-select>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
@@ -495,7 +482,6 @@ export class StopCardSearchCaller extends Component {
 	renderInsureSearchModal() {
 		return html`
 			<horizon-search-caller 
-				.unverifiedCaller="${this.unverifiedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
