@@ -202,4 +202,8 @@ export class HorizonChannelService extends Service {
 	xdsQuestions(clientID) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
 	}
+
+	verifySecurityQuestions(response) {
+		return super.httpClient.post(`/clientcare/call/${this.version}/xds-questions`, response);
+	}
 }

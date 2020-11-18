@@ -96,4 +96,8 @@ export class CallHandleService extends ServiceBase {
 	xdsQuestions(clientID, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), errorHandler);
 	}
+
+	verifySecurityQuestions(response, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.verifySecurityQuestions(response), errorHandler);
+	}
 }
