@@ -176,16 +176,6 @@ export class SecurityQuestionsFailed extends Component {
 				horizon-option-button {
 					width: 204px;
 					height: 80px;
-					box-sizing: border-box;
-					border: 1px solid #E1E1E1;
-					border-radius: 6px;
-					
-					--theme-button-padding-top: 9px;
-					--theme-button-padding-bottom: 9px;
-
-					--horizon-option-btn-text-margin-top: 4px;
-					--horizon-option-btn-text-color: #3E4547;
-					--horizon-option-btn-text-font-weight: 600;
 				}
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
@@ -251,19 +241,16 @@ export class SecurityQuestionsFailed extends Component {
 					<horizon-option-button label="Security Questions" 
 											icon="system/knowledge-action"
 											iconSize="default"
-											type="clear"
 											@click="${() => this._retrySecurityQuestions()}">
 					</horizon-option-button>
 					<horizon-option-button label="Skip Verification" 
 											icon="system/arrow-right-action"
 											iconSize="default"
-											type="clear"
 											@click="${() => this._skip()}">
 					</horizon-option-button>
 					<horizon-option-button label="Verify via Banking App" 
 											icon="system/cellphone-action"
 											iconSize="default"
-											type="clear"
 											@click="${() => this._verifyUsingMobileApp()}">
 					</horizon-option-button>
 				</capitec-group>
