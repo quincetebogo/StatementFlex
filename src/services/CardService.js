@@ -2,7 +2,7 @@
 import { ServiceBase } from 'app/services/ServiceBase';
 
 /**
- *
+ * Channel Service methods for Cards related functionality
  *
  * @export
  * @class CardService

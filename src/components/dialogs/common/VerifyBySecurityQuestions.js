@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -48,6 +49,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.quickTransactionsService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
 	}
 
 	// --------------
@@ -124,10 +126,16 @@ export class VerifyBySecurityQuestions extends Component {
 			};
 
 			this.callerInformation.verificationStatus = `verified`;
+
+			this.quickTransactionsService.favouritesLanding({
+				cifNumber: ``,
+				nationalIdNumber: this.callerInformation.southAfricanIDNumber,
+				isVerified: this.callerInformation.verificationStatus === `verified`
+			});
 	
 			this.horizonStore.saveState(state);
 	
-			this.horizonRouter.navigateToVerificationFailed();
+			this.horizonRouter.navigateToQuickTransactionFavourites();
 		}
 	}
 
@@ -165,6 +173,10 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
 	// ---------
 	// RENDERING
