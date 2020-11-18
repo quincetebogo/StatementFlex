@@ -191,11 +191,7 @@ export class OptionButton extends Component {
 */
 
 	renderIcon() {
-		return html`<img class="icon-size" src="./platform/icons/${this.icon}.svg" alt="${this.icon}">`;
-
-		return this.icon
-			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : `small`}" icon="${this.icon}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}"></capitec-icon>`
-			: html`<img class="icon-size" src="${this.image}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}/>`;
+		return this.icon ? html`<img class="icon-size" src="./platform/icons/${this.icon}.svg">` : html`<img class="icon-size" src="${this.image}">`;
 	}
 }
 
