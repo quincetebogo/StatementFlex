@@ -10,7 +10,6 @@ import { Component, css, html } from 'platform/elements';
  *   icon="platform icon | null"
  *   iconSize="platform icon size | null"
  *   img-src="path to image | null"
- *   type="platform button type or null"
 	  >
  * </horizon-option-button>
  * ```
@@ -31,8 +30,8 @@ export class OptionButton extends Component {
 		this.label = ``;
 		this.icon = null;
 		this.image = null;
-		this.type = ``;
 		this.iconSize = ``;
+		this.disabled = false;
 	}
 
 	// ----------
@@ -46,7 +45,6 @@ export class OptionButton extends Component {
  * @property {String} [icon] - A platform icon to display.
  * @property {String} [iconSize] - Used in conjunction with the icon attribute. This is a <capitec-icon>, icon size setting.
  * @property {String} [img-src] - Path to an image to display. This will only be displayed if icon is NOT provided.
- * @property {String} [type] - A <capitec-button> type
  */
 	static get properties() {
 		return {
@@ -54,7 +52,6 @@ export class OptionButton extends Component {
 			icon: { type: String },
 			image: { type: String, attribute: `img-src` },
 			disabled: { type: Boolean },
-			type: { type: String },
 			iconSize: { type: String }
 		};
 	}
@@ -68,7 +65,6 @@ export class OptionButton extends Component {
 	// --------------
 
 	_buttonClicked(event) {
-
 		// Ignore the event if the component is disabled.
 		if (this.disabled) {
 			return event.stopImmediatePropagation();
@@ -81,6 +77,26 @@ export class OptionButton extends Component {
 
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
+	}
+
+	_keyDown(event) {
+
+		// Ignore the event if the component is disabled.
+		if (this.disabled) {
+			return event.stopImmediatePropagation();
+		}
+
+		// Intercept space and enter key events to toggle the component checked state.
+		const keyCode = (event.code || ``).toUpperCase();
+
+		if (keyCode === `SPACE` || keyCode === `ENTER` || keyCode === `NUMPADENTER`) {
+
+			this.dispatchEvent(new CustomEvent(`click`, {
+				detail: {}
+			}));
+
+			event.stopPropagation();
+		}
 	}
 
 	// --------------
@@ -104,39 +120,78 @@ export class OptionButton extends Component {
 			super.styles,
 			css`
 
+			.button {
+				outline:none;
+				height:100%;
+				background: white;
+				box-sizing: border-box;
+				box-shadow: none;
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+
+			.button:hover {
+				outline:none;
+				box-sizing: border-box;
+				box-shadow: none;
+				border: 1px solid #009DE0;
+				border-radius: 4px;
+			}
+
+			.button:focus {
+				outline:none;
+				box-sizing: border-box;
+				box-shadow: none;
+				border: 1px solid #009DE0;
+				border-radius: 4px;
+			}
+
 			.icon-size {
 				height: var(--horizon-option-btn-icon-height, 24px);
 				width: var(--horizon-option-btn-icon-width, 24px);
+				margin: auto;
 			}
 
 			.label-text{
 				margin-top: var(--horizon-option-btn-text-margin-top, 10px);
-				color: var(--horizon-option-btn-text-color, #4E6066);
+				color: var(--horizon-option-btn-text-color, #545D60); 
 				font-family: "Hind Vadodara";
 				font-size: 16px;
-				font-weight: var(--horizon-option-btn-text-font-weight, normal);
+				font-weight: var(--horizon-option-btn-text-font-weight, 500);
 				letter-spacing: 0;
 				line-height: var(--horizon-option-btn-text-line-height, 24px);
 				cursor: pointer;
-			}`
+			}
+
+			.label-text-disabled {
+				margin-top: var(--horizon-option-btn-text-margin-top, 10px);
+				color: var(--horizon-option-btn-text-color, #969B9D); 
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				font-weight: var(--horizon-option-btn-text-font-weight, 500);
+				letter-spacing: 0;
+				line-height: var(--horizon-option-btn-text-line-height, 24px);
+				cursor: pointer;
+			}
+			`
 		];
 	}
 
 	_webTemplate() {
 		return html`
-			<capitec-button .disabled="${this.disabled}" @click="${this._buttonClicked}" type="${this.type ? this.type : `secondary`}">
-				<capitec-group layout="vertical" halign="center" valign="top" gap="none">
-					${this.renderIcon()}
-					<capitec-label class="label-text" label="${this.label}"></capitec-label> 
-				</capitec-group>
-			</capitec-button>
+			<button class="button" ?disabled="${this.disabled}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}">
+				${this.renderIcon()}
+				<capitec-label class="label-text${this.disabled ? `-disabled` : ``}" label="${this.label}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}"></capitec-label> 
+			</button>
 		`;
 	}
 
+/*
+*/
+
 	renderIcon() {
-		return this.icon
-			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : `small`}" icon="${this.icon}"></capitec-icon>`
-			: html`<img class="icon-size" src="${this.image}"/>`;
+		return this.icon ? html`<img class="icon-size" src="./platform/icons/${this.icon}.svg">` : html`<img class="icon-size" src="${this.image}">`;
 	}
 }
 

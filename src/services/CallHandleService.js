@@ -65,13 +65,15 @@ export class CallHandleService extends ServiceBase {
 	 * Determines if the caller is phoning from a verified number. The returned object is 
 	 * different depending on if the incoming call is from an unverified number or not.
 	 * 
+	 * @deprecated use the new acceptCall instead
+	 * 
 	 * @param {object} acceptCallData Information about the incoming call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
-	acceptCall(acceptCallData, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
+	caller(acceptCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.caller(acceptCallData), errorHandler);
 	}
 
 	endCallOptions(endCallDetails, errorHandler = null) {

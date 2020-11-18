@@ -260,23 +260,7 @@ export class ThirdPartyOrExistingClient extends Component {
 				horizon-option-button {
 					height: 80px;
 					width: 236px;
-					box-sizing: border-box;
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-					background-color: #FFFFFF;
 					margin-top: 24px;
-
-					--theme-layout-gap-spacing: 24px;
-					--theme-button-default-border-width: 0px;
-					--theme-button-padding-top: 14.5px;
-					--theme-button-padding-bottom: 14.5px;
-
-					--horizon-option-btn-icon-height: 23.5px;
-					--horizon-option-btn-icon-width: 22.5px;
-					--horizon-option-btn-text-margin-top: 3px;
-					--horizon-option-btn-text-line-height: 20px;
-					--horizon-option-btn-text-font-weight: 500;
-					--horizon-option-btn-text-color: #545D60;
 				}
 
 				.toast{
@@ -389,8 +373,13 @@ export class ThirdPartyOrExistingClient extends Component {
 
 	_renderOptionButtons(item) {
 		return html`
-			<horizon-option-button label="${item.label}" icon="${item.icon}" iconSize="${item.iconSize}"
-				img-src="/images/insure/${item.imgSRC}" @click="${() => this.solutionSelected = item.label}">
+			<horizon-option-button 
+				?disabled="${true}"
+				label="${item.label}" 
+				icon="${item.icon}" 
+				iconSize="${item.iconSize}"
+				img-src="/images/insure/${item.imgSRC}" 
+				@click="${() => this.solutionSelected = item.label}">
 			</horizon-option-button>
 		`;
 	}

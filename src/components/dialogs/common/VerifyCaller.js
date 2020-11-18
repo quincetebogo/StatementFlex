@@ -255,16 +255,6 @@ export class VerifyCaller extends Component {
 				horizon-option-button {
 					width: 204px;
 					height: 81px;
-					box-sizing: border-box;
-					border: 1px solid #E1E1E1;
-					border-radius: 6px;
-					
-					--theme-button-padding-top: 9px;
-					--theme-button-padding-bottom: 9px;
-
-					--horizon-option-btn-text-margin-top: 4px;
-					--horizon-option-btn-text-color: #3E4547;
-					--horizon-option-btn-text-font-weight: 600;
 				}
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
@@ -388,19 +378,16 @@ export class VerifyCaller extends Component {
 					<horizon-option-button label="Security Questions" 
                                             icon="system/apply-now-action" 
                                             iconSize="default" 
-                                            type="clear"
 						                    @click="${() => this._verifyUsingSecurityQuestions()}">
 					</horizon-option-button>
 					<horizon-option-button label="Skip" 
                                             icon="system/arrow-right-action"
                                             iconSize="default" 
-                                            type="clear"
 						@click="${() => this._skip()}">
 					</horizon-option-button>
 					<horizon-option-button label="Try Again" 
                                             img-src="/images/insure/refresh.svg" 
                                             iconSize="default" 
-                                            type="clear"
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>

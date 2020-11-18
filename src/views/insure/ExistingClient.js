@@ -29,22 +29,6 @@ export class ExistingClient extends View {
 		this.callerInformation = state.callerInformation;
 	}
 
-	// ---------
-	// RENDERING
-	// ---------
-
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				:host{
-					width: 100%;
-					height: 100%;
-				}
-			`
-		];
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -135,6 +119,23 @@ export class ExistingClient extends View {
 				this.solutionsAvailable = [];
 		}
 	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				:host{
+					width: 100%;
+					height: 100%;
+				}
+			`
+		];
+	}
+
 
 	_mobileTemplate() {
 	}
