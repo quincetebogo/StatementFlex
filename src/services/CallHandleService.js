@@ -76,6 +76,18 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.caller(acceptCallData), errorHandler);
 	}
 
+	/**
+	 * Determines if the caller is phoning from a verified number. 
+	 * 
+	 * @param {object} acceptCallData Information about the incoming call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @memberof CallHandleService
+	 */
+	acceptCall(acceptCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
+	}
+
 	endCallOptions(endCallDetails, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), errorHandler);
 	}

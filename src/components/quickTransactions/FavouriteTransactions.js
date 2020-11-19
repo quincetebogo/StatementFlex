@@ -72,7 +72,7 @@ export class FavouriteTransactions extends Component {
 		this.verificationStatus = this.state.callerInformation.verificationStatus;
 
 		switch (this.verificationStatus) {
-			case `verified`: 
+			case `verified`:
 				this.displayToast = true;
 				this.disableButtons = false;
 				window.setTimeout(() => this._onToggleToastDisplay(), 3000);
@@ -88,7 +88,7 @@ export class FavouriteTransactions extends Component {
 				break;
 			default:
 		}
-		
+
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
@@ -108,7 +108,7 @@ export class FavouriteTransactions extends Component {
 	// ---------------
 
 	_configureForVerifiedExisting() {
-		const state = { 
+		const state = {
 			miniProfile: {
 				name: this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
@@ -134,7 +134,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_configureForUnverifiedClient() {
-		const state = { 
+		const state = {
 			miniProfile: {
 				name: this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
@@ -160,7 +160,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_configureForVerificationFailed() {
-		const state = { 
+		const state = {
 			miniProfile: {
 				name: this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
@@ -355,7 +355,7 @@ export class FavouriteTransactions extends Component {
 						</div>
 						<capitec-group class="transact-group">
 							<capitec-button-bar>
-								<horizon-option-button .disabled="${this.disableButtons}"
+								<horizon-option-button .disabled="${this.disableButtons}" badgeText="1"
 									icon="system/debi-check${this.disableButtons ? `` : `-action`}" iconSize="default" label="DebiCheck">
 								</horizon-option-button>
 							</capitec-button-bar>

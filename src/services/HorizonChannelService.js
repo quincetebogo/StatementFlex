@@ -180,6 +180,13 @@ export class HorizonChannelService extends Service {
 										`value=${clientInfo.searchValue}`);
 	}
 
+	favouritesLanding() {
+		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
+										`CifNumber=${clientInfo.cifNumber}&` +
+										`NationalIDNumber=${clientInfo.nationalIdNumber}&` + 
+										`isCallerVerified=${clientInfo.isVerified}`);
+	}
+
 	// -----------------
 	// Initialise Method
 	// -----------------
