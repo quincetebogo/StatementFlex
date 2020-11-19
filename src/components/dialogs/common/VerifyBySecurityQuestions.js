@@ -60,7 +60,9 @@ export class VerifyBySecurityQuestions extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
-	 * @property {Object} incomingCallDetails - Incoming Caller Information
+	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
+	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
+	 * @property {Object} securityQuestions The security questions object retrieved from XDS
 	 * 
 	 * @readonly
 	 * @static
@@ -130,7 +132,7 @@ export class VerifyBySecurityQuestions extends Component {
 					incomingCallDetails: this.incomingCallDetails
 				};
 
-				this.callerInformation.verificationStatus = "verified";
+				this.callerInformation.verificationStatus = `verified`;
 
 				this.horizonStore.saveState(state);
 
@@ -302,8 +304,8 @@ export class VerifyBySecurityQuestions extends Component {
 					<horizon-caller-dialog class="main-container" .incomingCallDetails="${this.incomingCallDetails}"
 						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
-							${this._renderAlertBanner()}
 							<capitec-content-box class="body-box">
+								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
 						</div>
