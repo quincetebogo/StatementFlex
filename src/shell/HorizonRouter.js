@@ -20,7 +20,9 @@ const HORIZON_ROUTES = {
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
-	TRANSACT_FAVOURITES: `/transact/favourites`
+	TRANSACT_FAVOURITES: `/transact/favourites`,
+	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
+	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`
 };
 
 
@@ -129,6 +131,14 @@ export class HorizonRouter {
 
 	navigateToQuickTransactionFavourites() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TRANSACT_FAVOURITES}`);
+	}
+
+	navigateToXdsVerificationFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
+	}
+
+	navigateToItaVerificationFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
 }
 
@@ -315,5 +325,26 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
 		}
+	},
+	{
+		name: `horizon-xds-verification-failed`,
+		title: `XdsVerificationFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.XDS_VERIFICATION_FAILED,
+		load: () => import(`../views/common/XdsVerificationFailed`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-ita-verification-failed`,
+		title: `ItaVerificationFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.ITA_VERIFICATION_FAILED,
+		load: () => import(`../views/common/ItaVerificationFailed`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
 	}
+
 ];

@@ -115,13 +115,13 @@ export class DesktopAgentService {
 			// have been injected into the event.
 
 			// TODO: Agree consistent regular expressions between the CLI, the Horizon UI and the CS !!!!!
-			newCallEvent.IncomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
-			newCallEvent.VoiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
-			newCallEvent.AgentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
+			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
+			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
 
-			newCallEvent.IVROptionCode = this._mapIvrOption(eventData.IVROptionCode);
-			newCallEvent.Date = eventData.Date;
+			newCallEvent.ivrOptionCode = this._mapIvrOption(eventData.IVROptionCode);
+			newCallEvent.date = eventData.Date;
 
 			console.log(`_onNewCall: event data validated`);
 

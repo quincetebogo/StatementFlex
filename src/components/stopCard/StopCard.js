@@ -85,6 +85,7 @@ export class StopCard extends Component {
 	static get properties() {
 		return {
 			confirmedCaller: { type: Object },
+			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
@@ -101,7 +102,6 @@ export class StopCard extends Component {
 		super.connectedCallback();
 
 		const clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-		const incomingCallDetails = this.confirmedCaller && this.confirmedCaller.incomingCallDetails;
 
 		this.instruction = clientProfileDetails.instruction;
 		this.cards = clientProfileDetails.cards;
@@ -114,27 +114,27 @@ export class StopCard extends Component {
 
 		// Set up caller information for passing to Stop Card Modal
 		this.callerInfo = {
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: incomingCallDetails.ivrOptionCode,
-			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: incomingCallDetails.incidentRecId,
-			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
-			isUnverifiedNumber: incomingCallDetails.isUnverifiedNumber,
-			ivrOption: incomingCallDetails.ivrOption
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentRecId: this.incomingCallDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber,
+			ivrOption: this.incomingCallDetails.ivrOption
 		};
 
 		// The End Call Modal is using a different modal to the Stop Card Modal
 		this.endCallCallerInfo = {
 			ivrOption: {
-				possibleValues: incomingCallDetails.ivrOption,
-				value: incomingCallDetails.ivrOptionCode
+				possibleValues: this.incomingCallDetails.ivrOption,
+				value: this.incomingCallDetails.ivrOptionCode
 			},
-			ivrOptionCode: incomingCallDetails.ivrOptionCode,
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			incidentReferenceNumber: incomingCallDetails.incidentReferenceNumber,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber
 		};
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
@@ -537,7 +537,7 @@ export class StopCard extends Component {
 			return html`
 			<horizon-end-call-session
 				@cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}"
-				.incomingCallDetails = "${this.endCallCallerInfo}"
+				.incomingCallDetails = "${this.incomingCallDetails}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
