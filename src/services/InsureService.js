@@ -1,5 +1,12 @@
 import { ServiceBase } from 'app/services/ServiceBase';
 
+/**
+ * Channel Service Methods for Insure related functionality
+ *
+ * @export
+ * @class InsureService
+ * @extends {ServiceBase}
+ */
 export class InsureService extends ServiceBase {
 	// --------------
 	// INITIALISATION
