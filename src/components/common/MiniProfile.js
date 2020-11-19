@@ -120,6 +120,7 @@ export class MiniProfile extends Component {
 			dob = new Date(birthdate);
 		} else {
 			dob = null;
+			return `-`;
 		}
 
 		const months = [
@@ -206,19 +207,6 @@ export class MiniProfile extends Component {
 			horizon-option-button {
 				height: 88px;
 				width: 198px;
-				box-sizing: border-box;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-				background-color: #FFFFFF;
-
-				--theme-button-default-border-width: 0px; 
-
-				--horizon-option-btn-icon-height: 26px;
-				--horizon-option-btn-icon-width: 26px;
-				--horizon-option-btn-text-margin-top: 3px;
-				--horizon-option-btn-text-line-height: 20px;
-				--horizon-option-btn-text-font-weight: 500;
-				--horizon-option-btn-text-color: #545D60;
 			}
 			.banner{
 				--theme-alert-banner-height: 48px;
@@ -357,7 +345,6 @@ export class MiniProfile extends Component {
 			<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button
-						class="view-button"
 						label="View profile"
 						icon="system/profile-action"
 						iconSize="default"
@@ -365,7 +352,6 @@ export class MiniProfile extends Component {
 					</horizon-option-button>
 
 					<horizon-option-button
-						class="document-button"
 						label="Document"
 						icon="system/documents-action"
 						iconSize="default"

@@ -132,7 +132,6 @@ export class SearchCaller extends Component {
 		};
 
 		this.alertBannerMessage = ``;
-		this.unverifiedCaller = null;
 
 		this.headerLabel = HEADER_LABEL;
 
@@ -181,7 +180,6 @@ export class SearchCaller extends Component {
 			renderMode: { type: Number },
 			clientType: { type: Number },
 			incomingCallDetails: { type: Object },
-			unverifiedCaller: { type: Object },
 			alertBannerMessage: { type: String }
 		};
 	}
@@ -201,9 +199,7 @@ export class SearchCaller extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-
-		this.ivrOption = this.unverifiedCaller.ivrOption;
-
+		
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
@@ -230,13 +226,13 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		if (this._validaeFields()) {
+		if (this._validateFields()) {
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this.ivrOption.value,
+				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			};
@@ -258,7 +254,6 @@ export class SearchCaller extends Component {
 	_onIvrOptionChanged(e) {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.unverifiedCaller.ivrOption.value = e.detail.new;
 
 		if (e.detail.new === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOPCARD_SEARCH_CALLER;
@@ -356,7 +351,7 @@ export class SearchCaller extends Component {
 		return true;
 	}
 
-	_validaeFields() {
+	_validateFields() {
 
 		const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
@@ -672,7 +667,6 @@ export class SearchCaller extends Component {
 	_renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller 
-				.unverifiedCaller="${this.unverifiedCaller}" 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-stop-card-search-caller>`;

@@ -33,6 +33,7 @@ export class ClientProfile extends View {
 		return html`
 		<stop-card 
 			.confirmedCaller="${tempState}"
+			.incomingCallDetails="${tempState.incomingCallDetails}"
 			@cards-stopped="${(event) => this._onCardsStopped(event)}">
 		</stop-card>`;
 	}
