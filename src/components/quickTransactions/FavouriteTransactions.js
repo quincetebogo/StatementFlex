@@ -251,23 +251,7 @@ export class FavouriteTransactions extends Component {
 			horizon-option-button {
 				height: 80px;
 				width: 188px;
-				box-sizing: border-box;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-				background-color: #FFFFFF;
 				margin-top: 16px;
-
-				--theme-layout-gap-spacing: 24px;
-				--theme-button-default-border-width: 0px;
-				--theme-button-padding-top: 14.5px;
-				--theme-button-padding-bottom: 14.5px;
-
-				--horizon-option-btn-icon-height: 26px;
-				--horizon-option-btn-icon-width: 26px;
-				--horizon-option-btn-text-margin-top: 3px;
-				--horizon-option-btn-text-line-height: 20px;
-				--horizon-option-btn-text-font-weight: 500;
-				--horizon-option-btn-text-color: #545D60;
 			}
 			.label {
 				height: 20px;
@@ -424,14 +408,14 @@ export class FavouriteTransactions extends Component {
 	_renderUnverifiedAlertBanner() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner class="banner" type="warning">
+				<capitec-alert-banner 
+					class="banner" 
+					type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label>
-						<capitec-label id="id-notify-client-warning-msg"
-							label="We need to verify your details before doing any transactions on your account."></capitec-label>
+						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label> 
+						<capitec-label id = "id-notify-client-warning-msg" label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now"
-							@click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
+						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
 					</capitec-group>
 				</capitec-alert-banner>
 			`;
@@ -442,7 +426,9 @@ export class FavouriteTransactions extends Component {
 	_renderFailedVerificationAlertBanner() {
 		if (this.verificationStatus === `failed`) {
 			return html`
-				<capitec-alert-banner class="banner" type="unsuccessful-red"
+				<capitec-alert-banner 
+					class="banner" 
+					type="unsuccessful-red"
 					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
 				</capitec-alert-banner>
 				</capitec-alert-banner>
