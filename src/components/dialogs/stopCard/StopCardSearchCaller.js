@@ -171,7 +171,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
@@ -377,11 +377,8 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog 
-							.incomingCallDetails="${this.incomingCallDetails}" 
-							.headerLabel="${HEADER_LABEL}"
-							@on-end-call="${() => this._onEndCall()}" 
-							@on-need-changed="${(event) => this._onNeedChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
+						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -411,38 +408,21 @@ export class StopCardSearchCaller extends Component {
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group 
-					layout="vertical" 
-					gap="none" 
-					halign="stretch" 
-					valign="top"
-					class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
+				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select 
-						id="identificationMethods" 
-						error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" 
-						class="id-options"
+					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						id-field="key" 
-						display-field="displayText"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						tabindex="${getTabIndex(this.identificationMethods)}"
-						?hidden=${isHidden(this.identificationMethods)}></capitec-select>
+						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
+					</capitec-select>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
-					<capitec-text-field 
-						id="searchFieldText" 
-						type="search" 
-						keyboardMode="numeric" 
-						label="Search"
-						error="${this.errMessage.searchFieldText}" 
-						focussed 
-						hint="" 
-						@key-input="${(e) => this._onKeyPress(e)}"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						value="">
+					<capitec-text-field id="searchFieldText" type="search" keyboardMode="numeric" label="Search"
+						error="${this.errMessage.searchFieldText}" focussed hint="" @key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" value="">
 					</capitec-text-field>
 				</div>
 			</capitec-group>
@@ -462,10 +442,7 @@ export class StopCardSearchCaller extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button 
-					id="id-search-button" 
-					type="primary" 
-					@click="${(e) => this._onSearchClick(e)}"
+				<capitec-button id="id-search-button" type="primary" @click="${(e) => this._onSearchClick(e)}"
 					label="Search Client">
 				</capitec-button>
 			</capitec-group>`;
@@ -473,16 +450,14 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {
 		return html`
-			<horizon-search-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-search-caller>`;

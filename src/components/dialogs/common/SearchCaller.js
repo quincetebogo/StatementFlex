@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
 import { CallerDetails } from 'app/models/CallerDetails';
-import { CardService } from 'app/services/CardService';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { InsureService } from 'app/services/InsureService';
@@ -167,7 +167,7 @@ export class SearchCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null); // TODO: remove calls to card service from here.
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ----------
@@ -199,7 +199,7 @@ export class SearchCaller extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-		
+
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
@@ -237,7 +237,7 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
@@ -290,7 +290,7 @@ export class SearchCaller extends Component {
 			if (!returnValue.succeeded) {
 				// TODO: Handle errors if call fails
 			}
-	
+
 			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
@@ -327,7 +327,7 @@ export class SearchCaller extends Component {
 				this.errMessage.nameValue = ``;
 			};
 
-			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) { 
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) {
 				this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
 			} else {
 				this.errMessage.surNameValue = ``;
@@ -650,24 +650,22 @@ export class SearchCaller extends Component {
 				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType !==
-			CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType
+			!== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	_renderStopCardSearchModal() {
 		return html`
-			<horizon-stop-card-search-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-stop-card-search-caller .incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-stop-card-search-caller>`;
 	}

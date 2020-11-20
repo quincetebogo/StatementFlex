@@ -110,4 +110,12 @@ export class CallHandleService extends ServiceBase {
 	xdsQuestions(clientID, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), errorHandler);
 	}
+
+	searchCaller(clientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
+	}
+
+	searchOptions(incomingCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
+	}
 }
