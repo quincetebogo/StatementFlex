@@ -69,7 +69,7 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: 823px;
+					height: 876px;
 					width: 1064px;
 				}
 				#id-unsuccessful-img {

@@ -22,7 +22,8 @@ const HORIZON_ROUTES = {
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
-	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`
+	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
+	SYSTEM_ERROR: `/error/system-error`
 };
 
 
@@ -37,7 +38,7 @@ const HORIZON_ROUTES = {
 export class HorizonRouter {
 
 	constructor() {
-		this.verificationStatus = ``; 
+		this.verificationStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
 	}
@@ -76,7 +77,7 @@ export class HorizonRouter {
 
 	// --------------------
 	// Navigation functions  
-    // --------------------
+	// --------------------
 	navigateToLandingPage() {
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
@@ -139,6 +140,10 @@ export class HorizonRouter {
 
 	navigateToItaVerificationFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+	}
+
+	navigateToSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SYSTEM_ERROR}`);
 	}
 }
 
@@ -281,16 +286,16 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
-					case `verified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-						break;
-					case `unverified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
-					case `3rdparty`:
-					default:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
+				case `verified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+					break;
+				case `unverified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
+				case `3rdparty`:
+				default:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
 			}
 		}
 	},
@@ -303,16 +308,16 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
-					case `verified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-						break;
-					case `unverified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
-					case `non-client`:
-					default:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
+				case `verified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+					break;
+				case `unverified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
+				case `non-client`:
+				default:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
 			}
 		}
 	},
@@ -342,6 +347,16 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.ITA_VERIFICATION_FAILED,
 		load: () => import(`../views/common/ItaVerificationFailed`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-system-error`,
+		title: `SystemError`,
+		icon: null,
+		path: HORIZON_ROUTES.SYSTEM_ERROR,
+		load: () => import(`../views/common/SystemError`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
