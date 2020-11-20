@@ -213,7 +213,7 @@ export class FavouriteTransactions extends Component {
 
 	_debiCheck() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -225,7 +225,7 @@ export class FavouriteTransactions extends Component {
 
 	_updateCardLimits() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -233,7 +233,7 @@ export class FavouriteTransactions extends Component {
 
 	_tapToPay() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -241,7 +241,7 @@ export class FavouriteTransactions extends Component {
 
 	_statements() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -249,7 +249,7 @@ export class FavouriteTransactions extends Component {
 
 	_taxCertificate() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -257,7 +257,7 @@ export class FavouriteTransactions extends Component {
 
 	_proofOfAccount() {
 		if (this.disableButtons) {
-			this.renderMode = 5;
+			this.renderMode = RENDER_MODE.ALERT_MODAL;
 		} else {
 
 		}
@@ -287,41 +287,28 @@ export class FavouriteTransactions extends Component {
 				line-height: 32px;
 			}
 
-			.section-heading{
-				width:100%;
-				box-sizing: border-box;
-				height: 32px;
-				width: 100%;
-				border: 1px solid #E1E1E1;
-				border-bottom: 0px none;
-				background-color: #F7F7F7;
+			capitec-group > capitec-title-bar {
+				--theme-titlebar-min-height: 32px;
+				--theme-titlebar-padding: 0px 0px 0px 16px;
+				--theme-type-default-background: rgb(244, 244, 244);
+				--theme-label-title-font-size: 14px;
+				--theme-label-title-font-weight: 600;
+
+				border-top: 1px solid #E1E1E1;
 			}
 
 			capitec-button-bar {
+				height: 120px;
+				width: 100%;
 				--buttonbar-align: left;
-				margin-top: 0px;
-				padding-top: 0px;
+				--theme-buttonbar-padding: 16px 0px 0px 16px;
+				--theme-buttonbar-item-gap: 0px;
 			}
 		
 			horizon-option-button {
 				height: 80px;
 				width: 188px;
-				margin-top: 16px;
-			}
-			.label {
-				height: 20px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 20px;
-				padding-left: 24px;
-				margin-top: 4px;
-			}
-			.documents {
-				align-items: flex-start;
-				display: flex;
+				margin-right: 16px;
 			}
 			
 			.toast {
@@ -344,7 +331,8 @@ export class FavouriteTransactions extends Component {
 				--theme-alert-banner-icon-margin-right: 7px;
 				--theme-alert-banner-warning-border: none;
 				--theme-alert-banner-unsuccessful-red-border: none;
-				margin: 16px 16px 16px 16px;
+				width: 100%;
+				padding: 16px;
 			}
 
 			#id-notify-banner-group {
@@ -373,11 +361,7 @@ export class FavouriteTransactions extends Component {
 				--theme-hyperlink-color: #D4781C;
 				--theme-font-family: "Hind Vadodara";
 				--theme-font-weight: 600;
-			}
-
-			capitec-group {
-				--theme-layout-gap-spacing: 16px;
-				height: auto;
+				text-decoration: underline;
 			}
 			`
 		];
@@ -412,11 +396,13 @@ export class FavouriteTransactions extends Component {
 						<img src="/src/images/transactions/fav_icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
-					${this._renderUnverifiedAlertBanner()}
-					${this._renderFailedVerificationAlertBanner()}
-					${this._renderTransactSection()}
-					${this._renderCardsSection()}
-					${this._renderDocumentsSections()}
+					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
+						${this._renderUnverifiedAlertBanner()}
+						${this._renderFailedVerificationAlertBanner()}
+						${this._renderTransactSection()}
+						${this._renderCardsSection()}
+						${this._renderDocumentsSections()}
+					</capitec-group>
 				</capitec-card>
 			`;
 	}
@@ -453,58 +439,46 @@ export class FavouriteTransactions extends Component {
 
 	_renderTransactSection() {
 		return html`
-				<div class="section-heading">
-					<capitec-label class="label" label="Transact" type="strong"></capitec-label>
-				</div>
-				<capitec-group class="transact-group">
-					<capitec-button-bar>
-						<horizon-option-button badgeText="1" icon="system/debi-check-action" iconSize="default" label="DebiCheck"
-							@click="${() => this._debiCheck()}">
-						</horizon-option-button>
-					</capitec-button-bar>
-				</capitec-group>
+				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
+				<capitec-button-bar>
+					<horizon-option-button badgeText="1" icon="system/debi-check-action" iconSize="default" label="DebiCheck"
+						@click="${() => this._debiCheck()}">
+					</horizon-option-button>
+				</capitec-button-bar>
 		`;
 	}
 
 	_renderCardsSection() {
 		return html`
-				<div class="section-heading">
-					<capitec-label class="label" label="Cards" type="strong"></capitec-label>
-				</div>
-				<capitec-group class="cards-group">
-					<capitec-button-bar>
-						<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
-							@click="${() => this._stopCard()}">
-						</horizon-option-button>
-						<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
-							@click="${() => this._updateCardLimits()}">
-						</horizon-option-button>
-						<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
-							@click="${() => this._tapToPay()}">
-						</horizon-option-button>
-					</capitec-button-bar>
-				</capitec-group>
+				<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
+				<capitec-button-bar>
+					<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
+						@click="${() => this._stopCard()}">
+					</horizon-option-button>
+					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
+						@click="${() => this._updateCardLimits()}">
+					</horizon-option-button>
+					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
+						@click="${() => this._tapToPay()}">
+					</horizon-option-button>
+				</capitec-button-bar>
 		`;
 	}
 
 	_renderDocumentsSections() {
 		return html`
-				<div class="section-heading">
-					<capitec-label class="label" label="Document"></capitec-label>
-				</div>
-				<capitec-group class="documents-group documents">
-					<capitec-button-bar>
-						<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
-							@click="${() => this._statements()}">
-						</horizon-option-button>
-						<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
-							@click="${() => this._taxCertificate()}">
-						</horizon-option-button>
-						<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
-							@click="${() => this._proofOfAccount()}">
-						</horizon-option-button>
-					</capitec-button-bar>
-				</capitec-group>
+				<capitec-title-bar type="default" label="Document"></capitec-title-bar>
+				<capitec-button-bar>
+					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
+						@click="${() => this._statements()}">
+					</horizon-option-button>
+					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
+						@click="${() => this._taxCertificate()}">
+					</horizon-option-button>
+					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
+						@click="${() => this._proofOfAccount()}">
+					</horizon-option-button>
+				</capitec-button-bar>
 		`;
 	}
 
