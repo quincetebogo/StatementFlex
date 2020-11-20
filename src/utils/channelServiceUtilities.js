@@ -168,6 +168,10 @@ export function tempFixIVROptionValue(ivrOption) {
 		if (ivrOption.value === `Insure`) {
 			ivrOption.value = `Insure`;
 		}
+
+		if (ivrOption.value === `Transact`) {
+			ivrOption.value = `Transact`;
+		}
 	}
 }
 
@@ -190,6 +194,9 @@ export function tempFixIVROption(ivrOption) {
 			},
 			{
 				key: `Insure`, value: `Insure`
+			},
+			{
+				key: `Transact`, value: `Transact`
 			}
 		];
 	}
