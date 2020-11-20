@@ -4,13 +4,15 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/ClientNotVerified';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
 	END_CALL: 1,
 	SELECT_ASSIGN_REASON: 2,
 	ASSIGN: 3,
-	VERIFY_NOW: 4
+	VERIFY_NOW: 4,
+	ALERT_MODAL: 5
 };
 
 /**
@@ -79,7 +81,7 @@ export class FavouriteTransactions extends Component {
 				this._configureForVerifiedExisting();
 				break;
 			case `unverified`:
-				this.disableButtons = false;
+				this.disableButtons = true;
 				this._configureForUnverifiedClient();
 				break;
 			case `failed`:
@@ -188,6 +190,7 @@ export class FavouriteTransactions extends Component {
 	_onToggleToastDisplay() {
 		this.displayToast = false;
 	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -206,6 +209,58 @@ export class FavouriteTransactions extends Component {
 
 	_onSkipVerification() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_debiCheck() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
+	}
+
+	_stopCard() {
+
+	}
+
+	_updateCardLimits() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
+	}
+
+	_tapToPay() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
+	}
+
+	_statements() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
+	}
+
+	_taxCertificate() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
+	}
+
+	_proofOfAccount() {
+		if (this.disableButtons) {
+			this.renderMode = 5;
+		} else {
+
+		}
 	}
 
 	// ---------
@@ -333,70 +388,15 @@ export class FavouriteTransactions extends Component {
 
 	_webTemplate() {
 		return html`
-		${this._renderVerifiedToast()}
-		
-		${this._renderFavourites()}
-		${this._renderEndCallSessionDialog()}
-		${this._renderVerifyNowModal()}
+			${this._renderVerifiedToast()}
+			${this._renderFavourites()}
+			${this._renderEndCallSessionDialog()}
+			${this._renderVerifyNowModal()}
+			${this._renderAlertModal()}
 		`;
 	}
 
-	_renderFavourites() {
-		return html`
-					<capitec-card class="card">
-						<capitec-title-bar type="clear">
-							<img src="/src/images/transactions/fav_icon.svg">
-							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
-						</capitec-title-bar>
-						${this._renderUnverifiedAlertBanner()}
-						${this._renderFailedVerificationAlertBanner()}
-						<div class="section-heading">
-							<capitec-label class="label" label="Transact" type="strong"></capitec-label>
-						</div>
-						<capitec-group class="transact-group">
-							<capitec-button-bar>
-								<horizon-option-button .disabled="${this.disableButtons}" badgeText="1"
-									icon="system/debi-check${this.disableButtons ? `` : `-action`}" iconSize="default" label="DebiCheck">
-								</horizon-option-button>
-							</capitec-button-bar>
-						</capitec-group>
-						<div class="section-heading">
-							<capitec-label class="label" label="Cards" type="strong"></capitec-label>
-						</div>
-						<capitec-group class="cards-group">
-							<capitec-button-bar>
-								<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default">
-								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disableButtons}" label="Update Card Limits"
-									icon="system/cards${this.disableButtons ? `` : `-action`}" iconSize="default">
-								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disableButtons}" label="Tap to Pay"
-									icon="system/contactless${this.disableButtons ? `` : `-action`}" iconSize="default">
-								</horizon-option-button>
-							</capitec-button-bar>
-						</capitec-group>
-						<div class="section-heading">
-							<capitec-label class="label" label="Document"></capitec-label>
-						</div>
-						<capitec-group class="documents-group documents">
-							<capitec-button-bar>
-								<horizon-option-button .disabled="${this.disableButtons}" label="Statements"
-									icon="system/documents${this.disableButtons ? `` : `-action`}" iconSize="default">
-								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disableButtons}" label="Tax Certificate"
-									icon="system/sars${this.disableButtons ? `` : `-action`}" iconSize="default">
-								</horizon-option-button>
-								<horizon-option-button .disabled="${this.disableButtons}" label="Proof of Account"
-									icon="system/documents${this.disableButtons ? `` : `-action`}" iconSize="default">
-								</horizon-option-button>
-							</capitec-button-bar>
-						</capitec-group>
-					</capitec-card>
-						`;
-	}
-
 	_renderVerifiedToast() {
-
 		if (this.displayToast) {
 			return html`
 				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
@@ -405,17 +405,33 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
+	_renderFavourites() {
+		return html`
+				<capitec-card class="card">
+					<capitec-title-bar type="clear">
+						<img src="/src/images/transactions/fav_icon.svg">
+						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
+					</capitec-title-bar>
+					${this._renderUnverifiedAlertBanner()}
+					${this._renderFailedVerificationAlertBanner()}
+					${this._renderTransactSection()}
+					${this._renderCardsSection()}
+					${this._renderDocumentsSections()}
+				</capitec-card>
+			`;
+	}
+
 	_renderUnverifiedAlertBanner() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner 
-					class="banner" 
-					type="warning">
+				<capitec-alert-banner class="banner" type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">
-						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label> 
-						<capitec-label id = "id-notify-client-warning-msg" label="We need to verify your details before doing any transactions on your account."></capitec-label>
+						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label>
+						<capitec-label id="id-notify-client-warning-msg"
+							label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
+						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now"
+							@click="${() => this._onVerifyNowClick()}"></capitec-hyperlink>
 					</capitec-group>
 				</capitec-alert-banner>
 			`;
@@ -426,9 +442,7 @@ export class FavouriteTransactions extends Component {
 	_renderFailedVerificationAlertBanner() {
 		if (this.verificationStatus === `failed`) {
 			return html`
-				<capitec-alert-banner 
-					class="banner" 
-					type="unsuccessful-red"
+				<capitec-alert-banner class="banner" type="unsuccessful-red"
 					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
 				</capitec-alert-banner>
 				</capitec-alert-banner>
@@ -437,6 +451,62 @@ export class FavouriteTransactions extends Component {
 		return html``;
 	}
 
+	_renderTransactSection() {
+		return html`
+				<div class="section-heading">
+					<capitec-label class="label" label="Transact" type="strong"></capitec-label>
+				</div>
+				<capitec-group class="transact-group">
+					<capitec-button-bar>
+						<horizon-option-button badgeText="1" icon="system/debi-check-action" iconSize="default" label="DebiCheck"
+							@click="${() => this._debiCheck()}">
+						</horizon-option-button>
+					</capitec-button-bar>
+				</capitec-group>
+		`;
+	}
+
+	_renderCardsSection() {
+		return html`
+				<div class="section-heading">
+					<capitec-label class="label" label="Cards" type="strong"></capitec-label>
+				</div>
+				<capitec-group class="cards-group">
+					<capitec-button-bar>
+						<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
+							@click="${() => this._stopCard()}">
+						</horizon-option-button>
+						<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
+							@click="${() => this._updateCardLimits()}">
+						</horizon-option-button>
+						<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
+							@click="${() => this._tapToPay()}">
+						</horizon-option-button>
+					</capitec-button-bar>
+				</capitec-group>
+		`;
+	}
+
+	_renderDocumentsSections() {
+		return html`
+				<div class="section-heading">
+					<capitec-label class="label" label="Document"></capitec-label>
+				</div>
+				<capitec-group class="documents-group documents">
+					<capitec-button-bar>
+						<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
+							@click="${() => this._statements()}">
+						</horizon-option-button>
+						<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
+							@click="${() => this._taxCertificate()}">
+						</horizon-option-button>
+						<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
+							@click="${() => this._proofOfAccount()}">
+						</horizon-option-button>
+					</capitec-button-bar>
+				</capitec-group>
+		`;
+	}
 
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
@@ -446,6 +516,15 @@ export class FavouriteTransactions extends Component {
 				</horizon-end-call-session>`;
 		}
 		return html``;
+	}
+
+	_renderAlertModal() {
+		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
+			return html`
+				<horizon-client-not-verified @cancel="${() => this.renderMode = 0}" @verify-now="${() => this._onVerifyNowClick()}">
+				</horizon-client-not-verified>
+			`;
+		}
 	}
 
 	_renderVerifyNowModal() {
