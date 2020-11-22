@@ -77,7 +77,6 @@ export class DesktopAgentService {
 	}
 
 
-
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -227,7 +226,7 @@ export class DesktopAgentService {
 		}
 
 		this.eventSource = new EventSource(`${this.registrationUrl}?eventId=${this.lastEventId}`);
-		this.eventSource.addEventListener(`new-call`, async event => await this._onNewCall(event));
+		this.eventSource.addEventListener(`new-call`, event => this._onNewCall(event));
 
 		this.eventSource.onerror = () => {
 			this._onError();
@@ -262,7 +261,6 @@ export class DesktopAgentService {
 		const selectedOption = ivrMapping.find(element => element.option === IvrOptionCode);
 
 		return selectedOption ? selectedOption.primaryNeed : `Transact`;
-
 	}
 
 	_setValidationData() {
