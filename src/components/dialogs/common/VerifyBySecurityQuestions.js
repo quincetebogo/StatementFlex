@@ -351,7 +351,9 @@ export class VerifyBySecurityQuestions extends Component {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question}"></capitec-label>
-				<horizon-radio-button class="radio-button" .radioButtonsAvailable="${answers}"
+				<horizon-radio-button 
+					class="radio-button" 
+					.radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button>
 		`;
@@ -382,15 +384,19 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderFailureModal() {
 		return html`
-			<horizon-security-questions-failed .incomingCallDetails="${this.incomingCallDetails}"
-				@security-questions="${() => this._retrySecurityQuestions()}" @skip="${() => this._onSkip()}">
+			<horizon-security-questions-failed 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@security-questions="${() => this._retrySecurityQuestions()}" 
+				@skip="${() => this._onSkip()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</horizon-end-call-session>`;
 	}
 

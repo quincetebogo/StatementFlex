@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
@@ -40,6 +42,8 @@ export class FavouriteTransactions extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.state = this.horizonStore.recoverState();
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -58,7 +62,8 @@ export class FavouriteTransactions extends Component {
 			verificationStatus: { type: String },
 			clientType: { type: String },
 			displayToast: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -191,6 +196,10 @@ export class FavouriteTransactions extends Component {
 		this.displayToast = false;
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -219,8 +228,32 @@ export class FavouriteTransactions extends Component {
 		}
 	}
 
-	_stopCard() {
+	async _stopCard() {
+		const confirmedCaller = {
+			idNumber: this.callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentRecId: this.incomingCallDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: this.callerInformation.nonClientFullName,
+			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
+			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
+			nonClientRelationship: this.callerInformation.nonClientRelationship
+		};
 
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const clientProfileDetails = returnValue.result;
+
+		if (returnValue.succeeded) {
+			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
+				callerInformation: this.callerInformation, 
+				clientProfileDetails: clientProfileDetails });
+			this.horizonRouter.navigateToStopCard();
+		} else {
+			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
+		}
 	}
 
 	_updateCardLimits() {
@@ -377,6 +410,7 @@ export class FavouriteTransactions extends Component {
 			${this._renderEndCallSessionDialog()}
 			${this._renderVerifyNowModal()}
 			${this._renderAlertModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -508,6 +542,14 @@ export class FavouriteTransactions extends Component {
 				</horizon-verify-caller>`;
 		}
 		return html``;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

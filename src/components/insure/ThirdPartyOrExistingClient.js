@@ -373,8 +373,13 @@ export class ThirdPartyOrExistingClient extends Component {
 
 	_renderOptionButtons(item) {
 		return html`
-			<horizon-option-button ?disabled="${true}" label="${item.label}" icon="${item.icon}" iconSize="${item.iconSize}"
-				img-src="/images/insure/${item.imgSRC}" @click="${() => this.solutionSelected = item.label}">
+			<horizon-option-button 
+				?disabled="${true}" 
+				label="${item.label}" 
+				icon="${item.icon}" 
+				iconSize="${item.iconSize}"
+				img-src="/images/insure/${item.imgSRC}" 
+				@click="${() => this.solutionSelected = item.label}">
 			</horizon-option-button>
 		`;
 	}
@@ -384,25 +389,30 @@ export class ThirdPartyOrExistingClient extends Component {
 			case SOLUTION_SET.VIEW_PLAN:
 			case SOLUTION_SET.VIEW_STATUS:
 				return html`
-					<horizon-view-plan @solution-provided="${() => this.solutionSelected = ``}"
-						@close-solution="${() => this.solutionSelected = ``}" clientType="${this.verificationStatus}">
+					<horizon-view-plan
+						@solution-provided="${() => this.solutionSelected = ``}"
+						@close-solution="${() => this.solutionSelected = ``}" 
+						clientType="${this.verificationStatus}">
 					</horizon-view-plan>`;
 
 			case SOLUTION_SET.UPDATE_PLAN:
 				return html`
-					<horizon-choose-update-option @solution-provided="${() => this.solutionSelected = ``}"
+					<horizon-choose-update-option
+						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-choose-update-option>`;
 
 			case SOLUTION_SET.PAY_ARREARS:
 				return html`
-					<horizon-pay-arrears @solution-provided="${() => this.solutionSelected = ``}"
+					<horizon-pay-arrears
+						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-pay-arrears>`;
 
 			case SOLUTION_SET.EMAIL_PLAN:
 				return html`
-					<horizon-email-plan @solution-provided="${() => this.solutionSelected = ``}"
+					<horizon-email-plan
+						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-email-plan>`;
 
@@ -411,7 +421,8 @@ export class ThirdPartyOrExistingClient extends Component {
 
 			case SOLUTION_SET.CANCEL_PLAN:
 				return html`
-					<horizon-cancel-plan @solution-provided="${() => this.solutionSelected = ``}"
+					<horizon-cancel-plan
+						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-cancel-plan>`;
 			default:
@@ -432,7 +443,8 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
 			return html`
-				<horizon-insure-assign-reason @on-assign-reason=${(e)=> this._onAssignReasonSelected(e)}
+				<horizon-insure-assign-reason
+					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel=${() => this._onCancelSelectAssignReason()}>
 				</horizon-insure-assign-reason>`;
 		}
@@ -442,7 +454,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-reason-selected .selectedReason="${this.selectedAssignReason}" @on-cancel=${() => this._onCancelAssign()}
+				<horizon-assign-reason-selected
+					.selectedReason="${this.selectedAssignReason}" 
+					@on-cancel=${() => this._onCancelAssign()}
 					@on-assign=${() => this._onAssign()}>
 				</horizon-assign-reason-selected>`;
 		}

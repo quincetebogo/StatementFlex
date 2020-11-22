@@ -125,47 +125,54 @@ export class ConfirmCallerDetails extends Component {
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
 	_onConfirmClick() {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._fetchClientCards();
+			this._navigateToStopCard();
 		} else {
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
 
-	async _fetchClientCards() {
+	async _navigateToStopCard() {
 		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber,
-			voiceReferenceNumber: this.voiceReferenceNumber,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-			incidentReferenceNumber: this.incidentReferenceNumber,
-			incidentRecId: this.incidentRecId,
-			agentTelephoneNumber: this.agentTelephoneNumber,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentRecId: this.incomingCallDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			nonClientFullName: ``,
 			nonClientCellPhone: ``,
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``
 		};
 
+		const callerInformation = {
+			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
+			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
+			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
+			name: this.confirmedCaller.callerInformation.name.value,
+			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber, // TODO: Must be replaced by Verified Number from CS call
+			nonClientFullName: ``,
+			nonClientCellPhone: ``,
+			nonClientIDNumber: ``,
+			nonClientRelationship: ``,
+			isConfirmed: true,
+			verificationStatus: `unverified`,
+			is3rdParty: false,
+			isNonClient: false
+		};
+
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
-			this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
-				detail: {
-					incomingCallDetails: {
-						voiceReferenceNumber: this.voiceReferenceNumber,
-						incomingTelephoneNumber: this.incomingTelephoneNumber,
-						ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-						incidentReferenceNumber: this.incidentReferenceNumber,
-						incidentRecId: this.incidentRecId,
-						agentTelephoneNumber: this.agentTelephoneNumber,
-						ivrOption: this.ivrOption
-					},
-					clientProfileDetails: clientProfileDetails
-				}
-			}));
+			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
+				callerInformation: callerInformation, 
+				clientProfileDetails: clientProfileDetails });
+			this.horizonRouter.navigateToStopCard();
 		} else {
-			// TODO: Handle Identify Caller failing
+			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
 		}
 	}
 
