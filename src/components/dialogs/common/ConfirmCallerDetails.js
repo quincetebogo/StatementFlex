@@ -207,6 +207,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_onSkipVerification(e) {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
@@ -218,7 +219,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus: `unverified`,
+			verificationStatus: `verified`, // TODO: Put back to unverified
 			is3rdParty: false,
 			isNonClient: false
 	};
@@ -234,7 +235,8 @@ export class ConfirmCallerDetails extends Component {
 			case `Insure`: 
 			// TODO: Still need to determine if client has insure products or not
 			// this.horizonRouter.navigateToInsureProspectiveClient();
-			this.horizonRouter.navigateToInsureExistingClient();
+			this.horizonRouter.navigateToQuickTransactionFavourites();
+//			this.horizonRouter.navigateToInsureExistingClient();
 				break;
 			case `Transact`:
 				this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -603,6 +605,7 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,

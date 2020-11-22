@@ -135,29 +135,29 @@ export class VerifyBySecurityQuestions extends Component {
         } else {
 			this.alertBannerMessage = ``;
             this.checked = false;
-			if (this.retryCount < 1) {
+
+			console.log(this.securityQuestions);
+	
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
+	
+			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
+				console.log(returnValue.result);
+
+				const state = {
+					callerInformation: this.callerInformation,
+					incomingCallDetails: this.incomingCallDetails
+				};
+
+				this.callerInformation.verificationStatus = `verified`;
+
+				this.horizonStore.saveState(state);
+
+				this.horizonRouter.navigateToQuickTransactionFavourites();
+			} else if (this.retryCount < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.retryCount++;
 			} else {
-
-				console.log(this.securityQuestions);
-	
-				const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, null);
-		
-				if (returnValue.succeeded) {
-					console.log(returnValue.result);
-
-					const state = {
-						callerInformation: this.callerInformation,
-						incomingCallDetails: this.incomingCallDetails
-					};
-	
-					this.callerInformation.verificationStatus = `verified`;
-	
-					this.horizonStore.saveState(state);
-	
-					this.horizonRouter.navigateToQuickTransactionFavourites();
-				}
+				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -196,6 +196,36 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_xdsErrorHandler(exception) {
+		try {
+			if (exception instanceof TypeError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else if (exception instanceof HttpStatusError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.status} - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		} finally {
+		}
+
+		return true;
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
