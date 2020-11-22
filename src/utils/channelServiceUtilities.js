@@ -1,9 +1,6 @@
 /*
 		Utility functions for extracting UI control flags and other fields from the channel service contract
 		
-		THEY DO PROTECT AND DEFAULT SENSIBLY SHOULD THE CHANNEL SERVICE STRUCTURE NOT HAVE
-		THE PROPERTIES/FIELDS WE ARE CHECKING
-
 		All these functions assume that field info follows the following basic structure
 
 		{
@@ -17,19 +14,20 @@
 */
 
 /**
- *
+ * Some channel service contracts have a enabled field as part of the information structure
+ * for a field. This value is returned if it exists.
  *
  * @export
- * @param {*} fieldInfo
- * @returns
+ * @param {Object} fieldInfo An object with information about a field
+ * @returns {Boolean} True if the input structure indicates a vield is enabled. False otherwise.
  */
 export function isDisabled(fieldInfo) {
-	if (fieldInfo == undefined) {
+	if (fieldInfo === undefined) {
 		// console.log("fieldInfo in isDisabled is undefined");
 		return false;
 	}
 
-	if (fieldInfo.hasOwnProperty('enabled')) {
+	if (Object.prototype.hasOwnProperty.call(fieldInfo, `enabled`)) {
 		return !fieldInfo.enabled;
 	}
 
@@ -38,11 +36,11 @@ export function isDisabled(fieldInfo) {
 }
 
 /**
- *
- *
+ * Some channel service contracts have a visible field as part of the information structure
+ * for a field. This value is returned if it exists.
  * @export
- * @param {*} fieldInfo
- * @returns
+ * @param {Object} fieldInfo An object with information about a field
+ * @returns {Boolean} True if the input structure indicates a vield is visible. False otherwise.
  */
 export function isHidden(fieldInfo) {
 	if (fieldInfo === undefined) {
@@ -50,7 +48,7 @@ export function isHidden(fieldInfo) {
 		return false;
 	}
 
-	if (fieldInfo.hasOwnProperty('visible')) {
+	if (Object.prototype.hasOwnProperty.call(fieldInfo, `visible`)) {
 		return !fieldInfo.visible;
 	}
 
@@ -59,11 +57,11 @@ export function isHidden(fieldInfo) {
 }
 
 /**
- *
- *
+ * Some channel service contracts have a tabIndex field as part of the information structure
+ * for a field. This value is returned if it exists.
  * @export
- * @param {*} fieldInfo
- * @returns
+ * @param {Object} fieldInfo An object with information about a field
+ * @returns {Number} The tab index for the vield (if it is specified), otherwise -1
  */
 export function getTabIndex(fieldInfo) {
 	if (fieldInfo === undefined) {
@@ -71,7 +69,7 @@ export function getTabIndex(fieldInfo) {
 		return -1;
 	}
 
-	if (fieldInfo.hasOwnProperty('tabIndex')) {
+	if (Object.prototype.hasOwnProperty.call(fieldInfo, `tabindex`)) {
 		return fieldInfo.tabIndex;
 	}
 
@@ -80,36 +78,19 @@ export function getTabIndex(fieldInfo) {
 }
 
 /**
- *
- *
- * @export
- * @param {*} field
- * @param {*} criteria
- * @returns
- */
-export function validate(field, criteria) {
-	const re = RegExp(criteria);
-
-	if (re.test(field)) {
-		return field;
-	}
-
-	return 0;
-}
-
-/**
- *
+ * Some channel service contracts have a value field as part of the information structure
+ * for a field. This value is returned if it exists.
  *
  * @export
- * @param {*} fieldInfo
- * @returns
+ * @param {Object} fieldInfo An object with information about a field
+ * @returns  {*} The value field of the input structure or an empty string if the value field does not exist
  */
 export function getValue(fieldInfo) {
 	if (fieldInfo === undefined) {
 		// console.log("fieldInfo in getValue is undefined");
 		return ``;
 	}
-	if (fieldInfo.hasOwnProperty('value')) {
+	if (Object.prototype.hasOwnProperty.call(fieldInfo, `value`)) {
 		return !fieldInfo.value ? `` : fieldInfo.value;
 	}
 	// console.log("fieldInfo in getValue does not have a value property");
@@ -117,11 +98,12 @@ export function getValue(fieldInfo) {
 }
 
 /**
- *
+ * Some channel service contracts have a possibleValues array as part of the information structure
+ * for a field. This array is returned if it exists.
  *
  * @export
- * @param {*} fieldInfo
- * @returns
+ * @param {Object} fieldInfo An object with information about a field
+ * @returns {Array} An array of possible values or an empty array
  */
 export function getPossibleValues(fieldInfo) {
 	if (fieldInfo === undefined) {
@@ -129,7 +111,7 @@ export function getPossibleValues(fieldInfo) {
 		return [];
 	}
 
-	if (fieldInfo.hasOwnProperty('possibleValues')) {
+	if (Object.prototype.hasOwnProperty.call(fieldInfo, `possibleValues`)) {
 		return !fieldInfo.possibleValues ? [] : fieldInfo.possibleValues;
 	}
 
@@ -138,39 +120,39 @@ export function getPossibleValues(fieldInfo) {
 }
 
 /**
- *
+ * Indicates if a string value is null, undefined or empty
  *
  * @export
- * @param {*} fieldValue
- * @returns
+ * @param {String} fieldValue A string value
+ * @returns {Boolean} True if the input string is null, undefined or empty
  */
 export function isNullorEmpty(fieldValue) {
 	return fieldValue === `` || fieldValue === null || fieldValue === undefined;
 }
 
 /**
- *
+ * This function must be stripped out. It translates an IVR Option description to the key value
  *
  * @export
- * @param {*} ivrOption
- * @returns
+ * @param {*} ivrOptionDescription The full description of an IVR Option
+ * @returns {undefined}
  */
-export function tempFixIVROptionValue(ivrOption) {
-	if (ivrOption === undefined) {
+export function tempFixIVROptionValue(ivrOptionDescription) {
+	if (ivrOptionDescription === undefined) {
 		return;
 	}
 
-	if (Object.prototype.hasOwnProperty.call(ivrOption, `value`)) {
-		if (ivrOption.value === `Stop Card`) {
-			ivrOption.value = `StopCard`;
+	if (Object.prototype.hasOwnProperty.call(ivrOptionDescription, `value`)) {
+		if (ivrOptionDescription.value === `Stop Card`) {
+			ivrOptionDescription.value = `StopCard`;
 		}
 
-		if (ivrOption.value === `Insure`) {
-			ivrOption.value = `Insure`;
+		if (ivrOptionDescription.value === `Insure`) {
+			ivrOptionDescription.value = `Insure`;
 		}
 
-		if (ivrOption.value === `Transact`) {
-			ivrOption.value = `Transact`;
+		if (ivrOptionDescription.value === `Transact`) {
+			ivrOptionDescription.value = `Transact`;
 		}
 	}
 }
@@ -200,4 +182,22 @@ export function tempFixIVROption(ivrOption) {
 			}
 		];
 	}
+}
+
+/**
+ * Validate a field against a regular expression
+ *
+ * @export
+ * @param {*} field A field value to validate
+ * @param {*} criteria A regular Expression
+ * @returns {*} The field value if the regular expression is a match, 0 otherwise
+ */
+export function validate(field, criteria) {
+	const re = RegExp(criteria);
+
+	if (re.test(field)) {
+		return field;
+	}
+
+	return 0;
 }
