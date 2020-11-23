@@ -88,6 +88,35 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
 	}
 
+	/**
+	 * Retrieves the search call options to search the existing client
+	 *
+	 * @param {object} incomingCallData Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing search options and the result of the channel service call
+	 */
+	searchOptions(incomingCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
+	}
+
+	/**
+	 * Retrieves the client information based on the identification method search
+	 *
+	 * @param {object} clientInfo Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing client information and the result of the channel service call
+	 */
+	searchCaller(clientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
+	}
+
+	/**
+	 * Retrieves the end call options to end current session
+	 *
+	 * @param {object} endCallDetails Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing list of end call options and the result of the channel service call
+	 */
 	endCallOptions(endCallDetails, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), errorHandler);
 	}
@@ -107,15 +136,14 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
 	}
 
+	/**
+	 * Retrieves the security questions to verify the client
+	 * 
+	 * @param {string} clientID client identification number
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing list of security questions & answers and the result of the channel service call
+	 */
 	xdsQuestions(clientID, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), errorHandler);
-	}
-
-	searchCaller(clientInfo, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
-	}
-
-	searchOptions(incomingCallData, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
 	}
 }

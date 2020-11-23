@@ -6,7 +6,6 @@ import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
-import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
@@ -80,7 +79,6 @@ export class StopCardSearchCaller extends Component {
 		this.renderMode = -1;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -229,7 +227,7 @@ export class StopCardSearchCaller extends Component {
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService.searchOptions(clientInfo, null);
+		const returnValue = await this.callHandleService.searchOptions(clientInfo, null);
 		const options = returnValue.result;
 
 		if (returnValue.succeeded) {
