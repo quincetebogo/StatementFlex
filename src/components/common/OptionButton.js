@@ -203,8 +203,8 @@ export class OptionButton extends Component {
 				${this.renderIcon()}
 				${this.renderBadge()}
 				<capitec-label class="label-text${this.disabled ? `-disabled` : ``}" label="${this.label}"
-					@click="${(e) => this._buttonClicked(e)}" @keydown="${(e) => this._keyDown(e)}"></capitec-label>
-			
+					@click="${(e) => this._buttonClicked(e)}" @keydown="${(e) => this._keyDown(e)}">
+				</capitec-label>
 			</button>
 		`;
 	}
@@ -215,6 +215,7 @@ export class OptionButton extends Component {
 	renderIcon() {
 		return this.icon ? html`<img class="icon-size" src="./platform/icons/${this.icon}.svg">` : html`<img class="icon-size" src="${this.image}">`;
 	}
+
 	renderBadge() {
 		return this.badgeText ? html`<capitec-badge class="badge" color="#B71C1A" number="${this.badgeText}"></capitec-badge>` : html``;
 	}

@@ -144,20 +144,20 @@ export class VerifyBySecurityQuestions extends Component {
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, null);
 
 			// Condition check should be changed to check if client is verified a/c to the CS call output.
-			if (returnValue.succeeded & returnValue.result != null) {
+			if (returnValue.succeeded && returnValue.result !== null) {
 
 				const state = {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-				this.callerInformation.verificationStatus = "verified";
+				this.callerInformation.verificationStatus = `verified`;
 				this.horizonStore.saveState(state);
 
 				const clientDetails = {
 					IdNumber: this.callerInformation.southAfricanIDNumber,
-					CifNumber: '102792666',
+					CifNumber: `102792666`,
 					IsCallerVerified: true
-				}
+				};
 
 				if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
 
@@ -167,8 +167,7 @@ export class VerifyBySecurityQuestions extends Component {
 					} else {
 						// ToDo - Navigate to System error screen.
 					}
-				}
-				else if (this.incomingCallDetails.ivrOptionCode === `Transact`) {
+				} else if (this.incomingCallDetails.ivrOptionCode === `Transact`) {
 
 					const returnValue = await this.quickTransactionsService.favouritesLanding(clientDetails);
 					if (returnValue.succeeded) {
@@ -177,9 +176,8 @@ export class VerifyBySecurityQuestions extends Component {
 						// ToDo - Navigate to System error screen.
 					}
 				}
-			}
-			else {
-				//Security questions Verification failed scenario-ToDo
+			} else {
+				// Security questions Verification failed scenario-ToDo
 				if (this.retryCount < 1) {
 					this.renderMode = RENDER_MODE.FIRST_FAILURE;
 					this.retryCount++;
@@ -403,9 +401,9 @@ export class VerifyBySecurityQuestions extends Component {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question}"></capitec-label>
-				<horizon-radio-button
-                    class="radio-button"
-                    .radioButtonsAvailable="${answers}"
+				<horizon-radio-button 
+					class="radio-button" 
+					.radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button>
 		`;
@@ -436,20 +434,19 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderFailureModal() {
 		return html`
-			<horizon-security-questions-failed
-                .incomingCallDetails="${this.incomingCallDetails}"
-				@security-questions="${() => this._retrySecurityQuestions()}"
-                @skip="${() => this._onSkip()}">
+			<horizon-security-questions-failed 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@security-questions="${() => this._retrySecurityQuestions()}" 
+				@skip="${() => this._onSkip()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session
-                @on-cancel="${() => {
-				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-            }}" 
-                @on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
+				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</horizon-end-call-session>`;
 	}
 

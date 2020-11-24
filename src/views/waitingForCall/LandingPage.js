@@ -180,7 +180,7 @@ export class LandingPage extends View {
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.incomingCallDetails.ivrOption.value = `Insure`;
+				this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 
 				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;

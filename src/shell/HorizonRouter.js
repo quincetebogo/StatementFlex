@@ -37,7 +37,7 @@ const HORIZON_ROUTES = {
 export class HorizonRouter {
 
 	constructor() {
-		this.verificationStatus = ``; 
+		this.verificationStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
 	}
@@ -49,7 +49,7 @@ export class HorizonRouter {
 	_updateState(state) {
 		// On an F5/refresh, this function fires before state has been restored and does not fire
 		// again until after the guard functions in the routing table have fired. 
-		// If the guard functions rely on information from state, they then do not work properl;y
+		// If the guard functions rely on information from state, they then do not work properly
 		if (!state) {
 			state = HorizonStore.getInstance().recoverState();
 		}
@@ -76,7 +76,7 @@ export class HorizonRouter {
 
 	// --------------------
 	// Navigation functions  
-    // --------------------
+	// --------------------
 	navigateToLandingPage() {
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
@@ -281,16 +281,16 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
-					case `verified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-						break;
-					case `unverified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
-					case `3rdparty`:
-					default:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
+				case `verified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+					break;
+				case `unverified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
+				case `3rdparty`:
+				default:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
 			}
 		}
 	},
@@ -303,16 +303,16 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
-					case `verified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-						break;
-					case `unverified`:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
-					case `non-client`:
-					default:
-						HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-						break;
+				case `verified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+					break;
+				case `unverified`:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
+				case `non-client`:
+				default:
+					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+					break;
 			}
 		}
 	},
