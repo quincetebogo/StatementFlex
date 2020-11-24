@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { InsureService } from 'app/services/InsureService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
@@ -135,64 +135,44 @@ export class VerifyBySecurityQuestions extends Component {
 	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
+        } else {
 			this.alertBannerMessage = ``;
-			this.checked = false;
+            this.checked = false;
 
 			console.log(this.securityQuestions);
-
-			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, null);
-
-			// Condition check should be changed to check if client is verified a/c to the CS call output.
-			if (returnValue.succeeded && returnValue.result !== null) {
+	
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
+	
+			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
+				this.callerInformation.verificationStatus = `verified`;
 
 				const state = {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-				this.callerInformation.verificationStatus = `verified`;
+
 				this.horizonStore.saveState(state);
 
-				const clientDetails = {
-					IdNumber: this.callerInformation.southAfricanIDNumber,
-					CifNumber: `102792666`,
-					IsCallerVerified: true
-				};
-
-				if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-
-					const returnValue = await this.insureService.InsureProducts(clientDetails);
-					if (returnValue.succeeded) {
-						returnValue.result.hasInsurance ? this.horizonRouter.navigateToInsureExistingClient() : this.horizonRouter.navigateToInsureProspectiveClient();
-					} else {
-						// ToDo - Navigate to System error screen.
-					}
-				} else if (this.incomingCallDetails.ivrOptionCode === `Transact`) {
-
-					const returnValue = await this.quickTransactionsService.favouritesLanding(clientDetails);
-					if (returnValue.succeeded) {
-						this.horizonRouter.navigateToQuickTransactionFavourites();
-					} else {
-						// ToDo - Navigate to System error screen.
-					}
+				switch (this.incomingCallDetails.ivrOptionCode) {
+					case `StopCard`:
+						// Verified Stop Card display must still be developed
+						break;
+					case `Insure`:
+						if (this.callerInformation.hasInsuranceProduct) { 
+							this.horizonRouter.navigateToInsureExistingClient();
+						} else {
+							this.horizonRouter.navigateToInsureProspectiveClient();
+						}
+						break;
+					case `Transact`:
+					default:
+							this.horizonRouter.navigateToQuickTransactionFavourites();
 				}
+			} else if (this.retryCount < 1) {
+				this.renderMode = RENDER_MODE.FIRST_FAILURE;
+				this.retryCount++;
 			} else {
-				// Security questions Verification failed scenario-ToDo
-				if (this.retryCount < 1) {
-					this.renderMode = RENDER_MODE.FIRST_FAILURE;
-					this.retryCount++;
-				} else {
-					const state = {
-						callerInformation: this.callerInformation,
-						incomingCallDetails: this.incomingCallDetails
-					};
-
-					this.callerInformation.verificationStatus = `verified`;
-
-					this.horizonStore.saveState(state);
-
-					this.horizonRouter.navigateToQuickTransactionFavourites();
-				}
+				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -231,6 +211,20 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_xdsErrorHandler(exception) {
+		if (exception instanceof TypeError) {
+			this.alertBannerMessage = `SYSTEM ERROR`;
+		} else if (exception instanceof HttpStatusError) {
+			console.log(exception);
+			this.alertBannerMessage = `SYSTEM ERROR`;
+		} else {
+			console.log(exception);
+			this.alertBannerMessage = `SYSTEM ERROR`;
+		}
+
+		return true;
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -385,7 +379,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
-			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="error-trans"></capitec-alert-banner>`;
+			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="unsuccessful-red"></capitec-alert-banner>`;
 		}
 	}
 
