@@ -52,12 +52,12 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
+		this.hasInsure = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
-
-		this.isBusy = false;
 	}
 
 	// ----------
@@ -89,6 +89,19 @@ export class ConfirmCallerDetails extends Component {
 
 		// Short hand references for reaching into the incoming data model
 		this._initReferences();
+
+		this.navigateToUnverifiedLP = ivrOption => {
+
+			const stopCard = () => this.horizonRouter.navigateToStopCard();
+			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+			const insure = this.hasInsure ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
+
+			return {
+				StopCard: stopCard,
+				Transact: transact,
+				Insure: insure
+			}[ivrOption];
+		};
 	}
 
 	// --------------
@@ -127,6 +140,18 @@ export class ConfirmCallerDetails extends Component {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToStopCard();
 		} else {
+
+			/**
+			 * Hardcoded clientID for existing client with insure products scenario
+			 * Gaston's work to implement CS call comes here.
+			 */
+			let state;
+			if (this.southAfricanIDNumber.value === `8108171022083` && this.ivrOption.value === `Insure`) {
+				state = { hasInsure: true };
+			} else {
+				state = { hasInsure: false };
+			}
+			this.horizonStore.saveState(state);
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -198,7 +223,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.confirmedCaller.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
@@ -237,20 +262,10 @@ export class ConfirmCallerDetails extends Component {
 
 		this.horizonStore.saveState(state);
 
-		switch (this.ivrOption.value) {
-			case `Insure`:
-				// TODO: Still need to determine if client has insure products or not
-				// this.horizonRouter.navigateToInsureProspectiveClient();
-				this.horizonRouter.navigateToInsureExistingClient();
-				break;
-			case `Transact`:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-				break;
-
-			case `StopCard`:
-				this.horizonRouter.navigateToStopCard();
-			default:
-		}
+		const updatedState = this.horizonStore.recoverState();
+		this.hasInsure = updatedState.hasInsure;
+		
+		this.navigateToUnverifiedLP(this.ivrOption.value)();
 	}
 
 	// --------------
