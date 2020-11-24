@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import 'app/components/quickTransactions/FavouriteTransactions';
+import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 /**
  * A generic error screen component. Most input is set via properties but there is a named slot (detail)
@@ -8,6 +10,11 @@ import { Component, css, html } from 'platform/elements';
  * @class ErrorScreen
  * @extends {Component}
  */
+
+const RENDER_MODE = {
+	VERIFY_CALLER: 0,
+	CONTINUE_TRANSACT: 1
+};
 export class ErrorScreen extends Component {
 	// --------------
 	// INITIALISATION
@@ -20,6 +27,7 @@ export class ErrorScreen extends Component {
 		this.right = ``;
 		this.toast = ``;
 		this.displayToast = true;
+		this.renderMode = -1;
 	}
 
 	// -------------------
@@ -51,7 +59,8 @@ export class ErrorScreen extends Component {
 			left: { type: String },
 			right: { type: String },
 			toast: { type: String },
-			displayToast: { type: Boolean }
+			displayToast: { type: Boolean },
+			renderMode: { type: Number }
 		};
 	}
 
@@ -138,10 +147,12 @@ export class ErrorScreen extends Component {
 	}
 
 	_leftClick() {
+		this.renderMode = RENDER_MODE.CONTINUE_TRANSACT;
 		this.dispatchEvent(new CustomEvent(`left-click`, {}));
 	}
 
 	_rightClick() {
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.dispatchEvent(new CustomEvent(`right-click`, {}));
 	}
 
@@ -150,28 +161,44 @@ export class ErrorScreen extends Component {
 
 	_webTemplate() {
 		return html`
+			${this._renderContinueUnverified()}
+			${this._renderVerifySecurityQuestions()}
 			<capitec-card class="card">
-				<capitec-toast 
-					?hidden="${!this.displayToast}" 
-					id="id-error-toast" 
-					type="error" 
-					header="Unsuccesful" 
-					detail="${this.toast}" 
-					closable 
-					@click="${() => this.displayToast = false}">
+				<capitec-toast ?hidden="${!this.displayToast}" id="id-error-toast" type="error" header="Unsuccesful"
+					detail="${this.toast}" closable @click="${() => this.displayToast = false}">
 				</capitec-toast>
-				<img id="id-unsuccessful-img" src="/images/insure/assign-pay-arrears.svg"/>
+				<img id="id-unsuccessful-img" src="/images/insure/assign-pay-arrears.svg" />
 				<capitec-label id="id-verify-unsuccessful" label="${this.header}"></capitec-label>
-				<capitec-group id = "id-msg-group" layout="horizontal">
+				<capitec-group id="id-msg-group" layout="horizontal">
 					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
 					<slot name="detail"></slot>
 				</capitec-group>
 				<capitec-group id="id-button-group" layout="horizontal">
 					<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>
-					<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>
+					<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
+					</capitec-button>
 				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderContinueUnverified() {
+		if (this.renderMode === RENDER_MODE.CONTINUE_TRANSACT) {
+			return html`
+				<horizon-favourites-transactions></horizon-favourites-transactions>
+			`;
+
+		}
+		else return html``;
+	}
+	_renderVerifySecurityQuestions() {
+		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
+			return html`
+				<horizon-security-question></horizon-security-question>
+			`;
+
+		}
+		else return html``;
 	}
 }
 
