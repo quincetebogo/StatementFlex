@@ -42,8 +42,7 @@ export class FavouriteTransactions extends Component {
 			callerInformation: { type: Object },
 
 			verificationStatus: { type: String },
-			displayToast: { type: Boolean },
-			isBusy: { type: Boolean }
+			displayToast: { type: Boolean }
 		};
 	}
 
@@ -68,10 +67,6 @@ export class FavouriteTransactions extends Component {
 
 	_toggleToastDisplay() {
 		this.displayToast = false;
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
 	}
 
 	// --------------
@@ -305,14 +300,6 @@ export class FavouriteTransactions extends Component {
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 
