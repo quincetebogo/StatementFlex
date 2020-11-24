@@ -7,6 +7,7 @@ import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtili
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -55,6 +56,7 @@ export class ConfirmCallerDetails extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
@@ -166,6 +168,13 @@ export class ConfirmCallerDetails extends Component {
 			}));
 		} else {
 			// TODO: Handle Identify Caller failing
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: `System Error`
+			};
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -221,7 +230,7 @@ export class ConfirmCallerDetails extends Component {
 			verificationStatus: `unverified`,
 			is3rdParty: false,
 			isNonClient: false
-	};
+		};
 
 		const state = {
 			callerInformation: callerInformation,
@@ -231,10 +240,10 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore.saveState(state);
 
 		switch (this.ivrOption.value) {
-			case `Insure`: 
-			// TODO: Still need to determine if client has insure products or not
-			// this.horizonRouter.navigateToInsureProspectiveClient();
-			this.horizonRouter.navigateToInsureExistingClient();
+			case `Insure`:
+				// TODO: Still need to determine if client has insure products or not
+				// this.horizonRouter.navigateToInsureProspectiveClient();
+				this.horizonRouter.navigateToInsureExistingClient();
 				break;
 			case `Transact`:
 				this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -619,7 +628,7 @@ export class ConfirmCallerDetails extends Component {
 			verificationStatus: `unverified`,
 			is3rdParty: false,
 			isNonClient: false
-	};
+		};
 
 		return html`
 			<horizon-verify-caller

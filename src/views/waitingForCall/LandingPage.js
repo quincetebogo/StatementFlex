@@ -129,23 +129,21 @@ export class LandingPage extends View {
 		// TODO: Perhaps fold this into callHandleService.acceptCall and get rid of incidentManagement Service
 		console.log(`landing page - _onNewCall(): creating incident`);
 
-		const returnValue = await this.incidentManagementService.createIncident(
-			newCallInfo,
-			(ex) => {
-				this.landingPageErrorHandler(ex, `createIncident`);
-			}
-		);
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, null);
 
 		const incident = returnValue.result;
 		if (returnValue.succeeded && incident) {
 			await this._acceptCall(newCallInfo, incident);
+		} else if (!returnValue.succeeded) {
+			this.horizonRouter.navigateToSystemError();
 		} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: returnValue.succeeded ? `Empty or NULL response received when creating incident` : `Unknown error when creating incident`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: returnValue.succeeded ? `Empty or NULL response received when creating incident` : `Unknown error when creating incident`
+			};
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+
 		}
 	}
 
@@ -158,15 +156,19 @@ export class LandingPage extends View {
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.acceptCall(
-			newCallInfo,
-			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
-		);
+		const returnValue = await this.callHandleService.acceptCall(newCallInfo, (ex) => this.landingPageErrorHandler(ex, context));
 
 		if (returnValue.succeeded) {
 			this._dispatchCall(returnValue.result, newCallInfo);
 		} else {
 			console.log(`Failed to accept call`);
+			const event = {
+				from: `UI-CS`,
+				status: `error`,
+				message: `System Error`
+			};
+			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -313,6 +315,7 @@ export class LandingPage extends View {
 				};
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
+			this.horizonRouter.navigateToSystemError();
 		} finally {
 			// Just a flag to inform _dispatchCall that the error was handled.
 			this.errorHandled = true;
