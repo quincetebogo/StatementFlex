@@ -1,8 +1,23 @@
 import { View, css, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+
+import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/quickTransactions/FavouriteTransactions';
+
+const RENDER_MODE = {
+	MAIN_PAGE: 0,
+	END_CALL: 1,
+	SELECT_ASSIGN_REASON: 2,
+	ASSIGN: 3,
+	VERIFY_NOW: 4,
+	ALERT_MODAL: 5
+};
 
 /**
  * The Quick Transactions Favourites Landing Page View
@@ -20,13 +35,22 @@ export class Favourites extends View {
 		super();
 
 		this.isLoading = true;
+		this.isReassigned = false;
+		this.disableButtons = true;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.state = this.horizonStore.recoverState();
 
+		this.callerInformation = this.state.callerInformation;
+		this.incomingCallDetails = this.state.incomingCallDetails;
+
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 	}
 
 	// --------------
@@ -35,7 +59,8 @@ export class Favourites extends View {
 	static get properties() {
 		return {
 			isBusy: { type: Boolean },
-			isLoading: { type: Boolean }
+			isLoading: { type: Boolean },
+			renderMode: { type: Number }
 		};
 	}
 
@@ -44,8 +69,48 @@ export class Favourites extends View {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-
+		
 		this._initialise();
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
+	_onVerifyNowClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+	
+	_onSkipVerification() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onFavouritesOptionClick(e) {
+		switch (e.detail.option) {
+			case `stop-card`: 
+				this._stopCard();
+				break;
+			case `debi-check`:
+			case `update-card-limits`:
+			case `tap-to-pay`:
+			case `statements`:
+			case `tax-certificate`:
+			case `proof-of-account`:
+			default:
+				this._disabledOption();
+		}
 	}
 
 	// ---------------
@@ -58,45 +123,36 @@ export class Favourites extends View {
 		this._updateLeftBar();
 
 		const landingRequest = {
-			cifNumber: this.state.callerInformation.cifNumber,
-			nationalIDNumber: this.state.callerInformation.southAfricanIDNumber,
-			isCallerVerified: this.state.callerInformation.verificationStatus === `verified`
+			cifNumber: this.callerInformation.cifNumber,
+			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+			isCallerVerified: this.callerInformation.verificationStatus === `verified`
 		};
-		
-		console.log(landingRequest);
+
+		this.disableButtons = this.callerInformation.verificationStatus !== `verified`;
 			
 		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest, null);
 
 		returnValue.succeeded = true;
 		if (returnValue.succeeded) {
-			this.isLoading = false;			
-			console.log(returnValue.result);
-
-			this.landingPageInfo = {
-				savingsAccountProductDescription: `test1`,
-				savingsAccountProductAmount: `200.00`,
-				savingsPlanProductDescription: `test2`,
-				savingsPlanProductAmount: `300.00`,
-				insureProductDescription: `test3`,
-				insureProductAmount: `400.00`,
-				creditProductDescription: `test4`,
-				creditProductAmount: `500.00`,
-				pendingMandateCount: 2,
-				activeCardCount: 0
-			  };
+			this.isLoading = false;
+			this.landingPageInfo = returnValue.result;
 		}
 
 		// Now we can update the infomration on the product buttons as well
 		this._updateLeftBar();
+
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
 	}
 
 	_updateTopBar() {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.state.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.state.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.state.incomingCallDetails.ivrOptionCode
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
 		);
 	}
@@ -104,16 +160,16 @@ export class Favourites extends View {
 	_updateLeftBar() {
 		const state = {
 			miniProfile: {
-				name: this.state.callerInformation.name,
-				idNumber: this.state.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.state.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.state.callerInformation.livesIn,
-				languagePreference: this.state.callerInformation.languagePreference,
-				birthday: this.state.callerInformation.birthdate,
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
 				showButtons: true,
 				isConfirmed: true,
-				isVerified: this.state.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.state.callerInformation.verificationStatus === `failed`,
+				isVerified: this.callerInformation.verificationStatus === `verified`,
+				verificationFailed: this.callerInformation.verificationStatus === `failed`,
 				is3rdParty: false,
 				isNonClient: false
 			},
@@ -129,6 +185,41 @@ export class Favourites extends View {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	async _stopCard() {
+		const confirmedCaller = {
+			idNumber: this.callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: `StopCard`,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentRecId: this.incomingCallDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: this.callerInformation.nonClientFullName,
+			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
+			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
+			nonClientRelationship: this.callerInformation.nonClientRelationship
+		};
+
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const clientProfileDetails = returnValue.result;
+
+		if (returnValue.succeeded) {
+			this.incomingCallDetails.ivrOptionCode = `StopCard`;
+			this.incomingCallDetails.ivrOption.value = `StopCard`;
+
+			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
+				callerInformation: this.callerInformation, 
+				clientProfileDetails: clientProfileDetails });
+			this.horizonRouter.navigateToStopCard();
+		} else {
+			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
+		}
+	}
+
+	_disabledOption() {
+		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
 
 	// ---------
@@ -152,6 +243,9 @@ export class Favourites extends View {
 	_webTemplate() {
 		return html`
 		${this._renderFavouritesLandingPage()}
+		${this._renderEndCallSessionDialog()}
+		${this._renderVerifyNowModal()}
+		${this._renderAlertModal()}
 		${this._renderLoadingIndicator()}
 		`;
 	}
@@ -162,9 +256,45 @@ export class Favourites extends View {
 					class="favourites"
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.state.incomingCallDetails}"
-					.callerInformation="${this.state.callerInformation}">
+					.callerInformation="${this.state.callerInformation}"
+					@verify-click="${() => this._onVerifyNowClick()}"
+					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourites-transactions>`;
 
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					@skip="${(e) => this._onSkipVerification(e)}">
+				</horizon-verify-caller>`;
+		}
+		return html``;
+	}
+
+	_renderEndCallSessionDialog() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isReassigned="${this.isReassigned}"
+					@cancel="{${() => this._onCancelEndCall()}}">
+				</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
+	_renderAlertModal() {
+		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
+			return html`
+				<horizon-client-not-verified 
+					@cancel="${() => this.renderMode = 0}" 
+					@verify-now="${() => this._onVerifyNowClick()}">
+				</horizon-client-not-verified>
+			`;
+		}
 	}
 
 	_renderLoadingIndicator() {

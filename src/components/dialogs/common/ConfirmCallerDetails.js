@@ -127,6 +127,9 @@ export class ConfirmCallerDetails extends Component {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToStopCard();
 		} else {
+			// 1. Make CS call to determine if client has insurence products
+			// 2. update this.callerInformation to have a flag inicating if the user has insurance products
+			// 3. The next line transistions us to the verify caller dialog
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -226,7 +229,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus: `verified`, // TODO: Put back to unverified
+			verificationStatus: `unverified`, 
 			is3rdParty: false,
 			isNonClient: false
 		};
@@ -585,8 +588,11 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		return html`
-			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" .callerInformation="${callerInformation}"
-				@skip="${(e) => this._onSkipVerification(e)}" @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+			<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}" 
+				.callerInformation="${callerInformation}"
+				@skip="${(e) => this._onSkipVerification(e)}" 
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}
