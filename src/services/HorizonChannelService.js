@@ -58,11 +58,11 @@ export class HorizonChannelService extends Service {
 	 */
 	acceptCall(incomingCallData) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/accept-call?` +
-										`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
-										`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-										`ivrOptionCode=${incomingCallData.ivrOption}&` +
-										`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
-										`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`);
+			`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+			`ivrOptionCode=${incomingCallData.ivrOption}&` +
+			`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
+			`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`);
 	}
 
 	// addCallerDetailsRequest
@@ -171,20 +171,13 @@ export class HorizonChannelService extends Service {
 
 	searchCaller(clientInfo) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/search-caller?` +
-										`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-										`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-										`ivrOptionCode=${clientInfo.ivrOption}&` +
-										`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-										`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` + 
-										`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-										`value=${clientInfo.searchValue}`);
-	}
-
-	favouritesLanding() {
-		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
-										`CifNumber=${clientInfo.cifNumber}&` +
-										`NationalIDNumber=${clientInfo.nationalIdNumber}&` + 
-										`isCallerVerified=${clientInfo.isVerified}`);
+			`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+			`ivrOptionCode=${clientInfo.ivrOption}&` +
+			`incidentReferenceNumber=${clientInfo.incidentNo}&` +
+			`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
+			`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+			`value=${clientInfo.searchValue}`);
 	}
 
 	// -----------------
@@ -226,11 +219,33 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
+	InsureProducts(clientDetails) {
+		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
+			`IdNumber=${clientDetails.IdNumber}&` +
+			`Cif=${clientDetails.CifNumber}&` +
+			`IsCallerVerified=${clientDetails.IsCallerVerified}`);
+	}
+
+	// ----------------
+	// XDS Questions Methods
+	// ----------------
+
 	xdsQuestions(clientID) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
 	}
 
 	verifySecurityQuestions(response) {
 		return super.httpClient.post(`/clientcare/call/${this.version}/xds-questions`, response);
+	}
+
+	// ----------------
+	// Favourites Methods
+	// ----------------
+
+	favouritesLanding(clientInfo) {
+		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
+			`CifNumber=${clientInfo.CifNumber}&` +
+			`NationalIDNumber=${clientInfo.IdNumber}&` +
+			`isCallerVerified=${clientInfo.IsCallerVerified}`);
 	}
 }

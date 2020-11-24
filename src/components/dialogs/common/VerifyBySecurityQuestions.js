@@ -4,6 +4,7 @@ import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { InsureService } from 'app/services/InsureService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/HorizonLabel';
@@ -54,9 +55,11 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		
+
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.quickTransactionsService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
+		this.insureService = new InsureService(() => this._toggleBusyFlag());
+
 	}
 
 	// --------------
@@ -132,30 +135,64 @@ export class VerifyBySecurityQuestions extends Component {
 	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-        } else {
+		} else {
 			this.alertBannerMessage = ``;
-            this.checked = false;
-			if (this.retryCount < 1) {
-				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.retryCount++;
-			} else {
+			this.checked = false;
 
-				console.log(this.securityQuestions);
-	
-				const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, null);
-		
-				if (returnValue.succeeded) {
-					console.log(returnValue.result);
+			console.log(this.securityQuestions);
 
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, null);
+
+			// Condition check should be changed to check if client is verified a/c to the CS call output.
+			if (returnValue.succeeded & returnValue.result != null) {
+
+				const state = {
+					callerInformation: this.callerInformation,
+					incomingCallDetails: this.incomingCallDetails
+				};
+				this.callerInformation.verificationStatus = "verified";
+				this.horizonStore.saveState(state);
+
+				const clientDetails = {
+					IdNumber: this.callerInformation.southAfricanIDNumber,
+					CifNumber: '102792666',
+					IsCallerVerified: true
+				}
+
+				if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
+
+					const returnValue = await this.insureService.InsureProducts(clientDetails);
+					if (returnValue.succeeded) {
+						returnValue.result.hasInsurance ? this.horizonRouter.navigateToInsureExistingClient() : this.horizonRouter.navigateToInsureProspectiveClient();
+					} else {
+						// ToDo - Navigate to System error screen.
+					}
+				}
+				else if (this.incomingCallDetails.ivrOptionCode === `Transact`) {
+
+					const returnValue = await this.quickTransactionsService.favouritesLanding(clientDetails);
+					if (returnValue.succeeded) {
+						this.horizonRouter.navigateToQuickTransactionFavourites();
+					} else {
+						// ToDo - Navigate to System error screen.
+					}
+				}
+			}
+			else {
+				//Security questions Verification failed scenario-ToDo
+				if (this.retryCount < 1) {
+					this.renderMode = RENDER_MODE.FIRST_FAILURE;
+					this.retryCount++;
+				} else {
 					const state = {
 						callerInformation: this.callerInformation,
 						incomingCallDetails: this.incomingCallDetails
 					};
-	
+
 					this.callerInformation.verificationStatus = `verified`;
-	
+
 					this.horizonStore.saveState(state);
-	
+
 					this.horizonRouter.navigateToQuickTransactionFavourites();
 				}
 			}
@@ -332,7 +369,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-						 	${this._renderLoadingIndicator()}}
+							${this._renderLoadingIndicator()}}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -401,7 +438,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			<horizon-security-questions-failed
                 .incomingCallDetails="${this.incomingCallDetails}"
-				@security-questions="${() => this._retrySecurityQuestions()}" 
+				@security-questions="${() => this._retrySecurityQuestions()}"
                 @skip="${() => this._onSkip()}">
 			</horizon-security-questions-failed>`;
 	}
@@ -411,7 +448,7 @@ export class VerifyBySecurityQuestions extends Component {
 			<horizon-end-call-session
                 @on-cancel="${() => {
 				this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-            }}"
+            }}" 
                 @on-reason-set="${(reason) => this._onCallCancelled(reason)}" .incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
