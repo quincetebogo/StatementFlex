@@ -36,7 +36,6 @@ export class Favourites extends View {
 
 		this.isLoading = true;
 		this.isReassigned = false;
-		this.disableButtons = true;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
@@ -127,8 +126,6 @@ export class Favourites extends View {
 			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 			isCallerVerified: this.callerInformation.verificationStatus === `verified`
 		};
-
-		this.disableButtons = this.callerInformation.verificationStatus !== `verified`;
 			
 		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest, null);
 
