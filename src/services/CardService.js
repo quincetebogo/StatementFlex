@@ -33,23 +33,15 @@ export class CardService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callerData), errorHandler);
 	}
 
-	searchCaller(clientInfo, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
-	}
-
-	searchOptions(incomingCallData, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
-	}
-
 	async stopCards(cardsToStop, callerInfo, errorHandler = null) {
 		let cardStopResults = [];
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
-					"cardId": card.cardId,
-					"accountNumber": card.accountNumber,
-					"stopReason": card.stopReason
-				})),
+				"cardId": card.cardId,
+				"accountNumber": card.accountNumber,
+				"stopReason": card.stopReason
+			})),
 			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
 			ivrOptionCode: callerInfo.ivrOptionCode,
@@ -62,14 +54,14 @@ export class CardService extends ServiceBase {
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
 			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
-					cardId: cardsToStop[index].cardId,
-					cardType: cardsToStop[index].cardType,
-					encryptedCardId: cardsToStop[index].encryptedCardId,
-					accountNumber: cardsToStop[index].accountNumber,
-					stopReason: cardsToStop[index].stopReason,
-					stopped: response.result.statusCode === 200,
-					errorMessage: response.result.statusCode
-				}));
+				cardId: cardsToStop[index].cardId,
+				cardType: cardsToStop[index].cardType,
+				encryptedCardId: cardsToStop[index].encryptedCardId,
+				accountNumber: cardsToStop[index].accountNumber,
+				stopReason: cardsToStop[index].stopReason,
+				stopped: response.result.statusCode === 200,
+				errorMessage: response.result.statusCode
+			}));
 		}
 
 		return { succeeded: returnValue.succeeded, result: cardStopResults };

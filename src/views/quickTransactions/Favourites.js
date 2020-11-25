@@ -108,7 +108,9 @@ export class Favourites extends View {
 			case `tax-certificate`:
 			case `proof-of-account`:
 			default:
-				this._disabledOption();
+				if (this.callerInformation.verificationStatus !== `verified`) {
+					this._disabledOption();
+				}
 		}
 	}
 
