@@ -127,6 +127,9 @@ export class ConfirmCallerDetails extends Component {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToStopCard();
 		} else {
+			// 1. Make CS call to determine if client has insurence products
+			// 2. update this.callerInformation to have a flag inicating if the user has insurance products
+			// 3. The next line transistions us to the verify caller dialog
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -216,6 +219,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_onSkipVerification(e) {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
@@ -227,7 +231,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus: `unverified`,
+			verificationStatus: `unverified`, 
 			is3rdParty: false,
 			isNonClient: false
 		};
@@ -568,6 +572,7 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
@@ -585,8 +590,11 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		return html`
-			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" .callerInformation="${callerInformation}"
-				@skip="${(e) => this._onSkipVerification(e)}" @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+			<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}" 
+				.callerInformation="${callerInformation}"
+				@skip="${(e) => this._onSkipVerification(e)}" 
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}

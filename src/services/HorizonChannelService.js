@@ -80,6 +80,15 @@ export class HorizonChannelService extends Service {
 	// End Call Methods
 	// ----------------
 
+	/**
+	 *  endCallOptions is deprecated and will be replaced by loadEndCallOptions in future builds
+	 * 
+	 * @deprecated
+	 *
+	 * @param {Object} endCallDetails Call details including the end call reason/cause code
+	 * @returns {Object} A list of end call reasons for the end call dialog
+	 * @memberof HorizonChannelService
+	 */
 	endCallOptions(endCallDetails) {
 		return super.httpClient.post(`/clientcare/card/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
@@ -89,6 +98,26 @@ export class HorizonChannelService extends Service {
 			'incidentReferenceNumber': endCallDetails.incidentReferenceNumber,
 			'agentTelephoneNumber': endCallDetails.agentTelephoneNumber
 		});
+	}
+
+	/**
+	 * Loads the list of reasons to display on the end call dialog.
+	 * 
+	 * NOTE: THE CS IMPLEMENTATION OF THIS ENDPOINT IS NOT YET DONE
+	 *
+	 * @param {Object} endCallDetails Call details including the end call reason/cause code
+	 * @returns {Object} A list of end call reasons for the end call dialog
+	 * @memberof HorizonChannelService
+	 */
+	loadEndCallOptions(endCallDetails) {
+		return super.httpClient.get(`/clientcare/call/${this.version}/end-call?` +
+			`IsReassigned=${endCallDetails.isReassigned}&` +
+			`IncomingTelephoneNumber=${endCallDetails.incomingTelephoneNumber}&` +
+			`VoiceReferenceNumber=${endCallDetails.voiceReferenceNumber}&` +
+			`IvrOptionCode=${endCallDetails.ivrOptionCode}&` +
+			`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
+			`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
+			`EndCallContext=${endCallDetails.context}`);
 	}
 
 	// endCallSession
@@ -180,11 +209,11 @@ export class HorizonChannelService extends Service {
 										`value=${clientInfo.searchValue}`);
 	}
 
-	favouritesLanding() {
+	favouritesLanding(clientInfo) {
 		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
 										`CifNumber=${clientInfo.cifNumber}&` +
-										`NationalIDNumber=${clientInfo.nationalIdNumber}&` + 
-										`isCallerVerified=${clientInfo.isVerified}`);
+										`NationalIDNumber=${clientInfo.nationalIDNumber}&` + 
+										`IsCallerVerified=${clientInfo.isCallerVerified}`);
 	}
 
 	// -----------------
@@ -228,5 +257,9 @@ export class HorizonChannelService extends Service {
 
 	xdsQuestions(clientID) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
+	}
+
+	verifySecurityQuestions(response) {
+		return super.httpClient.post(`/clientcare/call/${this.version}/xds-questions`, response);
 	}
 }
