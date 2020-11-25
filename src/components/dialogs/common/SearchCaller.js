@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
-import { CallerDetails } from 'app/models/CallerDetails';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { CallerDetails } from 'app/models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { InsureService } from 'app/services/InsureService';
@@ -638,7 +638,7 @@ export class SearchCaller extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error-trans" label="${this.alertBannerMessage}"></capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -647,25 +647,32 @@ export class SearchCaller extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
+				<capitec-button 
+					type="primary" 
+					@click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType
-			!== CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button 
+					type="primary" 
+					@click="${(e) => this._onContinue(e)}" 
+					label="Continue" 
+					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session 
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	_renderStopCardSearchModal() {
 		return html`
-			<horizon-stop-card-search-caller .incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-stop-card-search-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-stop-card-search-caller>`;
 	}
