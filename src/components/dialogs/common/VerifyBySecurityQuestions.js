@@ -246,7 +246,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: auto;
+				height: 468px;
 				border-radius: 5px;
 			}
 
@@ -256,7 +256,7 @@ export class VerifyBySecurityQuestions extends Component {
 			}
 
 			.body-box {
-				height: 468px;
+				height: auto;
 				--theme-container-padding-top: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-container-padding-left: 0px;
@@ -273,7 +273,7 @@ export class VerifyBySecurityQuestions extends Component {
 				letter-spacing: 0;
 				line-height: 16px;
 				text-align: center;
-				margin: 0px;
+				margin: 16px 0px 2px 0px;
 			}
 
 			.question-label {
