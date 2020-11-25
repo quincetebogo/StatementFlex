@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -52,6 +54,8 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.quickTransactionsService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
 	}
 
@@ -79,6 +83,7 @@ export class VerifyBySecurityQuestions extends Component {
 			renderMode: { type: Number },
 			questionNumber: { type: Number },
 			retryCount: { type: Number },
+			isBusy: { type: Boolean },
 			alertBannerMessage: { type: String }
 		};
 	}
@@ -97,6 +102,10 @@ export class VerifyBySecurityQuestions extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
 	_onCancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
@@ -113,22 +122,24 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
+			this.alertBannerMessage = ``;
 			this.questionNumber++;
 			this.checked = false;
 		}
 
 	}
 
-	_verifyAnswers() {
-		//  TODO: To be handled -service call to verify answers after going through all the security questions
+	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		} else {
-			this.checked = false;
-			if (this.retryCount < 1) {
-				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.retryCount++;
-			} else {
+        } else {
+			this.alertBannerMessage = ``;
+            this.checked = false;
+
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
+	
+			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
+
 				const state = {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
@@ -139,6 +150,11 @@ export class VerifyBySecurityQuestions extends Component {
 				this.horizonStore.saveState(state);
 
 				this.horizonRouter.navigateToQuickTransactionFavourites();
+			} else if (this.retryCount < 1) {
+				this.renderMode = RENDER_MODE.FIRST_FAILURE;
+				this.retryCount++;
+			} else {
+				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -151,17 +167,16 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!this.checked) {
 			this.checked = !this.checked;
 		}
-		if (e.detail.new) {
-			this.alertBannerMessage = ``;
-			this.state[this.questionNumber] = {
-				"questionID": this.questions[this.questionNumber].productAuthenticationQuestionID,
-				"question": this.questions[this.questionNumber].question,
-				"selectedAnswerId": e.detail.key
-			};
 
-			// saving to the state - answers selected by the caller for each question
-			this.horizonStore.saveState({ "securityQuestions": this.state });
-		}
+		this.alertBannerMessage = this.checked ? `` : ERROR_MESSAGE;
+
+		this.questions[this.questionNumber].answers.forEach(answer => {
+			if (answer.answerId === e.detail.key) {
+				answer.isEnteredAnswerYN = true;
+			} else {
+				answer.isEnteredAnswerYN = false;
+			}
+		});
 	}
 
 	_retrySecurityQuestions() {
@@ -178,6 +193,36 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_xdsErrorHandler(exception) {
+		try {
+			if (exception instanceof TypeError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else if (exception instanceof HttpStatusError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.status} - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		} finally {
+		}
+
+		return true;
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -210,7 +255,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 			.body-box {
 				height: 468px;
-				--theme-container-padding-top: 16px;
+				--theme-container-padding-top: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-container-padding-left: 0px;
 				--theme-container-padding-right: 0px;
@@ -314,6 +359,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
+						 	${this._renderLoadingIndicator()}}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -331,20 +377,16 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
-			return html`
-				<capitec-alert-banner label="${this.alertBannerMessage}" type="error-trans">
-				</capitec-alert-banner>
-			`;
+			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="error-trans"></capitec-alert-banner>`;
 		}
 	}
 
 	_renderSecurityQuestions(item, index) {
 
 		let answers = this.questions[index].answers;
-		answers = answers.map(item => ({
-			"key": item.answerId,
-			"value": item.answer,
-			"checked": item.isEnteredAnswerYN
+		answers = answers.map(answer => ({
+			"key": answer.answerId,
+			"value": answer.answer
 		}));
 
 		if (index === this.questionNumber) {
@@ -400,6 +442,13 @@ export class VerifyBySecurityQuestions extends Component {
 			</horizon-end-call-session>`;
 	}
 
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
 }
 
 

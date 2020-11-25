@@ -111,8 +111,8 @@ export class ConfirmCallerDetails extends Component {
 	async _onAddCallerDetails() {
 
 		const callDetails = {
-			incomingNumber: this.incomingTelephoneNumber.value,
-			voiceReference: this.voiceReferenceNumber.value,
+			incomingNumber: this.incomingTelephoneNumber,
+			voiceReference: this.voiceReferenceNumber,
 			ivrOption: this.incomingCallDetails.ivrOption.value,
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
@@ -129,7 +129,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onAddCallerDetailsReturn(data) {
-		this.confirmedCaller.ivrOption.value = data.detail.ivrOptionValue;
+		this.confirmedCaller.ivrOptionCode = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOption.value = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOptionCode = data.detail.ivrOptionValue;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
@@ -192,9 +192,11 @@ export class ConfirmCallerDetails extends Component {
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
-			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
-				callerInformation: callerInformation, 
-				clientProfileDetails: clientProfileDetails });
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation,
+				clientProfileDetails: clientProfileDetails
+			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
@@ -239,6 +241,7 @@ export class ConfirmCallerDetails extends Component {
 
 	_onSkipVerification(e) {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
@@ -250,7 +253,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus: `unverified`,
+			verificationStatus: `unverified`, 
 			is3rdParty: false,
 			isNonClient: false
 		};
@@ -581,6 +584,7 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		const callerInformation = {
+			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
 			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
 			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
 			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
@@ -598,8 +602,11 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		return html`
-			<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" .callerInformation="${callerInformation}"
-				@skip="${(e) => this._onSkipVerification(e)}" @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
+			<horizon-verify-caller 
+				.incomingCallDetails="${this.incomingCallDetails}" 
+				.callerInformation="${callerInformation}"
+				@skip="${(e) => this._onSkipVerification(e)}" 
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}

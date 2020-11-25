@@ -217,7 +217,7 @@ export class OptionButton extends Component {
 	}
 
 	renderBadge() {
-		return this.badgeText ? html`<capitec-badge class="badge" color="#B71C1A" number="${this.badgeText}"></capitec-badge>` : html``;
+		return this.badgeText && this.badgeText !== `0` ? html`<capitec-badge class="badge" color="#B71C1A" number="${this.badgeText}"></capitec-badge>` : html``;
 	}
 }
 

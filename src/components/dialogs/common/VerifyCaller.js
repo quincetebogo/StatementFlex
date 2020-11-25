@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
@@ -39,7 +40,7 @@ export class VerifyCaller extends Component {
 		this.timeLeft = `1:00`;
 		this.minutes = 1;
 		this.seconds = 60;
-		this.notVerified = false;
+		this.appTimedOut = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -52,6 +53,8 @@ export class VerifyCaller extends Component {
 	// ----------
 
 	/**
+	 * @property {Object} incomingCallDetails Information on the incoming call
+	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
 	 * 
 	 */
 	static get properties() {
@@ -60,7 +63,8 @@ export class VerifyCaller extends Component {
 			callerInformation: { type: Object },
 			renderMode: { type: Number },
 			timeLeft: { type: String },
-			notVerified: { type: Boolean }
+			notVerified: { type: Boolean },
+			xdsMessage: { type: String }
 		};
 	}
 
@@ -87,9 +91,8 @@ export class VerifyCaller extends Component {
 	// --------------
 
     async _verifyUsingSecurityQuestions() {
-
 		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
+		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
@@ -97,15 +100,8 @@ export class VerifyCaller extends Component {
 			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `Failed to retrieve security questions from XDS`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
-		} else {
-			this.notVerified = true;
 		}
 	}
 
@@ -123,7 +119,7 @@ export class VerifyCaller extends Component {
 
 	_tryAgain() {
 		// TODO: Channel service comes here, on success of it need to do the below reset
-		this.notVerified = false;
+		this.appTimedOut = false;
 		this.minutes = 1;
 		this.seconds = 60;
 		this._startTimer();
@@ -140,6 +136,37 @@ export class VerifyCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_xdsErrorHandler(exception) {
+		try {
+			if (exception instanceof TypeError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else if (exception instanceof HttpStatusError) {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: ${exception.status} - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			} else {
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			}
+		} finally {
+		}
+
+		return true;
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -153,7 +180,7 @@ export class VerifyCaller extends Component {
 
 			if (this.seconds <= 0) {
 				_stopTimer();
-				this.notVerified = true;
+				this.appTimedOut = true;
 			}
 
 			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
@@ -276,6 +303,7 @@ export class VerifyCaller extends Component {
 						        @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}
+							${this._renderXdsError()}
 							${this._renderPushNotificationError()}
 							${this._renderOtherOptions()}
 							${this._renderLoadingIndicator()}
@@ -300,7 +328,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderNotificationStatus() {
-		if (!this.notVerified) {
+		if (!this.appTimedOut && !this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
@@ -331,7 +359,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.notVerified) {
+		if (this.appTimedOut && !this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
@@ -352,6 +380,37 @@ export class VerifyCaller extends Component {
 							</div>
 							<capitec-label type="title"
 								label="Notify the client and either try again or complete verification through security questions.">
+							</capitec-label>
+						</capitec-group>
+					</capitec-group>
+				</capitec-content-box>
+			`;
+		}
+		return html``;
+	}
+
+	_renderXdsError() {
+		if (this.xdsMessage) {
+			return html`
+				<capitec-content-box id="notification-status-box">
+					<capitec-group layout="vertical" 
+                                    halign="stretch"
+                                    valign="top" 
+                                    gap="clear">
+						<capitec-alert-banner type="error">
+							${this.xdsMessage}
+						</capitec-alert-banner>
+						<capitec-group layout="vertical" 
+                                        halign="center"
+                                        valign="top" 
+                                        gap="clear"
+                                        id="notification-status-error-group">
+							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+							<div class="notification-info">
+								An error has occured.
+							</div>
+							<capitec-label type="title"
+								label="Notify the client and either try again or complete verification via the App.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>

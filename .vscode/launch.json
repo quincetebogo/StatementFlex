@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Edge",
+            "request": "launch",
+            "type": "pwa-msedge",
+            "url": "http://localhost:62000",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "run",
+            "sourceMaps": true,
+            "trace": true,
+            "env": {
+                "PATH": "${workspaceFolder}/ocwp/1.0.0/node;${env:PATH}"
+            }
+        },
+        {
             "type": "chrome",
             "request": "launch",
             "name": "Launch Chrome",
@@ -14,7 +27,7 @@
             "sourceMaps": true,
             "trace": true,
             "env": {
-                "PATH": "${workspaceFolder}/ocwp/0.29.3/node;${env:PATH}"
+                "PATH": "${workspaceFolder}/ocwp/1.0.0/node;${env:PATH}"
             }
         }
     ]
