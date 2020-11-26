@@ -1,9 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { InsureService } from 'app/services/InsureService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/HorizonLabel';
@@ -54,9 +55,11 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		
+
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.quickTransactionsService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
+		this.insureService = new InsureService(() => this._toggleBusyFlag());
+
 	}
 
 	// --------------
@@ -137,23 +140,37 @@ export class VerifyBySecurityQuestions extends Component {
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
 	
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
-				console.log(returnValue.result);
+				this.callerInformation.verificationStatus = `verified`;
 
 				const state = {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
 
-				this.callerInformation.verificationStatus = `verified`;
-
 				this.horizonStore.saveState(state);
 
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-			} else if (this.retryCount < 1) {
+				switch (this.incomingCallDetails.ivrOptionCode) {
+					case `StopCard`:
+						// Verified Stop Card display must still be developed
+						break;
+					case `Insure`:
+						if (this.callerInformation.hasInsuranceProduct) { 
+							this.horizonRouter.navigateToInsureExistingClient();
+						} else {
+							this.horizonRouter.navigateToInsureProspectiveClient();
+						}
+						break;
+					case `Transact`:
+					default:
+							this.horizonRouter.navigateToQuickTransactionFavourites();
+				}
+			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.retryCount++;
-			} else {
+			} else if (returnValue.succeeded) {
 				this.horizonRouter.navigateToXdsVerificationFailed();
+			} else {
+				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
 			}
 		}
 	}
@@ -194,30 +211,14 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		try {
-			if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.status} - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} finally {
+		if (exception instanceof TypeError) {
+			this.alertBannerMessage = `SYSTEM ERROR`;
+		} else if (exception instanceof HttpStatusError) {
+			console.log(exception);
+			this.alertBannerMessage = `SYSTEM ERROR`;
+		} else {
+			console.log(exception);
+			this.alertBannerMessage = `SYSTEM ERROR`;
 		}
 
 		return true;
@@ -243,7 +244,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: auto;
+				height: 468px;
 				border-radius: 5px;
 			}
 
@@ -253,7 +254,7 @@ export class VerifyBySecurityQuestions extends Component {
 			}
 
 			.body-box {
-				height: 468px;
+				height: auto;
 				--theme-container-padding-top: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-container-padding-left: 0px;
@@ -270,7 +271,7 @@ export class VerifyBySecurityQuestions extends Component {
 				letter-spacing: 0;
 				line-height: 16px;
 				text-align: center;
-				margin: 0px;
+				margin: 16px 0px 2px 0px;
 			}
 
 			.question-label {
@@ -358,7 +359,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-						 	${this._renderLoadingIndicator()}}
+							${this._renderLoadingIndicator()}}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -376,7 +377,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
-			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="error-trans"></capitec-alert-banner>`;
+			return html`<capitec-alert-banner label="${this.alertBannerMessage}" type="unsuccessful-red"></capitec-alert-banner>`;
 		}
 	}
 

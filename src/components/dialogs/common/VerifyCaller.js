@@ -92,7 +92,9 @@ export class VerifyCaller extends Component {
 
     async _verifyUsingSecurityQuestions() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(`6712075142087`, (ex) => this._xdsErrorHandler(ex));
+		// const clientID = `6712075142087`;
+
+		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;

@@ -228,11 +228,10 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onSearchClick() {
-
-		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this.renderMode = RENDER_MODE.SEARCH_CALLER;
-		} else {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
+		} else {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
 
@@ -250,7 +249,7 @@ export class ConfirmCallerDetails extends Component {
 			nonClientIDNumber: ``,
 			nonClientRelationship: ``,
 			isConfirmed: true,
-			verificationStatus: `verified`, // TODO: Put back to unverified
+			verificationStatus: `unverified`, 
 			is3rdParty: false,
 			isNonClient: false,
 			hasInsuranceProducts: this.hasInsurance
@@ -265,11 +264,13 @@ export class ConfirmCallerDetails extends Component {
 
 		switch (this.ivrOption.value) {
 			case `Insure`:
-				if (this.confirmedCaller.callerInformation.hasInsuranceProducts.value) {
- 					this.horizonRouter.navigateToInsureExistingClient(); 
-				} else {
- 					this.horizonRouter.navigateToInsureProspectiveClient(); 
-				}
+				// TODO: Still need to determine if client has insure products or not
+				// this.horizonRouter.navigateToInsureProspectiveClient();
+				if (this.hasInsurance) {
+ this.horizonRouter.navigateToInsureExistingClient(); 
+} else {
+ this.horizonRouter.navigateToInsureProspectiveClient; 
+}
 				break;
 			case `Transact`:
 				this.horizonRouter.navigateToQuickTransactionFavourites();

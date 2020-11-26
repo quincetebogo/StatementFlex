@@ -638,7 +638,7 @@ export class SearchCaller extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error-trans" label="${this.alertBannerMessage}"></capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>
 			`;
 		}
 		return html``;
