@@ -58,11 +58,11 @@ export class HorizonChannelService extends Service {
 	 */
 	acceptCall(incomingCallData) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/accept-call?` +
-										`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
-										`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-										`ivrOptionCode=${incomingCallData.ivrOption}&` +
-										`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
-										`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`);
+			`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+			`ivrOptionCode=${incomingCallData.ivrOption}&` +
+			`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
+			`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`);
 	}
 
 	// addCallerDetailsRequest
@@ -209,14 +209,7 @@ export class HorizonChannelService extends Service {
 										`value=${clientInfo.searchValue}`);
 	}
 
-	favouritesLanding(clientInfo) {
-		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
-										`CifNumber=${clientInfo.cifNumber}&` +
-										`NationalIDNumber=${clientInfo.nationalIDNumber}&` + 
-										`IsCallerVerified=${clientInfo.isCallerVerified}`);
-	}
-
-	// -----------------
+ // -----------------
 	// Initialise Method
 	// -----------------
 	initialise() {
@@ -235,6 +228,13 @@ export class HorizonChannelService extends Service {
 	// ---------------
 	// INSURE METHODS
 	// ---------------
+
+	hasInsuranceProducts(InSuranceCientInfo) {
+		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
+									`IdNumber=${InSuranceCientInfo.IdNumber}&` + 
+									`Cif=${InSuranceCientInfo.CifNumber}&` +
+									`IsCallerVerified=${InSuranceCientInfo.isCallerVarified}`);
+	}
 
 	addNonClientDetails(callerData) {
 		return super.httpClient.post(`/clientcare/insure/${this.version}/addCaller/nonclient`, {
@@ -255,6 +255,10 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
+	// ----------------
+	// XDS Questions Methods
+	// ----------------
+
 	xdsQuestions(clientID) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/xds-questions?clientID=${clientID}`);
 	}
@@ -262,4 +266,17 @@ export class HorizonChannelService extends Service {
 	verifySecurityQuestions(response) {
 		return super.httpClient.post(`/clientcare/call/${this.version}/xds-questions`, response);
 	}
+
+	// ----------------
+	// Favourites Methods
+	// ----------------
+
+	favouritesLanding(clientInfo) {
+		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
+										`CifNumber=${clientInfo.cifNumber}&` +
+										`NationalIDNumber=${clientInfo.nationalIDNumber}&` + 
+										`IsCallerVerified=${clientInfo.isCallerVerified}`);
+	}
+
+
 }
