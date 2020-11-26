@@ -215,7 +215,7 @@ export class SecurityQuestionsFailed extends Component {
 								halign="stretch" 
 								valign="top"
 								gap="clear">
-					<capitec-alert-banner type="error-trans">
+					<capitec-alert-banner type="unsuccessful-red">
 						<b>Notify client: </b>Unfortunately you didn't pass the security questions.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 

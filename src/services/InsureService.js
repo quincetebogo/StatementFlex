@@ -19,13 +19,17 @@ export class InsureService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
+	hasInsuranceProducts(InSuranceCientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.hasInsuranceProducts(InSuranceCientInfo), errorHandler);
+	}
+
 	addNonClientDetails(incidentData, errorHandler = null) {
 		const nonClientDetailsRequest = {
 			'incidentRecId': incidentData.incidentRecId,
 			'ivrOptionCode': incidentData.ivrOptionCode,
 			'incomingTelephoneNumber': incidentData.incomingTelephoneNumber,
 			'firstName': incidentData.firstName,
-			'surname': incidentData.surname,
+			'surname': incidentData.surname, 
 			'cellPhone': incidentData.cellPhone
 		};
 
@@ -35,4 +39,9 @@ export class InsureService extends ServiceBase {
 	calculatePremiumDone(feedbackDetails, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.calculatePremiumDone(feedbackDetails), errorHandler);
 	}
+
+	InsureProducts(clientDetails, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.InsureProducts(clientDetails), errorHandler);
+	}
+
 }
