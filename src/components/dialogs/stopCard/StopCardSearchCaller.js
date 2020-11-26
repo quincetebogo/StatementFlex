@@ -6,7 +6,6 @@ import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
-import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
@@ -76,12 +75,10 @@ export class StopCardSearchCaller extends Component {
 			searchFieldText: ``
 		};
 
-		this.unverifiedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -92,7 +89,6 @@ export class StopCardSearchCaller extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} unverifiedCaller  - Incoming caller without a verified telephone number
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * 
 	 * @readonly
@@ -101,12 +97,12 @@ export class StopCardSearchCaller extends Component {
 	 */
 	static get properties() {
 		return {
-			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			renderMode: { type: Number },
-			alertBannerMessage: { type: String }
+			alertBannerMessage: { type: String },
+			identificationMethods: { type: Object }
 		};
 	}
 
@@ -123,27 +119,18 @@ export class StopCardSearchCaller extends Component {
 
 		// Setup references into the incoming model. The following sets up references to 
 		// fields commmon to both incoming models
-		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 
-		this.ivrOption = this.unverifiedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
+		this.ivrOption = this.incomingCallDetails.ivrOption;
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
+		this._loadSearchOptions();
 
-		if (this.callHandleService.isConfirmedCaller(this.unverifiedCaller)) {
-			// We are coming from the confirmed user dialog
-			this._loadSearchOptions();
-
-			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
-		} else {
-			// We are coming from the landing page/Desktop Agent event.
-			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
-			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-		}
+		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.searchFieldText = null;
 	}
@@ -173,8 +160,8 @@ export class StopCardSearchCaller extends Component {
 			console.log(`service call`);
 
 			const searchClient = {
-				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber,
+				voiceReferenceNumber: this.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
 				ivrOption: this.ivrOption.value,
@@ -182,7 +169,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
@@ -231,28 +218,26 @@ export class StopCardSearchCaller extends Component {
 		}));
 	};
 
-	_loadSearchOptions() {
+	async _loadSearchOptions() {
 		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
-			"voiceReferenceNumber": this.voiceReferenceNumber.value,
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"ivrOptionCode": this.ivrOption.value,
 			"incidentReferenceNumber": this.incidentReferenceNumber,
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		this.cardService.searchOptions(clientInfo, null)
-			.then((returnValue) => {
-				const options = returnValue.result;
+		const returnValue = await this.callHandleService.searchOptions(clientInfo, null);
+		const options = returnValue.result;
 
-				if (returnValue.succeeded) {
-					this.identificationMethodsList = options.identificationMethods;
-					if (this.identificationMethodsList !== undefined) {
-						this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-					}
-				} else {
-					// TODO: Handle error when searchOptions call failes
-				}
-			});
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		} else {
+			// TODO: Handle error when searchOptions call failes
+		};
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -390,11 +375,8 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog 
-							.incomingCallDetails="${this.incomingCallDetails}" 
-							.headerLabel="${HEADER_LABEL}"
-							@on-end-call="${() => this._onEndCall()}" 
-							@on-need-changed="${(event) => this._onNeedChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
+						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -424,38 +406,21 @@ export class StopCardSearchCaller extends Component {
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group 
-					layout="vertical" 
-					gap="none" 
-					halign="stretch" 
-					valign="top"
-					class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
+				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select 
-						id="identificationMethods" 
-						error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" 
-						class="id-options"
+					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						tabindex="${getTabIndex(this.identificationMethods)}"
-						?hidden=${isHidden(this.identificationMethods)} 
-						id-field="key" 
-						display-field="displayText">
+						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
+					</capitec-select>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
-					<capitec-text-field 
-						id="searchFieldText" 
-						type="search" 
-						keyboardMode="numeric" 
-						label="Search"
-						error="${this.errMessage.searchFieldText}" 
-						focussed 
-						hint="" 
-						@key-input="${(e) => this._onKeyPress(e)}"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						value="">
+					<capitec-text-field id="searchFieldText" type="search" keyboardMode="numeric" label="Search"
+						error="${this.errMessage.searchFieldText}" focussed hint="" @key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" value="">
 					</capitec-text-field>
 				</div>
 			</capitec-group>
@@ -475,10 +440,7 @@ export class StopCardSearchCaller extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button 
-					id="id-search-button" 
-					type="primary" 
-					@click="${(e) => this._onSearchClick(e)}"
+				<capitec-button id="id-search-button" type="primary" @click="${(e) => this._onSearchClick(e)}"
 					label="Search Client">
 				</capitec-button>
 			</capitec-group>`;
@@ -486,17 +448,14 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {
 		return html`
-			<horizon-search-caller 
-				.unverifiedCaller="${this.unverifiedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-search-caller>`;

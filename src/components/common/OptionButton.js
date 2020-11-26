@@ -32,6 +32,7 @@ export class OptionButton extends Component {
 		this.image = null;
 		this.iconSize = ``;
 		this.disabled = false;
+		this.badgeText = null;
 	}
 
 	// ----------
@@ -45,6 +46,7 @@ export class OptionButton extends Component {
  * @property {String} [icon] - A platform icon to display.
  * @property {String} [iconSize] - Used in conjunction with the icon attribute. This is a <capitec-icon>, icon size setting.
  * @property {String} [img-src] - Path to an image to display. This will only be displayed if icon is NOT provided.
+ * @property {String} [badgeText] - Optional number to display in a badge, top right hand.
  */
 	static get properties() {
 		return {
@@ -52,7 +54,8 @@ export class OptionButton extends Component {
 			icon: { type: String },
 			image: { type: String, attribute: `img-src` },
 			disabled: { type: Boolean },
-			iconSize: { type: String }
+			iconSize: { type: String },
+			badgeText: { type: String }
 		};
 	}
 
@@ -121,6 +124,7 @@ export class OptionButton extends Component {
 			css`
 
 			.button {
+				position: relative;
 				outline:none;
 				height:100%;
 				background: white;
@@ -174,28 +178,46 @@ export class OptionButton extends Component {
 				line-height: var(--horizon-option-btn-text-line-height, 24px);
 				cursor: pointer;
 			}
+			.badge {
+				position: absolute;
+				justify-content: flex-end;
+				width: 24px;
+				right: 8px;
+				top: 8px;
+				color: #FFFFFF;
+				font-family: "Hind Vadodara";
+				font-size: 12px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 18px;
+				text-align: center;
+			}
 			`
 		];
 	}
 
 	_webTemplate() {
 		return html`
-			<button class="button" ?disabled="${this.disabled}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}">
+			<button class="button" ?disabled="${this.disabled}" @click="${(e) => this._buttonClicked(e)}"
+				@keydown="${(e) => this._keyDown(e)}">
 				${this.renderIcon()}
-				<capitec-label class="label-text${this.disabled ? `-disabled` : ``}" label="${this.label}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}"></capitec-label> 
+				${this.renderBadge()}
+				<capitec-label class="label-text${this.disabled ? `-disabled` : ``}" label="${this.label}"
+					@click="${(e) => this._buttonClicked(e)}" @keydown="${(e) => this._keyDown(e)}">
+				</capitec-label>
 			</button>
 		`;
 	}
 
-/*
-*/
+	/*
+	*/
 
 	renderIcon() {
-		return html`<img class="icon-size" src="./platform/icons/${this.icon}.svg" alt="${this.icon}">`;
+		return this.icon ? html`<img class="icon-size" src="./platform/icons/${this.icon}.svg">` : html`<img class="icon-size" src="${this.image}">`;
+	}
 
-		return this.icon
-			? html`<capitec-icon class="icon-size" size="${this.iconSize ? this.iconSize : `small`}" icon="${this.icon}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}"></capitec-icon>`
-			: html`<img class="icon-size" src="${this.image}" @click="${(e) => this._buttonClicked(e)}"  @keydown="${(e) => this._keyDown(e)}/>`;
+	renderBadge() {
+		return this.badgeText && this.badgeText !== `0` ? html`<capitec-badge class="badge" color="#B71C1A" number="${this.badgeText}"></capitec-badge>` : html``;
 	}
 }
 
