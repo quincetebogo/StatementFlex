@@ -110,7 +110,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_onCancel() {
-		this.horizonRouter.navigateToInsureExistingClient();
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_onSkip() {
