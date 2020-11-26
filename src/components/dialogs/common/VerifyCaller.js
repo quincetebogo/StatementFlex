@@ -85,6 +85,21 @@ export class VerifyCaller extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		// Dispatch table for routing to unverified landing pages
+		this.navigateToUnverifiedLandingPage = ivrOption => {
+
+			const stopCard = () => this.horizonRouter.navigateToStopCard();
+			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+			const insure = this.callerInformation.hasInsuranceProducts ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
+
+			return {
+				StopCard: stopCard,
+				Transact: transact,
+				Insure: insure
+			}[ivrOption];
+		};
+
+		// Start the ITA timer. ITA code still to come
 		this._startTimer();
 	}
 
@@ -117,21 +132,7 @@ export class VerifyCaller extends Component {
 
 		this.horizonStore.saveState(state);
 
-		switch (this.incomingCallDetails.ivrOptionCode) {
-			case `StopCard`:
-				// TODO: Navigate to stop card
-				break;
-			case `Insure`:
-				if (this.callerInformation.hasInsuranceProducts) { 
-					this.horizonRouter.navigateToInsureExistingClient();
-				} else {
-					this.horizonRouter.navigateToInsureProspectiveClient();
-				}
-				break;
-			case `Transact`:
-			default:
-					this.horizonRouter.navigateToQuickTransactionFavourites();
-		}
+		this.navigateToUnverifiedLandingPage(this.incomingCallDetails.ivrOptionCode)();
 	}
 
 	_onSecurityQuestionsCancel() {

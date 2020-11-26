@@ -54,6 +54,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.hasInsurance = false;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -236,52 +237,7 @@ export class ConfirmCallerDetails extends Component {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
-
-	_onSkipVerification(e) {
-		const callerInformation = {
-			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`, 
-			is3rdParty: false,
-			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance
-		};
-
-		const state = {
-			callerInformation: callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
-
-		switch (this.ivrOption.value) {
-			case `Insure`:
-				if (this.hasInsurance) {
- 					this.horizonRouter.navigateToInsureExistingClient(); 
-				} else {
- 					this.horizonRouter.navigateToInsureProspectiveClient(); 
-				}
-				break;
-			case `Transact`:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-				break;
-
-			case `StopCard`:
-				this.horizonRouter.navigateToStopCard();
-			default:
-		}
-	}
-
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -617,7 +573,6 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-verify-caller 
 				.incomingCallDetails="${this.incomingCallDetails}" 
 				.callerInformation="${callerInformation}"
-				@skip="${(e) => this._onSkipVerification(e)}" 
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
