@@ -156,7 +156,10 @@ export class LandingPage extends View {
 		this.errorHandled = false;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.acceptCall(newCallInfo, (ex) => this.landingPageErrorHandler(ex, `acceptCall`));
+		const returnValue = await this.callHandleService.caller(
+			newCallInfo,
+			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
+		);
 
 		if (returnValue.succeeded) {
 			this._dispatchCall(returnValue.result, newCallInfo);
