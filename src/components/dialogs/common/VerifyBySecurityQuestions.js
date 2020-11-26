@@ -114,7 +114,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_onSkip() {
-		this.horizonRouter.navigateToInsureExistingClient();
+		this._navigateToLandingPage(`unverified`);
 	}
 
 	_onContinueClick() {
@@ -138,34 +138,20 @@ export class VerifyBySecurityQuestions extends Component {
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
 	
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
-				this.callerInformation.verificationStatus = `verified`;
+				this._navigateToLandingPage(`verified`);
+			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
+				this.renderMode = RENDER_MODE.FIRST_FAILURE;
+				this.retryCount++;
+			} else if (returnValue.succeeded) {
+				this.callerInformation.verificationStatus = `failed`;
 
 				const state = {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-
+		
 				this.horizonStore.saveState(state);
-
-				switch (this.incomingCallDetails.ivrOptionCode) {
-					case `StopCard`:
-						// Verified Stop Card display must still be developed
-						break;
-					case `Insure`:
-						if (this.callerInformation.hasInsuranceProduct) { 
-							this.horizonRouter.navigateToInsureExistingClient();
-						} else {
-							this.horizonRouter.navigateToInsureProspectiveClient();
-						}
-						break;
-					case `Transact`:
-					default:
-							this.horizonRouter.navigateToQuickTransactionFavourites();
-				}
-			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
-				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.retryCount++;
-			} else if (returnValue.succeeded) {
+		
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else {
 				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
@@ -207,6 +193,32 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_navigateToLandingPage(verificationStatus) {
+		this.callerInformation.verificationStatus = verificationStatus;
+
+		const state = {
+			callerInformation: this.callerInformation,
+			incomingCallDetails: this.incomingCallDetails
+		};
+
+		this.horizonStore.saveState(state);
+		switch (this.incomingCallDetails.ivrOptionCode) {
+			case `StopCard`:
+				// Verified Stop Card display must still be developed
+				break;
+			case `Insure`:
+				if (this.callerInformation.hasInsuranceProducts) {
+					this.horizonRouter.navigateToInsureExistingClient();
+				} else {
+					this.horizonRouter.navigateToInsureProspectiveClient();
+				}
+				break;
+			case `Transact`:
+			default:
+				this.horizonRouter.navigateToQuickTransactionFavourites();
+		}
+	}
 
 	_xdsErrorHandler(exception) {
 		if (exception instanceof TypeError) {
