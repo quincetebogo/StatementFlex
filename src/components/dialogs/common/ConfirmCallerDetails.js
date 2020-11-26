@@ -5,9 +5,9 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
-import { InsureService } from 'app/services/InsureService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -132,7 +132,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToStopCard(); 
-		} else {	
+		} else {
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -266,8 +266,6 @@ export class ConfirmCallerDetails extends Component {
 
 		switch (this.ivrOption.value) {
 			case `Insure`:
-				// TODO: Still need to determine if client has insure products or not
-				// this.horizonRouter.navigateToInsureProspectiveClient();
 				if (this.hasInsurance) {
  					this.horizonRouter.navigateToInsureExistingClient(); 
 				} else {
