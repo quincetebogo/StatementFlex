@@ -168,11 +168,13 @@ export class VerifyBySecurityQuestions extends Component {
 					default:
 							this.horizonRouter.navigateToQuickTransactionFavourites();
 				}
-			} else if (this.retryCount < 1) {
+			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.retryCount++;
-			} else {
+			} else if (returnValue.succeeded) {
 				this.horizonRouter.navigateToXdsVerificationFailed();
+			} else {
+				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
 			}
 		}
 	}
