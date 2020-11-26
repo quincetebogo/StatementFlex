@@ -1,14 +1,13 @@
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	SYSTEM_ERROR: 0,
-	END_CALL: 1,
+	END_CALL: 1
 };
 
 export class SystemError extends View {
@@ -52,25 +51,17 @@ export class SystemError extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 
-			this.incomingCallDetails.ivrOption.value = state.incomingCallDetails.ivrOptionCode;
-			this.incomingCallDetails.ivrOption.possibleValues = [
-				{
-					key: `StopCard`, value: `Stop Card`
-				},
-				{
-					key: `Insure`, value: `Insure`
-				}
-			];
-
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-			});
-		}
 
+			if (this.incomingCallDetails) {
+				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
+					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
+				});
+			}
+		}
 	}
 
 	// --------------
@@ -78,7 +69,9 @@ export class SystemError extends View {
 	// --------------
 
 	_onEndCallSession() {
-		this.renderMode = RENDER_MODE.END_CALL;
+		if (this.incomingCallDetails) {
+			this.renderMode = RENDER_MODE.END_CALL;
+		}
 	}
 
 	_leftClick() {
@@ -122,13 +115,12 @@ export class SystemError extends View {
 		if (this.renderMode === RENDER_MODE.SYSTEM_ERROR) {
 			return html`
 				<horizon--error-screen 
-					header="Network Error" 
-					left="Assign"
-					right="Try Again"
+					header="System Error" 
+					left=""
+					right="Assign"
 					toast="Network error"
-					@left-click=${() => this._leftClick()}
 					@right-click=${() => this._rightClick()}>
-					<section id="id-error-msg" slot="detail"><b>Notify client:</b> Something went wrong try again</section>
+					<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
 				</horizon--error-screen>`;
 		}
 	}

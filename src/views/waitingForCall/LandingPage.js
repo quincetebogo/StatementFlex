@@ -48,7 +48,6 @@ export class LandingPage extends View {
 
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
 		this.isBusy = false;
-		this.errorHandled = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
@@ -126,53 +125,24 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// TODO: Perhaps fold this into callHandleService.acceptCall and get rid of incidentManagement Service
-		console.log(`landing page - _onNewCall(): creating incident`);
-
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, null);
-
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => landingPageErrorHandler(ex));
 		const incident = returnValue.result;
+
 		if (returnValue.succeeded && incident) {
 			await this._acceptCall(newCallInfo, incident);
-		} else if (!returnValue.succeeded) {
-			this.horizonRouter.navigateToSystemError();
 		} else {
-			const event = {
-				from: `UI-CS`,
-				status: `error`,
-				message: returnValue.succeeded ? `Empty or NULL response received when creating incident` : `Unknown error when creating incident`
-			};
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
 	async _acceptCall(newCallInfo, incident) {
-		console.log(`landing page - _acceptCall()`);
-
 		newCallInfo.incidentReferenceNumber = incident.incidentNumber;
 		newCallInfo.incidentRecId = incident.incidentRecId;
 
-		this.errorHandled = false;
-
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.caller(
-			newCallInfo,
-			(ex) => this.landingPageErrorHandler(ex, `acceptCall`)
-		);
+		const returnValue = await this.callHandleService.caller(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
 
-		if (returnValue.succeeded) {
-			this._dispatchCall(returnValue.result, newCallInfo);
-		} else {
-			console.log(`Failed to accept call`);
-			const event = {
-				from: `UI-CS`,
-				status: `error`,
-				message: `System Error`
-			};
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			this.horizonRouter.navigateToSystemError();
-		}
+		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
 
 	_dispatchCall(acceptedCall, newCallInfo, forceSearch) {
@@ -290,40 +260,17 @@ export class LandingPage extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	landingPageErrorHandler(exception, context) {
-		try {
-			if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.status} - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-			this.horizonRouter.navigateToSystemError();
-		} finally {
-			// Just a flag to inform _dispatchCall that the error was handled.
-			this.errorHandled = true;
-
-			// If accept call fails, we will be stuck on the landing page and unable to take calls unless
-			// we flag the call that we tied to take as complete...
-			this.desktopAgentService.callComplete();
+	landingPageErrorHandler(exception) {
+		if (exception instanceof TypeError) {
+			console.log(exception);
+		} else if (exception instanceof HttpStatusError) {
+			console.log(exception);
+		} else {
+			console.log(exception);
 		}
 
+		this.desktopAgentService.callComplete();
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
