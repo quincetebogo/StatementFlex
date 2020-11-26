@@ -27,6 +27,7 @@ const CLIENT_TYPE = {
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
+	SYSTEM_ERROR: `System error. Please try again later`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
@@ -242,11 +243,13 @@ export class SearchCaller extends Component {
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else {
-				// TODO: handle case where search failes due to an exception differently?
+			}
+			else if (returnValue.succeeded && !identifiedClient) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
 		}
 	}
