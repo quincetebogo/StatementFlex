@@ -71,7 +71,11 @@ export class DesktopAgentService {
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
+
+		this.configuration = Configuration.getInstance();
+
 	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -82,10 +86,10 @@ export class DesktopAgentService {
 	 *
 	 * @private
 	 * @param {*} event Server Side Event from the Destkop Agent Service Application
-	 * @returns {undefined}
+	 * @returns {Promise}
 	 * @memberof DesktopAgentService
 	 */
-	_onNewCall(event) {
+	async _onNewCall(event) {
 		console.log(`_onNewCall: new call event received`);
 
 		const eventData = JSON.parse(event.data);
@@ -120,7 +124,7 @@ export class DesktopAgentService {
 			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
 
-			newCallEvent.ivrOptionCode = this._mapIvrOption(eventData.IVROptionCode);
+			newCallEvent.ivrOptionCode = await this._mapIvrOption(eventData.IVROptionCode);
 			newCallEvent.date = eventData.Date;
 
 			console.log(`_onNewCall: event data validated`);
@@ -164,7 +168,7 @@ export class DesktopAgentService {
 	 * @private
 	 * @returns {undefined}
 	 * @memberof DesktopAgentService
- 	 */
+	   */
 	_onError() {
 		// console.log(`Desktop Agent in error state`);
 
@@ -252,16 +256,11 @@ export class DesktopAgentService {
 	// PRIVATE METHODS
 	// ---------------
 
-	_mapIvrOption(IvrOptionCode) {
-		switch (IvrOptionCode) {
-			case `1`: return `StopCard`;
-			case `3`: return `Transact`;
-			case `5`: return `Insure`;
-			case `51`: return `Insure`;
-			case `52`: return `Insure`;
-			default: return `Insure`;
-		}
+	async _mapIvrOption(IvrOptionCode) {
+		const ivrMapping = await this.configuration.getSetting(`ivrMapping`);
+		const selectedOption = ivrMapping.find(element => element.option === IvrOptionCode);
 
+		return selectedOption ? selectedOption.primaryNeed : `Transact`;
 	}
 
 	_setValidationData() {
@@ -281,7 +280,7 @@ export class DesktopAgentService {
 		if (!this.nextCall || this.navigationContext.current === undefined) {
 			return;
 		}
-		
+
 		// TODO: Fix the onCall handling - removed for now
 
 		// Get current view from router. Note that we are still on the landing page when presenting

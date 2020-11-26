@@ -69,7 +69,7 @@ export class ClientNotVerified extends Component {
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-header-background-color: #F9EBDD;
-					--theme-modal-footer-padding: 7px 16px 17px 16px;
+					--theme-modal-footer-padding: 0px 16px 17px 0px;
 				}
 			
 				div[slot="header"] {
@@ -119,15 +119,15 @@ export class ClientNotVerified extends Component {
 					line-height: 24px;
 				}
 
-				.body-details{
-						height: 96px;
-						width: 343px;
-						color: #4E6066;
-						font-family: "Hind Vadodara";
-						font-size: 15px;
-						font-weight: 500;
-						letter-spacing: 0;
-						line-height: 24px;
+				capitec-content-box > p {
+					height: 96px;
+					width: 343px;
+					color: #4E6066;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 500;
+					letter-spacing: 0;
+					margin: 0px;
 				}
 
 				.status-icon {
@@ -139,7 +139,6 @@ export class ClientNotVerified extends Component {
 				#id-cancel-button {
 					width : 98px;
 					--theme-button-clear-border-width: 0px;
-					
 				}
 
 				#id-verify-button {
@@ -173,29 +172,20 @@ export class ClientNotVerified extends Component {
 				<div slot="header">
 					<span>
 						<capitec-group layout="horizontal">
-							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
+							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg" />
 							<capitec-label class="header-text" label="Client Not Verified"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
 				<div slot="body">
 					<capitec-content-box class="body-box">
-						${this._renderDetails()}
+						<p>In order to process the transaction, you need to be verified. <br /> <br /> Do you want to continue?</p>
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>`;
-	}
-
-	_renderDetails() {
-		return html`
-<capitec-label class="body-details" label="In order to process the transaction, you need to be verified.
-
-Do you want to continue?">
-</capitec-label>
-		`;
 	}
 
 	_renderFooter() {

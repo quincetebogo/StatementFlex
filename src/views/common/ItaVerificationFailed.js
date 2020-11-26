@@ -1,9 +1,12 @@
 import { View, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
+
+import { HorizonStore } from 'app/store/HorizonStore';
+import { CallHandleService } from 'app/services/CallHandleService';
+
 import 'app/components/common/ErrorScreen';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { CallHandleService } from '../../services/CallHandleService';
 
 const RENDER_MODE = {
 	VERIFY_CALLER: 0,
@@ -19,8 +22,11 @@ export class ItaVerificationFailed extends View {
 		this.renderMode = -1;
 		this.horizonstore = HorizonStore.getInstance();
 		this.callerInformation = {};
-		this.callHandleService = new CallHandleService.getInstance(() => this.toggleBusyFlag(), null);
-		this.displayLoadingIndicator = false;
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.eventAggregator = EventAggregator.getInstance();
+		this.isBusy = false;
+		this.securityQuestions = {};
+		this.incomingCallDetails = {};
 	}
 
 	// ---------------
@@ -29,7 +35,9 @@ export class ItaVerificationFailed extends View {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			displayLoadingIndicator: { type: Boolean },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -43,6 +51,7 @@ export class ItaVerificationFailed extends View {
 		const state = this.horizonstore.recoverState();
 
 		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = state.incomingCallDetails;
 
 	}
 
@@ -59,7 +68,7 @@ export class ItaVerificationFailed extends View {
 			this.securityQuestions = returnValue.result;
 
 			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
-				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+				this.renderMode = RENDER_MODE.VERIFY_CALLER;
 			} else {
 				const event = {
 					from: `UI-CS`,
@@ -73,8 +82,17 @@ export class ItaVerificationFailed extends View {
 		}
 	}
 
-	toggleBusyFlag() {
-		this.displayLoadingIndicator = true;
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_onSecurityQuestionsCancel() {
+		this.renderMode = -1;
+	}
+
+	_skip() {
+		this.renderMode = RENDER_MODE.CONTINUE_TRANSACT;
+		this.horizonstore.saveState({ callerInformation: { verificationStatus: `failed` } });
 	}
 	// ---------
 	// RENDERING
@@ -102,7 +120,7 @@ export class ItaVerificationFailed extends View {
 
 	_rightClick() {
 		console.log(`right`);
-		this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		this._verifyUsingSecurityQuestions();
 	}
 
 	_mobileTemplate() {
@@ -133,20 +151,22 @@ export class ItaVerificationFailed extends View {
 	_renderVerifySecurityQuestions() {
 		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
 			return html`
-				<horizon-security-question></horizon-security-question>
-			`;
+			
+			<horizon-security-question .incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}" .securityQuestions="${this.securityQuestions}"
+				@cancel="${() => this._onSecurityQuestionsCancel()}" @skip="${() => this._skip()}">
+			</horizon-security-question>`;
 		}
 		else return html``;
 	}
 
 	_renderLoadingIndicator() {
-		if (this.displayLoadingIndicator = true) {
-			return html`
-			<capitec-loading-indicator></capitec-loading-indicator>
-			`;
-		}
-		else
+
+		if (!this.isBusy) {
 			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

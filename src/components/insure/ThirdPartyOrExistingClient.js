@@ -121,9 +121,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	_onToggleToastDisplay() {
 		this.displayToast = false;
 	}
-	
+
 	_updateMiniProfile() {
-		const state = { 
+		const state = {
 			miniProfile: {
 				name: this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
@@ -374,7 +374,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderOptionButtons(item) {
 		return html`
 			<horizon-option-button 
-				?disabled="${true}"
+				?disabled="${true}" 
 				label="${item.label}" 
 				icon="${item.icon}" 
 				iconSize="${item.iconSize}"
@@ -385,23 +385,11 @@ export class ThirdPartyOrExistingClient extends Component {
 	}
 
 	_renderSolutionDialog() {
-
-		/*
-		if (this.clientType === `unverified-existing-client` && this.solutionSelected) {
-			return html`
-				<horizon-client-not-verified 
-					@cancel="${() => this.solutionSelected = ``}"
-					@verify-now="${() => this._onVerifyNowClick()}">
-				</horizon-client-not-verified>
-			`;
-		}
-		*/
-
 		switch (this.solutionSelected) {
 			case SOLUTION_SET.VIEW_PLAN:
 			case SOLUTION_SET.VIEW_STATUS:
 				return html`
-					<horizon-view-plan 
+					<horizon-view-plan
 						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}" 
 						clientType="${this.verificationStatus}">
@@ -409,21 +397,21 @@ export class ThirdPartyOrExistingClient extends Component {
 
 			case SOLUTION_SET.UPDATE_PLAN:
 				return html`
-					<horizon-choose-update-option 
+					<horizon-choose-update-option
 						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-choose-update-option>`;
 
 			case SOLUTION_SET.PAY_ARREARS:
 				return html`
-					<horizon-pay-arrears 
+					<horizon-pay-arrears
 						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-pay-arrears>`;
 
 			case SOLUTION_SET.EMAIL_PLAN:
 				return html`
-					<horizon-email-plan 
+					<horizon-email-plan
 						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-email-plan>`;
@@ -433,7 +421,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 			case SOLUTION_SET.CANCEL_PLAN:
 				return html`
-					<horizon-cancel-plan 
+					<horizon-cancel-plan
 						@solution-provided="${() => this.solutionSelected = ``}"
 						@close-solution="${() => this.solutionSelected = ``}">
 					</horizon-cancel-plan>`;
@@ -455,7 +443,8 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderSelectAssignReason() {
 		if (this.renderMode === RENDER_MODE.SELECT_ASSIGN_REASON) {
 			return html`
-				<horizon-insure-assign-reason @on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
+				<horizon-insure-assign-reason
+					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel=${() => this._onCancelSelectAssignReason()}>
 				</horizon-insure-assign-reason>`;
 		}
@@ -465,7 +454,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderAssign() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
-				<horizon-assign-reason-selected 
+				<horizon-assign-reason-selected
 					.selectedReason="${this.selectedAssignReason}" 
 					@on-cancel=${() => this._onCancelAssign()}
 					@on-assign=${() => this._onAssign()}>
@@ -477,9 +466,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller 
-					.incomingCallDetails="${this.incomingCallDetails}"
-					 @skip="${(e) => this._onSkipVerification(e)}">
+				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" @skip="${(e) => this._onSkipVerification(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;

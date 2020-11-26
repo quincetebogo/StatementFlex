@@ -88,8 +88,51 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), errorHandler);
 	}
 
+	/**
+	 * Retrieves the search call options to search the existing client
+	 *
+	 * @param {object} incomingCallData Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing search options and the result of the channel service call
+	 */
+	searchOptions(incomingCallData, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), errorHandler);
+	}
+
+	/**
+	 * Retrieves the client information based on the identification method search
+	 *
+	 * @param {object} clientInfo Information about the incoming call
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing client information and the result of the channel service call
+	 */
+	searchCaller(clientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), errorHandler);
+	}
+
+	/**
+	 * Loads the list of end call reasons to display on the end call dialog
+	 * 
+	 * @deprecated
+	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 */
 	endCallOptions(endCallDetails, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), errorHandler);
+	}
+
+	/**
+	 * Loads the list of end call reasons to display on the end call dialog
+	 * 
+	 * THIS METHOD WILL REPLACE endCallOptions. THE CHANNEL SERVICE IMPLEMENTATION MUST BE DONE BEFORE WE CAN SWITCH
+	 * 
+	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 */
+	loadEndCallOptions(endCallDetails, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.loadEndCallOptions(endCallDetails), errorHandler);
 	}
 
 	/**
@@ -107,7 +150,18 @@ export class CallHandleService extends ServiceBase {
 		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
 	}
 
+	/**
+	 * Retrieves the security questions to verify the client
+	 * 
+	 * @param {string} clientID client identification number
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @returns {ReturnValue} An object containing list of security questions & answers and the result of the channel service call
+	 */
 	xdsQuestions(clientID, errorHandler = null) {
 		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), errorHandler);
+	}
+
+	verifySecurityQuestions(response, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.verifySecurityQuestions(response), errorHandler);
 	}
 }
