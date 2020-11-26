@@ -20,7 +20,7 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
-		this.isDisable = false;
+		this.isHidden = false;
 	}
 
 	// ----------
@@ -33,7 +33,7 @@ export class HorizonActionBar extends Component {
 			phoneNumber: { type: String },
 			clientNeed: { type: String },
 			isUnverifiedNumber: { type: Boolean },
-			isDisable: { type: Boolean }
+			isHidden: { type: Boolean }
 		};
 	}
 
@@ -60,7 +60,7 @@ export class HorizonActionBar extends Component {
 	}
 
 	_isDisabled(e) {
-		this.isDisable = true;
+		this.isHidden = true;
 	}
 
 	_endCallSession() {
@@ -162,16 +162,15 @@ export class HorizonActionBar extends Component {
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
-					<capitec-button style="background-color: ${this.isDisable ? `#363434` : ``}"
-									type="clear" 
+					<capitec-button type="clear" 
 									label="Assign"
-									.disabled="${this.isDisable}"
+									?hidden="${this.isHidden}"
 									@click="${() => this._onAssign()}">
 					</capitec-button>
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
-									.disabled="${this.isDisable}">
+									?hidden="${this.isHidden}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">

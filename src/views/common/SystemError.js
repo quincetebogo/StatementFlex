@@ -25,18 +25,9 @@ export class SystemError extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
-		// this.incomingCallDetails.ivrOption.possibleValues = [
-		// 	{
-		// 		key: `StopCard`, value: `Stop Card`
-		// 	},
-		// 	{
-		// 		key: `Insure`, value: `Insure`
-		// 	}
-		// ];
-		// this.incomingCallDetails = state.incomingCallDetails;
-		// this.nonClient = state.nonClient;
-		// this.unverifiedCaller = state.unverifiedCaller;
-		// this.verifiedCaller = state.verifiedCaller;
+		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
+		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
+
 	}
 
 	// ----------
@@ -60,7 +51,8 @@ export class SystemError extends View {
 
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
-			//tempFixIVROption(this.incomingCallDetails.ivrOption);
+
+			this.incomingCallDetails.ivrOption.value = state.incomingCallDetails.ivrOptionCode;
 			this.incomingCallDetails.ivrOption.possibleValues = [
 				{
 					key: `StopCard`, value: `Stop Card`
@@ -78,18 +70,7 @@ export class SystemError extends View {
 				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
 			});
 		}
-		//this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
-		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isDisabled: true });
 
-		// this.eventAggregator.publish(
-		// 	`horizon-update-call_actionbar`,
-		// 	{
-		// 		referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-		// 		phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-		// 		ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-		// 	}
-		// );
 	}
 
 	// --------------
