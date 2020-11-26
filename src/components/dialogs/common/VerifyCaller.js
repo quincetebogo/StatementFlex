@@ -106,9 +106,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_skip() {
-		this.dispatchEvent(new CustomEvent(`skip`, {
-			detail: { incomingCallDetails: this.incomingCallDetails }
-		}));
+		this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	_onSecurityQuestionsCancel() {

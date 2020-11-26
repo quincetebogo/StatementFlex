@@ -207,6 +207,13 @@ export class HorizonChannelService extends Service {
 	// INSURE METHODS
 	// ---------------
 
+	hasInsuranceProducts(InSuranceCientInfo) {
+		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
+									`IdNumber=${InSuranceCientInfo.IdNumber}&` + 
+									`Cif=${InSuranceCientInfo.CifNumber}&` +
+									`IsCallerVerified=${InSuranceCientInfo.isCallerVarified}`);
+	}
+
 	addNonClientDetails(callerData) {
 		return super.httpClient.post(`/clientcare/insure/${this.version}/addCaller/nonclient`, {
 			'incidentRecId': callerData.incidentRecId,
@@ -233,4 +240,5 @@ export class HorizonChannelService extends Service {
 	verifySecurityQuestions(response) {
 		return super.httpClient.post(`/clientcare/call/${this.version}/xds-questions`, response);
 	}
+
 }

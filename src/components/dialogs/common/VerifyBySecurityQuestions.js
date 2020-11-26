@@ -107,15 +107,11 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {
-			detail: {}
-		}));
+		this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	_onSkip() {
-		this.dispatchEvent(new CustomEvent(`skip`, {
-			detail: {}
-		}));
+		this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	_onContinueClick() {

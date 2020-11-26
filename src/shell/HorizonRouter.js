@@ -268,15 +268,16 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-				case `unverified`:
-				case `3rdparty`:
-					return true;
-				default:
-					return false;
-			}
+			return true;
+			// const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			// switch (routingInfo.verificationStatus) {
+			// 	case `verified`:
+			// 	case `unverified`:
+			// 	case `3rdparty`:
+			// 		return true;
+			// 	default:
+			// 		return false;
+			// }
 		},
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
