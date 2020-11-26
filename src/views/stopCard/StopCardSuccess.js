@@ -182,6 +182,8 @@ export class StopCardSuccess extends View {
 				}
 
 				.button-margin{
+					height: 104px;
+					width: 242px;
 					margin-right:16px;
 				}
 

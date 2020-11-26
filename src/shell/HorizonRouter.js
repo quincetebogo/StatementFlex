@@ -50,7 +50,7 @@ export class HorizonRouter {
 	_updateState(state) {
 		// On an F5/refresh, this function fires before state has been restored and does not fire
 		// again until after the guard functions in the routing table have fired. 
-		// If the guard functions rely on information from state, they then do not work properl;y
+		// If the guard functions rely on information from state, they then do not work properly
 		if (!state) {
 			state = HorizonStore.getInstance().recoverState();
 		}
@@ -272,17 +272,16 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
-		guard: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-				case `unverified`:
-				case `3rdparty`:
-					return true;
-				default:
-					return false;
-			}
-		},
+		guard: () => true,			// const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			// switch (routingInfo.verificationStatus) {
+			// 	case `verified`:
+			// 	case `unverified`:
+			// 	case `3rdparty`:
+			// 		return true;
+			// 	default:
+			// 		return false;
+			// }
+		
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {

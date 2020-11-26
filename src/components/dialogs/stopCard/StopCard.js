@@ -69,9 +69,7 @@ export class StopCard extends Component {
 	// PRIVATE METHODS
 	// ---------------
 	async _stopCards(cardsToStop, callerInfo) {
-		const cardService = new CardService();
-
-		const returnValue = await cardService.stopCards(cardsToStop, callerInfo);
+		const returnValue = await this.cardService.stopCards(cardsToStop, callerInfo);
 		const cardStopResults = returnValue.result;
 
 		return cardStopResults;

@@ -24,9 +24,9 @@ import 'app/components/dialogs/stopCard/AssignStopCard';
 const RENDER_MODE = {
 	PAGE_ONLY: -1,
 	CONFIRM_CALLER: 0,
-	SEARCH_CALLER: 1,
+	STOP_CARD_SEARCH: 1,
 	START_AGENT: 2,
-	INSURE_SEARCH_CALLER: 3
+	SEARCH_CALLER: 3
 };
 
 /**
@@ -150,8 +150,8 @@ export class LandingPage extends View {
 	async _acceptCall(newCallInfo, incident) {
 		console.log(`landing page - _acceptCall()`);
 
-		newCallInfo.IncidentReferenceNumber = incident.incidentNumber;
-		newCallInfo.IncidentRecId = incident.incidentRecId;
+		newCallInfo.incidentReferenceNumber = incident.incidentNumber;
+		newCallInfo.incidentRecId = incident.incidentRecId;
 
 		this.errorHandled = false;
 
@@ -172,48 +172,45 @@ export class LandingPage extends View {
 		}
 	}
 
-	_dispatchCall(acceptedCall, newCallInfo) {
+	_dispatchCall(acceptedCall, newCallInfo, forceSearch) {
 		this.callStatus = `CALL-IN-PROGRESS`;
 		const state = { callStatus: this.callStatus };
 		this.horizonStore.saveState(state);
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
-		switch (newCallInfo.IVROptionCode) {
+		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
-				// TODO: below code will actuall fire for all needs but StopCard. 
+			case `Transact`:
+					// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.incomingCallDetails.ivrOption.value = `Insure`;
-				this.unVerifiedCaller = acceptedCall;
+				this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 
-				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
+				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 					this.confirmedCaller = acceptedCall;
-					this.unVerifiedCaller = null;
 				} else {
-					this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.SEARCH_CALLER;
 				}
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog
-				if (this.callHandleService.isConfirmedCaller(acceptedCall)) {
+				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
-					this.incomingCallDetails.ivrOption.value = acceptedCall.ivrOption.value;
+					this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 					this.confirmedCaller = acceptedCall;
-					this.unVerifiedCaller = null;
 
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-				} else if (this.callHandleService.isUnverifiedCaller(acceptedCall)) {
+				} else if (forceSearch || this.callHandleService.isUnverifiedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
-					this.incomingCallDetails.ivrOption.value = acceptedCall.ivrOption.value;
-					this.unVerifiedCaller = acceptedCall;
+					tempFixIVROption(this.incomingCallDetails.ivrOption);
+					this.incomingCallDetails.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
 					this.confirmedCaller = null;
 
-					this.renderMode = RENDER_MODE.SEARCH_CALLER;
+					this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 				} else {
 					if (!this.errorHandled) {
 						const event = {
@@ -226,7 +223,6 @@ export class LandingPage extends View {
 					}
 
 					this.confirmedCaller = null;
-					this.unVerifiedCaller = null;
 					this.renderMode = RENDER_MODE.PAGE_ONLY;
 
 					// If accept call fails, we will be stuck on the landing page and unable to take calls unless
@@ -237,7 +233,7 @@ export class LandingPage extends View {
 			default:
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+				this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
 
@@ -256,10 +252,10 @@ export class LandingPage extends View {
 	_onConfirmedCaller(data) {
 
 		/**
-		 * Updating whether the incoming number is verified or unverified, which will be used in action bar
+		 * TODO: Updating whether the incoming number is verified or unverified, which will be used in action bar
 		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
 		 */
-		data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
+		// data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
 
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
@@ -329,12 +325,12 @@ export class LandingPage extends View {
 	}
 
 	_AddCallInfo(model, newCallInfo) {
-		model.incomingTelephoneNumber = newCallInfo.IncomingTelephoneNumber;
-		model.incidentReferenceNumber = newCallInfo.IncidentReferenceNumber;
-		model.incidentRecId = newCallInfo.IncidentRecId;
-		model.agentTelephoneNumber = newCallInfo.AgentTelephoneNumber;
-		model.ivrOptionCode = newCallInfo.IVROptionCode;
-		model.voiceReferenceNumber = newCallInfo.VoiceReferenceNumber;
+		model.incomingTelephoneNumber = newCallInfo.incomingTelephoneNumber;
+		model.incidentReferenceNumber = newCallInfo.incidentReferenceNumber;
+		model.incidentRecId = newCallInfo.incidentRecId;
+		model.agentTelephoneNumber = newCallInfo.agentTelephoneNumber;
+		model.ivrOptionCode = newCallInfo.ivrOptionCode;
+		model.voiceReferenceNumber = newCallInfo.voiceReferenceNumber;
 	}
 
 	// ---------
@@ -393,19 +389,18 @@ export class LandingPage extends View {
 	}
 
 	_renderUnverifiedUser() {
-		if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
+		if (this.renderMode === RENDER_MODE.STOP_CARD_SEARCH) {
 			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-stop-card-search-caller 
-					.unverifiedCaller="${this.unVerifiedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}">
 				</horizon-stop-card-search-caller>`;
-		} else if (this.renderMode === RENDER_MODE.INSURE_SEARCH_CALLER) {
+		} else if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
 			console.log(`render search caller for insure`);
 			return html`
-				<horizon-search-caller .unverifiedCaller="${this.unVerifiedCaller}"
+				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@non-client-captured="${event => this._onNonClientCaptured(event)}"
 					@on-client-identified="${(data) => this._onClientIdentified(data)}">

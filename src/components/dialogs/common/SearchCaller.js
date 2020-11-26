@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
+import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
-import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { InsureService } from 'app/services/InsureService';
@@ -27,6 +27,7 @@ const CLIENT_TYPE = {
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
+	SYSTEM_ERROR: `System error. Please try again later`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
@@ -132,7 +133,6 @@ export class SearchCaller extends Component {
 		};
 
 		this.alertBannerMessage = ``;
-		this.unverifiedCaller = null;
 
 		this.headerLabel = HEADER_LABEL;
 
@@ -168,7 +168,7 @@ export class SearchCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null); // TODO: remove calls to card service from here.
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ----------
@@ -181,7 +181,6 @@ export class SearchCaller extends Component {
 			renderMode: { type: Number },
 			clientType: { type: Number },
 			incomingCallDetails: { type: Object },
-			unverifiedCaller: { type: Object },
 			alertBannerMessage: { type: String }
 		};
 	}
@@ -201,8 +200,6 @@ export class SearchCaller extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-
-		this.ivrOption = this.unverifiedCaller.ivrOption;
 
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
@@ -230,27 +227,29 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		if (this._validaeFields()) {
+		if (this._validateFields()) {
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
-				ivrOption: this.ivrOption.value,
+				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else {
-				// TODO: handle case where search failes due to an exception differently?
+			}
+			else if (returnValue.succeeded && !identifiedClient) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
 		}
 	}
@@ -258,7 +257,6 @@ export class SearchCaller extends Component {
 	_onIvrOptionChanged(e) {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.unverifiedCaller.ivrOption.value = e.detail.new;
 
 		if (e.detail.new === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOPCARD_SEARCH_CALLER;
@@ -295,7 +293,7 @@ export class SearchCaller extends Component {
 			if (!returnValue.succeeded) {
 				// TODO: Handle errors if call fails
 			}
-	
+
 			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
@@ -332,7 +330,7 @@ export class SearchCaller extends Component {
 				this.errMessage.nameValue = ``;
 			};
 
-			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) { 
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) {
 				this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
 			} else {
 				this.errMessage.surNameValue = ``;
@@ -356,7 +354,7 @@ export class SearchCaller extends Component {
 		return true;
 	}
 
-	_validaeFields() {
+	_validateFields() {
 
 		const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
@@ -643,7 +641,7 @@ export class SearchCaller extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error-trans" label="${this.alertBannerMessage}"></capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -652,11 +650,16 @@ export class SearchCaller extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button type="primary" @click="${(e) => this._onSearchClient(e)}" label="Search Client"
+				<capitec-button 
+					type="primary" 
+					@click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button type="primary" @click="${(e) => this._onContinue(e)}" label="Continue" ?hidden=${this.clientType !==
-			CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button 
+					type="primary" 
+					@click="${(e) => this._onContinue(e)}" 
+					label="Continue" 
+					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
@@ -672,7 +675,6 @@ export class SearchCaller extends Component {
 	_renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller 
-				.unverifiedCaller="${this.unverifiedCaller}" 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-stop-card-search-caller>`;

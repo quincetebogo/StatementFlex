@@ -6,7 +6,6 @@ import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
-import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
@@ -26,19 +25,42 @@ const RENDER_MODE = {
 const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
-	REQUIRED_FIELDS_EMPTY: `All fields are required`,
-	0: `Incorrect ID/Passport number`,
-	1: `Incorrect foreign passport number`,
-	2: `Incorrect account number`,
-	3: `Incorrect reference number`,
-	4: `Incorrect Capitec cellphone number`
+	SYSTEM_ERROR: `System error. Please try again later`,
+	REQUIRED_FIELDS_EMPTY: {
+		ALERT_BANNER: `All fields are required`,
+		SEARCH_TEXT: `This is a Required field`,
+		SEARCH_OPTION: `Choose an Identification Method`
+	},
+	NOT_FOUND: {
+		0: {
+			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
+		},
+		1: {
+			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
+		},
+		2: {
+			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
+		},
+		3: {
+			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
+		},
+		4: {
+			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
+		}
+	}
 };
 
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
-		ERR_MESSAGE: `ID Number must be 13 characters long`
+		ERR_MESSAGE: `ID Number must be 13 characters long`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
 		PATTERN: /^/,
@@ -46,15 +68,18 @@ const REGEX_PATTERNS = {
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: `Account number must be 10 characters long`
+		ERR_MESSAGE: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
 		PATTERN: /^[0-9]{8}$/,
-		ERR_MESSAGE: `Either it is Alphanumeric or not equal to 8 digits`
+		ERR_MESSAGE: `Either it is Alphanumeric or not equal to 8 digits`,
+		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: `Cellphone Number must be 10 characters long`
+		ERR_MESSAGE: `Cellphone Number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
 	}
 };
 
@@ -76,12 +101,10 @@ export class StopCardSearchCaller extends Component {
 			searchFieldText: ``
 		};
 
-		this.unverifiedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -92,7 +115,6 @@ export class StopCardSearchCaller extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} unverifiedCaller  - Incoming caller without a verified telephone number
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * 
 	 * @readonly
@@ -101,12 +123,12 @@ export class StopCardSearchCaller extends Component {
 	 */
 	static get properties() {
 		return {
-			unverifiedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			isBusy: { type: Boolean },
 			errMessage: { type: Object },
 			renderMode: { type: Number },
-			alertBannerMessage: { type: String }
+			alertBannerMessage: { type: String },
+			identificationMethods: { type: Object }
 		};
 	}
 
@@ -123,27 +145,18 @@ export class StopCardSearchCaller extends Component {
 
 		// Setup references into the incoming model. The following sets up references to 
 		// fields commmon to both incoming models
-		this.voiceReferenceNumber = this.unverifiedCaller.voiceReferenceNumber;
+		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 
-		this.ivrOption = this.unverifiedCaller.ivrOption;
-		this.incomingTelephoneNumber = this.unverifiedCaller.incomingTelephoneNumber;
+		this.ivrOption = this.incomingCallDetails.ivrOption;
+		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this.incomingCallDetails.ivrOption = this.unverifiedCaller.ivrOption;
+		this._loadSearchOptions();
 
-		if (this.callHandleService.isConfirmedCaller(this.unverifiedCaller)) {
-			// We are coming from the confirmed user dialog
-			this._loadSearchOptions();
-
-			this.isUnverifiedNumber = this.unverifiedCaller.isUnverifiedNumber;
-		} else {
-			// We are coming from the landing page/Desktop Agent event.
-			this.identificationMethodsList = this.unverifiedCaller.identificationMethods;
-			this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-		}
+		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.searchFieldText = null;
 	}
@@ -173,8 +186,8 @@ export class StopCardSearchCaller extends Component {
 			console.log(`service call`);
 
 			const searchClient = {
-				incomingTelephoneNumber: this.unverifiedCaller.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.unverifiedCaller.voiceReferenceNumber.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber,
+				voiceReferenceNumber: this.voiceReferenceNumber,
 				incidentNo: this.incidentReferenceNumber,
 				agentTelephoneNumber: this.agentTelephoneNumber,
 				ivrOption: this.ivrOption.value,
@@ -182,15 +195,17 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.cardService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else {
-				// TODO: check error handling for when the error is a service call failure
-				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
+			} else if (returnValue.succeeded && !identifiedClient) {
+				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
 		}
 	}
@@ -231,28 +246,26 @@ export class StopCardSearchCaller extends Component {
 		}));
 	};
 
-	_loadSearchOptions() {
+	async _loadSearchOptions() {
 		const clientInfo = {
-			"incomingTelephoneNumber": this.incomingTelephoneNumber.value,
-			"voiceReferenceNumber": this.voiceReferenceNumber.value,
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"ivrOptionCode": this.ivrOption.value,
 			"incidentReferenceNumber": this.incidentReferenceNumber,
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		this.cardService.searchOptions(clientInfo, null)
-			.then((returnValue) => {
-				const options = returnValue.result;
+		const returnValue = await this.callHandleService.searchOptions(clientInfo, null);
+		const options = returnValue.result;
 
-				if (returnValue.succeeded) {
-					this.identificationMethodsList = options.identificationMethods;
-					if (this.identificationMethodsList !== undefined) {
-						this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-					}
-				} else {
-					// TODO: Handle error when searchOptions call failes
-				}
-			});
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		} else {
+			// TODO: Handle error when searchOptions call failes
+		};
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -269,16 +282,17 @@ export class StopCardSearchCaller extends Component {
 	validateFields() {
 		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
-			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.ALERT_BANNER;
 			return false;
 		}
 
 		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
 		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
+		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.value].ALERT_BANNER;
 
 		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
-			this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
+			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
 		}
 
@@ -287,8 +301,8 @@ export class StopCardSearchCaller extends Component {
 
 	isRequiredFieldsEmpty() {
 
-		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? `This is a Required field` : ``;
-		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? `Choose an Identification Method` : ``;
+		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_TEXT : ``;
+		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_OPTION : ``;
 
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
@@ -342,7 +356,7 @@ export class StopCardSearchCaller extends Component {
 				}
 
 				.search-box{
-					height: 310px;
+					height: inherit;
 					padding: 21px 17px 0px 16px;
 				}
 				.search-label{
@@ -390,11 +404,8 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog 
-							.incomingCallDetails="${this.incomingCallDetails}" 
-							.headerLabel="${HEADER_LABEL}"
-							@on-end-call="${() => this._onEndCall()}" 
-							@on-need-changed="${(event) => this._onNeedChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
+						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -424,38 +435,21 @@ export class StopCardSearchCaller extends Component {
 		<capitec-content-box class="search-box">
 			<capitec-label class="search-label" label="Search existing client"></capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group 
-					layout="vertical" 
-					gap="none" 
-					halign="stretch" 
-					valign="top"
-					class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
+				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select 
-						id="identificationMethods" 
-						error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" 
-						class="id-options"
+					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						tabindex="${getTabIndex(this.identificationMethods)}"
-						?hidden=${isHidden(this.identificationMethods)} 
-						id-field="key" 
-						display-field="displayText">
+						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
+					</capitec-select>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
-					<capitec-text-field 
-						id="searchFieldText" 
-						type="search" 
-						keyboardMode="numeric" 
-						label="Search"
-						error="${this.errMessage.searchFieldText}" 
-						focussed 
-						hint="" 
-						@key-input="${(e) => this._onKeyPress(e)}"
-						@value-changed="${(e) => this._valueChanged(e)}" 
-						value="">
+					<capitec-text-field id="searchFieldText" type="search" keyboardMode="numeric" label="Search"
+						error="${this.errMessage.searchFieldText}" focussed hint="" @key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" value="">
 					</capitec-text-field>
 				</div>
 			</capitec-group>
@@ -475,10 +469,7 @@ export class StopCardSearchCaller extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button 
-					id="id-search-button" 
-					type="primary" 
-					@click="${(e) => this._onSearchClick(e)}"
+				<capitec-button id="id-search-button" type="primary" @click="${(e) => this._onSearchClick(e)}"
 					label="Search Client">
 				</capitec-button>
 			</capitec-group>`;
@@ -486,17 +477,14 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
 
 	renderInsureSearchModal() {
 		return html`
-			<horizon-search-caller 
-				.unverifiedCaller="${this.unverifiedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
 				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
 				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
 			</horizon-search-caller>`;

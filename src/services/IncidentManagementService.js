@@ -43,9 +43,9 @@ export class IncidentManagementService extends ServiceBase {
 	createIncident(incidentData, errorHandler = null) {
 		const createIncidentRequest = {
 			"networkUserName": SecurityContext.getInstance().username,
-			"cli": incidentData.IncomingTelephoneNumber,
+			"cli": incidentData.incomingTelephoneNumber,
 			"vdn": incidentData.VDN,
-			"ucid": incidentData.VoiceReferenceNumber
+			"ucid": incidentData.voiceReferenceNumber
 		};
 
 		return this.serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest), errorHandler);
