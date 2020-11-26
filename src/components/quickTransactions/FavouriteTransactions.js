@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-
+import { CallHandleService } from 'app/services/CallHandleService';
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
@@ -15,10 +15,11 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
-
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.verificationStatus = ``;
 		this.displayToast = false;
 		this.landingPageInfo = null;
+		this.isBusy = false;
 	}
 
 	// --------------
@@ -37,10 +38,10 @@ export class FavouriteTransactions extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object }, 
+			landingPageInfo: { type: Object },
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-
+			isBusy: { type: Boolean },
 			verificationStatus: { type: String },
 			displayToast: { type: Boolean }
 		};
@@ -67,6 +68,10 @@ export class FavouriteTransactions extends Component {
 
 	_toggleToastDisplay() {
 		this.displayToast = false;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// --------------
@@ -232,8 +237,8 @@ export class FavouriteTransactions extends Component {
 						<capitec-label id="id-notify-client-warning-msg"
 							label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now"
-							@click="${() => this._verifyNowClick()}"></capitec-hyperlink>
+						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._verifyNowClick()}">
+						</capitec-hyperlink>
 					</capitec-group>
 				</capitec-alert-banner>
 			`;
@@ -257,12 +262,8 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
 				<capitec-button-bar>
-					<horizon-option-button 
-						badgeText="${this.landingPageInfo.pendingMandateCount}" 
-						icon="system/debi-check-action" 
-						iconSize="default" 
-						label="DebiCheck"
-						@click="${() => this._optionSelectedClick(`debi-check`)}">
+					<horizon-option-button badgeText="${this.landingPageInfo.pendingMandateCount}" icon="system/debi-check-action"
+						iconSize="default" label="DebiCheck" @click="${() => this._optionSelectedClick(`debi-check`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -300,6 +301,15 @@ export class FavouriteTransactions extends Component {
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`
+		<capitec-loading-indicator></capitec-loading-indicator>
+		`;
+		}
+		return html``;
 	}
 }
 

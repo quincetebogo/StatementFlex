@@ -3,6 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 
 import { HorizonStore } from 'app/store/HorizonStore';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/quickTransactions/FavouriteTransactions';
@@ -10,7 +11,7 @@ import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 const RENDER_MODE = {
 	VERIFY_CALLER: 0,
-	CONTINUE_TRANSACT: 1
+	// CONTINUE_TRANSACT: 1
 };
 export class ItaVerificationFailed extends View {
 	// --------------
@@ -24,6 +25,7 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = {};
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.isBusy = false;
 		this.securityQuestions = {};
 		this.incomingCallDetails = {};
@@ -53,6 +55,8 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 
+
+
 	}
 
 	// -------------
@@ -73,7 +77,7 @@ export class ItaVerificationFailed extends View {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
-					message: `Failed to retrieve security questions from XDS`
+					message: `Failed to retrieve security questions from ITA`
 				};
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
@@ -82,6 +86,15 @@ export class ItaVerificationFailed extends View {
 		}
 	}
 
+	_continueToTransactionsUnverified() {
+		let clientInfo = this.callerInformation.verificationStatus;
+
+		if (clientInfo = `unverified`) {
+			this.horizonRouter.navigateToQuickTransactionFavourites();
+		}
+		else
+			console.log(`service call failed`);
+	}
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -91,8 +104,8 @@ export class ItaVerificationFailed extends View {
 	}
 
 	_skip() {
-		this.renderMode = RENDER_MODE.CONTINUE_TRANSACT;
 		this.horizonstore.saveState({ callerInformation: { verificationStatus: `failed` } });
+		// this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	// ---------
 	// RENDERING
@@ -115,7 +128,7 @@ export class ItaVerificationFailed extends View {
 
 	_leftClick() {
 		console.log(`left`);
-		this.renderMode = RENDER_MODE.CONTINUE_TRANSACT;
+		this._continueToTransactionsUnverified();
 	}
 
 	_rightClick() {
@@ -128,11 +141,11 @@ export class ItaVerificationFailed extends View {
 
 	_webTemplate() {
 		return html`
-			${this._renderContinueUnverified()}
+		
 			${this._renderVerifySecurityQuestions()}
 			${this._renderLoadingIndicator()}
 			<horizon--error-screen header="Verification was unsuccessful" left="Continue Unverified"
-				right="Verify Via Security Questions" toast="Your Verification has failed." @left-click=${()=> this._leftClick()}
+				right="Verify Via Security Questions" toast="Your Verification has failed." @left-click=${() => this._leftClick()}
 				@right-click=${() => this._rightClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after
 					24 hours.</section>
@@ -140,14 +153,14 @@ export class ItaVerificationFailed extends View {
 		`;
 	}
 
-	_renderContinueUnverified() {
-		if (this.renderMode === RENDER_MODE.CONTINUE_TRANSACT) {
-			return html`
-				<horizon-favourites-transactions></horizon-favourites-transactions>
-			`;
-		}
-		else return html``;
-	}
+	// _renderContinueUnverified() {
+	// 	if (this.renderMode === RENDER_MODE.CONTINUE_TRANSACT) {
+	// 		return html`
+	// 			<horizon-favourites-transactions></horizon-favourites-transactions>
+	// 		`;
+	// 	}
+	// 	else return html``;
+	// }
 	_renderVerifySecurityQuestions() {
 		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
 			return html`
