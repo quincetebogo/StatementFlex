@@ -255,13 +255,6 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
-	InsureProducts(clientDetails) {
-		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
-			`IdNumber=${clientDetails.IdNumber}&` +
-			`Cif=${clientDetails.CifNumber}&` +
-			`IsCallerVerified=${clientDetails.IsCallerVerified}`);
-	}
-
 	// ----------------
 	// XDS Questions Methods
 	// ----------------
