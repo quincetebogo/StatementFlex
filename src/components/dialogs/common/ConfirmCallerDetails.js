@@ -101,8 +101,8 @@ export class ConfirmCallerDetails extends Component {
 	async _onAddCallerDetails() {
 
 		const callDetails = {
-			incomingNumber: this.incomingTelephoneNumber.value,
-			voiceReference: this.voiceReferenceNumber.value,
+			incomingNumber: this.incomingTelephoneNumber,
+			voiceReference: this.voiceReferenceNumber,
 			ivrOption: this.incomingCallDetails.ivrOption.value,
 			incidentNo: this.incidentReferenceNumber,
 			agentPhoneNumber: this.agentTelephoneNumber
@@ -119,7 +119,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onAddCallerDetailsReturn(data) {
-		this.confirmedCaller.ivrOption.value = data.detail.ivrOptionValue;
+		this.confirmedCaller.ivrOptionCode = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOption.value = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOptionCode = data.detail.ivrOptionValue;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
@@ -191,9 +191,11 @@ export class ConfirmCallerDetails extends Component {
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
-			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
-				callerInformation: callerInformation, 
-				clientProfileDetails: clientProfileDetails });
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation,
+				clientProfileDetails: clientProfileDetails
+			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
@@ -222,7 +224,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onIvrOptionChanged(e) {
-		this.confirmedCaller.ivrOption.value = e.detail.new;
+		this.confirmedCaller.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 	}
@@ -267,10 +269,10 @@ export class ConfirmCallerDetails extends Component {
 				// TODO: Still need to determine if client has insure products or not
 				// this.horizonRouter.navigateToInsureProspectiveClient();
 				if (this.hasInsurance) {
- this.horizonRouter.navigateToInsureExistingClient(); 
-} else {
- this.horizonRouter.navigateToInsureProspectiveClient; 
-}
+ 					this.horizonRouter.navigateToInsureExistingClient(); 
+				} else {
+ 					this.horizonRouter.navigateToInsureProspectiveClient(); 
+				}
 				break;
 			case `Transact`:
 				this.horizonRouter.navigateToQuickTransactionFavourites();

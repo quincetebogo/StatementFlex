@@ -135,8 +135,6 @@ export class VerifyBySecurityQuestions extends Component {
 			this.alertBannerMessage = ``;
             this.checked = false;
 
-			console.log(this.securityQuestions);
-	
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
 	
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
