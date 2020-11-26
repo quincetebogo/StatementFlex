@@ -122,20 +122,9 @@ export class VerifyCaller extends Component {
 		}
 	}
 
-	_onSkipVerification(e) {
+	_skip() {
 		this.callerInformation.verificationStatus = `unverified`;
 
-		const state = {
-			callerInformation: callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
-
-	}
-
-
-	_skip() {
 		const state = {
 			callerInformation: this.callerInformation,
 			incomingCallDetails: this.incomingCallDetails
