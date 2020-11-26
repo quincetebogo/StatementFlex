@@ -369,7 +369,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-							${this._renderLoadingIndicator()}}
+							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
