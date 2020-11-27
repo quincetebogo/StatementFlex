@@ -369,7 +369,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-							${this._renderLoadingIndicator()}}
+							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -402,7 +402,7 @@ export class VerifyBySecurityQuestions extends Component {
 		if (index === this.questionNumber) {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
-				<capitec-label class="question-label" label="${item.question}"></capitec-label>
+				<capitec-label class="question-label" label="${item.question.replace(/(\r\n|\n|\r)/gm, "")}"></capitec-label>
 				<horizon-radio-button 
 					class="radio-button" 
 					.radioButtonsAvailable="${answers}"
