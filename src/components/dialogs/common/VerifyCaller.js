@@ -162,32 +162,7 @@ export class VerifyCaller extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		try {
-			if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: ${exception.status} - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `${context}: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} finally {
-		}
-
+		this.xdsMessage = `XDS SYSTEM ERROR: Unable to retrieve security questions`;
 		return true;
 	}
 
@@ -445,7 +420,6 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-
 		if (!this.isBusy) {
 			return html``;
 		};
