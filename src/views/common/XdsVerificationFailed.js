@@ -1,5 +1,16 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+
 import 'app/components/common/ErrorScreen';
+
+/**
+ * The XDS Verification Failed screen is displayed the second time a client fails verification.
+ *
+ * @export
+ * @class XdsVerificationFailed
+ * @extends {View}
+ */
 export class XdsVerificationFailed extends View {
 	// --------------
 	// INITIALISATION
@@ -15,6 +26,24 @@ export class XdsVerificationFailed extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+
+		this.state = this.horizonStore.recoverState();
+
+		this.navigateToUnverifiedLandingPage = ivrOption => {
+
+			const stopCard = () => this.horizonRouter.navigateToStopCard();
+			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+			const insure = this.state.callerInformation.hasInsuranceProducts ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
+
+			return {
+				StopCard: stopCard,
+				Transact: transact,
+				Insure: insure
+			}[ivrOption];
+		};
 	}
 
 	// ----------
@@ -40,8 +69,8 @@ export class XdsVerificationFailed extends View {
 		];
 	}
 
-	_leftClick() {
-		console.log(`left`);
+	_continueUnverifiedClick() {
+		this.navigateToUnverifiedLandingPage(this.state.incomingCallDetails.ivrOptionCode)();
 	}
 
 	_rightClick() {
@@ -58,7 +87,7 @@ export class XdsVerificationFailed extends View {
 				left="Continue Unverified"
 				right="Verify Via Banking App"
 				toast="Your Verification has failed."
-				@left-click=${() => this._leftClick()}
+				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => this._rightClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>
 			</horizon--error-screen>
