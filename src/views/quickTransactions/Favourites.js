@@ -48,8 +48,8 @@ export class Favourites extends View {
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -129,20 +129,23 @@ export class Favourites extends View {
 			isCallerVerified: this.callerInformation.verificationStatus === `verified`
 		};
 			
-		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest, null);
+		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
-		returnValue.succeeded = true;
 		if (returnValue.succeeded) {
 			this.isLoading = false;
 			this.landingPageInfo = returnValue.result;
+
+			// Now we can update the infomration on the product buttons as well
+			this._updateLeftBar();
+
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+			this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
 		}
+	}
 
-		// Now we can update the infomration on the product buttons as well
-		this._updateLeftBar();
-
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
 	}
 
 	_updateTopBar() {
@@ -201,7 +204,7 @@ export class Favourites extends View {
 			nonClientRelationship: this.callerInformation.nonClientRelationship
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -212,8 +215,6 @@ export class Favourites extends View {
 				callerInformation: this.callerInformation, 
 				clientProfileDetails: clientProfileDetails });
 			this.horizonRouter.navigateToStopCard();
-		} else {
-			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
 		}
 	}
 
