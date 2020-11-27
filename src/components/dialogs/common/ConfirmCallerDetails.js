@@ -5,9 +5,9 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { EventAggregator } from 'platform/EventAggregator';
 import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
@@ -190,7 +190,7 @@ export class ConfirmCallerDetails extends Component {
 			hasInsuranceProducts: this.hasInsurance 
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -201,13 +201,10 @@ export class ConfirmCallerDetails extends Component {
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
-			// TODO: Handle Identify Caller failing
-			const event = {
-				from: `UI-CS`,
-				status: `error`,
-				message: `System Error`
-			};
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation
+			});
 			this.horizonRouter.navigateToSystemError();
 		}
 	}
