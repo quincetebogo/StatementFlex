@@ -190,6 +190,7 @@ export class VerifyCaller extends Component {
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= 2) {
+					this.callerInformation.verificationStatus = `failed`;
 					this.horizonStore.saveState({
 						incomingCallDetails: this.incomingCallDetails,
 						callerInformation: this.callerInformation

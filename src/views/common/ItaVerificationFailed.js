@@ -10,7 +10,10 @@ import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 const RENDER_MODE = {
-	VERIFY_CALLER: 0,
+	MAIN_PAGE: 0,
+	VERIFY_CALLER: 1,
+	END_CALL: 2,
+	SELECT_ASSIGN_REASON: 3
 	// CONTINUE_TRANSACT: 1
 };
 export class ItaVerificationFailed extends View {
@@ -54,8 +57,13 @@ export class ItaVerificationFailed extends View {
 
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
+		this._updateLeftBar();
+		this._updateTopBar();
 
 
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyUsingSecurityQuestions());
 
 	}
 
@@ -86,14 +94,41 @@ export class ItaVerificationFailed extends View {
 		}
 	}
 
-	_continueToTransactionsUnverified() {
-		let clientInfo = this.callerInformation.verificationStatus;
+	_updateTopBar() {
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
+			{
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
+	}
 
-		if (clientInfo = `unverified`) {
-			this.horizonRouter.navigateToQuickTransactionFavourites();
-		}
-		else
-			console.log(`service call failed`);
+	_updateLeftBar() {
+		const state = {
+			miniProfile: {
+				name: this.callerInformation.name,
+				idNumber: this.callerInformation.southAfricanIDNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				livesIn: this.callerInformation.livesIn,
+				languagePreference: this.callerInformation.languagePreference,
+				birthday: this.callerInformation.birthdate,
+				showButtons: false,
+				isConfirmed: false,
+				isVerified: this.callerInformation.verificationStatus === `verified`,
+				verificationFailed: this.callerInformation.verificationStatus === `failed`,
+				is3rdParty: false,
+				isNonClient: false
+			},
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
+
+		this.horizonStore.saveState(state);
 	}
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -107,6 +142,19 @@ export class ItaVerificationFailed extends View {
 		this.horizonstore.saveState({ callerInformation: { verificationStatus: `failed` } });
 		// this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_onCancelEndCall() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_onAssignIncident() {
+		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -128,7 +176,7 @@ export class ItaVerificationFailed extends View {
 
 	_leftClick() {
 		console.log(`left`);
-		this._continueToTransactionsUnverified();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_rightClick() {

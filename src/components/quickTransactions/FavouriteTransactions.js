@@ -262,8 +262,9 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
 				<capitec-button-bar>
-					<horizon-option-button badgeText="${this.landingPageInfo.pendingMandateCount}" icon="system/debi-check-action"
-						iconSize="default" label="DebiCheck" @click="${() => this._optionSelectedClick(`debi-check`)}">
+					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
+						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
+						@click="${() => this._optionSelectedClick(`debi-check`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;

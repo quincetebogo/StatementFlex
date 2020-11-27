@@ -248,8 +248,8 @@ export class MiniProfile extends Component {
 			`
 		];
 	}
-	
-	_webTemplate() { 
+
+	_webTemplate() {
 		return html`
 			<capitec-card class="hello-card">
 				<capitec-group class="client-details-group" layout="grid" gap="none" rows="auto" columns="auto">
@@ -267,9 +267,7 @@ export class MiniProfile extends Component {
 	_renderClientImage() {
 		return html`
 			<div class="client-img">
-				<capitec-icon 
-					size="large" 
-					icon="system/client-insights-error">
+				<capitec-icon size="large" icon="system/client-insights-error">
 				</capitec-icon>
 			</div>`;
 	}
@@ -277,60 +275,36 @@ export class MiniProfile extends Component {
 	_renderClientPersonalInfo() {
 		return html`
 			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-				<capitec-label 
-					class="name-row"
-					row="1" column="1" 
-					label="${this.miniProfile.name}" 
-					type="subtitle">
+				<capitec-label class="name-row" row="1" column="1" label="${this.miniProfile.name}" type="subtitle">
 				</capitec-label>
 				<span row="2" column="1">
-					<capitec-label 
-						label="ID Number: " 
-						type="subtitle">
+					<capitec-label label="ID Number: " type="subtitle">
 					</capitec-label>
-					<capitec-label 
-						label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" 
-						type="subtitle">
+					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle">
 					</capitec-label>
 				</span>
 				<span row="3" column="1">
-					<capitec-label 
-						label="Contact Number: " 
-						type="subtitle">
+					<capitec-label label="Contact Number: " type="subtitle">
 					</capitec-label>
-					<capitec-label 
-						label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" 
-						type="subtitle">
+					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle">
 					</capitec-label>
 				</span>
 				<span row="4" column="1">
-					<capitec-label 
-						label="Lives In: " 
-						type="subtitle">
+					<capitec-label label="Lives In: " type="subtitle">
 					</capitec-label>
-					<capitec-label 
-						label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" 
-						type="subtitle">
+					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle">
 					</capitec-label>
 				</span>
 				<span row="5" column="1">
-					<capitec-label 
-						label="Language Preference: " 
-						type="subtitle">
+					<capitec-label label="Language Preference: " type="subtitle">
 					</capitec-label>
-					<capitec-label 
-						label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" 
-						type="subtitle">
+					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle">
 					</capitec-label>
 				</span>
 				<span row="6" column="1">
-					<capitec-label 
-						label="Birthday: " 
-						type="subtitle">
+					<capitec-label label="Birthday: " type="subtitle">
 					</capitec-label>
-					<capitec-label 
-						label="${this._formatBirthDate(this.miniProfile.birthday)}" 
-						type="subtitle">
+					<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle">
 					</capitec-label>
 				</span>
 			</capitec-group>`;
@@ -344,18 +318,12 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button
-						label="View profile"
-						icon="system/profile-action"
-						iconSize="default"
+					<horizon-option-button label="View profile" icon="system/profile-action" iconSize="default"
 						@click="${() => this._onViewProfileClick()}">
 					</horizon-option-button>
-
-					<horizon-option-button
-						label="Document"
-						icon="system/documents-action"
-						iconSize="default"
-						@click=${() => this._onDocumentClick()}>
+			
+					<horizon-option-button label="Document" icon="system/documents-action" iconSize="default" @click=${()=>
+						this._onDocumentClick()}>
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-content-box>
@@ -375,11 +343,12 @@ export class MiniProfile extends Component {
 			return html`
 			<capitec-alert-banner class="banner" type="unsuccessful-red">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label id="id-verify-via-app-msg" label="Client failed security questions"></capitec-label>
+					<capitec-label id="id-verify-via-app-msg" label="Verification Unsuccessful"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaAppClick()}" label="Verify via the app">
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaAppClick()}"
+						label="Verify via Security Questions">
 					</capitec-hyperlink>
-				</capitec-group>				
+				</capitec-group>
 			</capitec-alert-banner>
 			`;
 		};
@@ -387,14 +356,15 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-alert-banner class="banner" type="warning">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
-					<capitec-label id = "id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
+					<capitec-label id="id-notify-client-warning-msg" label="Client has not been verified"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="id-verify-now-warning-link" @click="${() => this._onVerifyNowClick()}" label="Verify Now">
+					<capitec-hyperlink id="id-verify-now-warning-link" @click="${() => this._onVerifyNowClick()}"
+						label="Verify Now">
 					</capitec-hyperlink>
-				</capitec-group>				
+				</capitec-group>
 			</capitec-alert-banner>
 			`;
-	} 
+	}
 }
 
 window.customElements.define(`horizon-mini-profile`, MiniProfile);
