@@ -190,18 +190,23 @@ export class VerifyCaller extends Component {
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= 2) {
-					this.callerInformation.verificationStatus = `failed`;
-					this.horizonStore.saveState({
-						incomingCallDetails: this.incomingCallDetails,
-						callerInformation: this.callerInformation
-					});
-					this.horizonRouter.navigateToItaVerificationFailed();
+					this._navigateToVerificationFailed();
 				}
 			}
 
 			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
+	}
+
+	_navigateToVerificationFailed() {
+		this.callerInformation.verificationStatus = `failed`;
+
+		this.horizonStore.saveState({
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		});
+		this.horizonRouter.navigateToItaVerificationFailed();
 	}
 
 	// ---------

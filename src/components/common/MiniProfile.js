@@ -92,8 +92,8 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-now-click`, {});
 	}
 
-	_onVerifyViaAppClick() {
-		this.eventAggregator.publish(`horizon-verify-via-app-click`, {});
+	_onVerifyViaSecurityQuestions() {
+		this.eventAggregator.publish(`horizon-verify-via-security-questions`, {});
 	}
 
 	// --------- 
@@ -244,6 +244,7 @@ export class MiniProfile extends Component {
 				--theme-hyperlink-color:#C83C37;
 				--theme-font-family: "Hind Vadodara";
 				--theme-font-weight: 600;
+				text-decoration: underline;
 			}
 			`
 		];
@@ -345,7 +346,7 @@ export class MiniProfile extends Component {
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
 					<capitec-label id="id-verify-via-app-msg" label="Verification Unsuccessful"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaAppClick()}"
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaSecurityQuestions()}"
 						label="Verify via Security Questions">
 					</capitec-hyperlink>
 				</capitec-group>

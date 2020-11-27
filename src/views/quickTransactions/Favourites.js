@@ -165,7 +165,7 @@ export class Favourites extends View {
 				livesIn: this.callerInformation.livesIn,
 				languagePreference: this.callerInformation.languagePreference,
 				birthday: this.callerInformation.birthdate,
-				showButtons: true,
+				showButtons: this.callerInformation.verificationStatus != `failed`,
 				isConfirmed: true,
 				isVerified: this.callerInformation.verificationStatus === `verified`,
 				verificationFailed: this.callerInformation.verificationStatus === `failed`,
