@@ -5,11 +5,18 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/ErrorScreen';
 import 'app/components/dialogs/common/EndCallSession';
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	SYSTEM_ERROR: 0,
 	END_CALL: 1
-};
+});
 
+/**
+ * A general System Error Screen that can be displayed when channel service calls fail. 
+ *
+ * @export
+ * @class SystemError
+ * @extends {View}
+ */
 export class SystemError extends View {
 
 	// --------------
@@ -51,7 +58,7 @@ export class SystemError extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 
 			if (this.incomingCallDetails) {
 				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
@@ -68,18 +75,14 @@ export class SystemError extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_onEndCallSession() {
+	_onEndCallClick() {
 		if (this.incomingCallDetails) {
 			this.renderMode = RENDER_MODE.END_CALL;
 		}
 	}
 
-	_leftClick() {
-		console.log(`left`);
-	}
-
-	_rightClick() {
-		console.log(`right`);
+	_assignClick() {
+		console.log(`Assign is still to be developed`);
 	}
 
 	// ---------
@@ -107,7 +110,7 @@ export class SystemError extends View {
 	_webTemplate() {
 		return html`
 			${this._renderSystemError()}
-			${this._renderEndCallSessionDialog()}
+			${this._renderEndCallSessionModal()}
 		`;
 	}
 
@@ -119,13 +122,13 @@ export class SystemError extends View {
 					left=""
 					right="Assign"
 					toast="Network error"
-					@right-click=${() => this._rightClick()}>
+					@right-click=${() => this._assignClick()}>
 					<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
 				</horizon--error-screen>`;
 		}
 	}
 
-	_renderEndCallSessionDialog() {
+	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 

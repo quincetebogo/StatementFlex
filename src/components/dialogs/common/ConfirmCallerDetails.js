@@ -147,9 +147,9 @@ export class ConfirmCallerDetails extends Component {
 			isCallerVarified: false
 		};
 
-		const returnProducts = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, null);
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
-		if (returnProducts.result.hasInsurance) {
+		if (returnValue.succeeded && returnValue.result.hasInsurance) {
 			// Save hasInsuranceProducts value in horizonStore
 			this.hasInsurance = true;
 		} else {

@@ -107,8 +107,9 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _verifyUsingSecurityQuestions() {
+    async _verifyUsingSecurityQuestions() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
+
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
 
 		if (returnValue.succeeded) {
@@ -116,8 +117,7 @@ export class VerifyCaller extends Component {
 
 			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0 && this.securityQuestions.authenticationPermitted) {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			}
-			else if (!this.securityQuestions.authenticationPermitted) {
+			} else if (!this.securityQuestions.authenticationPermitted) {
 
 				this.callerInformation.verificationStatus = `failed`;
 
@@ -129,8 +129,7 @@ export class VerifyCaller extends Component {
 				this.horizonStore.saveState(state);
 
 				this.horizonRouter.navigateToXdsVerificationFailed();
-			}
-			else {
+			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
 		}

@@ -10,14 +10,14 @@ import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/quickTransactions/FavouriteTransactions';
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
 	END_CALL: 1,
 	SELECT_ASSIGN_REASON: 2,
 	ASSIGN: 3,
 	VERIFY_NOW: 4,
 	ALERT_MODAL: 5
-};
+});
 
 /**
  * The Quick Transactions Favourites Landing Page View
@@ -36,6 +36,7 @@ export class Favourites extends View {
 
 		this.isLoading = true;
 		this.isReassigned = false;
+		this.landingPageInfo = null;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
@@ -48,6 +49,11 @@ export class Favourites extends View {
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
 
+		// Subscribe to shell events
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyNowClick());
+				
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -76,23 +82,23 @@ export class Favourites extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_onEndCallSession() {
+	_endCallClick() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_onCancelEndCall() {
+	_cancelEndCallClick() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_onAssignIncident() {
+	_assignIncidentClick() {
 		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
 	}
 
-	_onVerifyNowClick() {
+	_verifyNowClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 	
-	_onSkipVerification() {
+	_skipVerificationClick() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -109,7 +115,7 @@ export class Favourites extends View {
 			case `proof-of-account`:
 			default:
 				if (this.callerInformation.verificationStatus !== `verified`) {
-					this._disabledOption();
+					this._unavailableOption();
 				}
 		}
 	}
@@ -128,19 +134,16 @@ export class Favourites extends View {
 			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 			isCallerVerified: this.callerInformation.verificationStatus === `verified`
 		};
-			
+
 		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
 		if (returnValue.succeeded) {
 			this.isLoading = false;
 			this.landingPageInfo = returnValue.result;
 
-			// Now we can update the infomration on the product buttons as well
+			// Now we can update the information on the product buttons as well
 			this._updateLeftBar();
 
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-			this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
 		}
 	}
 
@@ -160,6 +163,25 @@ export class Favourites extends View {
 	}
 
 	_updateLeftBar() {
+		let subtitle = null;
+		let detail = null;
+
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
+	
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
+
 		const state = {
 			miniProfile: {
 				name: this.callerInformation.name,
@@ -177,8 +199,8 @@ export class Favourites extends View {
 			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
-				subtitle: ``,
-				detail: ``
+				subtitle: subtitle ? subtitle : ``,
+				detail: detail ? detail : ``
 			}
 		};
 
@@ -218,7 +240,7 @@ export class Favourites extends View {
 		}
 	}
 
-	_disabledOption() {
+	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
 
@@ -243,7 +265,7 @@ export class Favourites extends View {
 	_webTemplate() {
 		return html`
 		${this._renderFavouritesLandingPage()}
-		${this._renderEndCallSessionDialog()}
+		${this._renderEndCallSessionModal()}
 		${this._renderVerifyNowModal()}
 		${this._renderAlertModal()}
 		${this._renderLoadingIndicator()}
@@ -257,7 +279,7 @@ export class Favourites extends View {
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.state.incomingCallDetails}"
 					.callerInformation="${this.state.callerInformation}"
-					@verify-click="${() => this._onVerifyNowClick()}"
+					@verify-click="${() => this._verifyNowClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourites-transactions>`;
 
@@ -268,19 +290,19 @@ export class Favourites extends View {
 			return html`
 				<horizon-verify-caller 
 					.incomingCallDetails="${this.incomingCallDetails}" 
-					@skip="${(e) => this._onSkipVerification(e)}">
+					@skip="${(e) => this._skipVerificationClick(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;
 	}
 
-	_renderEndCallSessionDialog() {
+	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isReassigned="${this.isReassigned}"
-					@cancel="{${() => this._onCancelEndCall()}}">
+					@cancel="{${() => this._cancelEndCallClick()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;
@@ -291,7 +313,7 @@ export class Favourites extends View {
 			return html`
 				<horizon-client-not-verified 
 					@cancel="${() => this.renderMode = 0}" 
-					@verify-now="${() => this._onVerifyNowClick()}">
+					@verify-now="${() => this._verifyNowClick()}">
 				</horizon-client-not-verified>
 			`;
 		}
