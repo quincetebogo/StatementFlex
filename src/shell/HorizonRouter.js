@@ -237,11 +237,11 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `client-profile`,
+		name: `horizon-stop-card-landing-page`,
 		title: `ClientProfile`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
-		load: () => import(`../views/stopCard/ClientProfile`),
+		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}

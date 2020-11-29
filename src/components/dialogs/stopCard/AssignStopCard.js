@@ -8,7 +8,6 @@ import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
-import 'app/views/stopCard/StopCardFailure'; // TODO: Why is a component impporting a view. This should be a no no
 
 export class AssignStopCard extends Component {
 
@@ -42,7 +41,7 @@ export class AssignStopCard extends Component {
 
 	static get properties() {
 		return {
-			callerInfo: { type: Object },
+			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			teamsResponse: { type: Object },
 			isBusy: { type: Boolean },
@@ -61,7 +60,7 @@ export class AssignStopCard extends Component {
 
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
-			incidentRecId: this.callerInfo.incidentRecId
+			incidentRecId: this.incomingCallDetails.incidentRecId
 		};
 
 		this.cardService.assignTeams(cardsAndIncident, null)
@@ -88,7 +87,7 @@ export class AssignStopCard extends Component {
 			const assignRequest =
 			{
 				"cardIds": this.cards.map(card => card.cardNumber),
-				"incidentRecId": this.callerInfo.incidentRecId,
+				"incidentRecId": this.incomingCallDetails.incidentRecId,
 				"team": this.team.value
 			};
 
