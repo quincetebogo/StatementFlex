@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -88,6 +89,21 @@ export class VerifyCaller extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		// Dispatch table for routing to unverified landing pages
+		this.navigateToUnverifiedLandingPage = ivrOption => {
+
+			const stopCard = () => this.horizonRouter.navigateToStopCard();
+			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+			const insure = this.callerInformation.hasInsuranceProducts ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
+
+			return {
+				StopCard: stopCard,
+				Transact: transact,
+				Insure: insure
+			}[ivrOption];
+		};
+
+		// Start the ITA timer. ITA code still to come
 		this._startTimer();
 	}
 
@@ -111,9 +127,16 @@ export class VerifyCaller extends Component {
 	}
 
 	_skip() {
-		this.dispatchEvent(new CustomEvent(`skip`, {
-			detail: { incomingCallDetails: this.incomingCallDetails }
-		}));
+		this.callerInformation.verificationStatus = `unverified`;
+
+		const state = {
+			callerInformation: this.callerInformation,
+			incomingCallDetails: this.incomingCallDetails
+		};
+
+		this.horizonStore.saveState(state);
+
+		this.navigateToUnverifiedLandingPage(this.incomingCallDetails.ivrOptionCode)();
 	}
 
 	_onSecurityQuestionsCancel() {

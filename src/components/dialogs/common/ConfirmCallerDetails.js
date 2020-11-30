@@ -7,6 +7,7 @@ import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtili
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -51,11 +52,14 @@ export class ConfirmCallerDetails extends Component {
 		// Property initialization
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
+		this.hasInsurance = false;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
 
 		this.isBusy = false;
 	}
@@ -123,14 +127,31 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	// Raise an event to return the confirmed caller information once the confirm button has been pressed.
-	_onConfirmClick() {
+	async _onConfirmClick() {
+		// Check if client has Insurance Products, and add flag to the horizonStore:
+		await this._checkForInsuranceProducts();
+
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._navigateToStopCard();
+			this._navigateToStopCard(); 
 		} else {
-			// 1. Make CS call to determine if client has insurence products
-			// 2. update this.callerInformation to have a flag inicating if the user has insurance products
-			// 3. The next line transistions us to the verify caller dialog
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		}
+	}
+
+	async _checkForInsuranceProducts() {
+		const InsuranceCientInfo = {
+			IdNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			CifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
+			isCallerVarified: false
+		};
+
+		const returnProducts = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, null);
+
+		if (returnProducts.result.hasInsurance) {
+			// Save hasInsuranceProducts value in horizonStore
+			this.hasInsurance = true;
+		} else {
+			// TODO: failure show system error
 		}
 	}
 
@@ -163,7 +184,8 @@ export class ConfirmCallerDetails extends Component {
 			isConfirmed: true,
 			verificationStatus: `unverified`,
 			is3rdParty: false,
-			isNonClient: false
+			isNonClient: false,
+			hasInsuranceProducts: this.hasInsurance 
 		};
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
@@ -209,56 +231,13 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onSearchClick() {
-
-		if (this.incomingCallDetails.ivrOptionCode === `Insure`) {
-			this.renderMode = RENDER_MODE.SEARCH_CALLER;
-		} else {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
+		} else {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
-
-	_onSkipVerification(e) {
-		const callerInformation = {
-			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`, 
-			is3rdParty: false,
-			isNonClient: false
-		};
-
-		const state = {
-			callerInformation: callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
-
-		switch (this.ivrOption.value) {
-			case `Insure`:
-				// TODO: Still need to determine if client has insure products or not
-				// this.horizonRouter.navigateToInsureProspectiveClient();
-				this.horizonRouter.navigateToInsureExistingClient();
-				break;
-			case `Transact`:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-				break;
-
-			case `StopCard`:
-				this.horizonRouter.navigateToStopCard();
-			default:
-		}
-	}
-
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -586,19 +565,18 @@ export class ConfirmCallerDetails extends Component {
 			isConfirmed: true,
 			verificationStatus: `unverified`,
 			is3rdParty: false,
-			isNonClient: false
+			isNonClient: false,
+			hasInsuranceProducts: this.hasInsurance
 		};
 
 		return html`
 			<horizon-verify-caller 
 				.incomingCallDetails="${this.incomingCallDetails}" 
 				.callerInformation="${callerInformation}"
-				@skip="${(e) => this._onSkipVerification(e)}" 
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
 	}
-
 }
 
 window.customElements.define(`horizon-confirm-caller-details`, ConfirmCallerDetails);

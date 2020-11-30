@@ -197,7 +197,6 @@ export class FavouriteTransactions extends Component {
 		return html`
 			${this._renderVerifiedToast()}
 			${this._renderFavourites()}
-			${this._renderLoadingIndicator()}
 		`;
 	}
 

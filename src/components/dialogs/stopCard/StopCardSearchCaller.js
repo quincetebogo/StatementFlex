@@ -25,19 +25,42 @@ const RENDER_MODE = {
 const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
-	REQUIRED_FIELDS_EMPTY: `All fields are required`,
-	0: `Incorrect ID/Passport number`,
-	1: `Incorrect foreign passport number`,
-	2: `Incorrect account number`,
-	3: `Incorrect reference number`,
-	4: `Incorrect Capitec cellphone number`
+	SYSTEM_ERROR: `System error. Please try again later`,
+	REQUIRED_FIELDS_EMPTY: {
+		ALERT_BANNER: `All fields are required`,
+		SEARCH_TEXT: `This is a Required field`,
+		SEARCH_OPTION: `Choose an Identification Method`
+	},
+	NOT_FOUND: {
+		0: {
+			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
+		},
+		1: {
+			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
+		},
+		2: {
+			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
+		},
+		3: {
+			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
+		},
+		4: {
+			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
+		}
+	}
 };
 
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
 		PATTERN: /^[0-9]{13}$/,
-		ERR_MESSAGE: `ID Number must be 13 characters long`
+		ERR_MESSAGE: `ID Number must be 13 characters long`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
 		PATTERN: /^/,
@@ -45,15 +68,18 @@ const REGEX_PATTERNS = {
 	},
 	2: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: `Account number must be 10 characters long`
+		ERR_MESSAGE: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
 		PATTERN: /^[0-9]{8}$/,
-		ERR_MESSAGE: `Either it is Alphanumeric or not equal to 8 digits`
+		ERR_MESSAGE: `Either it is Alphanumeric or not equal to 8 digits`,
+		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
 		PATTERN: /^[0-9]{10}$/,
-		ERR_MESSAGE: `Cellphone Number must be 10 characters long`
+		ERR_MESSAGE: `Cellphone Number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
 	}
 };
 
@@ -174,10 +200,12 @@ export class StopCardSearchCaller extends Component {
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else {
-				// TODO: check error handling for when the error is a service call failure
-				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
+			} else if (returnValue.succeeded && !identifiedClient) {
+				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
+				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
 		}
 	}
@@ -254,16 +282,17 @@ export class StopCardSearchCaller extends Component {
 	validateFields() {
 		const isRequiredFieldsEmpty = this.isRequiredFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
-			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.ALERT_BANNER;
 			return false;
 		}
 
 		const REGEX_PATTERN = REGEX_PATTERNS[this.identificationMethods.value].PATTERN;
 		const ERR_MESSAGE = REGEX_PATTERNS[this.identificationMethods.value].ERR_MESSAGE;
+		const ALERT_BANNER_ERR = REGEX_PATTERNS[this.identificationMethods.value].ALERT_BANNER;
 
 		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchFieldText)) {
 			this.errMessage.searchFieldText = ERR_MESSAGE;
-			this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
+			this.alertBannerMessage = ALERT_BANNER_ERR;
 			return false;
 		}
 
@@ -272,8 +301,8 @@ export class StopCardSearchCaller extends Component {
 
 	isRequiredFieldsEmpty() {
 
-		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? `This is a Required field` : ``;
-		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? `Choose an Identification Method` : ``;
+		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_TEXT : ``;
+		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_OPTION : ``;
 
 		return this.errMessage.identificationMethods || this.errMessage.searchFieldText;
 	}
@@ -327,7 +356,7 @@ export class StopCardSearchCaller extends Component {
 				}
 
 				.search-box{
-					height: 310px;
+					height: inherit;
 					padding: 21px 17px 0px 16px;
 				}
 				.search-label{
