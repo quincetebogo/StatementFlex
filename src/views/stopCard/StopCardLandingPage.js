@@ -8,7 +8,6 @@ import 'app/components/stopCard/StopCard';
 import 'app/components/common/AccessMenuBar';
 import 'app/components/common/ProfileAndProductSummaryBar';
 
-import mockResponse from '../../../mocks/StopCardMockData';
 
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
@@ -30,16 +29,11 @@ export class StopCardLandingPage extends View {
 		this.clientProfileDetails = state.clientProfileDetails;
 		this.callerInformation = state.callerInformation; 
 		this.incomingCallDetails = state.incomingCallDetails;
-
-
-		// TODO: NB - DEBUG TO REMOVE: MOCK
-		this.clientProfileDetails.cards = mockResponse.cards;
-		this.horizonStore.saveState({ clientProfileDetails: this.clientProfileDetails });
 	}
 
 	_stoppedCards(event) {
 		this.horizonStore.saveState(event.detail);
-		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.stopped);
+		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
