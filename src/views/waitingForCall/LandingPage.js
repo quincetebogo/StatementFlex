@@ -125,7 +125,7 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => landingPageErrorHandler(ex));
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
 		const incident = returnValue.result;
 
 		if (returnValue.succeeded && incident) {
@@ -145,7 +145,7 @@ export class LandingPage extends View {
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
 
-	_dispatchCall(acceptedCall, newCallInfo, forceSearch) {
+	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		this.callStatus = `CALL-IN-PROGRESS`;
 		const state = { callStatus: this.callStatus };
 		this.horizonStore.saveState(state);
@@ -161,7 +161,7 @@ export class LandingPage extends View {
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
 				this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 
-				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
+				if (!forceSearchDialog && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 					this.confirmedCaller = acceptedCall;
 				} else {
@@ -170,14 +170,14 @@ export class LandingPage extends View {
 				break;
 			case `StopCard`: // StopCard is a special case and runs the following code 
 				// Based on need and verfication status, dispatch to the appropriate dialog
-				if (!forceSearch && this.callHandleService.isConfirmedCaller(acceptedCall)) {
+				if (!forceSearchDialog && this.callHandleService.isConfirmedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
 					this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
 					this.confirmedCaller = acceptedCall;
 
 					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-				} else if (forceSearch || this.callHandleService.isUnverifiedCaller(acceptedCall)) {
+				} else if (forceSearchDialog || this.callHandleService.isUnverifiedCaller(acceptedCall)) {
 					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 					tempFixIVROption(this.incomingCallDetails.ivrOption);
 					this.incomingCallDetails.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
@@ -185,22 +185,14 @@ export class LandingPage extends View {
 
 					this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 				} else {
-					if (!this.errorHandled) {
-						const event = {
-							from: `UI-CS`,
-							status: `error`,
-							message: `acceptCall - invalid response`
-						};
-						this.eventAggregator.publish(`horizon-status-bar-update`, event);
-						console.log(`landing page - _acceptCall failed`);
-					}
-
 					this.confirmedCaller = null;
 					this.renderMode = RENDER_MODE.PAGE_ONLY;
 
 					// If accept call fails, we will be stuck on the landing page and unable to take calls unless
 					// we flag the call that we tied to take as complete...
 					this.desktopAgentService.callComplete();
+
+					this.horizonRouter.navigateToSystemError();
 				}
 				break;
 			default:
