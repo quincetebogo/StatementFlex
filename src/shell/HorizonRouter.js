@@ -22,7 +22,8 @@ const HORIZON_ROUTES = {
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
-	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`
+	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
+	SYSTEM_ERROR: `/error/system-error`
 };
 
 
@@ -139,6 +140,10 @@ export class HorizonRouter {
 
 	navigateToItaVerificationFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+	}
+
+	navigateToSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SYSTEM_ERROR}`);
 	}
 }
 
@@ -267,18 +272,19 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
-		guard: () => {
-			return true;
-			// const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			// switch (routingInfo.verificationStatus) {
-			// 	case `verified`:
-			// 	case `unverified`:
-			// 	case `3rdparty`:
-			// 		return true;
-			// 	default:
-			// 		return false;
-			// }
-		},
+		guard: () => true,
+
+			/*
+			 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			 switch (routingInfo.verificationStatus) {
+			 	case `verified`:
+			 	case `unverified`:
+			 	case `3rdparty`:
+			 		return true;
+			 	default:
+					 return false;
+			*/
+		
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
@@ -343,6 +349,16 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.ITA_VERIFICATION_FAILED,
 		load: () => import(`../views/common/ItaVerificationFailed`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-system-error`,
+		title: `SystemError`,
+		icon: null,
+		path: HORIZON_ROUTES.SYSTEM_ERROR,
+		load: () => import(`../views/common/SystemError`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}

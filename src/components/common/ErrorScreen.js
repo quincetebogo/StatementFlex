@@ -69,7 +69,7 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: 823px;
+					height: 876px;
 					width: 1064px;
 				}
 				#id-unsuccessful-img {
@@ -167,8 +167,14 @@ export class ErrorScreen extends Component {
 					<slot name="detail"></slot>
 				</capitec-group>
 				<capitec-group id="id-button-group" layout="horizontal">
-					<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>
-					<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>
+					${this.left
+						? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
+						: html``
+					}
+					${this.right
+						? html`<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>`
+						: html``
+					}
 				</capitec-group>
 			</capitec-card>
 		`;

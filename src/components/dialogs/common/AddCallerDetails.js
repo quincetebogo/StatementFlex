@@ -3,6 +3,7 @@ import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonCallerInfoBar';
@@ -60,6 +61,7 @@ export class AddCallerDetails extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// ----------
@@ -69,7 +71,7 @@ export class AddCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
-     * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
+	 * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
 	 *
 	 * @readonly
 	 * @static
@@ -167,7 +169,7 @@ export class AddCallerDetails extends Component {
 		if (this.ivrOption.value === `StopCard`) {
 			const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
 			const addedcallerdetails = returnValue.result;
-	
+
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`caller-added`, {
 					detail: {
@@ -175,13 +177,20 @@ export class AddCallerDetails extends Component {
 						incomingCallDetails: this.incomingCallDetails
 					}
 				}));
-				
+
 				// TODO: Move navigatin to stop card screen here
 				// this.horizonRouter.navigateToStopCard();
 			} else {
 				// TODO: Handle failure on call to identifyCaller
+				const event = {
+					from: `UI-CS`,
+					status: `error`,
+					message: `System Error`
+				};
+				this.eventAggregator.publish(`horizon-status-bar-update`, event);
+				this.horizonRouter.navigateToSystemError();
 			}
-	
+
 		} else if (this.ivrOption.value === `Insure`) {
 			// TODO: Should there be a channel service call to record the third party against the incident
 			const state = {

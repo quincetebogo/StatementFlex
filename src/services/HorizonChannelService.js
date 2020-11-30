@@ -229,11 +229,11 @@ export class HorizonChannelService extends Service {
 	// INSURE METHODS
 	// ---------------
 
-	hasInsuranceProducts(InSuranceCientInfo) {
+	hasInsuranceProducts(insuranceClientInfo) {
 		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
-									`IdNumber=${InSuranceCientInfo.IdNumber}&` + 
-									`Cif=${InSuranceCientInfo.CifNumber}&` +
-									`IsCallerVerified=${InSuranceCientInfo.isCallerVarified}`);
+									`IdNumber=${insuranceClientInfo.IdNumber}&` + 
+									`Cif=${insuranceClientInfo.CifNumber}&` +
+									`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`);
 	}
 
 	addNonClientDetails(callerData) {

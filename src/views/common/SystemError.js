@@ -1,0 +1,143 @@
+import { View, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
+
+import 'app/components/common/ErrorScreen';
+import 'app/components/dialogs/common/EndCallSession';
+
+const RENDER_MODE = Object.freeze({
+	SYSTEM_ERROR: 0,
+	END_CALL: 1
+});
+
+/**
+ * A general System Error Screen that can be displayed when channel service calls fail. 
+ *
+ * @export
+ * @class SystemError
+ * @extends {View}
+ */
+export class SystemError extends View {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+		super();
+
+		this.renderMode = RENDER_MODE.SYSTEM_ERROR;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
+		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
+
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	static get properties() {
+		return {
+			renderMode: { type: Number }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		const state = this.horizonStore.recoverState();
+
+		if (state) {
+			this.incomingCallDetails = state.incomingCallDetails;
+
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
+
+			if (this.incomingCallDetails) {
+				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
+					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
+				});
+			}
+		}
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_onEndCallClick() {
+		if (this.incomingCallDetails) {
+			this.renderMode = RENDER_MODE.END_CALL;
+		}
+	}
+
+	_assignClick() {
+		console.log(`Assign is still to be developed`);
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				:host{
+					width: 100%;
+					height: 100%;
+				}
+				#id-error-msg{
+					width: 329px;
+				}
+			`
+		];
+	}
+
+	_mobileTemplate() {
+	}
+
+	_webTemplate() {
+		return html`
+			${this._renderSystemError()}
+			${this._renderEndCallSessionModal()}
+		`;
+	}
+
+	_renderSystemError() {
+		if (this.renderMode === RENDER_MODE.SYSTEM_ERROR) {
+			return html`
+				<horizon--error-screen 
+					header="System Error" 
+					left=""
+					right="Assign"
+					toast="Network error"
+					@right-click=${() => this._assignClick()}>
+					<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
+				</horizon--error-screen>`;
+		}
+	}
+
+	_renderEndCallSessionModal() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					@cancel="{${() => this.renderMode = RENDER_MODE.SYSTEM_ERROR}}"
+					.incomingCallDetails="${this.incomingCallDetails}">
+				</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+}
+
+customElements.define(`horizon-system-error`, SystemError);

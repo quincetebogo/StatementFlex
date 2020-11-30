@@ -5,6 +5,7 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
@@ -58,6 +59,7 @@ export class ConfirmCallerDetails extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
 
@@ -145,9 +147,9 @@ export class ConfirmCallerDetails extends Component {
 			isCallerVarified: false
 		};
 
-		const returnProducts = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, null);
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
-		if (returnProducts.result.hasInsurance) {
+		if (returnValue.succeeded && returnValue.result.hasInsurance) {
 			// Save hasInsuranceProducts value in horizonStore
 			this.hasInsurance = true;
 		} else {
@@ -188,7 +190,7 @@ export class ConfirmCallerDetails extends Component {
 			hasInsuranceProducts: this.hasInsurance 
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -199,7 +201,11 @@ export class ConfirmCallerDetails extends Component {
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
-			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
