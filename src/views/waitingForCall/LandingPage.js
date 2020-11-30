@@ -125,7 +125,7 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => landingPageErrorHandler(ex));
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
 		const incident = returnValue.result;
 
 		if (returnValue.succeeded && incident) {
