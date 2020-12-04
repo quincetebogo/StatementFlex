@@ -1,10 +1,12 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { CallHandleService } from 'app/services/CallHandleService';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
 import 'platform/components/buttons/ProductTile';
+
 
 /**
  * ProfileAndProductSummaryBar displays the left hand bar of the Horizon display. This contains
@@ -28,7 +30,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-
+		this.callHandleServive = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -48,6 +50,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.hasFavourites = false;
 		this.subtitle = {};
 		this.detail = null;
+		this.isBusy = false;
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -73,7 +76,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			disableNavigation: { type: Boolean },
 			hasFavourites: { type: Boolean },
 			subtitle: { type: Object },
-			detail: { type: Object }
+			detail: { type: Object },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -83,7 +87,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		this.state = this.horizonStore.recoverState();
 		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
 	}
 
@@ -101,6 +105,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
 		}
+
+
 	}
 
 	_updateMiniProfile(miniProfile) {
@@ -115,9 +121,14 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.detail = buttonConfig.detail;
 	}
 
+
 	// --------- 
 	// PRIVATE
 	// ---------
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
 	// ---------
 	// RENDERING
@@ -144,12 +155,9 @@ export class ProfileAndProductSummaryBar extends Component {
 	_webTemplate() {
 		return html`
 		<section class="left-card">
-		 	<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
-			 ${this._renderFavourites()}
-			<horizon-product-button-panel 
-				.subtitle="${this.subtitle}"
-				.detail="${this.detail}"
-				?disablenavigation=${true}>
+			<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
+			${this._renderFavourites()}
+			<horizon-product-button-panel .subtitle="${this.subtitle}" .detail="${this.detail}" ?disablenavigation=${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}
@@ -157,10 +165,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_renderFavourites() {
 		if (this.hasFavourites) {
 			return html`
-				<horizon-favourites-tile 
-					class="favourites-button" 
-					label="Favourites" 
-					subtitle="Transact, dispute, cards and more">
+				<horizon-favourites-tile class="favourites-button" label="Favourites" subtitle="Transact, dispute, cards and more">
 				</horizon-favourites-tile>`;
 		};
 		return html``;

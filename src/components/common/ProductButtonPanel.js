@@ -1,8 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-
+import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
+
 
 /**
  *
@@ -16,10 +17,11 @@ export class ProductButtonPanel extends Component {
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance().recoverState();
 
 		this.disableNavigation = false;
 		this.subtitle = {};
-		this.detail = null;
+		this.detail = {};
 	}
 
 	/**
@@ -87,41 +89,27 @@ export class ProductButtonPanel extends Component {
 
 	render() {
 		return html`
-						<horizon-product-tile class="product-button" 
-                                              type="transact" 
-                                              label="Savings Account"
-											  subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
-                                              detail="${this.detail ? this.detail.savingsAccount : ``}"
-                                              icon="product/transact-white"
-							                  @click="${() => this.onSavingsAccountClick()}">
+						<horizon-product-tile class="product-button" type="transact" label="Savings Account"
+							subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
+							detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}" icon="product/transact-white"
+							@click="${() => this.onSavingsAccountClick()}">
 						</horizon-product-tile>
-						<horizon-product-tile class="product-button"
-                                              type="save"
-                                              label="Savings Plan"
-                                              subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : `Let your money make money`}"
-                                              icon="product/save-white"
-                                              detail="${this.detail ? this.detail.savingsPlan : ``}"
-                                              @click="${() => this.onSavingsPlanClick()}">
+						<horizon-product-tile class="product-button" type="save" label="Savings Plan"
+							subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : `Let your money make money`}"
+							icon="product/save-white" detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
+							@click="${() => this.onSavingsPlanClick()}">
 						</horizon-product-tile>
-						<horizon-product-tile class="product-button"
-                                              type="insure"
-                                              label="Insure"
-                                              subtitle="${this.subtitle.insure ? this.subtitle.insure : `One plan, more cover`}"
-                                              icon="product/insure-white"
-                                              detail="${this.detail ? this.detail.insure : ``}"
-                                              @click="${() => this.onInsureClick()}">
+						<horizon-product-tile class="product-button" type="insure" label="Insure"
+							subtitle="${this.subtitle.insure ? this.subtitle.insure : `One plan, more cover`}" icon="product/insure-white"
+							detail="${this.detail.insure ? this.detail.insure : ``}" @click="${() => this.onInsureClick()}">
 						</horizon-product-tile>
-						<horizon-product-tile class="product-button"
-                                              type="credit"
-                                              label="Credit"
-                                              subtitle="${this.subtitle.credit ? this.subtitle.credit : `Rethink credit, realise dreams`}"
-                                              icon="product/credit-white"
-											  detail="${this.detail ? this.detail.credit : ``}"
-											  ?detailIcon="${false}"
-											  @click="${() => this.onCreditClick()}">
+						<horizon-product-tile class="product-button" type="credit" label="Credit"
+							subtitle="${this.subtitle.credit ? this.subtitle.credit : `Rethink credit, realise dreams`}"
+							icon="product/credit-white" detail="${this.detail.credit ? this.detail.credit : ``}" ?detailIcon="${false}"
+							@click="${() => this.onCreditClick()}">
 						</horizon-product-tile>
-					</div>
-					</div>
+						</div>
+						</div>
 			`;
 	}
 }
