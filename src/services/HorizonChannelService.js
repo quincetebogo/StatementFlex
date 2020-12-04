@@ -90,7 +90,7 @@ export class HorizonChannelService extends Service {
 	 * @memberof HorizonChannelService
 	 */
 	endCallOptions(endCallDetails) {
-		return super.httpClient.post(`/clientcare/card1/${this.version}/Options`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
 			'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
 			'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
@@ -122,7 +122,7 @@ export class HorizonChannelService extends Service {
 
 	// endCallSession
 	endCall(incidentRecId, reasonCode) {
-		return super.httpClient.post(`/clientcare/card1/${this.version}/EndCallerSession`, {
+		return super.httpClient.post(`/clientcare/card/${this.version}/EndCallerSession`, {
 			"incidentRecId": incidentRecId,
 			"endReason": reasonCode
 		});
