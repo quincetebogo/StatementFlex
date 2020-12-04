@@ -86,7 +86,7 @@ export class DesktopAgentService {
 	 *
 	 * @private
 	 * @param {*} event Server Side Event from the Destkop Agent Service Application
-	 * @returns {Promise}
+	 * @returns {Promise} A promise
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
@@ -96,6 +96,7 @@ export class DesktopAgentService {
 
 		// Do nothing with hearbeats. They are just to keep the connection alive
 		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
+			console.log(`hearbeat`);
 			if (this.connectionTries >= 3) {
 				this.eventAggregator.publish(`desktop-agent-up`, {});
 			}
@@ -175,22 +176,22 @@ export class DesktopAgentService {
 		switch (this.eventSource.readyState) {
 			case 0:
 				this.connectionTries++;
-				// console.log(`Event Source State: CONNECTING`, this.connectionTries);
+				console.log(`Event Source State: CONNECTING`, this.connectionTries);
 				break;
 			case 1:
-				// console.log(`Event Source State: OPEN`);
+				console.log(`Event Source State: OPEN`);
 				// this.connectionTries = 0;
 				break;
 			case 2:
 				this.connectionTries++;
-				// console.log(`Event Source State: CLOSED`, this.connectionTries++);
+				console.log(`Event Source State: CLOSED`, this.connectionTries++);
 				break;
 			default:
 				break;
 		}
 
 		if (this.eventSource.readyState !== 0) {
-			// console.log(`Closing and re-opening Desktop Agent Event Source`);
+			console.log(`Closing and re-opening Desktop Agent Event Source`);
 			// Close the event source and then re-open it.
 			this.eventSource.close();
 			this.open();
@@ -202,11 +203,11 @@ export class DesktopAgentService {
 	}
 
 	_onOpen() {
-		// console.log("Connection to Desktop Agent open");
+		console.log(`Connection to Desktop Agent open`);
 	}
 
 	_onMessage(event) {
-		// console.log("Received an event from the Desktop Agent", event);
+		console.log(`Received an event from the Desktop Agent`, event);
 	}
 
 
