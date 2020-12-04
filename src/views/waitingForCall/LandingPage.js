@@ -239,7 +239,7 @@ export class LandingPage extends View {
 
 	async _GetLandingPageData() {
 
-		const returnValue = await this.initialiseService.initialise();
+		const returnValue = await this.initialiseService.initialise((ex) => this.landingPageErrorHandler(ex));
 		const landingPageData = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -265,7 +265,7 @@ export class LandingPage extends View {
 		}
 
 		this.desktopAgentService.callComplete();
-		this.horizonRouter.navigateToSystemError();
+		this.horizonRouter.navigateToInitialSystemError();
 		return true;
 	}
 
