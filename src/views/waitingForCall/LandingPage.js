@@ -155,7 +155,7 @@ export class LandingPage extends View {
 		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
 			case `Transact`:
-					// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -246,6 +246,9 @@ export class LandingPage extends View {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
+		// else {
+		// 	this.horizonRouter.navigateToSystemError();
+		// }
 	}
 
 	_toggleBusyFlag() {

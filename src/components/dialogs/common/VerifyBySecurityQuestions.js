@@ -131,12 +131,12 @@ export class VerifyBySecurityQuestions extends Component {
 	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-        } else {
+		} else {
 			this.alertBannerMessage = ``;
-            this.checked = false;
+			this.checked = false;
 
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
-	
+
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this._navigateToLandingPage(`verified`);
 			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
@@ -149,12 +149,13 @@ export class VerifyBySecurityQuestions extends Component {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-		
+
 				this.horizonStore.saveState(state);
-		
+
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else {
 				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
+				this.horizonRouter.navigateToSystemError();
 			}
 		}
 	}

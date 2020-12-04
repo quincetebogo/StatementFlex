@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 export class StopCard extends Component {
@@ -16,6 +17,8 @@ export class StopCard extends Component {
 		this.cardStopResults = [];
 		this.callerInfo = {};
 		this.isBusy = false;
+
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -72,7 +75,13 @@ export class StopCard extends Component {
 		const returnValue = await this.cardService.stopCards(cardsToStop, callerInfo);
 		const cardStopResults = returnValue.result;
 
-		return cardStopResults;
+		if (returnValue.succeeded) {
+			return cardStopResults;
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+
+
 	}
 
 	_stopCardErrorHandler(exception) {
@@ -238,9 +247,9 @@ export class StopCard extends Component {
 				<capitec-button 
 					type="clear" 
 					label="Cancel" 
-					@click="${() => { 
-						this._onCancelClick();
-					}}">
+					@click="${() => {
+				this._onCancelClick();
+			}}">
 				</capitec-button>
 			
 				<capitec-button 
