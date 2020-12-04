@@ -69,7 +69,7 @@ export class EndCallSession extends Component {
 				} else {
 					// TODO: Handle not being able to load end call options
 				}
-		});
+			});
 	}
 
 	// --------------
@@ -82,7 +82,7 @@ export class EndCallSession extends Component {
 
 	async _onReasonSelected() {
 		const callToEnd = {
-			incidentRecId: this.incomingCallDetails.incidentRecId,  
+			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endCallReason: {
 				key: this.endCallReason.key
 			}
@@ -92,11 +92,12 @@ export class EndCallSession extends Component {
 
 		if (!returnValue.succeeded) {
 			// TODO: Handle end call failing
+			this.horizonRouter.navigateToSystemError();
+		} else {
+			const state = { callStatus: `CALL-ENDED` };
+			this.horizonStore.setState(state);
+			this.horizonRouter.navigateToLandingPage();
 		}
-
-		const state = { callStatus: `CALL-ENDED` };
-		this.horizonStore.setState(state);
-		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_onValueChanged(e) {

@@ -143,10 +143,6 @@ export class Favourites extends View {
 
 			// Now we can update the information on the product buttons as well
 			this._updateLeftBar();
-
-		}
-		else {
-			this.horizonRouter.navigateToSystemError();
 		}
 	}
 

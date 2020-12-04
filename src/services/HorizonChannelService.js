@@ -90,7 +90,7 @@ export class HorizonChannelService extends Service {
 	 * @memberof HorizonChannelService
 	 */
 	endCallOptions(endCallDetails) {
-		return super.httpClient.post(`/clientcare/card/${this.version}/Options`, {
+		return super.httpClient.post(`/clientcare/card1/${this.version}/Options`, {
 			'isReassigned': endCallDetails.isReassigned,
 			'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
 			'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
@@ -122,7 +122,7 @@ export class HorizonChannelService extends Service {
 
 	// endCallSession
 	endCall(incidentRecId, reasonCode) {
-		return super.httpClient.post(`/clientcare/card/${this.version}/EndCallerSession`, {
+		return super.httpClient.post(`/clientcare/card1/${this.version}/EndCallerSession`, {
 			"incidentRecId": incidentRecId,
 			"endReason": reasonCode
 		});
@@ -200,16 +200,16 @@ export class HorizonChannelService extends Service {
 
 	searchCaller(clientInfo) {
 		return super.httpClient.get(`/clientcare/call/${this.version}/search-caller?` +
-										`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
-										`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
-										`ivrOptionCode=${clientInfo.ivrOption}&` +
-										`incidentReferenceNumber=${clientInfo.incidentNo}&` +
-										`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` + 
-										`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
-										`value=${clientInfo.searchValue}`);
+			`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
+			`ivrOptionCode=${clientInfo.ivrOption}&` +
+			`incidentReferenceNumber=${clientInfo.incidentNo}&` +
+			`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
+			`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
+			`value=${clientInfo.searchValue}`);
 	}
 
- // -----------------
+	// -----------------
 	// Initialise Method
 	// -----------------
 	initialise() {
@@ -231,9 +231,9 @@ export class HorizonChannelService extends Service {
 
 	hasInsuranceProducts(insuranceClientInfo) {
 		return super.httpClient.get(`/clientcare/insure/${this.version}/landing?` +
-									`IdNumber=${insuranceClientInfo.IdNumber}&` + 
-									`Cif=${insuranceClientInfo.CifNumber}&` +
-									`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`);
+			`IdNumber=${insuranceClientInfo.IdNumber}&` +
+			`Cif=${insuranceClientInfo.CifNumber}&` +
+			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`);
 	}
 
 	addNonClientDetails(callerData) {
@@ -273,9 +273,9 @@ export class HorizonChannelService extends Service {
 
 	favouritesLanding(clientInfo) {
 		return super.httpClient.get(`/clientcare/favourites/${this.version}/landing?` +
-										`CifNumber=${clientInfo.cifNumber}&` +
-										`NationalIDNumber=${clientInfo.nationalIDNumber}&` + 
-										`IsCallerVerified=${clientInfo.isCallerVerified}`);
+			`CifNumber=${clientInfo.cifNumber}&` +
+			`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
+			`IsCallerVerified=${clientInfo.isCallerVerified}`);
 	}
 
 

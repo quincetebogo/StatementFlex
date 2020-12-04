@@ -246,9 +246,6 @@ export class LandingPage extends View {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
-		// else {
-		// 	this.horizonRouter.navigateToSystemError();
-		// }
 	}
 
 	_toggleBusyFlag() {
