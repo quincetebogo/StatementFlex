@@ -76,9 +76,15 @@ export class ProductButtonPanel extends Component {
 	}
 
 	onInsureClick() {
-		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToInsureProduct();
+		console.log(`client is insured`)
+		// if (this.disableNavigation) {
+		// 	this.horizonRouter.navigateToInsureProduct();
+		// }
+		if (!this.horizonStore.callerInformation.hasInsuranceProducts) {
+			this.horizonRouter.navigateToInsureProspectiveClient();
 		}
+		else
+			this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	onCreditClick() {
