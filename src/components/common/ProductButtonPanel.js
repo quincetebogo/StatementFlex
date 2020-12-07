@@ -59,6 +59,12 @@ export class ProductButtonPanel extends Component {
 			.hide-tile{
 				display: none;
 			}
+
+			.product-button::selection {
+				border:  1px solid #009DE0;
+				border-radius: 4px 0 0 4px;
+				box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+			}
 			`
 		];
 	}
@@ -83,8 +89,6 @@ export class ProductButtonPanel extends Component {
 		if (!this.horizonStore.callerInformation.hasInsuranceProducts) {
 			this.horizonRouter.navigateToInsureProspectiveClient();
 		}
-		else
-			this.horizonRouter.navigateToInsureExistingClient();
 	}
 
 	onCreditClick() {

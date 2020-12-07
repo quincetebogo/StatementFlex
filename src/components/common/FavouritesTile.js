@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 /**
  */
@@ -22,6 +24,8 @@ export class FavouritesTile extends Component {
 		this.subtitle = ``;
 		this.detail = ``;
 		this.navigational = false;
+		this.horizonStore = HorizonStore.getInstance().recoverState();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -67,10 +71,16 @@ export class FavouritesTile extends Component {
 	_tileClicked(event) {
 
 		// Ignore the event if the component is disabled.
-		if (this.disabled) {
-			return event.stopImmediatePropagation();
-		}
+		// if (this.disabled) {
+		// 	return event.stopImmediatePropagation();
+		// }
 
+		if (this.horizonStore.callerInformation.verificationStatus === `unverified`) {
+			this.horizonRouter.navigateToQuickTransactionFavourites();
+		}
+		else if (this.horizonStore.callerInformation.verificationStatus === `verified`) {
+
+		}
 		// Notify any subscribers that the link was clicked.
 		this.dispatchEvent(new CustomEvent(`click`, {
 			detail: {}
@@ -174,6 +184,11 @@ export class FavouritesTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
+				.tile:active {
+                    border:  1px solid #009DE0;
+                    box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
+				
                 .tile.favourites:focus {
                     border: 1px solid #009DE0;
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
@@ -240,7 +255,13 @@ export class FavouritesTile extends Component {
 
                 .nav-icon {
                     margin-left: var(--theme-product-tile-nav-icon-margin-left, 16.25px);
-                }
+				}
+				.rectangle{
+					height: 72px;
+					width: 4px;
+					border-radius: 4px 0 0 4px;
+					background-color: #009DE0;
+				}
 			`
 		];
 	}
@@ -263,11 +284,10 @@ export class FavouritesTile extends Component {
 	_webTemplate() {
 
 		return html`
-			<button class="tile favourites" 
-				@click="${this._tileClicked}}" 
-				@keydown="${e => this._keyDown(e)}"
-                tabindex="${this.disabled ? `` : 0}">
+			<button class="tile favourites" @click="${(e) => this._tileClicked(e)}" @keydown="${e => this._keyDown(e)}"
+				tabindex="${this.disabled ? `` : 0}">
 				<div class="tile-container">
+					<div class="rectangle"></div>
 					<div class="product favourites">
 						<img src="/images/buttons/favourites-star.svg">
 					</div>
@@ -277,7 +297,8 @@ export class FavouritesTile extends Component {
 					</div>
 					<div class="detail${this.navigational ? ` nav` : ``}">
 						${this.detail}
-						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
+						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action">
+						</capitec-icon>` : ``}
 					</div>
 				</div>
 			</button>

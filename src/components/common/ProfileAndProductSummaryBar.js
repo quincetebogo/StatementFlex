@@ -105,8 +105,6 @@ export class ProfileAndProductSummaryBar extends Component {
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
 		}
-
-
 	}
 
 	_updateMiniProfile(miniProfile) {
