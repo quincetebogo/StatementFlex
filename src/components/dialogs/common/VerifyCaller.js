@@ -19,7 +19,7 @@ const RENDER_MODE = {
 
 const HEADER_LABEL = `Verify Caller`;
 
-//exporting the common code - used in securityQuestions failed screen
+// exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
 
 	objInstance.callerInformation.verificationStatus = `failed`;
@@ -60,7 +60,7 @@ export class VerifyCaller extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
 
 	// ----------
@@ -122,21 +122,19 @@ export class VerifyCaller extends Component {
 
 	async _verifyUsingSecurityQuestions() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
+
+		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
 			if (!this.securityQuestions.authenticationPermitted) {
 				navigateToFailedScreen(this);
-			}
-			else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			}
-			else {
+			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
-		}
-		else {
+		} else {
 			// navigate to system error screen
 		}
 	}

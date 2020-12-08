@@ -55,9 +55,9 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 
-		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), null);
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
@@ -125,7 +125,7 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
 		if (returnValue.succeeded && incident) {
@@ -140,7 +140,7 @@ export class LandingPage extends View {
 		newCallInfo.incidentRecId = incident.incidentRecId;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.caller(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
+		const returnValue = await this.callHandleService.caller(newCallInfo);
 
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
@@ -155,7 +155,7 @@ export class LandingPage extends View {
 		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
 			case `Transact`:
-					// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -252,7 +252,7 @@ export class LandingPage extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	landingPageErrorHandler(exception) {
+	_landingPageErrorHandler(exception) {
 		if (exception instanceof TypeError) {
 			console.log(exception);
 		} else if (exception instanceof HttpStatusError) {
@@ -262,7 +262,7 @@ export class LandingPage extends View {
 		}
 
 		this.desktopAgentService.callComplete();
-		this.horizonRouter.navigateToSystemError();
+		this.horizonRouter.navigateToInitialSystemError();
 		return true;
 	}
 
