@@ -19,6 +19,19 @@ const RENDER_MODE = {
 
 const HEADER_LABEL = `Verify Caller`;
 
+//exporting the common code - used in securityQuestions failed screen
+export const navigateToFailedScreen = (objInstance) => {
+
+	objInstance.callerInformation.verificationStatus = `failed`;
+	const state = {
+		callerInformation: objInstance.callerInformation,
+		incomingCallDetails: objInstance.incomingCallDetails
+	};
+	objInstance.horizonStore.saveState(state);
+
+	return objInstance.horizonRouter.navigateToXdsVerificationFailed();
+};
+
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
  *
@@ -107,31 +120,24 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-    async _verifyUsingSecurityQuestions() {
+	async _verifyUsingSecurityQuestions() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
-
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
-
-			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0 && this.securityQuestions.authenticationPermitted) {
+			if (!this.securityQuestions.authenticationPermitted) {
+				navigateToFailedScreen(this);
+			}
+			else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			} else if (!this.securityQuestions.authenticationPermitted) {
-
-				this.callerInformation.verificationStatus = `failed`;
-
-				const state = {
-					callerInformation: this.callerInformation,
-					incomingCallDetails: this.incomingCallDetails
-				};
-
-				this.horizonStore.saveState(state);
-
-				this.horizonRouter.navigateToXdsVerificationFailed();
-			} else {
+			}
+			else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
+		}
+		else {
+			// navigate to system error screen
 		}
 	}
 
@@ -310,7 +316,7 @@ export class VerifyCaller extends Component {
 			case RENDER_MODE.VERIFY_CALLER:
 				return html`
 					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}"
+                                .incomingCallDetails="${this.incomingCallDetails}" 
                                 .headerLabel="${HEADER_LABEL}"
 						        @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
@@ -344,7 +350,7 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch" 
+                                    halign="stretch"
                                     valign="top"
                                     gap="clear">
 						<capitec-alert-banner type="info">
@@ -352,7 +358,7 @@ export class VerifyCaller extends Component {
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
                                     halign="center" 
-                                    valign="top" 
+                                    valign="top"
                                     gap="clear"
                                     id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
@@ -405,17 +411,17 @@ export class VerifyCaller extends Component {
 		if (this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical"
-                                    halign="stretch" 
+					<capitec-group layout="vertical" 
+                                    halign="stretch"
                                     valign="top"
                                     gap="clear">
 						<capitec-alert-banner type="error">
 							${this.xdsMessage}
 						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-                                        halign="center" 
+						<capitec-group layout="vertical" 
+                                        halign="center"
                                         valign="top"
-                                        gap="clear" 
+                                        gap="clear"
                                         id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
@@ -445,17 +451,17 @@ export class VerifyCaller extends Component {
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button label="Security Questions"
+					<horizon-option-button label="Security Questions" 
                                             icon="system/apply-now-action"
                                             iconSize="default"
 						                    @click="${() => this._verifyUsingSecurityQuestions()}">
 					</horizon-option-button>
 					<horizon-option-button label="Skip"
-                                            icon="system/arrow-right-action"
+                                            icon="system/arrow-right-action" 
                                             iconSize="default"
-						@click="${() => this._skip()}">
+					    @click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button label="Try Again"
+					<horizon-option-button label="Try Again" 
                                             img-src="/images/insure/refresh.svg"
                                             iconSize="default"
 						@click="${() => this._tryAgain()}">

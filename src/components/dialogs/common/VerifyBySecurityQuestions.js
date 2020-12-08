@@ -131,12 +131,12 @@ export class VerifyBySecurityQuestions extends Component {
 	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-        } else {
+		} else {
 			this.alertBannerMessage = ``;
-            this.checked = false;
+			this.checked = false;
 
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
-	
+
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this._navigateToLandingPage(`verified`);
 			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
@@ -149,9 +149,9 @@ export class VerifyBySecurityQuestions extends Component {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-		
+
 				this.horizonStore.saveState(state);
-		
+
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else {
 				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
@@ -179,9 +179,10 @@ export class VerifyBySecurityQuestions extends Component {
 		});
 	}
 
-	_retrySecurityQuestions() {
+	_retrySecurityQuestions(e) {
 		if (this.retryCount <= 1) {
 			this.questionNumber = 0;
+			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
 	}
@@ -403,9 +404,9 @@ export class VerifyBySecurityQuestions extends Component {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question.replace(/(\r\n|\n|\r)/gm, "")}"></capitec-label>
-				<horizon-radio-button 
-					class="radio-button" 
-					.radioButtonsAvailable="${answers}"
+				<horizon-radio-button
+                    class="radio-button"
+                    .radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button>
 		`;
@@ -436,17 +437,17 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderFailureModal() {
 		return html`
-			<horizon-security-questions-failed 
-				.incomingCallDetails="${this.incomingCallDetails}"
-				@security-questions="${() => this._retrySecurityQuestions()}" 
+			<horizon-security-questions-failed
+                .incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
 				@skip="${() => this._onSkip()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-end-call-session
+                .incomingCallDetails="${this.incomingCallDetails}"
 				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</horizon-end-call-session>`;
