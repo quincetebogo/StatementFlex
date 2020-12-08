@@ -104,7 +104,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -195,7 +195,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
@@ -255,7 +255,7 @@ export class StopCardSearchCaller extends Component {
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.callHandleService.searchOptions(clientInfo, null);
+		const returnValue = await this.callHandleService.searchOptions(clientInfo);
 		const options = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -263,9 +263,7 @@ export class StopCardSearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
-		} else {
-			// TODO: Handle error when searchOptions call failes
-		};
+		}
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -318,25 +316,7 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			if (exception.status === 412 || exception.status === 400) {
-				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
-				return true;
-			}
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 

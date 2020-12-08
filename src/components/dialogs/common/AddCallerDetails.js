@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { EventAggregator } from 'platform/EventAggregator';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonCallerInfoBar';
@@ -53,7 +53,7 @@ export class AddCallerDetails extends Component {
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag());
 
 		this.isBusy = false;
 		this.validationFailed = false;
@@ -167,7 +167,7 @@ export class AddCallerDetails extends Component {
 		};
 
 		if (this.ivrOption.value === `StopCard`) {
-			const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 			const addedcallerdetails = returnValue.result;
 
 			if (returnValue.succeeded) {
@@ -181,18 +181,10 @@ export class AddCallerDetails extends Component {
 				// TODO: Move navigatin to stop card screen here
 				// this.horizonRouter.navigateToStopCard();
 			} else {
-				// TODO: Handle failure on call to identifyCaller
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `System Error`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 				this.horizonRouter.navigateToSystemError();
 			}
 
 		} else if (this.ivrOption.value === `Insure`) {
-			// TODO: Should there be a channel service call to record the third party against the incident
 			const state = {
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: {
