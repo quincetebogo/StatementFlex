@@ -1,11 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonStore } from 'app/store/HorizonStore';
+
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
 import 'platform/components/buttons/ProductTile';
+
 
 
 /**
@@ -30,6 +33,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.callHandleServive = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.miniProfile = {
 			name: ``,
@@ -128,6 +132,9 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
+	_favouritesClicked() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -163,7 +170,8 @@ export class ProfileAndProductSummaryBar extends Component {
 	_renderFavourites() {
 		if (this.hasFavourites) {
 			return html`
-				<horizon-favourites-tile class="favourites-button" label="Favourites" subtitle="Transact, dispute, cards and more">
+				<horizon-favourites-tile class="favourites-button" label="Favourites" subtitle="Transact, dispute, cards and more"
+					@click="${() => this._favouritesClicked()}">
 				</horizon-favourites-tile>`;
 		};
 		return html``;

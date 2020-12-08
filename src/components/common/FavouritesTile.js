@@ -71,16 +71,10 @@ export class FavouritesTile extends Component {
 	_tileClicked(event) {
 
 		// Ignore the event if the component is disabled.
-		// if (this.disabled) {
-		// 	return event.stopImmediatePropagation();
-		// }
-
-		if (this.horizonStore.callerInformation.verificationStatus === `unverified`) {
-			this.horizonRouter.navigateToQuickTransactionFavourites();
+		if (this.disabled) {
+			return event.stopImmediatePropagation();
 		}
-		else if (this.horizonStore.callerInformation.verificationStatus === `verified`) {
 
-		}
 		// Notify any subscribers that the link was clicked.
 		this.dispatchEvent(new CustomEvent(`click`, {
 			detail: {}
@@ -186,7 +180,7 @@ export class FavouritesTile extends Component {
 
 				.tile:active {
                     border:  1px solid #009DE0;
-                    box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+                    box-shadow: var(--theme-product-tile-active-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
 				}
 				
                 .tile.favourites:focus {

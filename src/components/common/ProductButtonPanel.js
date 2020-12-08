@@ -17,7 +17,7 @@ export class ProductButtonPanel extends Component {
 	constructor() {
 		super();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance().recoverState();
+		this.horizonStore = HorizonStore.getInstance();
 
 		this.disableNavigation = false;
 		this.subtitle = {};
@@ -83,12 +83,22 @@ export class ProductButtonPanel extends Component {
 
 	onInsureClick() {
 		console.log(`client is insured`)
-		// if (this.disableNavigation) {
-		// 	this.horizonRouter.navigateToInsureProduct();
-		// }
-		if (!this.horizonStore.callerInformation.hasInsuranceProducts) {
+		if (this.disableNavigation) {
+			this.horizonRouter.navigateToInsureProduct();
+		}
+
+		let state = this.horizonStore.recoverState();
+
+		if (!state.callerInformation.hasInsuranceProducts) {
 			this.horizonRouter.navigateToInsureProspectiveClient();
 		}
+		else {
+			this.horizonRouter.navigateToInsureExistingClient();
+		}
+		state.leftBarButtonConfig.hasFavourites = false;
+		this.horizonStore.saveState(state);
+
+
 	}
 
 	onCreditClick() {
