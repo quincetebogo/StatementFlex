@@ -168,7 +168,7 @@ export class SearchCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 	}
 
 	// ----------
@@ -238,19 +238,16 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			}
-			else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !identifiedClient) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+			} 
 		}
 	}
 
@@ -288,11 +285,7 @@ export class SearchCaller extends Component {
 				cellphone: this.cellPhoneNumberValue
 			};
 
-			const returnValue = await this.insureService.addNonClientDetails(nonClientData);
-
-			if (!returnValue.succeeded) {
-				// TODO: Handle errors if call fails
-			}
+			await this.insureService.addNonClientDetails(nonClientData);
 
 			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 				detail: {
@@ -398,40 +391,12 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
 	_handleSearchClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 

@@ -47,7 +47,7 @@ export class VerifyCaller extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
 
 	// ----------
@@ -110,7 +110,7 @@ export class VerifyCaller extends Component {
     async _verifyUsingSecurityQuestions() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
 
-		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
+		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;

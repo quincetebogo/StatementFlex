@@ -1,14 +1,19 @@
-/**
- * The Assign Stop Card dialog is used to assign a task to handle the failure
- * to stop a card to a team.
- */
 import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
 
+/**
+ * The Assign Stop Card dialog is used to assign a task to handle the failure
+ * to stop a card to a team.
+
+ * @export
+ * @class AssignStopCard
+ * @extends {Component}
+ */
 export class AssignStopCard extends Component {
 
 	// --------------
@@ -28,9 +33,10 @@ export class AssignStopCard extends Component {
 
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
-
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
+		
 		this.isBusy = false;
 		this.success = true;
 	}
@@ -63,14 +69,12 @@ export class AssignStopCard extends Component {
 			incidentRecId: this.incomingCallDetails.incidentRecId
 		};
 
-		this.cardService.assignTeams(cardsAndIncident, null)
+		this.cardService.assignTeams(cardsAndIncident)
 			.then((returnValue) => {
 				if (returnValue.succeeded) {
 					this.teamsResponse = returnValue.result;
 					this.teamItems = this.teamsResponse.teams.possibleValues;
-				} else {
-					// TODO: How to handle failure to load teams?
-				}
+				} 
 		});
 	}
 
@@ -91,14 +95,12 @@ export class AssignStopCard extends Component {
 				"team": this.team.value
 			};
 
-			const returnValue = await this.cardService.assign(assignRequest, (ex) => this._assignErrorHandler());
+			const returnValue = await this.cardService.assign(assignRequest);
 
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
-			} else {
-				// TODO: Handle failure to assign
 			};
 		}
 	}
@@ -122,29 +124,7 @@ export class AssignStopCard extends Component {
 	// ----------
 
 	_assignErrorHandler(exception) {
-		if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `assign: ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `assign: ${exception.status} - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `assign: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-		}
-		
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -243,7 +223,7 @@ export class AssignStopCard extends Component {
 
 				capitec-modal{
 					--theme-modal-header-background-color: #F7F7F7;
-					--theme-modal-header-color: #3E4547;	
+					--theme-modal-header-color: #3E4547;
 				}
 			`
 ];
@@ -274,8 +254,8 @@ export class AssignStopCard extends Component {
 
 	renderBody() {
 		return html`
-		<capitec-group  class="modal-body" layout="vertical" nopadding>	
-			${this.renderErrorAlertBanner()}		
+		<capitec-group  class="modal-body" layout="vertical" nopadding>
+			${this.renderErrorAlertBanner()}
 			${this.cards.map((line, index, cards) => this.renderLines(line, index, cards))}
 			<p id="first-line">can not be stopped due to a system error.</p>
 			
@@ -334,7 +314,7 @@ export class AssignStopCard extends Component {
 			<capitec-button class="assign-button"
 				type="primary"
 				label="Assign"
-				@click="${async (e) => this._onAssignClick(e)}" >
+				@click="${(e) => this._onAssignClick(e)}" >
 			</capitec-button >
 			`;
 	}

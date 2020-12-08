@@ -405,15 +405,15 @@ export class StopCard extends Component {
 							<capitec-label label="Card Type"
 										   style="${TABLE_STYLE.CELL_HEIGHT}"
 										   type="subtitle">
-		</capitec-label>
-	</div>
+							</capitec-label>
+						</div>
 						<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
 							<capitec-label label="Card Number"
 										   style="${TABLE_STYLE.CELL_HEIGHT}"
 										   type="subtitle">
-		</capitec-label>
-	</div>
-</capitec-group>`;
+							</capitec-label>
+						</div>
+					</capitec-group>`;
 	}
 
 	/**

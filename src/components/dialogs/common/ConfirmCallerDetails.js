@@ -60,6 +60,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
 
@@ -111,13 +112,16 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService.addCallerDetails(callDetails, null);
+		const returnValue = await this.cardService.addCallerDetails(callDetails);
 		this.addCallerDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		} else {
-			// TODO: handle failure to add caller details
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -149,11 +153,13 @@ export class ConfirmCallerDetails extends Component {
 
 		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
-		if (returnValue.succeeded && returnValue.result.hasInsurance) {
-			// Save hasInsuranceProducts value in horizonStore
-			this.hasInsurance = true;
+		if (returnValue.succeeded) {
+			this.hasInsurance = returnValue.result.hasInsurance;
 		} else {
-			// TODO: failure show system error
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
