@@ -5,8 +5,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/insure/AssignReasonDialog';
-import 'app/components/dialogs/insure/AssignReasonSelected';
+// import 'app/components/dialogs/insure/AssignReasonDialog';
+// import 'app/components/dialogs/insure/AssignReasonSelected';
+import 'app/components/dialogs/stopCard/AssignStopCard';
 
 const RENDER_MODE = {
 	CARD_STOP_FAILURE: 0,
@@ -20,6 +21,13 @@ const RENDER_DIALOG = {
 };
 const MAX_ATTEMPT = 2;
 
+/**
+ * An error screen for informing the user of the failure to stop one or more cards
+ *
+ * @export
+ * @class StopCardFailure
+ * @extends {View}
+ */
 export class StopCardFailure extends View {
 
 	// --------------
@@ -69,17 +77,19 @@ export class StopCardFailure extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.callerInfo = state.callerInfo;
-			this.cardsToStop = state.stoppedCards;
-			this.failedCards = this.cardsToStop.filter(cards => !cards.stopped);
+			this.callerInformation = state.callerInformation;
+			this.incomingCallDetails = state.incomingCallDetails;
+
+			this.stoppedCards = state.stoppedCards;
+			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
 			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber,
-				ivrOptionCode: this.callerInfo.ivrOptionCode,
-				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
 			});
 		}
 
@@ -116,15 +126,22 @@ export class StopCardFailure extends View {
 
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
-		this.cardsToStop = await this._stopCards(this.cardsToStop, this.callerInfo);
 
-		// Toggling back to Network Error summary
-		this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, (ex) => this._stopCardErrorHandler(ex));
+		
+		if (returnValue.succeeded) {
+			const cardStopResults = returnValue.result;
 
-		const isAllSuccess = this.cardsToStop.every(cards => cards.stopped === true);
-		if (isAllSuccess) {
-			this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
-			this.horizonRouter.navigateToStoppedCards();
+			this.failedCards = cardStopResults.filter(cards => !cards.cardStopped);
+
+			// Toggling back to Network Error summary
+			this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
+	
+			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
+			if (isAllSuccess) {
+				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
+				this.horizonRouter.navigateToStoppedCards();
+			}
 		}
 	}
 
@@ -145,14 +162,6 @@ export class StopCardFailure extends View {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	async _stopCards(cardsToStop, callerInfo) {
-
-		 const returnValue = await this.cardService.stopCards(cardsToStop, callerInfo, (ex) => this._stopCardErrorHandler(ex));
-		 const cardStopResults = returnValue.result;
-
-		return cardStopResults;
-	}
 
 	_onAssignIncident() {
 		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
@@ -369,13 +378,13 @@ export class StopCardFailure extends View {
 	_renderStoppedCards() {
 		return html`
 			<div class="status-group">
-				${this.cardsToStop.map((card) => this._renderCardStatus(card))}
+				${this.stoppedCards.map((card) => this._renderCardStatus(card))}
 			</div>
 		`;
 	}
 
 	_renderCardStatus(card) {
-		if (card.stopped) {
+		if (card.cardStopped) {
 			return html`${this._renderSuccessStatus(card)}`;
 		}
 		
@@ -387,7 +396,7 @@ export class StopCardFailure extends View {
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully
+					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
 		`;
@@ -398,7 +407,7 @@ export class StopCardFailure extends View {
 			<div class="card-status-error">
 				<capitec-icon size="medium" icon="status/error"></capitec-icon>
 				<p class="card-status-text">
-					Unable to stop ${card.cardType} <b>${card.encryptedCardId}</b>
+					Unable to stop ${card.cardDisplayName} <b>${card.maskedCardNumber}</b>
 				</p>
 			</div>
 		`;
@@ -425,7 +434,7 @@ export class StopCardFailure extends View {
 			return html`
 			<horizon-end-call-session
 				@cancel="${() => this.renderDialog = -1}"
-				.incomingCallDetails = "${this.callerInfo}"
+				.incomingCallDetails = "${this.incomingCallDetails}"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
@@ -437,7 +446,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.HANDOFF) {
 			return html`
 				<horizon-assign-stop-card
-					.callerInfo=${this.callerInfo}
+					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.renderDialog = -1}"
 					@on-handoff="${(e) => this._onHandOff(e)}">

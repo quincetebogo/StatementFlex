@@ -155,7 +155,7 @@ export class LandingPage extends View {
 		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
 			case `Transact`:
-					// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -239,7 +239,7 @@ export class LandingPage extends View {
 
 	async _GetLandingPageData() {
 
-		const returnValue = await this.initialiseService.initialise();
+		const returnValue = await this.initialiseService.initialise((ex) => this.landingPageErrorHandler(ex));
 		const landingPageData = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -262,7 +262,7 @@ export class LandingPage extends View {
 		}
 
 		this.desktopAgentService.callComplete();
-		this.horizonRouter.navigateToSystemError();
+		this.horizonRouter.navigateToInitialSystemError();
 		return true;
 	}
 

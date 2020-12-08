@@ -53,7 +53,7 @@ export class Favourites extends View {
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyNowClick());
-				
+
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -74,7 +74,7 @@ export class Favourites extends View {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-		
+
 		this._initialise();
 	}
 
@@ -97,14 +97,14 @@ export class Favourites extends View {
 	_verifyNowClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
-	
+
 	_skipVerificationClick() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_onFavouritesOptionClick(e) {
 		switch (e.detail.option) {
-			case `stop-card`: 
+			case `stop-card`:
 				this._stopCard();
 				break;
 			case `debi-check`:
@@ -143,7 +143,6 @@ export class Favourites extends View {
 
 			// Now we can update the information on the product buttons as well
 			this._updateLeftBar();
-
 		}
 	}
 
@@ -173,7 +172,7 @@ export class Favourites extends View {
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
 			};
-	
+
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
@@ -233,10 +232,15 @@ export class Favourites extends View {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
-			this.horizonStore.saveState({ incomingCallDetails: this.incomingCallDetails, 
-				callerInformation: this.callerInformation, 
-				clientProfileDetails: clientProfileDetails });
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation,
+				clientProfileDetails: clientProfileDetails
+			});
 			this.horizonRouter.navigateToStopCard();
+		}
+		else {
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -273,7 +277,7 @@ export class Favourites extends View {
 	}
 
 	_renderFavouritesLandingPage() {
-		return this.isLoading ? html`` 
+		return this.isLoading ? html``
 			: html`<horizon-favourites-transactions 
 					class="favourites"
 					.landingPageInfo="${this.landingPageInfo}"
