@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
@@ -14,8 +14,7 @@ const RENDER_MODE = {
 };
 
 const ERROR_MESSAGE = {
-	DEFAULT_NOTIFICATION: html`<b>Notify client: </b>Unfortunately you didn't pass the security questions.`,
-	SYSTEM_ERROR: `XDS SYSTEM ERROR: Unable to retrieve security questions`
+	DEFAULT_NOTIFICATION: html`<b>Notify client: </b>Unfortunately you didn't pass the security questions.`
 };
 
 const HEADER_LABEL = `Verify Caller`;
@@ -44,7 +43,7 @@ export class SecurityQuestionsFailed extends Component {
 		this.xdsMessage = ERROR_MESSAGE.DEFAULT_NOTIFICATION;
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
 
 	// ----------
@@ -96,7 +95,7 @@ export class SecurityQuestionsFailed extends Component {
 	async _retrySecurityQuestions() {
 
 		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
+		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
@@ -109,7 +108,7 @@ export class SecurityQuestionsFailed extends Component {
 					detail: { 'securityQuestions': this.securityQuestions }
 				}));
 			} else {
-				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : ERROR_MESSAGE.SYSTEM_ERROR;
+				this.xdsMessage = this.securityQuestions.errorMessage;
 			}
 		}
 	}
