@@ -15,8 +15,8 @@ const RENDER_MODE = {
 
 const ERROR_MESSAGE = {
 	DEFAULT_NOTIFICATION: html`<b>Notify client: </b>Unfortunately you didn't pass the security questions.`,
-	SYSTEM_ERROR: `XDS SYSTEM ERROR: Unable to retrieve security questions`,
-}
+	SYSTEM_ERROR: `XDS SYSTEM ERROR: Unable to retrieve security questions`
+};
 
 const HEADER_LABEL = `Verify Caller`;
 
@@ -64,11 +64,11 @@ export class SecurityQuestionsFailed extends Component {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
 			incomingCallDetails: { type: Object },
+			callerInformation: { type: Object },
+			renderMode: { type: Number },
 			xdsMessage: { type: String },
-			isBusy: { type: Boolean },
-			callerInformation: { type: Object }
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -95,26 +95,22 @@ export class SecurityQuestionsFailed extends Component {
 
 	async _retrySecurityQuestions() {
 
-		const clientID = this.callerInformation.southAfricanIDNumber
+		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, (ex) => this._xdsErrorHandler(ex));
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
 
 			if (!this.securityQuestions.authenticationPermitted) {
-				//common code - imported from VerifyCaller
+				// common code - imported from VerifyCaller
 				navigateToFailedScreen(this);
-			}
-			else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
 					detail: { 'securityQuestions': this.securityQuestions }
 				}));
-			}
-			else {
+			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : ERROR_MESSAGE.SYSTEM_ERROR;
 			}
-		} else {
-			// navigate to system error screen
 		}
 	}
 
@@ -140,8 +136,14 @@ export class SecurityQuestionsFailed extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
+
 	_xdsErrorHandler(exception) {
-		this.xdsMessage = ERROR_MESSAGE.SYSTEM_ERROR;
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 

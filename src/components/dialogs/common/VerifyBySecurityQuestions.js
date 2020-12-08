@@ -215,6 +215,11 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_xdsErrorHandler(exception) {
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
 		this.horizonRouter.navigateToSystemError();
 		return true;
 	}

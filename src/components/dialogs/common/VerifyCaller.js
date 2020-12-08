@@ -3,7 +3,6 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonCallerDialog';
@@ -134,9 +133,7 @@ export class VerifyCaller extends Component {
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
-		} else {
-			// navigate to system error screen
-		}
+		} 
 	}
 
 	_skip() {
@@ -179,7 +176,12 @@ export class VerifyCaller extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		this.xdsMessage = `XDS SYSTEM ERROR: Unable to retrieve security questions`;
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
