@@ -2,9 +2,15 @@ import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
-export class StopCard extends Component {
+/**
+ * Displays the list of cards that will be stopped and prompts for confirmation.
+ *
+ * @export
+ * @class StopCardConfirm
+ * @extends {Component}
+ */
+export class StopCardConfirm extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -14,8 +20,6 @@ export class StopCard extends Component {
 		super();
 
 		this.cardsToStop = [];
-		this.cardStopResults = [];
-		this.callerInfo = {};
 		this.isBusy = false;
 
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -25,11 +29,18 @@ export class StopCard extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 *
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof StopCardConfirm
+	 */
 	static get properties() {
 		return {
-			isBusy: { type: Boolean },
-			callerInfo: { type: Object },
-			cardsToStop: { type: Array }
+			incomingCallDetails: { type: Object },
+			cardsToStop: { type: Array },
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -54,9 +65,12 @@ export class StopCard extends Component {
 	// --------------
 
 	async _onConfirmClick() {
-		this.cardStopResults = await this._stopCards(this.cardsToStop, this.callerInfo);
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails);
+		const cardStopResults = returnValue.result;
 
-		this.dispatchEvent(new CustomEvent(`on-confirm`, { detail: { stoppedCards: this.cardStopResults } }));
+		if (returnValue.succeeded) {
+			this.dispatchEvent(new CustomEvent(`on-confirm`, { detail: { stoppedCards: cardStopResults } }));
+		} 
 	}
 
 	_onCancelClick() {
@@ -71,54 +85,8 @@ export class StopCard extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	async _stopCards(cardsToStop, callerInfo) {
-		const returnValue = await this.cardService.stopCards(cardsToStop, callerInfo);
-		const cardStopResults = returnValue.result;
-
-		if (returnValue.succeeded) {
-			return cardStopResults;
-		} else {
-			this.horizonRouter.navigateToSystemError();
-		}
-
-
-	}
-
 	_stopCardErrorHandler(exception) {
-		try {
-			this.error = `Failed to stop card`;
-
-			console.log(`stop card exception`, exception);
-
-			if (exception instanceof TypeError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `stopCard: ${exception.message}`
-				};
-				this.error = exception.message;
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else if (exception instanceof HttpStatusError) {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `stopCard: ${exception.status} - ${exception.message}`
-				};
-				this.error = `${exception.status}: ${exception.message}`;
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `stopCard: UNEXPECTED ERROR - ${exception.message}`
-				};
-				this.error = exception.message;
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} finally {
-			this.success = false;
-		}
-
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -271,4 +239,4 @@ export class StopCard extends Component {
 	}
 }
 
-window.customElements.define(`horizon-stop-card`, StopCard);
+window.customElements.define(`horizon-stop-card-confirm`, StopCardConfirm);

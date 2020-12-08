@@ -10,6 +10,9 @@ const RENDER_MODE = {
 	END_CALLSESSION: 1
 };
 
+/**
+ * Display an confirmation/success screen indicating which cards have been successfully stopped.
+ */
 export class StopCardSuccess extends View {
 
 	// --------------
@@ -49,15 +52,15 @@ export class StopCardSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.callerInfo = state.callerInfo;
+			this.incomingCallDetails = state.incomingCallDetails;
 			this.stoppedCards = state.stoppedCards;
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber,
-				ivrOptionCode: this.callerInfo.ivrOptionCode,
-				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
 			});
 		}
 
@@ -330,7 +333,7 @@ export class StopCardSuccess extends View {
 			return html`
 			<horizon-end-call-session
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
-				.incomingCallDetails ="${this.callerInfo}">
+				.incomingCallDetails ="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 		}
 
