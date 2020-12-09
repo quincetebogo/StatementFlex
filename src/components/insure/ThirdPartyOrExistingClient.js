@@ -466,7 +466,10 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}" @skip="${(e) => this._onSkipVerification(e)}">
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.callerInformation="${this.callerInformation}"
+					@skip="${(e) => this._onSkipVerification(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;
