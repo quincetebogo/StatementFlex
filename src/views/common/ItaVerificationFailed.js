@@ -1,9 +1,9 @@
 import { View, css, html } from 'platform/elements';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 
-import { HorizonStore } from 'app/store/HorizonStore';
-import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/quickTransactions/FavouriteTransactions';

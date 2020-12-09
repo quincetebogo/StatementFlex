@@ -19,8 +19,8 @@ export class InsureService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	hasInsuranceProducts(InSuranceCientInfo, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.hasInsuranceProducts(InSuranceCientInfo), errorHandler);
+	hasInsuranceProducts(insuranceClientInfo, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), errorHandler);
 	}
 
 	addNonClientDetails(incidentData, errorHandler = null) {

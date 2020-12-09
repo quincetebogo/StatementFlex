@@ -38,9 +38,12 @@ export class CardService extends ServiceBase {
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
-				"cardId": card.cardId,
-				"accountNumber": card.accountNumber,
-				"stopReason": card.stopReason
+				cardId: card.cardNumber,
+				maskedCardNumber: card.maskedCardNumber,
+				cardExpiryYear: card.cardExpiryYear,
+				cardExpiryMonth: card.cardExpiryMonth,
+				cardSequenceNumber: card.cardSequenceNumber,
+				reason: card.cardStopReason
 			})),
 			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
@@ -54,13 +57,15 @@ export class CardService extends ServiceBase {
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
 			cardStopResults = stopCardResponse.cardResponses.map((response, index) => ({
-				cardId: cardsToStop[index].cardId,
-				cardType: cardsToStop[index].cardType,
-				encryptedCardId: cardsToStop[index].encryptedCardId,
-				accountNumber: cardsToStop[index].accountNumber,
-				stopReason: cardsToStop[index].stopReason,
-				stopped: response.result.statusCode === 200,
-				errorMessage: response.result.statusCode
+				cardDisplayName: cardsToStop[index].cardDisplayName,
+				cardNumber: cardsToStop[index].cardNumber,
+				maskedCardNumber: cardsToStop[index].maskedCardNumber,
+				cardExpiryYear: cardsToStop[index].cardExpiryYear,
+				cardExpiryMonth: cardsToStop[index].cardExpiryMonth,
+				cardSequenceNumber: cardsToStop[index].cardSequenceNumber,
+				cardStopReason: cardsToStop[index].cardStopReason,
+				cardStopped: response.result.statusCode === 200,
+				statusCode: response.result.statusCode
 			}));
 		}
 

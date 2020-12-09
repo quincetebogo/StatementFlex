@@ -8,8 +8,6 @@ import { Component, css, html } from 'platform/elements';
  * @class ErrorScreen
  * @extends {Component}
  */
-
-
 export class ErrorScreen extends Component {
 	// --------------
 	// INITIALISATION
@@ -71,7 +69,7 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: 823px;
+					height: 876px;
 					width: 1064px;
 				}
 				#id-unsuccessful-img {
@@ -152,21 +150,31 @@ export class ErrorScreen extends Component {
 
 	_webTemplate() {
 		return html`
-		
 			<capitec-card class="card">
-				<capitec-toast ?hidden="${!this.displayToast}" id="id-error-toast" type="error" header="Unsuccesful"
-					detail="${this.toast}" closable @click="${() => this.displayToast = false}">
+				<capitec-toast 
+					?hidden="${!this.displayToast}" 
+					id="id-error-toast" 
+					type="error" 
+					header="Unsuccesful" 
+					detail="${this.toast}" 
+					closable 
+					@click="${() => this.displayToast = false}">
 				</capitec-toast>
-				<img id="id-unsuccessful-img" src="/images/insure/assign-pay-arrears.svg" />
+				<img id="id-unsuccessful-img" src="/images/insure/assign-pay-arrears.svg"/>
 				<capitec-label id="id-verify-unsuccessful" label="${this.header}"></capitec-label>
-				<capitec-group id="id-msg-group" layout="horizontal">
+				<capitec-group id = "id-msg-group" layout="horizontal">
 					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
 					<slot name="detail"></slot>
 				</capitec-group>
 				<capitec-group id="id-button-group" layout="horizontal">
-					<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>
-					<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
-					</capitec-button>
+					${this.left
+						? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
+						: html``
+					}
+					${this.right
+						? html`<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>`
+						: html``
+					}
 				</capitec-group>
 			</capitec-card>
 		`;
