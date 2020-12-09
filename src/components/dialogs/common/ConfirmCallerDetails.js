@@ -584,7 +584,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-verify-caller 
 				.incomingCallDetails="${this.incomingCallDetails}" 
-				.callerInformation="${callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;

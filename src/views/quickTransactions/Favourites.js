@@ -238,8 +238,7 @@ export class Favourites extends View {
 				clientProfileDetails: clientProfileDetails
 			});
 			this.horizonRouter.navigateToStopCard();
-		}
-		else {
+		} else {
 			this.horizonRouter.navigateToSystemError();
 		}
 	}
@@ -294,6 +293,7 @@ export class Favourites extends View {
 			return html`
 				<horizon-verify-caller 
 					.incomingCallDetails="${this.incomingCallDetails}" 
+					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerificationClick(e)}">
 				</horizon-verify-caller>`;
 		}

@@ -7,7 +7,6 @@ import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUt
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -17,9 +16,9 @@ import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
-	SEARCH_CALLER: 0,
+	STOP_CARD_SEARCH: 0,
 	END_CALL: 1,
-	INSURE_SEARCH_CALLER: 2
+	SEARCH_CALLER: 2
 };
 
 const HEADER_LABEL = `Search Caller Details`;
@@ -157,7 +156,7 @@ export class StopCardSearchCaller extends Component {
 		this._loadSearchOptions();
 
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
-		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
 	}
 
@@ -214,8 +213,8 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		if (this.ivrOption.value === `Insure`) {
-			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+		if (this.ivrOption.value !== `StopCard`) {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
 
@@ -382,7 +381,7 @@ export class StopCardSearchCaller extends Component {
 
 	render() {
 		switch (this.renderMode) {
-			case RENDER_MODE.SEARCH_CALLER:
+			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
 					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
 						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
@@ -396,7 +395,7 @@ export class StopCardSearchCaller extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
-			case RENDER_MODE.INSURE_SEARCH_CALLER:
+			case RENDER_MODE.SEARCH_CALLER:
 				return html`${this.renderInsureSearchModal()}`;
 			default:
 		}
@@ -457,7 +456,7 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}
