@@ -6,7 +6,6 @@ import 'platform/components';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
-import 'app/components/common/HorizonRadioButtonsContainer';
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
