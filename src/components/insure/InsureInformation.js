@@ -953,7 +953,10 @@ export class InsureInformation extends Component {
 
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`<horizon-verify-caller .incomingCallDetails=${this.incomingCallDetails}></horizon-verify-caller>`;
+			return html`<horizon-verify-caller 
+							.incomingCallDetails="${this.incomingCallDetails}"
+							.callerInformation="${this.callerInformation}">
+						</horizon-verify-caller>`;
 		}
 		return html``;
 	}

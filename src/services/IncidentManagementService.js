@@ -37,7 +37,7 @@ export class IncidentManagementService extends ServiceBase {
 	 *
 	 * @param {object} incidentData The incoming all information to record against the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
 	createIncident(incidentData, errorHandler = null) {

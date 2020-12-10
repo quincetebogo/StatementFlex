@@ -5,6 +5,7 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
@@ -58,6 +59,8 @@ export class ConfirmCallerDetails extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
 
@@ -109,13 +112,16 @@ export class ConfirmCallerDetails extends Component {
 			agentPhoneNumber: this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.cardService.addCallerDetails(callDetails, null);
+		const returnValue = await this.cardService.addCallerDetails(callDetails);
 		this.addCallerDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		} else {
-			// TODO: handle failure to add caller details
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -145,13 +151,15 @@ export class ConfirmCallerDetails extends Component {
 			isCallerVarified: false
 		};
 
-		const returnProducts = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, null);
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
-		if (returnProducts.result.hasInsurance) {
-			// Save hasInsuranceProducts value in horizonStore
-			this.hasInsurance = true;
+		if (returnValue.succeeded) {
+			this.hasInsurance = returnValue.result.hasInsurance;
 		} else {
-			// TODO: failure show system error
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -188,7 +196,7 @@ export class ConfirmCallerDetails extends Component {
 			hasInsuranceProducts: this.hasInsurance 
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -199,7 +207,11 @@ export class ConfirmCallerDetails extends Component {
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
-			// TODO: Something like: this.horizonRouter.navigateToSystemError(()
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation
+			});
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -572,7 +584,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-verify-caller 
 				.incomingCallDetails="${this.incomingCallDetails}" 
-				.callerInformation="${callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;

@@ -21,7 +21,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	// INITIALISATION
 	// --------------
 
-	constructor() {		
+	constructor() {
 		super();
 
 		console.log(`ProfileAndProductSummaryBar - constructor`);
@@ -53,6 +53,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
 		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
+		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites)
 	}
 
 	// ----------

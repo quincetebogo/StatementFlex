@@ -53,10 +53,12 @@ export class ServiceCallHelper {
             result: null
 		};
 
-		let retryCount = 0;
+		let tryCount = 0;
 
-		while (retryCount < autoRetries) {
+		while (tryCount < autoRetries) {
 			try {
+				tryCount++;
+
 				this._clearError();
 				this.toggleBusyFlag();
 	
@@ -65,12 +67,12 @@ export class ServiceCallHelper {
 	
 				return returnValue;
 			} catch (exception) {
-				this._handleException(errorHandler, exception);
+				if (tryCount >= autoRetries) {
+					this._handleException(errorHandler, exception);
+				}
 			} finally {
 				this.toggleBusyFlag();
 			}
-
-			retryCount++;
 		}
 
 

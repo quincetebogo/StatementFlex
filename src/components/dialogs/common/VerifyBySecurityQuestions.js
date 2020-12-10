@@ -3,9 +3,6 @@ import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { InsureService } from 'app/services/InsureService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -14,11 +11,12 @@ import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	SECURITY_QUESTIONS: 0,
 	END_CALL: 1,
 	FIRST_FAILURE: 2
-};
+});
+
 const HEADER_LABEL = `Security Questions`;
 
 const ERROR_MESSAGE = `Please choose an option`;
@@ -56,10 +54,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
-		this.quickTransactionsService = new QuickTransactionsService(() => this._toggleBusyFlag(), null);
-		this.insureService = new InsureService(() => this._toggleBusyFlag());
-
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
 
 	// --------------
@@ -131,12 +126,12 @@ export class VerifyBySecurityQuestions extends Component {
 	async _verifyAnswers() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-        } else {
+		} else {
 			this.alertBannerMessage = ``;
-            this.checked = false;
+			this.checked = false;
 
-			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, (ex) => this._xdsErrorHandler(ex));
-	
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
+
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this._navigateToLandingPage(`verified`);
 			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
@@ -149,13 +144,11 @@ export class VerifyBySecurityQuestions extends Component {
 					callerInformation: this.callerInformation,
 					incomingCallDetails: this.incomingCallDetails
 				};
-		
+
 				this.horizonStore.saveState(state);
-		
+
 				this.horizonRouter.navigateToXdsVerificationFailed();
-			} else {
-				// TODO: navigate to system error screen this.horizonRouter.navigateTo or to XdsVerificationFailed..
-			}
+			} 
 		}
 	}
 
@@ -179,9 +172,10 @@ export class VerifyBySecurityQuestions extends Component {
 		});
 	}
 
-	_retrySecurityQuestions() {
+	_retrySecurityQuestions(e) {
 		if (this.retryCount <= 1) {
 			this.questionNumber = 0;
+			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
 	}
@@ -221,16 +215,12 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_xdsErrorHandler(exception) {
-		if (exception instanceof TypeError) {
-			this.alertBannerMessage = `SYSTEM ERROR`;
-		} else if (exception instanceof HttpStatusError) {
-			console.log(exception);
-			this.alertBannerMessage = `SYSTEM ERROR`;
-		} else {
-			console.log(exception);
-			this.alertBannerMessage = `SYSTEM ERROR`;
-		}
-
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -369,7 +359,7 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-							${this._renderLoadingIndicator()}}
+							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -402,7 +392,7 @@ export class VerifyBySecurityQuestions extends Component {
 		if (index === this.questionNumber) {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
-				<capitec-label class="question-label" label="${item.question}"></capitec-label>
+				<capitec-label class="question-label" label="${item.question.replace(/(\r\n|\n|\r)/gm, ``)}"></capitec-label>
 				<horizon-radio-button 
 					class="radio-button" 
 					.radioButtonsAvailable="${answers}"
@@ -436,17 +426,17 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_renderFailureModal() {
 		return html`
-			<horizon-security-questions-failed 
-				.incomingCallDetails="${this.incomingCallDetails}"
-				@security-questions="${() => this._retrySecurityQuestions()}" 
+			<horizon-security-questions-failed
+                .incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
 				@skip="${() => this._onSkip()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-end-call-session
+                .incomingCallDetails="${this.incomingCallDetails}"
 				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
 				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
 			</horizon-end-call-session>`;
