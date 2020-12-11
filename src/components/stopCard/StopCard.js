@@ -516,9 +516,10 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
-				.isReassigned = "${this.isReassigned}">
+				endCallContext="LandingPage"
+				.isReassigned = "${this.isReassigned}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
 			</horizon-end-call-session>`;
 		}
 		return html``;

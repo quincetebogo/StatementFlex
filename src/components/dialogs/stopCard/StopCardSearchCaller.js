@@ -7,6 +7,7 @@ import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUt
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -92,6 +93,7 @@ export class StopCardSearchCaller extends Component {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		RegExp();
 
@@ -456,8 +458,10 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}">
 			</horizon-end-call-session>`;
 	}
 

@@ -120,7 +120,18 @@ export class HorizonChannelService extends Service {
 			`EndCallContext=${endCallDetails.EndCallContext}`);
 	}
 
-	// endCallSession
+	/**
+	 * Records the end call reason/cause code against an incident
+	 * This call has been moved onto /clientcare/call and should no longer
+	 * be used
+	 * 
+	 * @deprecated
+	 * 
+	 * @param {string} incidentRecId The Incident identfier
+	 * @param {string} reasonCode The end call reason/cause code
+	 * @returns {Object} Either success or a failure object
+	 * @memberof HorizonChannelService
+	 */
 	endCall(incidentRecId, reasonCode) {
 		return super.httpClient.post(`/clientcare/card/${this.version}/EndCallerSession`, {
 			"incidentRecId": incidentRecId,
@@ -128,6 +139,21 @@ export class HorizonChannelService extends Service {
 		});
 	}
 
+	/**
+	 * Records the end call reason/cause code against an incident
+	 *
+	 * @param {string} incidentRecId The Incident identfier
+	 * @param {string} reasonCode The end call reason/cause code
+	 * @returns {Promise<Object>} Either success or a failure object
+	 * @memberof HorizonChannelService
+	 */
+	endCallReason(incidentRecId, reasonCode) {
+		return super.httpClient.post(`/clientcare/call/${this.version}/end-call`, {
+			"incidentRecId": incidentRecId,
+			"endReason": reasonCode
+		});
+	}
+	
 	// stopCardRequest
 	stopCard(stopCardRequest) {
 		return super.httpClient.post(

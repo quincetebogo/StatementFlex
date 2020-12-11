@@ -138,6 +138,8 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 *  Closes the incident that was created to track the call.
 	 * 
+	 * @deprecated
+	 * 
 	 * @param { object } details An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
@@ -148,6 +150,21 @@ export class CallHandleService extends ServiceBase {
 		const endCallReasonKey = details.endCallReason.key;
 
 		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), errorHandler);
+	}
+
+	/**
+	 *  Closes the incident that was created to track the call.
+	 * 
+	 * @param { object } details An object containg the incident for the call and the reason for ending the call
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof CallHandleService
+	 */
+	endCallReason(details, errorHandler = null) {
+		const incidentRecId = details.incidentRecId;
+		const endCallReasonKey = details.endCallReason.key;
+
+		return this.serviceCallHelper.asyncCall(this.channelService.endCallReason(incidentRecId, endCallReasonKey), errorHandler);
 	}
 
 	/**

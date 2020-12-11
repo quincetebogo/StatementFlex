@@ -72,8 +72,8 @@ export class ConfirmCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} confirmedCaller - Information on confirmed client.
-	 * @property {Object} incomingCallDetails - Incoming call information
+	 * @property {Object} confirmedCaller Information on confirmed client.
+	 * @property {Object} incomingCallDetails Incoming call information
 	 *
 	 * @readonly
 	 * @static
@@ -541,8 +541,10 @@ export class ConfirmCallerDetails extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
 	}
 

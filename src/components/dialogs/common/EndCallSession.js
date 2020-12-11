@@ -13,6 +13,14 @@ import 'app/components/common/HorizonCallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 
+/**
+ * The end call dialog allows the agent to select an end call reason (cause code) for recording against 
+ * an incident.
+ *
+ * @export
+ * @class EndCallSession
+ * @extends {Component}
+ */
 export class EndCallSession extends Component {
 
 
@@ -37,8 +45,8 @@ export class EndCallSession extends Component {
 	// --------------
 
 	/**
-	 *
-	 *
+	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @readonly
 	 * @static
 	 * @memberof EndCallSession
@@ -46,9 +54,10 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			endCallContext: { type: String },
+
 			endCallReasons: { type: Array },
-			isReassigned: { type: Boolean },
-			endCallContext: { type: String }
+			isReassigned: { type: Boolean }
 		};
 	}
 
@@ -76,7 +85,7 @@ export class EndCallSession extends Component {
 				const endCallDialog = returnValue.result;
 
 				if (returnValue.succeeded) {
-					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+					this.endCallReasons = endCallDialog.endCallReasons;
 				}
 			});
 	}
@@ -97,7 +106,7 @@ export class EndCallSession extends Component {
 			}
 		};
 
-		const returnValue = await this.callHandleService.endCall(callToEnd);
+		const returnValue = await this.callHandleService.endCallReason(callToEnd);
 
 		if (returnValue.succeeded) {
 			const state = { callStatus: `CALL-ENDED` };

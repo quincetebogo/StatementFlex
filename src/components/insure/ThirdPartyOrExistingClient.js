@@ -433,8 +433,10 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session @cancel="{${() => this._onCancelEndCall()}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+				<horizon-end-call-session 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage"
+					@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;

@@ -3,7 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -166,6 +166,7 @@ export class SearchCaller extends Component {
 		this.cellPhoneNumberValue = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
@@ -540,10 +541,16 @@ export class SearchCaller extends Component {
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio id="capitecClient" label="Capitec Client" @value-changed="${(e) => this._clientTypeChanged(e)}"
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio id="nonCient" label="Non Client" @value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
 				</capitec-group>
@@ -632,8 +639,9 @@ export class SearchCaller extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
 	}
 
