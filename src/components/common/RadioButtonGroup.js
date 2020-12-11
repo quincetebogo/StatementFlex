@@ -1,21 +1,21 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * A radio button with a border around it.
+ * A group of radio buttons with a border around it.
  *
  * **Usage**
  * ```html
  * 
- * <horizon-radio-button
+ * <horizon-radio-button-group
  *   label="Label Test"
  *   .radioButtonsAvailable= "set of radio buttons available as an array | null"
  *   @value-change="function to be called on value cahnge event | null">
- * </horizon-radio-button>
+ * </horizon-radio-button-group>
  * 
  * ```
  */
 
-export class HorizonRadioButtonsContainer extends Component {
+export class HorizonRadioButtonGroup extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -24,6 +24,7 @@ export class HorizonRadioButtonsContainer extends Component {
 	constructor() {
 		super();
 		this.label = ``;
+		this.selectedItem = ``;
 		this.radioButtonsAvailable = [];
 	}
 
@@ -40,7 +41,8 @@ export class HorizonRadioButtonsContainer extends Component {
 	static get properties() {
 		return {
 			label: { type: String },
-			radioButtonsAvailable: { type: Array }
+			radioButtonsAvailable: { type: Array },
+			selectedItem: { type: String }
 		};
 	}
 
@@ -57,6 +59,8 @@ export class HorizonRadioButtonsContainer extends Component {
 	// --------------
 
 	_onValueChange(event, item) {
+		this.selectedItem = item.value;
+
 		if (event.currentTarget.__checked) {
 			this.selectedReason = {
 				old: event.detail.old,
@@ -65,6 +69,7 @@ export class HorizonRadioButtonsContainer extends Component {
 				value: item.value
 			};
 		}
+
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
 				old: this.selectedReason.old,
@@ -73,6 +78,7 @@ export class HorizonRadioButtonsContainer extends Component {
 				value: this.selectedReason.value
 			}
 		}));
+
 		event.stopPropagation();
 	}
 
@@ -113,7 +119,7 @@ export class HorizonRadioButtonsContainer extends Component {
 				}
 				
 				capitec-radio-group{
-					margin-bottom: var(--horizon-radio-button-container-margin-bottom, 41px);
+					margin-bottom: var(--horizon-radio-button-group-margin-bottom, 41px);
 				}
 			}`
 		];
@@ -133,7 +139,8 @@ export class HorizonRadioButtonsContainer extends Component {
 				<capitec-radio
 							class="radio-button-label"
 							label="${item.value}"
-							@value-change="${(event) => this._onValueChange(event, item)}">
+							@value-change="${(event) => this._onValueChange(event, item)}"
+							?checked="${this.selectedItem === item.value}">
 				</capitec-radio>
 			</capitec-group>
 		`;
@@ -141,4 +148,4 @@ export class HorizonRadioButtonsContainer extends Component {
 
 }
 
-window.customElements.define(`horizon-radio-button`, HorizonRadioButtonsContainer);
+window.customElements.define(`horizon-radio-button-group`, HorizonRadioButtonGroup);
