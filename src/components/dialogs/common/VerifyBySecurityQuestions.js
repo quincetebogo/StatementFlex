@@ -6,7 +6,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
-import 'app/components/common/HorizonRadioButtonsContainer';
+import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/SecurityQuestionsFailed';
@@ -393,11 +393,11 @@ export class VerifyBySecurityQuestions extends Component {
 			return html`
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question.replace(/(\r\n|\n|\r)/gm, ``)}"></capitec-label>
-				<horizon-radio-button 
+				<horizon-radio-button-group
 					class="radio-button" 
 					.radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
-				</horizon-radio-button>
+				</horizon-radio-button-group>
 		`;
 		}
 	}

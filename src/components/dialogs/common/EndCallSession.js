@@ -8,7 +8,7 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
-import 'app/components/common/HorizonRadioButtonsContainer';
+import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/HorizonCallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
@@ -238,13 +238,13 @@ export class EndCallSession extends Component {
 	_renderChooseEndCallReason() {
 		return html`
 			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
-			<horizon-radio-button 
+			<horizon-radio-button-group
 				class="radio-button"
 				.radioButtonsAvailable="${this.endCallReasons}"
 				@value-change="${(e) => {
 				this._onValueChanged(e);
 			}}">
-			</horizon-radio-button>
+			</horizon-radio-button-group>
 		`;
 	}
 

@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import '../../common/HorizonSolutionDialog';
+import 'app/components/common/HorizonSolutionDialog';
 
 const ERROR_MESSAGE = `Choose a reason for assigning to continue`;
 
@@ -102,7 +102,7 @@ export class AssignReasonDialog extends Component {
 			}
 
 			.radio-button {
-				--horizon-radio-button-container-margin-bottom: 75px;
+				--horizon-radio-button-group-margin-bottom: 75px;
 			}
 
 			#cancel-button {
@@ -163,11 +163,11 @@ export class AssignReasonDialog extends Component {
 
 	_renderReason() {
 		return html`
-			<horizon-radio-button 
+			<horizon-radio-button-group
 					class="radio-button"
 					.radioButtonsAvailable="${this.radioButtonsAvailable}"
 					@value-change="${(e) => this._onValueChanged(e)}">
-			</horizon-radio-button>
+			</horizon-radio-button-group>
 		`;
 	}
 

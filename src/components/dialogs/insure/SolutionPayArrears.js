@@ -68,7 +68,7 @@ export class PayArrears extends Component {
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
 					--horizon-feedback-label-margin-top: 20px;
-					--horizon-radio-button-container-margin-bottom: 52px;
+					--horizon-radio-button-group-margin-bottom: 52px;
 				}
 
 				.navigate-info-label {

@@ -68,7 +68,7 @@ export class SolutionCancelPlan extends Component {
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
 					--horizon-feedback-label-margin-top: 24px;
-					--horizon-radio-button-container-margin-bottom: 40px;
+					--horizon-radio-button-group-margin-bottom: 40px;
 				}
 			
 				.navigate-info-label {
