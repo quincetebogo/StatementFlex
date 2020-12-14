@@ -62,13 +62,6 @@ export class InsureInformation extends Component {
 		this.displayNotification = true;
 		this.displayToast = true;
 		this.isReassigned = false;
-
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.nonClient = state.nonClient;
-		this.unverifiedCaller = state.unverifiedCaller;
-		this.verifiedCaller = state.verifiedCaller;
 	}
 
 	// ----------
@@ -144,13 +137,13 @@ export class InsureInformation extends Component {
 	_updateMiniProfile() {
 		const state = { 
 			miniProfile: {
-				name: this.callerInformation.name,
+				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				livesIn: this.callerInformation.livesIn,
 				languagePreference: this.callerInformation.languagePreference,
 				birthday: this.callerInformation.birthdate,
-				showButtons: true,
+				showButtons: this.callerInformation.verificationStatus === `verified`,
 				isConfirmed: this.callerInformation.isConfirmed,
 				isVerified: this.callerInformation.verificationStatus === `verified`,
 				verificationFailed: this.callerInformation.verificationStatus === `failed`,
