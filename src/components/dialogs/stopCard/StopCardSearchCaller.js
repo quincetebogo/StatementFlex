@@ -1,25 +1,20 @@
-/*
- *       Horizon Stop Card Search Dialog for Stop Card
- *
- */
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
-import 'app/components/dialogs/common/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
 
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	STOP_CARD_SEARCH: 0,
-	END_CALL: 1,
-	SEARCH_CALLER: 2
-};
+	END_CALL: 1
+});
 
 const HEADER_LABEL = `Search Caller Details`;
 
@@ -82,6 +77,19 @@ const REGEX_PATTERNS = {
 	}
 };
 
+
+/**
+ * Horizon Stop Card Search Dialog for Stop Card
+ *
+ * Events Raised 
+ * -------------
+ * other-need-selected
+ * client-identified
+ * 
+ * @export
+ * @class StopCardSearchCaller
+ * @extends {Component}
+ */
 export class StopCardSearchCaller extends Component {
 
 	// --------------
@@ -92,6 +100,7 @@ export class StopCardSearchCaller extends Component {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		RegExp();
 
@@ -214,18 +223,12 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
 		if (this.ivrOption.value !== `StopCard`) {
-			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 		}
-	}
-
-	_onNonClientCapturedInsure(event) {
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-			detail: event.detail
-		}));
-	}
-
-	_onClientIdentfiedInsure(data) {
-		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
 
 	_onEndCall() {
@@ -237,7 +240,7 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: {
 				identifiedClient: identifiedClient,
 				incomingCallDetails: this.incomingCallDetails
@@ -395,8 +398,6 @@ export class StopCardSearchCaller extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
-			case RENDER_MODE.SEARCH_CALLER:
-				return html`${this.renderInsureSearchModal()}`;
 			default:
 		}
 	}
@@ -459,14 +460,6 @@ export class StopCardSearchCaller extends Component {
 			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
-	}
-
-	renderInsureSearchModal() {
-		return html`
-			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
-				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
-			</horizon-search-caller>`;
 	}
 }
 

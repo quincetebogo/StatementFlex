@@ -131,7 +131,7 @@ export class LandingPage extends View {
 		if (returnValue.succeeded && incident) {
 			await this._acceptCall(newCallInfo, incident);
 		} else {
-			this.horizonRouter.navigateToSystemError();
+			this.horizonRouter.navigateToInitialSystemError();
 		}
 	}
 
@@ -202,26 +202,56 @@ export class LandingPage extends View {
 		}
 	}
 
-	_onClientIdentified(data) {
-		this.confirmedCaller = data.detail.identifiedClient;
-		this.incomingCallDetails = data.detail.incomingCallDetails;
+	_clientIdentified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.identifiedClient;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	_onNonClientCaptured(event) {
-		this.horizonStore.saveState(event.detail);
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.horizonRouter.navigateToInsureNonClient();
+	_nonClientCaptured(event) {
+		const callerInformation = {
+			cifNumber: ``,
+			birthdate: ``,
+			languagePreference: ``,
+			livesIn: ``,
+			name: ``,
+			southAfricanIDNumber: ``,
+			verifiedTelephoneNumber: ``,
+			nonClientFullName: `${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
+			nonClientCellPhone: event.detail.incomingCallDetails.incomingTelephoneNumber,
+			nonClientIDNumber: ``,
+			nonClientRelationship: ``,
+			isConfirmed: false,
+			verificationStatus: `non-client`,
+			is3rdParty: false,
+			isNonClient: true,
+			hasInsuranceProducts: false
+		};
+
+		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
+
+		switch (event.detail.incomingCallDetails.ivrOption.value) {
+			case `Insure`:
+				this.horizonRouter.navigateToInsureProspectiveClient();
+				break;
+			case `Transact`: 
+			default:
+				this.horizonRouter.navigateToQuickTransactionFavourites();
+				break;
+		}
 	}
 
-	_onConfirmedCaller(data) {
+	_otherNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+	}
 
-		/**
-		 * TODO: Updating whether the incoming number is verified or unverified, which will be used in action bar
-		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
-		 */
-		// data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
+	_stopCardNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
+	}
 
+	_confirmedCaller(data) {
 		this.horizonStore.saveState(data.detail);
 		this.renderMode = RENDER_MODE.PAGE_ONLY;
 		this.horizonRouter.navigateToStopCard();
@@ -324,28 +354,27 @@ export class LandingPage extends View {
 				<horizon-confirm-caller-details 
 					.confirmedCaller="${this.confirmedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
-					@non-client-captured=${event => this._onNonClientCaptured(event)}>
+					@confirmed-caller="${(data) => this._confirmedCaller(data)}" 
+					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
 	}
 
 	_renderUnverifiedUser() {
 		if (this.renderMode === RENDER_MODE.STOP_CARD_SEARCH) {
-			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-stop-card-search-caller 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+					@client-identified="${(data) => this._clientIdentified(data)}"
+					@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 				</horizon-stop-card-search-caller>`;
 		} else if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
-			console.log(`render search caller for insure`);
 			return html`
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+					@client-identified="${(event) => this._clientIdentified(event)}"
+					@non-client-captured="${event => this._nonClientCaptured(event)}"
+					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}
 	}

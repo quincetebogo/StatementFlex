@@ -32,6 +32,11 @@ const REGEX_CELLPHONE = {
  * Add Caller Details is used to record the information of a non-Capitec client calling into the contact centre.
  * This component is invoked from the Confirm Caller Details Dialog
  * 
+ * Events Raised 
+ * -------------
+ * caller-added
+ * back
+ *  
  * @export
  * @class AddCallerDetails
  * @extends {Component}
@@ -211,7 +216,7 @@ export class AddCallerDetails extends Component {
 	}
 
 	_onBackButtonClick() {
-		this.dispatchEvent(new CustomEvent(`on-back`, {
+		this.dispatchEvent(new CustomEvent(`back`, {
 			detail: {
 				ivrOptionValue: this.ivrOption.value
 			}
