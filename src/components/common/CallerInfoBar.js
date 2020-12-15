@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from 'app/css/HorizonModalHeader';
 
-import './HorizonLabel';
-import './HorizonSelect';
+import 'app/Components/common/HorizonLabel';
+import 'app/Components/common/HorizonSelect';
 
 /**
  * The Horizon Caller Info Bar is presented at the top of many Horizon Dialogs.

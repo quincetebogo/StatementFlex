@@ -13,13 +13,13 @@ import 'platform/components/core/Icon';
 
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 
-import 'app/components/common/HorizonCallerInfoBar';
+import 'app/components/common/CallerInfoBar';
 import 'app/components/common/HorizonCallerDialog';
 
 

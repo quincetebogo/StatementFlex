@@ -6,7 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
-import 'app/components/common/HorizonCallerInfoBar';
+import 'app/components/common/CallerInfoBar';
 import 'app/components/common/HorizonCallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
