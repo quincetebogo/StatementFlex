@@ -7,7 +7,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/CallerInfoBar';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {

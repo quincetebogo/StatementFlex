@@ -8,7 +8,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
 
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = Object.freeze({

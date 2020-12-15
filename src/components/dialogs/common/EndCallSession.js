@@ -9,7 +9,7 @@ import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 

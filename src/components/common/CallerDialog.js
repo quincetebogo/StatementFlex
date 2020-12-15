@@ -12,7 +12,7 @@ import 'app/components/common/CallerInfoBar';
  * @class HorizonCallerDialog
  * @extends {Component}
  */
-export class HorizonCallerDialog extends Component {
+export class CallerDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -164,4 +164,4 @@ export class HorizonCallerDialog extends Component {
 
 }
 
-window.customElements.define(`horizon-caller-dialog`, HorizonCallerDialog);
+window.customElements.define(`horizon-caller-dialog`, CallerDialog);
