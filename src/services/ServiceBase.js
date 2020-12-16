@@ -1,6 +1,8 @@
 import { HorizonChannelService } from './HorizonChannelService';
 import { ServiceCallHelper } from '../utils/serviceCallHelper';
 
+export const DEFAULT_AUTO_RETRIES = 3;
+
 /**
  * This is a base class for Horizon Service Classes that utilize the Horizon Channel Service.
  * 

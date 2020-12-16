@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -209,24 +210,24 @@ export class LandingPage extends View {
 	}
 
 	_nonClientCaptured(event) {
-		const callerInformation = {
-			cifNumber: ``,
-			birthdate: ``,
-			languagePreference: ``,
-			livesIn: ``,
-			name: ``,
-			southAfricanIDNumber: ``,
-			verifiedTelephoneNumber: ``,
-			nonClientFullName: `${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
-			nonClientCellPhone: event.detail.incomingCallDetails.incomingTelephoneNumber,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: false,
-			verificationStatus: `non-client`,
-			is3rdParty: false,
-			isNonClient: true,
-			hasInsuranceProducts: false
-		};
+		const callerInformation = new CallerInformation(
+			``,
+			``,
+			``,
+			``,
+			``,
+			``,
+			``,
+			`${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
+			event.detail.incomingCallDetails.incomingTelephoneNumber,
+			``,
+			``,
+			false,
+			`non-client`,
+			false,
+			true,
+			false
+		);
 
 		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
 
@@ -249,12 +250,6 @@ export class LandingPage extends View {
 	_stopCardNeedSelected(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
-	}
-
-	_confirmedCaller(data) {
-		this.horizonStore.saveState(data.detail);
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.horizonRouter.navigateToStopCard();
 	}
 
 	// --------------
@@ -354,7 +349,6 @@ export class LandingPage extends View {
 				<horizon-confirm-caller-details 
 					.confirmedCaller="${this.confirmedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._confirmedCaller(data)}" 
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}

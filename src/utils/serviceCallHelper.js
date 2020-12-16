@@ -1,5 +1,6 @@
 import { EventAggregator } from 'platform/EventAggregator';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { Logger } from 'platform/core';
 
 /**
  *  Helper class for handling errors when making web service calls. 
@@ -33,6 +34,7 @@ export class ServiceCallHelper {
 		this.generalErrorHandler = generalErrorHandler;
 		this.disableDefaultErrorHandler = disableDefaultErrorHandler;
 		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 	}
 
 	// --------------
@@ -47,7 +49,7 @@ export class ServiceCallHelper {
 	 * @param {*} serviceCall - A function that calls a web service
 	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
 	 */
-	async asyncCall(serviceCall, errorHandler = null, autoRetries = 3) {
+	async asyncCall(serviceCall, methodName, errorHandler = null, autoRetries = 3) {
 		const returnValue = {
 			succeeded: true,
             result: null
@@ -59,7 +61,6 @@ export class ServiceCallHelper {
 			try {
 				tryCount++;
 
-				this._clearError();
 				this.toggleBusyFlag();
 	
 				// eslint-disable-next-line no-await-in-loop
@@ -67,6 +68,7 @@ export class ServiceCallHelper {
 	
 				return returnValue;
 			} catch (exception) {
+				this._logException(exception, methodName);
 				if (tryCount >= autoRetries) {
 					this._handleException(errorHandler, exception);
 				}
@@ -83,9 +85,14 @@ export class ServiceCallHelper {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	_clearError() {
-		if (!this.disableDefaultErrorHandler) {
-			this.eventAggregator.publish(`horizon-status-bar-update`, { from: `UI-CS`, status: `success`, message: `` });
+
+	_logException(exception, methodName) {
+		if (exception instanceof TypeError) {
+			this.logger.log(`error`, exception.message, methodName, exception.correlationId);
+		} else if (exception instanceof HttpStatusError) {
+			this.logger.log(`error`, `${exception.status}: ${exception.message}`, methodName, exception.correlationId);
+		} else {
+			this.logger.log(`error`, exception.message, methodName, exception.correlationId);
 		}
 	}
 
@@ -114,31 +121,6 @@ export class ServiceCallHelper {
 	}
 
 	_defaultErrorHandler(exception) {
-		if (exception instanceof TypeError) {
-			const event = {
-				from: `UI-CS`,
-				status: `error`,
-				message: exception.message
-			};
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			return true;
-		} else if (exception instanceof HttpStatusError) {
-			const event = {
-				from: `UI-CS`,
-				status: `error`,
-				message: `${exception.status}: ${exception.message}`
-			};
-			this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			return true;
-		}
-
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: `UNEXPECTED ERROR: ${exception.message}`
-		};
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
 		return false;
 	}
 }

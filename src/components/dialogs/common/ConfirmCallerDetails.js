@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -44,7 +45,6 @@ const HEADER_LABEL = `Confirm Caller Details`;
  * Events Raised 
  * -------------
  * non-client-captured
- * confirmed-caller
  * 
  * @export
  * @class ConfirmCallerDetails
@@ -134,7 +134,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_onAddCallerDetailsCancel(data) {
+	_addCallerDetailsCancelled(data) {
 		this.confirmedCaller.ivrOptionCode = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOption.value = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOptionCode = data.detail.ivrOptionValue;
@@ -187,23 +187,24 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ``
 		};
 
-		const callerInformation = {
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber, // TODO: Must be replaced by Verified Number from CS call
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`,
-			is3rdParty: false,
-			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance 
-		};
+		const callerInformation = new CallerInformation(
+			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.callerInformation.birthdate.value,
+			this.confirmedCaller.callerInformation.languagePreference.value,
+			this.confirmedCaller.callerInformation.livesIn.value,
+			this.confirmedCaller.callerInformation.name.value,
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.incomingCallDetails.incomingTelephoneNumber, 
+			``,
+			``,
+			``,
+			``,
+			true,
+			`unverified`,
+			false,
+			false,
+			this.hasInsurance 
+		);
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
@@ -245,19 +246,6 @@ export class ConfirmCallerDetails extends Component {
 	 */
 	_nonClientCaptured(event) {
 		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: event.detail }));
-	}
-
-	/**
-	 * Non-client information has been added via the Add Caller Details dialog
-	 *
-	 * @param {Object} event Event details contain the non-client information to add to the existing caller information
-	 * @returns {undefined}
-	 * @memberof ConfirmCallerDetails
-	 */
-	_nonClientDetailsAdded(event) {
-		this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
-			detail: event.detail
-		}));
 	}
 
 	_otherNeedSelected(event) {
@@ -569,8 +557,7 @@ export class ConfirmCallerDetails extends Component {
 			<horizon-add-caller-details .confirmedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}" 
 				.addCallerDialog="${this.addCallerDetails}"
-				@back="${(data) => this._onAddCallerDetailsCancel(data)}"
-				@caller-added="${(data) => this._nonClientDetailsAdded(data)}">
+				@cancel="${(e) => this._addCallerDetailsCancelled(e)}">
 			</horizon-add-caller-details>`;
 	}
 
@@ -602,24 +589,24 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	renderVerifyCallerModal() {
-		const callerInformation = {
-			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`,
-			is3rdParty: false,
-			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance
-		};
+		const callerInformation = new CallerInformation(
+			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.callerInformation.birthdate.value,
+			this.confirmedCaller.callerInformation.languagePreference.value,
+			this.confirmedCaller.callerInformation.livesIn.value,
+			this.confirmedCaller.callerInformation.name.value,
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.incomingTelephoneNumber.value,
+			``,
+			``,
+			``,
+			``,
+			true,
+			`unverified`,
+			false,
+			false,
+			this.hasInsurance
+		);
 
 		return html`
 			<horizon-verify-caller 
