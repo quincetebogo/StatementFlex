@@ -122,7 +122,7 @@ export class HorizonChannelService extends Service {
 
 	// endCallSession
 	endCall(incidentRecId, reasonCode) {
-		return super.httpClient.post(`/clientcare/card/${this.version}/EndCallerSession`, {
+		return super.httpClient.post(`/clientcare/call/${this.version}/end-call`, {
 			"incidentRecId": incidentRecId,
 			"endReason": reasonCode
 		});

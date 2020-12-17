@@ -87,10 +87,10 @@ export class EndCallSession extends Component {
 				const endCallDialog = returnValue.result;
 
 				if (returnValue.succeeded) {
-					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+					this.endCallReasons = endCallDialog.endCallReasons;
 				} else {
 					// TODO: Handle not being able to load end call options
-					console.log(`request is unsuccessful`);
+
 				}
 			});
 	}
@@ -107,7 +107,8 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endCallReason: {
-				key: this.endCallReason.key
+				// Channel Service expects key to be Number and not string
+				key: 0
 			}
 		};
 
@@ -126,10 +127,6 @@ export class EndCallSession extends Component {
 		if (e.detail.new) {
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
 		}
-	}
-
-	_onCallCSService() {
-
 	}
 
 	// --------------
