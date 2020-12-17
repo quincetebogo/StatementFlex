@@ -7,7 +7,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/SecurityQuestionsFailed';
 

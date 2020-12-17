@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
+
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
@@ -191,6 +192,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_mobileTemplate() {
+		this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -198,15 +200,6 @@ export class FavouriteTransactions extends Component {
 			${this._renderVerifiedToast()}
 			${this._renderFavourites()}
 		`;
-	}
-
-	_renderVerifiedToast() {
-		if (this.displayToast) {
-			return html`
-				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
-				</capitec-toast>`;
-		}
-		return html``;
 	}
 
 	_renderFavourites() {
@@ -225,6 +218,15 @@ export class FavouriteTransactions extends Component {
 					</capitec-group>
 				</capitec-card>
 			`;
+	}
+
+	_renderVerifiedToast() {
+		if (this.displayToast) {
+			return html`
+				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				</capitec-toast>`;
+		}
+		return html``;
 	}
 
 	_renderUnverifiedAlertBanner() {
@@ -263,7 +265,8 @@ export class FavouriteTransactions extends Component {
 				<capitec-button-bar>
 					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
-						@click="${() => this._optionSelectedClick(`debi-check`)}">
+						@click="${() => this._optionSelectedClick(`debi-check`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -274,13 +277,16 @@ export class FavouriteTransactions extends Component {
 				<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`stop-card`)}">
+						@click="${() => this._optionSelectedClick(`stop-card`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`update-card-limits`)}">
+						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`tap-to-pay`)}">
+						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -291,13 +297,16 @@ export class FavouriteTransactions extends Component {
 				<capitec-title-bar type="default" label="Document"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`statements`)}">
+						@click="${() => this._optionSelectedClick(`statements`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`tax-certificate`)}">
+						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`proof-of-account`)}">
+						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;

@@ -5,7 +5,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
