@@ -39,14 +39,11 @@ export class VerifyBySecurityQuestions extends Component {
 	constructor() {
 		super();
 
-		this.incomingCallDetails = {};
-		this.callerInformation = {};
 		this.renderMode = 0;
 		this.questionNumber = 0;
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-		this.securityQuestions = {};
 		this.retryCount = 0;
 		this.alertBannerMessage = ``;
 
@@ -109,7 +106,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_onSkip() {
-		this._navigateToLandingPage(`unverified`);
+		this._navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_onContinueClick() {
@@ -197,21 +194,7 @@ export class VerifyBySecurityQuestions extends Component {
 		};
 
 		this.horizonStore.saveState(state);
-		switch (this.incomingCallDetails.ivrOptionCode) {
-			case `StopCard`:
-				// Verified Stop Card display must still be developed
-				break;
-			case `Insure`:
-				if (this.callerInformation.hasInsuranceProducts) {
-					this.horizonRouter.navigateToInsureExistingClient();
-				} else {
-					this.horizonRouter.navigateToInsureProspectiveClient();
-				}
-				break;
-			case `Transact`:
-			default:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-		}
+		this.horizonStore._navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_xdsErrorHandler(exception) {

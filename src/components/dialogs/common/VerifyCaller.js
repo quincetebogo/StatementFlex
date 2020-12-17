@@ -117,21 +117,6 @@ export class VerifyCaller extends Component {
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
 	
-
-		// Dispatch table for routing to unverified landing pages
-		this.navigateToUnverifiedLandingPage = ivrOption => {
-
-			const stopCard = () => this.horizonRouter.navigateToStopCard();
-			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-			const insure = this.callerInformation.hasInsuranceProducts ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
-
-			return {
-				StopCard: stopCard,
-				Transact: transact,
-				Insure: insure
-			}[ivrOption];
-		};
-
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			this.itaTimer = this._startTimer();
 		}
@@ -162,7 +147,7 @@ export class VerifyCaller extends Component {
 
 	_skip() {
 		this._updateApplicationState(`unverified`);
-		this.navigateToUnverifiedLandingPage(this.incomingCallDetails.ivrOptionCode)();
+		this.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode, this.callerInformation.hasInsuranceProducts)();
 	}
 
 	_onSecurityQuestionsCancel() {

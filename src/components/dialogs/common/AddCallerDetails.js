@@ -59,7 +59,6 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-		this.hasInsurance = false;
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -105,8 +104,6 @@ export class AddCallerDetails extends Component {
 		super.connectedCallback();
 
 		// Short hand references for reaching into the incoming addCallerDialog model
-		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
-
 		this.ivrOption = this.addCallerDialog.ivrOption;
 
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
@@ -119,14 +116,6 @@ export class AddCallerDetails extends Component {
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
 		this.backButton = this.addCallerDialog.backButton;
-
-		// confirmed Caller Model references
-		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
-
-		// incomingCallDetails references
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
-		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
@@ -160,91 +149,73 @@ export class AddCallerDetails extends Component {
 	}
 
 	async _callerDetailsAdded() {
-		const confirmedCaller = {
-			idNumber: this.southAfricanIDNumber.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-			incidentReferenceNumber: this.incidentReferenceNumber,
-			incidentRecId: this.incidentRecId,
-			agentTelephoneNumber: this.agentTelephoneNumber,
-			nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-			nonClientCellPhone: this.cellPhoneTextField.value,
-			nonClientIDNumber: ``,
-			nonClientRelationship: this.nonClientRelationship.value
-		};
+		const hasInsurance = await this._checkForInsuranceProducts(this.confirmedCaller);
 
-		await this._checkForInsuranceProducts();
-
-		const callerInformation = new CallerInformation(
-			this.confirmedCaller.callerInformation.cifNumber.value,
-			this.confirmedCaller.callerInformation.birthdate.value,
-			this.confirmedCaller.callerInformation.languagePreference.value,
-			this.confirmedCaller.callerInformation.livesIn.value,
-			this.confirmedCaller.callerInformation.name.value,
-			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			this.incomingCallDetails.incomingTelephoneNumber, 
-			this.confirmedCaller.nonClientFullName,
-			this.confirmedCaller.nonClientCellPhone,
-			``,
-			this.confirmedCaller.nonClientRelationship,
-			true,
-			`unverified`,
-			true,
-			false,
-			this.hasInsurance 
-		);
+		const state = { incomingCallDetails: this.incomingCallDetails,
+						callerInformation: new CallerInformation(
+							this.confirmedCaller.callerInformation.cifNumber.value,
+							this.confirmedCaller.callerInformation.birthdate.value,
+							this.confirmedCaller.callerInformation.languagePreference.value,
+							this.confirmedCaller.callerInformation.livesIn.value,
+							this.confirmedCaller.callerInformation.name.value,
+							this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+							this.incomingCallDetails.incomingTelephoneNumber, 
+							this.confirmedCaller.nonClientFullName,
+							this.confirmedCaller.nonClientCellPhone,
+							``,
+							this.confirmedCaller.nonClientRelationship,
+							true,
+							`unverified`,
+							true,
+							false,
+							hasInsurance
+						) };
 
 		if (this.ivrOption.value === `StopCard`) {
-
+			const confirmedCaller = {
+				idNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOption.value,
+				incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+				incidentRecId: this.incomingCallDetails.incidentRecId,
+				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+				nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
+				nonClientCellPhone: this.cellPhoneTextField.value,
+				nonClientIDNumber: ``,
+				nonClientRelationship: this.nonClientRelationship.value
+			};
+		
 			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-			const addedcallerdetails = returnValue.result;
 
-			const state = {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: callerInformation,
-				clientProfileDetails: addedcallerdetails
-			};
+			state.clientProfileDetails = returnValue.result;
+		};
 
-			if (returnValue.succeeded) {
-				this.horizonStore.saveState(state);
-				this.horizonRouter.navigateToStopCard();
-			}
-		} else {
-			const state = {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: callerInformation
-			};
-
-			this.horizonStore.saveState(state);
-
-			switch (this.ivrOption.value) {
-				case `Insure`:
-					if (this.hasInsurance) {
-						this.horizonRouter.navigateToInsureExistingClient();
-					} else {
-						this.horizonRouter.navigateToInsureProspectiveClient();
-					}
-					break;
-				case `Transact`:
-				default:
-					this.horizonRouter.navigateToQuickTransactionFavourites();
-			}
-		}
+		this.horizonStore.saveState(state);
+		this.horizonStore.navigateToLandingPage(this.ivrOption.value, hasInsurance);
 	}
 
-	async _checkForInsuranceProducts() {
+	async _checkForInsuranceProducts(confirmedCaller) {
 		const InsuranceCientInfo = {
-			IdNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			CifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
+			IdNumber: confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			CifNumber: confirmedCaller.callerInformation.cifNumber.value,
 			isCallerVarified: false
 		};
 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
+		// TODO: Remove temporary error handler. 
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, (ex) => this._temporaryErrorHander(ex), 0);
 
-		if (returnValue.succeeded) {
-			this.hasInsurance = returnValue.result.hasInsurance;
-		} 
+		// TODO: Remmove temporary code that forces hasInsurance flag if CS call does not work. This is to allow testing of Stop Card in INT in the meantime.
+		if (!returnValue.succeeded) {
+			return true;
+		}
+
+		return returnValue.result.hasInsurance;
+	}
+
+	// TODO: remove temporary function
+	_temporaryErrorHander(ex) {
+		console.log(ex);
 	}
 
 	_backClick() {
