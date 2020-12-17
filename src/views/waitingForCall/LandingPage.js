@@ -84,12 +84,8 @@ export class LandingPage extends View {
 
 	static get properties() {
 		return {
-			fullname: { type: String },
 			renderMode: { type: Number },
-			isBusy: { type: Boolean },
-			incomingTelephoneNumber: { type: String },
-			voiceReferenceNumber: { type: String },
-			ivrOption: { type: String }
+			isBusy: { type: Boolean }
 		};
 	}
 
