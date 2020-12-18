@@ -21,7 +21,7 @@ export class AccessChannelError extends Component {
 	// ----------
 
 	onOK() {
-		this.dispatchEvent(new CustomEvent('on-OK', {}));
+		this.dispatchEvent(new CustomEvent(`on-OK`, {}));
 	}
 
 	// ---------
@@ -44,4 +44,4 @@ export class AccessChannelError extends Component {
 	}
 }
 
-window.customElements.define(`horizon-access-channel-error`, AccessChannelError)
+window.customElements.define(`horizon-access-channel-error`, AccessChannelError);

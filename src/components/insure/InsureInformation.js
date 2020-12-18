@@ -921,9 +921,10 @@ export class InsureInformation extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 
-					@cancel="{${() => this._onCancelEndCall()}}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
-					.isReassigned="${this.isReassigned}">
+					endCallContext="LandingPage"
+					.isReassigned="${this.isReassigned}"
+					@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;
@@ -953,7 +954,10 @@ export class InsureInformation extends Component {
 
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`<horizon-verify-caller .incomingCallDetails=${this.incomingCallDetails}></horizon-verify-caller>`;
+			return html`<horizon-verify-caller 
+							.incomingCallDetails="${this.incomingCallDetails}"
+							.callerInformation="${this.callerInformation}">
+						</horizon-verify-caller>`;
 		}
 		return html``;
 	}

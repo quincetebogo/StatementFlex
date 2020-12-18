@@ -48,7 +48,7 @@ export class CreditProductDetails extends Component {
 			ul{
 				margin: 0px;
 				font:  12px/30px Hind Vadodara;
-			}	
+			}
 			#text-affordable{
 				text-align:left;
 				padding: 0px 0px 0px 24px;
@@ -102,6 +102,7 @@ export class CreditProductDetails extends Component {
 					Whether you need to do home improvements, pay for your children's education to secure their future
 					or buy a reliable car to get your family there safely - living better starts when you get get credit for
 					right reasons.
+				</p>
 					<p id="text-offer">Your offer is based on your affordability and credit profile</p>
 					<ul class="list-items">
 						<li>Your banking and credit history</li>
@@ -110,13 +111,13 @@ export class CreditProductDetails extends Component {
 						<li>You choose the credit amount that you want</li>
 						<li>You choose the monthly instaments that suits your cash flow or the option that gives the best rate</li>
 					</ul>
-				</p>
 				<hr>
 				<capitec-label id="label" label="Credit Insurance" type="subtitle"></capitec-label>
 				<hr>
 				<p id="insure">Credit insurance is required for credit terms of 7 months or longer to cover death , permanent or temporal
 					disability, unemployment, the inability to earn an income or retrenchment. Get an online credit estimate to
 					see how much credit you qualify for or get more information about our credit insurance and claims process.
+				</p>
 					<br>
 					<p id="doc-text">
 					Documents you need when applying
@@ -128,7 +129,6 @@ export class CreditProductDetails extends Component {
 						<li>Latest salary slip</li>
 						<li>Any original bank statment showing your latest 3 consecutive salary deposits into an account in your name (an over-the-counter bank statement must be stamped)</li>
 					</ul>
-				</p>
 				</capitec-content-box>
 			</capitec-card>
 		`;

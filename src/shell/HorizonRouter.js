@@ -22,7 +22,9 @@ const HORIZON_ROUTES = {
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
-	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`
+	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
+	SYSTEM_ERROR: `/error/system-error`,
+	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`
 };
 
 
@@ -140,6 +142,14 @@ export class HorizonRouter {
 	navigateToItaVerificationFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
+
+	navigateToSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SYSTEM_ERROR}`);
+	}
+
+	navigateToInitialSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
+	}
 }
 
 // -------------------------
@@ -232,11 +242,11 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `client-profile`,
+		name: `horizon-stop-card-landing-page`,
 		title: `ClientProfile`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
-		load: () => import(`../views/stopCard/ClientProfile`),
+		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
@@ -267,18 +277,19 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
-		guard: () => {
-			return true;
-			// const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			// switch (routingInfo.verificationStatus) {
-			// 	case `verified`:
-			// 	case `unverified`:
-			// 	case `3rdparty`:
-			// 		return true;
-			// 	default:
-			// 		return false;
-			// }
-		},
+		guard: () => true,
+
+			/*
+			 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+			 switch (routingInfo.verificationStatus) {
+			 	case `verified`:
+			 	case `unverified`:
+			 	case `3rdparty`:
+			 		return true;
+			 	default:
+					 return false;
+			*/
+		
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
@@ -345,6 +356,26 @@ export default horizonRoutes = [
 		load: () => import(`../views/common/ItaVerificationFailed`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-system-error`,
+		title: `SystemError`,
+		icon: null,
+		path: HORIZON_ROUTES.SYSTEM_ERROR,
+		load: () => import(`../views/common/SystemError`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-initial-system-error`,
+		title: `InitialPageSystemError`,
+		icon: null,
+		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
+		load: () => import(`../views/common/InitialSystemError`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		}
 	}
 

@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
@@ -52,7 +53,7 @@ export class AddCallerDetails extends Component {
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag());
 
 		this.isBusy = false;
 		this.validationFailed = false;
@@ -60,6 +61,7 @@ export class AddCallerDetails extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// ----------
@@ -69,7 +71,7 @@ export class AddCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
-     * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
+	 * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
 	 *
 	 * @readonly
 	 * @static
@@ -165,9 +167,9 @@ export class AddCallerDetails extends Component {
 		};
 
 		if (this.ivrOption.value === `StopCard`) {
-			const returnValue = await this.cardService.identifyCaller(confirmedCaller, null);
+			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 			const addedcallerdetails = returnValue.result;
-	
+
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`caller-added`, {
 					detail: {
@@ -175,15 +177,14 @@ export class AddCallerDetails extends Component {
 						incomingCallDetails: this.incomingCallDetails
 					}
 				}));
-				
+
 				// TODO: Move navigatin to stop card screen here
 				// this.horizonRouter.navigateToStopCard();
 			} else {
-				// TODO: Handle failure on call to identifyCaller
+				this.horizonRouter.navigateToSystemError();
 			}
-	
+
 		} else if (this.ivrOption.value === `Insure`) {
-			// TODO: Should there be a channel service call to record the third party against the incident
 			const state = {
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: {
@@ -456,8 +457,9 @@ export class AddCallerDetails extends Component {
 
 	renderEndCallModal() {
 		return html`<horizon-end-call-session 
-						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
-						.incomingCallDetails = "${this.incomingCallDetails}">
+						.incomingCallDetails = "${this.incomingCallDetails}"
+						endCallContext="ConfirmClient"
+						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 					</horizon-end-call-session>`;
 	}
 }

@@ -3,7 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -166,9 +166,10 @@ export class SearchCaller extends Component {
 		this.cellPhoneNumberValue = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 	}
 
 	// ----------
@@ -238,19 +239,16 @@ export class SearchCaller extends Component {
 				searchValue: this.searchValue
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
 				this._raiseOnClientIdentified(identifiedClient);
-			}
-			else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !identifiedClient) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+			} 
 		}
 	}
 
@@ -288,11 +286,7 @@ export class SearchCaller extends Component {
 				cellphone: this.cellPhoneNumberValue
 			};
 
-			const returnValue = await this.insureService.addNonClientDetails(nonClientData);
-
-			if (!returnValue.succeeded) {
-				// TODO: Handle errors if call fails
-			}
+			await this.insureService.addNonClientDetails(nonClientData);
 
 			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 				detail: {
@@ -398,40 +392,12 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
 	_handleSearchClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -575,10 +541,16 @@ export class SearchCaller extends Component {
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio id="capitecClient" label="Capitec Client" @value-changed="${(e) => this._clientTypeChanged(e)}"
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio id="nonCient" label="Non Client" @value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
 				</capitec-group>
@@ -667,8 +639,9 @@ export class SearchCaller extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
 	}
 

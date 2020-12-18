@@ -20,6 +20,7 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
+		this.isHidden = false;
 	}
 
 	// ----------
@@ -31,7 +32,8 @@ export class HorizonActionBar extends Component {
 			referenceNo: { type: String },
 			phoneNumber: { type: String },
 			clientNeed: { type: String },
-			isUnverifiedNumber: { type: Boolean }
+			isUnverifiedNumber: { type: Boolean },
+			isHidden: { type: Boolean }
 		};
 	}
 
@@ -43,6 +45,7 @@ export class HorizonActionBar extends Component {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
+		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
 	// --------------
@@ -54,6 +57,10 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = event.phoneNumber;
 		this.clientNeed = event.ivrOptionCode;
 		this.isUnverifiedNumber = event.isUnverifiedNumber;
+	}
+
+	_isDisabled(e) {
+		this.isHidden = true;
 	}
 
 	_endCallSession() {
@@ -157,10 +164,14 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<capitec-button type="clear" 
 									label="Assign"
+									?hidden="${this.isHidden}"
 									@click="${() => this._onAssign()}">
 					</capitec-button>
 					<div class="vertical-line"></div>
-					<capitec-button type="clear" label="Handoff"></capitec-button>
+					<capitec-button type="clear" 
+									label="Handoff"
+									?hidden="${this.isHidden}">
+					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">
 						<img class="end-call-icon" src="/images/hangup.svg"/>

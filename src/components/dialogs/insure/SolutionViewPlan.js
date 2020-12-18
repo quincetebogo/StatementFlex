@@ -76,7 +76,7 @@ export class ViewPlan extends Component {
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
 					--horizon-feedback-label-margin-top: 17px;
-					--horizon-radio-button-container-margin-bottom: 156px;
+					--horizon-radio-button-group-margin-bottom: 156px;
 				}
 			
 				.navigate-info-label {
