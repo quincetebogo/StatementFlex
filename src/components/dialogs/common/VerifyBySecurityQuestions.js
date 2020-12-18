@@ -148,7 +148,7 @@ export class VerifyBySecurityQuestions extends Component {
 				this.horizonStore.saveState(state);
 
 				this.horizonRouter.navigateToXdsVerificationFailed();
-			} 
+			}
 		}
 	}
 
@@ -353,7 +353,7 @@ export class VerifyBySecurityQuestions extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
 					<horizon-caller-dialog class="main-container" .incomingCallDetails="${this.incomingCallDetails}"
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}">
+						.isNeedSelectable=${false} .headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							<capitec-content-box class="body-box">
 								${this._renderAlertBanner()}
@@ -394,8 +394,8 @@ export class VerifyBySecurityQuestions extends Component {
 				<capitec-label class="question-number-label" label="Question ${index + 1}"></capitec-label>
 				<capitec-label class="question-label" label="${item.question.replace(/(\r\n|\n|\r)/gm, ``)}"></capitec-label>
 				<horizon-radio-button-group
-					class="radio-button" 
-					.radioButtonsAvailable="${answers}"
+                    class="radio-button"
+                    .radioButtonsAvailable="${answers}"
 					@value-change="${(e) => this._onValueChanged(e)}">
 				</horizon-radio-button-group>
 		`;

@@ -138,7 +138,7 @@ export class ConfirmCallerDetails extends Component {
 		await this._checkForInsuranceProducts();
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._navigateToStopCard(); 
+			this._navigateToStopCard();
 		} else {
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
@@ -193,7 +193,7 @@ export class ConfirmCallerDetails extends Component {
 			verificationStatus: `unverified`,
 			is3rdParty: false,
 			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance 
+			hasInsuranceProducts: this.hasInsurance
 		};
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
@@ -249,7 +249,7 @@ export class ConfirmCallerDetails extends Component {
 			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
-	
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -429,8 +429,9 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
-						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this.renderAddCallerDetails()}
@@ -582,9 +583,9 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		return html`
-			<horizon-verify-caller 
-				.incomingCallDetails="${this.incomingCallDetails}" 
-				.callerInformation="${this.callerInformation}"
+			<horizon-verify-caller
+                .incomingCallDetails="${this.incomingCallDetails}" 
+                .callerInformation="${this.callerInformation}"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-verify-caller>
 		`;
