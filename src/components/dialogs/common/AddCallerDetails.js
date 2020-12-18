@@ -1,13 +1,15 @@
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
-import 'app/components/common/HorizonCallerInfoBar';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerInfoBar';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
@@ -29,9 +31,14 @@ const REGEX_CELLPHONE = {
 
 /**
 /**
- * Add Caller Details is used to record the information of a non-Capitec client calling into the contact centre.
+ * Add Caller Details is used to record the information of a third-pary calling in 
+ * with respect to a Capitec client.
  * This component is invoked from the Confirm Caller Details Dialog
  * 
+ * Events Raised 
+ * -------------
+ * cancel
+ *  
  * @export
  * @class AddCallerDetails
  * @extends {Component}
@@ -52,8 +59,10 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
+		this.hasInsurance = false;
 
-		this.cardService = new CardService(() => this._toggleBusyFlag());
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 
 		this.isBusy = false;
 		this.validationFailed = false;
@@ -143,15 +152,14 @@ export class AddCallerDetails extends Component {
 		this.validationFailed = false;
 	}
 
-	_onAddCallerDetails() {
+	_confirmClick() {
 
-		if (!this.validateData()) {
+		if (!this._validateData()) {
 			this._callerDetailsAdded();
 		}
 	}
 
 	async _callerDetailsAdded() {
-
 		const confirmedCaller = {
 			idNumber: this.southAfricanIDNumber.value,
 			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
@@ -166,52 +174,81 @@ export class AddCallerDetails extends Component {
 			nonClientRelationship: this.nonClientRelationship.value
 		};
 
+		await this._checkForInsuranceProducts();
+
+		const callerInformation = new CallerInformation(
+			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.callerInformation.birthdate.value,
+			this.confirmedCaller.callerInformation.languagePreference.value,
+			this.confirmedCaller.callerInformation.livesIn.value,
+			this.confirmedCaller.callerInformation.name.value,
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.incomingCallDetails.incomingTelephoneNumber, 
+			this.confirmedCaller.nonClientFullName,
+			this.confirmedCaller.nonClientCellPhone,
+			``,
+			this.confirmedCaller.nonClientRelationship,
+			true,
+			`unverified`,
+			true,
+			false,
+			this.hasInsurance 
+		);
+
 		if (this.ivrOption.value === `StopCard`) {
+
 			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 			const addedcallerdetails = returnValue.result;
 
-			if (returnValue.succeeded) {
-				this.dispatchEvent(new CustomEvent(`caller-added`, {
-					detail: {
-						clientProfileDetails: addedcallerdetails,
-						incomingCallDetails: this.incomingCallDetails
-					}
-				}));
-
-				// TODO: Move navigatin to stop card screen here
-				// this.horizonRouter.navigateToStopCard();
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-
-		} else if (this.ivrOption.value === `Insure`) {
 			const state = {
 				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: {
-					birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-					languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-					livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-					name: this.confirmedCaller.callerInformation.name.value,
-					southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-					verifiedTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-					nonClientCellPhone: this.cellPhoneTextField.value,
-					nonClientIDNumber: ``,
-					nonClientRelationship: this.nonClientRelationship.value,
-					isConfirmed: true,
-					verificationStatus: `3rdparty`,
-					is3rdParty: false,
-					isNonClient: false
-				}
+				callerInformation: callerInformation,
+				clientProfileDetails: addedcallerdetails
+			};
+
+			if (returnValue.succeeded) {
+				this.horizonStore.saveState(state);
+				this.horizonRouter.navigateToStopCard();
+			}
+		} else {
+			const state = {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: callerInformation
 			};
 
 			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToInsureExistingClient();
+
+			switch (this.ivrOption.value) {
+				case `Insure`:
+					if (this.hasInsurance) {
+						this.horizonRouter.navigateToInsureExistingClient();
+					} else {
+						this.horizonRouter.navigateToInsureProspectiveClient();
+					}
+					break;
+				case `Transact`:
+				default:
+					this.horizonRouter.navigateToQuickTransactionFavourites();
+			}
 		}
 	}
 
-	_onBackButtonClick() {
-		this.dispatchEvent(new CustomEvent(`on-back`, {
+	async _checkForInsuranceProducts() {
+		const InsuranceCientInfo = {
+			IdNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			CifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
+			isCallerVarified: false
+		};
+
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
+
+		if (returnValue.succeeded) {
+			this.hasInsurance = returnValue.result.hasInsurance;
+		} 
+	}
+
+	_backClick() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {
 				ivrOptionValue: this.ivrOption.value
 			}
@@ -242,8 +279,15 @@ export class AddCallerDetails extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
+	
+	_errorHandler(ex) {
+		this.horizonStore.saveState({
+			incomingCallDetails: this.incomingCallDetails
+		});
+		this.horizonRouter.navigateToSystemError();
+	}
 
-	validateData() {
+	_validateData() {
 		for (const key in this.nonClientInformation) {
 			if (Object.prototype.hasOwnProperty.call(this.nonClientInformation, key)) {
 				const field = this.nonClientInformation[key];
@@ -267,9 +311,9 @@ export class AddCallerDetails extends Component {
 	}
 
 	/*
-	 * Temproary method to return error message
+	 * Temporary method to return error message
 	 */
-	getErrorMessage(field) {
+	_getErrorMessage(field) {
 		return field && field.errorMessage ? field.errorMessage : ``;
 	}
 
@@ -333,7 +377,11 @@ export class AddCallerDetails extends Component {
 		];
 	}
 
-	render() {
+	_mobileTemplate() {
+		_webTemplate();
+	}
+
+	_webTemplate() {
 		switch (this.renderMode) {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
@@ -343,21 +391,21 @@ export class AddCallerDetails extends Component {
 								@on-end-call="${() => this._onEndCall()}"
 								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
 						<div slot="body" class="main">
-							${this.renderErrorMessage()}
-							${this.renderAddCallerDetails()}
-							${this.renderLoadingIndicator()}
+							${this._renderErrorMessage()}
+							${this._renderAddCallerDetails()}
+							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
-							${this.renderFooter()}
+							${this._renderFooter()}
 						</div>
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
-				return html`${this.renderEndCallModal()}`;
+				return html`${this._renderEndCallModal()}`;
 			default:
 		}
 	}
 
-	renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		if (!this.isBusy) {
 			return html``;
 		};
@@ -365,7 +413,7 @@ export class AddCallerDetails extends Component {
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
-	renderErrorMessage() {
+	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
 				<capitec-alert-banner 
@@ -376,7 +424,7 @@ export class AddCallerDetails extends Component {
 		return html``;
 	}
 
-	renderAddCallerDetails() {
+	_renderAddCallerDetails() {
 		return html`
 			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
 			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
@@ -384,7 +432,7 @@ export class AddCallerDetails extends Component {
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
 										value="${getValue(this.firstNameTextField)}"
-										error="${this.getErrorMessage(this.firstNameTextField)}"
+										error="${this._getErrorMessage(this.firstNameTextField)}"
 										?hidden=${isHidden(this.firstNameTextField)}
 										.disabled="${isDisabled(this.firstNameTextField)}"
 										tabindex="${getTabIndex(this.firstNameTextField)}"
@@ -396,7 +444,7 @@ export class AddCallerDetails extends Component {
 					<capitec-text-field label="Surname"
 										id="surnameTextField"
 										value="${getValue(this.surnameTextField)}"
-										error="${this.getErrorMessage(this.surnameTextField)}"
+										error="${this._getErrorMessage(this.surnameTextField)}"
 										?hidden=${isHidden(this.surnameTextField)}
 										.disabled="${isDisabled(this.surnameTextField)}"
 										tabindex="${getTabIndex(this.surnameTextField)}"
@@ -408,7 +456,7 @@ export class AddCallerDetails extends Component {
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
 										value="${getValue(this.cellPhoneTextField)}"
-										error="${this.getErrorMessage(this.cellPhoneTextField)}"
+										error="${this._getErrorMessage(this.cellPhoneTextField)}"
 										label="Cellphone Number (Optional)"
 										?hidden=${isHidden(this.cellPhoneTextField)}
 										.disabled="${isDisabled(this.cellPhoneTextField)}"
@@ -433,7 +481,7 @@ export class AddCallerDetails extends Component {
 			</content-box>`;
 	}
 
-	renderFooter() {
+	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<capitec-button id="id-back-button"
@@ -442,7 +490,7 @@ export class AddCallerDetails extends Component {
 								?hidden=${isHidden(this.backButton)}
 								.disabled="${isDisabled(this.backButton)}"
 								tabindex="${getTabIndex(this.backButton)}"
-								@click="${(e) => this._onBackButtonClick()}">
+								@click="${(e) => this._backClick()}">
 				</capitec-button>
 				<capitec-button id="id-confirm-button"
 								type="primary"
@@ -450,12 +498,12 @@ export class AddCallerDetails extends Component {
 								?hidden=${isHidden(this.confirmButton)}
 								.disabled="${isDisabled(this.confirmButton)}"
 								tabindex="${getTabIndex(this.confirmButton)}"
-								@click="${() => this._onAddCallerDetails()}">
+								@click="${() => this._confirmClick()}">
 				</capitec-button>
 			</capitec-group>`;
 	}
 
-	renderEndCallModal() {
+	_renderEndCallModal() {
 		return html`<horizon-end-call-session 
 						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
 						.incomingCallDetails = "${this.incomingCallDetails}">

@@ -1,4 +1,4 @@
-import { ServiceBase } from 'app/services/ServiceBase';
+import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
 
 /**
  * The InitializeService is used on the Horizon Landing Page primarily to load the the 
@@ -36,10 +36,11 @@ export class InitialiseService extends ServiceBase {
 	 * Returns information on the logged in agent/user
 	 *
 	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
 	 * @memberof InitialiseService
 	 */
-	initialise(errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.initialise(), errorHandler);
+	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.serviceCallHelper.asyncCall(this.channelService.initialise(), `initialise`, errorHandler, autoRetries);
 	}
 }
