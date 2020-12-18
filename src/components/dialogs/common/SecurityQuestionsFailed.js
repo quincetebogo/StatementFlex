@@ -5,7 +5,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {

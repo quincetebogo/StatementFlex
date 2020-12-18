@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from 'app/css/HorizonModalHeader';
 
-import './HorizonCallerInfoBar';
+import 'app/components/common/CallerInfoBar';
 
 /**
  * A Dialog with a Caller Information Bar. This is a common dialog format in the Horizon Project.
@@ -12,7 +12,7 @@ import './HorizonCallerInfoBar';
  * @class HorizonCallerDialog
  * @extends {Component}
  */
-export class HorizonCallerDialog extends Component {
+export class CallerDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -165,4 +165,4 @@ export class HorizonCallerDialog extends Component {
 
 }
 
-window.customElements.define(`horizon-caller-dialog`, HorizonCallerDialog);
+window.customElements.define(`horizon-caller-dialog`, CallerDialog);

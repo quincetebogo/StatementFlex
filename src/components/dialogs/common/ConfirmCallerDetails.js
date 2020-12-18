@@ -1,9 +1,6 @@
-/**
- * The Horizon Confirm Caller Details Dialog is used to confirming caller details of a
- * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
- */
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -17,14 +14,14 @@ import 'platform/components/core/Icon';
 
 import 'app/components/dialogs/common/AddCallerDetails';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/stopCard/StopCardSearchCaller'; // TODO: Remove direct access to stop card dialog
+import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 
-import 'app/components/common/HorizonCallerInfoBar';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerInfoBar';
+import 'app/components/common/CallerDialog';
 
 
 /**
@@ -41,6 +38,18 @@ const RENDER_MODE = {
 
 const HEADER_LABEL = `Confirm Caller Details`;
 
+/**
+ * The Horizon Confirm Caller Details Dialog is used to confirming caller details of a
+ * Capitec Client. This dialog is currently shared between the Stop Card and Insure Needs.
+ * 
+ * Events Raised 
+ * -------------
+ * non-client-captured
+ * 
+ * @export
+ * @class ConfirmCallerDetails
+ * @extends {Component}
+ */
 export class ConfirmCallerDetails extends Component {
 
 	// --------------
@@ -125,7 +134,7 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_onAddCallerDetailsReturn(data) {
+	_addCallerDetailsCancelled(data) {
 		this.confirmedCaller.ivrOptionCode = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOption.value = data.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOptionCode = data.detail.ivrOptionValue;
@@ -178,23 +187,24 @@ export class ConfirmCallerDetails extends Component {
 			nonClientRelationship: ``
 		};
 
-		const callerInformation = {
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber, // TODO: Must be replaced by Verified Number from CS call
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`,
-			is3rdParty: false,
-			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance
-		};
+		const callerInformation = new CallerInformation(
+			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.callerInformation.birthdate.value,
+			this.confirmedCaller.callerInformation.languagePreference.value,
+			this.confirmedCaller.callerInformation.livesIn.value,
+			this.confirmedCaller.callerInformation.name.value,
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.incomingCallDetails.incomingTelephoneNumber, 
+			``,
+			``,
+			``,
+			``,
+			true,
+			`unverified`,
+			false,
+			false,
+			this.hasInsurance 
+		);
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 		const clientProfileDetails = returnValue.result;
@@ -215,34 +225,46 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	_onIdentifiedClient(data) {
+	_identifiedClient(event) {
 		// After a search we need to replace whatever we might have had for the confirmed caller with 
 		// the results of the search
 		// the results of the search
-		this.confirmedCaller = data.detail.identifiedClient;
-		this.incomingCallDetails = data.detail.incomingCallDetails;
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.identifiedClient;
 		this._initReferences();
 
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	_onNonClientCaptured(data) {
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: data.detail }));
+
+	/**
+	 * Non-client information has been captured on the general need search dialog
+	 *
+	 * @param {Object} event Event details contain the non-client information captured from the search dialog
+	 * @returns {undefined}
+	 * @memberof ConfirmCallerDetails
+	 */
+	_nonClientCaptured(event) {
+		this.dispatchEvent(new CustomEvent(`non-client-captured`, { detail: event.detail }));
 	}
 
-	_onNonClientDetailsAdded(data) {
-		this.dispatchEvent(new CustomEvent(`confirmed-caller`, {
-			detail: data.detail
-		}));
+	_otherNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
-	_onIvrOptionChanged(e) {
-		this.confirmedCaller.ivrOptionCode = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
+	_stopCardNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 	}
 
-	_onSearchClick() {
+	_needChanged(event) {
+		this.confirmedCaller.ivrOptionCode = event.detail.new;
+		this.incomingCallDetails.ivrOption.value = event.detail.new;
+		this.incomingCallDetails.ivrOptionCode = event.detail.new;
+	}
+
+	_searchClick() {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 		} else {
@@ -511,7 +533,7 @@ export class ConfirmCallerDetails extends Component {
 			<capitec-group layout="horizontal">
 				<capitec-button id="id-search-button" type="clear" label="Search Client"
 					?hidden=${isHidden(this.searchClientButton)} .disabled="${isDisabled(this.searchClientButton)}"
-					tabindex="${getTabIndex(this.searchClientButton)}" @click="${() => this._onSearchClick()}">
+					tabindex="${getTabIndex(this.searchClientButton)}" @click="${() => this._searchClick()}">
 				</capitec-button>
 			
 				<capitec-button id="id-confirm-button" type="primary" label="Confirm" ?hidden=${isHidden(this.confirmButton)}
@@ -534,9 +556,9 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		return html`
 			<horizon-add-caller-details .confirmedCaller="${this.confirmedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}" .addCallerDialog="${this.addCallerDetails}"
-				@on-back="${(data) => this._onAddCallerDetailsReturn(data)}"
-				@caller-added="${(data) => this._onNonClientDetailsAdded(data)}">
+				.incomingCallDetails="${this.incomingCallDetails}" 
+				.addCallerDialog="${this.addCallerDetails}"
+				@cancel="${(e) => this._addCallerDetailsCancelled(e)}">
 			</horizon-add-caller-details>`;
 	}
 
@@ -549,38 +571,43 @@ export class ConfirmCallerDetails extends Component {
 
 	renderStopCardSearchModal() {
 		return html`
-			<horizon-stop-card-search-caller .incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onIdentifiedClient(data)}">
+			<horizon-stop-card-search-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@client-identified="${(event) => this._identifiedClient(event)}"
+				@other-need-selected="${(event) => this._otherNeedSelected(event)}"
+				>
 			</horizon-stop-card-search-caller>`;
 	}
 
 	renderSearchModal() {
 		return html`
-			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onIdentifiedClient(data)}"
-				@non-client-captured="${data => this._onNonClientCaptured(data)}">
+			<horizon-search-caller 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@client-identified="${(data) => this._identifiedClient(data)}"
+				@non-client-captured="${data => this._nonClientCaptured(data)}"
+				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 			</horizon-search-caller>`;
 	}
 
 	renderVerifyCallerModal() {
-		const callerInformation = {
-			cifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
-			birthdate: this.confirmedCaller.callerInformation.birthdate.value,
-			languagePreference: this.confirmedCaller.callerInformation.languagePreference.value,
-			livesIn: this.confirmedCaller.callerInformation.livesIn.value,
-			name: this.confirmedCaller.callerInformation.name.value,
-			southAfricanIDNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			verifiedTelephoneNumber: this.incomingTelephoneNumber.value,
-			nonClientFullName: ``,
-			nonClientCellPhone: ``,
-			nonClientIDNumber: ``,
-			nonClientRelationship: ``,
-			isConfirmed: true,
-			verificationStatus: `unverified`,
-			is3rdParty: false,
-			isNonClient: false,
-			hasInsuranceProducts: this.hasInsurance
-		};
+		const callerInformation = new CallerInformation(
+			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.callerInformation.birthdate.value,
+			this.confirmedCaller.callerInformation.languagePreference.value,
+			this.confirmedCaller.callerInformation.livesIn.value,
+			this.confirmedCaller.callerInformation.name.value,
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.incomingTelephoneNumber.value,
+			``,
+			``,
+			``,
+			``,
+			true,
+			`unverified`,
+			false,
+			false,
+			this.hasInsurance
+		);
 
 		return html`
 			<horizon-verify-caller

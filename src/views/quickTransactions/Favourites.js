@@ -129,20 +129,26 @@ export class Favourites extends View {
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
 
-		const landingRequest = {
-			cifNumber: this.callerInformation.cifNumber,
-			nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-			isCallerVerified: this.callerInformation.verificationStatus === `verified`
-		};
+		if (this.callerInformation.verificationStatus !== `non-client`) {
+			const landingRequest = {
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+			};
+	
+			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+	
+			if (returnValue.succeeded) {
+				this.isLoading = false;
+				this.landingPageInfo = returnValue.result;
 
-		const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
-
-		if (returnValue.succeeded) {
+				// Now we can update the information on the product buttons as well
+				this._updateLeftBar();
+			}
+		} else {
+			// minimal object for the Favourites landing page component
 			this.isLoading = false;
-			this.landingPageInfo = returnValue.result;
-
-			// Now we can update the information on the product buttons as well
-			this._updateLeftBar();
+			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 	}
 
@@ -183,18 +189,18 @@ export class Favourites extends View {
 
 		const state = {
 			miniProfile: {
-				name: this.callerInformation.name,
+				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				livesIn: this.callerInformation.livesIn,
 				languagePreference: this.callerInformation.languagePreference,
 				birthday: this.callerInformation.birthdate,
-				showButtons: this.callerInformation.verificationStatus != `failed`,
-				isConfirmed: true,
+				showButtons: this.callerInformation.verificationStatus === `verified`,
+				isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
 				isVerified: this.callerInformation.verificationStatus === `verified`,
 				verificationFailed: this.callerInformation.verificationStatus === `failed`,
 				is3rdParty: false,
-				isNonClient: false
+				isNonClient: this.callerInformation.verificationStatus === `non-client`
 			},
 			leftBarButtonConfig: {
 				hasFavourites: true,

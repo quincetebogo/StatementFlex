@@ -3,26 +3,24 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
-import 'app/components/common/HorizonCallerDialog';
-import 'app/components/dialogs/stopCard/StopCardSearchCaller';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	SEARCH_CALLER: 0,
-	END_CALL: 1,
-	STOPCARD_SEARCH_CALLER: 2
-};
+	END_CALL: 1
+});
 
-const CLIENT_TYPE = {
+const CLIENT_TYPE = Object.freeze({
 	CAPITEC_CLIENT: 0,
 	NON_CLIENT: 1
-};
+});
 
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
@@ -105,6 +103,12 @@ const HEADER_LABEL = `Search Caller Details`;
 
 /**
  * Search Dialog for all needs except Stop Card. Stop Card has a specialized search dialog.
+ * 
+ * Events Raised 
+ * -------------
+ * non-client-captured
+ * client-identified
+ * stop-card-need-selected
  *
  * @export
  * @class SearchCaller
@@ -166,6 +170,7 @@ export class SearchCaller extends Component {
 		this.cellPhoneNumberValue = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
@@ -175,12 +180,19 @@ export class SearchCaller extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof SearchCaller
+	 */
 	static get properties() {
 		return {
+			incomingCallDetails: { type: Object },
 			isBusy: { type: Boolean },
 			renderMode: { type: Number },
 			clientType: { type: Number },
-			incomingCallDetails: { type: Object },
 			alertBannerMessage: { type: String }
 		};
 	}
@@ -251,12 +263,19 @@ export class SearchCaller extends Component {
 		}
 	}
 
-	_onIvrOptionChanged(e) {
+	_needChanged(e) {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 
-		if (e.detail.new === `StopCard`) {
-			this.renderMode = RENDER_MODE.STOPCARD_SEARCH_CALLER;
+		// Stop Card has it's own specialized search dialog. We raise this 
+		// event to give the caller the change to switch to that dialog.
+		// Switching to the dialog is not handled in this component.
+		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
+			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 		}
 	}
 
@@ -400,15 +419,11 @@ export class SearchCaller extends Component {
 		return true;
 	}
 
-	_onClientIdentfiedInsure(data) {
-		this._raiseOnClientIdentified(data.detail.identifiedClient);
-	}
-
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: {
-				identifiedClient: identifiedClient,
-				incomingCallDetails: this.incomingCallDetails
+				incomingCallDetails: this.incomingCallDetails,
+				identifiedClient: identifiedClient
 			}
 		}));
 	};
@@ -522,8 +537,6 @@ export class SearchCaller extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-			case RENDER_MODE.STOPCARD_SEARCH_CALLER:
-				return html`${this._renderStopCardSearchModal()}`;
 			default:
 		}
 	}
@@ -636,14 +649,6 @@ export class SearchCaller extends Component {
                 @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
-	}
-
-	_renderStopCardSearchModal() {
-		return html`
-			<horizon-stop-card-search-caller
-                .incomingCallDetails="${this.incomingCallDetails}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
-			</horizon-stop-card-search-caller>`;
 	}
 }
 
