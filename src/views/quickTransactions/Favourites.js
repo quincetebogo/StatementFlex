@@ -9,6 +9,8 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/quickTransactions/FavouriteTransactions';
+import 'app/components/common/DebiCheckMandates';
+import { mockResponse } from 'app/mocks/DebiCheckMockData';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -16,7 +18,8 @@ const RENDER_MODE = Object.freeze({
 	SELECT_ASSIGN_REASON: 2,
 	ASSIGN: 3,
 	VERIFY_NOW: 4,
-	ALERT_MODAL: 5
+	ALERT_MODAL: 5,
+	DEBI_CHECK: 6
 });
 
 /**
@@ -76,6 +79,7 @@ export class Favourites extends View {
 		super.connectedCallback();
 
 		this._initialise();
+		this.debicheckMandates = mockResponse.mandateSummaryList;
 	}
 
 	// --------------
@@ -108,6 +112,8 @@ export class Favourites extends View {
 				this._stopCard();
 				break;
 			case `debi-check`:
+				this.renderMode = RENDER_MODE.DEBI_CHECK;
+				break;
 			case `update-card-limits`:
 			case `tap-to-pay`:
 			case `statements`:
@@ -267,12 +273,22 @@ export class Favourites extends View {
 
 	_webTemplate() {
 		return html`
-		${this._renderFavouritesLandingPage()}
-		${this._renderEndCallSessionModal()}
-		${this._renderVerifyNowModal()}
-		${this._renderAlertModal()}
-		${this._renderLoadingIndicator()}
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+			${this._renderEndCallSessionModal()}
+			${this._renderVerifyNowModal()}
+			${this._renderAlertModal()}
 		`;
+	}
+
+	_renderContent(){
+		switch(this.renderMode){
+			case RENDER_MODE.DEBI_CHECK:
+				break;
+			case RENDER_MODE.MAIN_PAGE:
+			default:
+				return html`${this._renderFavouritesLandingPage()}`;
+		}
 	}
 
 	_renderFavouritesLandingPage() {
@@ -329,6 +345,14 @@ export class Favourites extends View {
 		};
 
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
+	_renderDebiCheckMandates(){
+		return html`
+			<horizon-debi-check .debicheckMandates = ${this.debicheckMandates}
+								@back = ${() => this.renderMode = RENDER_MODE.MAIN_PAGE}>
+			</horizon-debi-check>
+		`;
 	}
 }
 
