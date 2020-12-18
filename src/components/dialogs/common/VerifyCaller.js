@@ -364,7 +364,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_mobileTemplate() {
-		this._webTemplate();
+		return this._webTemplate();
 	}
 
 	_webTemplate() {

@@ -329,7 +329,7 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		// TODO: Remove temporary error handler. 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, (ex) => this._temporaryErrorHander(ex), 0);
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, (ex) => this._temporaryErrorHander(ex), 1);
 
 		// TODO: Remmove temporary code that forces hasInsurance flag if CS call does not work. This is to allow testing of Stop Card in INT in the meantime.
 		if (!returnValue.succeeded) {
