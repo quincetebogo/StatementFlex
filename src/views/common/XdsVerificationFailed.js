@@ -62,21 +62,6 @@ export class XdsVerificationFailed extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-
-		// Dispatch table/function for routing to other pages
-		this.navigateToUnverifiedLandingPage = ivrOption => {
-
-			const stopCard = () => this.horizonRouter.navigateToStopCard();
-			const transact = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-			const insure = this.callerInformation.hasInsuranceProducts ? () => this.horizonRouter.navigateToInsureExistingClient() : () => this.horizonRouter.navigateToInsureProspectiveClient();
-
-			return {
-				StopCard: stopCard,
-				Transact: transact,
-				Insure: insure
-			}[ivrOption];
-		};
 	}
 
 	// --------------
@@ -84,7 +69,7 @@ export class XdsVerificationFailed extends View {
 	// --------------
 
 	_continueUnverifiedClick() {
-		this.navigateToUnverifiedLandingPage(this.incomingCallDetails.ivrOptionCode)();
+		this.horizonStore.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_verifyViaAppClick() {

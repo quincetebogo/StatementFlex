@@ -38,6 +38,7 @@ const REGEX_CELLPHONE = {
  * Events Raised 
  * -------------
  * cancel
+ * confirm
  *  
  * @export
  * @class AddCallerDetails
@@ -142,80 +143,31 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-
 		if (!this._validateData()) {
-			this._callerDetailsAdded();
+			this.dispatchEvent(new CustomEvent(`confirm`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails,
+					callerInformation: new CallerInformation(
+						this.confirmedCaller.callerInformation.cifNumber.value,
+						this.confirmedCaller.callerInformation.birthdate.value,
+						this.confirmedCaller.callerInformation.languagePreference.value,
+						this.confirmedCaller.callerInformation.livesIn.value,
+						this.confirmedCaller.callerInformation.name.value,
+						this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+						this.incomingCallDetails.incomingTelephoneNumber, 
+						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
+						this.cellPhoneTextField.value,
+						``,
+						this.nonClientRelationship.value,
+						true,
+						`unverified`,
+						true,
+						false,
+						false // not yet determined. 
+					)
+				}
+			}));
 		}
-	}
-
-	async _callerDetailsAdded() {
-		const hasInsurance = await this._checkForInsuranceProducts(this.confirmedCaller);
-
-		const state = { incomingCallDetails: this.incomingCallDetails,
-						callerInformation: new CallerInformation(
-							this.confirmedCaller.callerInformation.cifNumber.value,
-							this.confirmedCaller.callerInformation.birthdate.value,
-							this.confirmedCaller.callerInformation.languagePreference.value,
-							this.confirmedCaller.callerInformation.livesIn.value,
-							this.confirmedCaller.callerInformation.name.value,
-							this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-							this.incomingCallDetails.incomingTelephoneNumber, 
-							this.confirmedCaller.nonClientFullName,
-							this.confirmedCaller.nonClientCellPhone,
-							``,
-							this.confirmedCaller.nonClientRelationship,
-							true,
-							`unverified`,
-							true,
-							false,
-							hasInsurance
-						) };
-
-		if (this.ivrOption.value === `StopCard`) {
-			const confirmedCaller = {
-				idNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-				incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-				incidentRecId: this.incomingCallDetails.incidentRecId,
-				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-				nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-				nonClientCellPhone: this.cellPhoneTextField.value,
-				nonClientIDNumber: ``,
-				nonClientRelationship: this.nonClientRelationship.value
-			};
-		
-			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-
-			state.clientProfileDetails = returnValue.result;
-		};
-
-		this.horizonStore.saveState(state);
-		this.horizonStore.navigateToLandingPage(this.ivrOption.value, hasInsurance);
-	}
-
-	async _checkForInsuranceProducts(confirmedCaller) {
-		const InsuranceCientInfo = {
-			IdNumber: confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			CifNumber: confirmedCaller.callerInformation.cifNumber.value,
-			isCallerVarified: false
-		};
-
-		// TODO: Remove temporary error handler. 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, (ex) => this._temporaryErrorHander(ex), 0);
-
-		// TODO: Remmove temporary code that forces hasInsurance flag if CS call does not work. This is to allow testing of Stop Card in INT in the meantime.
-		if (!returnValue.succeeded) {
-			return true;
-		}
-
-		return returnValue.result.hasInsurance;
-	}
-
-	// TODO: remove temporary function
-	_temporaryErrorHander(ex) {
-		console.log(ex);
 	}
 
 	_backClick() {

@@ -1,9 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
+import 'app/components/common/OptionButton';
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
+ * Events Raised 
+ * -------------
+ * verify-click
+ * option-click
+ * 
  * @export
  * @class TransactionFavourites
  * @extends {Component}
@@ -16,7 +21,6 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.verificationStatus = ``;
 		this.displayToast = false;
 		this.landingPageInfo = null;

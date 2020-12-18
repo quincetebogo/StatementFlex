@@ -11,9 +11,9 @@ import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 
 const RENDER_MODE = Object.freeze({
-	VERIFY_CALLER: 0,
-	END_CALL: 1,
-	SECURITY_QUESTIONS: 2
+	VERIFY_CALLER: 1,
+	SECURITY_QUESTIONS: 2,
+	END_CALL: 3
 });
 
 const HEADER_LABEL = `Verify Caller`;
@@ -21,7 +21,7 @@ const HEADER_LABEL = `Verify Caller`;
 const MAX_ITA_ATTEMPTS = 3;
 const MAX_XDS_ATTEMPTS = 2;
 
-const ITA_TIMEOUT_SECS = 10;
+const ITA_TIMEOUT_SECS = 60;
 
 // exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
@@ -38,7 +38,13 @@ export const navigateToFailedScreen = (objInstance) => {
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
- *
+ * 
+ * Events Raised 
+ * -------------
+ * cancel - should return to caller 
+ * skip - should return to caller which should then navigate to the appropriate landing page
+ * verify - should navigate to landing page with appropriate verification status
+ * 
  * @export
  * @class VerifyCaller
  * @extends {Component}
@@ -53,7 +59,7 @@ export class VerifyCaller extends Component {
 		super();
 
 		// Property initialization
-		this.renderMode = 0;
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.incomingCallDetails = null;
 		this.timeLeft = `1:00`;
 		this.minutes = 1;
@@ -100,7 +106,7 @@ export class VerifyCaller extends Component {
 
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.posssibleValues;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
@@ -126,7 +132,7 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _verifyUsingSecurityQuestions() {
+	async _securityQuestionsClick() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
 
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
@@ -145,15 +151,27 @@ export class VerifyCaller extends Component {
 		} 
 	}
 
-	_skip() {
-		this._updateApplicationState(`unverified`);
-		this.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode, this.callerInformation.hasInsuranceProducts)();
+	_skipClick() {
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
-	_onSecurityQuestionsCancel() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {
-			detail: {}
-		}));
+	_skippedSecurityQuestions(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
+	_cancelledSecurityQuestions(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.dispatchEvent(new CustomEvent(`cancel`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
+	_verifiedViaSecurityQuestions(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
 	_tryAgain() {
@@ -346,40 +364,57 @@ export class VerifyCaller extends Component {
 	}
 
 	_mobileTemplate() {
+		this._webTemplate();
 	}
 
 	_webTemplate() {
-		switch (this.renderMode) {
-			case RENDER_MODE.VERIFY_CALLER:
-				return html`
-					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}" 
-                                .headerLabel="${HEADER_LABEL}"
-						        @on-end-call="${() => this._onEndCall()}">
-						<div slot="body">
-							${this._renderNotificationStatus()}
-							${this._renderXdsError()}
-							${this._renderPushNotificationError()}
-							${this._renderOtherOptions()}
-							${this._renderLoadingIndicator()}
-						</div>
-					</horizon-caller-dialog>
-				`;
+		return html`
+			${this._renderVerifyCallerDialog()}
+			${this._renderSecurityQuestionsDialog()}
+			${this._renderEndCallModal()}
+		`;
+	}
 
-			case RENDER_MODE.SECURITY_QUESTIONS:
-                return html`<horizon-security-question 
-                                    .incomingCallDetails="${this.incomingCallDetails}"
-	                                .callerInformation="${this.callerInformation}" 
-                                    .securityQuestions="${this.securityQuestions}"
-	                                @cancel="${() => this._onSecurityQuestionsCancel()}"
-                                    @skip="${() => this._skip()}">
-                            </horizon-security-question>`;
+	_renderVerifyCallerDialog() {
+		return this.renderMode !== RENDER_MODE.VERIFY_CALLER 
+			? html``
+			: html`
+				<horizon-caller-dialog
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.headerLabel="${HEADER_LABEL}"
+					@on-end-call="${() => this._onEndCall()}">
+					<div slot="body">
+						${this._renderNotificationStatus()}
+						${this._renderXdsError()}
+						${this._renderPushNotificationError()}
+						${this._renderOtherOptions()}
+						${this._renderLoadingIndicator()}
+					</div>
+				</horizon-caller-dialog>`;
+	}
 
-			case RENDER_MODE.END_CALL:
-				return html`${this._renderEndCallModal()}`;
-			default:
-				return html`Incorrect Render mode specified`;
-		}
+	_renderSecurityQuestionsDialog() {
+		return this.renderMode !== RENDER_MODE.SECURITY_QUESTIONS 
+			? html``
+			: html`
+				<horizon-security-question 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}" 
+					.securityQuestions="${this.securityQuestions}"
+					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
+					@skip="${(event) => this._skippedSecurityQuestions(event)}"
+					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}">
+				</horizon-security-question>`;
+	}
+
+	_renderEndCallModal() {
+		return this.renderMode !== RENDER_MODE.END_CALL 
+			? html`` 
+			: html`
+				<horizon-end-call-session 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
+				</horizon-end-call-session>`;
 	}
 
 	_renderNotificationStatus() {
@@ -474,36 +509,30 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
 	_renderOtherOptions() {
-
 		console.log(`ita failed count`, this.itaFailedCount);
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button label="Security Questions" 
-                                            icon="system/apply-now-action"
-                                            iconSize="default"
-						                    @click="${() => this._verifyUsingSecurityQuestions()}">
+					<horizon-option-button 
+						label="Security Questions" 
+                        icon="system/apply-now-action"
+                        iconSize="default"
+						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
-					<horizon-option-button label="Skip"
-                                            icon="system/arrow-right-action" 
-                                            iconSize="default"
-					    @click="${() => this._skip()}">
+					<horizon-option-button 
+						label="Skip"
+                        icon="system/arrow-right-action" 
+                        iconSize="default"
+					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
-					<horizon-option-button label="Try Again" 
-                                            img-src="/images/insure/refresh.svg"
-											iconSize="default"
-											?disabled=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
-											?hidden=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+					<horizon-option-button 
+						label="Try Again" 
+						img-src="/images/insure/refresh.svg"
+						iconSize="default"
+						?disabled=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?hidden=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
@@ -511,11 +540,12 @@ export class VerifyCaller extends Component {
 		`;
 	}
 
-	_renderEndCallModal() {
-		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
-			</horizon-end-call-session>`;
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

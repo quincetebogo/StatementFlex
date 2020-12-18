@@ -269,6 +269,7 @@ export class Favourites extends View {
 	}
 
 	_mobileTemplate() {
+		this._webTemplate();
 	}
 
 	_webTemplate() {
