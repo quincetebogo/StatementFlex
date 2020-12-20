@@ -76,8 +76,22 @@ export class XdsVerificationFailed extends View {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 
-	_skipVerificationClick(e) {
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_endCallClick() {
@@ -133,7 +147,9 @@ export class XdsVerificationFailed extends View {
 				<horizon-verify-caller 
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation ="${this.callerInformation}"
-					@skip="${(e) => this._skipVerificationClick(e)}">
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;

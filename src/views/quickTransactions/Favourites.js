@@ -52,7 +52,7 @@ export class Favourites extends View {
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyNowClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -94,13 +94,33 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
 	}
 
-	_verifyNowClick() {
+	_verifyClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 
-	_skipVerificationClick() {
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.verificationStatus = event.detail.callerInformation.verificationStatus;
+		this._initialise(); // re-initialise the page when the verification status changes
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 
 	_onFavouritesOptionClick(e) {
 		switch (e.detail.option) {
@@ -289,7 +309,7 @@ export class Favourites extends View {
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.state.incomingCallDetails}"
 					.callerInformation="${this.state.callerInformation}"
-					@verify-click="${() => this._verifyNowClick()}"
+					@verify-click="${() => this._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourites-transactions>`;
 
@@ -301,7 +321,9 @@ export class Favourites extends View {
 				<horizon-verify-caller 
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation="${this.callerInformation}"
-					@skip="${(e) => this._skipVerificationClick(e)}">
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
 				</horizon-verify-caller>`;
 		}
 		return html``;
@@ -324,7 +346,7 @@ export class Favourites extends View {
 			return html`
 				<horizon-client-not-verified 
 					@cancel="${() => this.renderMode = 0}" 
-					@verify-now="${() => this._verifyNowClick()}">
+					@verify-now="${() => this._verifyClick()}">
 				</horizon-client-not-verified>
 			`;
 		}

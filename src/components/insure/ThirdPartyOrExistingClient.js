@@ -298,7 +298,7 @@ export class ThirdPartyOrExistingClient extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderOptions()}
-			${this._renderHowToClaim()}`;		
+			${this._renderHowToClaim()}`;
 	}
 
 	_renderOptions() {
