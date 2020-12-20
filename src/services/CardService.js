@@ -26,11 +26,11 @@ export class CardService extends ServiceBase {
 	// --------------
 
 	identifyCaller(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
 	};
 
 	addCallerDetails(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.addCallerDetails(callerData), `addCallerDetails`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.addCallerDetails(callerData), `addCallerDetails`, errorHandler, autoRetries);
 	}
 
 	async stopCards(cardsToStop, callerInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
@@ -52,7 +52,7 @@ export class CardService extends ServiceBase {
 			agentTelephoneNumber: callerInfo.agentTelephoneNumber
 		};
 
-		const returnValue = await this.serviceCallHelper.asyncCall(this.channelService.stopCard(stopCardRequest), `stopCard`, errorHandler, autoRetries);
+		const returnValue = await this.wrapCall(this.channelService.stopCard(stopCardRequest), `stopCard`, errorHandler, autoRetries);
 		const stopCardResponse = returnValue.result;
 
 		if (returnValue.succeeded && stopCardResponse && stopCardResponse.cardResponses) {
@@ -73,11 +73,11 @@ export class CardService extends ServiceBase {
 	}
 
 	assignTeams(incidentData, errorHandler, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.assignTeams(incidentData), `assignTeams`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.assignTeams(incidentData), `assignTeams`, errorHandler, autoRetries);
 	}
 
 	// assignRequest
 	assign(assignData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.assignTeams(assignData), `assign`, errorHandler, autoRetries);
+		return this.wrapCall(this.assignTeams(assignData), `assign`, errorHandler, autoRetries);
 	}
 }

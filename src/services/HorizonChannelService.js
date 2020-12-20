@@ -36,7 +36,7 @@ export class HorizonChannelService extends Service {
 	 * @deprecated use acceptCall instead
 	 *
 	 * @param {Object} incomingCallData Incoming call information
-	 * @returns {Object} Caller information if the call is originating from a verified number
+	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
 	 * @memberof HorizonChannelService
 	 */
 	caller(incomingCallData) {
@@ -53,7 +53,7 @@ export class HorizonChannelService extends Service {
 	 * 
 	 *
 	 * @param {Object} incomingCallData Incoming call information
-	 * @returns {Object} Caller information if the call is originating from a verified number
+	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
 	 * @memberof HorizonChannelService
 	 */
 	acceptCall(incomingCallData) {
@@ -86,7 +86,7 @@ export class HorizonChannelService extends Service {
 	 * @deprecated
 	 *
 	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Object} A list of end call reasons for the end call dialog
+	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
 	 * @memberof HorizonChannelService
 	 */
 	endCallOptions(endCallDetails) {
@@ -106,7 +106,7 @@ export class HorizonChannelService extends Service {
 	 * NOTE: THE CS IMPLEMENTATION OF THIS ENDPOINT IS NOT YET DONE
 	 *
 	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Object} A list of end call reasons for the end call dialog
+	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
 	 * @memberof HorizonChannelService
 	 */
 	loadEndCallOptions(endCallDetails) {
