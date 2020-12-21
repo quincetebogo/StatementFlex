@@ -21,9 +21,10 @@ export class FavouriteTransactions extends Component {
 
 	constructor() {
 		super();
-		this.verificationStatus = ``;
-		this.displayToast = false;
+
 		this.landingPageInfo = null;
+
+		this.displayToast = false;
 		this.isBusy = false;
 	}
 
@@ -33,9 +34,10 @@ export class FavouriteTransactions extends Component {
 
 	/**
 	 *
-	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
-	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} callerInformation Information on the current caller (mini-profile)
+	 * @property {Object} incomingCallDetails Information on the incoming/current call
+	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
+	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
 	 *
 	 * @readonly
 	 * @static
@@ -43,12 +45,13 @@ export class FavouriteTransactions extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
-			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-			isBusy: { type: Boolean },
-			verificationStatus: { type: String },
-			displayToast: { type: Boolean }
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+			verificationStatus: { type: String }, 
+
+			isBusy: { attribute: false },
+			displayToast: { attribute: false }
 		};
 	}
 
@@ -58,8 +61,6 @@ export class FavouriteTransactions extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		if (this.verificationStatus === `verified`) {
 			this.displayToast = true;
@@ -196,7 +197,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_mobileTemplate() {
-		this._webTemplate();
+		return this._webTemplate();
 	}
 
 	_webTemplate() {

@@ -91,8 +91,9 @@ export class ConfirmCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			renderMode: { type: Number }
+
+			isBusy: { attribute: false },
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -216,6 +217,7 @@ export class ConfirmCallerDetails extends Component {
 	_verificationSkipped(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this._navigateToLandingPage();
 	}
 
