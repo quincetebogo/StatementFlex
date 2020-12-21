@@ -69,7 +69,7 @@ export class XdsVerificationFailed extends View {
 	// --------------
 
 	_continueUnverifiedClick() {
-		this.horizonStore.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode.value, this.callerInformation.hasInsuranceProducts);
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_verifyViaAppClick() {
@@ -80,6 +80,8 @@ export class XdsVerificationFailed extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOptionCode.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	_verificationCancelled(event) {
