@@ -30,6 +30,7 @@ export class ProspectiveClient extends View {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {

@@ -12,9 +12,9 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = Object.freeze({
-	SECURITY_QUESTIONS: 0,
-	END_CALL: 1,
-	FIRST_FAILURE: 2
+	SECURITY_QUESTIONS: 1,
+	FIRST_FAILURE: 2,
+	END_CALL: 3
 });
 
 const HEADER_LABEL = `Security Questions`;
@@ -23,6 +23,12 @@ const ERROR_MESSAGE = `Please choose an option`;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
+ * 
+ * Events Raised 
+ * -------------
+ * cancel
+ * skip
+ * verified
  *
  * @export
  * @class VerifyBySecurityQuestions
@@ -39,14 +45,11 @@ export class VerifyBySecurityQuestions extends Component {
 	constructor() {
 		super();
 
-		this.incomingCallDetails = {};
-		this.callerInformation = {};
-		this.renderMode = 0;
+		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		this.questionNumber = 0;
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-		this.securityQuestions = {};
 		this.retryCount = 0;
 		this.alertBannerMessage = ``;
 
@@ -104,15 +107,15 @@ export class VerifyBySecurityQuestions extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_onCancel() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	_cancelClick() {
+		this.dispatchEvent(new CustomEvent(`cancel`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
-	_onSkip() {
-		this._navigateToLandingPage(`unverified`);
+	_skipClick() {
+		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
-	_onContinueClick() {
+	_continueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
@@ -123,17 +126,19 @@ export class VerifyBySecurityQuestions extends Component {
 
 	}
 
-	async _verifyAnswers() {
+	async _verifyClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
+
 			this.alertBannerMessage = ``;
 			this.checked = false;
 
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
 
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
-				this._navigateToLandingPage(`verified`);
+				this.callerInformation.verificationStatus = `verified`;
+				this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.retryCount++;
@@ -152,11 +157,7 @@ export class VerifyBySecurityQuestions extends Component {
 		}
 	}
 
-	_onEndCall() {
-		this.renderMode = RENDER_MODE.END_CALL;
-	}
-
-	_onValueChanged(e) {
+	_valueChanged(e) {
 		if (!this.checked) {
 			this.checked = !this.checked;
 		}
@@ -180,6 +181,14 @@ export class VerifyBySecurityQuestions extends Component {
 		}
 	}
 
+	_endCallClick() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_cancelEndCall() {
+		this.renderMode = this.retryCount === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -187,32 +196,6 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_navigateToLandingPage(verificationStatus) {
-		this.callerInformation.verificationStatus = verificationStatus;
-
-		const state = {
-			callerInformation: this.callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
-		switch (this.incomingCallDetails.ivrOptionCode) {
-			case `StopCard`:
-				// Verified Stop Card display must still be developed
-				break;
-			case `Insure`:
-				if (this.callerInformation.hasInsuranceProducts) {
-					this.horizonRouter.navigateToInsureExistingClient();
-				} else {
-					this.horizonRouter.navigateToInsureProspectiveClient();
-				}
-				break;
-			case `Transact`:
-			default:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-		}
-	}
 
 	_xdsErrorHandler(exception) {
 		const state = {
@@ -346,6 +329,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_mobileTemplate() {
+		this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -353,7 +337,7 @@ export class VerifyBySecurityQuestions extends Component {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
 					<horizon-caller-dialog class="main-container" .incomingCallDetails="${this.incomingCallDetails}"
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}">
+						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._endCallClick()}">
 						<div slot="body">
 							<capitec-content-box class="body-box">
 								${this._renderAlertBanner()}
@@ -396,7 +380,7 @@ export class VerifyBySecurityQuestions extends Component {
 				<horizon-radio-button-group
 					class="radio-button" 
 					.radioButtonsAvailable="${answers}"
-					@value-change="${(e) => this._onValueChanged(e)}">
+					@value-change="${(e) => this._valueChanged(e)}">
 				</horizon-radio-button-group>
 		`;
 		}
@@ -405,20 +389,20 @@ export class VerifyBySecurityQuestions extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group class="footer-wrapper" layout="horizontal">
-				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._onCancel()}">
+				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-spacer></capitec-spacer>
 			
-				<capitec-button id="id-skip-button" type="clear" label="Skip Verification" @click="${() => this._onSkip()}">
+				<capitec-button id="id-skip-button" type="clear" label="Skip Verification" @click="${() => this._skipClick()}">
 				</capitec-button>
 			
 				<capitec-button id="id-continue-button" type="primary" label="Continue"
-					?hidden="${!(this.questionNumber !== this.questions.length - 1)}" @click="${() => this._onContinueClick()}">
+					?hidden="${!(this.questionNumber !== this.questions.length - 1)}" @click="${() => this._continueClick()}">
 				</capitec-button>
 			
 				<capitec-button id="id-verify-button" type="primary" label="Verify"
-					?hidden="${!(this.questionNumber === this.questions.length - 1)}" @click="${() => this._verifyAnswers()}">
+					?hidden="${!(this.questionNumber === this.questions.length - 1)}" @click="${() => this._verifyClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -429,7 +413,7 @@ export class VerifyBySecurityQuestions extends Component {
 			<horizon-security-questions-failed
                 .incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
-				@skip="${() => this._onSkip()}">
+				@skip="${() => this._skipClick()}">
 			</horizon-security-questions-failed>`;
 	}
 
@@ -437,8 +421,7 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			<horizon-end-call-session
                 .incomingCallDetails="${this.incomingCallDetails}"
-				@on-cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}"
-				@on-reason-set="${(reason) => this._onCallCancelled(reason)}">
+				@cancel="${() => this._cancelEndCall()}">
 			</horizon-end-call-session>`;
 	}
 

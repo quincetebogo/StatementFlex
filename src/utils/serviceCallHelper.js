@@ -49,7 +49,7 @@ export class ServiceCallHelper {
 	 * @param {*} serviceCall - A function that calls a web service
 	 * @param {*} errorHandler - An optional error handler to override the default and general error handlers
 	 */
-	async asyncCall(serviceCall, methodName, errorHandler = null, autoRetries = 3) {
+	async asyncCall(serviceCall, methodName, errorHandler = null, maxAttempts = 3) {
 		const returnValue = {
 			succeeded: true,
             result: null
@@ -57,7 +57,7 @@ export class ServiceCallHelper {
 
 		let tryCount = 0;
 
-		while (tryCount < autoRetries) {
+		while (tryCount < maxAttempts) {
 			try {
 				tryCount++;
 
@@ -69,7 +69,7 @@ export class ServiceCallHelper {
 				return returnValue;
 			} catch (exception) {
 				this._logException(exception, methodName);
-				if (tryCount >= autoRetries) {
+				if (tryCount >= maxAttempts) {
 					this._handleException(errorHandler, exception);
 				}
 			} finally {
