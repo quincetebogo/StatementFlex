@@ -34,20 +34,23 @@ export class Favourites extends View {
 	constructor() {
 		super();
 
-		this.isLoading = true;
-		this.isReassigned = false;
-		this.landingPageInfo = null;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.state = this.horizonStore.recoverState();
-
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
+
+		// private properites
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		this.isBusy = false;
+		this.isLoading = true;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		// private variables
+		this.isReassigned = false;
+		this.landingPageInfo = null;
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -63,9 +66,10 @@ export class Favourites extends View {
 	// --------------
 	static get properties() {
 		return {
-			isBusy: { type: Boolean },
-			isLoading: { type: Boolean },
-			renderMode: { type: Number }
+			isBusy: { attribute: false },
+			isLoading: { attribute: false },
+			renderMode: { attribute: false },
+			verificationStatus: { attribute: false }
 		};
 	}
 
@@ -108,6 +112,7 @@ export class Favourites extends View {
 	_verificationCancelled(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -116,8 +121,10 @@ export class Favourites extends View {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
-		this.verificationStatus = event.detail.callerInformation.verificationStatus;
-		this._initialise(); // re-initialise the page when the verification status changes
+		// re-initialise the page when the verification status changes
+		// verificationStatus is on the this.callerInformation object
+		this._initialise(); 
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -148,6 +155,8 @@ export class Favourites extends View {
 
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
+
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
@@ -289,7 +298,7 @@ export class Favourites extends View {
 	}
 
 	_mobileTemplate() {
-		this._webTemplate();
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -307,8 +316,9 @@ export class Favourites extends View {
 			: html`<horizon-favourites-transactions 
 					class="favourites"
 					.landingPageInfo="${this.landingPageInfo}"
-					.incomingCallDetails="${this.state.incomingCallDetails}"
-					.callerInformation="${this.state.callerInformation}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					.verificationStatus="${this.verificationStatus}"
 					@verify-click="${() => this._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourites-transactions>`;
@@ -345,7 +355,7 @@ export class Favourites extends View {
 		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
 			return html`
 				<horizon-client-not-verified 
-					@cancel="${() => this.renderMode = 0}" 
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}" 
 					@verify-now="${() => this._verifyClick()}">
 				</horizon-client-not-verified>
 			`;

@@ -90,7 +90,7 @@ export class DesktopAgentService {
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
-		console.log(`_onNewCall: new call event received`);
+		// console.log(`_onNewCall: new call event received`);
 
 		const eventData = JSON.parse(event.data);
 
