@@ -90,7 +90,7 @@ export class DesktopAgentService {
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
-		console.log(`_onNewCall: new call event received`);
+		// console.log(`_onNewCall: new call event received`);
 
 		const eventData = JSON.parse(event.data);
 
@@ -296,7 +296,7 @@ export class DesktopAgentService {
 			// We can take a call when on a product view page (they belong to the set of landing pages)
 			// Automatically navigate to the landing page. Once on the landing page and event will fire
 			// notifying this class to take the call.
-			this.HorizonRouter.navigateToLandingPage();
+			this.HorizonRouter.navigateToWaitingForCall();
 		}
 	}
 
@@ -305,7 +305,7 @@ export class DesktopAgentService {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
 			// this.connectionTries = 0;
 		} else if (this._productLandingPagesActive()) {
-			this.HorizonRouter.navigateToLandingPage();
+			this.HorizonRouter.navigateToWaitingForCall();
 		}
 	}
 

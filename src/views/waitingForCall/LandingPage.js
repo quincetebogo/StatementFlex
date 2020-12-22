@@ -227,15 +227,7 @@ export class LandingPage extends View {
 
 		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
 
-		switch (event.detail.incomingCallDetails.ivrOption.value) {
-			case `Insure`:
-				this.horizonRouter.navigateToInsureProspectiveClient();
-				break;
-			case `Transact`: 
-			default:
-				this.horizonRouter.navigateToQuickTransactionFavourites();
-				break;
-		}
+		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 	}
 
 	_otherNeedSelected(event) {

@@ -13,6 +13,16 @@ import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 
+/**
+ *
+ * Events Raised 
+ * -------------
+ * cancel
+ *
+ * @export
+ * @class EndCallSession
+ * @extends {Component}
+ */
 export class EndCallSession extends Component {
 
 
@@ -91,7 +101,7 @@ export class EndCallSession extends Component {
 		if (returnValue.succeeded) {
 			const state = { callStatus: `CALL-ENDED` };
 			this.horizonStore.setState(state);
-			this.horizonRouter.navigateToLandingPage();
+			this.horizonRouter.navigateToWaitingForCall();
 		}
 	}
 

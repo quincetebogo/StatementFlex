@@ -79,7 +79,7 @@ export class HorizonRouter {
 	// --------------------
 	// Navigation functions  
 	// --------------------
-	navigateToLandingPage() {
+	navigateToWaitingForCall() {
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
 
@@ -150,6 +150,21 @@ export class HorizonRouter {
 	navigateToInitialSystemError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
+
+	navigateToLandingPage (ivrOption, hasInsuranceProducts) {
+
+		const stopCard = () => this.navigateToStopCard();
+		const transact = () => this.navigateToQuickTransactionFavourites();
+		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+
+		const landingPageFunc = {
+			StopCard: stopCard,
+			Transact: transact,
+			Insure: insure
+		}[ivrOption];
+
+		landingPageFunc();
+	};
 }
 
 // -------------------------
