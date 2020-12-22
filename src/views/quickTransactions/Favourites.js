@@ -4,13 +4,13 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { mockResponse } from 'app/mocks/DebiCheckMockData';
 
+import 'app/components/common/DebiCheckMandates';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/quickTransactions/FavouriteTransactions';
-import 'app/components/common/DebiCheckMandates';
-import { mockResponse } from 'app/mocks/DebiCheckMockData';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -83,7 +83,7 @@ export class Favourites extends View {
 		super.connectedCallback();
 
 		this._initialise();
-		this.debicheckMandates = mockResponse.mandateSummaryList;
+		this.debiCheckMandates = mockResponse.mandateSummaryList;
 	}
 
 	// --------------
@@ -127,7 +127,7 @@ export class Favourites extends View {
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
-		this._initialise(); 
+		this._initialise();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -170,9 +170,9 @@ export class Favourites extends View {
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
-	
+
 			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
-	
+
 			if (returnValue.succeeded) {
 				this.isLoading = false;
 				this.landingPageInfo = returnValue.result;
@@ -317,10 +317,10 @@ export class Favourites extends View {
 		`;
 	}
 
-	_renderContent(){
-		switch(this.renderMode){
+	_renderContent() {
+		switch (this.renderMode) {
 			case RENDER_MODE.DEBI_CHECK:
-				break;
+				return html`${this._renderDebiCheckMandates()}`;
 			case RENDER_MODE.MAIN_PAGE:
 			default:
 				return html`${this._renderFavouritesLandingPage()}`;
@@ -330,22 +330,22 @@ export class Favourites extends View {
 	_renderFavouritesLandingPage() {
 		return this.isLoading ? html``
 			: html`<horizon-favourites-transactions 
-					class="favourites"
-					.landingPageInfo="${this.landingPageInfo}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.verificationStatus}"
-					@verify-click="${() => this._verifyClick()}"
-					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
-				</horizon-favourites-transactions>`;
+						class="favourites" 
+						.landingPageInfo="${this.landingPageInfo}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.callerInformation="${this.callerInformation}"
+						.verificationStatus="${this.verificationStatus}"
+						@verify-click="${() => this._verifyClick()}"
+						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
+					</horizon-favourites-transactions>`;
 
 	}
 
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller 
-					.incomingCallDetails="${this.incomingCallDetails}" 
+				<horizon-verify-caller
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
@@ -358,10 +358,10 @@ export class Favourites extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
-					.incomingCallDetails="${this.incomingCallDetails}" 
+				<horizon-end-call-session
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
-					@cancel="{${() => this._cancelEndCallClick()}}">
+					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`;
 		}
 		return html``;
@@ -370,8 +370,8 @@ export class Favourites extends View {
 	_renderAlertModal() {
 		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
 			return html`
-				<horizon-client-not-verified 
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}" 
+				<horizon-client-not-verified
+					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 					@verify-now="${() => this._verifyClick()}">
 				</horizon-client-not-verified>
 			`;
@@ -386,11 +386,12 @@ export class Favourites extends View {
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
-	_renderDebiCheckMandates(){
+	_renderDebiCheckMandates() {
 		return html`
-			<horizon-debi-check .debicheckMandates = ${this.debicheckMandates}
-								@back = ${() => this.renderMode = RENDER_MODE.MAIN_PAGE}>
-			</horizon-debi-check>
+			<debi-check-mandates
+				.debiCheckMandates="${this.debiCheckMandates}"
+				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</debi-check-mandates>
 		`;
 	}
 }

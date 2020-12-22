@@ -1,17 +1,6 @@
-import { Component, html, unsafeCSS } from "platform/elements";
-import { TABLE_ROW_CSS, TABLE_ROW_CELL_CSS } from 'app/css/DebiCheckMandates';
-
-const getSuffix = day => {
-	if (day > 3 && day < 21)
-		return 'th';
-
-	switch (day % 10) {
-		case 1: return "st";
-		case 2: return "nd";
-		case 3: return "rd";
-		default: return "th";
-	}
-}
+import { css, html, Component, unsafeCSS } from 'platform/elements';
+import { TABLE_ROW_CSS, TABLE_ROW_CELL_CSS, getFontColor } from 'app/css/DebiCheckMandates';
+import { getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
 /**
  * DebiCheck mandates component
@@ -26,6 +15,8 @@ export class DebiCheckMandates extends Component {
 	// INITIALISATION
 	// --------------
 	constructor() {
+		super();
+
 		this.pendingMandates = {};
 		this.activeMandates = {};
 		this.inActiveMandates = {};
@@ -37,16 +28,17 @@ export class DebiCheckMandates extends Component {
 	static get properties() {
 		return {
 			debiCheckMandates: { type: Object }
-		}
+		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+	connectedCallback() {
+		super.connectedCallback();
 
-	connectedCallback(){
 		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Pending`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Active`);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Accepted`);
 		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Expired` || item.mandateStatus === `Declined`);
 	}
 
@@ -61,58 +53,30 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_groupByHandler(renderSet) {
-		const groupedValues = Utilities.groupBy(renderSet.items, renderSet.groupField);
-		const newRows = [];
-		let index = -1;
-
-		for (const key in groupedValues) {
-			if (groupedValues.hasOwnProperty(key)) {
-
-				let groupName = key;
-				index++;
-
-				if (renderSet.groupLabel && Utilities.isFunction(renderSet.groupLabel)) {
-					groupName = renderSet.groupLabel(key);
-				} else if (typeof renderSet.groupLabel === `string`) {
-					groupName = renderSet.groupLabel;
-				}
-
-				if (groupName) {
-					newRows.push({
-						group: this._getGroupLabel(groupName, index)
-					});
-				}
-				const rows = groupedValues[key];
-				newRows.push(...rows);
-			}
-		}
-
-		return {
-			pagedItems: newRows
-		};
+	
+	_formatCollectionDate(collectionDate) {
+		return `${collectionDate.day}${getDateOrdinal(collectionDate.day)} of each ${collectionDate.frequency}`
 	}
 
-	_getGroupLabel(label, index) {
-		
+	_formatCollectionAmount(amount) {
+		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, " ")}`;
 	}
 
-	_formatCollectionDate(collectionDate){
-		return `${collectionDate.day}${getSuffix(collectionDate.day)} of each ${collectionDate.frequency}`
+	_viewInfo() {
+		// TODO: Functionality to get mandate info comes here
+	}
+
+	_decline() {
+		// TODO: Functionality to decline mandate comes here
+	}
+
+	_approve() {
+		// TODO: Functionality to approve mandate comes here
 	}
 
 	// ---------
 	// RENDERING
 	// ---------
-
-	/**
-	 * Generates the component stylesheet.
-	 *
-	 * @readonly
-	 * @static
-	 * @returns {css} CSS for the component.
-	 */
 	static get styles() {
 		return [
 			super.styles,
@@ -129,6 +93,15 @@ export class DebiCheckMandates extends Component {
 				capitec-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
+				capitec-title-bar {
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
+					--theme-titlebar-padding: 0px 0px 0px 16px;
+				}
+				capitec-title-bar > capitec-icon {
+					cursor: pointer;
+					margin-right: 34px;
+				}
 				.debicheck-action-bar {
 					height: 56px;
 					--theme-actionbar-padding: 4px 16px 4px 16px;
@@ -138,6 +111,7 @@ export class DebiCheckMandates extends Component {
 				.debicheck-action-bar > capitec-text-field {
 					height: 49px;
 					width: 441px;
+					--theme-input-label-font-color: #969B9D;
 				}
 				capitec-radio-group {
 					margin-left: 12px;
@@ -148,6 +122,10 @@ export class DebiCheckMandates extends Component {
 				}
 				capitec-radio-group > capitec-group > capitec-radio {
 					padding-left: 16px;
+					
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-size: 15px;
+					--theme-label-font-weight: 500;
 				}
 				.radio-btn-all{
 					width: 100px;
@@ -163,11 +141,13 @@ export class DebiCheckMandates extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
-					height: 676px;
+					height: 768px;
 				}
 				capitec-content-box > .section-header {
 					height: 44px;
 					margin-left: 8px;
+
+					--theme-layout-gap-spacing: 8px;
 				}
 				capitec-content-box > .section-header:not(:first-child) {
 					margin-top: 24px;
@@ -211,11 +191,11 @@ export class DebiCheckMandates extends Component {
 					--theme-data-table-footer-border: none;
 				}
 			`
-		]
+		];
 	}
 
 	_mobileTemplate() {
-		this._webTemplate();
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -233,7 +213,11 @@ export class DebiCheckMandates extends Component {
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar type="default">
-				<img src="/images/insure/left-arrow.svg" @click="${() => this._back()}" />
+				<capitec-icon 
+					size="small"
+					icon="system/arrow-left-action"
+					@click="${() => this._back()}">
+				</capitec-icon>
 				<capitec-label label="DebiCheck" type="title"></capitec-label>
 			</capitec-title-bar>
 		`;
@@ -266,7 +250,7 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderPendingMandates(){
+	_renderPendingMandates() {
 		return html`
 			${this._renderHeader(`Pending`)}
 			<capitec-table displayMode="Full" .items="${this.pendingMandates}" hideHeader=${true}>
@@ -277,7 +261,7 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderActiveMandates(){
+	_renderActiveMandates() {
 		return html`
 			${this._renderHeader(`Active`)}
 			<capitec-table displayMode="Full" .items="${this.activeMandates}" hideHeader=${true}>
@@ -288,7 +272,7 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderInActiveMandates(){
+	_renderInActiveMandates() {
 		return html`
 			${this._renderHeader(`InActive`)}
 			<capitec-table displayMode="Full" .items="${this.inActiveMandates}" hideHeader=${true}>
@@ -299,7 +283,7 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderHeader(label){
+	_renderHeader(label) {
 		return html`
 			<capitec-group class="section-header"
 						   layout="horizontal"
@@ -320,38 +304,63 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width_223)} ${unsafeCSS(TABLE_ROW_CSS.border_Right)}">
-					${this._renderCell(rowData.mandateName, rowData.maxCollectionAmount)}
+					${this._renderCell(rowData.mandateName, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width_185)}">
-					${this._renderCell('Max collection amount', rowData.maxCollectionAmount)}
+					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width_185)}">
-					${this._renderCell('Collection date', this._formatCollectionDate(rowData.collectionDate))}
+					${this._renderCell(`Collection date`, this._formatCollectionDate(rowData.collectionDate))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width_98)}">
-					${this._renderCell('Status', rowData.mandateStatus)}
+					${this._renderCell(`Status`, rowData.mandateStatus)}
 				</div>
+				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
+					${this._renderButtons(rowData.mandateStatus)}
+				</capitec-group>
+				<div></div>
 			</capitec-group>`;
 	}
 
-	_renderCell(value1, value2){
+	_renderCell(value1, value2) {
+		
+		const fontColor = getFontColor(value1, value2);
 		return html`
-			<capitec-group style="${unsafeCSS(TABLE_ROW_CELL_CSS.rowCell_Group)}"
+			<capitec-group style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Group)}"
 						   layout="vertical"
 						   gap="none"
 						   halign="left"
 						   valign="top">
-				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.rowCell_Label)}"
+				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Label)}"
 							   label="${value1}"
 							   type="default">
 				</capitec-label>
-				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.rowCell_Label_Strong)}"
+				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Label_Strong)} ${unsafeCSS(fontColor)}"
 							   label="${value2}"
 							   type="default">
 				</capitec-label>
 			</capitec-group>
 		`;
 	}
+
+	_renderButtons(status) {
+		return status !== `Pending` ? 
+				html`<capitec-label type="subtitle"
+									label="View Info"
+									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									@click="${() => this._viewInfo()}">
+					 </capitec-label>` :
+				html`<capitec-label type="subtitle"
+									label="Decline"
+									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									@click="${() => this._decline()}">
+					 </capitec-label>
+					 <capitec-label type="subtitle"
+					 				label="Approve"
+									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									@click="${() => this._approve()}">
+					 </capitec-label>`;
+	}
 }
 
-customElements.define(`horizon-debi-check`, DebiCheckMandates);
+customElements.define(`debi-check-mandates`, DebiCheckMandates);

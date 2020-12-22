@@ -12,7 +12,7 @@ export const mockResponse = {
 			"registerId": 0,
 			"amount": 656.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "1",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 656,
@@ -24,7 +24,7 @@ export const mockResponse = {
 			"registerId": 1,
 			"amount": 5656.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "23",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 5656.00,
@@ -36,7 +36,7 @@ export const mockResponse = {
 			"registerId": 2,
 			"amount": 299.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "11",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 299.00,
@@ -48,7 +48,7 @@ export const mockResponse = {
 			"registerId": 3,
 			"amount": 1299.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "22",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 1299.00,
@@ -60,7 +60,7 @@ export const mockResponse = {
 			"registerId": 4,
 			"amount": 3450.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "1",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 3450.00,
@@ -72,7 +72,7 @@ export const mockResponse = {
 			"registerId": 5,
 			"amount": 1200.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "30",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 1200.00,
@@ -84,7 +84,7 @@ export const mockResponse = {
 			"registerId": 6,
 			"amount": 90.00,
 			"collectionDate": {
-				"day": "26",
+				"day": "8",
 				"frequency": "Month"
 			},
 			"maxCollectionAmount": 1200.00,
