@@ -5,9 +5,9 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Launch chrome",
+			"name": "Launch Edge",
 			"request": "launch",
-			"type": "chrome",
+			"type": "edge",
 			"url": "http://localhost:62000",
 			"webRoot": "${workspaceFolder}",
 			"preLaunchTask": "run",
