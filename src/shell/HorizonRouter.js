@@ -24,7 +24,8 @@ const HORIZON_ROUTES = {
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
-	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`
+	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
+	DEBICHECK_SUCCESS: `/debicheck/success`
 };
 
 
@@ -151,7 +152,11 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
-	navigateToLandingPage (ivrOption, hasInsuranceProducts) {
+	navigateToDebiCheckSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
+	}
+
+	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
@@ -294,17 +299,17 @@ export default horizonRoutes = [
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => true,
 
-			/*
-			 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			 switch (routingInfo.verificationStatus) {
-			 	case `verified`:
-			 	case `unverified`:
-			 	case `3rdparty`:
-			 		return true;
-			 	default:
-					 return false;
-			*/
-		
+		/*
+		 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+		 switch (routingInfo.verificationStatus) {
+			  case `verified`:
+			  case `unverified`:
+			  case `3rdparty`:
+					return true;
+			  default:
+				 return false;
+		*/
+
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
@@ -392,6 +397,15 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		}
+	},
+	{
+		name: `horizon-debi-check-success`,
+		title: `DebiCheck`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
+		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+		}
 	}
-
 ];
