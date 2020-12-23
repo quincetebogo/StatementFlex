@@ -521,7 +521,7 @@ export class SearchCaller extends Component {
 				return html`
 					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
 						.headerLabel="${this.headerLabel}" @on-end-call="${() => this._onEndCall()}"
-						@on-need-changed="${(event) => this._onIvrOptionChanged(event)}">
+						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this._renderAlertBanner()}
@@ -634,9 +634,9 @@ export class SearchCaller extends Component {
                     @click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button 
+				<capitec-button
                     type="primary"
-                    @click="${(e) => this._onContinue(e)}" 
+                    @click="${(e) => this._onContinue(e)}"
                     label="Continue"
                     ?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>

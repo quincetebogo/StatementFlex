@@ -21,7 +21,6 @@ export class CallerInfoBar extends Component {
 
 		this.incomingCallDetails = null;
 		this.need = null;
-		this.isNeedSelectable = null;
 	}
 
 	// --------------
