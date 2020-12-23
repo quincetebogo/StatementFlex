@@ -20,7 +20,8 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
-		this.need = null;
+        this.need = null;
+        this.isNeedSelectable = false;
 	}
 
 	// --------------
@@ -31,7 +32,8 @@ export class CallerInfoBar extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails for layout)
-	 */
+	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
+     */
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },

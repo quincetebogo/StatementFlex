@@ -23,7 +23,7 @@ export class CallerDialog extends Component {
 		this.displayButton = true;
 		this.headerLabel = ``;
 		this.incomingCallDetails = null;
-		this.isNeedSelectable = null;
+		this.isNeedSelectable = false;
 	}
 
 	// --------------
@@ -36,7 +36,8 @@ export class CallerDialog extends Component {
 	 * @property {String} headerLabel - The label string for the dialog heading
 	 * @property {Boolean} [displayButton=true] - Whether to display the End Call button or not 
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails)
-	 * 
+	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
+     * 
 	 * @readonly
 	 * @static
 	 * @memberof HorizonCallerDialog
