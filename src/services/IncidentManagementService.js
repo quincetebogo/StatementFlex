@@ -49,6 +49,6 @@ export class IncidentManagementService extends ServiceBase {
 			"ucid": incidentData.voiceReferenceNumber
 		};
 
-		return this.serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
 	}
 }

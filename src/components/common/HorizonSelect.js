@@ -75,7 +75,7 @@ export class HorizonSelect extends Component {
 
 	/**
 	 * When the select component gains focus.
-     * @param {MouseEvent} e - the event details
+	 * @param {MouseEvent} e - the event details
 	 * @ignore
 	 * @returns {void}
 	 */
@@ -90,9 +90,9 @@ export class HorizonSelect extends Component {
 		this.focused = true;
 	}
 
-    /**
+	/**
 	 * When the select component loses focus.
-     * @param {MouseEvent} e - the event details
+	 * @param {MouseEvent} e - the event details
 	 * @ignore
 	 * @returns {void}
 	 */
@@ -106,12 +106,12 @@ export class HorizonSelect extends Component {
 	}
 
 	/**
-     * When a item in the select component is clicked
-     * @param {Object} newValue - Item selected
-     * @param {MouseEvent} e - the event details
-     * @ignore 
-     * @returns {void}
-     */
+	 * When a item in the select component is clicked
+	 * @param {Object} newValue - Item selected
+	 * @param {MouseEvent} e - the event details
+	 * @ignore 
+	 * @returns {void}
+	 */
 	_onOptionClick(newValue, e) {
 
 		if (!newValue) {
@@ -138,13 +138,13 @@ export class HorizonSelect extends Component {
 	}
 
 	/**
-     * Dispatch "value-changed" event.
-     * 
-     * @param {Object} oldValue - the previous value
-     * @param {Object} newValue - the new value
-     * @ignore 
-     * @returns {void}
-     */
+	 * Dispatch "value-changed" event.
+	 * 
+	 * @param {Object} oldValue - the previous value
+	 * @param {Object} newValue - the new value
+	 * @ignore 
+	 * @returns {void}
+	 */
 	_dispatchValueChangedEvent(oldValue, newValue) {
 
 		if (oldValue === newValue) {
@@ -276,6 +276,10 @@ export class HorizonSelect extends Component {
 					border-right: var(--theme-scrollbar-track-padding-right, 2px) solid transparent;
 					
 					background-clip: padding-box;
+				}
+				
+				.hide-icon{
+					display: none;
 				}`
 		];
 	}
@@ -285,20 +289,20 @@ export class HorizonSelect extends Component {
 
 	_webTemplate() {
 		return html`
-		    <div class="outer-wrapper">
+			<div class="outer-wrapper">
 				<div class="inner-wrapper">
 					<capitec-label
-						class="label-text"
-						label="${this.label}">
+                        class="label-text"
+                        label="${this.label}">
 					</capitec-label>
-					<capitec-label 
-						class="label-value"
-						label="${this.selectedValue}">
+					<capitec-label
+                        class="label-value"
+                        label="${this.selectedValue}">
 					</capitec-label>
 				</div>
 				<capitec-icon
-					class="kebab-icon"
-					icon="system/more-action"
+                    class=${this.disabled ? "hide-icon" : "kebab-icon" } 
+                    icon="system/more-action"
 					@click="${(e) => this._togglePopup(e)}">
 				</capitec-icon>
 			</div>
@@ -312,19 +316,19 @@ export class HorizonSelect extends Component {
 		}
 
 		return html`
-            <div class="options">
-                ${this.items.map(item => this.renderOption(item))}
-            </div>
+			<div class="options">
+				${this.items.map(item => this.renderOption(item))}
+			</div>
         `;
 	}
 
 	renderOption(item) {
 		if (typeof item === `string`) {
 			return html`
-                <div class="option ${this.value && this.value === item ? `selected-value` : ``}"
-					 @click="${(e) => this._onOptionClick(item, e)}">
-					 	${item}
-                </div>
+				<div class="option ${this.value && this.value === item ? `selected-value` : ``}"
+					@click="${(e) => this._onOptionClick(item, e)}">
+					${item}
+				</div>
             `;
 		}
 
@@ -339,11 +343,11 @@ export class HorizonSelect extends Component {
 		}
 
 		return html`
-            <div 
-                class="option ${this.value && this.value === item[this.displayField] ? `selected-value` : ``}" 
-                @click="${(e) => this._onOptionClick(item, e)}">
-                    ${item[this.displayField]}
-            </div>`;
+			<div
+                class="option ${this.value && this.value === item[this.displayField] ? `selected-value` : ``}"
+				@click="${(e) => this._onOptionClick(item, e)}">
+				${item[this.displayField]}
+			</div>`;
 	}
 }
 

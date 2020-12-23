@@ -153,7 +153,7 @@ export class VerifyBySecurityQuestions extends Component {
 				this.horizonStore.saveState(state);
 
 				this.horizonRouter.navigateToXdsVerificationFailed();
-			} 
+			}
 		}
 	}
 
@@ -336,8 +336,11 @@ export class VerifyBySecurityQuestions extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
-					<horizon-caller-dialog class="main-container" .incomingCallDetails="${this.incomingCallDetails}"
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._endCallClick()}">
+					<horizon-caller-dialog class="main-container" 
+							.incomingCallDetails="${this.incomingCallDetails}"
+							.isNeedSelectable=${false} 
+							.headerLabel="${HEADER_LABEL}" 
+							@on-end-call="${() => this._endCallClick()}">
 						<div slot="body">
 							<capitec-content-box class="body-box">
 								${this._renderAlertBanner()}

@@ -20,7 +20,7 @@ export class InsureService extends ServiceBase {
 	// --------------
 
 	hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), `hasInsuranceProducts`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), `hasInsuranceProducts`, errorHandler, autoRetries);
 	}
 
 	addNonClientDetails(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
@@ -33,15 +33,15 @@ export class InsureService extends ServiceBase {
 			'cellPhone': incidentData.cellPhone
 		};
 
-		return this.serviceCallHelper.asyncCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), `addNonClientDetails`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), `addNonClientDetails`, errorHandler, autoRetries);
 	}
 
 	calculatePremiumDone(feedbackDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.calculatePremiumDone(feedbackDetails), `calculatePremiumDone`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.calculatePremiumDone(feedbackDetails), `calculatePremiumDone`, errorHandler, autoRetries);
 	}
 
 	InsureProducts(clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.InsureProducts(clientDetails), `InsureProducts`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.InsureProducts(clientDetails), `InsureProducts`, errorHandler, autoRetries);
 	}
 
 }
