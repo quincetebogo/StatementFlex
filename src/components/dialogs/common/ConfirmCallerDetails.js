@@ -69,8 +69,8 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), null);
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.isBusy = false;
 	}
@@ -121,15 +121,10 @@ export class ConfirmCallerDetails extends Component {
 		};
 
 		const returnValue = await this.cardService.addCallerDetails(callDetails);
-		this.addCallerDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
+			this.addCallerDetails = returnValue.result;
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-		} else {
-			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails
-			});
-			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -150,8 +145,8 @@ export class ConfirmCallerDetails extends Component {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToLandingPage();
 		} else {
-			this.callerInformation.hasInsurance = await this._checkForInsuranceProducts(
-				this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
+				this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
 				this.confirmedCaller.callerInformation.cifNumber.value,
 				false
 			);
@@ -288,8 +283,8 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _navigateToLandingPage() {
-		this.callerInformation.hasInsurance = await this._checkForInsuranceProducts(
-			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
+		this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
+			this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
 			this.confirmedCaller.callerInformation.cifNumber.value,
 			false
 		);
@@ -302,7 +297,7 @@ export class ConfirmCallerDetails extends Component {
 		if (this.ivrOption.value === `StopCard`) {
 			const confirmedCaller = {
 				idNumber: this.callerInformation.southAfricanIDNumber,
-				incomingTelephoneNumber: this.incomingTelephoneNumber.value,
+				incomingTelephoneNumber: this.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOption.value,
 				incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
@@ -316,11 +311,16 @@ export class ConfirmCallerDetails extends Component {
 
 			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 
+			if (!returnValue.succeeded) {
+				// The error handler will take over. We don't need to do anything more in this routine
+				return; 
+			}
+
 			state.clientProfileDetails = returnValue.result;
 		};
 
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToLandingPage(this.ivrOption.value, this.callerInformation.hasInsurance);
+		this.horizonRouter.navigateToLandingPage(this.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
 	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
@@ -341,9 +341,19 @@ export class ConfirmCallerDetails extends Component {
 		return returnValue.result.hasInsurance;
 	}
 
+	_handleChannelServiceError(ex) {
+		this.horizonStore.saveState({
+			incomingCallDetails: this.incomingCallDetails
+		});
+		this.horizonRouter.navigateToSystemError();
+
+		return true;
+	}
+
 	// TODO: remove temporary function
 	_temporaryErrorHander(ex) {
 		console.log(ex);
+		return true;
 	}
 
 	_getLanguagePreference() {
@@ -480,7 +490,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_mobileTemplate() {
-		this._webTemplate();
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
