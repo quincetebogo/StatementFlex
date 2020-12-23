@@ -41,6 +41,6 @@ export class InitialiseService extends ServiceBase {
 	 * @memberof InitialiseService
 	 */
 	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.initialise(), `initialise`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.initialise(), `initialise`, errorHandler, autoRetries);
 	}
 }
