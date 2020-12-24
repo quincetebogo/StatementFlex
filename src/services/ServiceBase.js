@@ -65,7 +65,7 @@ export class ServiceBase {
 	
 		let tryCount = 0;
 	
-		while (tryCount < maxAttempts) {
+		while (!returnValue.succeeded && tryCount < maxAttempts) {
 			try {
 				tryCount++;
 	
@@ -77,7 +77,20 @@ export class ServiceBase {
 
 			} catch (exception) {
 				// console.log(`DEBUG: ${exception}, ${methodName}`);
-				this._logException(exception, methodName);
+				this._logException(exception);
+				
+				if (exception instanceof HttpStatusError) {
+					switch (exception.status) {
+						case 403: 
+							tryCount = maxAttempts; // Fail immediately
+							break;
+
+						default:
+							// Do nothing
+							break;
+					}
+				}
+
 				if (tryCount >= maxAttempts) {
 					this._handleException(errorHandlerFunc, exception);
 				}
@@ -93,13 +106,17 @@ export class ServiceBase {
 	// PRIVATE METHODS
 	// ---------------
 	
-	_logException(exception, methodName) {
+	_logException(exception) {
+		const message = exception.requestModel 
+			? `${exception.message}, Url=${exception.requestUrl}, request=${exception.requestModel}`
+			: `${exception.message}, Url= ${exception.requestUrl}`;
+
 		if (exception instanceof TypeError) {
-			this._logger.log(`error`, exception.message, methodName, exception.correlationId);
+			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
 		} else if (exception instanceof HttpStatusError) {
-			this._logger.log(`error`, `${exception.status}: ${exception.message}`, methodName, exception.correlationId);
+			this._logger.log(`error`, `${exception.status}: ${message}`, exception.requestCaller, exception.correlationId);
 		} else {
-			this._logger.log(`error`, exception.message, methodName, exception.correlationId);
+			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
 		}
 	}
 	

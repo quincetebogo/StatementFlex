@@ -137,7 +137,7 @@ export class LandingPage extends View {
 		newCallInfo.incidentRecId = incident.incidentRecId;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.caller(newCallInfo);
+		const returnValue = await this.callHandleService.acceptCall(newCallInfo);
 
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
