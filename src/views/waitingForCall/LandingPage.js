@@ -69,7 +69,7 @@ export class LandingPage extends View {
 		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
 			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
 			if (this.callStatus === `CALL-ENDED`) {
-				this.horizonStore.eraseState();
+				this.horizonStore.clearState();
 				this.callStatus = `WAITING-FOR-CALL`;
 				this.horizonStore.setState({ callStatus: this.callStatus });
 				this.desktopAgentService.callComplete();

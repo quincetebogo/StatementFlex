@@ -1,5 +1,17 @@
+/**
+ * The primary application state store
+ * 
+ * @module store/HorizonStore
+ */
+
 import { Store } from 'platform/core';
 
+/**
+ * HorizonStore customizes the plateform state storage capability for the Horizon applicaton.
+ * The Horizon State Store is configured to use session storage.
+ *
+ * @extends {Store}
+ */
 export class HorizonStore extends Store {
 
 	// --------------
@@ -23,22 +35,27 @@ export class HorizonStore extends Store {
 	// PUBLIC METHODS
 	// --------------
 
-	// Recover state information saved by the previous view.
+	/**
+	 * Recover the application state from the store
+	 *
+	 * @returns {Object} A deep cloned copy of the current state in the store
+	 */
 	recoverState() {
-		const state = this.getState();
+		const state = this.getState(true);
 		if (state) {
 			return state;
 		}
+
+		return null;
 	}
 
-	// Before navigating to another view, save any state information the next view may require by calling this method.
+	/**
+	 *  Saves the application state to the state store
+	 *
+	 * @param {Object} stateToSave The state object to be persisted to the application state store
+	 * @returns {undefined}
+	 */
 	saveState(stateToSave) {
 		this.setState(stateToSave, `SAVE-STATE`);
 	}
-
-	// Clears the state information that is being saved.
-	eraseState() {
-		this.clearState();
-	}
-
 }

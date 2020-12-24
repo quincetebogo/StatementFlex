@@ -1,9 +1,13 @@
 /**
+ * The Caller Information model
+ * 
+ * @module models/CallerInformation
+ */
+
+
+/**
  * CallerInformation records the details of the incoming caller/client. This object
  * is preserved in state for the duration of a call.
- *
- * @export
- * @class CallerInformation
  */
 export class CallerInformation {
 
@@ -27,7 +31,6 @@ export class CallerInformation {
 	 * @param {boolean} isNonClient Indicates if the incoming callers is not a client
 	 * @param {boolean} hasInsuranceProducts Indicates if the incoming caller has insurance products
 	 * @param {Object} verificationAttempts The number if XDS/ITA verification attempts for this client
-	 * @memberof CallerInformation
 	 */
 	constructor(
 		cifNumber,
@@ -65,5 +68,7 @@ export class CallerInformation {
 		this.isNonClient = isNonClient;
 		this.hasInsuranceProducts = hasInsuranceProducts;
 		this.verificationAttempts = verificationAttempts;
+
+		Object.seal();
 	}
 }
