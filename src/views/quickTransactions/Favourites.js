@@ -4,7 +4,7 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { mockResponse } from 'app/mocks/DebiCheckMockData';
+import { mockMandates } from 'app/mocks/DebiCheckMockData';
 
 import 'app/components/common/DebiCheckMandates';
 import 'app/components/dialogs/common/EndCallSession';
@@ -54,6 +54,8 @@ export class Favourites extends View {
 		// private variables
 		this.isReassigned = false;
 		this.landingPageInfo = null;
+		this.debiCheckMandates = {};
+		this.curOptionEvent = {};
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -83,7 +85,36 @@ export class Favourites extends View {
 		super.connectedCallback();
 
 		this._initialise();
-		this.debiCheckMandates = mockResponse.mandateSummaryList;
+		this._performAction = (option) => {
+
+			const stopCard = () => this._stopCard();
+			const debiCheck = () => this._debiCheck();
+			const updateCardLimits = () => this._updateCardLimits();
+			const tapToPay = () => this._tapToPay();
+			const statements = () => this._getStatements();
+			const taxCertificates = () => this._taxCertificates();
+			const proofOfAccount = () => this._proofOfAccount();
+
+			const actions = {
+				'stop-card': stopCard,
+				'debi-check': debiCheck,
+				'update-card-limits': updateCardLimits,
+				'tap-to-pay': tapToPay,
+				'statements': statements,
+				'tax-certificate': taxCertificates,
+				'proof-of-account': proofOfAccount
+			};
+
+			if (actions[option]) {
+				return actions[option];
+			}
+
+			/**
+			 * When verify now on mini profile is selected, we dont need to perform any action
+			 * Returning true for such case
+			 */
+			return true;
+		};
 	}
 
 	// --------------
@@ -121,35 +152,30 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_clientVerified(event) {
+	async _clientVerified(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
-		this._initialise();
+		await this._initialise();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		if (this.curOptionEvent) {
+			const optionSelected = this.curOptionEvent.detail.option;
+			this.curOptionEvent = {};
+			this._performAction(optionSelected)();
+		}
 	}
 
+	async _onFavouritesOptionClick(e) {
+		// Getting hold of event to perform continue action if client decides to do verification
+		this.curOptionEvent = e;
 
-	_onFavouritesOptionClick(e) {
-		switch (e.detail.option) {
-			case `stop-card`:
-				this._stopCard();
-				break;
-			case `debi-check`:
-				this.renderMode = RENDER_MODE.DEBI_CHECK;
-				break;
-			case `update-card-limits`:
-			case `tap-to-pay`:
-			case `statements`:
-			case `tax-certificate`:
-			case `proof-of-account`:
-			default:
-				if (this.callerInformation.verificationStatus !== `verified`) {
-					this._unavailableOption();
-				}
+		if (e.detail.stopPropagation) {
+			this._unavailableOption();
+		} else {
+			await this._performAction(e.detail.option)();
 		}
 	}
 
@@ -284,6 +310,32 @@ export class Favourites extends View {
 		}
 	}
 
+	_debiCheck() {
+		this.debiCheckMandates = mockMandates.mandateSummaryList;
+		this.renderMode = RENDER_MODE.DEBI_CHECK;
+		// TODO: Service call to get mandates comes here
+	}
+
+	_updateCardLimits() {
+		// TODO: Service call to get cards list comes here
+	}
+
+	_tapToPay() {
+		// TODO: Functionality to toggle tap to pay comes here
+	}
+
+	_getStatements() {
+		// TODO: Functionality to generate statements comes here
+	}
+
+	_taxCertificates() {
+		// TODO: Functionality to generate tax certificate comes here
+	}
+
+	_proofOfAccount() {
+		// TODO: Functionality to generate proof of account comes here
+	}
+
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
@@ -317,6 +369,14 @@ export class Favourites extends View {
 		`;
 	}
 
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
 	_renderContent() {
 		switch (this.renderMode) {
 			case RENDER_MODE.DEBI_CHECK:
@@ -330,7 +390,7 @@ export class Favourites extends View {
 	_renderFavouritesLandingPage() {
 		return this.isLoading ? html``
 			: html`<horizon-favourites-transactions 
-						class="favourites" 
+						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.callerInformation="${this.callerInformation}"
@@ -376,14 +436,6 @@ export class Favourites extends View {
 				</horizon-client-not-verified>
 			`;
 		}
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderDebiCheckMandates() {

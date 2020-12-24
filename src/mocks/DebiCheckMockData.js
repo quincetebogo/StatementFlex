@@ -2,10 +2,10 @@
  * DebiCheck mandates mock response
  *
  * @export
- * @constant mockResponse
+ * @constant mockMandates
  */
 
-export const mockResponse = {
+export const mockMandates = {
 	"mandateSummaryList": [
 		{
 			"mandateId": 0,
