@@ -390,7 +390,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
 		load: () => import(`../views/common/InitialSystemError`),
 		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.ERROR_PAGES);
 		}
 	}
 
