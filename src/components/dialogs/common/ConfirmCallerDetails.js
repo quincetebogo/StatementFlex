@@ -275,7 +275,7 @@ export class ConfirmCallerDetails extends Component {
 			``,
 			``,
 			true,
-			`unverified`,
+			`verified`,
 			false,
 			false,
 			false

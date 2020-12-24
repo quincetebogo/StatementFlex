@@ -4,11 +4,13 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { mockCards } from 'app/mocks/CardLimitsMock';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/quickTransactions/FavouriteTransactions';
+import 'app/components/quickTransactions/UpdateCardLimits';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -16,7 +18,8 @@ const RENDER_MODE = Object.freeze({
 	SELECT_ASSIGN_REASON: 2,
 	ASSIGN: 3,
 	VERIFY_NOW: 4,
-	ALERT_MODAL: 5
+	ALERT_MODAL: 5,
+	UPDARTE_CARD_LIMITS: 7
 });
 
 /**
@@ -80,6 +83,7 @@ export class Favourites extends View {
 		super.connectedCallback();
 
 		this._initialise();
+		this.cards = mockCards;
 	}
 
 	// --------------
@@ -136,6 +140,8 @@ export class Favourites extends View {
 				break;
 			case `debi-check`:
 			case `update-card-limits`:
+				this.renderMode = RENDER_MODE.UPDARTE_CARD_LIMITS;
+				break;
 			case `tap-to-pay`:
 			case `statements`:
 			case `tax-certificate`:
@@ -303,12 +309,22 @@ export class Favourites extends View {
 
 	_webTemplate() {
 		return html`
-		${this._renderFavouritesLandingPage()}
-		${this._renderEndCallSessionModal()}
-		${this._renderVerifyNowModal()}
-		${this._renderAlertModal()}
-		${this._renderLoadingIndicator()}
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+			${this._renderEndCallSessionModal()}
+			${this._renderVerifyNowModal()}
+			${this._renderAlertModal()}
 		`;
+	}
+
+	_renderContent() {
+		switch (this.renderMode) {
+			case RENDER_MODE.UPDARTE_CARD_LIMITS:
+				return html`${this._renderUpdateCardLimits()}`;
+			case RENDER_MODE.MAIN_PAGE:
+			default:
+				return html`${this._renderFavouritesLandingPage()}`;
+		}
 	}
 
 	_renderFavouritesLandingPage() {
@@ -358,6 +374,16 @@ export class Favourites extends View {
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}" 
 					@verify-now="${() => this._verifyClick()}">
 				</horizon-client-not-verified>
+			`;
+		}
+	}
+
+	_renderUpdateCardLimits() {
+		if (this.renderMode === RENDER_MODE.UPDARTE_CARD_LIMITS) {
+			return html`
+				<horizon-update-card-limits .cards="${this.cards}"
+											@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-update-card-limits>
 			`;
 		}
 	}
