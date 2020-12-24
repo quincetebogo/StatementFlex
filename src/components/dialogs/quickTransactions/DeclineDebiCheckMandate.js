@@ -2,6 +2,18 @@ import { Component, html, css } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
 
+/**
+ * Decline DebiCheck Mandate is used to confirm the mandate ID before declining it.
+ * This component is invoked from the DebiCheck main screen on click of Decline button.
+ * 
+ * Events Raised 
+ * -------------
+ * cancel
+ *  
+ * @export
+ * @class DeclineDebiCheckMandate
+ * @extends {Component}
+ */
 export class DeclineDebiCheckMandate extends Component {
 
 	// --------------
@@ -9,13 +21,26 @@ export class DeclineDebiCheckMandate extends Component {
 	// --------------
 	constructor() {
 		super();
-		//value carried from the debiCheck main page - variable to be renamed with a relevent name - 
-		this.debiCheckNumber = "DISCLIFE5130111776-2?";
+		//TODO: Mandate ID to be supplied by input property
+		this.mandateId = "DISCLIFE5130111776-2?";
 	}
 
-	// --------------
+	// ----------
 	// PROPERTIES
-	// --------------
+	// ----------
+
+	/**
+	 * @property {Object} mandateId - ID to be used when referencing the mandate.
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof DeclineDebiCheckMandate
+	 */
+	static get properties() {
+		return {
+			mandateId: { type: Number }
+		};
+	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -25,14 +50,14 @@ export class DeclineDebiCheckMandate extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {
+	_cancelClick() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {}
 		}));
 	}
 
-	_onDeclineClick() {
-		//Action to be added on Decline click
+	_declineClick() {
+		//TODO: Action to be added on Decline click
 	}
 
 	// --------------
@@ -162,6 +187,10 @@ export class DeclineDebiCheckMandate extends Component {
 
 	}
 
+	_mobileTemplate() {
+		_webTemplate();
+	}
+
 	_webTemplate() {
 		return html`
 			<capitec-modal type="free" header-align="left">
@@ -186,7 +215,7 @@ export class DeclineDebiCheckMandate extends Component {
 
 	_renderDetails() {
 		return html`
-				<p class="body-details">Are you sure you want to decline the DebiCheck Mandate for <b>${this.debiCheckNumber}</b></p>
+			<p class="body-details">Are you sure you want to decline the DebiCheck Mandate for <b>${this.mandateId}</b></p>
 		`;
 	}
 
@@ -197,13 +226,13 @@ export class DeclineDebiCheckMandate extends Component {
                             id="id-cancel-button"
                             type="clear"
                             label="Cancel"
-                            @click="${() => this._onCancelClick()}">
+                            @click="${() => this._cancelClick()}">
 				</capitec-button>
 				<capitec-button
                             id="id-decline-button"
                             type="primary"
                             label="Decline"
-                            @click="${() => this._onDeclineClick()}">
+                            @click="${() => this._declineClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
