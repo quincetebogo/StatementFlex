@@ -5,6 +5,10 @@ import { getDateOrdinal } from 'app/utils/channelServiceUtilities';
 /**
  * DebiCheck mandates component
  *
+ * Events Raised
+ * -------------
+ * back
+ * 
  * @export
  * @class DebiCheckMandates
  * @extends {Component}
@@ -14,9 +18,11 @@ export class DebiCheckMandates extends Component {
 	// --------------
 	// INITIALISATION
 	// --------------
+
 	constructor() {
 		super();
 
+		// private properites
 		this.pendingMandates = {};
 		this.activeMandates = {};
 		this.inActiveMandates = {};
@@ -25,6 +31,15 @@ export class DebiCheckMandates extends Component {
 	// --------------
 	// PROPERTIES
 	// --------------
+
+	/**
+	 *
+	 * @property {Object} debiCheckMandates Contains list of active/pending/expired mandates
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof DebiCheckMandates
+	 */
 	static get properties() {
 		return {
 			debiCheckMandates: { type: Object }
@@ -34,6 +49,7 @@ export class DebiCheckMandates extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -77,6 +93,7 @@ export class DebiCheckMandates extends Component {
 	// ---------
 	// RENDERING
 	// ---------
+	
 	static get styles() {
 		return [
 			super.styles,

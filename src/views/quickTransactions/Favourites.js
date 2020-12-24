@@ -6,10 +6,10 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { mockMandates } from 'app/mocks/DebiCheckMockData';
 
-import 'app/components/common/DebiCheckMandates';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/quickTransactions/FavouriteTransactions';
 
 const RENDER_MODE = Object.freeze({
