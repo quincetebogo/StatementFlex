@@ -7,7 +7,7 @@ import 'app/components/common/CardArt';
  *
  * Events Raised 
  * -------------
- * n/a
+ * back
  * 
  * @export
  * @class UpdateCardLimits
@@ -22,6 +22,7 @@ export class UpdateCardLimits extends Component {
 	constructor() {
 		super();
 
+		// private properites
 		this.primaryCards = [];
 		this.supplementaryCards = [];
 		this.virtualCards = [];
@@ -30,6 +31,7 @@ export class UpdateCardLimits extends Component {
 	// ----------
 	// PROPERTIES
 	// ----------
+
 	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
@@ -60,7 +62,9 @@ export class UpdateCardLimits extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -72,9 +76,7 @@ export class UpdateCardLimits extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_back() {
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
+	// N/A
 
 	// ---------
 	// RENDERING

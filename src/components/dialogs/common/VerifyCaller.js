@@ -122,7 +122,7 @@ export class VerifyCaller extends Component {
 
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
-	
+
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			this.itaTimer = this._startTimer();
 		}
@@ -148,7 +148,7 @@ export class VerifyCaller extends Component {
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
-		} 
+		}
 	}
 
 	_skipClick() {
@@ -381,6 +381,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-caller-dialog
 					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._onEndCall()}">
 					<div slot="body">
@@ -399,7 +400,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-security-question 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}" 
+	                                .callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
@@ -422,14 +423,14 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch"
+                                    halign="stretch" 
                                     valign="top"
                                     gap="clear">
 						<capitec-alert-banner type="info">
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
-                                    halign="center" 
+						<capitec-group layout="vertical"
+                                    halign="center"
                                     valign="top"
                                     gap="clear"
                                     id="notification-status-group">
@@ -452,16 +453,16 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
-                                    halign="stretch"
-                                    valign="top"
+                                    halign="stretch" 
+                                    valign="top" 
                                     gap="clear">
 						<capitec-alert-banner type="error">
 							Notification didn't send due to a system error.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                        halign="center" 
-                                        valign="top" 
-                                        gap="clear"
+                                        halign="center"
+                                        valign="top"
+                                        gap="clear" 
                                         id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
@@ -491,7 +492,7 @@ export class VerifyCaller extends Component {
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
                                         halign="center"
-                                        valign="top"
+                                        valign="top" 
                                         gap="clear"
                                         id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
@@ -523,8 +524,8 @@ export class VerifyCaller extends Component {
 					</horizon-option-button>
 					<horizon-option-button 
 						label="Skip"
-                        icon="system/arrow-right-action" 
-                        iconSize="default"
+						icon="system/arrow-right-action" 
+						iconSize="default"
 					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button 

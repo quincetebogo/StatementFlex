@@ -143,12 +143,12 @@ export class ConfirmCallerDetails extends Component {
 
 	async _confirmClick() {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._navigateToLandingPage(); 
+			this._navigateToLandingPage();
 		} else {
 			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
 				this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
 				this.confirmedCaller.callerInformation.cifNumber.value,
-				false 
+				false
 			);
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
@@ -269,7 +269,7 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.callerInformation.livesIn.value,
 			this.confirmedCaller.callerInformation.name.value,
 			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			this.incomingCallDetails.incomingTelephoneNumber, 
+			this.incomingCallDetails.incomingTelephoneNumber,
 			``,
 			``,
 			``,
@@ -286,12 +286,12 @@ export class ConfirmCallerDetails extends Component {
 		this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
 			this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
 			this.confirmedCaller.callerInformation.cifNumber.value,
-			false 
+			false
 		);
 
-		const state = { 
+		const state = {
 			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation 
+			callerInformation: this.callerInformation
 		};
 
 		if (this.ivrOption.value === `StopCard`) {
@@ -308,7 +308,7 @@ export class ConfirmCallerDetails extends Component {
 				nonClientIDNumber: ``,
 				nonClientRelationship: this.callerInformation.nonClientRelationship
 			};
-		
+
 			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 
 			if (!returnValue.succeeded) {
@@ -497,8 +497,9 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
-						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(e) => this._needChanged(e)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(e) => this._needChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this.renderAddCallerDetails()}
@@ -601,10 +602,10 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetailsModal() {
 		return html`
 			<horizon-add-caller-details .confirmedCaller="${this.confirmedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}" 
-				.addCallerDialog="${this.addCallerDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+                .addCallerDialog="${this.addCallerDetails}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
-				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
+                @confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
 	}
 
@@ -617,18 +618,18 @@ export class ConfirmCallerDetails extends Component {
 
 	renderStopCardSearchModal() {
 		return html`
-			<horizon-stop-card-search-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-stop-card-search-caller
+                .incomingCallDetails="${this.incomingCallDetails}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}"
-				>
+                >
 			</horizon-stop-card-search-caller>`;
 	}
 
 	renderSearchModal() {
 		return html`
-			<horizon-search-caller 
-				.incomingCallDetails="${this.incomingCallDetails}"
+			<horizon-search-caller
+                .incomingCallDetails="${this.incomingCallDetails}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
@@ -637,11 +638,11 @@ export class ConfirmCallerDetails extends Component {
 
 	renderVerifyCallerModal() {
 		return html`
-			<horizon-verify-caller 
-				.incomingCallDetails="${this.incomingCallDetails}" 
-				.callerInformation="${this.callerInformation}"
-				@cancel="${(event) => this._verificationCancelled(event)}"
-				@skip="${(event) => this._verificationSkipped(event)}"
+			<horizon-verify-caller
+                .incomingCallDetails="${this.incomingCallDetails}"
+                .callerInformation="${this.callerInformation}"
+				@cancel="${(event) => this._verificationCancelled(event)}" 
+                @skip="${(event) => this._verificationSkipped(event)}"
 				@verified="${(event) => this._clientVerified(event)}">
 			</horizon-verify-caller>
 		`;

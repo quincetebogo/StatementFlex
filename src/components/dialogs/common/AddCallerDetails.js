@@ -178,13 +178,6 @@ export class AddCallerDetails extends Component {
 		}));
 	};
 
-	_onIvrOptionChanged(e) {
-		this.addCallerDialog.ivrOption.value = e.detail.new;
-		this.confirmedCaller.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-	}
-
 	_onEndCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -309,10 +302,10 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 					<horizon-caller-dialog
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
+                            .incomingCallDetails="${this.incomingCallDetails}" 
+                            .isNeedSelectable=${false}
+						    .headerLabel="${HEADER_LABEL}" 
+                            @on-end-call="${() => this._onEndCall()}">
 						<div slot="body" class="main">
 							${this._renderErrorMessage()}
 							${this._renderAddCallerDetails()}
@@ -339,9 +332,9 @@ export class AddCallerDetails extends Component {
 	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
-				<capitec-alert-banner 
-								type="error" 
-								label="${this.alertBannerMessage}">
+				<capitec-alert-banner
+                                type="error"
+                                label="${this.alertBannerMessage}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -350,7 +343,7 @@ export class AddCallerDetails extends Component {
 	_renderAddCallerDetails() {
 		return html`
 			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
-			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+				<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
@@ -390,15 +383,15 @@ export class AddCallerDetails extends Component {
 				</div>
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
-									label="Choose relationship type (Optional)"
-									value="${getValue(this.nonClientRelationship)}"
-									.items="${this.nonClientRelationship.possibleValues}"
-									@value-changed="${(e) => this._valueChanged(e)}"
-									tabindex="${getTabIndex(this.nonClientRelationship)}"
-									?hidden=${isHidden(this.nonClientRelationship)}
-									.disabled="${isDisabled(this.nonClientRelationship)}"
-									id-field="key"
-									display-field="value">
+                                    label="Choose relationship type (Optional)"
+						            value="${getValue(this.nonClientRelationship)}"
+                                    .items="${this.nonClientRelationship.possibleValues}"
+						            @value-changed="${(e) => this._valueChanged(e)}"
+                                    tabindex="${getTabIndex(this.nonClientRelationship)}"
+						            ?hidden=${isHidden(this.nonClientRelationship)} 
+                                    .disabled="${isDisabled(this.nonClientRelationship)}"
+						            id-field="key"
+                                    display-field="value">
 					</capitec-select>
 				</div>
 			</content-box>`;
