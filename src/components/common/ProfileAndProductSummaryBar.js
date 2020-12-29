@@ -1,7 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-
-import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
@@ -34,7 +32,6 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.callHandleServive = new CallHandleService(() => this._toggleBusyFlag(), null);
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -131,10 +128,6 @@ export class ProfileAndProductSummaryBar extends Component {
 	// PRIVATE
 	// ---------
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	_favouritesClicked() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -174,7 +167,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	_renderFavourites() {
 		if (this.hasFavourites) {
 			return html`
-				<horizon-favourites-tile class="favourites-button" label="Favourites" subtitle="Transact, dispute, cards and more"
+				<horizon-favourites-tile 
+                    class="favourites-button" 
+                    label="Favourites" 
+                    subtitle="Transact, dispute, cards and more"
 					currentPage="${this.currentPage}" @click="${() => this._favouritesClicked()}">
 				</horizon-favourites-tile>`;
 		};

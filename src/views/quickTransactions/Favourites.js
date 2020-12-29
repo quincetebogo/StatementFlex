@@ -277,9 +277,13 @@ export class Favourites extends View {
 
 	_renderFavouritesLandingPage() {
 		return this.isLoading ? html``
-			: html`<horizon-favourites-transactions class="favourites" .landingPageInfo="${this.landingPageInfo}"
-	.incomingCallDetails="${this.state.incomingCallDetails}" .callerInformation="${this.state.callerInformation}"
-	@verify-click="${() => this._verifyNowClick()}" @option-click="${(e) => this._onFavouritesOptionClick(e)}">
+            : html`<horizon-favourites-transactions 
+                    class="favourites"
+                    .landingPageInfo="${this.landingPageInfo}"
+	                .incomingCallDetails="${this.state.incomingCallDetails}" 
+                    .callerInformation="${this.state.callerInformation}"
+	                @verify-click="${() => this._verifyNowClick()}" 
+                    @option-click="${(e) => this._onFavouritesOptionClick(e)}">
 </horizon-favourites-transactions>`;
 
 	}
@@ -287,7 +291,8 @@ export class Favourites extends View {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller .incomingCallDetails="${this.incomingCallDetails}"
+				<horizon-verify-caller
+                    .incomingCallDetails="${this.incomingCallDetails}"
 					@skip="${(e) => this._skipVerificationClick(e)}">
 				</horizon-verify-caller>`;
 		}
@@ -297,7 +302,9 @@ export class Favourites extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session .incomingCallDetails="${this.incomingCallDetails}" .isReassigned="${this.isReassigned}"
+				<horizon-end-call-session
+                    .incomingCallDetails="${this.incomingCallDetails}" 
+                    .isReassigned="${this.isReassigned}"
 					@cancel="{${() => this._cancelEndCallClick()}}">
 				</horizon-end-call-session>`;
 		}
@@ -307,7 +314,9 @@ export class Favourites extends View {
 	_renderAlertModal() {
 		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
 			return html`
-				<horizon-client-not-verified @cancel="${() => this.renderMode = 0}" @verify-now="${() => this._verifyNowClick()}">
+				<horizon-client-not-verified
+                    @cancel="${() => this.renderMode = 0}" 
+                    @verify-now="${() => this._verifyNowClick()}">
 				</horizon-client-not-verified>
 			`;
 		}

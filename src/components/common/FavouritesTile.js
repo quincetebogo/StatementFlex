@@ -181,10 +181,6 @@ export class FavouritesTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
-				.tile:active {
-                    border:  1px solid #009DE0;
-                    box-shadow: var(--theme-product-tile-active-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
-				}
 				
                 .tile.favourites:focus, .tile.favourites.selected {
                     border: 1px solid #009DE0;
