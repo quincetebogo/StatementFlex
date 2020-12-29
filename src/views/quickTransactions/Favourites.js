@@ -234,11 +234,9 @@ export class Favourites extends View {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
-			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
+			this.horizonStore.saveState({incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation,
-				clientProfileDetails: clientProfileDetails
-			});
+				clientProfileDetails: clientProfileDetails});
 			this.horizonRouter.navigateToStopCard();
 		}
 	}

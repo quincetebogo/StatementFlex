@@ -7,8 +7,6 @@ import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
 import 'platform/components/buttons/ProductTile';
 
-
-
 /**
  * ProfileAndProductSummaryBar displays the left hand bar of the Horizon display. This contains
  * the mini client profile, product buttons and various short cuts depending on the

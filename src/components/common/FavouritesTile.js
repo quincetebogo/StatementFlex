@@ -278,7 +278,9 @@ export class FavouritesTile extends Component {
 
 		return html`
 			<button class="tile favourites ${this.currentPage == 'favourites' ? 'selected' : ''}"
-				@click="${(e) => this._tileClicked(e)}" @keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
+				@click="${(e) => this._tileClicked(e)}" 
+                @keydown="${e => this._keyDown(e)}" 
+                tabindex="${this.disabled ? `` : 0}">
 				<div class="tile-container">
 					<div class="rectangle"></div>
 					<div class="product favourites">
@@ -290,8 +292,7 @@ export class FavouritesTile extends Component {
 					</div>
 					<div class="detail${this.navigational ? ` nav` : ``}">
 						${this.detail}
-						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action">
-						</capitec-icon>` : ``}
+						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
 					</div>
 				</div>
 			</button>

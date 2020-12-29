@@ -4,7 +4,6 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
-
 /**
  *
  *
@@ -61,7 +60,6 @@ export class ProductButtonPanel extends Component {
 			.hide-tile{
 				display: none;
 			}
-
 			`
 		];
 	}

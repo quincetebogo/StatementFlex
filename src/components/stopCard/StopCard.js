@@ -463,7 +463,8 @@ export class StopCard extends Component {
 
 	_renderRowInput(rowData) {
 		return html`
-			<div row="1" 
+			<div 
+                row="1" 
                  column="1" 
                  style="width: 35px; height: 22px;">
 				    <capitec-check 
@@ -536,8 +537,8 @@ export class StopCard extends Component {
 			return html`
 			<horizon-end-call-session
                 @cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}"
-				.incomingCallDetails="${this.incomingCallDetails}" 
-                .isReassigned="${this.isReassigned}">
+				.incomingCallDetails = "${this.incomingCallDetails}" 
+                .isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
 		return html``;
