@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -55,9 +56,9 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 
-		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), null);
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
@@ -83,12 +84,8 @@ export class LandingPage extends View {
 
 	static get properties() {
 		return {
-			fullname: { type: String },
 			renderMode: { type: Number },
-			isBusy: { type: Boolean },
-			incomingTelephoneNumber: { type: String },
-			voiceReferenceNumber: { type: String },
-			ivrOption: { type: String }
+			isBusy: { type: Boolean }
 		};
 	}
 
@@ -125,13 +122,13 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
 		if (returnValue.succeeded && incident) {
 			await this._acceptCall(newCallInfo, incident);
 		} else {
-			this.horizonRouter.navigateToSystemError();
+			this.horizonRouter.navigateToInitialSystemError();
 		}
 	}
 
@@ -140,7 +137,7 @@ export class LandingPage extends View {
 		newCallInfo.incidentRecId = incident.incidentRecId;
 
 		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.caller(newCallInfo, (ex) => this.landingPageErrorHandler(ex));
+		const returnValue = await this.callHandleService.caller(newCallInfo);
 
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
@@ -155,7 +152,7 @@ export class LandingPage extends View {
 		switch (newCallInfo.ivrOptionCode) {
 			case `Insure`:
 			case `Transact`:
-					// TODO: below code will actuall fire for all needs but StopCard. 
+				// TODO: below code will actuall fire for all needs but StopCard. 
 				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
 				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
 				tempFixIVROption(this.incomingCallDetails.ivrOption);
@@ -202,29 +199,45 @@ export class LandingPage extends View {
 		}
 	}
 
-	_onClientIdentified(data) {
-		this.confirmedCaller = data.detail.identifiedClient;
-		this.incomingCallDetails = data.detail.incomingCallDetails;
+	_clientIdentified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.identifiedClient;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	_onNonClientCaptured(event) {
-		this.horizonStore.saveState(event.detail);
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.horizonRouter.navigateToInsureNonClient();
+	_nonClientCaptured(event) {
+		const callerInformation = new CallerInformation(
+			``,
+			``,
+			``,
+			``,
+			``,
+			``,
+			``,
+			`${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
+			event.detail.incomingCallDetails.incomingTelephoneNumber,
+			``,
+			``,
+			false,
+			`non-client`,
+			false,
+			true,
+			false
+		);
+
+		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
+
+		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 	}
 
-	_onConfirmedCaller(data) {
+	_otherNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+	}
 
-		/**
-		 * TODO: Updating whether the incoming number is verified or unverified, which will be used in action bar
-		 * Analysed, this is the best place to do for stop card. Yet to figure out for Insure
-		 */
-		// data.detail.incomingCallDetails.isUnverifiedNumber = Boolean(this.unVerifiedCaller);
-
-		this.horizonStore.saveState(data.detail);
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.horizonRouter.navigateToStopCard();
+	_stopCardNeedSelected(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
 
 	// --------------
@@ -252,7 +265,7 @@ export class LandingPage extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	landingPageErrorHandler(exception) {
+	_landingPageErrorHandler(exception) {
 		if (exception instanceof TypeError) {
 			console.log(exception);
 		} else if (exception instanceof HttpStatusError) {
@@ -262,7 +275,7 @@ export class LandingPage extends View {
 		}
 
 		this.desktopAgentService.callComplete();
-		this.horizonRouter.navigateToSystemError();
+		this.horizonRouter.navigateToInitialSystemError();
 		return true;
 	}
 
@@ -324,28 +337,26 @@ export class LandingPage extends View {
 				<horizon-confirm-caller-details 
 					.confirmedCaller="${this.confirmedCaller}" 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@confirmed-caller="${(data) => this._onConfirmedCaller(data)}" 
-					@non-client-captured=${event => this._onNonClientCaptured(event)}>
+					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
 	}
 
 	_renderUnverifiedUser() {
 		if (this.renderMode === RENDER_MODE.STOP_CARD_SEARCH) {
-			console.log(`render search caller for stop card`);
 			return html`
 				<horizon-stop-card-search-caller 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+					@client-identified="${(data) => this._clientIdentified(data)}"
+					@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 				</horizon-stop-card-search-caller>`;
 		} else if (this.renderMode === RENDER_MODE.SEARCH_CALLER) {
-			console.log(`render search caller for insure`);
 			return html`
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@non-client-captured="${event => this._onNonClientCaptured(event)}"
-					@on-client-identified="${(data) => this._onClientIdentified(data)}">
+					@client-identified="${(event) => this._clientIdentified(event)}"
+					@non-client-captured="${event => this._nonClientCaptured(event)}"
+					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}
 	}

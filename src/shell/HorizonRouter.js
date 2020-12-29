@@ -23,7 +23,8 @@ const HORIZON_ROUTES = {
 	TRANSACT_FAVOURITES: `/transact/favourites`,
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
-	SYSTEM_ERROR: `/error/system-error`
+	SYSTEM_ERROR: `/error/system-error`,
+	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`
 };
 
 
@@ -78,7 +79,7 @@ export class HorizonRouter {
 	// --------------------
 	// Navigation functions  
 	// --------------------
-	navigateToLandingPage() {
+	navigateToWaitingForCall() {
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
 
@@ -145,6 +146,25 @@ export class HorizonRouter {
 	navigateToSystemError() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SYSTEM_ERROR}`);
 	}
+
+	navigateToInitialSystemError() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
+	}
+
+	navigateToLandingPage (ivrOption, hasInsuranceProducts) {
+
+		const stopCard = () => this.navigateToStopCard();
+		const transact = () => this.navigateToQuickTransactionFavourites();
+		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+
+		const landingPageFunc = {
+			StopCard: stopCard,
+			Transact: transact,
+			Insure: insure
+		}[ivrOption];
+
+		landingPageFunc();
+	};
 }
 
 // -------------------------
@@ -237,11 +257,11 @@ export default horizonRoutes = [
 		}
 	},
 	{
-		name: `client-profile`,
+		name: `horizon-stop-card-landing-page`,
 		title: `ClientProfile`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
-		load: () => import(`../views/stopCard/ClientProfile`),
+		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
 		}
@@ -361,6 +381,16 @@ export default horizonRoutes = [
 		load: () => import(`../views/common/SystemError`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-initial-system-error`,
+		title: `InitialPageSystemError`,
+		icon: null,
+		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
+		load: () => import(`../views/common/InitialSystemError`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.ERROR_PAGES);
 		}
 	}
 

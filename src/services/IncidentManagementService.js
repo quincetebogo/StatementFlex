@@ -1,5 +1,5 @@
+import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
 import { SecurityContext } from 'platform/SecurityContext';
-import { ServiceBase } from 'app/services/ServiceBase';
 
 /**
  * The IncidentManagementService is used to create an incident for recording information
@@ -37,10 +37,11 @@ export class IncidentManagementService extends ServiceBase {
 	 *
 	 * @param {object} incidentData The incoming all information to record against the incident
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
-	createIncident(incidentData, errorHandler = null) {
+	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const createIncidentRequest = {
 			"networkUserName": SecurityContext.getInstance().username,
 			"cli": incidentData.incomingTelephoneNumber,
@@ -48,6 +49,6 @@ export class IncidentManagementService extends ServiceBase {
 			"ucid": incidentData.voiceReferenceNumber
 		};
 
-		return this.serviceCallHelper.asyncCall(this.channelService.createIncident(createIncidentRequest), errorHandler);
+		return this.wrapCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
 	}
 }

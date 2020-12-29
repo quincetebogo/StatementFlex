@@ -68,7 +68,7 @@ export class EmailPlan extends Component {
 					--horizon-solution-modal-height: auto;
 					--horizon-solution-modal-width: 694px;
 					--horizon-feedback-label-margin-top: 24px;
-					--horizon-radio-button-container-margin-bottom: 41px;
+					--horizon-radio-button-group-margin-bottom: 41px;
 				}
 		
 				.navigate-info-label {

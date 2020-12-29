@@ -1,5 +1,5 @@
 import { Component, html, css } from 'platform/elements';
-import '../../../components/common/HorizonRadioButtonsContainer';
+import 'app/components/common/RadioButtonGroup';
 
 const ERROR_MESSAGE = "Choose an update option to continue.";
 
@@ -105,7 +105,7 @@ export class ChooseAnUpdateOption extends Component {
 				}
 
 				.radio-button {
-					--horizon-radio-button-container-margin-bottom: 19px;
+					--horizon-radio-button-group-margin-bottom: 19px;
 				}
 
 				#id-cancel-button {
@@ -164,11 +164,11 @@ export class ChooseAnUpdateOption extends Component {
 
 	_renderFeedbackDetails() {
 		return html`
-			<horizon-radio-button 
+			<horizon-radio-button-group
 				class="radio-button"
 				.radioButtonsAvailable="${this.radioButtonsAvailable}"
 				@value-change="${() => this._onValueChanged()}">
-			</horizon-radio-button>
+			</horizon-radio-button-group>
 		`;
 	}
 

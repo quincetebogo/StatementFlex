@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 
-import { CALLERINFOBAR_CSS } from '../../css/CallerInfoBar';
-import { HORIZON_CALLER_DIALOG_HEADER_CSS } from '../../css/HorizonModalHeader';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { HORIZON_CALLER_DIALOG_HEADER_CSS } from 'app/css/HorizonModalHeader';
 
-import './HorizonCallerInfoBar';
+import 'app/components/common/CallerInfoBar';
 
 /**
  * A Dialog with a Caller Information Bar. This is a common dialog format in the Horizon Project.
@@ -12,7 +12,7 @@ import './HorizonCallerInfoBar';
  * @class HorizonCallerDialog
  * @extends {Component}
  */
-export class HorizonCallerDialog extends Component {
+export class CallerDialog extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -23,6 +23,7 @@ export class HorizonCallerDialog extends Component {
 		this.displayButton = true;
 		this.headerLabel = ``;
 		this.incomingCallDetails = null;
+		this.isNeedSelectable = false;
 	}
 
 	// --------------
@@ -35,7 +36,8 @@ export class HorizonCallerDialog extends Component {
 	 * @property {String} headerLabel - The label string for the dialog heading
 	 * @property {Boolean} [displayButton=true] - Whether to display the End Call button or not 
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails)
-	 * 
+	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
+     * 
 	 * @readonly
 	 * @static
 	 * @memberof HorizonCallerDialog
@@ -44,7 +46,8 @@ export class HorizonCallerDialog extends Component {
 		return {
 			headerLabel: { type: String },
 			displayButton: { type: Boolean },
-			incomingCallDetails: { type: Object }
+			incomingCallDetails: { type: Object },
+			isNeedSelectable: { type: Boolean }
 		};
 	}
 
@@ -123,30 +126,30 @@ export class HorizonCallerDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal
-					type="free"
-					header-align="left">
-					<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-						<capitec-label type="title" 
-										label="${this.headerLabel}">
-						</capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-button
-									style="visibility:${!this.displayButton ? `hidden` : `visible`}"
-									label="End Call"
-									@click="${() => this._onEndCall()}">
-							<img class="end-call-icon" src="/images/hangup.svg"/>
-						</capitec-button>
-					</capitec-group>
+			<capitec-modal 
+                    type="free" 
+                    header-align="left">
+				<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
+					<capitec-label type="title"
+                                    label="${this.headerLabel}">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-button 
+                                style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
+                                label="End Call"
+						        @click="${() => this._onEndCall()}">
+						<img class="end-call-icon" src="/images/hangup.svg"/>
+					</capitec-button>
+				</capitec-group>
 				<div slot="body">
 					${this._renderCallInformation()}
 					<slot name="body">
-						
+			
 					</slot>
 				</div>
 				<div slot="footer">
 					<slot name="footer">
-
+			
 					</slot>
 				</div>
 			</capitec-modal>`;
@@ -156,7 +159,8 @@ export class HorizonCallerDialog extends Component {
 	_renderCallInformation() {
 		return html`
 			<horizon-caller-info-bar
-				.incomingCallDetails="${this.incomingCallDetails}"
+                .incomingCallDetails="${this.incomingCallDetails}" 
+                .isNeedSelectable="${this.isNeedSelectable}"
 				@on-need-changed=${(event) => this._onNeedChanged(event)}>
 			</horizon-caller-info-bar>
 			`;
@@ -164,4 +168,4 @@ export class HorizonCallerDialog extends Component {
 
 }
 
-window.customElements.define(`horizon-caller-dialog`, HorizonCallerDialog);
+window.customElements.define(`horizon-caller-dialog`, CallerDialog);

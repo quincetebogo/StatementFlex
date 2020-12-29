@@ -1,8 +1,14 @@
 import { Component, css, html } from 'platform/elements';
+import 'app/components/common/OptionButton';
 
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
+ * Events Raised 
+ * -------------
+ * verify-click
+ * option-click
+ * 
  * @export
  * @class TransactionFavourites
  * @extends {Component}
@@ -16,9 +22,10 @@ export class FavouriteTransactions extends Component {
 	constructor() {
 		super();
 
-		this.verificationStatus = ``;
-		this.displayToast = false;
 		this.landingPageInfo = null;
+
+		this.displayToast = false;
+		this.isBusy = false;
 	}
 
 	// --------------
@@ -27,9 +34,10 @@ export class FavouriteTransactions extends Component {
 
 	/**
 	 *
-	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
-	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} callerInformation Information on the current caller (mini-profile)
+	 * @property {Object} incomingCallDetails Information on the incoming/current call
+	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
+	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
 	 *
 	 * @readonly
 	 * @static
@@ -37,12 +45,13 @@ export class FavouriteTransactions extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object }, 
-			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+			verificationStatus: { type: String }, 
 
-			verificationStatus: { type: String },
-			displayToast: { type: Boolean }
+			isBusy: { attribute: false },
+			displayToast: { attribute: false }
 		};
 	}
 
@@ -52,8 +61,6 @@ export class FavouriteTransactions extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		if (this.verificationStatus === `verified`) {
 			this.displayToast = true;
@@ -67,6 +74,10 @@ export class FavouriteTransactions extends Component {
 
 	_toggleToastDisplay() {
 		this.displayToast = false;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// --------------
@@ -186,6 +197,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -193,15 +205,6 @@ export class FavouriteTransactions extends Component {
 			${this._renderVerifiedToast()}
 			${this._renderFavourites()}
 		`;
-	}
-
-	_renderVerifiedToast() {
-		if (this.displayToast) {
-			return html`
-				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
-				</capitec-toast>`;
-		}
-		return html``;
 	}
 
 	_renderFavourites() {
@@ -222,6 +225,15 @@ export class FavouriteTransactions extends Component {
 			`;
 	}
 
+	_renderVerifiedToast() {
+		if (this.displayToast) {
+			return html`
+				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				</capitec-toast>`;
+		}
+		return html``;
+	}
+
 	_renderUnverifiedAlertBanner() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
@@ -231,8 +243,8 @@ export class FavouriteTransactions extends Component {
 						<capitec-label id="id-notify-client-warning-msg"
 							label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now"
-							@click="${() => this._verifyNowClick()}"></capitec-hyperlink>
+						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._verifyNowClick()}">
+						</capitec-hyperlink>
 					</capitec-group>
 				</capitec-alert-banner>
 			`;
@@ -256,12 +268,10 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
 				<capitec-button-bar>
-					<horizon-option-button 
-						badgeText="${this.landingPageInfo.pendingMandateCount}" 
-						icon="system/debi-check-action" 
-						iconSize="default" 
-						label="DebiCheck"
-						@click="${() => this._optionSelectedClick(`debi-check`)}">
+					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
+						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
+						@click="${() => this._optionSelectedClick(`debi-check`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -272,13 +282,16 @@ export class FavouriteTransactions extends Component {
 				<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`stop-card`)}">
+						@click="${() => this._optionSelectedClick(`stop-card`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`update-card-limits`)}">
+						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`tap-to-pay`)}">
+						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -289,16 +302,28 @@ export class FavouriteTransactions extends Component {
 				<capitec-title-bar type="default" label="Document"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`statements`)}">
+						@click="${() => this._optionSelectedClick(`statements`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`tax-certificate`)}">
+						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`proof-of-account`)}">
+						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy) {
+			return html`
+		<capitec-loading-indicator></capitec-loading-indicator>
+		`;
+		}
+		return html``;
 	}
 }
 

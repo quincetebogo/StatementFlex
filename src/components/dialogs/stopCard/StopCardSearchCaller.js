@@ -1,26 +1,20 @@
-/*
- *       Horizon Stop Card Search Dialog for Stop Card
- *
- */
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
-import 'app/components/dialogs/common/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
 
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
-const RENDER_MODE = {
-	SEARCH_CALLER: 0,
-	END_CALL: 1,
-	INSURE_SEARCH_CALLER: 2
-};
+const RENDER_MODE = Object.freeze({
+	STOP_CARD_SEARCH: 0,
+	END_CALL: 1
+});
 
 const HEADER_LABEL = `Search Caller Details`;
 
@@ -83,6 +77,19 @@ const REGEX_PATTERNS = {
 	}
 };
 
+
+/**
+ * Horizon Stop Card Search Dialog for Stop Card
+ *
+ * Events Raised 
+ * -------------
+ * other-need-selected
+ * client-identified
+ * 
+ * @export
+ * @class StopCardSearchCaller
+ * @extends {Component}
+ */
 export class StopCardSearchCaller extends Component {
 
 	// --------------
@@ -93,6 +100,7 @@ export class StopCardSearchCaller extends Component {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		RegExp();
 
@@ -104,7 +112,7 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails = null;
 		this.renderMode = -1;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 
 		this.isBusy = false;
 		this.alertBannerMessage = ``;
@@ -157,7 +165,7 @@ export class StopCardSearchCaller extends Component {
 		this._loadSearchOptions();
 
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
-		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
 	}
 
@@ -195,7 +203,7 @@ export class StopCardSearchCaller extends Component {
 				searchValue: this.searchFieldText
 			};
 
-			const returnValue = await this.callHandleService.searchCaller(searchClient, (ex) => this._handleSearchClientException(ex));
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
 			if (returnValue.succeeded && identifiedClient) {
@@ -214,19 +222,13 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		if (this.ivrOption.value === `Insure`) {
-			this.renderMode = RENDER_MODE.INSURE_SEARCH_CALLER;
+		if (this.ivrOption.value !== `StopCard`) {
+			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 		}
-	}
-
-	_onNonClientCapturedInsure(event) {
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-			detail: event.detail
-		}));
-	}
-
-	_onClientIdentfiedInsure(data) {
-		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
 
 	_onEndCall() {
@@ -238,7 +240,7 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: {
 				identifiedClient: identifiedClient,
 				incomingCallDetails: this.incomingCallDetails
@@ -255,7 +257,7 @@ export class StopCardSearchCaller extends Component {
 			"agentTelephoneNumber": this.agentTelephoneNumber
 		};
 
-		const returnValue = await this.callHandleService.searchOptions(clientInfo, null);
+		const returnValue = await this.callHandleService.searchOptions(clientInfo);
 		const options = returnValue.result;
 
 		if (returnValue.succeeded) {
@@ -263,9 +265,7 @@ export class StopCardSearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
-		} else {
-			// TODO: Handle error when searchOptions call failes
-		};
+		}
 	}
 
 	extractIdentificationMethods(identificationMethods) {
@@ -318,25 +318,7 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
-		const event = {
-			from: `UI-CS`,
-			status: `error`,
-			message: ``
-		};
-
-		if (exception instanceof TypeError) {
-			event.message = exception.message;
-		} else if (exception instanceof HttpStatusError) {
-			if (exception.status === 412 || exception.status === 400) {
-				this.alertBannerMessage = ERROR_MESSAGES[this.identificationMethods.value];
-				return true;
-			}
-			event.message = `${exception.status}: ${exception.message}`;
-		} else {
-			event.message = `UNEXPECTED ERROR: ${exception.message}`;
-		}
-
-		this.eventAggregator.publish(`horizon-status-bar-update`, event);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -402,10 +384,11 @@ export class StopCardSearchCaller extends Component {
 
 	render() {
 		switch (this.renderMode) {
-			case RENDER_MODE.SEARCH_CALLER:
+			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
-						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -416,8 +399,6 @@ export class StopCardSearchCaller extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
-			case RENDER_MODE.INSURE_SEARCH_CALLER:
-				return html`${this.renderInsureSearchModal()}`;
 			default:
 		}
 	}
@@ -477,17 +458,9 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
-	}
-
-	renderInsureSearchModal() {
-		return html`
-			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
-				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
-			</horizon-search-caller>`;
 	}
 }
 

@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import './HorizonRadioButtonsContainer';
+import 'app/components/common/RadioButtonGroup';
 
 const ERROR_MESSAGE = `Choose a feedback reason to continue.`;
 
@@ -212,11 +212,11 @@ export class HorizonSolutionDialog extends Component {
 	_renderFeedbackDetails() {
 		return html`
 			<capitec-label class="feedback-label" label="Feedback"></capitec-label>
-			<horizon-radio-button 
+			<horizon-radio-button-group
 				class="radio-button"
 				.radioButtonsAvailable="${this.radioButtonsAvailable}"
 				@value-change="${() => this._onValueChanged()}">
-			</horizon-radio-button>
+			</horizon-radio-button-group>
 		`;
 	}
 
@@ -227,9 +227,6 @@ export class HorizonSolutionDialog extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
@@ -237,9 +234,6 @@ export class HorizonSolutionDialog extends Component {
 					id="id-done-button"
 					type="primary"
 					label="Done"
-					?hidden=""
-					.disabled=""
-					tabindex=""
 					@click="${() => this._onDoneClick()}">
 				</capitec-button>
 			</capitec-group>

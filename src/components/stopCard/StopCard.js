@@ -5,14 +5,7 @@ import { Utilities } from '@cb/platform-web-core';
 import 'platform/components';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/stopCard/StopCard';
-
-/*
-import '../dialogs/insure/AssignReasonDialog';
-import '../dialogs/insure/AssignReasonSelected';
-*/
-
-import 'app/components/common/HorizonRadioButtonsContainer';
+import 'app/components/dialogs/stopCard/StopCardConfirm';
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
@@ -67,8 +60,6 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isReassigned = false;
-
-		this.confirmedCaller = null; // Actually the view manager state passed in from the parent component
 	}
 
 	// ----------
@@ -76,7 +67,7 @@ export class StopCard extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} confirmedCaller - Information on confirmed client.
+	 * @property {Object} clientProfileDetails - Information on confirmed client.
 	 *
 	 * @readonly
 	 * @static
@@ -84,7 +75,7 @@ export class StopCard extends Component {
 	 */
 	static get properties() {
 		return {
-			confirmedCaller: { type: Object },
+			clientProfileDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
@@ -101,28 +92,14 @@ export class StopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-
-		this.instruction = clientProfileDetails.instruction;
-		this.cards = clientProfileDetails.cards;
+		this.instruction = this.clientProfileDetails.instruction;
+		this.cards = this.clientProfileDetails.cards;
 
 		/**
 		* Add rowIndex, selected, stopReason fields to cards array. 
 		* Logic to show/hide stop card reasons is based on rowIndex
 		*/
 		this.addFieldsToCardsArray();
-
-		// Set up caller information for passing to Stop Card Modal
-		this.callerInfo = {
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: this.incomingCallDetails.incidentRecId,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-			isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber,
-			ivrOption: this.incomingCallDetails.ivrOption
-		};
 
 		// The End Call Modal is using a different modal to the Stop Card Modal
 		this.endCallCallerInfo = {
@@ -142,25 +119,25 @@ export class StopCard extends Component {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.callerInfo.incidentReferenceNumber,
-				phoneNumber: this.callerInfo.incomingTelephoneNumber,
-				ivrOptionCode: this.callerInfo.ivrOptionCode,
-				isUnverifiedNumber: this.callerInfo.isUnverifiedNumber
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
 			}
 		);
 
 		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-			name: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.name.value,
-			idNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
-			phoneNumber: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
-			livesIn: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
-			languagePreference: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
-			birthday: this.confirmedCaller.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-			isConfirmed: true,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false
-		});
+				name: this.clientProfileDetails.clientPersonalInformation.value.name.value,
+				idNumber: this.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
+				phoneNumber: this.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
+				livesIn: this.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
+				languagePreference: this.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
+				birthday: this.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
+				isConfirmed: true,
+				isVerified: false,
+				verificationFailed: false,
+				is3rdParty: false
+			});
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
@@ -239,22 +216,25 @@ export class StopCard extends Component {
 	_onStopCards() {
 		this.cardsToStop = this.cards.map(card => (
 			{
-				cardNumber: card.cardNumber,
-				maskedCardNumber: card.maskedCardNumber,
 				cardDisplayName: card.cardDisplayName,
-				cardStopReason: card.selected ? card.cardStopReason : ``
+				cardExpiryMonth: card.cardExpiryMonth,
+				cardExpiryYear: card.cardExpiryYear,
+				cardNumber: card.cardNumber,
+				cardSequenceNumber: card.cardSequenceNumber,
+				cardStopReason: card.selected ? card.cardStopReason : ``,
+				maskedCardNumber: card.maskedCardNumber,
+				supplementaryCard: card.supplementaryCard
 			}
 		)).filter(card => card.cardStopReason !== ``);
 
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 	}
 
-	_onCardsStopped(event) {
+	_confirmedStoppingCardsClick(event) {
 		this.dispatchEvent(new CustomEvent(
 			`cards-stopped`,
 			{
 				detail: {
-					callerInfo: this.callerInfo,
 					stoppedCards: event.detail.stoppedCards
 				}
 			}
@@ -424,15 +404,15 @@ export class StopCard extends Component {
 							<capitec-label label="Card Type"
 										   style="${TABLE_STYLE.CELL_HEIGHT}"
 										   type="subtitle">
-		                    </capitec-label>
-	                    </div>
-	                    <div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
+							</capitec-label>
+						</div>
+						<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
 							<capitec-label label="Card Number"
 										   style="${TABLE_STYLE.CELL_HEIGHT}"
 										   type="subtitle">
-		                    </capitec-label>
-	                    </div>
-                    </capitec-group>`;
+							</capitec-label>
+						</div>
+					</capitec-group>`;
 	}
 
 	/**
@@ -509,12 +489,12 @@ export class StopCard extends Component {
 	_renderStopCardModal() {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
-				<horizon-stop-card
-                    .callerInfo="${this.callerInfo}" 
-                    .cardsToStop="${this.cardsToStop}"
-					@on-confirm="${(event) => this._onCardsStopped(event)}"
+				<horizon-stop-card-confirm
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.cardsToStop="${this.cardsToStop}"
+					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
 					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
-				</horizon-stop-card>
+				</horizon-stop-card-confirm>
 			`;
 		}
 	}
@@ -559,35 +539,6 @@ export class StopCard extends Component {
 		}
 		return html``;
 	}
-
-	/*
-	_renderAssignModal() {
-		if (this.renderMode === RENDER_MODE.ASSIGN) {
-			return html`
-				<horizon-insure-assign-reason 
-					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
-					@on-cancel="${() => { 
-						this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-					}}">
-				</horizon-insure-assign-reason>
-			`;
-		}
-		return html``;
-	}
-
-	_renderAssignReasonSelected() {
-		if (this.renderMode === RENDER_MODE.ASSIGN_REASON_SELECTED) {
-			return html`<horizon-assign-reason-selected
-						.selectedReason="${this.assignReason}"
-						@on-cancel="${() => { 
-							this.renderMode = RENDER_MODE.CLIENT_PROFILE;
-						}}"
-						@team-selected="${(e) => this._onHandOff(e)}">
-					</horizon-assign-reason-selected>`;
-		}
-		return html``;
-	}
-	*/
 }
 
-customElements.define(`stop-card`, StopCard);
+customElements.define(`horizon-stop-card`, StopCard);

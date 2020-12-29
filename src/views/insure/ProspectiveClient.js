@@ -22,7 +22,7 @@ export class ProspectiveClient extends View {
 		return [
 			super.styles,
 			css`
-				.verified-caller{
+				.insure-info{
 					width:100%;
 					height:100%;
 				}`
@@ -30,10 +30,11 @@ export class ProspectiveClient extends View {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
-		return html`<horizon-insure-information class="verified-caller"></horizon-insure-information>`;
+		return html`<horizon-insure-information class="insure-info"></horizon-insure-information>`;
 	}
 }
 

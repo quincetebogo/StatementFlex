@@ -8,11 +8,21 @@ import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
-import 'app/components/common/HorizonRadioButtonsContainer';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/RadioButtonGroup';
+import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 
+/**
+ *
+ * Events Raised 
+ * -------------
+ * cancel
+ *
+ * @export
+ * @class EndCallSession
+ * @extends {Component}
+ */
 export class EndCallSession extends Component {
 
 
@@ -29,7 +39,7 @@ export class EndCallSession extends Component {
 		this.isReassigned = false;
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 	}
 
 	// --------------
@@ -60,16 +70,14 @@ export class EndCallSession extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
-		this.callHandleService.endCallOptions(this.incomingCallDetails, null)
+		this.callHandleService.endCallOptions(this.incomingCallDetails)
 			.then((returnValue) => {
 				const endCallDialog = returnValue.result;
 
 				if (returnValue.succeeded) {
 					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
-				} else {
-					// TODO: Handle not being able to load end call options
 				}
-		});
+			});
 	}
 
 	// --------------
@@ -82,21 +90,19 @@ export class EndCallSession extends Component {
 
 	async _onReasonSelected() {
 		const callToEnd = {
-			incidentRecId: this.incomingCallDetails.incidentRecId,  
+			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endCallReason: {
 				key: this.endCallReason.key
 			}
 		};
 
-		const returnValue = await this.callHandleService.endCall(callToEnd, null);
+		const returnValue = await this.callHandleService.endCall(callToEnd);
 
-		if (!returnValue.succeeded) {
-			// TODO: Handle end call failing
+		if (returnValue.succeeded) {
+			const state = { callStatus: `CALL-ENDED` };
+			this.horizonStore.setState(state);
+			this.horizonRouter.navigateToWaitingForCall();
 		}
-
-		const state = { callStatus: `CALL-ENDED` };
-		this.horizonStore.setState(state);
-		this.horizonRouter.navigateToLandingPage();
 	}
 
 	_onValueChanged(e) {
@@ -114,6 +120,11 @@ export class EndCallSession extends Component {
 	// ---------------
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_endCallErrorHandler(exception) {
+		this.horizonRouter.navigateToInitialSystemError();
+		return true;
 	}
 
 	// ---------
@@ -217,13 +228,14 @@ export class EndCallSession extends Component {
 
 	_webTemplate() {
 		return html`
-			<horizon-caller-dialog 
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.headerLabel="${HEADER_LABEL}"
-						.displayButton="${false}">
+			<horizon-caller-dialog
+                        .incomingCallDetails="${this.incomingCallDetails}"
+                        .isNeedSelectable=${false}
+				        .headerLabel="${HEADER_LABEL}" 
+                        .displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
-					${this._renderChooseEndCallReason()}
+						${this._renderChooseEndCallReason()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
@@ -237,13 +249,13 @@ export class EndCallSession extends Component {
 	_renderChooseEndCallReason() {
 		return html`
 			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
-			<horizon-radio-button 
-				class="radio-button"
-				.radioButtonsAvailable="${this.endCallReasons}"
-				@value-change="${(e) => {
+			<horizon-radio-button-group
+                class="radio-button"
+                .radioButtonsAvailable="${this.endCallReasons}"
+                @value-change="${(e) => {
 				this._onValueChanged(e);
 			}}">
-			</horizon-radio-button>
+			</horizon-radio-button-group>
 		`;
 	}
 
@@ -251,17 +263,17 @@ export class EndCallSession extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-					id="id-cancel-button"
-					type="clear"
-					label="Cancel"
-					@click="${() => this._onCancel()}">
+                    id="id-cancel-button"
+                    type="clear"
+                    label="Cancel"
+                    @click="${() => this._onCancel()}">
 				</capitec-button>
-
+			
 				<capitec-button
-					id="id-continue-button"
-					type="primary"
-					label="Continue"
-					@click="${() => this._onReasonSelected()}">
+                    id="id-continue-button"
+                    type="primary"
+                    label="Continue"
+                    @click="${() => this._onReasonSelected()}">
 				</capitec-button>
 			</capitec-group>
 		`;

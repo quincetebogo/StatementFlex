@@ -86,11 +86,11 @@ export class DesktopAgentService {
 	 *
 	 * @private
 	 * @param {*} event Server Side Event from the Destkop Agent Service Application
-	 * @returns {Promise}
+	 * @returns {Promise} A promise
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
-		console.log(`_onNewCall: new call event received`);
+		// console.log(`_onNewCall: new call event received`);
 
 		const eventData = JSON.parse(event.data);
 
@@ -118,7 +118,6 @@ export class DesktopAgentService {
 			// We validate the information received and discard anything unexpected that may 
 			// have been injected into the event.
 
-			// TODO: Agree consistent regular expressions between the CLI, the Horizon UI and the CS !!!!!
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
@@ -126,8 +125,6 @@ export class DesktopAgentService {
 
 			newCallEvent.ivrOptionCode = await this._mapIvrOption(eventData.IVROptionCode);
 			newCallEvent.date = eventData.Date;
-
-			console.log(`_onNewCall: event data validated`);
 
 			// Critical: the Last Event Id will be used in the query string when re-creating the EventSource
 			// When not re-creating an the event source, the EventSource automatically sets the last event id
@@ -202,11 +199,11 @@ export class DesktopAgentService {
 	}
 
 	_onOpen() {
-		// console.log("Connection to Desktop Agent open");
+		// console.log(`Connection to Desktop Agent open`);
 	}
 
 	_onMessage(event) {
-		// console.log("Received an event from the Desktop Agent", event);
+		// console.log(`Received an event from the Desktop Agent`, event);
 	}
 
 
@@ -299,7 +296,7 @@ export class DesktopAgentService {
 			// We can take a call when on a product view page (they belong to the set of landing pages)
 			// Automatically navigate to the landing page. Once on the landing page and event will fire
 			// notifying this class to take the call.
-			this.HorizonRouter.navigateToLandingPage();
+			this.HorizonRouter.navigateToWaitingForCall();
 		}
 	}
 
@@ -308,7 +305,7 @@ export class DesktopAgentService {
 			this.eventAggregator.publish(`prompt-start-desktopagent`);
 			// this.connectionTries = 0;
 		} else if (this._productLandingPagesActive()) {
-			this.HorizonRouter.navigateToLandingPage();
+			this.HorizonRouter.navigateToWaitingForCall();
 		}
 	}
 

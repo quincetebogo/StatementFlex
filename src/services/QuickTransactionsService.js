@@ -1,4 +1,4 @@
-import { ServiceBase } from 'app/services/ServiceBase';
+import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
 
 /**
  * Channel Service Methods for Quick Transactions
@@ -19,7 +19,7 @@ export class QuickTransactionsService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	favouritesLanding(clientInfo, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.favouritesLanding(clientInfo), errorHandler);
+	favouritesLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
 }

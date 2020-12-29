@@ -1,11 +1,11 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
 export class TitleBar extends Component {
 
 	// --------------
 	// INITIALISATION
-	// --------------	
+	// --------------
 	constructor() {
 		super();
 
@@ -20,10 +20,10 @@ export class TitleBar extends Component {
 	// ----------
 	static get properties() {
 		return {
-			//to extract client details from the service
+			// to extract client details from the service
 			fullname: { type: String },
 			employeeId: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -33,7 +33,7 @@ export class TitleBar extends Component {
 
 	// --------------
 	// EVENT HANDLERS
-	// --------------	
+	// --------------
 
 	_onUpdateTitle(event) {
 		this.fullname = event.agentFullName;
@@ -51,7 +51,7 @@ export class TitleBar extends Component {
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 	static get styles() {
 
 		return [
@@ -64,7 +64,7 @@ export class TitleBar extends Component {
 						box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
 						grid-template-columns: 1fr;
 						grid-row-gap: 8px;
-					}	
+					}
 
 					.branding-logo-white{
 						height: 32px;
