@@ -140,7 +140,8 @@ export class ThirdPartyOrExistingClient extends Component {
 			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
-				subtitle: ``,
+                subtitle: ``,
+                currentPage: "insure",
 				detail: ``
 			}
 		};

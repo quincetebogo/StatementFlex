@@ -23,6 +23,7 @@ export class FavouritesTile extends Component {
 		this.label = ``;
 		this.subtitle = ``;
 		this.detail = ``;
+        this.currentPage = ``;
 		this.navigational = false;
 		this.horizonStore = HorizonStore.getInstance().recoverState();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -39,6 +40,7 @@ export class FavouritesTile extends Component {
 	 * @property {String} [subtitle] - The sub label string to display.
 	 * @property {String} [detail] - The detail string to display.
 	 * @property {Boolean} [navigational=false] - Whether to display navigation arrow for product tile.
+     * @property {String} [currentPage] - Current landing page which is to display
 	 */
 	static get properties() {
 
@@ -46,7 +48,8 @@ export class FavouritesTile extends Component {
 			label: { type: String },
 			subtitle: { type: String },
 			detail: { type: String },
-			navigational: { type: Boolean }
+			navigational: { type: Boolean },
+            currentPage: { type: String }
 		};
 	}
 
@@ -183,11 +186,11 @@ export class FavouritesTile extends Component {
                     box-shadow: var(--theme-product-tile-active-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
 				}
 				
-                .tile.favourites:focus {
+                .tile.favourites:focus, .tile.favourites.selected {
                     border: 1px solid #009DE0;
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
-                }
-
+				}
+				
                 .product {
 					width: var(--theme-product-tile-colour-display-width, 57px);
 					display: inline-flex;
@@ -278,8 +281,8 @@ export class FavouritesTile extends Component {
 	_webTemplate() {
 
 		return html`
-			<button class="tile favourites" @click="${(e) => this._tileClicked(e)}" @keydown="${e => this._keyDown(e)}"
-				tabindex="${this.disabled ? `` : 0}">
+			<button class="tile favourites ${this.currentPage == 'favourites' ? 'selected' : ''}"
+				@click="${(e) => this._tileClicked(e)}" @keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
 				<div class="tile-container">
 					<div class="rectangle"></div>
 					<div class="product favourites">
