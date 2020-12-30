@@ -25,7 +25,7 @@ const HORIZON_ROUTES = {
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	DEBICHECK_SUCCESS: `/debicheck/success`
+	DEBICHECK_SUCCESS: `/success/debicheck`
 };
 
 
