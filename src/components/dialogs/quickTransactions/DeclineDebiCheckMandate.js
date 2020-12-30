@@ -19,10 +19,11 @@ export class DeclineDebiCheckMandate extends Component {
 	// --------------
 	// INITIALISATION
 	// --------------
+	
 	constructor() {
 		super();
 		//TODO: Mandate ID to be supplied by input property
-		this.mandateId = "DISCLIFE5130111776-2?";
+		this.mandateId = "";
 	}
 
 	// ----------
@@ -30,7 +31,7 @@ export class DeclineDebiCheckMandate extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} mandateId - ID to be used when referencing the mandate.
+	 * @property {String} mandateId - ID to be used when referencing the mandate.
 	 *
 	 * @readonly
 	 * @static
@@ -38,13 +39,19 @@ export class DeclineDebiCheckMandate extends Component {
 	 */
 	static get properties() {
 		return {
-			mandateId: { type: Number }
+			mandateId: { type: String }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		
+		this.mandateId = "DISCLIFE5130111776-2?";
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -223,16 +230,16 @@ export class DeclineDebiCheckMandate extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-                            id="id-cancel-button"
-                            type="clear"
-                            label="Cancel"
-                            @click="${() => this._cancelClick()}">
+							id="id-cancel-button"
+							type="clear"
+							label="Cancel"
+							@click="${() => this._cancelClick()}">
 				</capitec-button>
 				<capitec-button
-                            id="id-decline-button"
-                            type="primary"
-                            label="Decline"
-                            @click="${() => this._declineClick()}">
+							id="id-decline-button"
+							type="primary"
+							label="Decline"
+							@click="${() => this._declineClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
@@ -240,4 +247,4 @@ export class DeclineDebiCheckMandate extends Component {
 
 }
 
-window.customElements.define(`horizon-decline-debicheck-mandate`, DeclineDebiCheckMandate)
+window.customElements.define(`horizon-decline-debicheck-mandate`, DeclineDebiCheckMandate);
