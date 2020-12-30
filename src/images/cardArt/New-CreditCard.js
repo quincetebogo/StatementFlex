@@ -3,7 +3,7 @@ import { html } from 'platform/elements';
 export function frameCardArt(card) { 
 	return html`
 			<?xml version="1.0" encoding="UTF-8"?>
-			<svg width="114px" height="180px" viewBox="0 0 114 180" version="1.1" xmlns="http://www.w3.org/2000/svg"
+			<svg width="113px" height="180px" viewBox="0 0 113 180" version="1.1" xmlns="http://www.w3.org/2000/svg"
 				xmlns:xlink="http://www.w3.org/1999/xlink">
 				<title>New - Credit Card</title>
 				<defs>

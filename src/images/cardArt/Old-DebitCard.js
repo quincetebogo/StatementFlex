@@ -4,9 +4,9 @@ export function frameCardArt(card) {
 
 	return html`
 			<?xml version="1.0" encoding="UTF-8"?>
-			<svg width="186px" height="118px" viewBox="0 0 186 118" version="1.1" xmlns="http://www.w3.org/2000/svg"
+			<svg width="181px" height="116px" viewBox="0 0 181 116" version="1.1" xmlns="http://www.w3.org/2000/svg"
 				xmlns:xlink="http://www.w3.org/1999/xlink">
-				<title>04 Layout/2) Card/2) Bank card widget/0) items/4) Old - Debit card</title>
+				<title>Old - Debit card</title>
 				<defs>
 					<linearGradient x1="98.8195353%" y1="29.8399686%" x2="0%" y2="70.1600314%" id="linearGradient-1">
 						<stop stop-color="#BB7B36" offset="0%"></stop>

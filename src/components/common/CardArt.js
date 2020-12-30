@@ -1,14 +1,23 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * This component implements the card layout for stop card/ update card limits
- *
- * Events Raised 
- * -------------
- * n/a
+ * Renders card art layout and corresponding card action for stopcard/update card limits
+ * 
+ * ```js 
+ * import 'app/components/common/CardArt';
+ * ```
+ * 
+ * ```html
+ * <horizon-card-art .card="${this.card}">
+ *	<capitec-content-box slot="cardAction">
+ * 		Card Action for your card art has to be coded here
+ *	</capitec-content-box>
+ * </horizon-card-art>
+ * ```
+ * @prop {"True"|"False"|Boolean} disableHover This will disable hover functionality
  * 
  * @export
- * @class Card
+ * @class CardArt
  * @extends {Component}
  */
 export class CardArt extends Component {
@@ -22,8 +31,11 @@ export class CardArt extends Component {
 
 		this.type = ``;
 		this.cardArtSVG = ``;
+		this.isFocused = false;
 
 		this._initialise();
+		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
+		this.addEventListener(`mouseleave`, this._mouseLeaveCardArt.bind(this));
 	}
 
 	// ----------
@@ -32,6 +44,7 @@ export class CardArt extends Component {
 	/**
 	 *
 	 * @property {Object} card Object contains card info
+	 * @property {Boolean} disableHover Boolean value to enable/disable hover functionality
 	 *
 	 * @readonly
 	 * @static
@@ -40,6 +53,7 @@ export class CardArt extends Component {
 	static get properties() {
 		return {
 			card: { type: Object },
+			disableHover: { type: Boolean },
 			cardArtSVG: { type: String }
 		}
 	}
@@ -51,7 +65,7 @@ export class CardArt extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		//Loads the card art svg file dynamically
+		// Loads the card art svg file dynamically
 		let { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
 		this.type = this.cardArtComponents[this.card.cardArt].type;
 		this.cardArtSVG = frameCardArt(this.card);
@@ -61,7 +75,23 @@ export class CardArt extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	_mouseEnterCardArt() {
+		if (!this.isFocused && !this.disableHover) {
+			this.isFocused = true;
+
+			const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
+			cardActionGroup.style.setProperty(`display`, `block`);
+		}
+	}
+
+	_mouseLeaveCardArt() {
+		if (this.isFocused && !this.disableHover) {
+			this.isFocused = false;
+
+			const cardActionGroup = this.shadowRoot.getElementById(`cardAction`);
+			cardActionGroup.style.setProperty(`display`, `none`);
+		}
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -74,56 +104,57 @@ export class CardArt extends Component {
 	// ---------------
 
 	_initialise() {
+
 		/**
 		 * This needs a update, whenever the corresponding contract gets updated.
 		 */
 		this.cardArtComponents = {
 			DEBIT_MASTERCARD_20190608: {
 				load: () => import(`app/images/cardArt/New-DebitCard`),
-				type: 'new'
+				type: `new`
 			},
 			DEBIT_MASTERCARD_20191118: {
 				load: () => import(`app/images/cardArt/New-DebitCard`),
-				type: 'new'
+				type: `new`
 			},
 			MASTERCARD_CREDIT_20181101: {
 				load: () => import(`app/images/cardArt/New-CreditCard`),
-				type: 'new'
+				type: `new`
 			},
 			MASTERCARD_CREDIT_20190605: {
 				load: () => import(`app/images/cardArt/New-CreditCard`),
-				type: 'new'
+				type: `new`
 			},
 			DEBIT_MASTERCARD_VIRTUAL_20200701: {
 				load: () => import(`app/images/cardArt/VirtualCard`),
-				type: 'new'
+				type: `new`
 			},
 			DEBIT_MASTERCARD_20150511: {
 				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: 'old'
+				type: `old`
 			},
 			DEBIT_MASTERCARD_20160406: {
 				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: 'old'
+				type: `old`
 			},
 			DEBIT_MASTERCARD_20170804: {
 				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: 'old'
+				type: `old`
 			},
 			DEBIT_MASTERCARD_20190102: {
 				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: 'old'
+				type: `old`
 			},
 			MASTERCARD_CREDIT_20181101: {
 				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: 'old'
+				type: `old`
 			}
 		};
 	}
 
 	// ---------
 	// RENDERING
-	// ---------	
+	// ---------
 
 	/**
 	 * Generates the component stylesheet.
@@ -137,35 +168,40 @@ export class CardArt extends Component {
 			super.styles,
 			css`
 				/* Card Image & Info styles */
-				.card{
-					width: 328px;
-					height: 304px;
+				.cardArt {
+					width: var(--horizon-card-art-width, 328px);
+					height: var(--horizon-card-art-height, 304px);
 					box-sizing: border-box;
 
 					--theme-card-border: 1px solid #E1E1E1;
-					--theme-card-border-radius: 5px;
+					--theme-card-border-radius: 4px;
+				}
+				capitec-check {
+					padding: 16px 0px 0px 16px;
+					margin: 0px;
+					border-bottom: none;
+					position: absolute;
+
+					--theme-check-width: 24px;
+					--theme-check-height: 24px;
 				}
 				.new-card-img-cb {
 					width: inherit;
 					height: 236px;
 					margin-bottom: 0px;
+					padding: 0px;
 					background-color: #F7F7F7;
-
-					--theme-container-padding-top: 29px;
-					--theme-container-padding-right: 107px;
-					--theme-container-padding-bottom: 26px;
-					--theme-container-padding-left: 107px;
+					justify-content: center;
+					align-items: center;
 				}
 				.old-card-img-cb {
-					width: inherit;
+					width: auto;
 					height: 236px;
 					margin-bottom: 0px;
+					padding: 0px;
 					background-color: #F7F7F7;
-
-					--theme-container-padding-top: 63px;
-					--theme-container-padding-right: 75px;
-					--theme-container-padding-bottom: 60px;
-					--theme-container-padding-left: 75px;
+					justify-content: center;
+					align-items: center;
 				}
 				.card-info-group {
 					width: inherit;
@@ -191,49 +227,9 @@ export class CardArt extends Component {
 				capitec-label[type="strong"] {
 					line-height: 20px;
 
-					--theme-label-default-font-size: 15px;
-					--theme-label-default-font-weight: 600;
-					--theme-label-font-color: #3E4547;
-				}
-
-				/*UpdateLimits Button styles */
-				.update-limits-btn-cb {
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 16px;
-					--theme-container-padding-left: 16px;
-
-					display: none;
-				}
-				.update-limits-btn-group {
-					--theme-layout-gap-spacing: 38px;
-				}
-				.update-limits-btn-group > .card-info {
-					height: auto;
-				}
-				.update-limits-btn-group > capitec-button {
-					margin-top: 8px;
-					cursor: pointer;
-				}
-				.card-info > capitec-group > capitec-label:last-child {
-					text-align: right;
-				}
-				.permanent-btn {
-					margin: 0px;
-				}
-				capitec-alert-banner {
-					--theme-alert-banner-font-size: 12px;
-					--theme-alert-banner-height: 40px;
-					--theme-alert-banner-info-border: none;
-				}
-
-				/* Hover 
-				.card-img-group:hover {
-					display: none;
-				}
-
-				.card-img-group:hover + .update-limits-btn-cb {
-					display: block;
+					--theme-label-strong-font-size: 15px;
+					--theme-label-strong-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
 				}
 
 				/* Hide / Show */
@@ -243,8 +239,18 @@ export class CardArt extends Component {
 				.show {
 					display: block;
 				}
+
+				slot[name="cardAction"] {
+					max-width: var(--horizon-card-art-width, 328px);
+					max-height: var(--horizon-card-art-height, 304px);
+
+					display: none;
+					position: absolute;
+					z-index: 100;
+					background-color: #FFFFFF;
+				}
 			`
-		]
+		];
 	}
 
 	_mobileTemplate() {
@@ -253,9 +259,10 @@ export class CardArt extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-card class="card">
+			<capitec-card class="cardArt">
 				${this._renderCard()}
-			</capitec-card>	
+				<slot id="cardAction" name="cardAction"></slot>
+			</capitec-card>
 		`;
 	}
 
@@ -266,6 +273,7 @@ export class CardArt extends Component {
 							halign="stretch"
 							valign="top"
 							class="card-img-group">
+					${this._renderCheckBox()}
 					${this._renderCardArt()}
 					<capitec-group layout="horizontal"
 									gap="none"
@@ -276,6 +284,11 @@ export class CardArt extends Component {
 					</capitec-group>
 			</capitec-group>
 		`;
+	}
+
+	_renderCheckBox() {
+		return this.disableHover ? html`<capitec-check label=""></capitec-check>`
+				: html``;
 	}
 
 	_renderCardArt() {

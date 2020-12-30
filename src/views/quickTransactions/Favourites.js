@@ -4,8 +4,9 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { mockMandates } from 'app/mocks/DebiCheckMockData';
+// TODO: Below mocks import has to be removed when service call is implemented
 import { mockCards } from 'app/mocks/CardLimitsMock';
+import { mockMandates } from 'app/mocks/DebiCheckMockData';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -60,6 +61,7 @@ export class Favourites extends View {
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
+		this.cards = [];
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -203,15 +205,15 @@ export class Favourites extends View {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
-			if (returnValue.succeeded) {
-				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
+			 if (returnValue.succeeded) {
+			 	this.isLoading = false;
+			 	this.landingPageInfo = returnValue.result;
 
-				// Now we can update the information on the product buttons as well
-				this._updateLeftBar();
-			}
+			 	// Now we can update the information on the product buttons as well
+			 	this._updateLeftBar();
+			 }
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
