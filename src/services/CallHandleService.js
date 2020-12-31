@@ -180,4 +180,8 @@ export class CallHandleService extends ServiceBase {
 	verifySecurityQuestions(response, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.serviceCallHelper.asyncCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
 	}
+
+	itaVerification(cifNumber, connectionID, errorHandler = null) {
+		return this.serviceCallHelper.asyncCall(this.channelService.itaVerification(cifNumber, connectionID), `itaVerification`, errorHandler);
+	}
 }

@@ -3,6 +3,7 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { SignalRClient } from 'platform/core';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -56,7 +57,12 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	constructor() {
-		super();
+		super({
+			baseUrlKey: `serviceURIs.signalRUrl`,
+			hubName: `itahub`,
+			useAuthentication: true,
+			keepAlive: true
+		});
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
@@ -66,9 +72,12 @@ export class VerifyCaller extends Component {
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 
+		this.connectionID = ``;
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.signalRClient = SignalRClient.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 
@@ -94,7 +103,8 @@ export class VerifyCaller extends Component {
 			timeLeft: { type: String },
 			notVerified: { type: Boolean },
 			xdsMessage: { type: String },
-			itaFailedCount: { type: Number }
+			itaFailedCount: { type: Number },
+			connectionID: { type: String }
 		};
 	}
 
@@ -113,6 +123,8 @@ export class VerifyCaller extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
+		this._itaVerification();
+
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
 				itaAttempts: 0,
@@ -122,7 +134,7 @@ export class VerifyCaller extends Component {
 
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
-	
+
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			this.itaTimer = this._startTimer();
 		}
@@ -148,7 +160,19 @@ export class VerifyCaller extends Component {
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 			}
-		} 
+		}
+	}
+
+	async _itaVerification() {
+		this.signalRClient.startConnection();
+		this.connectionID = this.signalRClient.getconnectionID();
+
+		if (this.connectionID) {
+			const returnValue = await this.callHandleService.itaVerification(this.callerInformation.cifNumber, this.connectionID);
+			if (returnValue.succeeded) {
+				this._startTimer();
+			}
+		}
 	}
 
 	_skipClick() {
@@ -376,7 +400,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
-		return this.renderMode !== RENDER_MODE.VERIFY_CALLER 
+		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
 				<horizon-caller-dialog
@@ -394,7 +418,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderSecurityQuestionsDialog() {
-		return this.renderMode !== RENDER_MODE.SECURITY_QUESTIONS 
+		return this.renderMode !== RENDER_MODE.SECURITY_QUESTIONS
 			? html``
 			: html`
 				<horizon-security-question 
@@ -408,8 +432,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderEndCallModal() {
-		return this.renderMode !== RENDER_MODE.END_CALL 
-			? html`` 
+		return this.renderMode !== RENDER_MODE.END_CALL
+			? html``
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"

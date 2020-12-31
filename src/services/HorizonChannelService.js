@@ -278,5 +278,9 @@ export class HorizonChannelService extends Service {
 			`IsCallerVerified=${clientInfo.isCallerVerified}`);
 	}
 
+	itaVerification(cifNumber, connectionID) {
+		return super.httpClient.get(`/clientcare/call/${this.version}/ita-verification?CifNumber=${cifNumber}&` + `ConnectionId=${connectionID}`);
+	}
+
 
 }
