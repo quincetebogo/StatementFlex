@@ -3,7 +3,7 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { SignalRClient } from 'platform/core';
+import { SignalRService } from 'app/services/SignalRService';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -57,12 +57,7 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	constructor() {
-		super({
-			baseUrlKey: `serviceURIs.signalRUrl`,
-			hubName: `itahub`,
-			useAuthentication: true,
-			keepAlive: true
-		});
+		super();
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
@@ -77,7 +72,7 @@ export class VerifyCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.signalRClient = SignalRClient.getInstance();
+		this.SignalRService = SignalRService.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 
@@ -164,8 +159,8 @@ export class VerifyCaller extends Component {
 	}
 
 	async _itaVerification() {
-		this.signalRClient.startConnection();
-		this.connectionID = this.signalRClient.getconnectionID();
+		this.SignalRService.startConnection();
+		this.connectionID = this.SignalRService.getconnectionID();
 
 		if (this.connectionID) {
 			const returnValue = await this.callHandleService.itaVerification(this.callerInformation.cifNumber, this.connectionID);
