@@ -9,9 +9,9 @@ import { Component, css, html } from 'platform/elements';
  * 
  * ```html
  * <horizon-card-art .card="${this.card}">
- *	<capitec-content-box slot="cardAction">
- * 		Card Action for your card art has to be coded here
- *	</capitec-content-box>
+ *   <capitec-content-box slot="cardAction">
+ *       Card Action for your card art has to be coded here
+ *   </capitec-content-box>
  * </horizon-card-art>
  * ```
  * @prop {"True"|"False"|Boolean} disableHover This will disable hover functionality
@@ -55,7 +55,7 @@ export class CardArt extends Component {
 			card: { type: Object },
 			disableHover: { type: Boolean },
 			cardArtSVG: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -66,7 +66,7 @@ export class CardArt extends Component {
 		super.connectedCallback();
 
 		// Loads the card art svg file dynamically
-		let { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
+		const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
 		this.type = this.cardArtComponents[this.card.cardArt].type;
 		this.cardArtSVG = frameCardArt(this.card);
 	}
@@ -316,7 +316,7 @@ export class CardArt extends Component {
 							   gap="clear"
 							   halign="right"
 							   valign="top"
-							   class="${this.card.tapToPayStatus == null ? `hide` : `show`}">
+							   class="${this.card.tapToPayStatus === null ? `hide` : `show`}">
 					<capitec-label label="Tap to Pay"
 								   type="default">
 					</capitec-label>
