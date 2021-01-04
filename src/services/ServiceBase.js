@@ -50,14 +50,14 @@ export class ServiceBase {
 	 *
 	 *
 	 * @param {Promise<*>} channelServiceCallFunc A Promise that returns the result of a channel service call
-	 * @param {string} methodName The method name of the channel service call being invoked (for logging purposes)
+	 * @param {string} caller The method name of the channel service call being invoked (for logging purposes)
 	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
 	 * @param {string} [correlationId] CorrellationId for tracing the call in logs
 	 * @returns {Promise<ReturnValue>} A promise for the return value of the completed web service call
 	 * @memberof ServiceBase
 	 */
-	async wrapCall(channelServiceCallFunc, methodName, errorHandlerFunc = null, maxAttempts = 3) {
+	async wrapCall(channelServiceCallFunc, caller, errorHandlerFunc = null, maxAttempts = 3) {
 		const returnValue = {
 			succeeded: false,
 			result: null
@@ -71,18 +71,18 @@ export class ServiceBase {
 	
 				this._toggleBusyFlag();
 		
+				// we want each attempt to be sequential so disable es-lint warning
 				// eslint-disable-next-line no-await-in-loop
 				returnValue.result = await channelServiceCallFunc;
 				returnValue.succeeded = true;
 
 			} catch (exception) {
-				// console.log(`DEBUG: ${exception}, ${methodName}`);
 				this._logException(exception);
 				
 				if (exception instanceof HttpStatusError) {
 					switch (exception.status) {
-						case 403: 
-							tryCount = maxAttempts; // Fail immediately
+						case 403: // Forbidden - 
+							tryCount = maxAttempts; // Fail immediately, no retries
 							break;
 
 						default:
