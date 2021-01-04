@@ -4,6 +4,13 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
+const DEFAULT_SUBTITLE = {
+	SAVINGS_ACCOUNT: `Know what you get, know what you pay`,
+	SAVINGS_PLAN: `Let your money make money`,
+	INSURE: `One plan, more cover`,
+	CREDIT: `Rethink credit, realise dreams`
+}
+
 /**
  *
  *
@@ -21,7 +28,7 @@ export class ProductButtonPanel extends Component {
 		this.disableNavigation = false;
 		this.subtitle = {};
 		this.detail = {};
-        this.currentPage = ``;
+		this.currentPage = ``;
 	}
 
 	/**
@@ -36,7 +43,7 @@ export class ProductButtonPanel extends Component {
 			disableNavigation: { type: Boolean },
 			subtitle: { type: Object },
 			detail: { type: Object },
-            currentPage: { type: String }
+			currentPage: { type: String }
 		};
 	}
 
@@ -77,21 +84,13 @@ export class ProductButtonPanel extends Component {
 	}
 
 	onInsureClick() {
-		
+
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToInsureProduct();
 		} else {
 			let state = this.horizonStore.recoverState();
-
-			if (!state.callerInformation.hasInsuranceProducts) {
-				this.horizonRouter.navigateToInsureProspectiveClient();
-			}
-			else {
-				this.horizonRouter.navigateToInsureExistingClient();
-			}
-			this.horizonStore.saveState(state);
+			this.horizonRouter.navigateToLandingPage(state.incomingCallDetails.ivrOption.value, state.callerInformation.hasInsuranceProducts);
 		}
-
 	}
 
 	onCreditClick() {
@@ -106,8 +105,8 @@ export class ProductButtonPanel extends Component {
                                                 type="transact"
                                                 label="Savings Account"
                                                 currentPage="${this.currentPage}"
-							                    subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
-							                    detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}" 
+							                    subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : DEFAULT_SUBTITLE.SAVINGS_ACCOUNT}"
+							                    detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
                                                 icon="product/transact-white"
 							                    @click="${() => this.onSavingsAccountClick()}">
 						</horizon-product-tile>
@@ -115,16 +114,16 @@ export class ProductButtonPanel extends Component {
                                                 type="save"
                                                 label="Savings Plan"
                                                 currentPage="${this.currentPage}"
-						                        subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : `Let your money make money`}"
-						                        icon="product/save-white"
+							                    subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : DEFAULT_SUBTITLE.SAVINGS_PLAN}"
+							                    icon="product/save-white"
                                                 detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
-						                        @click="${() => this.onSavingsPlanClick()}">
+							                    @click="${() => this.onSavingsPlanClick()}">
 						</horizon-product-tile>
 						<horizon-product-tile class="product-button"
                                                 type="insure"
                                                 label="Insure"
                                                 currentPage="${this.currentPage}"
-							                    subtitle="${this.subtitle.insure ? this.subtitle.insure : `One plan, more cover`}" 
+							                    subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}" 
                                                 icon="product/insure-white"
 							                    detail="${this.detail.insure ? this.detail.insure : ``}" 
                                                 @click="${() => this.onInsureClick()}">
@@ -133,9 +132,9 @@ export class ProductButtonPanel extends Component {
                                                 type="credit"
                                                 label="Credit"
                                                 currentPage="${this.currentPage}"
-							                    subtitle="${this.subtitle.credit ? this.subtitle.credit : `Rethink credit, realise dreams`}"
-							                    icon="product/credit-white"
-                                                detail="${this.detail.credit ? this.detail.credit : ``}" ?detailIcon="${false}"
+							                    subtitle="${this.subtitle.credit ? this.subtitle.credit : DEFAULT_SUBTITLE.CREDIT}"
+                                                icon="product/credit-white"
+							                    detail="${this.detail.credit ? this.detail.credit : ``}" ?detailIcon="${false}"
 							                    @click="${() => this.onCreditClick()}">
 						</horizon-product-tile>
 						</div>

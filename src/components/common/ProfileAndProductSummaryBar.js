@@ -50,7 +50,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.subtitle = {};
 		this.detail = null;
 		this.isBusy = false;
-        this.currentPage = ``;
+		this.currentPage = ``;
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -77,8 +77,8 @@ export class ProfileAndProductSummaryBar extends Component {
 			hasFavourites: { type: Boolean },
 			subtitle: { type: Object },
 			detail: { type: Object },
-            isBusy: { type: Boolean },
-            currentPage: { type: String }
+			isBusy: { type: Boolean },
+			currentPage: { type: String }
 		};
 	}
 
@@ -105,7 +105,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
-            this.currentPage = state.leftBarButtonConfig.currentPage;
+			this.currentPage = state.leftBarButtonConfig.currentPage;
 		}
 	}
 
@@ -127,7 +127,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_favouritesClicked() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToLandingPage('Transact', this.state.callerInformation.hasInsuranceProducts);
 	}
 	// ---------
 	// RENDERING
@@ -156,8 +156,11 @@ export class ProfileAndProductSummaryBar extends Component {
 		<section class="left-card">
 			<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
 			${this._renderFavourites()}
-			<horizon-product-button-panel .subtitle="${this.subtitle}" .currentPage="${this.currentPage}" .detail="${this.detail}"
-				?disablenavigation=${true}>
+			<horizon-product-button-panel
+                    .subtitle="${this.subtitle}" 
+                    .currentPage="${this.currentPage}"
+			        .detail="${this.detail}"
+                    ?disablenavigation=${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}
@@ -166,8 +169,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		if (this.hasFavourites) {
 			return html`
 				<horizon-favourites-tile 
-                    class="favourites-button" 
-                    label="Favourites" 
+                    class="favourites-button"
+                    label="Favourites"
                     subtitle="Transact, dispute, cards and more"
 					currentPage="${this.currentPage}" @click="${() => this._favouritesClicked()}">
 				</horizon-favourites-tile>`;
