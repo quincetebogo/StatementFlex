@@ -108,6 +108,7 @@ export class CallerInfoBar extends Component {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
