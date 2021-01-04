@@ -144,58 +144,25 @@ export class LandingPage extends View {
 
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		this.callStatus = `CALL-IN-PROGRESS`;
-		const state = { callStatus: this.callStatus };
+		this.incomingCallDetails = new IncomingCallDetails(
+			newCallInfo.incomingTelephoneNumber,
+			newCallInfo.incidentReferenceNumber,
+			newCallInfo.incidentRecId,
+			newCallInfo.voiceReferenceNumber,
+			newCallInfo.agentTelephoneNumber,
+			newCallInfo.ivrOptionCode
+		);
+
+		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
 		this.horizonStore.saveState(state);
 
-		this.incomingCallDetails = new IncomingCallDetails();
-
-		switch (newCallInfo.ivrOptionCode) {
-			case `Insure`:
-			case `Transact`:
-				// TODO: below code will actuall fire for all needs but StopCard. 
-				// TODO: Temporary code until the contract is available for loading the client/non-client search dialog
-				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
-
-				if (!forceSearchDialog && this.callHandleService.isConfirmedCaller(acceptedCall)) {
-					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-					this.confirmedCaller = acceptedCall;
-				} else {
-					this.renderMode = RENDER_MODE.SEARCH_CALLER;
-				}
-				break;
-			case `StopCard`: // StopCard is a special case and runs the following code 
-				// Based on need and verfication status, dispatch to the appropriate dialog
-				if (!forceSearchDialog && this.callHandleService.isConfirmedCaller(acceptedCall)) {
-					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-					this.incomingCallDetails.ivrOption.possibleValues = acceptedCall.ivrOption.possibleValues;
-					this.incomingCallDetails.ivrOption.value = newCallInfo.ivrOptionCode;
-					this.confirmedCaller = acceptedCall;
-
-					this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-				} else if (forceSearchDialog || this.callHandleService.isUnverifiedCaller(acceptedCall)) {
-					this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-					tempFixIVROption(this.incomingCallDetails.ivrOption);
-					this.incomingCallDetails.ivrOption.value = this.incomingCallDetails.ivrOptionCode;
-					this.confirmedCaller = null;
-
-					this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
-				} else {
-					this.confirmedCaller = null;
-					this.renderMode = RENDER_MODE.PAGE_ONLY;
-
-					// If accept call fails, we will be stuck on the landing page and unable to take calls unless
-					// we flag the call that we tied to take as complete...
-					this.desktopAgentService.callComplete();
-
-					this.horizonRouter.navigateToSystemError();
-				}
-				break;
-			default:
-				this._AddCallInfo(this.incomingCallDetails, newCallInfo);
-				tempFixIVROption(this.incomingCallDetails.ivrOption);
-				this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		if (acceptedCall.callerInformation && !forceSearchDialog) {
+			this.confirmedCaller = acceptedCall.callerInformation;
+			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
+		} else {
+			this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		}
 	}
 
@@ -277,15 +244,6 @@ export class LandingPage extends View {
 		this.desktopAgentService.callComplete();
 		this.horizonRouter.navigateToInitialSystemError();
 		return true;
-	}
-
-	_AddCallInfo(model, newCallInfo) {
-		model.incomingTelephoneNumber = newCallInfo.incomingTelephoneNumber;
-		model.incidentReferenceNumber = newCallInfo.incidentReferenceNumber;
-		model.incidentRecId = newCallInfo.incidentRecId;
-		model.agentTelephoneNumber = newCallInfo.agentTelephoneNumber;
-		model.ivrOptionCode = newCallInfo.ivrOptionCode;
-		model.voiceReferenceNumber = newCallInfo.voiceReferenceNumber;
 	}
 
 	// ---------
