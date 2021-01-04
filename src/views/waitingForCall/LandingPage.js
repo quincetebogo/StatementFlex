@@ -168,7 +168,8 @@ export class LandingPage extends View {
 
 	_clientIdentified(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.confirmedCaller = event.detail.identifiedClient;
+		this.confirmedCaller = event.detail.confirmedCaller;
+
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 

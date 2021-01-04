@@ -240,10 +240,20 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
-			detail: {
-				identifiedClient: identifiedClient,
-				incomingCallDetails: this.incomingCallDetails
+			detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller 
 			}
 		}));
 	};
