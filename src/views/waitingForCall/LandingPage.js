@@ -63,9 +63,11 @@ export class LandingPage extends View {
 		this.incomingCallDetails = new IncomingCallDetails();
 
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
-		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._onDesktopAgentup());
-		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._onPromptStartDesktopAgent());
+		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
+		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
 
+		// Subscribe to state changes. Erase state once the call status indicates that the
+		// call has ended.
 		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
 			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
 			if (this.callStatus === `CALL-ENDED`) {
@@ -111,17 +113,22 @@ export class LandingPage extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_onDesktopAgentup() {
+	_promptStartDesktopAgent() {
+		// The desktop agent service must be running in order to use Horizon.
+		// If it is not running display an error dialog
+		this.renderMode = RENDER_MODE.START_AGENT;
+	}
+
+	_desktopAgentup() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
+			// Dismiss error dialog once the Desktop Agent is up and running
 			this.renderMode = RENDER_MODE.PAGE_ONLY;
 		}
 	}
 
-	_onPromptStartDesktopAgent() {
-		this.renderMode = RENDER_MODE.START_AGENT;
-	}
-
 	async _onNewCall(newCallInfo) {
+		// Create an incident in STrack for the new incoming call. This was intially planned to happen
+		// in the desktop agent but has moved here. 
 		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
@@ -143,6 +150,7 @@ export class LandingPage extends View {
 	}
 
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
+		// Set up state for the incoming call
 		this.callStatus = `CALL-IN-PROGRESS`;
 		this.incomingCallDetails = new IncomingCallDetails(
 			newCallInfo.incomingTelephoneNumber,
@@ -156,6 +164,8 @@ export class LandingPage extends View {
 		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
 		this.horizonStore.saveState(state);
 
+		// Display the Confirmed Caller Details Dialog, Stop Card Search Dialog or General Search Dialog based on 
+		// the IVR Option and whether the incoming number is recognised
 		if (acceptedCall.callerInformation && !forceSearchDialog) {
 			this.confirmedCaller = acceptedCall.callerInformation;
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
@@ -167,6 +177,7 @@ export class LandingPage extends View {
 	}
 
 	_clientIdentified(event) {
+		// Once the search dialogs identify a client we can go to the Confirm Caller Details Dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
 
@@ -174,6 +185,8 @@ export class LandingPage extends View {
 	}
 
 	_nonClientCaptured(event) {
+		// If a non-client is calling in (determined on the general search dialog), 
+		// navigate to the appopriate landing page
 		const callerInformation = new CallerInformation(
 			``,
 			``,
@@ -199,11 +212,13 @@ export class LandingPage extends View {
 	}
 
 	_otherNeedSelected(event) {
+		// Switching from stop card search to general search dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
 	_stopCardNeedSelected(event) {
+		// Switching from general search dialog to stop card search dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
@@ -219,7 +234,6 @@ export class LandingPage extends View {
 	// ---------------
 
 	async _GetLandingPageData() {
-
 		const returnValue = await this.initialiseService.initialise();
 		const landingPageData = returnValue.result;
 
