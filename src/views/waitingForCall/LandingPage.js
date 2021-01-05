@@ -10,7 +10,6 @@ import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
-import { tempFixIVROption } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/buttons/Button';
 
