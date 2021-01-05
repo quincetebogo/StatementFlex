@@ -81,7 +81,10 @@ export class ServiceBase {
 				
 				if (exception instanceof HttpStatusError) {
 					switch (exception.status) {
-						case 403: // Forbidden - 
+						case 400: // Bad Request
+						case 401: // Unauthorized
+						case 403: // Forbidden 
+						case 501: // Not implemented
 							tryCount = maxAttempts; // Fail immediately, no retries
 							break;
 
@@ -108,8 +111,8 @@ export class ServiceBase {
 	
 	_logException(exception) {
 		const message = exception.requestModel 
-			? `${exception.message}, Url=${exception.requestUrl}, request=${exception.requestModel}`
-			: `${exception.message}, Url= ${exception.requestUrl}`;
+			? `${exception.message}, Url=${exception.requestUrl}, request=${exception.requestModel}, output=${exception.output}`
+			: `${exception.message}, Url= ${exception.requestUrl}, output=${exception.output}`;
 
 		if (exception instanceof TypeError) {
 			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);

@@ -102,8 +102,6 @@ export class ConfirmCallerDetails extends Component {
 	// -------------------
 	connectedCallback() {
 		super.connectedCallback();
-
-		// Short hand references for reaching into the incoming data model
 		this._initCallerInformation();
 	}
 
@@ -146,8 +144,8 @@ export class ConfirmCallerDetails extends Component {
 			this._navigateToLandingPage();
 		} else {
 			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-				this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
-				this.confirmedCaller.callerInformation.cifNumber.value,
+				this.confirmedCaller.southAfricanIDNumber, 
+				this.confirmedCaller.cifNumber,
 				false
 			);
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
@@ -159,7 +157,7 @@ export class ConfirmCallerDetails extends Component {
 		// the results of the search
 		// the results of the search
 		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.confirmedCaller = event.detail.identifiedClient;
+		this.confirmedCaller = event.detail.confirmedCaller;
 
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
@@ -243,7 +241,7 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.livesIn,
 			this.confirmedCaller.name,
 			this.confirmedCaller.southAfricanIDNumber,
-			this.incomingCallDetails.incomingTelephoneNumber,
+			this.confirmedCaller.verifiedTelephoneNumber,
 			``,
 			``,
 			``,
@@ -258,8 +256,8 @@ export class ConfirmCallerDetails extends Component {
 
 	async _navigateToLandingPage() {
 		this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-			this.confirmedCaller.callerInformation.southAfricanIDNumber.value, 
-			this.confirmedCaller.callerInformation.cifNumber.value,
+			this.confirmedCaller.southAfricanIDNumber, 
+			this.confirmedCaller.cifNumber,
 			false
 		);
 

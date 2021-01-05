@@ -132,11 +132,12 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
-			renderMode: { type: Number },
-			alertBannerMessage: { type: String },
-			identificationMethods: { type: Object }
+
+			isBusy: { attribute: false },
+			errMessage: { attribute: false },
+			renderMode: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
 		};
 	}
 
@@ -429,12 +430,17 @@ export class StopCardSearchCaller extends Component {
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
 				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" class="id-options"
+					<capitec-select 
+						id="identificationMethods" 
+						error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" 
+						class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
-						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
-					</capitec-select>
+						id-field="key" 
+						display-field="displayText" 
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" 
+						?hidden=${isHidden(this.identificationMethods)}>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">

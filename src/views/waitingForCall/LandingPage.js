@@ -264,14 +264,15 @@ export class LandingPage extends View {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
 		return html`
 		${this._renderMiddleSection()}
 		${this._renderLoadingIndicator()}
-		${this._renderConfirmedUser()}
-		${this._renderUnverifiedUser()}
+		${this._renderConfirmCallerDetailsDialog()}
+		${this._renderSearchDialog()}
 		${this._renderStartAgentPrompt()}
 		`;
 	}
@@ -290,7 +291,7 @@ export class LandingPage extends View {
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
-	_renderConfirmedUser() {
+	_renderConfirmCallerDetailsDialog() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller-details 
@@ -301,7 +302,7 @@ export class LandingPage extends View {
 		}
 	}
 
-	_renderUnverifiedUser() {
+	_renderSearchDialog() {
 		if (this.renderMode === RENDER_MODE.STOP_CARD_SEARCH) {
 			return html`
 				<horizon-stop-card-search-caller 
