@@ -30,9 +30,9 @@ export class DebiCheckMandates extends Component {
 		super();
 
 		// private properites
-		this.pendingMandates = {};
-		this.activeMandates = {};
-		this.inActiveMandates = {};
+		this.pendingMandates = [];
+		this.activeMandates = [];
+		this.inActiveMandates = [];
 		this.filterBy = 0;
 	}
 
@@ -51,7 +51,8 @@ export class DebiCheckMandates extends Component {
 	static get properties() {
 		return {
 			debiCheckMandates: { type: Object },
-			filterBy: { type: Number }
+			
+			filterBy: { attribute: false }
 		};
 	}
 
@@ -108,18 +109,18 @@ export class DebiCheckMandates extends Component {
 	}
 	
 	_formatCollectionDate(collectionDate) {
-		return `${collectionDate.day}${getDateOrdinal(collectionDate.day)} of each ${collectionDate.frequency}`
+		return `${collectionDate.day}${getDateOrdinal(collectionDate.day)} of each ${collectionDate.frequency}`;
 	}
 
 	_formatCollectionAmount(amount) {
-		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, " ")}`;
+		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
 	_lookForSearchTex(status, searchText) {
 		return this.debiCheckMandates.filter(item => item.mandateStatus === status &&
 											  (item.mandateName.toLowerCase().indexOf(searchText) !== -1 ||
-											   parseInt(item.amount) === parseInt(searchText) ||
-											   parseInt(item.maxCollectionAmount) === parseInt(searchText)));
+											   parseInt(item.amount, 10) === parseInt(searchText, 10) ||
+											   parseInt(item.maxCollectionAmount, 10) === parseInt(searchText, 10)));
 	}
 
 	_viewInfo() {
@@ -363,7 +364,7 @@ export class DebiCheckMandates extends Component {
 		if (this.pendingMandates.length > 0) {
 				return html`
 				${this._renderHeader(`Pending`)}
-				<capitec-table displayMode="Full" .items="${this.pendingMandates}" hideHeader=${true}>
+				<capitec-table displayMode="Full" .items="${this.pendingMandates}" ?hideHeader=${true}>
 					<capitec-table-column label="" field="" type="text" 
 										  .renderer="${(rowData) => this._renderRows(rowData)}">
 					</capitec-table-column>
@@ -378,7 +379,7 @@ export class DebiCheckMandates extends Component {
 		if (this.activeMandates.length > 0) {
 			return html`
 				${this._renderHeader(`Active`)}
-				<capitec-table displayMode="Full" .items="${this.activeMandates}" hideHeader=${true}>
+				<capitec-table displayMode="Full" .items="${this.activeMandates}" ?hideHeader=${true}>
 					<capitec-table-column label="" field="" type="text" 
 										  .renderer="${(rowData) => this._renderRows(rowData)}">
 					</capitec-table-column>
@@ -392,7 +393,7 @@ export class DebiCheckMandates extends Component {
 		if (this.inActiveMandates.length > 0) {
 			return html`
 				${this._renderHeader(`InActive`)}
-				<capitec-table displayMode="Full" .items="${this.inActiveMandates}" hideHeader=${true}>
+				<capitec-table displayMode="Full" .items="${this.inActiveMandates}" ?hideHeader=${true}>
 					<capitec-table-column label="" field="" type="text" 
 										  .renderer="${(rowData) => this._renderRows(rowData)}">
 					</capitec-table-column>
@@ -422,16 +423,16 @@ export class DebiCheckMandates extends Component {
 						   gap="none"
 						   halign="left"
 						   valign="center">
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width_223)} ${unsafeCSS(TABLE_ROW_CSS.border_Right)}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
 					${this._renderCell(rowData.mandateName, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width_185)}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width_185)}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
 					${this._renderCell(`Collection date`, this._formatCollectionDate(rowData.collectionDate))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width_98)}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
 					${this._renderCell(`Status`, rowData.mandateStatus)}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
@@ -445,16 +446,16 @@ export class DebiCheckMandates extends Component {
 		
 		const fontColor = getFontColor(value1, value2);
 		return html`
-			<capitec-group style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Group)}"
+			<capitec-group style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellGroup).toString()}"
 						   layout="vertical"
 						   gap="none"
 						   halign="left"
 						   valign="top">
-				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Label)}"
+				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellLabel).toString()}"
 							   label="${value1}"
 							   type="default">
 				</capitec-label>
-				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cell_Label_Strong)} ${unsafeCSS(fontColor)}"
+				<capitec-label style="${unsafeCSS(TABLE_ROW_CELL_CSS.cellLabelStrong).toString()} ${unsafeCSS(fontColor).toString()}"
 							   label="${value2}"
 							   type="default">
 				</capitec-label>
@@ -463,20 +464,20 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status) {
-		return status !== `Pending` ? 
-				html`<capitec-label type="subtitle"
+		return status !== `Pending` 
+			? html`<capitec-label type="subtitle"
 									label="View Info"
-									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._viewInfo()}">
-					 </capitec-label>` :
-				html`<capitec-label type="subtitle"
+					 </capitec-label>` 
+			: html`<capitec-label type="subtitle"
 									label="Decline"
-									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._decline()}">
 					 </capitec-label>
 					 <capitec-label type="subtitle"
 					 				label="Approve"
-									style="${TABLE_ROW_CELL_CSS.cell_Button}"
+									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve()}">
 					 </capitec-label>`;
 	}
