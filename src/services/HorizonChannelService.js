@@ -54,22 +54,29 @@ export class HorizonChannelService extends Service {
 		
 		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
 
-		const response = await super.httpClient.request({
-			method: `POST`,
-			url: url,
-			model: model,
-			customHeaders: customHeaders,
-			correlationId: correlationId,
-			isBinary: isBinary,
-			controller: controller,
-			sla: sla,
-			timeout: timeout,
-			caller: caller
-		});
-
-		this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
-
-		return response;
+		try {
+			const response = await super.httpClient.request({
+				method: `POST`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
+	
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+	
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
+		}
 	}
 
 	/**
@@ -89,11 +96,18 @@ export class HorizonChannelService extends Service {
 			
 		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
-		const response = await super.httpClient.get(url, customHeaders, correlationId);
-	
-		this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+		try {
+			const response = await super.httpClient.get(url, customHeaders, correlationId);
 
-		return response;
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = null;
+			exception.requestCaller = caller;
+			throw exception;
+		}
 	}
 
 	// --------------
@@ -103,26 +117,6 @@ export class HorizonChannelService extends Service {
 	// -------------------
 	// Accept Call Methods
 	// -------------------
-
-	/**
-	 * @deprecated use acceptCall instead
-	 *
-	 * @param {Object} incomingCallData Incoming call information
-	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
-	 * @memberof HorizonChannelService
-	 */
-	caller(incomingCallData) {
-		const url = `/clientcare/card/${this._version}/caller`;
-		const model = {
-			'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
-			'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
-			'ivrOptionCode': incomingCallData.IvrOptionCode,
-			'incidentReferenceNumber': incomingCallData.incidentReferenceNumber,
-			'agentTelephoneNumber': incomingCallData.agentTelephoneNumber
-		};
-
-		return this._post(url, model, null, `caller`);
-	}
 
 	/**
 	 * Records the information on an incoming call
