@@ -155,8 +155,7 @@ export class InsureInformation extends Component {
 			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
-                subtitle: ``,
-                currentPage: "insure",
+				subtitle: ``,
 				detail: ``
 			}
 		};

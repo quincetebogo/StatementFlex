@@ -27,9 +27,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		console.log(`ProfileAndProductSummaryBar - constructor`);
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -49,14 +46,16 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.hasFavourites = false;
 		this.subtitle = {};
 		this.detail = null;
-		this.isBusy = false;
-		this.currentPage = ``;
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
 		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
 		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
-		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites)
+		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
 	// ----------
@@ -65,7 +64,10 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	/**
 	 *
-	 *
+	 * @property {Object} miniProfile Object holds client profile information
+	 * @property {Boolean} disableNavigation Flag to disable navigation to client need landing pages
+	 * @property {Boolean} disableNavigation Flag to disable navigation to client need landing pages
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof ProfileAndProductSummaryBar
@@ -76,9 +78,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			disableNavigation: { type: Boolean },
 			hasFavourites: { type: Boolean },
 			subtitle: { type: Object },
-			detail: { type: Object },
-			isBusy: { type: Boolean },
-			currentPage: { type: String }
+			detail: { type: Object }
 		};
 	}
 
@@ -88,7 +88,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.state = this.horizonStore.recoverState();
 		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
 	}
 
@@ -105,7 +104,6 @@ export class ProfileAndProductSummaryBar extends Component {
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
-			this.currentPage = state.leftBarButtonConfig.currentPage;
 		}
 	}
 
@@ -121,14 +119,15 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.detail = buttonConfig.detail;
 	}
 
-
 	// --------- 
 	// PRIVATE
 	// ---------
 
 	_favouritesClicked() {
-		this.horizonRouter.navigateToLandingPage('Transact', this.state.callerInformation.hasInsuranceProducts);
+		const state = this.horizonStore.recoverState();
+		this.horizonRouter.navigateToLandingPage(`Transact`, state.callerInformation.hasInsuranceProducts);
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -154,25 +153,31 @@ export class ProfileAndProductSummaryBar extends Component {
 	_webTemplate() {
 		return html`
 		<section class="left-card">
-			<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
+			<horizon-mini-profile 
+				.miniProfile="${this.miniProfile}">
+			</horizon-mini-profile>
+			
 			${this._renderFavourites()}
+			
 			<horizon-product-button-panel
-                    .subtitle="${this.subtitle}" 
-                    .currentPage="${this.currentPage}"
-			        .detail="${this.detail}"
-                    ?disablenavigation=${true}>
+				.subtitle="${this.subtitle}"
+				.detail="${this.detail}"
+				?disablenavigation=${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}
 
 	_renderFavourites() {
+		const activePage = this.horizonRouter._getCurrentRoute();
+
 		if (this.hasFavourites) {
 			return html`
-				<horizon-favourites-tile 
-                    class="favourites-button"
-                    label="Favourites"
-                    subtitle="Transact, dispute, cards and more"
-					currentPage="${this.currentPage}" @click="${() => this._favouritesClicked()}">
+				<horizon-favourites-tile
+					class="favourites-button"
+					label="Favourites"
+					subtitle="Transact, dispute, cards and more"
+					@click="${() => this._favouritesClicked()}"
+					.selected=${activePage.title === `Favourites`}>
 				</horizon-favourites-tile>`;
 		};
 		return html``;

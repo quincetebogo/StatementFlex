@@ -76,6 +76,10 @@ export class HorizonRouter {
 		};
 	}
 
+	_getCurrentRoute() {
+		return this.router.currentRoute;
+	}
+
 	// --------------------
 	// Navigation functions  
 	// --------------------
@@ -288,7 +292,7 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-existing-client`,
-		title: `InsureVerifiedExistingClientView`,
+		title: `Insure`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
@@ -323,7 +327,7 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-prospective-client`,
-		title: `InsureProductVerifiedProspective`,
+		title: `Insure`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
 		load: () => import(`../views/insure/ProspectiveClient`),

@@ -41,7 +41,6 @@ export class HorizonProductTile extends Component {
 		this.detailIcon = false;
 		this.tileIcon = ``;
 		this.icon = ``;
-        this.currentPage = ``;
 	}
 
 	/**
@@ -53,7 +52,7 @@ export class HorizonProductTile extends Component {
 	 * @property {String} [type="transact"] - The product display type, i.e. "transact", "save", "credit", "insure".
 	 * @property {Boolean} [navigational=false] - Whether to display navigation arrow for product tile
 	 * @property {String} [icon] - Whether to display/hide icon based on value
-     * @property {String} [currentPage] - Current landing page which is to display
+     * @property {String} [selected] - Boolean value tells menu is in active state or not
 	 * Note that "default" is still supported, but deprecated.
 	 */
 	static get properties() {
@@ -67,7 +66,7 @@ export class HorizonProductTile extends Component {
 			detailIcon: { type: Boolean },
 			tileIcon: {type: String},
 			icon: { type: String },
-            currentPage: {type: String}
+			selected: {type: String}
 		};
 	}
 
@@ -347,24 +346,27 @@ export class HorizonProductTile extends Component {
 	_webTemplate() {
 
 		return html`
-			<button class="tile ${this.type ? this.type : `transact`} ${this.type == this.currentPage ? `selected` : ``}" @click="${this._tileClicked}}"
-				@keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
-				<div class="tile-container">
-					${this.tileIcon  ?  html`<img src = "${this.tileIcon}" class="fav-icon" />` :
-										html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
-												<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
-											</div>`
-					}
-					<div class="heading">
-						<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
-						<div class="subtitle">${this.subtitle}</div>
+			<button 
+				class="tile ${this.type ? this.type : `transact`} ${this.selected ? `selected` : ``}"
+				@click="${this._tileClicked}}"
+				@keydown="${e => this._keyDown(e)}"
+				tabindex="${this.disabled ? `` : 0}">
+					<div class="tile-container">
+						${this.tileIcon ? html`<img src = "${this.tileIcon}" class="fav-icon" />` :
+										  html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
+													<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
+												</div>`
+						}
+						<div class="heading">
+							<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
+							<div class="subtitle">${this.subtitle}</div>
+						</div>
+						<div class="detail${this.navigational ? ` nav` : ``}">
+							${this.detail}
+							${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
+							${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
+						</div>
 					</div>
-					<div class="detail${this.navigational ? ` nav` : ``}">
-						${this.detail}
-						${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
-						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
-					</div>
-				</div>
 			</button>
 		`;
 	}

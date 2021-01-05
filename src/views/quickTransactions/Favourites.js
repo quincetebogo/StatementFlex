@@ -233,7 +233,6 @@ export class Favourites extends View {
 			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
-				currentPage: "favourites",
 				subtitle: subtitle ? subtitle : ``,
 				detail: detail ? detail : ``
 			}
