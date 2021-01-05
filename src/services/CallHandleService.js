@@ -74,7 +74,7 @@ export class CallHandleService extends ServiceBase {
 	 * @memberof CallHandleService
 	 */
 	caller(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.caller(acceptCallData), `caller`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.acceptCall(acceptCallData), `caller`, errorHandler, autoRetries);
 	}
 
 	/**

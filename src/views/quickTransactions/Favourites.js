@@ -4,6 +4,8 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+// TODO: Below mocks import has to be removed when service call is implemented
+import { mockCards } from 'app/mocks/CardLimitsMock';
 import { mockMandates } from 'app/mocks/DebiCheckMockData';
 
 import 'app/components/dialogs/common/EndCallSession';
@@ -11,6 +13,7 @@ import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/quickTransactions/FavouriteTransactions';
+import 'app/components/quickTransactions/UpdateCardLimits';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -19,7 +22,8 @@ const RENDER_MODE = Object.freeze({
 	ASSIGN: 3,
 	VERIFY_NOW: 4,
 	ALERT_MODAL: 5,
-	DEBI_CHECK: 6
+	DEBI_CHECK: 6,
+	UPDARTE_CARD_LIMITS: 7
 });
 
 /**
@@ -34,6 +38,7 @@ export class Favourites extends View {
 	// --------------
 	// INITIALISATION
 	// --------------
+
 	constructor() {
 		super();
 
@@ -56,6 +61,7 @@ export class Favourites extends View {
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
+		this.cards = [];
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -81,6 +87,7 @@ export class Favourites extends View {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
 	connectedCallback() {
 		super.connectedCallback();
 
@@ -182,6 +189,7 @@ export class Favourites extends View {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
 	async _initialise() {
 		this._updateTopBar();
 
@@ -197,15 +205,15 @@ export class Favourites extends View {
 				isCallerVerified: this.callerInformation.verificationStatus === `verified`
 			};
 
-			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
+			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
-			if (returnValue.succeeded) {
-				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
+			 if (returnValue.succeeded) {
+			 	this.isLoading = false;
+			 	this.landingPageInfo = returnValue.result;
 
-				// Now we can update the information on the product buttons as well
-				this._updateLeftBar();
-			}
+			 	// Now we can update the information on the product buttons as well
+			 	this._updateLeftBar();
+			 }
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
@@ -317,6 +325,8 @@ export class Favourites extends View {
 	}
 
 	_updateCardLimits() {
+		this.cards = mockCards;
+		this.renderMode = RENDER_MODE.UPDARTE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
 	}
 
@@ -343,6 +353,14 @@ export class Favourites extends View {
 	// ---------
 	// RENDERING
 	// ---------
+
+	/**
+	 * Generates the view stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the view.
+	 */
 	static get styles() {
 		return [
 			super.styles,
@@ -381,6 +399,8 @@ export class Favourites extends View {
 		switch (this.renderMode) {
 			case RENDER_MODE.DEBI_CHECK:
 				return html`${this._renderDebiCheckMandates()}`;
+			case RENDER_MODE.UPDARTE_CARD_LIMITS:
+				return html`${this._renderUpdateCardLimits()}`;
 			case RENDER_MODE.MAIN_PAGE:
 			default:
 				return html`${this._renderFavouritesLandingPage()}`;
@@ -444,6 +464,15 @@ export class Favourites extends View {
 				.debiCheckMandates="${this.debiCheckMandates}"
 				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</debi-check-mandates>
+		`;
+	}
+
+	_renderUpdateCardLimits() {
+		return html`
+			<horizon-update-card-limits
+				.cards="${this.cards}"
+				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-update-card-limits>
 		`;
 	}
 }

@@ -138,6 +138,13 @@ export class DebiCheckMandates extends Component {
 	// RENDERING
 	// ---------
 	
+	/**
+	 * Generates the component stylesheet.
+	 *
+	 * @readonly
+	 * @static
+	 * @returns {css} CSS for the component.
+	 */
 	static get styles() {
 		return [
 			super.styles,

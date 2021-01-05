@@ -135,8 +135,8 @@ export class HorizonChannelService extends Service {
 			const url = `/clientcare/call/${this._version}/accept-call?` +
 				`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
 				`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-				`ivrOptionCode=${incomingCallData.ivrOption}&` +
-				`incidentReferenceNumber=${incomingCallData.incidentNo}&` +
+				`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
+				`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
 				`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
 
 			return this._get(url, null, `acceptCall`);
