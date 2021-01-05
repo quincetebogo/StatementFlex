@@ -91,9 +91,10 @@ export class AddCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			addCallerDialog: { type: Object },
-			isBusy: { type: Boolean },
-			renderMode: { type: Number },
-			validationFailed: { type: Boolean }
+
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			validationFailed: { attribute: false }
 		};
 	}
 
@@ -108,12 +109,14 @@ export class AddCallerDetails extends Component {
 		this.ivrOption = this.addCallerDialog.ivrOption;
 
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
+
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
 		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.
+
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
 		this.backButton = this.addCallerDialog.backButton;
@@ -125,7 +128,7 @@ export class AddCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onKeyPress(e) {
+	_keyPress(e) {
 		if (e.detail.new !== ``) {
 			this[e.currentTarget.id].errorMessage = ``;
 		}
@@ -148,13 +151,13 @@ export class AddCallerDetails extends Component {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
 					callerInformation: new CallerInformation(
-						this.confirmedCaller.callerInformation.cifNumber.value,
-						this.confirmedCaller.callerInformation.birthdate.value,
-						this.confirmedCaller.callerInformation.languagePreference.value,
-						this.confirmedCaller.callerInformation.livesIn.value,
-						this.confirmedCaller.callerInformation.name.value,
-						this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-						this.incomingCallDetails.incomingTelephoneNumber, 
+						this.confirmedCaller.cifNumber,
+						this.confirmedCaller.birthdate,
+						this.confirmedCaller.languagePreference,
+						this.confirmedCaller.livesIn,
+						this.confirmedCaller.name,
+						this.confirmedCaller.southAfricanIDNumber,
+						this.confirmedCaller.verifiedTelephoneNumber, 
 						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
 						this.cellPhoneTextField.value,
 						``,
@@ -178,14 +181,7 @@ export class AddCallerDetails extends Component {
 		}));
 	};
 
-	_onIvrOptionChanged(e) {
-		this.addCallerDialog.ivrOption.value = e.detail.new;
-		this.confirmedCaller.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-	}
-
-	_onEndCall() {
+	_endCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -309,10 +305,10 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 					<horizon-caller-dialog
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
+                            .incomingCallDetails="${this.incomingCallDetails}" 
+                            .isNeedSelectable=${false}
+						    .headerLabel="${HEADER_LABEL}" 
+                            @on-end-call="${() => this._endCall()}">
 						<div slot="body" class="main">
 							${this._renderErrorMessage()}
 							${this._renderAddCallerDetails()}
@@ -339,9 +335,9 @@ export class AddCallerDetails extends Component {
 	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
-				<capitec-alert-banner 
-								type="error" 
-								label="${this.alertBannerMessage}">
+				<capitec-alert-banner
+                                type="error"
+                                label="${this.alertBannerMessage}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -350,7 +346,7 @@ export class AddCallerDetails extends Component {
 	_renderAddCallerDetails() {
 		return html`
 			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
-			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+				<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
@@ -360,7 +356,7 @@ export class AddCallerDetails extends Component {
 										.disabled="${isDisabled(this.firstNameTextField)}"
 										tabindex="${getTabIndex(this.firstNameTextField)}"
 										@value-changed="${(e) => this._valueChanged(e)}" 
-										@key-input="${(e) => this._onKeyPress(e)}">
+										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -372,7 +368,7 @@ export class AddCallerDetails extends Component {
 										.disabled="${isDisabled(this.surnameTextField)}"
 										tabindex="${getTabIndex(this.surnameTextField)}"
 										@value-changed="${(e) => this._valueChanged(e)}"
-										@key-input="${(e) => this._onKeyPress(e)}">
+										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -384,21 +380,21 @@ export class AddCallerDetails extends Component {
 										?hidden=${isHidden(this.cellPhoneTextField)}
 										.disabled="${isDisabled(this.cellPhoneTextField)}"
 										tabindex="${getTabIndex(this.cellPhoneTextField)}"
-										@key-input="${(e) => this._onKeyPress(e)}"
+										@key-input="${(e) => this._keyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-text-field><br>
 				</div>
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
-									label="Choose relationship type (Optional)"
-									value="${getValue(this.nonClientRelationship)}"
-									.items="${this.nonClientRelationship.possibleValues}"
-									@value-changed="${(e) => this._valueChanged(e)}"
-									tabindex="${getTabIndex(this.nonClientRelationship)}"
-									?hidden=${isHidden(this.nonClientRelationship)}
-									.disabled="${isDisabled(this.nonClientRelationship)}"
-									id-field="key"
-									display-field="value">
+                                    label="Choose relationship type (Optional)"
+						            value="${getValue(this.nonClientRelationship)}"
+                                    .items="${this.nonClientRelationship.possibleValues}"
+						            @value-changed="${(e) => this._valueChanged(e)}"
+                                    tabindex="${getTabIndex(this.nonClientRelationship)}"
+						            ?hidden=${isHidden(this.nonClientRelationship)} 
+                                    .disabled="${isDisabled(this.nonClientRelationship)}"
+						            id-field="key"
+                                    display-field="value">
 					</capitec-select>
 				</div>
 			</content-box>`;

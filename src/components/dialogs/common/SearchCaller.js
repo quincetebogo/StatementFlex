@@ -125,7 +125,7 @@ export class SearchCaller extends Component {
 
 		RegExp();
 
-		this.renderMode = -1;
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		this.isBusy = false;
 		this.clientType = -1;
 		this.errMessage = {
@@ -140,29 +140,6 @@ export class SearchCaller extends Component {
 
 		this.headerLabel = HEADER_LABEL;
 
-		// TODO: Remove this hardcoded values, once the channel service is ready
-		this.identificationMethods = [
-			{
-				"key": `0`,
-				"value": `ID/Passport Number`
-			},
-			{
-				"key": `1`,
-				"value": `Foreign Passport Number`
-			},
-			{
-				"key": `2`,
-				"value": `Account Number`
-			},
-			{
-				"key": `3`,
-				"value": `Reference Number`
-			},
-			{
-				"key": `4`,
-				"value": `Verified Cellphone Number`
-			}
-		];
 		this.searchType = { "key": ``, "value": `` };
 		this.searchValue = ``;
 		this.nameValue = ``;
@@ -190,10 +167,12 @@ export class SearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			renderMode: { type: Number },
-			clientType: { type: Number },
-			alertBannerMessage: { type: String }
+
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			clientType: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
 		};
 	}
 
@@ -203,16 +182,7 @@ export class SearchCaller extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		// Below references needs to be pulled from services, for now it's fetched from incoming call details
-		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
-		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-
+		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
@@ -243,8 +213,8 @@ export class SearchCaller extends Component {
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				incidentNo: this.incidentReferenceNumber,
-				agentTelephoneNumber: this.agentTelephoneNumber,
+				incidentNo: this.incomingCallDetails.incidentReferenceNumber,
+				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
 				searchValue: this.searchValue
@@ -259,7 +229,7 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} 
+			}
 		}
 	}
 
@@ -326,6 +296,37 @@ export class SearchCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _loadSearchOptions() {
+		const clientInfo = {
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
+			"incidentReferenceNumber": this.incomingCallDetails.incidentReferenceNumber,
+			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
+		};
+
+		const returnValue = await this.callHandleService.searchOptions(clientInfo);
+		const options = returnValue.result;
+
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		}
+	}
+
+	extractIdentificationMethods(identificationMethods) {
+
+		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
+
+			Object.assign(identificationMethod, identificationMethod.value);
+			delete identificationMethod.value;
+			return identificationMethod;
+		});
+		return identificationMethods;
+	}
 
 	_validateNonClientFields() {
 		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
@@ -420,10 +421,20 @@ export class SearchCaller extends Component {
 	}
 
 	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
-			detail: {
+			detail: { 
 				incomingCallDetails: this.incomingCallDetails,
-				identifiedClient: identifiedClient
+				confirmedCaller: confirmedCaller 
 			}
 		}));
 	};
@@ -519,8 +530,9 @@ export class SearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${this.headerLabel}"
-						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._needChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
+						.headerLabel="${this.headerLabel}" @on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this._renderAlertBanner()}
@@ -571,9 +583,15 @@ export class SearchCaller extends Component {
 					</capitec-label>
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 						<div class="search-field-row">
-							<capitec-select id="searchType" class="id-options" label="Choose identification method"
-								.items="${this.identificationMethods}" .value="${this.searchType}" id-field="key" display-field="value"
-								@value-changed="${(e) => this._valueChanged(e)}" error="${this.errMessage.searchType}">
+							<capitec-select 
+								id="searchType" 
+								error="${this.errMessage.searchType}"
+								label="Choose identification method"
+								class="id-options" 
+								.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+								id-field="key" 
+								display-field="displayText"
+								@value-changed="${(e) => this._valueChanged(e)}">
 							</capitec-select>
 						</div>
 						<div class="search-field-row">
@@ -628,24 +646,24 @@ export class SearchCaller extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button 
-					type="primary" 
-					@click="${(e) => this._onSearchClient(e)}" label="Search Client"
+				<capitec-button
+                    type="primary"
+                    @click="${(e) => this._onSearchClient(e)}" label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
-				<capitec-button 
-					type="primary" 
-					@click="${(e) => this._onContinue(e)}" 
-					label="Continue" 
-					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
+				<capitec-button
+                    type="primary"
+                    @click="${(e) => this._onContinue(e)}"
+                    label="Continue"
+                    ?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session 
-				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
+			<horizon-end-call-session
+                @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
 				.incomingCallDetails="${this.incomingCallDetails}">
 			</horizon-end-call-session>`;
 	}

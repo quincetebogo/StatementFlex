@@ -60,23 +60,6 @@ export class CallHandleService extends ServiceBase {
 	 * @property {object} result - The result of the service call if succeeded is true
 	 */
 
-
-	/**
-	 * Determines if the caller is phoning from a verified number. The returned object is 
-	 * different depending on if the incoming call is from an unverified number or not.
-	 * 
-	 * @deprecated use the new acceptCall instead
-	 * 
-	 * @param {object} acceptCallData Information about the incoming call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	caller(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.caller(acceptCallData), `caller`, errorHandler, autoRetries);
-	}
-
 	/**
 	 * Determines if the caller is phoning from a verified number. 
 	 * 
@@ -87,7 +70,7 @@ export class CallHandleService extends ServiceBase {
 	 * @memberof CallHandleService
 	 */
 	acceptCall(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.acceptCall(acceptCallData), `acceptCall`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.acceptCall(acceptCallData), `acceptCall`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -99,7 +82,7 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing search options and the result of the channel service call
 	 */
 	searchOptions(incomingCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchOptions(incomingCallData), `searchOptions`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.searchOptions(incomingCallData), `searchOptions`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -111,7 +94,7 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing client information and the result of the channel service call
 	 */
 	searchCaller(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.searchCaller(clientInfo), `searchCaller`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.searchCaller(clientInfo), `searchCaller`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -124,7 +107,7 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	endCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.endCallOptions(endCallDetails), `endCallOptions`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.endCallOptions(endCallDetails), `endCallOptions`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -138,7 +121,7 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
 	loadEndCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.loadEndCallOptions(endCallDetails), `loadEndCallOptions`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.loadEndCallOptions(endCallDetails), `loadEndCallOptions`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -146,15 +129,15 @@ export class CallHandleService extends ServiceBase {
 	 * 
 	 * @param { object } details An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
 	endCall(details, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const incidentRecId = details.incidentRecId;
 		const endCallReasonKey = details.endCallReason.key;
 
-		return this.serviceCallHelper.asyncCall(this.channelService.endCall(incidentRecId, endCallReasonKey), `endCall`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.endCall(incidentRecId, endCallReasonKey), `endCall`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -166,18 +149,18 @@ export class CallHandleService extends ServiceBase {
 	 * @returns {Promise<ReturnValue>} An object containing list of security questions & answers and the result of the channel service call
 	 */
 	xdsQuestions(clientID, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
 	}
 
 	/**
 	 *  Verifies collected answers for security questions against XDS
 	 * 
 	 * @param {*} response An object containing the responses/answers to the asked security questoins
-	 * @param {*} errorHandler An optional error handler
-	 * @param {*} autoRetries The number of times the call should be retried if it fails
+	 * @param {errorHandlerCallback} errorHandler An optional error handler
+	 * @param {Number} autoRetries The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
 	 */
 	verifySecurityQuestions(response, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.serviceCallHelper.asyncCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
 	}
 }
