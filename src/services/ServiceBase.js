@@ -50,14 +50,14 @@ export class ServiceBase {
 	 *
 	 *
 	 * @param {Promise<*>} channelServiceCallFunc A Promise that returns the result of a channel service call
-	 * @param {string} methodName The method name of the channel service call being invoked (for logging purposes)
+	 * @param {string} caller The method name of the channel service call being invoked (for logging purposes)
 	 * @param {function} [errorHandlerFunc=null] An error handler to invoke should the web service call fail
 	 * @param {number} [maxAttempts=3] The number of attempts to retry a service call before invoking the error handler
 	 * @param {string} [correlationId] CorrellationId for tracing the call in logs
 	 * @returns {Promise<ReturnValue>} A promise for the return value of the completed web service call
 	 * @memberof ServiceBase
 	 */
-	async wrapCall(channelServiceCallFunc, methodName, errorHandlerFunc = null, maxAttempts = 3) {
+	async wrapCall(channelServiceCallFunc, caller, errorHandlerFunc = null, maxAttempts = 3) {
 		const returnValue = {
 			succeeded: false,
 			result: null
@@ -65,19 +65,35 @@ export class ServiceBase {
 	
 		let tryCount = 0;
 	
-		while (tryCount < maxAttempts) {
+		while (!returnValue.succeeded && tryCount < maxAttempts) {
 			try {
 				tryCount++;
 	
 				this._toggleBusyFlag();
 		
+				// we want each attempt to be sequential so disable es-lint warning
 				// eslint-disable-next-line no-await-in-loop
 				returnValue.result = await channelServiceCallFunc;
 				returnValue.succeeded = true;
 
 			} catch (exception) {
-				// console.log(`DEBUG: ${exception}, ${methodName}`);
-				this._logException(exception, methodName);
+				this._logException(exception);
+				
+				if (exception instanceof HttpStatusError) {
+					switch (exception.status) {
+						case 400: // Bad Request
+						case 401: // Unauthorized
+						case 403: // Forbidden 
+						case 501: // Not implemented
+							tryCount = maxAttempts; // Fail immediately, no retries
+							break;
+
+						default:
+							// Do nothing
+							break;
+					}
+				}
+
 				if (tryCount >= maxAttempts) {
 					this._handleException(errorHandlerFunc, exception);
 				}
@@ -93,13 +109,17 @@ export class ServiceBase {
 	// PRIVATE METHODS
 	// ---------------
 	
-	_logException(exception, methodName) {
+	_logException(exception) {
+		const message = exception.requestModel 
+			? `${exception.message}, Url=${exception.requestUrl}, request=${exception.requestModel}, output=${exception.output}`
+			: `${exception.message}, Url= ${exception.requestUrl}, output=${exception.output}`;
+
 		if (exception instanceof TypeError) {
-			this._logger.log(`error`, exception.message, methodName, exception.correlationId);
+			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
 		} else if (exception instanceof HttpStatusError) {
-			this._logger.log(`error`, `${exception.status}: ${exception.message}`, methodName, exception.correlationId);
+			this._logger.log(`error`, `${exception.status}: ${message}`, exception.requestCaller, exception.correlationId);
 		} else {
-			this._logger.log(`error`, exception.message, methodName, exception.correlationId);
+			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
 		}
 	}
 	
