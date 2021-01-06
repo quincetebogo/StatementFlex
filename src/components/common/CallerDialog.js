@@ -122,6 +122,7 @@ export class CallerDialog extends Component {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {

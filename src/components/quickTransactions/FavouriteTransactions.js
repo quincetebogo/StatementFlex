@@ -48,7 +48,7 @@ export class FavouriteTransactions extends Component {
 			callerInformation: { type: Object },
 			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
-			verificationStatus: { type: String }, 
+			verificationStatus: { type: String },
 
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -89,7 +89,12 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_optionSelectedClick(selectedOption) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
+		this.dispatchEvent(new CustomEvent(`option-click`, {
+			detail: {
+				option: selectedOption,
+				stopPropagation: selectedOption !== `stop-card` && this.verificationStatus !== `verified`
+			}
+		}));
 	};
 
 	// ---------
