@@ -1,7 +1,3 @@
-/*
- *       Horizon Stop Card Search Dialog for Stop Card
- *
- */
 import { Component, css, html } from 'platform/elements';
 import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -11,16 +7,14 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
-import 'app/components/dialogs/common/SearchCaller'; // TODO: Get rid of direct access to Insure Search caller (actually generic search caller)
 
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
-const RENDER_MODE = {
+const RENDER_MODE = Object.freeze({
 	STOP_CARD_SEARCH: 0,
-	END_CALL: 1,
-	SEARCH_CALLER: 2
-};
+	END_CALL: 1
+});
 
 const HEADER_LABEL = `Search Caller Details`;
 
@@ -83,6 +77,19 @@ const REGEX_PATTERNS = {
 	}
 };
 
+
+/**
+ * Horizon Stop Card Search Dialog for Stop Card
+ *
+ * Events Raised 
+ * -------------
+ * other-need-selected
+ * client-identified
+ * 
+ * @export
+ * @class StopCardSearchCaller
+ * @extends {Component}
+ */
 export class StopCardSearchCaller extends Component {
 
 	// --------------
@@ -125,11 +132,12 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
-			renderMode: { type: Number },
-			alertBannerMessage: { type: String },
-			identificationMethods: { type: Object }
+
+			isBusy: { attribute: false },
+			errMessage: { attribute: false },
+			renderMode: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
 		};
 	}
 
@@ -216,18 +224,12 @@ export class StopCardSearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
 		if (this.ivrOption.value !== `StopCard`) {
-			this.renderMode = RENDER_MODE.SEARCH_CALLER;
+			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails
+				}
+			}));
 		}
-	}
-
-	_onNonClientCapturedInsure(event) {
-		this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-			detail: event.detail
-		}));
-	}
-
-	_onClientIdentfiedInsure(data) {
-		this._raiseOnClientIdentified(data.detail.identifiedClient);
 	}
 
 	_onEndCall() {
@@ -239,10 +241,20 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
-		this.dispatchEvent(new CustomEvent(`on-client-identified`, {
-			detail: {
-				identifiedClient: identifiedClient,
-				incomingCallDetails: this.incomingCallDetails
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller 
 			}
 		}));
 	};
@@ -385,8 +397,9 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
-						@on-end-call="${() => this._onEndCall()}" @on-need-changed="${(event) => this._onNeedChanged(event)}">
+					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
 							${this.renderLoadingIndicator()}
@@ -397,8 +410,6 @@ export class StopCardSearchCaller extends Component {
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this.renderEndCallModal()}`;
-			case RENDER_MODE.SEARCH_CALLER:
-				return html`${this.renderInsureSearchModal()}`;
 			default:
 		}
 	}
@@ -419,12 +430,17 @@ export class StopCardSearchCaller extends Component {
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
 				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" class="id-options"
+					<capitec-select 
+						id="identificationMethods" 
+						error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" 
+						class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
-						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
-					</capitec-select>
+						id-field="key" 
+						display-field="displayText" 
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" 
+						?hidden=${isHidden(this.identificationMethods)}>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
@@ -463,14 +479,6 @@ export class StopCardSearchCaller extends Component {
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}">
 			</horizon-end-call-session>`;
-	}
-
-	renderInsureSearchModal() {
-		return html`
-			<horizon-search-caller .incomingCallDetails="${this.incomingCallDetails}"
-				@on-non-client-captured="${event => this._onNonClientCapturedInsure(event)}"
-				@on-client-identified="${(data) => this._onClientIdentfiedInsure(data)}">
-			</horizon-search-caller>`;
 	}
 }
 

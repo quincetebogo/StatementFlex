@@ -5,7 +5,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
@@ -237,9 +237,10 @@ export class SecurityQuestionsFailed extends Component {
 			case RENDER_MODE.VERIFY_CALLER_FAILED:
 				return html`
 					<horizon-caller-dialog
-                                .incomingCallDetails="${this.incomingCallDetails}"
-                                .headerLabel="${HEADER_LABEL}"
-						        @on-end-call="${() => this._onEndCall()}">
+                            .incomingCallDetails="${this.incomingCallDetails}"
+                            .isNeedSelectable=${false}
+						    .headerLabel="${HEADER_LABEL}"
+                            @on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}
 							${this._renderOtherOptions()}
@@ -264,9 +265,9 @@ export class SecurityQuestionsFailed extends Component {
 					<capitec-alert-banner type="unsuccessful-red">
 						${this.xdsMessage}
 					</capitec-alert-banner>
-					<capitec-group layout="vertical" 
-                                    halign="center" 
-                                    valign="top"
+					<capitec-group layout="vertical"
+                                    halign="center"
+                                    valign="top" 
                                     gap="clear"
                                     id="notification-status-group">
 						<img src="/images/warning.svg" class="sms-svg"/>
@@ -289,12 +290,12 @@ export class SecurityQuestionsFailed extends Component {
                                             iconSize="default"
 						                    @click="${() => this._retrySecurityQuestions()}">
 					</horizon-option-button>
-					<horizon-option-button label="Skip Verification"
-                                            icon="system/arrow-right-action" 
+					<horizon-option-button label="Skip Verification" 
+                                            icon="system/arrow-right-action"
                                             iconSize="default"
 						                    @click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button label="Verify via Banking App"
+					<horizon-option-button label="Verify via Banking App" 
                                             icon="system/cellphone-action"
                                             iconSize="default"
 						                    @click="${() => this._verifyUsingMobileApp()}">

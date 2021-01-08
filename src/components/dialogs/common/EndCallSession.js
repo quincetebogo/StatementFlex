@@ -9,13 +9,15 @@ import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
-import 'app/components/common/HorizonCallerDialog';
+import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 
 /**
- * The end call dialog allows the agent to select an end call reason (cause code) for recording against 
- * an incident.
+ *
+ * Events Raised 
+ * -------------
+ * cancel
  *
  * @export
  * @class EndCallSession
@@ -112,7 +114,7 @@ export class EndCallSession extends Component {
 		if (returnValue.succeeded) {
 			const state = { callStatus: `CALL-ENDED` };
 			this.horizonStore.setState(state);
-			this.horizonRouter.navigateToLandingPage();
+			this.horizonRouter.navigateToWaitingForCall();
 		}
 	}
 
@@ -239,8 +241,11 @@ export class EndCallSession extends Component {
 
 	_webTemplate() {
 		return html`
-			<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .headerLabel="${HEADER_LABEL}"
-				.displayButton="${false}">
+			<horizon-caller-dialog
+                        .incomingCallDetails="${this.incomingCallDetails}"
+                        .isNeedSelectable=${false}
+				        .headerLabel="${HEADER_LABEL}" 
+                        .displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderChooseEndCallReason()}
@@ -257,9 +262,12 @@ export class EndCallSession extends Component {
 	_renderChooseEndCallReason() {
 		return html`
 			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
-			<horizon-radio-button-group class="radio-button" .radioButtonsAvailable="${this.endCallReasons}" @value-change="${(e) => {
-							this._onValueChanged(e);
-						}}">
+			<horizon-radio-button-group
+                class="radio-button"
+                .radioButtonsAvailable="${this.endCallReasons}"
+                @value-change="${(e) => {
+				this._onValueChanged(e);
+			}}">
 			</horizon-radio-button-group>
 		`;
 	}
@@ -267,10 +275,18 @@ export class EndCallSession extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._onCancel()}">
+				<capitec-button
+                    id="id-cancel-button"
+                    type="clear"
+                    label="Cancel"
+                    @click="${() => this._onCancel()}">
 				</capitec-button>
 			
-				<capitec-button id="id-continue-button" type="primary" label="Continue" @click="${() => this._onReasonSelected()}">
+				<capitec-button
+                    id="id-continue-button"
+                    type="primary"
+                    label="Continue"
+                    @click="${() => this._onReasonSelected()}">
 				</capitec-button>
 			</capitec-group>
 		`;

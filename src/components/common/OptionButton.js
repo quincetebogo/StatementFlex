@@ -209,11 +209,20 @@ export class OptionButton extends Component {
 		`;
 	}
 
-	/*
-	*/
-
 	renderIcon() {
-		return this.icon ? html`<img class="icon-size" src="./platform/icons/${this.icon}.svg">` : html`<img class="icon-size" src="${this.image}">`;
+		if (this.icon) {
+			return html`<img 
+					class="icon-size" 
+					src="./platform/icons/${this.icon}.svg" 
+					@click="${(e) => this._buttonClicked(e)}"
+					@keydown="${(e) => this._keyDown(e)}">`;
+		} 
+
+		return html`<img 
+					class="icon-size" 
+					src="${this.image}"  
+					@click="${(e) => this._buttonClicked(e)}"
+					@keydown="${(e) => this._keyDown(e)}">`;
 	}
 
 	renderBadge() {

@@ -26,7 +26,7 @@ const RENDER_MODE = {
 };
 
 /**
- * The InsureInformation comopnent displays information on insurance products. The component is used by 
+ * The InsureInformation component displays information on insurance products. The component is used by 
  * the non-client, unverified prospective client  and verified prospective client views.
  * 
  * @export
@@ -45,9 +45,6 @@ export class InsureInformation extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		
-		this.benefitScreen = true;
-		this.coverScreen = false;
-		this.claimScreen = false;
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
 		this.records = [
@@ -62,29 +59,28 @@ export class InsureInformation extends Component {
 		this.displayNotification = true;
 		this.displayToast = true;
 		this.isReassigned = false;
-
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.nonClient = state.nonClient;
-		this.unverifiedCaller = state.unverifiedCaller;
-		this.verifiedCaller = state.verifiedCaller;
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
+
+	/**
+	 * These are all private properties. There are no inputs other that state to this screen.
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof InsureInformation
+	 */
 	static get properties() {
 		return {
-			benefitScreen: { type: Boolean },
-			coverScreen: { type: Boolean },
-			claimScreen: { type: Boolean },
 			renderMode: { type: Number },
 			displayNotification: { type: Boolean },
 			displayCoverNotification: { type: Boolean },
 			displayClaimNotification: { type: Boolean },
 			displayToast: { type: Boolean },
-			assignReason: { type: Number }
+			assignReason: { type: Number },
+			verificationStatus: { type: String }
 		};
 	}
 
@@ -113,9 +109,9 @@ export class InsureInformation extends Component {
 			}
 		);
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._onVerifyNowClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClientClick());
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -130,7 +126,7 @@ export class InsureInformation extends Component {
 		this.displayCoverNotification = true;
 		this.displayClaimNotification = true;
 
-		window.setTimeout(() => this._onToggleToastDisplay(), 3000);
+		window.setTimeout(() => this._toggleToast(), 3000);
 	}
 
 
@@ -144,13 +140,13 @@ export class InsureInformation extends Component {
 	_updateMiniProfile() {
 		const state = { 
 			miniProfile: {
-				name: this.callerInformation.name,
+				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
 				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				livesIn: this.callerInformation.livesIn,
 				languagePreference: this.callerInformation.languagePreference,
 				birthday: this.callerInformation.birthdate,
-				showButtons: true,
+				showButtons: this.callerInformation.verificationStatus === `verified`,
 				isConfirmed: this.callerInformation.isConfirmed,
 				isVerified: this.callerInformation.verificationStatus === `verified`,
 				verificationFailed: this.callerInformation.verificationStatus === `failed`,
@@ -170,34 +166,32 @@ export class InsureInformation extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_onCalculatePremium() {
+	_calculatePremiumClick() {
 		this.renderMode = RENDER_MODE.CALCULATE_PREMIUM;
 	}
 
-	_onEndCallSession() {
-		this.renderMode = RENDER_MODE.END_CALL;
-	}
-
-	_onCancelEndCall() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	_premiumCalculationDone(e) {
+		if (e.detail.assign) {
+			this.assignReason = e.detail.assignReason;
+			this.renderMode = RENDER_MODE.ASSIGN;
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
 	}
 
 	_onCloseClick() {
-		console.log(`closable button clicked`);
 		this.displayNotification = false;
 	}
 
 	_onCloseCover() {
-		console.log(`closable cover alert clicked`);
 		this.displayCoverNotification = false;
 	}
 
 	_onCloseClaimAlert() {
-		console.log(`closable claim alert clicked`);
 		this.displayClaimNotification = false;
 	}
 
-	_onToggleToastDisplay() {
+	_toggleToast() {
 		this.displayToast = false;
 	}
 
@@ -224,17 +218,36 @@ export class InsureInformation extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_onVerifyNowClick() {
+	_verifyClientClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
-	
-	_onCalculatedPremium(e) {
-		if (e.detail.assign) {
-			this.assignReason = e.detail.assignReason;
-			this.renderMode = RENDER_MODE.ASSIGN;
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationSkipped(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.verificationStatus = event.detail.callerInformation.verificationStatus;
+		this._updateMiniProfile();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_endCallClick() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	_endCallCancelled() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------
@@ -565,18 +578,18 @@ export class InsureInformation extends Component {
 
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
-		return html`
-		
+		return html`		
 			<capitec-card class="card">
 				<capitec-title-bar class="title-bar" type="insure">
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button class="calculate-button" type="white" label="Calculate Premium"
-						@click="${() => this._onCalculatePremium()}">
+						@click="${() => this._calculatePremiumClick()}">
 					</capitec-button>
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs">
@@ -836,7 +849,7 @@ export class InsureInformation extends Component {
 				<horizon-calculate-premium 
 					.incomingCallDetails="${this.incomingCallDetails}"
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-					@done="${(e) => this._onCalculatedPremium(e)}">
+					@done="${(e) => this._premiumCalculationDone(e)}">
 				</horizon-calculate-premium>`;
 		}
 		return html``;
@@ -880,7 +893,7 @@ export class InsureInformation extends Component {
 				${this._renderUnverifiedToast()}
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink href="#" label="Verify Now">
+					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClientClick()}">
 					</capitec-hyperlink>
 				</capitec-alert-banner>`;
 		}
@@ -953,13 +966,16 @@ export class InsureInformation extends Component {
 	}
 
 	_renderVerifyNowModal() {
-		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`<horizon-verify-caller 
-							.incomingCallDetails="${this.incomingCallDetails}"
-							.callerInformation="${this.callerInformation}">
-						</horizon-verify-caller>`;
-		}
-		return html``;
+		return this.renderMode !== RENDER_MODE.VERIFY_NOW 
+			? html``
+			: html`
+				<horizon-verify-caller 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@skip="${(e) => this._verificationSkipped(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
 	}
 }
 

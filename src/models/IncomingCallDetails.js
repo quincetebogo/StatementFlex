@@ -1,24 +1,48 @@
 /**
- * After an new call comes in, an IncomingCallDetails object must get passed to the
- * Confirmed Caller or the Search dialog. The dialogs expect an object with of this
- * model.
+ * IncomingCallDetails records the information on the incoming call. This object is preserved
+ * in state for the duration of the call.
  */
 export class IncomingCallDetails {
+
+	/**
+	 * Creates an instance of IncomingCallDetails.
+	 * 
+	 * @param {string} [incomingTelephoneNumber=``] The CLI (number of the incoming call)
+	 * @param {string} [incidentReferenceNumber=``] The STrack Incident Reference Number
+	 * @param {string} [incidentRecId=``] The STrack Incident Reference ID
+	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
+	 * @param {string} [agentTelephoneNumber=``] The agent's extension
+	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
+	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
+	 * @memberof IncomingCallDetails
+	 */
 	constructor(
 		incomingTelephoneNumber = ``, 
 		incidentReferenceNumber = ``, 
 		incidentRecId = ``, 
+		voiceReferenceNumber = ``,
 		agentTelephoneNumber = ``, 
 		ivrOptionCode = ``, 
 		ivrOption = { 
-						'possibleValues': [], 
-						'value': ``
+						'possibleValues': [
+							{
+								key: `StopCard`, value: `Stop Card`
+							},
+							{
+								key: `Insure`, value: `Insure`
+							},
+							{
+								key: `Transact`, value: `Transact`
+							}
+						], 
+						'value': ivrOptionCode
 				}
-		) {
+	) {
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
 		this.agentTelephoneNumber = agentTelephoneNumber;
+		this.voiceReferenceNumber = voiceReferenceNumber;
 
 		// The IVR Option selected in the telephony system
 		this.ivrOptionCode = ivrOptionCode;

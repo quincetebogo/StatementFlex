@@ -1,4 +1,4 @@
-import { ServiceBase } from 'app/services/ServiceBase';
+import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
 
 /**
  * Channel Service Methods for Insure related functionality
@@ -19,11 +19,11 @@ export class InsureService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	hasInsuranceProducts(insuranceClientInfo, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), errorHandler);
+	hasInsuranceProducts(insuranceClientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.hasInsuranceProducts(insuranceClientInfo), `hasInsuranceProducts`, errorHandler, autoRetries);
 	}
 
-	addNonClientDetails(incidentData, errorHandler = null) {
+	addNonClientDetails(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const nonClientDetailsRequest = {
 			'incidentRecId': incidentData.incidentRecId,
 			'ivrOptionCode': incidentData.ivrOptionCode,
@@ -33,15 +33,15 @@ export class InsureService extends ServiceBase {
 			'cellPhone': incidentData.cellPhone
 		};
 
-		return this.serviceCallHelper.asyncCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), errorHandler);
+		return this.wrapCall(this.channelService.addNonClientDetails(nonClientDetailsRequest), `addNonClientDetails`, errorHandler, autoRetries);
 	}
 
-	calculatePremiumDone(feedbackDetails, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.calculatePremiumDone(feedbackDetails), errorHandler);
+	calculatePremiumDone(feedbackDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.calculatePremiumDone(feedbackDetails), `calculatePremiumDone`, errorHandler, autoRetries);
 	}
 
-	InsureProducts(clientDetails, errorHandler = null) {
-		return this.serviceCallHelper.asyncCall(this.channelService.InsureProducts(clientDetails), errorHandler);
+	InsureProducts(clientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.InsureProducts(clientDetails), `InsureProducts`, errorHandler, autoRetries);
 	}
 
 }

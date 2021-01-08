@@ -29,8 +29,6 @@ export class InitialSystemError extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		const state = this.horizonStore.recoverState();
 	}
 
 	// --------------
