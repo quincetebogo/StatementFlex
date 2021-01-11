@@ -3,7 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
-import 'app/components/common/SuccessScreen'
+import 'app/components/common/SuccessScreen';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
@@ -27,7 +27,7 @@ export class DebiCheckSuccess extends View {
 	constructor() {
 		super();
 		this.renderMode = RENDER_MODE.DEBICHECK_SUCCESS;
-		this.mandateId = "";
+		this.mandateId = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 	}
@@ -59,9 +59,9 @@ export class DebiCheckSuccess extends View {
 
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
-			//TODO: mandate ID to be obtained from state.
-			this.mandateId = 'DISCLIFE 5130111776-21';
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			// TODO: mandate ID to be obtained from state.
+			this.mandateId = `DISCLIFE 5130111776-21`;
+		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -74,17 +74,17 @@ export class DebiCheckSuccess extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_onEndCallSession() {
+	_endCall() {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_doneClick() {
-		//TODO: Action to be added on left button Done click.
+		// TODO: Action to be added on left button Done click.
 		console.log(`Done is still to be developed`);
 	}
 
 	_debiCheckMandatesClick() {
-		//TODO: Action to be added on right button DebiCheckMandate click.
+		// TODO: Action to be added on right button DebiCheckMandate click.
 		console.log(`DebiCheck Mandate is still to be developed`);
 	}
 
@@ -207,6 +207,7 @@ export class DebiCheckSuccess extends View {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -216,7 +217,7 @@ export class DebiCheckSuccess extends View {
 		`;
 	}
 
-	_renderSuccessScreen(){
+	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen header="DebiCheck mandate approved" 
 									image="/images/transactions/debiCheckMandate.svg"
@@ -225,10 +226,17 @@ export class DebiCheckSuccess extends View {
 									toast="DebiCheck mandate declined."
 									@left-click=${() => this._doneClick()}
 									@right-click=${() => this._debiCheckMandatesClick()}>
-				<section id="id-error-msg" slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
+				<section 
+					id="id-error-msg" 
+					slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
 				</section>
-				<section id="id-option-button" slot="option-button">
-					<horizon-option-button class="button-margin" label="Transaction History" img-src="/images/history.svg">
+				<section 
+						id="id-option-button" 
+						slot="option-button">
+					<horizon-option-button 
+						class="button-margin" 
+						label="Transaction History" 
+						img-src="/images/history.svg">
 					</horizon-option-button>
 				</section>
 			</horizon-success-screen>
@@ -238,8 +246,9 @@ export class DebiCheckSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
 
