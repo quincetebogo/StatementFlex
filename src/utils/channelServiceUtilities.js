@@ -131,60 +131,6 @@ export function isNullorEmpty(fieldValue) {
 }
 
 /**
- * This function must be stripped out. It translates an IVR Option description to the key value
- *
- * @export
- * @param {*} ivrOptionDescription The full description of an IVR Option
- * @returns {undefined}
- */
-export function tempFixIVROptionValue(ivrOptionDescription) {
-	if (ivrOptionDescription === undefined) {
-		return;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(ivrOptionDescription, `value`)) {
-		if (ivrOptionDescription.value === `Stop Card`) {
-			ivrOptionDescription.value = `StopCard`;
-		}
-
-		if (ivrOptionDescription.value === `Insure`) {
-			ivrOptionDescription.value = `Insure`;
-		}
-
-		if (ivrOptionDescription.value === `Transact`) {
-			ivrOptionDescription.value = `Transact`;
-		}
-	}
-}
-
-/**
- * This function must be stripped out. It populates the provided ivrOption with a list of possible values.
- * This is only required until we have a channel service contract in place providing this functionality
- * @export
- * @param {*} ivrOption An ivrOptiun object containing an array of possible values
- * @returns {undefined}
- */
-export function tempFixIVROption(ivrOption) {
-	if (ivrOption === undefined) {
-		return;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(ivrOption, `possibleValues`)) {
-		ivrOption.possibleValues = [
-			{
-				key: `StopCard`, value: `Stop Card`
-			},
-			{
-				key: `Insure`, value: `Insure`
-			},
-			{
-				key: `Transact`, value: `Transact`
-			}
-		];
-	}
-}
-
-/**
  * Validate a field against a regular expression
  *
  * @export
@@ -200,4 +146,24 @@ export function validate(field, criteria) {
 	}
 
 	return 0;
+}
+
+/**
+ * Determine ordinal(st/nd/rd/th) for input date
+ *
+ * @export
+ * @param {*} date date value
+ * @returns {*} Ordinal fot the given date (1st, 2nd..)
+ */
+export function getDateOrdinal(date) {
+	if (date > 3 && date < 21) {
+		return `th`;
+	}
+
+	switch (date % 10) {
+		case 1: return `st`;
+		case 2: return `nd`;
+		case 3: return `rd`;
+		default: return `th`;
+	}
 }

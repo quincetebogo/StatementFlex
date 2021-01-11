@@ -38,6 +38,7 @@ const REGEX_CELLPHONE = {
  * Events Raised 
  * -------------
  * cancel
+ * confirm
  *  
  * @export
  * @class AddCallerDetails
@@ -59,7 +60,6 @@ export class AddCallerDetails extends Component {
 		this.incomingCallDetails = null;
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-		this.hasInsurance = false;
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
@@ -91,9 +91,10 @@ export class AddCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			addCallerDialog: { type: Object },
-			isBusy: { type: Boolean },
-			renderMode: { type: Number },
-			validationFailed: { type: Boolean }
+
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			validationFailed: { attribute: false }
 		};
 	}
 
@@ -105,28 +106,20 @@ export class AddCallerDetails extends Component {
 		super.connectedCallback();
 
 		// Short hand references for reaching into the incoming addCallerDialog model
-		this.voiceReferenceNumber = this.addCallerDialog.voiceReferenceNumber;
-
 		this.ivrOption = this.addCallerDialog.ivrOption;
 
 		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
+
 		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
 		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.
+
 		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
 		this.confirmButton = this.addCallerDialog.confirmButton;
 		this.backButton = this.addCallerDialog.backButton;
-
-		// confirmed Caller Model references
-		this.southAfricanIDNumber = this.confirmedCaller.callerInformation.southAfricanIDNumber;
-
-		// incomingCallDetails references
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
-		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
@@ -135,7 +128,7 @@ export class AddCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onKeyPress(e) {
+	_keyPress(e) {
 		if (e.detail.new !== ``) {
 			this[e.currentTarget.id].errorMessage = ``;
 		}
@@ -153,98 +146,31 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-
 		if (!this._validateData()) {
-			this._callerDetailsAdded();
+			this.dispatchEvent(new CustomEvent(`confirm`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails,
+					callerInformation: new CallerInformation(
+						this.confirmedCaller.cifNumber,
+						this.confirmedCaller.birthdate,
+						this.confirmedCaller.languagePreference,
+						this.confirmedCaller.livesIn,
+						this.confirmedCaller.name,
+						this.confirmedCaller.southAfricanIDNumber,
+						this.confirmedCaller.verifiedTelephoneNumber, 
+						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
+						this.cellPhoneTextField.value,
+						``,
+						this.nonClientRelationship.value,
+						true,
+						`unverified`,
+						true,
+						false,
+						false // not yet determined. 
+					)
+				}
+			}));
 		}
-	}
-
-	async _callerDetailsAdded() {
-		const confirmedCaller = {
-			idNumber: this.southAfricanIDNumber.value,
-			incomingTelephoneNumber: this.incomingTelephoneNumber.value,
-			voiceReferenceNumber: this.voiceReferenceNumber.value,
-			ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-			incidentReferenceNumber: this.incidentReferenceNumber,
-			incidentRecId: this.incidentRecId,
-			agentTelephoneNumber: this.agentTelephoneNumber,
-			nonClientFullName: `${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-			nonClientCellPhone: this.cellPhoneTextField.value,
-			nonClientIDNumber: ``,
-			nonClientRelationship: this.nonClientRelationship.value
-		};
-
-		await this._checkForInsuranceProducts();
-
-		const callerInformation = new CallerInformation(
-			this.confirmedCaller.callerInformation.cifNumber.value,
-			this.confirmedCaller.callerInformation.birthdate.value,
-			this.confirmedCaller.callerInformation.languagePreference.value,
-			this.confirmedCaller.callerInformation.livesIn.value,
-			this.confirmedCaller.callerInformation.name.value,
-			this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			this.incomingCallDetails.incomingTelephoneNumber, 
-			this.confirmedCaller.nonClientFullName,
-			this.confirmedCaller.nonClientCellPhone,
-			``,
-			this.confirmedCaller.nonClientRelationship,
-			true,
-			`unverified`,
-			true,
-			false,
-			this.hasInsurance 
-		);
-
-		if (this.ivrOption.value === `StopCard`) {
-
-			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-			const addedcallerdetails = returnValue.result;
-
-			const state = {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: callerInformation,
-				clientProfileDetails: addedcallerdetails
-			};
-
-			if (returnValue.succeeded) {
-				this.horizonStore.saveState(state);
-				this.horizonRouter.navigateToStopCard();
-			}
-		} else {
-			const state = {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: callerInformation
-			};
-
-			this.horizonStore.saveState(state);
-
-			switch (this.ivrOption.value) {
-				case `Insure`:
-					if (this.hasInsurance) {
-						this.horizonRouter.navigateToInsureExistingClient();
-					} else {
-						this.horizonRouter.navigateToInsureProspectiveClient();
-					}
-					break;
-				case `Transact`:
-				default:
-					this.horizonRouter.navigateToQuickTransactionFavourites();
-			}
-		}
-	}
-
-	async _checkForInsuranceProducts() {
-		const InsuranceCientInfo = {
-			IdNumber: this.confirmedCaller.callerInformation.southAfricanIDNumber.value,
-			CifNumber: this.confirmedCaller.callerInformation.cifNumber.value,
-			isCallerVarified: false
-		};
-
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
-
-		if (returnValue.succeeded) {
-			this.hasInsurance = returnValue.result.hasInsurance;
-		} 
 	}
 
 	_backClick() {
@@ -255,14 +181,7 @@ export class AddCallerDetails extends Component {
 		}));
 	};
 
-	_onIvrOptionChanged(e) {
-		this.addCallerDialog.ivrOption.value = e.detail.new;
-		this.confirmedCaller.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOption.value = e.detail.new;
-		this.incomingCallDetails.ivrOptionCode = e.detail.new;
-	}
-
-	_onEndCall() {
+	_endCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -386,10 +305,10 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 					<horizon-caller-dialog
-								.incomingCallDetails="${this.incomingCallDetails}"
-								.headerLabel="${HEADER_LABEL}"
-								@on-end-call="${() => this._onEndCall()}"
-								@on-need-changed="${(e) => this._onIvrOptionChanged(e)}">
+                            .incomingCallDetails="${this.incomingCallDetails}" 
+                            .isNeedSelectable=${false}
+						    .headerLabel="${HEADER_LABEL}" 
+                            @on-end-call="${() => this._endCall()}">
 						<div slot="body" class="main">
 							${this._renderErrorMessage()}
 							${this._renderAddCallerDetails()}
@@ -416,9 +335,9 @@ export class AddCallerDetails extends Component {
 	_renderErrorMessage() {
 		if (this.validationFailed) {
 			return html`
-				<capitec-alert-banner 
-								type="error" 
-								label="${this.alertBannerMessage}">
+				<capitec-alert-banner
+                                type="error"
+                                label="${this.alertBannerMessage}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -427,7 +346,7 @@ export class AddCallerDetails extends Component {
 	_renderAddCallerDetails() {
 		return html`
 			<content-box class="body-group" layout="vertical" gap="none" halign="stretch" valign="top" noScroll>
-			 	<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+				<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
@@ -437,7 +356,7 @@ export class AddCallerDetails extends Component {
 										.disabled="${isDisabled(this.firstNameTextField)}"
 										tabindex="${getTabIndex(this.firstNameTextField)}"
 										@value-changed="${(e) => this._valueChanged(e)}" 
-										@key-input="${(e) => this._onKeyPress(e)}">
+										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -449,7 +368,7 @@ export class AddCallerDetails extends Component {
 										.disabled="${isDisabled(this.surnameTextField)}"
 										tabindex="${getTabIndex(this.surnameTextField)}"
 										@value-changed="${(e) => this._valueChanged(e)}"
-										@key-input="${(e) => this._onKeyPress(e)}">
+										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -461,21 +380,21 @@ export class AddCallerDetails extends Component {
 										?hidden=${isHidden(this.cellPhoneTextField)}
 										.disabled="${isDisabled(this.cellPhoneTextField)}"
 										tabindex="${getTabIndex(this.cellPhoneTextField)}"
-										@key-input="${(e) => this._onKeyPress(e)}"
+										@key-input="${(e) => this._keyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-text-field><br>
 				</div>
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
-									label="Choose relationship type (Optional)"
-									value="${getValue(this.nonClientRelationship)}"
-									.items="${this.nonClientRelationship.possibleValues}"
-									@value-changed="${(e) => this._valueChanged(e)}"
-									tabindex="${getTabIndex(this.nonClientRelationship)}"
-									?hidden=${isHidden(this.nonClientRelationship)}
-									.disabled="${isDisabled(this.nonClientRelationship)}"
-									id-field="key"
-									display-field="value">
+                                    label="Choose relationship type (Optional)"
+						            value="${getValue(this.nonClientRelationship)}"
+                                    .items="${this.nonClientRelationship.possibleValues}"
+						            @value-changed="${(e) => this._valueChanged(e)}"
+                                    tabindex="${getTabIndex(this.nonClientRelationship)}"
+						            ?hidden=${isHidden(this.nonClientRelationship)} 
+                                    .disabled="${isDisabled(this.nonClientRelationship)}"
+						            id-field="key"
+                                    display-field="value">
 					</capitec-select>
 				</div>
 			</content-box>`;
