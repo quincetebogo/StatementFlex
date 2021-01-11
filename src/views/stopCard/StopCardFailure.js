@@ -435,6 +435,7 @@ export class StopCardFailure extends View {
 			<horizon-end-call-session
 				@cancel="${() => this.renderDialog = -1}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
+				endCallContext="LandingPage"
 				.isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}

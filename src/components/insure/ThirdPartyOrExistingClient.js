@@ -217,7 +217,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_callEnded() {
+	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

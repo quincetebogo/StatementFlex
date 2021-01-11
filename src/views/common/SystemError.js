@@ -133,7 +133,8 @@ export class SystemError extends View {
 			return html`
 				<horizon-end-call-session 
 					@cancel="{${() => this.renderMode = RENDER_MODE.SYSTEM_ERROR}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage">
 				</horizon-end-call-session>`;
 		}
 		return html``;

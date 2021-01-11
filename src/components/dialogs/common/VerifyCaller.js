@@ -414,6 +414,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="VerifyClient"
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;
 	}

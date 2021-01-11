@@ -155,30 +155,6 @@ export class HorizonChannelService extends Service {
 	// ----------------
 
 	/**
-	 *  endCallOptions is deprecated and will be replaced by loadEndCallOptions in future builds
-	 * 
-	 * @deprecated
-	 *
-	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
-	 * @memberof HorizonChannelService
-	 */
-	endCallOptions(endCallDetails) {
-		return this._post(
-			`/clientcare/card/${this._version}/Options`, {
-				'isReassigned': endCallDetails.isReassigned,
-				'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
-				'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
-				'ivrOptionCode': endCallDetails.ivrOptionCode,
-				'incidentReferenceNumber': endCallDetails.incidentReferenceNumber,
-				'agentTelephoneNumber': endCallDetails.agentTelephoneNumber
-			}, 
-			null, 
-			`endCallOptions`
-		);
-	}
-
-	/**
 	 * Loads the list of reasons to display on the end call dialog.
 	 * 
 	 * NOTE: THE CS IMPLEMENTATION OF THIS ENDPOINT IS NOT YET DONE
@@ -196,7 +172,7 @@ export class HorizonChannelService extends Service {
 				`IvrOptionCode=${endCallDetails.ivrOptionCode}&` +
 				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
 				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
-				`EndCallContext=${endCallDetails.context}`, 
+				`EndCallContext=${endCallDetails.endCallContext}`, 
 			null, 
 			`loadEndCallOptions`
 		);
@@ -216,7 +192,7 @@ export class HorizonChannelService extends Service {
 	 */
 	endCall(incidentRecId, reasonCode) {
 		return this._post(
-			`/clientcare/card/${this._version}/EndCallerSession`, {
+			`/clientcare/call/${this._version}/end-call`, {
 				"incidentRecId": incidentRecId,
 				"endReason": reasonCode
 			},

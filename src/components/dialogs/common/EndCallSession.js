@@ -73,13 +73,13 @@ export class EndCallSession extends Component {
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
 		const endCallDetails = {
-			IsReassigned: this.incomingCallDetails.isReassigned,
-			IncomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			VoiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			IvrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			IncidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			AgentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-			EndCallContext: this.endCallContext
+			isReassigned: this.incomingCallDetails.isReassigned,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			endCallContext: this.endCallContext
 		};
 
 		this.callHandleService.loadEndCallOptions(endCallDetails)
@@ -104,12 +104,11 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endCallReason: {
-				// Channel Service expects key to be Number and not string
-				key: 0
+				key: this.endCallReason.key
 			}
 		};
 
-		const returnValue = await this.callHandleService.endCallReason(callToEnd);
+		const returnValue = await this.callHandleService.endCall(callToEnd);
 
 		if (returnValue.succeeded) {
 			const state = { callStatus: `CALL-ENDED` };

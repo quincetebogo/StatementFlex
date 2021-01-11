@@ -100,19 +100,6 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 * Loads the list of end call reasons to display on the end call dialog
 	 * 
-	 * @deprecated
-	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	endCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.endCallOptions(endCallDetails), `endCallOptions`, errorHandler, autoRetries);
-	}
-
-	/**
-	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
 	 * THIS METHOD WILL REPLACE endCallOptions. THE CHANNEL SERVICE IMPLEMENTATION MUST BE DONE BEFORE WE CAN SWITCH
 	 * 
 	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
@@ -140,21 +127,6 @@ export class CallHandleService extends ServiceBase {
 		const endCallReasonKey = details.endCallReason.key;
 
 		return this.wrapCall(this.channelService.endCall(incidentRecId, endCallReasonKey), `endCall`, errorHandler, autoRetries);
-	}
-
-	/**
-	 *  Closes the incident that was created to track the call.
-	 * 
-	 * @param { object } details An object containg the incident for the call and the reason for ending the call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	endCallReason(details, errorHandler = null) {
-		const incidentRecId = details.incidentRecId;
-		const endCallReasonKey = details.endCallReason.key;
-
-		return this.serviceCallHelper.asyncCall(this.channelService.endCallReason(incidentRecId, endCallReasonKey), errorHandler);
 	}
 
 	/**
