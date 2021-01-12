@@ -2,14 +2,13 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { SignalRService } from 'app/services/SignalRService';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyBySecurityQuestions';
-
 
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
@@ -72,7 +71,7 @@ export class VerifyCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.SignalRService = SignalRService.getInstance();
+		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 
@@ -94,12 +93,12 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-			renderMode: { type: Number },
-			timeLeft: { type: String },
-			notVerified: { type: Boolean },
-			xdsMessage: { type: String },
-			itaFailedCount: { type: Number },
-			connectionID: { type: String }
+
+			renderMode: { attribute: false },
+			timeLeft: { attribute: false },
+			xdsMessage: { attribute: false },
+			itaFailedCount: { attribute: false },
+			connectionID: { attribute: false }
 		};
 	}
 
@@ -109,6 +108,7 @@ export class VerifyCaller extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		// Extracting incoming call details
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
@@ -118,8 +118,7 @@ export class VerifyCaller extends Component {
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
-		this._itaVerification();
-
+		// Resetting ITA & XDS attempts
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
 				itaAttempts: 0,
@@ -130,9 +129,11 @@ export class VerifyCaller extends Component {
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
 
-		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
-			this.itaTimer = this._startTimer();
-		}
+		// Declaring stop timer
+		this._stopTimer = () => clearInterval(this.itaTimer);
+
+		// Initialising ITA verification
+		this._initiateItaVerification();
 	}
 
 	// --------------
@@ -154,18 +155,6 @@ export class VerifyCaller extends Component {
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
-			}
-		}
-	}
-
-	async _itaVerification() {
-		this.SignalRService.startConnection();
-		this.connectionID = this.SignalRService.getconnectionID();
-
-		if (this.connectionID) {
-			const returnValue = await this.callHandleService.itaVerification(this.callerInformation.cifNumber, this.connectionID);
-			if (returnValue.succeeded) {
-				this._startTimer();
 			}
 		}
 	}
@@ -255,10 +244,8 @@ export class VerifyCaller extends Component {
 			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
 			this.seconds--;
 
-			const _stopTimer = () => clearInterval(startTimer);
-
 			if (this.seconds <= 0) {
-				_stopTimer();
+				this._stopTimer();
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
 				this.notVerified = true;
@@ -278,6 +265,61 @@ export class VerifyCaller extends Component {
 	_navigateToItaVerificationFailed() {
 		this._updateApplicationState(`failed`);
 		this.horizonRouter.navigateToItaVerificationFailed();
+	}
+
+	async _initiateItaVerification() {
+
+		await this._initialiseSignalR();
+		if (this.connectionID) {
+
+			const request = {
+				cifNumber: this.callerInformation.cifNumber,
+				connectionID: this.connectionID
+			};
+
+			const returnValue = await this.callHandleService.itaVerification(request);
+
+			if (returnValue.succeeded) {
+				console.log(`ConnectionID: ${this.connectionID}`);
+				
+				// Registering handler to perform post event action
+				await this.horizonSignalRClient.registerHandler((verificationStatus) => {
+					this._signalRPostEventAction(verificationStatus);
+				});
+
+				if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
+					this.itaTimer = this._startTimer();
+				}
+			} else {
+				// Error message to be shown
+			}
+		}
+	}
+
+	async _initialiseSignalR() {
+
+		// Starting signalR connection
+		this.horizonSignalRClient.startConnection();
+		// Fetching connection id from signalR client
+		this.connectionID = await this.horizonSignalRClient.getConnectionId();
+	}
+
+	_signalRPostEventAction(verificationStatus) {
+		
+		alert(`${verificationStatus}`);
+
+		if (verificationStatus) {
+			this._stopTimer();
+			this.horizonSignalRClient.stopConnection();
+			this.dispatchEvent(new CustomEvent(`verified`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails,
+					callerInformation: this.callerInformation
+				}
+			}));
+		} else {
+			// TODO: Determine what error needs to be shown
+		}
 	}
 
 	// ---------
@@ -400,6 +442,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-caller-dialog
 					.incomingCallDetails="${this.incomingCallDetails}" 
+					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._onEndCall()}">
 					<div slot="body">
@@ -418,7 +461,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-security-question 
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}" 
+	                                .callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
@@ -441,14 +484,14 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch"
+                                    halign="stretch" 
                                     valign="top"
                                     gap="clear">
 						<capitec-alert-banner type="info">
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
-                                    halign="center" 
+						<capitec-group layout="vertical"
+                                    halign="center"
                                     valign="top"
                                     gap="clear"
                                     id="notification-status-group">
@@ -471,16 +514,16 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
-                                    halign="stretch"
-                                    valign="top"
+                                    halign="stretch" 
+                                    valign="top" 
                                     gap="clear">
 						<capitec-alert-banner type="error">
 							Notification didn't send due to a system error.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                        halign="center" 
-                                        valign="top" 
-                                        gap="clear"
+                                        halign="center"
+                                        valign="top"
+                                        gap="clear" 
                                         id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
@@ -510,7 +553,7 @@ export class VerifyCaller extends Component {
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
                                         halign="center"
-                                        valign="top"
+                                        valign="top" 
                                         gap="clear"
                                         id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
@@ -529,7 +572,6 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderOtherOptions() {
-		console.log(`ita failed count`, this.itaFailedCount);
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
@@ -542,8 +584,8 @@ export class VerifyCaller extends Component {
 					</horizon-option-button>
 					<horizon-option-button 
 						label="Skip"
-                        icon="system/arrow-right-action" 
-                        iconSize="default"
+						icon="system/arrow-right-action" 
+						iconSize="default"
 					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button 

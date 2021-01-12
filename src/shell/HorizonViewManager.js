@@ -36,8 +36,27 @@ const LAYOUT_COMPONENT = {
 	AGENT_BAR: 5
 };
 
+/**
+ * HORIZON_VIEW_SET
+ * 
+ * The Horizon View Set controls which components are displayed in the top, left and right areas of the Horizon screen.
+ * The central screen component is controlled by the platform app router feature.
+ * 
+ * LANDING_PAGES    - This set is reserved for the call waiting landing page and the product pages that can be displayed
+ *                    before a call has been accepted. As soon as a new call event is received, the Desktop Agent Service
+ *                    will navigate away from product pages etc. to the call waiting landing page that will in turn process
+ *                    the new call event.
+ *
+ * ERROR_PAGES      - Similarly to LANDING_PAGES, this set is reserved for any error pages that can be displayed while waiting
+ *                    for a new call event.
+ * 
+ * VERIFIED_PAGES   - Pages belong to this set give full access to Horizon Features
+ * 
+ * UNVERIFIED_PAGES - Pages belonging to this set give restricted access to Horizon Features
+ */
 export const HORIZON_VIEW_SET = {
 	LANDING_PAGES: new Set([LAYOUT_COMPONENT.AGENT_BAR, LAYOUT_COMPONENT.WELCOME_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
+	ERROR_PAGES: new Set([LAYOUT_COMPONENT.AGENT_BAR, LAYOUT_COMPONENT.WELCOME_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR]),
 	VERIFIED_PAGES: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.ACCESS_BAR]),
 	UNVERIFIED_PAGES: new Set([LAYOUT_COMPONENT.CALL_BAR, LAYOUT_COMPONENT.PROFILE_MENU_BAR, LAYOUT_COMPONENT.MARKETING_BAR])
 };

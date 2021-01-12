@@ -104,7 +104,7 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		// Subscribe to store.
@@ -151,7 +151,7 @@ export class AppShell extends Shell {
 
 		// We are authenticated and done loading config
 		// trigger the display of the initial landing page.
-		this.isAuthenticating = false;
+		this.isAuthenticating = false;	
 	}
 
 	_userLoginError() {
