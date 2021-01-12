@@ -25,6 +25,13 @@ export class ServiceBase {
 	// --------------
 	// INITIALISATION
 	// --------------
+
+	/**
+	 * Creates an instance of ServiceBase.
+	 * @param {Function} toggleBusyFunc A function that can be used to toggle a busy indicator on/off
+	 * @param {Function} [defaultErrorHandlerFunc=null] An error handler function that will be invoked when a Channel Service Method fails
+	 * @memberof ServiceBase
+	 */
 	constructor(toggleBusyFunc, defaultErrorHandlerFunc = null) {
 		this.channelService = HorizonChannelService.getInstance();
 
@@ -110,9 +117,10 @@ export class ServiceBase {
 	// ---------------
 	
 	_logException(exception) {
-		const message = exception.requestModel 
-			? `${exception.message}, Url=${exception.requestUrl}, request=${exception.requestModel}, output=${exception.output}`
-			: `${exception.message}, Url= ${exception.requestUrl}, output=${exception.output}`;
+		let message = `${exception.message}, Url=${exception.requestUrl}`;
+
+		message += exception.requestModel ? `, request=${JSON.stringify(exception.requestModel)}` : ``;
+		message += exception.output ? `, output=${exception.output}` : ``;
 
 		if (exception instanceof TypeError) {
 			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);

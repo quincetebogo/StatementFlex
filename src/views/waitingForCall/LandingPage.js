@@ -148,6 +148,15 @@ export class LandingPage extends View {
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
 
+	/**
+	 * Determine the correct dialog to display in order to handle the incoming call
+	 *
+	 * @param {Object} acceptedCall The response from calling the accept-call channel service method
+	 * @param {Object} newCallInfo Incoming call information
+	 * @param {boolean} forceSearchDialog  Forces the display of the search dialog if accept-call fails
+	 * @returns {undefined}
+	 * @memberof LandingPage
+	 */
 	_dispatchCall(acceptedCall, newCallInfo, forceSearchDialog) {
 		// Set up state for the incoming call
 		this.callStatus = `CALL-IN-PROGRESS`;
@@ -165,7 +174,7 @@ export class LandingPage extends View {
 
 		// Display the Confirmed Caller Details Dialog, Stop Card Search Dialog or General Search Dialog based on 
 		// the IVR Option and whether the incoming number is recognised
-		if (acceptedCall.callerInformation && !forceSearchDialog) {
+		if (!forceSearchDialog && acceptedCall.callerInformation) {
 			this.confirmedCaller = acceptedCall.callerInformation;
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
@@ -247,14 +256,6 @@ export class LandingPage extends View {
 	}
 
 	_landingPageErrorHandler(exception) {
-		if (exception instanceof TypeError) {
-			console.log(exception);
-		} else if (exception instanceof HttpStatusError) {
-			console.log(exception);
-		} else {
-			console.log(exception);
-		}
-
 		this.desktopAgentService.callComplete();
 		this.horizonRouter.navigateToInitialSystemError();
 		return true;
