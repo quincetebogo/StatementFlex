@@ -14,7 +14,9 @@ import 'app/components/common/CallerDialog';
 const HEADER_LABEL = `End Call Session`;
 
 /**
- *
+ * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
+ * The dialog then navigates back to the initial landing page in order to wait for the next call
+ * 
  * Events Raised 
  * -------------
  * cancel
@@ -57,9 +59,9 @@ export class EndCallSession extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			endCallContext: { type: String },
+			isReassigned: { type: Boolean },
 
-			endCallReasons: { type: Array },
-			isReassigned: { type: Boolean }
+			endCallReasons: { attribute: false },
 		};
 	}
 

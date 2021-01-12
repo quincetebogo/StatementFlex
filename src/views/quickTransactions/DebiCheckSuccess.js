@@ -156,6 +156,7 @@ export class DebiCheckSuccess extends View {
 			return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}

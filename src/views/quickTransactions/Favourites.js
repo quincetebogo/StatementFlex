@@ -70,7 +70,7 @@ export class Favourites extends View {
 		this.cards = [];
 
 		// When returning from the success screen, check which page we should display
-		if (this.state.returnTo.mode === `mandate`) {
+		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
 		} else {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
