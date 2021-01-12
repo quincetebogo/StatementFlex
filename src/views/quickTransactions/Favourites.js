@@ -1,6 +1,7 @@
+import { EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
+
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -50,6 +51,7 @@ export class Favourites extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
@@ -59,7 +61,6 @@ export class Favourites extends View {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
 		this.isLoading = true;
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		// private variables
 		this.isReassigned = false;
@@ -67,6 +68,14 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
 		this.cards = [];
+
+		// When returning from the success screen, check which page we should display
+		if (this.state.returnTo.mode === `mandate`) {
+			this._debiCheck();
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		}
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -195,6 +204,15 @@ export class Favourites extends View {
 		this.mandateId = event.detail.mandateId;
 		if (event.detail.action === `decline`) {
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+		} else if (event.detail.action === `approve`) {
+			const state = {
+				returnTo: {
+					route: this.navigationContext.current.route.path,
+					mode: ``
+				}
+			};
+			this.horizonStore.saveState(state);
+			this.horizonRouter.navigateToDebiCheckSuccess();
 		}
 	}
 
