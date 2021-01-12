@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
@@ -30,6 +31,7 @@ export class DebiCheckSuccess extends View {
 		this.mandateId = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -58,6 +60,7 @@ export class DebiCheckSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
+			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;
@@ -79,13 +82,11 @@ export class DebiCheckSuccess extends View {
 	}
 
 	_doneClick() {
-		// TODO: Action to be added on left button Done click.
-		console.log(`Done is still to be developed`);
+		this.horizonRouter.navigateToReturnPage(`done`);
 	}
 
 	_debiCheckMandatesClick() {
-		// TODO: Action to be added on right button DebiCheckMandate click.
-		console.log(`DebiCheck Mandate is still to be developed`);
+		this.horizonRouter.navigateToReturnPage(`mandate`);
 	}
 
 	// ---------

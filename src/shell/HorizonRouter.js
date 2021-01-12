@@ -5,7 +5,7 @@ import { Router } from 'platform/Router';
 /**
  * The Horizon URL Schema. 
  */
-const HORIZON_ROUTES = {
+const HORIZON_ROUTES = Object.freeze({
 	LANDING_PAGE: `/landingPage`,
 	SAVINGS_ACCOUNT_PRODUCT_PAGE: `/product/savings-account`,
 	SAVINGS_PLAN_PRODUCT_PAGE: `/product/savings-plan`,
@@ -26,7 +26,7 @@ const HORIZON_ROUTES = {
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`
-};
+});
 
 
 /**
@@ -166,10 +166,17 @@ export class HorizonRouter {
 			StopCard: stopCard,
 			Transact: transact,
 			Insure: insure
-		}[ivrOption];
-
-		landingPageFunc();
+		}[ivrOption]();
 	};
+
+	navigateToReturnPage(displayMode) {
+		const horizonStore = HorizonStore.getInstance();
+		const state = horizonStore.recoverState();
+		state.returnTo.mode = displayMode;
+		horizonStore.saveState(state);
+
+		this.router.navigateByPath(state.returnTo.route);
+	}
 }
 
 // -------------------------
