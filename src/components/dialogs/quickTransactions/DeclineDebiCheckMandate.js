@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
 
@@ -22,8 +22,8 @@ export class DeclineDebiCheckMandate extends Component {
 	
 	constructor() {
 		super();
-		//TODO: Mandate ID to be supplied by input property
-		this.mandateId = "";
+		// TODO: Mandate ID to be supplied by input property
+		this.mandateId = ``;
 	}
 
 	// ----------
@@ -50,7 +50,7 @@ export class DeclineDebiCheckMandate extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.mandateId = "DISCLIFE5130111776-2?";
+		this.mandateId = `DISCLIFE5130111776-2?`;
 	}
 
 	// --------------
@@ -58,13 +58,13 @@ export class DeclineDebiCheckMandate extends Component {
 	// --------------
 
 	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {
-			detail: {}
-		}));
+		this.dispatchEvent(new CustomEvent(`cancel`));
 	}
 
 	_declineClick() {
-		//TODO: Action to be added on Decline click
+		this.dispatchEvent(new CustomEvent(`decline`, {
+			detail: { mandateId: this.mandateId }
+		}));
 	}
 
 	// --------------
@@ -188,10 +188,8 @@ export class DeclineDebiCheckMandate extends Component {
 					--theme-button-padding-right: 22px;
 					--theme-button-padding-bottom: 14px;
 					--theme-button-padding-left: 22px;
-				}
-		
-			`];
-
+				}`
+		];
 	}
 
 	_mobileTemplate() {

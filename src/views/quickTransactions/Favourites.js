@@ -4,6 +4,7 @@ import { EventAggregator } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+
 // TODO: Below mocks import has to be removed when service call is implemented
 import { mockCards } from 'app/mocks/CardLimitsMock';
 import { mockMandates } from 'app/mocks/DebiCheckMockData';
@@ -12,6 +13,7 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/savingsAccount/DebiCheckMandates';
+import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
 
@@ -22,8 +24,11 @@ const RENDER_MODE = Object.freeze({
 	ASSIGN: 3,
 	VERIFY_NOW: 4,
 	ALERT_MODAL: 5,
-	DEBI_CHECK: 6,
-	UPDARTE_CARD_LIMITS: 7
+	DEBI_CHECK_PAGE: 6,
+	DEBI_CHECK_APPROVE: 7,
+	DEBI_CHECK_DECLINE: 8,
+	DEBI_CHECK_VIEW_INFO: 9,
+	UPDATE_CARD_LIMITS: 10
 });
 
 /**
@@ -186,6 +191,21 @@ export class Favourites extends View {
 		}
 	}
 
+	_mandateActionClick (event) {
+		this.mandateId = event.detail.mandateId;
+		if (event.detail.action === `decline`) {
+			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
+		}
+	}
+
+	_declineDebiCheckMandate(event) {
+		this.mandateId = event.detail.mandateId;
+
+		// TODO: Actually decline the debi check mandate
+
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -320,13 +340,13 @@ export class Favourites extends View {
 
 	_debiCheck() {
 		this.debiCheckMandates = mockMandates.mandateSummaryList;
-		this.renderMode = RENDER_MODE.DEBI_CHECK;
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		// TODO: Service call to get mandates comes here
 	}
 
 	_updateCardLimits() {
 		this.cards = mockCards;
-		this.renderMode = RENDER_MODE.UPDARTE_CARD_LIMITS;
+		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
 	}
 
@@ -379,11 +399,14 @@ export class Favourites extends View {
 
 	_webTemplate() {
 		return html`
-			${this._renderLoadingIndicator()}
-			${this._renderContent()}
-			${this._renderEndCallSessionModal()}
-			${this._renderVerifyNowModal()}
+			${this._renderFavouritesLandingPage()}
+			${this._renderUpdateCardLimits()}
+			${this._renderDebiCheckMandates()}
+			${this._renderDebiCheckDeclineMandate()}
 			${this._renderAlertModal()}
+			${this._renderVerifyNowModal()}
+			${this._renderEndCallSessionModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -395,21 +418,9 @@ export class Favourites extends View {
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
-	_renderContent() {
-		switch (this.renderMode) {
-			case RENDER_MODE.DEBI_CHECK:
-				return html`${this._renderDebiCheckMandates()}`;
-			case RENDER_MODE.UPDARTE_CARD_LIMITS:
-				return html`${this._renderUpdateCardLimits()}`;
-			case RENDER_MODE.MAIN_PAGE:
-			default:
-				return html`${this._renderFavouritesLandingPage()}`;
-		}
-	}
-
 	_renderFavouritesLandingPage() {
-		return this.isLoading ? html``
-			: html`<horizon-favourites-transactions 
+		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.isLoading
+			? html`<horizon-favourites-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
 						.incomingCallDetails="${this.incomingCallDetails}"
@@ -417,8 +428,8 @@ export class Favourites extends View {
 						.verificationStatus="${this.verificationStatus}"
 						@verify-click="${() => this._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
-					</horizon-favourites-transactions>`;
-
+					</horizon-favourites-transactions>`
+			: html``;
 	}
 
 	_renderVerifyNowModal() {
@@ -459,21 +470,36 @@ export class Favourites extends View {
 	}
 
 	_renderDebiCheckMandates() {
-		return html`
-			<debi-check-mandates
-				.debiCheckMandates="${this.debiCheckMandates}"
-				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</debi-check-mandates>
-		`;
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
+			? html`
+				<debi-check-mandates
+					.debiCheckMandates="${this.debiCheckMandates}"
+					@action="${(event) => this._mandateActionClick(event)}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</debi-check-mandates>`
+			: html``;
+	}
+
+	_renderDebiCheckDeclineMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
+			? html`
+				<horizon-decline-debicheck-mandate
+					mandateId=""
+					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+					@decline="${(event) => this._declineDebiCheckMandate(event)}"
+		>
+				</horizon-decline-debicheck-mandate>`
+			: html``;
 	}
 
 	_renderUpdateCardLimits() {
-		return html`
-			<horizon-update-card-limits
-				.cards="${this.cards}"
-				@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-update-card-limits>
-		`;
+		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
+			? html`
+				<horizon-update-card-limits
+					.cards="${this.cards}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-update-card-limits>`
+			: html``;
 	}
 }
 
