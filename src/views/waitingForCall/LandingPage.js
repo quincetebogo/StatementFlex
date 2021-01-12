@@ -165,7 +165,7 @@ export class LandingPage extends View {
 
 		// Display the Confirmed Caller Details Dialog, Stop Card Search Dialog or General Search Dialog based on 
 		// the IVR Option and whether the incoming number is recognised
-		if (acceptedCall && acceptedCall.callerInformation && !forceSearchDialog) {
+		if (acceptedCall.callerInformation && !forceSearchDialog) {
 			this.confirmedCaller = acceptedCall.callerInformation;
 			this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
@@ -255,8 +255,8 @@ export class LandingPage extends View {
 			console.log(exception);
 		}
 
-		//this.desktopAgentService.callComplete();
-		//this.horizonRouter.navigateToInitialSystemError();
+		this.desktopAgentService.callComplete();
+		this.horizonRouter.navigateToInitialSystemError();
 		return true;
 	}
 

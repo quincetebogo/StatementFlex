@@ -4,7 +4,6 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -149,7 +148,6 @@ export class SearchCaller extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.SignalRClient = HorizonSignalRClient.getInstance();
 
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
@@ -186,7 +184,6 @@ export class SearchCaller extends Component {
 		super.connectedCallback();
 		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
-		this._initiateItaVerification();
 	}
 
 	// --------------
@@ -441,29 +438,6 @@ export class SearchCaller extends Component {
 			}
 		}));
 	};
-
-	async _initiateItaVerification() {
-
-		this.SignalRClient.startConnection();
-		this.connectionID = await this.SignalRClient.getConnectionID();
-
-		if (this.connectionID) {
-
-			const request = {
-				cifNumber: `303321520`,
-				connectionID: this.connectionID
-			};
-			const returnValue = await this.callHandleService.itaVerification(request);
-			if (returnValue.succeeded) {
-				
-				console.log(`ConnectionID: ${await this.SignalRClient.getConnectionID()}`);
-				
-				await this.SignalRClient.registerHandler((verificationStatus) => {
-					alert(`${verificationStatus}`);
-				});
-			}
-		}
-	}
 
 	// ---------
 	// RENDERING

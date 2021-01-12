@@ -104,7 +104,7 @@ export class AppShell extends Shell {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		// Subscribe to store.
