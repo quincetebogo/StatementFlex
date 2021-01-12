@@ -193,7 +193,7 @@ export class VerifyCaller extends Component {
 		}
 	}
 
-	_onEndCall() {
+	_endCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -383,7 +383,7 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
-					@on-end-call="${() => this._onEndCall()}">
+					@on-end-call="${() => this._endCall()}">
 					<div slot="body">
 						${this._renderNotificationStatus()}
 						${this._renderXdsError()}
