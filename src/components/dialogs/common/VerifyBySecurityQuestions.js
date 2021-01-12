@@ -424,7 +424,8 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			<horizon-end-call-session
                 .incomingCallDetails="${this.incomingCallDetails}"
-				@cancel="${() => this._cancelEndCall()}">
+				endCallContext="VerifyClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
 	}
 

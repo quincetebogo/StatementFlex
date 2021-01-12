@@ -14,7 +14,9 @@ import 'app/components/common/CallerDialog';
 const HEADER_LABEL = `End Call Session`;
 
 /**
- *
+ * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
+ * The dialog then navigates back to the initial landing page in order to wait for the next call
+ * 
  * Events Raised 
  * -------------
  * cancel
@@ -47,8 +49,8 @@ export class EndCallSession extends Component {
 	// --------------
 
 	/**
-	 *
-	 *
+	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @readonly
 	 * @static
 	 * @memberof EndCallSession
@@ -56,8 +58,10 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			endCallReasons: { type: Array },
-			isReassigned: { type: Boolean }
+			endCallContext: { type: String },
+			isReassigned: { type: Boolean },
+
+			endCallReasons: { attribute: false },
 		};
 	}
 
@@ -70,12 +74,22 @@ export class EndCallSession extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
-		this.callHandleService.endCallOptions(this.incomingCallDetails)
+		const endCallDetails = {
+			isReassigned: this.incomingCallDetails.isReassigned,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			endCallContext: this.endCallContext
+		};
+
+		this.callHandleService.loadEndCallOptions(endCallDetails)
 			.then((returnValue) => {
 				const endCallDialog = returnValue.result;
 
 				if (returnValue.succeeded) {
-					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
+					this.endCallReasons = endCallDialog.endCallReasons;
 				}
 			});
 	}

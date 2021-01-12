@@ -565,10 +565,16 @@ export class SearchCaller extends Component {
 			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio id="capitecClient" label="Capitec Client" @value-changed="${(e) => this._clientTypeChanged(e)}"
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio id="nonCient" label="Non Client" @value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
 				</capitec-group>
@@ -662,9 +668,10 @@ export class SearchCaller extends Component {
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session
-                @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
 	}
 }
