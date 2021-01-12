@@ -102,14 +102,17 @@ export class SuccessScreen extends Component {
 					margin-top: 64px;
 				}
 
-				capitec-button {
-					height: 48px;
-					--theme-button-font-weight: 600;
+				#button-left {
+					margin-right: 16px;
+				}
+
+				.center-button {
 					--theme-button-font-size: 16px;
-					--theme-button-font-family: "Hind Vadodara";
-					--theme-button-padding-top: 13px;
-					--theme-button-padding-bottom: 13px;
-					--theme-button-primary-border-width: 0px;
+					--theme-button-font-weight: 600;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-right: 22px;
 				}
 
 				.related-options {
@@ -122,7 +125,7 @@ export class SuccessScreen extends Component {
 				}
 				
 				.related-options-text{
-					margin: 0px 0px 0px 24px;
+					margin: 0px 0px 0px 16px;
 					padding: 0px 0px 0px 0px;
 					color: #003652;
 					font-family: "Hind Vadodara";
@@ -193,12 +196,12 @@ export class SuccessScreen extends Component {
 				</capitec-group>
 				<capitec-group id="id-button-group" layout="horizontal">
 					${this.left
-						? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}">
+						? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
 								</capitec-button>`
 						: html``
 					}
 					${this.right
-						? html`<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
+						? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
 								</capitec-button>`
 						: html``
 					}

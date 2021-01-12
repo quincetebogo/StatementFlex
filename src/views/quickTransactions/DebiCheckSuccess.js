@@ -100,108 +100,15 @@ export class DebiCheckSuccess extends View {
 				#id-error-msg{
 					width: auto;
 				}
-				
-				.success-toast{
-					position: absolute;
-					top : 32px;
-					left:784px;
-					width : 352px;
-					height: 64px;
-				}
-
-				#debicheck-image {
-					margin-top:174px;
-				}
-				
-				.debiCheck-card {
-					margin-top:29px;
-					margin-bottom:24px;
-					height: 32px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 36px;
-					text-align: center;
-				}
-
-				#id-button-group {
-					justify-content: center;
-					margin-top: 64px;
-				}
-				
-				.button {
-					height: 48px;
-					--theme-button-font-weight: 600;
-					--theme-button-font-size: 16px;
-					--theme-button-font-family: "Hind Vadodara";
-					--theme-button-padding-top: 13px;
-					--theme-button-padding-bottom: 13px;
-					--theme-button-primary-border-width: 0px;
-				}
-				
-				.related-options {
-					margin-top:144px;
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
-				}
-
-				.related-options-text{
-					margin: 0px 0px 0px 24px;
-					padding: 0px 0px 0px 0px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-
-				.options-group{
-					margin:17px 0px 15px 16px;
-				}
 
 				.button-margin{
 					height: 80px;
 					width: 182px;
 					margin-right:16px;
+					--horizon-option-btn-icon-height: 26px;
+					--horizon-option-btn-icon-width: 26px;
 				}
 
-				.status-group{
-					width: auto;
-					height: 26px;
-					display: flex;
-					flex-wrap: wrap;
-					justify-content: center;
-				}
-
-				.debiCheck-status-success{
-					height: 26px;
-					width: auto;
-					display: flex;
-					align-items: center;
-					margin: 0px 0px 0px 15px;
-				}
-
-				capitec-icon{
-					height: 26px;
-					width: 26px;
-				}
-				
-				.debiCheck-status-text {
-					height: 24px;
-					color: #545D60;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: start;
-					margin: 0px 0px 0px 7px;
-				}
 			`
 		];
 	}
@@ -236,7 +143,7 @@ export class DebiCheckSuccess extends View {
 					<horizon-option-button 
 						class="button-margin" 
 						label="Transaction History" 
-						img-src="/images/history.svg">
+						icon="system/time-action">
 					</horizon-option-button>
 				</section>
 			</horizon-success-screen>
