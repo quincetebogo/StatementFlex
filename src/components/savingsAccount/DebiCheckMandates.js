@@ -124,15 +124,18 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_viewInfo() {
-		// TODO: Functionality to get mandate info comes here
+		// TODO: Add mandate data to the event
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `viewInfo`, mandateId: `` } }));
 	}
 
 	_decline() {
-		// TODO: Functionality to decline mandate comes here
+		// TODO: Add mandate data to the event
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: `` } }));
 	}
 
 	_approve() {
-		// TODO: Functionality to approve mandate comes here
+		// TODO: Add mandate data to the event
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateId: `` } }));
 	}
 
 	// ---------
