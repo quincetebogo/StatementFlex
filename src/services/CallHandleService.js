@@ -100,8 +100,6 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 * Loads the list of end call reasons to display on the end call dialog
 	 * 
-	 * THIS METHOD WILL REPLACE endCallOptions. THE CHANNEL SERVICE IMPLEMENTATION MUST BE DONE BEFORE WE CAN SWITCH
-	 * 
 	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
@@ -113,8 +111,6 @@ export class CallHandleService extends ServiceBase {
 
 	/**
 	 *  Closes the incident that was created to track the call.
-	 * 
-	 * @deprecated
 	 * 
 	 * @param { object } details An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 

@@ -156,8 +156,6 @@ export class HorizonChannelService extends Service {
 
 	/**
 	 * Loads the list of reasons to display on the end call dialog.
-	 * 
-	 * NOTE: THE CS IMPLEMENTATION OF THIS ENDPOINT IS NOT YET DONE
 	 *
 	 * @param {Object} endCallDetails Call details including the end call reason/cause code
 	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
@@ -180,10 +178,6 @@ export class HorizonChannelService extends Service {
 
 	/**
 	 * Records the end call reason/cause code against an incident
-	 * This call has been moved onto /clientcare/call and should no longer
-	 * be used
-	 * 
-	 * @deprecated
 	 * 
 	 * @param {string} incidentRecId The Incident identfier
 	 * @param {string} reasonCode The end call reason/cause code
