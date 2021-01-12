@@ -317,8 +317,9 @@ export class SecurityQuestionsFailed extends Component {
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-                @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}"
-				.incomingCallDetails = "${this.incomingCallDetails}">
+				.incomingCallDetails = "${this.incomingCallDetails}"
+				endCallContext = "VerifyClient"
+                @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
 	}
 }

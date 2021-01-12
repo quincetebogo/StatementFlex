@@ -132,11 +132,12 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
-			renderMode: { type: Number },
-			alertBannerMessage: { type: String },
-			identificationMethods: { type: Object }
+
+			isBusy: { attribute: false },
+			errMessage: { attribute: false },
+			renderMode: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
 		};
 	}
 
@@ -240,10 +241,20 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
-			detail: {
-				identifiedClient: identifiedClient,
-				incomingCallDetails: this.incomingCallDetails
+			detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller 
 			}
 		}));
 	};
@@ -419,12 +430,17 @@ export class StopCardSearchCaller extends Component {
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
 				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 				<div class="search-field-row">
-					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" class="id-options"
+					<capitec-select 
+						id="identificationMethods" 
+						error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" 
+						class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
-						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
-					</capitec-select>
+						id-field="key" 
+						display-field="displayText" 
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="${getTabIndex(this.identificationMethods)}" 
+						?hidden=${isHidden(this.identificationMethods)}>
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
@@ -458,8 +474,10 @@ export class StopCardSearchCaller extends Component {
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}">
 			</horizon-end-call-session>`;
 	}
 }

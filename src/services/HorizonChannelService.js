@@ -54,22 +54,29 @@ export class HorizonChannelService extends Service {
 		
 		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
 
-		const response = await super.httpClient.request({
-			method: `POST`,
-			url: url,
-			model: model,
-			customHeaders: customHeaders,
-			correlationId: correlationId,
-			isBinary: isBinary,
-			controller: controller,
-			sla: sla,
-			timeout: timeout,
-			caller: caller
-		});
-
-		this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
-
-		return response;
+		try {
+			const response = await super.httpClient.request({
+				method: `POST`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
+	
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+	
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
+		}
 	}
 
 	/**
@@ -89,11 +96,18 @@ export class HorizonChannelService extends Service {
 			
 		this._logger.log(`debug`, `url: ${url}`, caller, correlationId);
 
-		const response = await super.httpClient.get(url, customHeaders, correlationId);
-	
-		this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+		try {
+			const response = await super.httpClient.get(url, customHeaders, correlationId);
 
-		return response;
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = null;
+			exception.requestCaller = caller;
+			throw exception;
+		}
 	}
 
 	// --------------
@@ -103,26 +117,6 @@ export class HorizonChannelService extends Service {
 	// -------------------
 	// Accept Call Methods
 	// -------------------
-
-	/**
-	 * @deprecated use acceptCall instead
-	 *
-	 * @param {Object} incomingCallData Incoming call information
-	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
-	 * @memberof HorizonChannelService
-	 */
-	caller(incomingCallData) {
-		const url = `/clientcare/card/${this._version}/caller`;
-		const model = {
-			'incomingTelephoneNumber': incomingCallData.incomingTelephoneNumber,
-			'voiceReferenceNumber': incomingCallData.voiceReferenceNumber,
-			'ivrOptionCode': incomingCallData.IvrOptionCode,
-			'incidentReferenceNumber': incomingCallData.incidentReferenceNumber,
-			'agentTelephoneNumber': incomingCallData.agentTelephoneNumber
-		};
-
-		return this._post(url, model, null, `caller`);
-	}
 
 	/**
 	 * Records the information on an incoming call
@@ -161,33 +155,7 @@ export class HorizonChannelService extends Service {
 	// ----------------
 
 	/**
-	 *  endCallOptions is deprecated and will be replaced by loadEndCallOptions in future builds
-	 * 
-	 * @deprecated
-	 *
-	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
-	 * @memberof HorizonChannelService
-	 */
-	endCallOptions(endCallDetails) {
-		return this._post(
-			`/clientcare/card/${this._version}/Options`, {
-				'isReassigned': endCallDetails.isReassigned,
-				'incomingTelephoneNumber': endCallDetails.incomingTelephoneNumber,
-				'voiceReferenceNumber': endCallDetails.voiceReferenceNumber,
-				'ivrOptionCode': endCallDetails.ivrOptionCode,
-				'incidentReferenceNumber': endCallDetails.incidentReferenceNumber,
-				'agentTelephoneNumber': endCallDetails.agentTelephoneNumber
-			}, 
-			null, 
-			`endCallOptions`
-		);
-	}
-
-	/**
 	 * Loads the list of reasons to display on the end call dialog.
-	 * 
-	 * NOTE: THE CS IMPLEMENTATION OF THIS ENDPOINT IS NOT YET DONE
 	 *
 	 * @param {Object} endCallDetails Call details including the end call reason/cause code
 	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
@@ -202,16 +170,23 @@ export class HorizonChannelService extends Service {
 				`IvrOptionCode=${endCallDetails.ivrOptionCode}&` +
 				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
 				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
-				`EndCallContext=${endCallDetails.context}`, 
+				`EndCallContext=${endCallDetails.endCallContext}`, 
 			null, 
 			`loadEndCallOptions`
 		);
 	}
 
-	// endCallSession
+	/**
+	 * Records the end call reason/cause code against an incident
+	 * 
+	 * @param {string} incidentRecId The Incident identfier
+	 * @param {string} reasonCode The end call reason/cause code
+	 * @returns {Object} Either success or a failure object
+	 * @memberof HorizonChannelService
+	 */
 	endCall(incidentRecId, reasonCode) {
 		return this._post(
-			`/clientcare/card/${this._version}/EndCallerSession`, {
+			`/clientcare/call/${this._version}/end-call`, {
 				"incidentRecId": incidentRecId,
 				"endReason": reasonCode
 			},
@@ -219,7 +194,7 @@ export class HorizonChannelService extends Service {
 			`endCall`
 		);
 	}
-
+	
 	// stopCardRequest
 	stopCard(stopCardRequest) {
 		const url = `/clientcare/card/${this._version}/StopCard`;

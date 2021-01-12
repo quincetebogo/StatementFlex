@@ -5,7 +5,7 @@ import { Router } from 'platform/Router';
 /**
  * The Horizon URL Schema. 
  */
-const HORIZON_ROUTES = {
+const HORIZON_ROUTES = Object.freeze({
 	LANDING_PAGE: `/landingPage`,
 	SAVINGS_ACCOUNT_PRODUCT_PAGE: `/product/savings-account`,
 	SAVINGS_PLAN_PRODUCT_PAGE: `/product/savings-plan`,
@@ -24,8 +24,9 @@ const HORIZON_ROUTES = {
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
-	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`
-};
+	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
+	DEBICHECK_SUCCESS: `/success/debicheck`
+});
 
 
 /**
@@ -155,7 +156,11 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
-	navigateToLandingPage (ivrOption, hasInsuranceProducts) {
+	navigateToDebiCheckSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
+	}
+
+	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
@@ -165,10 +170,17 @@ export class HorizonRouter {
 			StopCard: stopCard,
 			Transact: transact,
 			Insure: insure
-		}[ivrOption];
-
-		landingPageFunc();
+		}[ivrOption]();
 	};
+
+	navigateToReturnPage(displayMode) {
+		const horizonStore = HorizonStore.getInstance();
+		const state = horizonStore.recoverState();
+		state.returnTo.mode = displayMode;
+		horizonStore.saveState(state);
+
+		this.router.navigateByPath(state.returnTo.route);
+	}
 }
 
 // -------------------------
@@ -298,17 +310,17 @@ export default horizonRoutes = [
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => true,
 
-			/*
-			 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			 switch (routingInfo.verificationStatus) {
-			 	case `verified`:
-			 	case `unverified`:
-			 	case `3rdparty`:
-			 		return true;
-			 	default:
-					 return false;
-			*/
-		
+		/*
+		 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+		 switch (routingInfo.verificationStatus) {
+			  case `verified`:
+			  case `unverified`:
+			  case `3rdparty`:
+					return true;
+			  default:
+				 return false;
+		*/
+
 		onPreNavigate: () => {
 			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
@@ -396,6 +408,15 @@ export default horizonRoutes = [
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.ERROR_PAGES);
 		}
+	},
+	{
+		name: `horizon-debi-check-success`,
+		title: `DebiCheck`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
+		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+		}
 	}
-
 ];

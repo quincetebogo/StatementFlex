@@ -60,23 +60,6 @@ export class CallHandleService extends ServiceBase {
 	 * @property {object} result - The result of the service call if succeeded is true
 	 */
 
-
-	/**
-	 * Determines if the caller is phoning from a verified number. The returned object is 
-	 * different depending on if the incoming call is from an unverified number or not.
-	 * 
-	 * @deprecated use the new acceptCall instead
-	 * 
-	 * @param {object} acceptCallData Information about the incoming call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	caller(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.acceptCall(acceptCallData), `caller`, errorHandler, autoRetries);
-	}
-
 	/**
 	 * Determines if the caller is phoning from a verified number. 
 	 * 
@@ -116,21 +99,6 @@ export class CallHandleService extends ServiceBase {
 
 	/**
 	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
-	 * @deprecated
-	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	endCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.endCallOptions(endCallDetails), `endCallOptions`, errorHandler, autoRetries);
-	}
-
-	/**
-	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
-	 * THIS METHOD WILL REPLACE endCallOptions. THE CHANNEL SERVICE IMPLEMENTATION MUST BE DONE BEFORE WE CAN SWITCH
 	 * 
 	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
