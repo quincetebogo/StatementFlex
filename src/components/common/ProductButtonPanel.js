@@ -93,7 +93,8 @@ export class ProductButtonPanel extends Component {
 											  subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : `Know what you get, know what you pay`}"
                                               detail="${this.detail ? this.detail.savingsAccount : ``}"
                                               icon="product/transact-white"
-							                  @click="${() => this.onSavingsAccountClick()}">
+											  @click="${() => this.onSavingsAccountClick()}"
+											  tabindex="-1">
 						</horizon-product-tile>
 						<horizon-product-tile class="product-button"
                                               type="save"
@@ -101,7 +102,8 @@ export class ProductButtonPanel extends Component {
                                               subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : `Let your money make money`}"
                                               icon="product/save-white"
                                               detail="${this.detail ? this.detail.savingsPlan : ``}"
-                                              @click="${() => this.onSavingsPlanClick()}">
+											  @click="${() => this.onSavingsPlanClick()}"
+											  tabindex="-1">
 						</horizon-product-tile>
 						<horizon-product-tile class="product-button"
                                               type="insure"
@@ -109,7 +111,8 @@ export class ProductButtonPanel extends Component {
                                               subtitle="${this.subtitle.insure ? this.subtitle.insure : `One plan, more cover`}"
                                               icon="product/insure-white"
                                               detail="${this.detail ? this.detail.insure : ``}"
-                                              @click="${() => this.onInsureClick()}">
+											  @click="${() => this.onInsureClick()}"
+											  tabindex="-1">
 						</horizon-product-tile>
 						<horizon-product-tile class="product-button"
                                               type="credit"
@@ -118,7 +121,8 @@ export class ProductButtonPanel extends Component {
                                               icon="product/credit-white"
 											  detail="${this.detail ? this.detail.credit : ``}"
 											  ?detailIcon="${false}"
-											  @click="${() => this.onCreditClick()}">
+											  @click="${() => this.onCreditClick()}"
+											  tabindex="-1">
 						</horizon-product-tile>
 					</div>
 					</div>

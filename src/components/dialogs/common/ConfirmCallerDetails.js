@@ -506,8 +506,8 @@ export class ConfirmCallerDetails extends Component {
 	renderAddCallerDetails() {
 		return html`
 		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink label="Add Caller Details"
-				@click="${() => this._addCallerDetailsClick()}">
+			<capitec-hyperlink label="Add Caller Details" 
+				@click="${() => this._addCallerDetailsClick()}" tabindex="3">
 			</capitec-hyperlink>
 			if the caller is calling on another client's behalf
 		</capitec-alert-banner>`;
@@ -548,14 +548,17 @@ export class ConfirmCallerDetails extends Component {
 					id="id-search-button" 
 					type="clear" 
 					label="Search Client"
-					@click="${() => this._searchClick()}">
+					@click="${() => this._searchClick()}"
+					tabindex="1">
 				</capitec-button>
 			
 				<capitec-button 
 					id="id-confirm-button" 
 					type="primary" 
 					label="Confirm"
-					@click="${() => this._confirmClick()}">
+					@click="${() => this._confirmClick()}"
+					tabindex="2"
+					autofocus>
 				</capitec-button>
 			</capitec-group>
 			`;
