@@ -41,6 +41,7 @@ export class HorizonProductTile extends Component {
 		this.detailIcon = false;
 		this.tileIcon = ``;
 		this.icon = ``;
+		this.selected = false;
 	}
 
 	/**
@@ -52,6 +53,7 @@ export class HorizonProductTile extends Component {
 	 * @property {String} [type="transact"] - The product display type, i.e. "transact", "save", "credit", "insure".
 	 * @property {Boolean} [navigational=false] - Whether to display navigation arrow for product tile
 	 * @property {String} [icon] - Whether to display/hide icon based on value
+     * @property {String} [selected] - Boolean value tells menu is in active state or not
 	 * Note that "default" is still supported, but deprecated.
 	 */
 	static get properties() {
@@ -63,8 +65,9 @@ export class HorizonProductTile extends Component {
 			type: { type: String },
 			navigational: { type: Boolean },
 			detailIcon: { type: Boolean },
-			tileIcon: {type: String},
-			icon: { type: String }
+			tileIcon: { type: String },
+			icon: { type: String },
+			selected: { type: Boolean }
 		};
 	}
 
@@ -184,7 +187,7 @@ export class HorizonProductTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
-                .tile.transact:focus {
+                .tile.transact:focus, .tile.transact.selected {
                     border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
                 }
@@ -194,7 +197,7 @@ export class HorizonProductTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
-                .tile.save:focus {
+                .tile.save:focus, .tile.save.selected {
                     border: var(--theme-product-tile-focus-save-border, 2px solid #00486D);
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
                 }
@@ -204,7 +207,7 @@ export class HorizonProductTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
-                .tile.credit:focus {
+                .tile.credit:focus, .tile.credit.selected{
                     border: var(--theme-product-tile-focus-credit-border, 2px solid #C83C37);
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
                 }
@@ -214,7 +217,7 @@ export class HorizonProductTile extends Component {
                     box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
                 }
 
-                .tile.insure:focus {
+                .tile.insure:focus, .tile.insure.selected{
                     border: var(--theme-product-tile-focus-insure-border, 2px solid #5D737E);
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
                 }
@@ -344,24 +347,27 @@ export class HorizonProductTile extends Component {
 	_webTemplate() {
 
 		return html`
-			<button class="tile ${this.type ? this.type : `transact`}" @click="${this._tileClicked}}"
-				@keydown="${e => this._keyDown(e)}" tabindex="${this.disabled ? `` : 0}">
-				<div class="tile-container">
-					${this.tileIcon  ?  html`<img src = "${this.tileIcon}" class="fav-icon" />` :
-										html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
-												<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
-											</div>`
-					}
-					<div class="heading">
-						<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
-						<div class="subtitle">${this.subtitle}</div>
+			<button 
+				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
+				@click="${this._tileClicked}}"
+				@keydown="${e => this._keyDown(e)}"
+				tabindex="${this.disabled ? `` : 0}">
+					<div class="tile-container">
+						${this.tileIcon ? html`<img src = "${this.tileIcon}" class="fav-icon" />` 
+										: html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
+													<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
+												</div>`
+						}
+						<div class="heading">
+							<div class="title ${this.type ? this.type : `transact`}">${this.label}</div>
+							<div class="subtitle">${this.subtitle}</div>
+						</div>
+						<div class="detail${this.navigational ? ` nav` : ``}">
+							${this.detail}
+							${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
+							${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
+						</div>
 					</div>
-					<div class="detail${this.navigational ? ` nav` : ``}">
-						${this.detail}
-						${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
-						${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
-					</div>
-				</div>
 			</button>
 		`;
 	}
