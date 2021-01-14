@@ -141,7 +141,7 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
 				icon="product/transact-white"
 				@click="${() => this._savingsAccountClick()}"
-				.selected="${activePage.title === `SavingsAccount`}">
+				?selected="${activePage.title === `SavingsAccount`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -151,7 +151,7 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
 				icon="product/save-white"
 				@click="${() => this._savingsPlanClick()}"
-				.selected="${activePage.title === `SavingsPlan`}">
+				?selected="${activePage.title === `SavingsPlan`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -161,7 +161,7 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.insure ? this.detail.insure : ``}"
 				icon="product/insure-white"
 				@click="${() => this._insureClick()}"
-				.selected="${activePage.title === `Insure`}">
+				?selected="${activePage.title === `Insure`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -172,7 +172,7 @@ export class ProductButtonPanel extends Component {
 				icon="product/credit-white"
 				?detailIcon="${false}"
 				@click="${() => this._creditClick()}"
-				.selected="${activePage.title === `Credit`}">
+				?selected="${activePage.title === `Credit`}">
 			</horizon-product-tile>
 		`;
 	}

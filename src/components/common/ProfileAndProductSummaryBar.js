@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -177,7 +177,7 @@ export class ProfileAndProductSummaryBar extends Component {
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
 					@click="${() => this._favouritesClicked()}"
-					.selected=${activePage.title === `Favourites`}>
+					?selected=${activePage.title === `Favourites`}>
 				</horizon-favourites-tile>`;
 		};
 		return html``;
