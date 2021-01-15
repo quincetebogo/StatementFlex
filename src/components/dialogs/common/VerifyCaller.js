@@ -194,6 +194,9 @@ export class VerifyCaller extends Component {
 			this.itaTimer = null;
 		}
 
+		//Re-initialting the ITA verification
+		this._itaServiceCall();
+
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			this.itaTimer = this._startTimer();
 		} else {
@@ -270,6 +273,18 @@ export class VerifyCaller extends Component {
 	async _initiateItaVerification() {
 
 		await this._initialiseSignalR();
+		this._itaServiceCall();
+	}
+
+	async _initialiseSignalR() {
+
+		// Starting signalR connection
+		this.horizonSignalRClient.startConnection();
+		// Fetching connection id from signalR client
+		this.connectionID = await this.horizonSignalRClient.getConnectionId();
+	}
+
+	async _itaServiceCall() {
 		if (this.connectionID) {
 
 			const request = {
@@ -294,14 +309,6 @@ export class VerifyCaller extends Component {
 				// Error message to be shown
 			}
 		}
-	}
-
-	async _initialiseSignalR() {
-
-		// Starting signalR connection
-		this.horizonSignalRClient.startConnection();
-		// Fetching connection id from signalR client
-		this.connectionID = await this.horizonSignalRClient.getConnectionId();
 	}
 
 	_signalRPostEventAction(verificationStatus) {
