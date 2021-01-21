@@ -9,7 +9,7 @@ import 'app/components/common/CallerInfoBar';
  * A Dialog with a Caller Information Bar. This is a common dialog format in the Horizon Project.
  * 
  * @export
- * @class HorizonCallerDialog
+ * @class CallerDialog
  * @extends {Component}
  */
 export class CallerDialog extends Component {
@@ -134,21 +134,18 @@ export class CallerDialog extends Component {
 					<capitec-button 
                                 style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
                                 label="End Call"
-						        @click="${() => this._onEndCall()}">
+								@click="${() => this._onEndCall()}">
 						<img class="end-call-icon" src="/images/hangup.svg"/>
 					</capitec-button>
 				</capitec-group>
 				<div slot="body">
 					${this._renderCallInformation()}
 					<slot name="body"></slot>
-			
 				</div>
 				<div slot="footer">
 					<slot name="footer"></slot>
-			
 				</div>
 			</capitec-modal>`;
-
 	}
 
 	_renderCallInformation() {

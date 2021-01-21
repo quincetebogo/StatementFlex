@@ -473,7 +473,7 @@ export class ConfirmCallerDetails extends Component {
 							.isNeedSelectable=${true}
 							.headerLabel="${HEADER_LABEL}" 
 							@on-end-call="${() => this._onEndCall()}"
-						@on-need-changed="${(e) => this._needChanged(e)}">
+							@on-need-changed="${(e) => this._needChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
 								${this.renderAddCallerDetails()}

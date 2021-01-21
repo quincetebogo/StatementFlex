@@ -85,7 +85,7 @@ export class ServiceBase {
 
 			} catch (exception) {
 				this._logException(exception);
-				
+
 				if (exception instanceof HttpStatusError) {
 					switch (exception.status) {
 						case 400: // Bad Request
