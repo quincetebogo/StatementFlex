@@ -329,7 +329,7 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
-		this.horizonRouter.navigateToSystemError();
+		this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 		return true;
 	}
 
@@ -364,14 +364,16 @@ export class StopCardSearchCaller extends Component {
 				}
 				.id-options{
 					text-align: justify;
-					line-height: 12px
+					line-height: 12px;
 				}
 				.search-fields{
 					margin-top: 26px;
 				}
-				.search-field-row{
-					height: 72px;
+				#identificationMethods{
 					margin-top: 8px;
+				}
+				#searchFieldText{
+					margin-top: 32px;
 				}
 				capitec-alert-banner{
 					--theme-alert-banner-height: 48px;
@@ -425,11 +427,16 @@ export class StopCardSearchCaller extends Component {
 	renderSearchClientDetails() {
 		return html`
 		<capitec-content-box class="search-box">
-			<capitec-label class="search-label" label="Search existing client"></capitec-label>
+			<capitec-label 
+				class="search-label" 
+				label="Search existing client">
+			</capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
-				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
-				<div class="search-field-row">
+			<capitec-group layout="vertical" 
+							gap="none" 
+							halign="stretch" 
+							valign="top"
+							class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 					<capitec-select 
 						id="identificationMethods" 
 						error="${this.errMessage.identificationMethods}"
@@ -438,15 +445,23 @@ export class StopCardSearchCaller extends Component {
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
 						id-field="key" 
 						display-field="displayText" 
-						@value-changed="${(e) => this._valueChanged(e)}">
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="5"
+						autofocus>
 					</capitec-select>
-				</div>
-				<div class="search-field-row">
-					<capitec-text-field id="searchFieldText" type="search" keyboardMode="numeric" label="Search"
-						error="${this.errMessage.searchFieldText}" focussed hint="" @key-input="${(e) => this._onKeyPress(e)}"
-						@value-changed="${(e) => this._valueChanged(e)}" value="">
+					<capitec-text-field 
+						id="searchFieldText" 
+						type="search" 
+						keyboardMode="numeric" 
+						label="Search"
+						error="${this.errMessage.searchFieldText}" 
+						focussed 
+						hint="" 
+						@key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" 
+						value=""
+						tabindex="6">
 					</capitec-text-field>
-				</div>
 			</capitec-group>
 		</capitec-content-box>`;
 	}
@@ -455,7 +470,12 @@ export class StopCardSearchCaller extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error" label="${this.alertBannerMessage}" closable></capitec-alert-banner>
+				<capitec-alert-banner 
+					type="error" 
+					label="${this.alertBannerMessage}" 
+					closable
+					@click="${() => this.alertBannerMessage = ``}">
+				</capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -464,8 +484,12 @@ export class StopCardSearchCaller extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button id="id-search-button" type="primary" @click="${(e) => this._onSearchClick(e)}"
-					label="Search Client">
+				<capitec-button 
+					id="id-search-button" 
+					type="primary" 
+					@click="${(e) => this._onSearchClick(e)}"
+					label="Search Client"
+					tabindex="7">
 				</capitec-button>
 			</capitec-group>`;
 	}
