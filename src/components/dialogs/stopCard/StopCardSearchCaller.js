@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -438,9 +438,7 @@ export class StopCardSearchCaller extends Component {
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
 						id-field="key" 
 						display-field="displayText" 
-						@value-changed="${(e) => this._valueChanged(e)}"
-						tabindex="${getTabIndex(this.identificationMethods)}" 
-						?hidden=${isHidden(this.identificationMethods)}>
+						@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-select>
 				</div>
 				<div class="search-field-row">
