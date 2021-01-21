@@ -569,15 +569,13 @@ export class SearchCaller extends Component {
 						id="capitecClient" 
 						label="Capitec Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}"
-						row="1" column="1"
-						tabindex="1">
+						row="1" column="1">
 					</capitec-radio>
 					<capitec-radio 
 						id="nonCient" 
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
-						column="2"
-						tabindex="2">
+						column="2">
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>`;
@@ -657,17 +655,13 @@ export class SearchCaller extends Component {
 				<capitec-button
                     type="primary"
                     @click="${(e) => this._onSearchClient(e)}" label="Search Client"
-					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}
-					tabindex="1"
-					autofocus>
+					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
 				</capitec-button>
 				<capitec-button
                     type="primary"
                     @click="${(e) => this._onContinue(e)}"
                     label="Continue"
-					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
-					tabindex="1"
-					autofocus>
+                    ?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
 				</capitec-button>
 			</capitec-group>`;
 	}

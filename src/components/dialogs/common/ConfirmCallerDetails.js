@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isDisabled, isHidden } from 'app/utils/channelServiceUtilities';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -469,8 +468,11 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+					<horizon-caller-dialog 
+							.incomingCallDetails="${this.incomingCallDetails}" 
+							.isNeedSelectable=${true}
+							.headerLabel="${HEADER_LABEL}" 
+							@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
@@ -507,7 +509,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
 			<capitec-hyperlink label="Add Caller Details" 
-				@click="${() => this._addCallerDetailsClick()}" tabindex="3">
+				@click="${() => this._addCallerDetailsClick()}">
 			</capitec-hyperlink>
 			if the caller is calling on another client's behalf
 		</capitec-alert-banner>`;
@@ -516,25 +518,34 @@ export class ConfirmCallerDetails extends Component {
 	renderConfirmedCaller() {
 		return html`
 				<capitec-group class="client-info" layout="horizontal" gap="none">
-					<capitec-avatar class="image" shape="none" value="" tabindex="-1">
+					<capitec-avatar 
+						class="image" 
+						shape="none" 
+						value="">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
-						<capitec-label row="1" column="1" colspan="2" class="fullname" label="${this.confirmedCaller.name}">
+						<capitec-label row="1" column="1" colspan="2" class="fullname" 
+							label="${this.confirmedCaller.name}">
 						</capitec-label>
-						<horizon-label class="client-info-row" row="2" column="1" label="ID Number"
+						<horizon-label class="client-info-row" row="2" column="1" 
+							label="ID Number"
 							value="${this.confirmedCaller.southAfricanIDNumber}">
 						</horizon-label>
-						<horizon-label class="client-info-row" row="2" column="2" label="Verified Cellphone Number"
+						<horizon-label class="client-info-row" row="2" column="2" 
+							label="Verified Cellphone Number"
 							value="${this._getVerifiedTelephoneNumber()}">
 						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="1" label="Lives In" value="${this.confirmedCaller.livesIn}">
+						<horizon-label class="client-info-row" row="3" columun="1" 
+							label="Lives In" 
+							value="${this.confirmedCaller.livesIn}">
 						</horizon-label>
-						<horizon-label class="client-info-row" row="3" columun="2" label="Language Preference"
+						<horizon-label class="client-info-row" row="3" columun="2" 
+							label="Language Preference"
 							value="${this._getLanguagePreference()}">
 						</horizon-label>
-						<horizon-label class="client-info-row" row="4" columun="1" label="Birthday"
-							value="${this._getBirthdate(this.birthdate)}" tabindex="${getTabIndex(this.birthdate)}"
-							?hidden=${isHidden(this.birthdate)}>
+						<horizon-label class="client-info-row" row="4" columun="1" 
+							label="Birthday"
+							value="${this._getBirthdate(this.birthdate)}" >
 						</horizon-label>
 					</capitec-group>
 				</capitec-group>
@@ -549,7 +560,7 @@ export class ConfirmCallerDetails extends Component {
 					type="clear" 
 					label="Search Client"
 					@click="${() => this._searchClick()}"
-					tabindex="1">
+					tabindex="2">
 				</capitec-button>
 			
 				<capitec-button 
@@ -557,11 +568,10 @@ export class ConfirmCallerDetails extends Component {
 					type="primary" 
 					label="Confirm"
 					@click="${() => this._confirmClick()}"
-					tabindex="2"
+					tabindex="1"
 					autofocus>
 				</capitec-button>
-			</capitec-group>
-			`;
+			</capitec-group>`;
 	}
 
 	renderLoadingIndicator() {

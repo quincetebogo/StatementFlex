@@ -99,6 +99,8 @@ export class ServiceBase {
 							// Do nothing
 							break;
 					}
+				} else {
+					tryCount = maxAttempts; // Fail immediately, no retries
 				}
 
 				if (tryCount >= maxAttempts) {

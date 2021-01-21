@@ -127,13 +127,9 @@ export class CallerDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal 
-                    type="free" 
-                    header-align="left">
+			<capitec-modal type="free" header-align="left">
 				<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-					<capitec-label type="title"
-                                    label="${this.headerLabel}">
-					</capitec-label>
+					<capitec-label type="title" label="${this.headerLabel}"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button 
                                 style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
@@ -144,14 +140,12 @@ export class CallerDialog extends Component {
 				</capitec-group>
 				<div slot="body">
 					${this._renderCallInformation()}
-					<slot name="body">
+					<slot name="body"></slot>
 			
-					</slot>
 				</div>
 				<div slot="footer">
-					<slot name="footer">
+					<slot name="footer"></slot>
 			
-					</slot>
 				</div>
 			</capitec-modal>`;
 
