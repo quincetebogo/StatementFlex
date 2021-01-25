@@ -1,12 +1,11 @@
+import { EventAggregator, Logger } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
@@ -54,6 +53,7 @@ export class LandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -85,8 +85,8 @@ export class LandingPage extends View {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number },
-			isBusy: { type: Boolean }
+			renderMode: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -131,19 +131,23 @@ export class LandingPage extends View {
 		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
-		if (returnValue.succeeded && incident) {
-			await this._acceptCall(newCallInfo, incident);
-		} else {
-			this.horizonRouter.navigateToInitialSystemError();
+		if (!returnValue.succeeded || !incident) {
+			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_onNewCall`, returnValue.correlationId);
 		}
+
+		await this._acceptCall(newCallInfo, incident);
 	}
 
 	async _acceptCall(newCallInfo, incident) {
-		newCallInfo.incidentReferenceNumber = incident.incidentNumber;
-		newCallInfo.incidentRecId = incident.incidentRecId;
+		newCallInfo.incidentReferenceNumber = incident ? incident.incidentNumber : `0`;
+		newCallInfo.incidentRecId = incident ? incident.incidentRecId : `0`;
 
 		// Check the incoming call to see if it is a verified or unverified number
 		const returnValue = await this.callHandleService.acceptCall(newCallInfo);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
+		}
 
 		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
 	}
@@ -256,8 +260,14 @@ export class LandingPage extends View {
 	}
 
 	_landingPageErrorHandler(exception) {
-		this.desktopAgentService.callComplete();
-		this.horizonRouter.navigateToInitialSystemError();
+		// Errors that can happen on the landing page
+
+		//   - initialise can fail - non fatal. This call only reports information to the Channel Service.
+		//   - createIncident can fail - we must be able to proceed without an incident
+		//   - acceptCall can fail - we must proceed to a search dialog
+
+		// Since we can proceed whatever the channel service error on this page, return true to indicate that the error was handled.
+		// The Channel Service call wrappers will log the failed calls.
 		return true;
 	}
 

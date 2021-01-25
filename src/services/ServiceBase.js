@@ -51,6 +51,7 @@ export class ServiceBase {
 	  * @typedef {Object} ReturnValue
 	  * @property {boolean} succeeded - Indicates if the service call succeeded
 	  * @property {object} result - The result of the service call if succeeded is true
+	  * @property {string} correlationId - The correlation ID from any exception that was raised
 	*/
 
 	/**
@@ -67,7 +68,8 @@ export class ServiceBase {
 	async wrapCall(channelServiceCallFunc, caller, errorHandlerFunc = null, maxAttempts = 3) {
 		const returnValue = {
 			succeeded: false,
-			result: null
+			result: null,
+			correlationId: null
 		};
 	
 		let tryCount = 0;
@@ -85,12 +87,13 @@ export class ServiceBase {
 
 			} catch (exception) {
 				this._logException(exception);
-				
+
 				if (exception instanceof HttpStatusError) {
 					switch (exception.status) {
 						case 400: // Bad Request
 						case 401: // Unauthorized
 						case 403: // Forbidden 
+						case 404: // Not Found
 						case 501: // Not implemented
 							tryCount = maxAttempts; // Fail immediately, no retries
 							break;
@@ -99,9 +102,12 @@ export class ServiceBase {
 							// Do nothing
 							break;
 					}
+				} else {
+					tryCount = maxAttempts; // Fail immediately, no retries
 				}
 
 				if (tryCount >= maxAttempts) {
+					returnValue.correlationId = exception.correlationId;
 					this._handleException(errorHandlerFunc, exception);
 				}
 			} finally {
