@@ -116,7 +116,7 @@ export class CallerInfoBar extends Component {
 			<div class="call-details-bar">
 				<horizon-label
                     label="Reference Number"
-                    value = "${this.incidentReferenceNumber}">
+                    value = "${this.incidentReferenceNumber && this.incidentReferenceNumber > 0 ? this.incidentReferenceNumber : ``}">
 				</horizon-label>
 				<horizon-select
                     label="Client Need"
