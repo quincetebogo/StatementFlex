@@ -17,6 +17,7 @@ import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
+import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -213,6 +214,8 @@ export class Favourites extends View {
 			};
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
+		} else if (event.detail.action === `viewInfo`) {
+			this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
 		}
 	}
 
@@ -421,6 +424,7 @@ export class Favourites extends View {
 			${this._renderUpdateCardLimits()}
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckViewInfoMandate()}
 			${this._renderAlertModal()}
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
@@ -509,6 +513,15 @@ export class Favourites extends View {
 		>
 				</horizon-decline-debicheck-mandate>`
 			: html``;
+	}
+
+	_renderDebiCheckViewInfoMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
+		? html`
+			<horizon-viewinfo-debicheck
+				@on-ok="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+			></horizon-viewinfo-debicheck>`
+		: html``;
 	}
 
 	_renderUpdateCardLimits() {
