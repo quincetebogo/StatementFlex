@@ -82,7 +82,7 @@ export class StatementsSuccess extends View {
 	}
 
 	_sendAnotherClick() {
-		this.horizonRouter.navigateToReturnPage(`sendanother`);
+		this.horizonRouter.navigateToReturnPage(`statement`);
 	}
 
 	// ---------
@@ -124,7 +124,7 @@ export class StatementsSuccess extends View {
 	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen header="Statement sent" 
-									image="/images/transactions/debiCheckMandate.svg"
+									image="/images/statements/senddocuments.svg"
 									left="Done"
 									right="Send Another"
 									toast="Statement sent"
@@ -140,7 +140,7 @@ export class StatementsSuccess extends View {
 					<horizon-option-button 
 						class="button-margin" 
 						label="Tax Certificate" 
-						icon="system/time-action">
+						icon="system/sars-action">
 					</horizon-option-button>
 				</section>
 				<section 
@@ -149,7 +149,7 @@ export class StatementsSuccess extends View {
 					<horizon-option-button 
 						class="button-margin" 
 						label="Proof of Account" 
-						icon="system/time-action">
+						icon="system/documents-action">
 					</horizon-option-button>
 				</section>
 			</horizon-success-screen>
