@@ -58,7 +58,7 @@ export class StatementsSuccess extends View {
 			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
-			this.mail=`ivanmakatini@gmail.com`;
+			this.mailId=`ivanmakatini@gmail.com`;
 			this.encryptedCardId=`5284 **** **** 1322`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
@@ -132,7 +132,7 @@ export class StatementsSuccess extends View {
 									@right-click=${() => this._sendAnotherClick()}>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.encryptedCardId}</b> was emailed to <b>${this.mail}</b>
+					slot="detail">The statement for savings account <b>5284 **** **** 1322</b> was emailed to <b>ivanmakatini@gmail.com</b>
 				</section>
 				<section 
 						id="id-option-button" 
