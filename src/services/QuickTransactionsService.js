@@ -22,4 +22,8 @@ export class QuickTransactionsService extends ServiceBase {
 	favouritesLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
+
+	debiCheckDetails(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTORETRIES) {
+		return this.wrapCall(this.channelService.debiCheckDetails(clientInfo), `debiCheckDetails`, errorHandler, autoRetries);
+	}
 }
