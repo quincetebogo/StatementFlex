@@ -146,7 +146,7 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<horizon-label
 						label="Reference Number" 
-						value="${this.referenceNo}">
+						value="${this.referenceNo && this.referenceNo > 0 ? this.referenceNo : ``}">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label

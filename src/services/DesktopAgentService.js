@@ -1,11 +1,8 @@
+import { Configuration, EventAggregator, Logger, NavigationContext, Router } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
-import { Configuration } from 'platform/Configuration';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { NavigationContext } from 'platform/NavigationContext';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { Router } from 'platform/Router';
 import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
@@ -69,6 +66,7 @@ export class DesktopAgentService {
 		this.HorizonRouter = HorizonRouter.getInstance();
 		this.router = Router.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 
@@ -90,8 +88,6 @@ export class DesktopAgentService {
 	 * @memberof DesktopAgentService
 	 */
 	async _onNewCall(event) {
-		// console.log(`_onNewCall: new call event received`);
-
 		const eventData = JSON.parse(event.data);
 
 		// Do nothing with hearbeats. They are just to keep the connection alive
@@ -132,15 +128,19 @@ export class DesktopAgentService {
 			this.lastEventId = event.lastEventId;
 
 			if (this.nextCall) {
-				// Should we do something to record this as a dropped call. The new incoming call
-				// will overwrite this. This pending call event was never picked up by the UI.
+				this.logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `_onNewCall`);
+			}
+
+			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
+				newCallEvent.voiceReferenceNumber = 0;
+				this.logger.log(`error`, `No Voice Reference Number received!. The ACapitecAES Proxy component may be down!`, `_onNewCall`);
 			}
 
 			this.nextCall = newCallEvent;
 
 			this._handleIncomingCall();
 		} catch (err) {
-			console.log(err);
+			this.logger.log(`fatal`, err.message, `_onNewCall`);
 		}
 	}
 
@@ -271,8 +271,6 @@ export class DesktopAgentService {
 	}
 
 	_handleIncomingCall() {
-		console.log(`_handleIncomingCall`);
-
 		// Don't handle incoming call if if application is still starting up
 		if (!this.nextCall || this.navigationContext.current === undefined) {
 			return;
@@ -285,7 +283,6 @@ export class DesktopAgentService {
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
 		if (this._landingPageActive()) {
 			// If Landing Page => publish event
-			console.log(`_handleIncomingCall: on landing page - publishing call event`);
 
 			this.onCall = true;
 
