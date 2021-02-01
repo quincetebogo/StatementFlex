@@ -356,10 +356,33 @@ export class Favourites extends View {
 		}
 	}
 
-	_debiCheck() {
+	async _debiCheck() {
 		this.debiCheckMandates = mockMandates.mandateSummaryList;
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		// TODO: Service call to get mandates comes here
+
+		const debiCheckDetails = {
+			registeredId: ``,
+			mandateId: ``,
+			firstCollectionDate: ``,
+			tracking: ``,
+			contractReference: ``,
+			collectorContact: ``,
+			mandateReference: ``,
+			collectorEmail: ``,
+			mandateRequestTransactionIdentifier: ``
+		};
+
+		const returnValue = await this.quickTransactionService.debiCheckDetails(debiCheckDetails);
+		
+		if (returnValue.succeeded) {
+			this.horizonStore.saveState({
+				debiCheckDetails: this.debiCheckDetails
+			});
+			this.horizonRouter.navigateToReturnPage(`mandate`);
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
 	}
 
 	_updateCardLimits() {
