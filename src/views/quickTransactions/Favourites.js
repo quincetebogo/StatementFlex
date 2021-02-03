@@ -68,7 +68,7 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
 		this.cards = [];
-
+		this.debiCheckDetails = {};
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -530,6 +530,16 @@ export class Favourites extends View {
 		>
 				</horizon-decline-debicheck-mandate>`
 			: html``;
+	}
+
+	_renderDebiCheckViewInfoMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
+		? html`
+			<horizon-viewinfo-debicheck
+				.debiCheckDetails=${this.debiCheckDetails}
+				@on-ok="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+			></horizon-viewinfo-debicheck>`
+		: html``;
 	}
 
 	_renderUpdateCardLimits() {
