@@ -375,4 +375,21 @@ export class HorizonChannelService extends Service {
 
 		return this._get(url, null, `favouritesLanding`);
 	}
+
+	// ------------------------
+	// Savings Account Methods
+	// ------------------------
+
+	/**
+	 * Records the information on an incoming call
+	 *
+	 * @param {Object} clientInfo Incoming call information
+	 * @returns {Promise<*>} Client's list of debi check mandates
+	 * @memberof HorizonChannelService
+	 */
+	debiCheckMandates(clientInfo) {
+		const url = `/clientcare/debicheck/${this._version}/client/${clientInfo.cifNumber}/mandates`;
+
+		return this._get(url, null, `debiCheckMandates`);
+	}
 }

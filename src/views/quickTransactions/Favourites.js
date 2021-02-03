@@ -5,6 +5,7 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 // TODO: Below mocks import has to be removed when service call is implemented
 import { mockCards } from 'app/mocks/CardLimitsMock';
@@ -82,8 +83,9 @@ export class Favourites extends View {
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -244,7 +246,7 @@ export class Favourites extends View {
 			};
 
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
-
+			 
 			 if (returnValue.succeeded) {
 			 	this.isLoading = false;
 			 	this.landingPageInfo = returnValue.result;
@@ -356,10 +358,19 @@ export class Favourites extends View {
 		}
 	}
 
-	_debiCheck() {
-		this.debiCheckMandates = mockMandates.mandateSummaryList;
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		// TODO: Service call to get mandates comes here
+	async _debiCheck() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber
+		};
+
+		const returnValue = await this.savingsAccountService.debiCheckMandates(request);
+
+		if (returnValue.succeeded) {
+			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		} else {
+			// Todo: Handle error scenario
+        }
 	}
 
 	_updateCardLimits() {

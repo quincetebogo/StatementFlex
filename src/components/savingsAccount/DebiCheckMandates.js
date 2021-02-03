@@ -138,6 +138,24 @@ export class DebiCheckMandates extends Component {
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateId: `` } }));
 	}
 
+	_hasMandatesToDisplay() {
+		let flag = false;
+
+		if (this.filterBy === FILTER_BY.ALL && (this.pendingMandates.length > 0 || this.activeMandates.length > 0 || this.inActiveMandates.length > 0)) {
+			flag = !flag;
+		} else if (this.filterBy === FILTER_BY.PENDING && this.pendingMandates.length > 0) {
+			flag = !flag;
+		} else if (this.filterBy === FILTER_BY.ACTIVE && this.activeMandates.length > 0) {
+			flag = !flag;
+		} else if (this.filterBy === FILTER_BY.INACTIVE && this.inActiveMandates.length > 0) {
+			flag = !flag;
+		} else {
+			// do nothing
+		}
+
+		return flag;
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -262,6 +280,21 @@ export class DebiCheckMandates extends Component {
 					--theme-data-table-border-last-row: none;
 					--theme-data-table-footer-border: none;
 				}
+
+				/* No Results CSS */
+				.document-icon {
+					margin-top: 85px;
+				}
+				.debi-check-logo {
+					width: 96px;
+					height: 24px;
+					margin-bottom: 33px;
+				}
+				.no-results {
+					--theme-label-strong-font-size: 24px;
+					--theme-label-strong-font-weight: 600;
+					--theme-label-font-color: #3A3A3A;
+				}
 			`
 		];
 	}
@@ -278,6 +311,7 @@ export class DebiCheckMandates extends Component {
 					${this._renderActionBar()}
 					<capitec-content-box>
 						${this._renderDebiCheckMandates()}
+						${this._renderNoResults()}
 					</capitec-content-box>
 				</capitec-group>
 			</capitec-card>
@@ -304,7 +338,8 @@ export class DebiCheckMandates extends Component {
 					label="Search by description or amount"
 					type="search"
 					keyboardMode="alpha-numeric"
-					@input="${(e) => this._filterByText(e)}">
+					@input="${(e) => this._filterByText(e)}"
+					@value-changed="${(e) => this._filterByText(e)}">
 				</capitec-text-field>
 				<capitec-radio-group>
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
@@ -365,7 +400,7 @@ export class DebiCheckMandates extends Component {
 
 	_renderPendingMandates() {
 		if (this.pendingMandates.length > 0) {
-				return html`
+			return html`
 				${this._renderHeader(`Pending`)}
 				<capitec-table displayMode="Full" .items="${this.pendingMandates}" ?hideHeader=${true}>
 					<capitec-table-column label="" field="" type="text" 
@@ -375,7 +410,6 @@ export class DebiCheckMandates extends Component {
 			`;
 		}
 		return html``;
-		
 	}
 
 	_renderActiveMandates() {
@@ -483,6 +517,25 @@ export class DebiCheckMandates extends Component {
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve()}">
 					 </capitec-label>`;
+	}
+
+	_renderNoResults() {
+		
+		if (this._hasMandatesToDisplay()) {
+			return html``;
+		}
+
+		return html`
+			<capitec-group layout="vertical" halign="center" valign="top" gap="none">
+				<img src="/images/common/document.svg" class="document-icon"/>
+				<img src="/images/debi-check/debi-check-logo.svg" class="debi-check-logo"/>
+				<capitec-label
+					class="no-results"
+					label="No results found"
+					type="strong">
+				</capitec-label>
+			</capitec-group>
+		`;
 	}
 }
 
