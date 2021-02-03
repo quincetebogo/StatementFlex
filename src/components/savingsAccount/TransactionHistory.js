@@ -1,12 +1,19 @@
 import { Component, css, html,unsafeCSS } from 'platform/elements';
-import  'app/components/common/DoubleCalendar';
 import {EXPANDER_LABEL, FIRST_CELL, TABLE_EXPANDER_CELL} from 'app/css/TransactionHistory';
 import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
 
-const RENDER_MODE = {
-	MAIN_PAGE : 0,
-	CALENDAR : 1
-}
+const FILTER_BY = {
+	ALL: 0,
+	TEXT: 1,
+	DATE: 2,
+	STATUS: 3
+};
+
+const RENDER_CHIPS = {
+	1 : "",
+	2 : "",
+	3 : ""
+};
 
 /**
  * Transaction History component
@@ -30,22 +37,29 @@ export class TransactionHistory extends Component {
 		super();
 
 		// private properites
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this.filterText = null;
 		this.filterArray = [];
-		this.headerRecords =
-			{columnOne: '1928247288',
-			 columnTwo: 'R20 916.00', 
-			 columnThree: 'R20 567.00', 
-			 columnFour: 'R349.00', 
-			 columnFive: '5.5%',
-			 columnSix: 'Active'};
+		this.headerRecords = {columnOne: '1928247288',
+								columnTwo: 'R20 916.00', 
+								columnThree: 'R20 567.00', 
+								columnFour: 'R349.00', 
+								columnFive: '5.5%',
+								columnSix: 'Active'};
 		
 		this.today = new Date();
 		this.minDate = new Date(this.today);
 		this.minDate.setDate(this.today.getDate() - 90);
 	
 		this.transactionHistory = [];
+		this.tableData = [];
+		this.transactionStatus = [
+			"Processed",
+			"Pending",
+			"Expired",
+			"Reversed",
+			"Partial reversal",
+			"Partial reversal processed"
+		]
+
 
 	}
 	// --------------
@@ -61,7 +75,9 @@ export class TransactionHistory extends Component {
 
 	static get properties() {
 		return {
-			filterText: { attribute: false },
+			RENDER_CHIPS : {attribute: false},
+			transactionHistory: { type: Object },
+			tableData: { type: Object },
 			
 			renderMode: { attribute: false }
 		};
@@ -76,7 +92,13 @@ export class TransactionHistory extends Component {
 		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
 
 		//TO DO: Date to be picked as needed when service calls is built.
-		this.transactionHistory.map((item) => item.groupByItem = item.TransactionDate.substr(2,9));
+		this.transactionHistory.map((item) => {
+						item.groupByItem = item.TransactionDate.substr(2,9);
+						item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+						item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`
+					});
+		
+		this.tableData = this.transactionHistory;
 	}
 
 	// --------------
@@ -87,17 +109,14 @@ export class TransactionHistory extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	calendarClick(){
-		this.renderMode = RENDER_MODE.CALENDAR;
+	_filterByText(event) {
+		RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new;
+		this._lookForKey();
 	}
 
-	_filterByText(event) {
-	
-		const searchText = event.detail.new || event.detail.label;
-		if (searchText) {
-			this.filterText = searchText;
-		}
-		this.filterArray.push(this.filterText);
+	_filterByStatus(event) {
+		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.label;
+		this._lookForKey();
 	}
 
 	_filterByCalendar(event){
@@ -106,14 +125,29 @@ export class TransactionHistory extends Component {
 		this.filterArray.push(this.filterText);
 	}
 
-	_closeChip(e){
-		const index = this.filterArray.indexOf(e.currentTarget.label);
-		this.filterArray.splice(index, 1);
+	_lookForKey(){
+
+		this.tableData = this.transactionHistory;
+		const textFilter = this.tableData.filter(item => item.TransactionStatus === RENDER_CHIPS[FILTER_BY.STATUS]	|| 
+														(item.Description.toLowerCase().indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 ||
+														item.Amount.indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 ||
+														item.Balance.indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 ));
+		
+		const statusFilter = this.tableData.filter(item => item.TransactionStatus === RENDER_CHIPS[FILTER_BY.STATUS] );
+		this.tableData = textFilter;
+
+	}
+
+	_closeChip(searchType){
+		(searchType === "text") ? RENDER_CHIPS[FILTER_BY.TEXT] = "" : (searchType === "date" ? RENDER_CHIPS[FILTER_BY.DATE] = "" : RENDER_CHIPS[FILTER_BY.STATUS] = "")
+
+		this._lookForKey();
 		this.requestUpdate();
 	}
 
 	_clearFilters(){
 		this.filterArray = [];
+		this.tableData = this.transactionHistory;
 		this.requestUpdate();
 	}
 
@@ -125,6 +159,7 @@ export class TransactionHistory extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -207,6 +242,12 @@ export class TransactionHistory extends Component {
 					--theme-actionbar-padding: 8px 16px 8px 16px;
 					--theme-actionbar-min-height: 64px;
 					--theme-actionbar-item-gap: 8px;
+				}
+
+				.transaction-action-bar > capitec-select {
+					--theme-input-label-font-size: 16px;
+					line-height: 20px;
+					--theme-input-label-color : #3A3A3A;
 				}
 
 				.calendar-container {
@@ -436,7 +477,6 @@ export class TransactionHistory extends Component {
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
 				</capitec-group>
-				${this._renderCalendar()}
 			</capitec-card>
 			
 			`;
@@ -471,7 +511,7 @@ export class TransactionHistory extends Component {
 					label="Search for amount or transaction name"
 					type="search"
 					keyboardMode="alpha-numeric"
-					@input="${(e) => this._filterByText(e)}">
+					@key-input="${(e) => this._filterByText(e)}">
 				</capitec-text-field>
 
 				<capitec-date-time-picker
@@ -486,25 +526,33 @@ export class TransactionHistory extends Component {
 						@apply-click = "${(e) => this._filterByCalendar(e)}">
 				</capitec-date-time-picker>
 
-				<capitec-overflow-menu>
+				<capitec-select
+					label="Transaction status"
+					.items="${this.transactionStatus}"
+					.displayRenderer="${(e) => this._renderSelectOptions(e)}"
+					@value-change = "${(e) => this._filterByStatus(e)}">
+				</capitec-select>
+
+
+				<!-- <capitec-overflow-menu>
 					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 						<div class="status-icon processed">
 						</div>
-						<capitec-overflow-menu-item label="Processed" @click="${(e) => this._filterByText(e)}">
+						<capitec-overflow-menu-item label="Processed" @click="${(e) => this._filterByStatus(e)}">
 						</capitec-overflow-menu-item>
 					</capitec-group>
 
 					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 						<div class="status-icon pending">
 						</div>
-						<capitec-overflow-menu-item label="Pending" @click="${(e) => this._filterByText(e)}">
+						<capitec-overflow-menu-item label="Pending" @click="${(e) => this._filterByStatus(e)}">
 						</capitec-overflow-menu-item>
 					</capitec-group>
 
 					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 						<div class="status-icon expired">
 						</div>
-						<capitec-overflow-menu-item label="Expired" @click="${(e) => this._filterByText(e)}">
+						<capitec-overflow-menu-item label="Expired" @click="${(e) => this._filterByStatus(e)}">
 						</capitec-overflow-menu-item>
 					</capitec-group>
 
@@ -516,26 +564,26 @@ export class TransactionHistory extends Component {
 							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 								<div class="status-icon reversed">
 								</div>
-								<capitec-overflow-menu-item label="Reversed" @click="${(e) => this._filterByText(e)}">
+								<capitec-overflow-menu-item label="Reversed" @click="${(e) => this._filterByStatus(e)}">
 								</capitec-overflow-menu-item>
 							</capitec-group>
 
 							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 								<div class="status-icon reversed">
 								</div>
-								<capitec-overflow-menu-item label="Partial reversal" @click="${(e) => this._filterByText(e)}">
+								<capitec-overflow-menu-item label="Partial reversal" @click="${(e) => this._filterByStatus(e)}">
 								</capitec-overflow-menu-item>
 							</capitec-group>
 
 							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 								<div class="status-icon reversed">
 								</div>
-								<capitec-overflow-menu-item label="Partial reversal processed" @click="${(e) => this._filterByText(e)}">
+								<capitec-overflow-menu-item label="Partial reversal processed" @click="${(e) => this._filterByStatus(e)}">
 								</capitec-overflow-menu-item>
 							</capitec-group>
 						</capitec-overflow-menu-item>
 					</capitec-group>
-				</capitec-overflow-menu>
+				</capitec-overflow-menu> -->
 					
 			</capitec-action-bar>
 
@@ -544,29 +592,49 @@ export class TransactionHistory extends Component {
 		`;
 	}
 
+_renderSelectOptions(e){
+	return html`
+		<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+			<div class="status-icon ${e}"></div>
+			<capitec-label label="${e}"></capitec-label>
+		</capitec-group>`;
+}
+
 	_renderFilterBar(){
-		if(this.filterArray.length >0){
+		if(RENDER_CHIPS[FILTER_BY.TEXT] !== "" || RENDER_CHIPS[FILTER_BY.DATE] !== "" || RENDER_CHIPS[FILTER_BY.STATUS] !== ""){
 			return html`
 				<capitec-action-bar class="filter-bar">
 					<capitec-label label = "Active filters:"></capitec-label>
-					${this._renderFilterChips()}
+					
+					<!-- can be included in a single render function -->
+					${this._renderTextChip()}
+					${this._renderDateChip()}
+					${this._renderStatusChip()}
 					<capitec-button type="clear" label="Clear All" @click = "${() => this._clearFilters()}"></capitec-button>
 				</capitec-action-bar>
 			`;
 		}
 	}
-
-	_renderFilterChips(){
-		return	this.filterArray.map(item => html`<capitec-chip label="${item}" @remove="${(e) => this._closeChip(e)}" closable></capitec-chip>`);
-
+	
+	_renderTextChip(){
+		if(RENDER_CHIPS[FILTER_BY.TEXT]){
+			return	html`
+			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.TEXT]}" @remove="${() => this._closeChip("text")}" closable>`;
+			}
 	}
 
-	
-	_renderCalendar() {
-		if(this.renderMode === RENDER_MODE.CALENDAR){
-		return html`	
-			`;
-		}
+	_renderDateChip(){
+		if(RENDER_CHIPS[FILTER_BY.DATE]){
+			return html`
+			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.DATE]}" @remove="${() => this._closeChip("date")}" closable>`;
+			}
+	}
+
+	_renderStatusChip(){
+		if(RENDER_CHIPS[FILTER_BY.STATUS]){
+			return html`
+			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.STATUS]}" @remove="${() => this._closeChip("status")}" closable>`;
+			}
 	}
 
 	_renderTransactionHistory(){
@@ -578,7 +646,7 @@ export class TransactionHistory extends Component {
 			<capitec-label label="Amount(R)"></capitec-label>
 			<capitec-label label="Balance"></capitec-label>
 		</capitec-group>
-		<capitec-table .items="${this.transactionHistory}" groupField="groupByItem" displayMode="LoadMore" expandable="right" ?hideHeader=${true} .expandRenderer="${(item) => this._renderExpander(item)}">
+		<capitec-table .items="${this.tableData}" groupField="groupByItem" displayMode="LoadMore" expandable="right" ?hideHeader=${true} .expandRenderer="${(item) => this._renderExpander(item)}">
 			<capitec-table-column field="TransactionDate" size="161px;"></capitec-table-column>
 			<capitec-table-column field="Description" size="411px;"></capitec-table-column>
 			<capitec-table-column field="TransactionStatus" size="190px;" .renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}"></capitec-table-column>></capitec-table-column>
