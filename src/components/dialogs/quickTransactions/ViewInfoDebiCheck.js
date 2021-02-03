@@ -10,6 +10,7 @@ export class ViewInfoDebiCheck extends Component {
 	
 	constructor() {
 		super();
+		this.debiCheckDetails = {};
 	}
 
 	// ----------
@@ -182,19 +183,19 @@ export class ViewInfoDebiCheck extends Component {
 				<img class="image" src="/images/transactions/DebiCheck-logo-Banner-1024x256.svg"/>
 				<capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" gap="none" >
 				<capitec-label type="default" label="First collection date" row="1" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="12 May 2019" row="1" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.firstCollectionDate}" row="1" column="2"></capitec-label>
 				<capitec-label type="default" label="Tracking allowed" row="2" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="Yes" row="2" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.tracking}" row="2" column="2"></capitec-label>
 				<capitec-label type="default" label="Contract reference" row="3" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="1122334455667788" row="3" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.contractReference}" row="3" column="2"></capitec-label>
 				<capitec-label type="default" label="Collector contact number" row="4" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="011 555 8900" row="4" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.collectorContact}" row="4" column="2"></capitec-label>
 				<capitec-label type="default" label="Mandate reference" row="5" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="ERTY8910283" row="5" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.mandateReference}" row="5" column="2"></capitec-label>
 				<capitec-label type="default" label="Collector email address" row="6" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="email@email.com" row="6" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.collectorEmail}" row="6" column="2"></capitec-label>
 				<capitec-label type="default" label="Mandate request transaction identifier" row="7" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="-"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.mrti ? this.debiCheckDetails.mrti : html`-`}"></capitec-label>
 				</capitec-group>
 		`;
 	}
