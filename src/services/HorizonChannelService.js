@@ -381,17 +381,8 @@ export class HorizonChannelService extends Service {
 	// --------------------------
 
 	debiCheckDetails(clientInfo) {
-		const url = `/clientcare/debicheck/${this._version}/client/{cifNumber}/mandate/{mandateId}/register/{registerId}/details?` +
-				`CIFNumber=${clientInfo.CifNumber}` +
-				`MandateId=${clientInfo.mandateId}` +
-				`RegisterId=${clientInfo.registeredId}` +
-				`firstCollectionDate=${this.firstCollectionDate}` + 
-				`tracking=${this.tracking}` +
-				`contractReference=${this.contractReference}` +
-				`collectorContact=${this.collectorContact}` +
-				`mandateReference=${this.mandateReference}` +
-				`collectorEmail=${this.collectorEmail}` +
-				`mrti=${this.mrti}`;
-	return this.get(url, null, `debiCheckDetails`);
+		const url = `/clientcare/debicheck/${this._version}/client/${clientInfo.CifNumber}/mandate/${clientInfo.mandateId}/register/${clientInfo.registeredId}/details`;
+				
+	return this._get(url, null, `debiCheckDetails`);
 	}
 }
