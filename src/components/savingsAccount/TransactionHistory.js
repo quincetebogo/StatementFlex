@@ -11,16 +11,16 @@ const RENDER_MODE = {
 };
 
 const FILTER_BY = {
-	ALL: 0,
-	TEXT: 1,
-	DATE: 2,
-	STATUS: 3
+	ALL: `ALL`,
+	TEXT: `TEXT`,
+	DATE: `DATE`,
+	STATUS: `STATUS`
 };
 
 const RENDER_CHIPS = {
-	1 : "",
-	2 : "",
-	3 : ""
+	TEXT: ``,
+	DATE: ``,
+	STATUS: ``
 };
 
 /**
@@ -51,10 +51,7 @@ export class TransactionHistory extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.startDate = ``;
 		this.endDate = ``;
-	
-		this.tableData = [];
-		this.textFilter = [];
-		this.statusFilter = [];
+		this.filteredData = [];
 	}
 
 	// --------------
@@ -62,7 +59,8 @@ export class TransactionHistory extends Component {
 	// --------------
 
 	/**
-	 *
+	 * @property {Object} transactionHistory Has list of client's transactions
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof TransactionHistory
@@ -71,7 +69,6 @@ export class TransactionHistory extends Component {
 	static get properties() {
 		return {
 			transactionHistory: { type: Object },
-			tableData: { type: Object },
 
 			renderMode: { attribute: false },
 			startDate: { attribute: false },
@@ -85,18 +82,19 @@ export class TransactionHistory extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		
 		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
 		this.accountDetails = transactionHistoryMockData.accountDetails;
-
-		// TO DO: Date can be formated as required according to the response once CS call is ready.
-		// Adding a groupByItem onto the response to group the obtained records by Transaction Date .
 		this.transactionHistory.map((item) => {
-						item.groupByItem = item.TransactionDate.substr(2, 9);
-						item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-						item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`
-					});
-		
-		this.tableData = this.transactionHistory;
+			const date = new Date(Date.parse(item.TransactionDate))
+
+			item.TranDate = date;
+			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+			item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`
+		});
+
+		this.filteredData = this.transactionHistory;
 	}
 
 	// --------------
@@ -107,9 +105,9 @@ export class TransactionHistory extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_filterByText(event) {
+	_searchTextChange(event) {
 		RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new;
-		this._lookForKey();
+		this._refineSearch();
 	}
 
 	_startDateChanged(e) {
@@ -129,6 +127,7 @@ export class TransactionHistory extends Component {
 			return;
 		}
 		RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+		this._refineSearch();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -136,51 +135,53 @@ export class TransactionHistory extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_filterByCalendar(event) {
-		this.endDate = new Date(event.detail.new.endDate);
-		this.startDate = new Date(event.detail.new.startDate);
-		RENDER_CHIPS[FILTER_BY.DATE] = new Date(event.detail.new.startDate).toString().substr(4,11) + " - " + new Date(event.detail.new.endDate).toString().substr(4,11);
-		this._lookForKey();
-	}
-
 	_filterByStatus(event) {
-		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.new;
-		this._lookForKey();
+		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.label;
+		this._refineSearch();
 	}
 
-	_closeChip(searchType) {
-		(searchType === "text") ? RENDER_CHIPS[FILTER_BY.TEXT] = "" : (searchType === "date" ? RENDER_CHIPS[FILTER_BY.DATE] = "" : RENDER_CHIPS[FILTER_BY.STATUS] = "")
-
-		this._lookForKey();
+	_closeChip(type) {
+		RENDER_CHIPS[type] = ``;
+		this._refineSearch();
 	}
 
 	_clearFilters() {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this._lookForKey();
+		
+		this.filteredData = this.transactionHistory;
+		this.requestUpdate();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
-	_lookForKey() {
 
-		this.tableData = this.transactionHistory;
-		
-		RENDER_CHIPS[FILTER_BY.TEXT] ?
-		this.textFilter = this.tableData.filter(item => (item.Description.toLowerCase().indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 ||
-														item.Amount.indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 ||
-														item.Balance.indexOf(RENDER_CHIPS[FILTER_BY.TEXT]) !== -1 )) : this.textFilter=[];
-		
-		RENDER_CHIPS[FILTER_BY.DATE] ? this.dateFilter = this.tableData.filter(item => ((new Date(item.TransactionDate) >= this.startDate) && (new Date(item.TransactionDate) <= this.endDate))) : this.dateFilter = [];
-	
-		RENDER_CHIPS[FILTER_BY.STATUS] ? this.statusFilter = this.tableData.filter(item => item.TransactionStatus === RENDER_CHIPS[FILTER_BY.STATUS] ) : this.statusFilter = [];
-	
-		(RENDER_CHIPS[FILTER_BY.TEXT] !== "" || RENDER_CHIPS[FILTER_BY.STATUS] !== "" || RENDER_CHIPS[FILTER_BY.DATE] !== "")
-			? (this.tableData = [... new Set([...this.textFilter ,...this.statusFilter ,...this.dateFilter])])
-			: (this.tableData) ;
+	_refineSearch() {
+
+		this.filteredData = this.transactionHistory;
+		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT];
+
+			this.filteredData = this.filteredData.filter(item => item.Description.toLowerCase().indexOf(searchText) !== -1 ||
+															 	 parseInt(item.Amount, 10) === parseInt(searchText, 10)
+			);
+		}
+
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
+
+			this.filteredData = this.filteredData.filter(item => item.TranDate >= startDate && item.TranDate <= endDate);
+		}
+
+		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
+			const status = RENDER_CHIPS[FILTER_BY.STATUS];
+
+			this.filteredData = this.filteredData.filter(item => item.TransactionStatus === status);
+		}
+		this.requestUpdate();
 	}
 
 	_showCalendar() {
@@ -479,7 +480,9 @@ export class TransactionHistory extends Component {
 					label="Search for amount or transaction name"
 					type="search"
 					keyboardMode="alpha-numeric"
-					@key-input="${(e) => this._filterByText(e)}">
+					@key-input="${(e) => this._searchTextChange(e)}"
+					@value-change="${(e) => this._searchTextChange(e)}"
+					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
 				</capitec-text-field>
 
 				<capitec-content-box
@@ -500,7 +503,7 @@ export class TransactionHistory extends Component {
 						</capitec-icon>
 				</capitec-content-box>
 
-				<capitec-overflow-menu>
+				<capitec-overflow-menu label="Transaction Status">
 					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
 						<div class="status-icon processed">
 						</div>
@@ -559,9 +562,9 @@ export class TransactionHistory extends Component {
 			return html`
 				<capitec-action-bar class="filter-bar">
 					<capitec-label label = "Active filters:"></capitec-label>
-					${this._renderTextChip()}
-					${this._renderDateChip()}
-					${this._renderStatusChip()}
+						${this._renderTextChip()}
+						${this._renderDateChip()}
+						${this._renderStatusChip()}
 					<capitec-button type="clear" label="Clear All" @click = "${() => this._clearFilters()}"></capitec-button>
 				</capitec-action-bar>
 			`;
@@ -571,28 +574,43 @@ export class TransactionHistory extends Component {
 	_renderTextChip() {
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			return	html`
-			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.TEXT]}" @remove="${() => this._closeChip("text")}" closable>`;
+				<capitec-chip
+					label="${RENDER_CHIPS[FILTER_BY.TEXT]}"
+					@remove="${() => this._closeChip(FILTER_BY.TEXT)}"
+					closable>
+				</capitec-chip>
+			`;
 		}
 	}
 
 	_renderDateChip() {
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
 			return html`
-			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.DATE]}" @remove="${() => this._closeChip("date")}" closable>`;
+				<capitec-chip
+					label="${RENDER_CHIPS[FILTER_BY.DATE]}"
+					@remove="${() => this._closeChip(FILTER_BY.DATE)}"
+					closable>
+				</capitec-chip>
+			`;
 		}
 	}
 
 	_renderStatusChip() {
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			return html`
-			<capitec-chip label="${RENDER_CHIPS[FILTER_BY.STATUS]}" @remove="${() => this._closeChip("status")}" closable>`;
+				<capitec-chip
+					label="${RENDER_CHIPS[FILTER_BY.STATUS]}"
+					@remove="${() => this._closeChip(FILTER_BY.STATUS)}"
+					closable>
+				</capitec-chip>
+			`;
 		}
 	}
 
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				.items="${this.tableData}"
+				.items="${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="LoadMore"
 				expandable="right"
