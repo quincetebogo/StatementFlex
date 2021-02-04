@@ -1,7 +1,19 @@
 import { View, css, html } from 'platform/elements';
+
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
+/**
+ * Savings Account View
+ *
+ * Events Raised
+ * -------------
+ * -
+ * 
+ * @export
+ * @class SavingsAccount
+ * @extends {Component}
+ */
 export class SavingsAccount extends View {
 	
 	// --------------
@@ -57,11 +69,11 @@ export class SavingsAccount extends View {
 		return [
 			super.styles,
 			css`
-
 				.card {
 					width: 100%;
 					height: auto;
 				}
+				/* Title Bar styles */
 				capitec-title-bar {
 					--theme-type-primary-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
@@ -69,6 +81,7 @@ export class SavingsAccount extends View {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
 				}
+				/* Main view styles */
 				capitec-content-box {
 					width: auto;
 					height: 666px;
@@ -86,6 +99,7 @@ export class SavingsAccount extends View {
 
 					--theme-card-min-height: 64px;
 				}
+				/* Account Details Bar Styles */
 				.account-details-bar {
 					display: flex;
 					position: relative;
@@ -102,22 +116,21 @@ export class SavingsAccount extends View {
 					--theme-expander-height: 210px;
 				}
 				.account-details-bar > capitec-group {
+					width: 984px;
 					z-index: 10;
-				}
-				.actionbar-header {
-					height: auto;
-					width: auto;
-					margin: 0px;
-					border-bottom: 0px;
 					padding-top: 12px;
 					padding-bottom: 12px;
-					padding-left: 0px
+					border-right: 1px solid #dfdfdf;
 				}
 				.actionbar-header > horizon-label[label="Account Number"] {
 					width: 174px;
+					border-right: 1px solid #dfdfdf;
 				}
 				.actionbar-header > horizon-label[label="Interest"] {
 					width: 120px;
+				}
+				.actionbar-header > horizon-label[label="Status"] {
+					--horizon-label-value-color: #70AF00;
 				}
 				.actionbar-header > horizon-label {
 					width: 156px;
@@ -132,22 +145,19 @@ export class SavingsAccount extends View {
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 				}
-				.related-options {
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
+				capitec-group > capitec-title-bar {
+					--theme-titlebar-min-height: 32px;
+					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-type-default-background: rgb(244, 244, 244);
+					--theme-label-title-font-size: 15px;
+					--theme-label-title-font-weight: 600;
+					--theme-type-default-font-color: #545D60;
+					--theme-label-title-font-size: 14px;
+
+					border-top: 1px solid #E1E1E1;
 				}
-				.related-options-text {
-					margin: 0px 0px 0px 16px;
-					padding: 0px 0px 0px 0px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
+				.other-options {
+					--theme-type-default-font-color: #3A3A3A	
 				}
 				.options-group {
 					height: 80px; 
@@ -157,6 +167,8 @@ export class SavingsAccount extends View {
 				horizon-option-button {
 					width: 204px;
 					height: 80px;
+
+					--horizon-option-btn-text-margin-top: 3px;
 				}
 				.button-margin {
 					height: 80px;
@@ -202,16 +214,34 @@ export class SavingsAccount extends View {
 	_renderAccountDetailsBar() {
 		return html`
 			<div class="account-details-bar">
-				<capitec-expander label="">
+				<capitec-expander label="" expanded="${true}">
 					${this._renderOptions()}
 				</capitec-expander>
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-					<horizon-label label="Account Number" value = "${this.headerRecords.columnOne}"></horizon-label>
-					<horizon-label label="Balance" value = "${this.headerRecords.columnTwo}"></horizon-label>
-					<horizon-label label="Available Balance" value = "${this.headerRecords.columnThree}"></horizon-label>
-					<horizon-label label="Pending amount" value = "${this.headerRecords.columnFour}"></horizon-label>
-					<horizon-label label="Interest" value = "${this.headerRecords.columnFive}"></horizon-label>
-					<horizon-label label="Status" value = "${this.headerRecords.columnSix}"></horizon-label>
+					<horizon-label
+						label="Account Number"
+						value="${this.headerRecords.columnOne}">
+					</horizon-label>
+					<horizon-label
+						label="Balance"
+						value="${this.headerRecords.columnTwo}">
+					</horizon-label>
+					<horizon-label
+						label="Available Balance"
+						value="${this.headerRecords.columnThree}">
+					</horizon-label>
+					<horizon-label
+						label="Pending amount"
+						value="${this.headerRecords.columnFour}">
+					</horizon-label>
+					<horizon-label
+						label="Interest"
+						value="${this.headerRecords.columnFive}">
+					</horizon-label>
+					<horizon-label
+						label="Status"
+						value="${this.headerRecords.columnSix}">
+					</horizon-label>
 				</capitec-group>
 			</div>
 		`;
@@ -221,16 +251,12 @@ export class SavingsAccount extends View {
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
-				<div class="related-options">
-					<p class="related-options-text">Choose an Option</p>
-				</div>
-
+				<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-
 					<horizon-option-button 
-							class="button-margin" 
-							label="Transaction History" 
-							icon="system/time-action">
+						class="button-margin" 
+						label="Transaction History" 
+						icon="system/time-action">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
@@ -247,7 +273,6 @@ export class SavingsAccount extends View {
 						label="More" 
 						icon="system/more-action">
 					</horizon-option-button>
-
 				</capitec-group>
 			</capitec-group>
 		`;
@@ -257,23 +282,23 @@ export class SavingsAccount extends View {
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
-				<div class="related-options">
-					<p class="related-options-text">Related Options</p>
-				</div>
-
+				<capitec-title-bar
+					type="default"
+					label="Explore Saving Account"
+					class="other-options">
+				</capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
-							class="button-margin" 
-							label="Product enquiry / info" 
+							class="button-margin"
+							label="Product enquiry"
 							icon="system/info-action">
 					</horizon-option-button>
 					<horizon-option-button 
-						class="button-margin" 
-						label="Add a Savings Plan" 
+						class="button-margin"
+						label="Add a Savings Plan"
 						icon="system/add-action">
 					</horizon-option-button>
 				</capitec-group>
-
 			</capitec-group>
 		`;
 	}
