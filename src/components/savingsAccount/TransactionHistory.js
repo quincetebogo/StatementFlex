@@ -308,9 +308,21 @@ export class TransactionHistory extends Component {
 				.cb-datepicker > capitec-icon {
 					--theme-icon-size-small: 26px;
 				}
+				.transaction-status {
+					position: relative;
+				}
+				.transaction-status > capitec-label {
+					z-index: 10;
+					margin-left: 35px;
+				}
 				capitec-overflow-menu {
 					width: 225px;
-					background: #009DE01A;
+					height: 48px;
+					border-radius: 5px;
+					box-sizing: border-box;
+					border: 1px solid rgb(225, 225, 225);
+					background-color: rgb(255, 255, 255);
+					position: absolute;
 
 					--theme-overflow-menu-width: 225px;
 				}
@@ -503,57 +515,69 @@ export class TransactionHistory extends Component {
 						</capitec-icon>
 				</capitec-content-box>
 
-				<capitec-overflow-menu label="Transaction Status">
-					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-						<div class="status-icon processed">
-						</div>
-						<capitec-overflow-menu-item label="Processed" @click="${(e) => this._filterByStatus(e)}">
-						</capitec-overflow-menu-item>
-					</capitec-group>
-
-					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-						<div class="status-icon pending">
-						</div>
-						<capitec-overflow-menu-item label="Pending" @click="${(e) => this._filterByStatus(e)}">
-						</capitec-overflow-menu-item>
-					</capitec-group>
-
-					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-						<div class="status-icon expired">
-						</div>
-						<capitec-overflow-menu-item label="Expired" @click="${(e) => this._filterByStatus(e)}">
-						</capitec-overflow-menu-item>
-					</capitec-group>
-
-					<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-						<div class="status-icon reversed">
-						</div>
-						<capitec-overflow-menu-item label="Reversed">
-							
-							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-								<div class="status-icon reversed">
-								</div>
-								<capitec-overflow-menu-item label="Reversed" @click="${(e) => this._filterByStatus(e)}">
-								</capitec-overflow-menu-item>
-							</capitec-group>
-
-							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-								<div class="status-icon reversed">
-								</div>
-								<capitec-overflow-menu-item label="Partial reversal" @click="${(e) => this._filterByStatus(e)}">
-								</capitec-overflow-menu-item>
-							</capitec-group>
-
-							<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-								<div class="status-icon reversed">
-								</div>
-								<capitec-overflow-menu-item label="Partial reversal processed" @click="${(e) => this._filterByStatus(e)}">
-								</capitec-overflow-menu-item>
-							</capitec-group>
-						</capitec-overflow-menu-item>
-					</capitec-group>
-				</capitec-overflow-menu>
+				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-status">
+					<capitec-label
+						label="Transaction Status"
+						type="default">
+					</capitec-label>
+					${this._renderStatusOptions()}
+				</capitec-group>
 			</capitec-group>
+		`;
+	}
+
+	_renderStatusOptions() {
+		return html`
+			<capitec-overflow-menu label="Transaction Status">
+				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+					<div class="status-icon processed">
+					</div>
+					<capitec-overflow-menu-item label="Processed" @click="${(e) => this._filterByStatus(e)}">
+					</capitec-overflow-menu-item>
+				</capitec-group>
+
+				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+					<div class="status-icon pending">
+					</div>
+					<capitec-overflow-menu-item label="Pending" @click="${(e) => this._filterByStatus(e)}">
+					</capitec-overflow-menu-item>
+				</capitec-group>
+
+				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+					<div class="status-icon expired">
+					</div>
+					<capitec-overflow-menu-item label="Expired" @click="${(e) => this._filterByStatus(e)}">
+					</capitec-overflow-menu-item>
+				</capitec-group>
+
+				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+					<div class="status-icon reversed">
+					</div>
+					<capitec-overflow-menu-item label="Reversed">
+						
+						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+							<div class="status-icon reversed">
+							</div>
+							<capitec-overflow-menu-item label="Reversed" @click="${(e) => this._filterByStatus(e)}">
+							</capitec-overflow-menu-item>
+						</capitec-group>
+
+						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+							<div class="status-icon reversed">
+							</div>
+							<capitec-overflow-menu-item label="Partial reversal" @click="${(e) => this._filterByStatus(e)}">
+							</capitec-overflow-menu-item>
+						</capitec-group>
+
+						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
+							<div class="status-icon reversed">
+							</div>
+							<capitec-overflow-menu-item label="Partial reversal processed" @click="${(e) => this._filterByStatus(e)}">
+							</capitec-overflow-menu-item>
+						</capitec-group>
+					</capitec-overflow-menu-item>
+				</capitec-group>
+			</capitec-overflow-menu>
 		`;
 	}
 
@@ -646,53 +670,92 @@ export class TransactionHistory extends Component {
 
 	_renderExpander (item) {
 		return html`
-		<capitec-label
-			style = "${unsafeCSS(EXPANDER_LABEL)}" 
-			label="Statement description: POS Purchase SPAR Die Boord card no 3445">
-		</capitec-label>
+			<capitec-label
+				style = "${unsafeCSS(EXPANDER_LABEL)}" 
+				label="Statement description: POS Purchase SPAR Die Boord card no 3445">
+			</capitec-label>
 	
-		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<horizon-label 
-				style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-				label="Posting date" 
-				value = "${item.PostingDate}">
-			</horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Processed date" value = "${item.ProcessDate}"></horizon-label>
-			<horizon-label  style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Transaction type" value = "POS"></horizon-label>
-		</capitec-group>
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Posting date" 
+					value = "${item.PostingDate}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Processed date"
+					value = "${item.ProcessDate}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "POS">
+				</horizon-label>
+			</capitec-group>
 
-		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Transaction code" value = "${item.TransactionCode}"></horizon-label>
-			<horizon-label  style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Card number" value = "${item.CardNumber}"></horizon-label>
-			<horizon-label  style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Card authentication type" value = "${item.CardAuthType}"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Transfer account" value = "${item.TransferAccount}"></horizon-label>
-		</capitec-group>
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction code"
+					value = "${item.TransactionCode}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card number"
+					value = "${item.CardNumber}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Card authentication type"
+					value = "${item.CardAuthType}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.TransferAccount}">
+				</horizon-label>
+			</capitec-group>
 
-		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Journal number" value = "${item.JournalNumber}"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Includes Vat" value = "${item.IncludesVat}"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="External terminal ID" value = "${item.ExternalTerminalId}"></horizon-label>
-		</capitec-group>
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.JournalNumber}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Includes Vat"
+					value = "${item.IncludesVat}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="External terminal ID"
+					value = "${item.ExternalTerminalId}">
+				</horizon-label>
+			</capitec-group>
 
-		<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Spend group" value = "Category Name"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Cash back" value = "${item.Cashback}"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Branch" value = "${item.Branch}"></horizon-label>
-			<horizon-label style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-								label="Teller" value = "${item.Teller}"></horizon-label>
-		</capitec-group>
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Spend group"
+					value = "Category Name">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Cash back"
+					value = "${item.Cashback}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Branch" 
+					value = "${item.Branch}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Teller"
+					value = "${item.Teller}">
+				</horizon-label>
+			</capitec-group>
 		`;
 	}
 
