@@ -6,6 +6,14 @@
  */
 
 export const transactionHistoryMockData = {
+	"accountDetails" :
+		{accountNumber: '1928247288',
+		balance: 'R20 916.00', 
+		availableBalance: 'R20 567.00', 
+		pendingAmount: 'R349.00', 
+		interest: '5.5%',
+		status: 'Active'},
+
 	"transactionHistoryList": [
 		{
 			"TransactionId": 1234567890,
@@ -21,7 +29,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "16 Sep 2020",
+			"TransactionDate": "16 Jan 2021",
 			"Description": "ATM Purchase SPAR Die Boord Stell Card No 3445",
 			"TransactionStatus": "Processed",
 			"Amount": 500.00,
@@ -41,7 +49,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "16 Sep 2020",
+			"TransactionDate": "16 Jan 2021",
 			"Description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"TransactionStatus": "Pending",
 			"Amount": 340.00,
@@ -61,7 +69,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "15 Sep 2020",
+			"TransactionDate": "15 Jan 2021",
 			"Description": "POS Boord Stell Card No 3445",
 			"TransactionStatus": "Processed",
 			"Amount": 5.00,
@@ -81,7 +89,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "9 Sep 2020",
+			"TransactionDate": "09 Jan 2021",
 			"Description": "Boord Stell Card No 3445",
 			"TransactionStatus": "Pending",
 			"Amount": 50.00,
@@ -101,7 +109,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "7 Sep 2020",
+			"TransactionDate": "07 Jan 2021",
 			"Description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"TransactionStatus": "Expired",
 			"Amount": 1200.00,
@@ -121,7 +129,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "6 Sep 2020",
+			"TransactionDate": "06 Jan 2021",
 			"Description": "SPAR Die Boord Stell Card No 3445",
 			"TransactionStatus": "Pending",
 			"Amount": 600.00,
@@ -161,7 +169,7 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "1 Aug 2020",
+			"TransactionDate": "01 Aug 2020",
 			"Description": "ATM Boord Stell Card No 3445",
 			"TransactionStatus": "Reversed",
 			"Amount": 45600.00,
