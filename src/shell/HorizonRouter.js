@@ -25,7 +25,8 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	DEBICHECK_SUCCESS: `/success/debicheck`
+	DEBICHECK_SUCCESS: `/success/debicheck`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`
 });
 
 
@@ -180,6 +181,10 @@ export class HorizonRouter {
 		horizonStore.saveState(state);
 
 		this.router.navigateByPath(state.returnTo.route);
+	}
+
+	navigateToSavingsAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 }
 
@@ -417,6 +422,16 @@ export default horizonRoutes = [
 		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
 		onPreNavigate: () => {
 			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+		}
+	},
+	{
+		name: `horizon-savings-account`,
+		title: `SavingsAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
+		load: () => import(`../views/savingsAccount/SavingsAccount`),
+		onPreNavigate: () => {
+			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 		}
 	}
 ];

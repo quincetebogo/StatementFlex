@@ -2,7 +2,7 @@ import { Component,View, css, html } from 'platform/elements';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
-export class SavingsAccountLandingPage extends View {
+export class SavingsAccount extends View {
 	
 	// --------------
 	// INITIALISATION
@@ -71,16 +71,47 @@ export class SavingsAccountLandingPage extends View {
 					width: 100%;
 					height: auto;
 				}
-
+				capitec-title-bar {
+					--theme-type-primary-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				capitec-title-bar > capitec-label {
+					--theme-label-title-font-size: 24px;
+					--theme-label-title-font-weight: 600;
+				}
 				capitec-content-box {
-					padding: 0px;
 					width: auto;
-					margin: 19px 16px 453px 16px;
-					border: 1px;
-					box-sizing: border-box;
-					box-shadow: none;
-					border: 1px solid;
+					height: 666px;
+					
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 19px;
+					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 0px;
+				}
+				capitec-content-box > capitec-card {
+					border: 1px solid #E1E1E1;
 					border-radius: 4px;
+					background-color: #FFFFFF;
+					box-shadow: 0 3px 6px 0.25px rgba(0,0,0,0.08);
+
+					--theme-card-min-height: 64px;
+				}
+				.account-details-bar {
+					display: flex;
+					position: relative;
+				}
+				.account-details-bar > capitec-expander {
+					position: absolute;
+					border-bottom: 1px solid #E1E1E1;
+
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-expander-header-height: 64px;
+					--theme-expander-height: 210px;
+				}
+				.account-details-bar > capitec-group {
+					z-index: 10;
 				}
 
 				.actionbar-header {
@@ -89,7 +120,7 @@ export class SavingsAccountLandingPage extends View {
 					margin: 0px;
                     border-bottom: 0px;
 					padding-top: 12px;
-					padding-bottom: 16px;
+					padding-bottom: 12px;
 					padding-left: 0px
                 }
  
@@ -179,8 +210,9 @@ export class SavingsAccountLandingPage extends View {
 				</capitec-title-bar>
 
 				<capitec-content-box>
-					${this._renderAccountDetailsBar()}
-					${this._renderOptions()}
+					<capitec-card>
+						${this._renderAccountDetailsBar()}
+					</capitec-card>
 				</capitec-content-box>
 
 				${this._renderFooter()}
@@ -190,16 +222,21 @@ export class SavingsAccountLandingPage extends View {
 	}
 	
 	_renderAccountDetailsBar() {
-        return html`
-            <capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-                    <horizon-label label="Account Number" value = "${this.headerRecords.columnOne}"></horizon-label>
-                    <horizon-label label="Balance" value = "${this.headerRecords.columnTwo}"></horizon-label>
-                    <horizon-label label="Available Balance" value = "${this.headerRecords.columnThree}"></horizon-label>
-                    <horizon-label label="Pending amount" value = "${this.headerRecords.columnFour}"></horizon-label>
-                    <horizon-label label="Interest" value = "${this.headerRecords.columnFive}"></horizon-label>
-                    <horizon-label label="Status" value = "${this.headerRecords.columnSix}"></horizon-label>
-            </capitec-group>
-        `;
+		return html`
+			<div class="account-details-bar">
+				<capitec-expander label="">
+					${this._renderOptions()}
+				</capitec-expander>
+				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
+					<horizon-label label="Account Number" value = "${this.headerRecords.columnOne}"></horizon-label>
+					<horizon-label label="Balance" value = "${this.headerRecords.columnTwo}"></horizon-label>
+					<horizon-label label="Available Balance" value = "${this.headerRecords.columnThree}"></horizon-label>
+					<horizon-label label="Pending amount" value = "${this.headerRecords.columnFour}"></horizon-label>
+					<horizon-label label="Interest" value = "${this.headerRecords.columnFive}"></horizon-label>
+					<horizon-label label="Status" value = "${this.headerRecords.columnSix}"></horizon-label>
+				</capitec-group>
+			</div>
+		`;
 	}
 
 	_renderOptions() {
@@ -207,7 +244,7 @@ export class SavingsAccountLandingPage extends View {
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
 				<div class="related-options">
-					<p class="related-options-text">Related Options</p>
+					<p class="related-options-text">Choose an Option</p>
 				</div>
 
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -217,19 +254,16 @@ export class SavingsAccountLandingPage extends View {
 							label="Transaction History" 
 							icon="system/time-action">
 					</horizon-option-button>
-
 					<horizon-option-button 
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debit-order-action">
 					</horizon-option-button>
-
 					<horizon-option-button 
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action">
 					</horizon-option-button>
-
 					<horizon-option-button 
 						class="button-margin" 
 						label="More" 
@@ -237,7 +271,6 @@ export class SavingsAccountLandingPage extends View {
 					</horizon-option-button>
 
 				</capitec-group>
-
 			</capitec-group>
 		`;
 	}
@@ -268,34 +301,4 @@ export class SavingsAccountLandingPage extends View {
 		`;
 	}
 }
-
-
-// 				<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
-// 				<capitec-group id="id-msg-group" layout="horizontal">
-// 					<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
-// 					<slot name="detail"></slot>
-// 				</capitec-group>
-// 				<capitec-group id="id-button-group" layout="horizontal">
-// 					${this.left
-// 						? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
-// 								</capitec-button>`
-// 						: html``
-// 					}
-// 					${this.right
-// 						? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
-// 								</capitec-button>`
-// 						: html``
-// 					}
-// 				</capitec-group>
-// 				<div class="related-options">
-// 					<p class="related-options-text">Related Options</p>
-// 				</div>
-// 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-// 					<slot name="option-button"></slot>
-// 				</capitec-group>
-// 			</capitec-card>
-// 		`
-// 	}
-// }
-
-customElements.define(`horizon-savings-account-landing`, SavingsAccountLandingPage);
+customElements.define(`horizon-savings-account`, SavingsAccount);
