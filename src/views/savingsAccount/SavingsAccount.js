@@ -1,4 +1,4 @@
-import { Component,View, css, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
@@ -34,12 +34,6 @@ export class SavingsAccount extends View {
 
 	static get properties() {
 		return {
-			header: { type: String },
-			left: { type: String },
-			right: { type: String },
-			toast: { type: String },
-			displayToast: { type: Boolean },
-			image: { type: String }
 		};
 	}
 	
@@ -47,16 +41,13 @@ export class SavingsAccount extends View {
 	// EVENT HANDLERS
 	// --------------
 	
-	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 	
-	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
 	
 	// ---------
 	// RENDERING
@@ -113,42 +104,34 @@ export class SavingsAccount extends View {
 				.account-details-bar > capitec-group {
 					z-index: 10;
 				}
-
 				.actionbar-header {
-                    height: auto;
+					height: auto;
 					width: auto;
 					margin: 0px;
-                    border-bottom: 0px;
+					border-bottom: 0px;
 					padding-top: 12px;
 					padding-bottom: 12px;
 					padding-left: 0px
-                }
- 
-                .actionbar-header > horizon-label[label="Account Number"] {
-                    width: 174px;
-                }
- 
-                .actionbar-header > horizon-label[label="Interest"] {
-                    width: 120px;
-                }
- 
-                .actionbar-header > horizon-label {
-                    width: 156px;
-                    height: 100%;
-                    font-weight: 300;
-                    justify-content: left;
-                    padding: 0px 0px 0px 16px;
- 
-                    --horizon-label-text-height: 20px;
-                    
-                    --horizon-label-text-font-size: 14px;
-                    --horizon-label-text-line-height: 20px;
-                    
-                    --horizon-label-value-height: 20px;
-                    --horizon-label-value-font-size: 16px;
-                    --horizon-label-value-line-height: 20px;
 				}
-				
+				.actionbar-header > horizon-label[label="Account Number"] {
+					width: 174px;
+				}
+				.actionbar-header > horizon-label[label="Interest"] {
+					width: 120px;
+				}
+				.actionbar-header > horizon-label {
+					width: 156px;
+					height: 100%;
+					font-weight: 300;
+					justify-content: left;
+					padding: 0px 0px 0px 16px;
+					--horizon-label-text-height: 20px;
+					--horizon-label-text-font-size: 14px;
+					--horizon-label-text-line-height: 20px;
+					--horizon-label-value-height: 20px;
+					--horizon-label-value-font-size: 16px;
+					--horizon-label-value-line-height: 20px;
+				}
 				.related-options {
 					height: 32px;
 					width: 100%;
@@ -156,8 +139,7 @@ export class SavingsAccount extends View {
 					border-top: 1px solid #dfdfdf;
 					border-bottom: 1px solid #dfdfdf;
 				}
-				
-				.related-options-text{
+				.related-options-text {
 					margin: 0px 0px 0px 16px;
 					padding: 0px 0px 0px 0px;
 					color: #003652;
@@ -167,19 +149,16 @@ export class SavingsAccount extends View {
 					letter-spacing: 0;
 					line-height: 30px;
 				}
-
-				.options-group{
+				.options-group {
 					height: 80px; 
 					margin: 17px 0px 15px 0px;
 					width: auto;
 				}
-
 				horizon-option-button {
 					width: 204px;
 					height: 80px;
 				}
-
-				.button-margin{
+				.button-margin {
 					height: 80px;
 					width: 182px;
 					margin-right: 16px;
@@ -188,7 +167,6 @@ export class SavingsAccount extends View {
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
-
 				.label-text {
 					--horizon-option-btn-text-margin-top: 10px;
 				}
@@ -289,7 +267,6 @@ export class SavingsAccount extends View {
 							label="Product enquiry / info" 
 							icon="system/info-action">
 					</horizon-option-button>
-
 					<horizon-option-button 
 						class="button-margin" 
 						label="Add a Savings Plan" 
@@ -301,4 +278,5 @@ export class SavingsAccount extends View {
 		`;
 	}
 }
+
 customElements.define(`horizon-savings-account`, SavingsAccount);
