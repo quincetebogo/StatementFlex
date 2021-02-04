@@ -6,14 +6,14 @@
  */
 
 export const transactionHistoryMockData = {
-	"accountDetails" :
-		{accountNumber: '1928247288',
-		balance: 'R20 916.00', 
-		availableBalance: 'R20 567.00', 
-		pendingAmount: 'R349.00', 
-		interest: '5.5%',
-		status: 'Active'},
-
+	"accountDetails" : {
+		"accountNumber": '1928247288',
+		"balance": 'R20 916.00', 
+		"availableBalance": 'R20 567.00', 
+		"pendingAmount": 'R349.00', 
+		"interest": '5.5%',
+		"status": 'Active'
+	},
 	"transactionHistoryList": [
 		{
 			"TransactionId": 1234567890,
