@@ -3,6 +3,7 @@ import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -39,8 +40,11 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
+
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.logger = Logger.getInstance();
+
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 	}
 
@@ -84,14 +88,7 @@ export class EndCallSession extends Component {
 			endCallContext: this.endCallContext
 		};
 
-		this.callHandleService.loadEndCallOptions(endCallDetails)
-			.then((returnValue) => {
-				const endCallDialog = returnValue.result;
-
-				if (returnValue.succeeded) {
-					this.endCallReasons = endCallDialog.endCallReasons;
-				}
-			});
+		this._loadCallOptions(endCallDetails)
 	}
 
 	// --------------
@@ -112,11 +109,13 @@ export class EndCallSession extends Component {
 
 		const returnValue = await this.callHandleService.endCall(callToEnd);
 
-		if (returnValue.succeeded) {
-			const state = { callStatus: `CALL-ENDED` };
-			this.horizonStore.setState(state);
-			this.horizonRouter.navigateToWaitingForCall();
+		// Log any error
+		if (!returnValue.succeeded) {
+			this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
 		}
+
+		// Return the the call waiting landing page even if an error occured
+		this._returnToCallWaitingPage();
 	}
 
 	_onValueChanged(e) {
@@ -132,12 +131,34 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _loadCallOptions(endCallDetails) {
+		const returnValue = await this.callHandleService.loadEndCallOptions(endCallDetails);
+
+		if (returnValue.succeeded) {
+			this.endCallReasons = returnValue.result.endCallReasons;
+		} else {
+			this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+
+			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
+			this._returnToCallWaitingPage();
+		}
+	}
+
+	_returnToCallWaitingPage() {
+		const state = { callStatus: `CALL-ENDED` };
+		this.horizonStore.setState(state);
+		this.horizonRouter.navigateToWaitingForCall();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
 	_endCallErrorHandler(exception) {
-		this.horizonRouter.navigateToInitialSystemError();
+		// We must be able to end a call and return to the call waiting landing page
+		// Errors on this screen will be logged by the caller and a return the the call waiting landing page will be effected
+
 		return true;
 	}
 

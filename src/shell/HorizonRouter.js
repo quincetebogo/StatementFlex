@@ -29,7 +29,6 @@ const HORIZON_ROUTES = Object.freeze({
 	SAVINGS_ACCOUNT: `/transact/savings-account`
 });
 
-
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
  * These functions simply wrap the platforms navigateByPath method.
@@ -42,6 +41,7 @@ export class HorizonRouter {
 
 	constructor() {
 		this.verificationStatus = ``;
+		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
 	}
@@ -64,6 +64,8 @@ export class HorizonRouter {
 			// of the incoming caller.
 			this.verificationStatus = state.callerInformation.verificationStatus;
 		}
+
+		this.callStatus = state && state.callStatus ? state.callStatus : ``;
 	}
 
 	/**
@@ -74,7 +76,8 @@ export class HorizonRouter {
 	 */
 	getRoutingInfo() {
 		return {
-			verificationStatus: this.verificationStatus
+			verificationStatus: this.verificationStatus,
+			callStatus: this.callStatus
 		};
 	}
 
@@ -186,6 +189,90 @@ export class HorizonRouter {
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
+
+	_productLandingPagesActive() {
+		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+	}
+}
+
+	
+	/**
+	 * Guard functions to prevent navigation to pages which the correct conditions are not met
+	 *
+	 * @static
+	 * @param {string} funcName The name of the guard function to invoke
+	 * @returns {Boolean} true if browsing to the requested page is allowed
+	 * @memberof HorizonRouter
+	 */
+	static _guard(funcName) {
+		const viewManager = HorizonViewManager.getInstance();
+		const horizonRouter = HorizonRouter.getInstance();
+		const horizonStore = HorizonStore.getInstance();
+
+
+		const guardInitalLandingPages = () => {
+			const routingInfo = horizonRouter.getRoutingInfo();
+			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
+
+			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS`) {
+				// If the user browsers to the initial landing page, trigger ending the call/clearing state
+				// Manually browsing to the landing page is not supported and failing to clear state can leave
+				// information from a previous client behind that can get mixed up with information from the next call
+				// that arrives.
+				const state = { callStatus: `CALL-ENDED` };
+				routingInfo.callStatus = state.callStatus;
+				horizonStore.saveState(state);
+			}
+
+			// Don't allow browsing back to the landing page from another page unless the call has been ended
+			return routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
+		};
+
+		return {
+			callWaitingPage: guardInitalLandingPages,
+			productPage: guardInitalLandingPages
+		}[funcName]();
+	};
+
+
+	/**
+	 * Pre-Navigation functions used for setting the application frame/layout 
+	 *
+	 * @static
+	 * @param {string} prenavFunc Pre-navigation function used for setting the application layout
+	 * @param {Set} layout A set that indicates the application frame components to display
+	 * @returns {undefined}
+	 * @memberof HorizonRouter
+	 */
+	static _preNavigate(prenavFunc, layout) {
+		const viewManager = HorizonViewManager.getInstance();
+		const horizonRouter = HorizonRouter.getInstance();
+		const shellLayout = layout;
+
+		const setShellLayout = () => {
+			viewManager.transitionToView(shellLayout);
+		};
+
+		const setShellLayoutByVerificationMode = () => {
+			const routingInfo = horizonRouter.getRoutingInfo();
+			switch (routingInfo.verificationStatus) {
+				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
+					break;
+				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
+					break;
+				case `3rdparty`:
+				default:
+					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
+					break;
+			}
+			setShellLayout(shellLayout);
+		};
+
+		return {
+			layout: setShellLayout,
+			layoutByVerifictionMode: setShellLayoutByVerificationMode
+		}[prenavFunc]();
+	}
 }
 
 // -------------------------
@@ -201,9 +288,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.LANDING_PAGE,
 		load: () => import(`../views/waitingForCall/LandingPage`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		},
+		guard: () => HorizonRouter._guard(`callWaitingPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES),
 		isDefault: true,
 		isFallback: true
 	},
@@ -213,9 +299,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-savings-plan-product`,
@@ -223,9 +308,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-flexible-savings-plan-product`,
@@ -233,9 +317,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-fixed-term-savings-product`,
@@ -243,9 +326,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-tax-free-savings-product`,
@@ -253,9 +335,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-insure-product`,
@@ -263,9 +344,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-credit-product`,
@@ -273,9 +353,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
@@ -283,9 +362,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-success`,
@@ -293,9 +370,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-failure`,
@@ -303,9 +378,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-existing-client`,
@@ -314,7 +387,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => true,
-
+		
 		/*
 		 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
 		 switch (routingInfo.verificationStatus) {
@@ -325,22 +398,7 @@ export default horizonRoutes = [
 			  default:
 				 return false;
 		*/
-
-		onPreNavigate: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-					break;
-				case `unverified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-				case `3rdparty`:
-				default:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-			}
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-prospective-client`,
@@ -348,21 +406,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
 		load: () => import(`../views/insure/ProspectiveClient`),
-		onPreNavigate: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-					break;
-				case `unverified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-				case `non-client`:
-				default:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-			}
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-favourites`,
@@ -370,9 +414,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-xds-verification-failed`,
@@ -380,9 +422,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.XDS_VERIFICATION_FAILED,
 		load: () => import(`../views/common/XdsVerificationFailed`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-ita-verification-failed`,
@@ -390,9 +430,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.ITA_VERIFICATION_FAILED,
 		load: () => import(`../views/common/ItaVerificationFailed`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-system-error`,
@@ -400,9 +438,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SYSTEM_ERROR,
 		load: () => import(`../views/common/SystemError`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-initial-system-error`,
@@ -410,9 +446,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
 		load: () => import(`../views/common/InitialSystemError`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.ERROR_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
 	},
 	{
 		name: `horizon-debi-check-success`,
@@ -420,9 +454,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
 		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-savings-account`,
@@ -430,8 +462,6 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccount`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
