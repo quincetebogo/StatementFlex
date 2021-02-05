@@ -61,7 +61,7 @@ export class HorizonRouter {
 		if (state && state.callerInformation && state.callerInformation.verificationStatus) {
 			// Some pages have different left/right layouts based on the verification status
 			// of the incoming caller.
-			this.verificationStatus = systemState.callerInformation.verificationStatus;
+			this.verificationStatus = state.callerInformation.verificationStatus;
 		}
 
 		this.callStatus = state && state.callStatus ? state.callStatus : ``;
