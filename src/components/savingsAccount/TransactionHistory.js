@@ -162,11 +162,11 @@ export class TransactionHistory extends Component {
 
 		this.filteredData = this.transactionHistory;
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-			const searchText = RENDER_CHIPS[FILTER_BY.TEXT];
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(' ');
 
-			this.filteredData = this.filteredData.filter(item => item.Description.toLowerCase().indexOf(searchText) !== -1 ||
-															 	 parseInt(item.Amount, 10) === parseInt(searchText, 10)
-			);
+			const searchTextResult = searchText.map(key => key !== "" ? this.filteredData.filter(item => item.Description.toLowerCase().indexOf(key) !== -1 ||
+																parseInt(item.Amount, 10) === parseInt(key, 10)) : [] )
+			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
