@@ -55,7 +55,7 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
+			this.returnRoute = state && state.returnTo && state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
 			this.mailId=`ivanmakatini@gmail.com`;
@@ -129,7 +129,8 @@ export class StatementsSuccess extends View {
 									right="Send Another"
 									toast="Statement sent"
 									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._sendAnotherClick()}>
+									@right-click=${() => this._sendAnotherClick()}
+									?secondaryImage=${false}>
 				<section 
 					id="id-error-msg" 
 					slot="detail">The statement for savings account <b>5284 **** **** 1322</b> was emailed to <b>ivanmakatini@gmail.com</b>
