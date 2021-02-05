@@ -1,4 +1,5 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 export class ProofOfAccount extends View {
     /*
@@ -19,6 +20,9 @@ export class ProofOfAccount extends View {
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
         this.savingAccInfo = {};
+        this.landingPageInfo = ``;
+
+        this.horizonStore = HorizonStore.getInstance();
 
     }
 
@@ -54,9 +58,18 @@ export class ProofOfAccount extends View {
         if (this._validateEmail()) {
             this.errMessage.id_emailAddress = ``;
 
+            const state = {
+                account_number: this.landingPageInfo.account_number,
+                account_open_Date: this.landingPageInfo.account_open_Date
+            };
+
+            this.horizonStore.saveState(state);
+
             //TODO
             //get account open date and number and save to state
-            //this.horizonStrone.recoverState();
+
+
+
             //this.savingsAccInfo = recovered state info.
             //const state = {
             //    account_open_Date: this.account_open_Date,
@@ -99,13 +112,14 @@ export class ProofOfAccount extends View {
     _validateEmail() {
         var emailAddress = this.id_emailAddress;
         var confirmEmailAddress = this.id_confirmEmail;
-
         if (emailAddress != null && emailAddress.includes("@") && (emailAddress == confirmEmailAddress)) {
             this.alertBannerMessage = ``;
             return true;
+        } else if (emailAddress == '' || confirmEmailAddress == '') {
+            this.alertBannerMessage = `Please complete all fields`;
+            return false;
         } else if (emailAddress != confirmEmailAddress) {
-            //ask Jeff
-            this.alertBannerMessage = `Email addresses do not match`;
+            this.alertBannerMessage = `Email addresses do not match.`;
             return false;
         } else {
             this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
@@ -210,6 +224,12 @@ export class ProofOfAccount extends View {
 			`
         ];
     }
+
+
+    _mobileTemplate() {
+        _webTemplate();
+    }
+
 
     _webTemplate() {
         console.log("render");
