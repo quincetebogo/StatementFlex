@@ -193,7 +193,6 @@ export class HorizonRouter {
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
-}
 
 	
 	/**
