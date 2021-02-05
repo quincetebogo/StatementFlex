@@ -1,4 +1,4 @@
-import { Logger, Service } from 'platform/core';
+import { Logger, Security, Service } from 'platform/core';
 import { v4 } from 'uuid';
 
 /**
@@ -110,6 +110,12 @@ export class HorizonChannelService extends Service {
 		}
 	}
 
+	_setToken() {
+		return {
+			"X-User-Token": Security.getInstance().token
+		};
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -133,7 +139,7 @@ export class HorizonChannelService extends Service {
 				`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
 				`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
 
-			return this._get(url, null, `acceptCall`);
+			return this._get(url, this._setToken(), `acceptCall`);
 	}
 
 	// addCallerDetailsRequest
@@ -256,7 +262,7 @@ export class HorizonChannelService extends Service {
 			'nonClientRelationship': callerData.nonClientRelationship
 		};
 
-		return this._post(url, model, null, `identifyCaller`);
+		return this._post(url, model, this._setToken(), `identifyCaller`);
 	}
 
 	// searchOptionsRequest
@@ -284,7 +290,7 @@ export class HorizonChannelService extends Service {
 				`agentTelephoneNumber=${clientInfo.agentTelephoneNumber}&` +
 				`identificationMethod=${parseInt(clientInfo.identificationMethod, 10)}&` +
 				`value=${clientInfo.searchValue}`,
-			null,
+				this._setToken(),
 			`searchCaller`
 		);
 	}
@@ -316,7 +322,7 @@ export class HorizonChannelService extends Service {
 			`Cif=${insuranceClientInfo.CifNumber}&` +
 			`IsCallerVerified=${insuranceClientInfo.isCallerVarified}`;
 
-		return this._get(url, null, `hasInsuranceProducts`);
+		return this._get(url, this._setToken(), `hasInsuranceProducts`);
 	}
 
 	addNonClientDetails(callerData) {
@@ -373,7 +379,7 @@ export class HorizonChannelService extends Service {
 				`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
 				`IsCallerVerified=${clientInfo.isCallerVerified}`;
 
-		return this._get(url, null, `favouritesLanding`);
+		return this._get(url, this._setToken(), `favouritesLanding`);
 	}
 
 	// --------------------------

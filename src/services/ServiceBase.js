@@ -1,7 +1,6 @@
-import { EventAggregator } from 'platform/EventAggregator';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { HorizonChannelService } from './HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
-import { Logger } from 'platform/core';
 
 export const DEFAULT_AUTO_RETRIES = 3;
 
@@ -40,6 +39,7 @@ export class ServiceBase {
 
 		this._toggleBusyFlag = toggleBusyFunc;
 		this._defaultErrorHandler = defaultErrorHandlerFunc;
+		this.logRequestResponseModels = null;
 	}
 
 	
@@ -72,6 +72,10 @@ export class ServiceBase {
 			correlationId: null
 		};
 	
+		if (this.logRequestResponseModels === null) {
+			this.logRequestResponseModels = await Configuration.getInstance().getSetting(`LogRequestResponseModels`);
+		}
+
 		let tryCount = 0;
 	
 		while (!returnValue.succeeded && tryCount < maxAttempts) {
@@ -125,8 +129,10 @@ export class ServiceBase {
 	_logException(exception) {
 		let message = `${exception.message}, Url=${exception.requestUrl}`;
 
-		message += exception.requestModel ? `, request=${JSON.stringify(exception.requestModel)}` : ``;
-		message += exception.output ? `, output=${exception.output}` : ``;
+		if (this.logRequestResponseModels) {
+			message += exception.requestModel ? `, request=${JSON.stringify(exception.requestModel)}` : ``;
+			message += exception.output ? `, output=${JSON.stringify(exception.output)}` : ``;
+		}
 
 		if (exception instanceof TypeError) {
 			this._logger.log(`error`, message, exception.requestCaller, exception.correlationId);
