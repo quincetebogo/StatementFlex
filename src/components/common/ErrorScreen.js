@@ -69,7 +69,7 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: 876px;
+					height: var(--horizon-error-screen-height, 876px);
 					width: 1064px;
 				}
 				#id-unsuccessful-img {
@@ -112,6 +112,7 @@ export class ErrorScreen extends Component {
 					--theme-button-font-family: "Hind Vadodara";
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
+					margin-bottom:168px;
 				}
 				#id-error-toast {
 						position: absolute;

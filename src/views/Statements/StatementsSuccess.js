@@ -22,8 +22,8 @@ export class StatementsSuccess extends View {
 	constructor() {
 		super();
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
-		this.mailId = ``;
-		this.encryptedCardId = ``;
+		this.mailId = `ivanmakatini@gmail.com`;
+		this.encryptedCardId = `5284 **** **** 1322`;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
