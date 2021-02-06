@@ -20,15 +20,42 @@ export class SavingsAccountService extends ServiceBase {
 	// --------------
 
 	/**
-	 * Get client's debi check mandates
+	 * Retrieves the list of debi-check mandates for the main debi-checks display
 	 *
-	 * @param {object} clientInfo Holds client information
+	 * @param {string} cifNumber The Client's CIF Number
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof SavingsAccountService
 	 */
-	debiCheckMandates(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.debiCheckMandates(clientInfo), `debiCheckMandates`, errorHandler, autoRetries);
+	debiCheckMandates(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.debiCheckMandates(cifNumber), `debiCheckMandates`, errorHandler, autoRetries);
+	}
+	
+	/**
+	 * Retrieves the data for the debi-check View Info dialog
+	 *
+	 * @param {string} cifNumber The Client's CIF number
+	 * @param {number} mandateId mandate ID
+	 * @param {number} registerId register ID
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.debiCheckDetails(cifNumber, mandateId, registerId), `debiCheckDetails`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Declines a debi-check mandate
+	 *
+	 * @param {string} cifNumber The Client's CIF number
+	 * @param {string} mandateReferenceNumber mandate refernece number
+	 * @param {string} debtorAccountNumber debtor account number
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.debiCheckDecline(cifNumber, mandateReferenceNumber, debtorAccountNumber), `debiCheckDecline`, errorHandler, autoRetries);
 	}
 }

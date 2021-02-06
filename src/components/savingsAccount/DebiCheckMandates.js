@@ -123,19 +123,18 @@ export class DebiCheckMandates extends Component {
 											   parseInt(item.maxCollectionAmount, 10) === parseInt(searchText, 10)));
 	}
 
-	_viewInfo() {
-		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `viewInfo`, mandateId: `` } }));
+	_viewInfo(mandateId, registerId) {
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
 	}
 
-	_decline() {
+	_decline(mandateId) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: `` } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId } }));
 	}
 
-	_approve() {
+	_approve(mandateId) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateId: `` } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `approve`, mandateId: mandateId } }));
 	}
 
 	_hasMandatesToDisplay() {
@@ -473,7 +472,7 @@ export class DebiCheckMandates extends Component {
 					${this._renderCell(`Status`, rowData.mandateStatus)}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
-					${this._renderButtons(rowData.mandateStatus)}
+					${this._renderButtons(rowData.mandateStatus, rowData.mandateId, rowData.registerId)}
 				</capitec-group>
 				<div></div>
 			</capitec-group>`;
@@ -500,22 +499,22 @@ export class DebiCheckMandates extends Component {
 		`;
 	}
 
-	_renderButtons(status) {
+	_renderButtons(status, mandateId, registerId) {
 		return status !== `Pending` 
 			? html`<capitec-label type="subtitle"
 									label="View Info"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._viewInfo()}">
+									@click="${() => this._viewInfo(mandateId, registerId)}">
 					 </capitec-label>` 
 			: html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._decline()}">
+									@click="${() => this._decline(mandateId)}">
 					 </capitec-label>
 					 <capitec-label type="subtitle"
 					 				label="Approve"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._approve()}">
+									@click="${() => this._approve(mandateId)}">
 					 </capitec-label>`;
 	}
 
