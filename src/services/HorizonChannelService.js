@@ -110,6 +110,13 @@ export class HorizonChannelService extends Service {
 		}
 	}
 
+	/**
+	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
+	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
+	 *
+	 * @returns {object} The X-User-Token custom header object
+	 * @memberof HorizonChannelService
+	 */
 	_setToken() {
 		return {
 			"X-User-Token": Security.getInstance().token
@@ -386,9 +393,18 @@ export class HorizonChannelService extends Service {
 	// Debi Check Mandate Methods
 	// --------------------------
 
-	debiCheckDetails(clientInfo) {
-		const url = `/clientcare/debicheck/${this._version}/client/${clientInfo.CifNumber}/mandate/${clientInfo.mandateId}/register/${clientInfo.registeredId}/details`;
-				
-	return this._get(url, null, `debiCheckDetails`);
+	debiCheckMandates(cifNumber) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandates`;
+		return this._get(url, null, `debiCheckMandates`);
+	}
+
+	debiCheckDetails(cifNumber, mandateId, registerId) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
+		return this._get(url, null, `debiCheckDetails`);
+	}
+
+	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
+		return this._post(url, model, null, `debiCheckDecline`);
 	}
 }

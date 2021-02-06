@@ -69,6 +69,7 @@ export class Favourites extends View {
 		this.curOptionEvent = {};
 		this.cards = [];
 		this.debiCheckDetails = {};
+
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -200,7 +201,7 @@ export class Favourites extends View {
 		}
 	}
 
-	_mandateActionClick (event) {
+	async _mandateActionClick (event) {
 		this.mandateId = event.detail.mandateId;
 		if (event.detail.action === `decline`) {
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
@@ -213,6 +214,14 @@ export class Favourites extends View {
 			};
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
+		} else if (event.detail.action === `viewInfo`) {
+			const returnValue = await this.quickTransactionService.debiCheckDetails(this.landingPageInfo.cifNumber, event.detail.mandateId, event.detail.registerId);
+		
+			if (returnValue.succeeded) {
+				this.renderMode = RENDERMODE.DEBI_CHECK_VIEW_INFO;
+			} else {
+				this.horizonRouter.navigateToSystemError();
+			}
 		}
 	}
 
@@ -357,31 +366,12 @@ export class Favourites extends View {
 	}
 
 	async _debiCheck() {
-		this.debiCheckMandates = mockMandates.mandateSummaryList;
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		// TODO: Service call to get mandates comes here
+		const returnValue = await this.quickTransactionService.debiCheckMandates(this.landingPageInfo.cifNumber);
 
-		const debiCheckDetails = {
-			registeredId: ``,
-			mandateId: ``,
-			firstCollectionDate: ``,
-			tracking: ``,
-			contractReference: ``,
-			collectorContact: ``,
-			mandateReference: ``,
-			collectorEmail: ``,
-			mandateRequestTransactionIdentifier: ``
-		};
-
-		const returnValue = await this.quickTransactionService.debiCheckDetails(debiCheckDetails);
-		
 		if (returnValue.succeeded) {
-			this.horizonStore.saveState({
-				debiCheckDetails: this.debiCheckDetails
-			});
-			this.horizonRouter.navigateToReturnPage(`mandate`);
-		} else {
-			this.horizonRouter.navigateToSystemError();
+			this.debiCheckMandates = returnValue.result;
+			this.debiCheckMandates = mockMandates.mandateSummaryList;
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		}
 	}
 
@@ -442,8 +432,11 @@ export class Favourites extends View {
 		return html`
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
+
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckViewMandateInfo()}
+
 			${this._renderAlertModal()}
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
@@ -509,6 +502,8 @@ export class Favourites extends View {
 		}
 	}
 
+
+	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
 			? html`
@@ -532,7 +527,7 @@ export class Favourites extends View {
 			: html``;
 	}
 
-	_renderDebiCheckViewInfoMandate() {
+	_renderDebiCheckViewMandateInfo() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 		? html`
 			<horizon-viewinfo-debicheck
