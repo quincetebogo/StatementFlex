@@ -1,7 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-
 import 'platform/components/popups/Modal';
 
+/**
+ * The View Info Dialog invoked from the Debi-Checks display. This dialog displays details on
+ * the selected debi-check mandate
+ */
 export class ViewInfoDebiCheck extends Component {
 
 	// --------------
@@ -17,9 +20,16 @@ export class ViewInfoDebiCheck extends Component {
 	// PROPERTIES
 	// ----------
 
+	/**
+	 * @property {object} debiCheckDetails The full details of the debi-check mandate
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof ViewInfoDebiCheck
+	 */
 	static get properties() {
 		return {
-		
+			debiCheckDetails: { type: Object }
 		};
 	}
 
@@ -37,7 +47,7 @@ export class ViewInfoDebiCheck extends Component {
 	// --------------
 
 	_gotItClick() {
-		this.dispatchEvent(new CustomEvent(`on-ok`));
+		this.dispatchEvent(new CustomEvent(`viewed`));
 	}
 
 	// --------------

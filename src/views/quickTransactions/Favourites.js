@@ -533,7 +533,7 @@ export class Favourites extends View {
 		? html`
 			<horizon-viewinfo-debicheck
 				.debiCheckDetails=${this.debiCheckDetails}
-				@on-ok="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
 			></horizon-viewinfo-debicheck>`
 		: html``;
 	}
