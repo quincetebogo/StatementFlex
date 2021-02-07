@@ -42,7 +42,6 @@ export class HorizonChannelServiceMocks {
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
-		// import { mockCards } from 'app/mocks/CardLimitsMock';
 	}
 
 	// ===============================
@@ -50,7 +49,6 @@ export class HorizonChannelServiceMocks {
 	// ===============================
 	acceptCall(incomingCallData) {
 		if (this._mocking.acceptCall.positiveCase) {
-			console.log(`doing mock accept call`, this.mocking);
 			const mockResponse = this.callMocks.acceptCallSuccess;
 			mockResponse.incidentReferenceNumber = incomingCallData.incidentReferenceNumber;
 			mockResponse.ivrOptionCode = incomingCallData.ivrOptionCode;
