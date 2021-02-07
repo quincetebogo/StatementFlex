@@ -7,10 +7,6 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
-// TODO: Below mocks import has to be removed when service call is implemented
-import { mockCards } from 'app/mocks/CardLimitsMock';
-import { mockMandates } from 'app/mocks/DebiCheckMockData';
-
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
