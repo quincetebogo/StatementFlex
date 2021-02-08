@@ -246,7 +246,7 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
-		const shellLayout = layout;
+		let shellLayout = layout;
 
 		const setShellLayout = () => {
 			viewManager.transitionToView(shellLayout);

@@ -376,7 +376,6 @@ export class Favourites extends View {
 	}
 
 	_updateCardLimits() {
-		this.cards = mockCards;
 		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
 	}
