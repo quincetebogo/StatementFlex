@@ -457,7 +457,11 @@ export class HorizonChannelService extends Service {
 		return this._get(url, null, `debiCheckMandates`);
 	}
 
-	debiCheckDetails(cifNumber, mandateId, registerId) {
+	async debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (await this._mockEnabled(`debiCheckDetails`)) {
+			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
+		}
+
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
 		return this._get(url, null, `debiCheckDetails`);
 	}

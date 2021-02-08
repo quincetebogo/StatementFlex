@@ -41,6 +41,7 @@ export class HorizonChannelServiceMocks {
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
+		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
 	}
 
@@ -91,6 +92,17 @@ export class HorizonChannelServiceMocks {
 		}
 
 		// Code for a negative case could come here
+		return null;
+	}
+
+	debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (this._mocking.debiCheckDetails.positiveCase) {
+			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
+			if (mandateDetails) {
+				return mandateDetails.mandateInfo;
+			}
+		}
+
 		return null;
 	}
 }

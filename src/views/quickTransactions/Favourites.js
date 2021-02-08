@@ -201,8 +201,8 @@ export class Favourites extends View {
 	}
 
 	async _mandateActionClick (event) {
-		this.mandateId = event.detail.mandateId;
 		if (event.detail.action === `decline`) {
+			this.mandateId = event.detail.mandateId;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
 		} else if (event.detail.action === `approve`) {
 			const state = {
@@ -215,19 +215,19 @@ export class Favourites extends View {
 			this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
 			const returnValue = await this.savingsAccountService.debiCheckDetails(this.landingPageInfo.cifNumber, event.detail.mandateId, event.detail.registerId);
-		
-			if (returnValue.succeeded) {
-				this.renderMode = RENDERMODE.DEBI_CHECK_VIEW_INFO;
+			if (returnValue.succeeded && returnValue.result) {
+				this.debiCheckDetails = returnValue.result;
+				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
 			} else {
 				this.horizonRouter.navigateToSystemError();
 			}
 		}
 	}
 
-	_declineDebiCheckMandate(event) {
+	async _declineDebiCheckMandate(event) {
 		this.mandateId = event.detail.mandateId;
 
-		// TODO: Actually decline the debi check mandate
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.landingPageInfo.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -519,10 +519,9 @@ export class Favourites extends View {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
 			? html`
 				<horizon-decline-debicheck-mandate
-					mandateId=""
+					mandateId=${this.mandateId}
 					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}"
-		>
+					@decline="${(event) => this._declineDebiCheckMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
 			: html``;
 	}

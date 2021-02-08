@@ -58,6 +58,10 @@
 		"verifySecurityQuestions": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"debiCheckDetails": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

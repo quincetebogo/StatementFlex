@@ -506,7 +506,10 @@ export class DebiCheckMandates extends Component {
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._viewInfo(mandateId, registerId)}">
 					 </capitec-label>` 
-			: html`<capitec-label type="subtitle"
+			: html``;
+
+			/* Remove approve/decline buttons as this functionality is now part of release 2
+			  html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._decline(mandateId)}">
@@ -516,6 +519,7 @@ export class DebiCheckMandates extends Component {
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(mandateId)}">
 					 </capitec-label>`;
+			*/
 	}
 
 	_renderNoResults() {
