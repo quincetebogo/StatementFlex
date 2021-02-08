@@ -20,7 +20,7 @@ const cellGroup = `margin-left: 16px;`;
 
 const cellLabel = `--theme-label-default-font-size: 14px;
 					   --theme-label-font-color: #3A3A3A;
-					   line-height: 20px;`
+					   line-height: 20px;`;
 
 const cellLabelStrong = `--theme-label-default-font-weight: 600;`;
 
