@@ -21,7 +21,6 @@ export class SuccessScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.secondaryImage = false;
 	}
 
 	// -------------------
@@ -56,7 +55,6 @@ export class SuccessScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			secondaryImage: { type: Boolean }
 		};
 	}
 
@@ -76,11 +74,9 @@ export class SuccessScreen extends Component {
 				.card {
 					width: 100%;
 				}
-				.card > capitec-group[layout="vertical"] {
-					height: 744px;
-				}
+				
 				#id-successful-img {
-					width: auto;
+					margin-top:174px;
 				}
 				#id-successful-header {
 					margin-top:33px;
@@ -117,6 +113,7 @@ export class SuccessScreen extends Component {
 					--theme-button-padding-right: 22px;
 				}
 				.related-options {
+					margin-top:144px;
 					height: 32px;
 					width: 100%;
 					background-color: #F4F4F4;
@@ -179,54 +176,35 @@ export class SuccessScreen extends Component {
 	_webTemplate() {
 		return html`
 			<capitec-card class="card">
-				<capitec-toast 
-					?hidden="${!this.displayToast}" 
-					id="id-success-toast"
-					type="success" 
-					header="Successfull"
-					detail="${this.toast}" 
-					closable
-					@click="${() => this.displayToast = false}">
+				<capitec-toast ?hidden="${!this.displayToast}" 
+                                id="id-success-toast" type="success" 
+                                header="Successfull"
+					            detail="${this.toast}" 
+                                closable
+                                @click="${() => this.displayToast = false}">
 				</capitec-toast>
-
-				<capitec-group
-					layout="vertical"
-					gap="none"
-					halign="center"
-					valign="center">
-						<img id="id-successful-img" src="${this.image}" />
-						${this.secondaryImage ? html`<img src="/images/transactions/debiCheckLogo.svg" />` : ``}
-						
-						<capitec-label
-							id="id-successful-header"
-							label="${this.header}">
-						</capitec-label>
-						<capitec-group id="id-msg-group" layout="horizontal">
-							<capitec-icon
-								size="default"
-								icon="status/success-trans">
-							</capitec-icon>
-								<slot name="detail"></slot>
-						</capitec-group>
-
-						<capitec-group id="id-button-group" layout="horizontal">
-							${this.left
-								? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
-										</capitec-button>`
-								: html``
-							}
-							${this.right
-								? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
-										</capitec-button>`
-								: html``
-							}
-						</capitec-group>
+				<img id="id-successful-img" src="${this.image}" />
+				<img src="/images/transactions/debiCheckLogo.svg" />
+				<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
+				<capitec-group id="id-msg-group" layout="horizontal">
+					<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
+					<slot name="detail"></slot>
 				</capitec-group>
-
+				<capitec-group id="id-button-group" layout="horizontal">
+					${this.left
+						? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
+								</capitec-button>`
+						: html``
+					}
+					${this.right
+						? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
+								</capitec-button>`
+						: html``
+					}
+				</capitec-group>
 				<div class="related-options">
 					<p class="related-options-text">Related Options</p>
 				</div>
-				
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<slot name="option-button"></slot>
 				</capitec-group>

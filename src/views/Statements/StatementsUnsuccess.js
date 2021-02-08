@@ -99,8 +99,8 @@ export class StatementsUnsuccess extends View {
 		return [
 			super.styles,
 			css`
-horizon--error-screen{
-	--horizon-error-screen-height:768px;
+             horizon--error-screen{
+	        --horizon-error-screen-height:768px;
 }
 				#id-error-msg{
 					width: auto;
@@ -117,9 +117,8 @@ horizon--error-screen{
                 }
 
 				.button-margin{
-					height: 81px;
-					width: 187px;
-					background-color: #FFFFFF;
+					height: 80px;
+					width: 182px;
 					margin-right:16px;
 					 --horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
@@ -131,15 +130,18 @@ horizon--error-screen{
 				.related-options {
 					height: 32px;
 					width: 1064px;
+					margin-bottom:-2px;
+					margin-top:-4px;
 					background-color: #F7F7F7;
 					border:1px solid #E1E1E1;
 					box-sizing:border-box;
+					border-radius: 4px;
 				}
 				
 				.related-options-text{
 					margin: 0px 0px 0px 16px;
 					padding: 0px 0px 0px 0px;
-					color: #003652;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					font-weight: 600;
@@ -167,7 +169,7 @@ horizon--error-screen{
 		return html`
 			<horizon--error-screen header="Statement not emailed" 
 									left="Done"
-									right="Handoff"
+									right="Assign"
 									toast="Statement not emailed"
 									@left-click=${() => this._doneClick()}
 									@right-click=${() => this._handoffClick()}>
