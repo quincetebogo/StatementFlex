@@ -71,7 +71,6 @@ export class DesktopAgentService {
 		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 
 		this.configuration = Configuration.getInstance();
-
 	}
 
 
