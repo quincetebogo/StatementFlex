@@ -56,8 +56,7 @@ export class ProofOfAccount extends View {
 
     _sendClick() {
         if (this._validateEmail()) {
-            this.errMessage.id_emailAddress = ``;
-
+            //get account open date and number and save to state
             const state = {
                 account_number: this.landingPageInfo.account_number,
                 account_open_Date: this.landingPageInfo.account_open_Date
@@ -65,29 +64,11 @@ export class ProofOfAccount extends View {
 
             this.horizonStore.saveState(state);
 
-            //TODO
-            //get account open date and number and save to state
-
-
-
-            //this.savingsAccInfo = recovered state info.
-            //const state = {
-            //    account_open_Date: this.account_open_Date,
-            //    account_number: this.account_number
-            //};
-
-            //this.horizonStore.saveState(state);
-
             //add service call
             //if(this._serviceCall()){
             //navigate to success}
             //else {
             //navigate to unsuccess}
-
-  
-
-        } else {
-            this.errMessage.id_emailAddress = `Invalid email address`;
         }
 
     }
@@ -161,25 +142,37 @@ export class ProofOfAccount extends View {
         return [
             super.styles,
             css`
-			.textEnterEmail{
-				margin-top:20px;
-				margin-bottom:20px;								
+			.body-class {
+				width: 531px;
+				height: 280px;
+				margin-left:16px;
+				margin-right: 16px;			
 			}
-			.textConfirmEmail{
-				margin-top:20px;
-				margin-bottom:20px;	
+			div[slot="footer"]{
+				margin-right:4px;
 			}
-			.bannerInvalidEmail{
-				margin-top:0px;
-				margin-bottom:0px;
+
+			.err-body{
+				width: 531px;
+				height: 315px;
+				margin-left:16px;
+				margin-right: 16px;
 			}
-			.textInvalidEmail{
-				
-				margin-bottom:20px;
+			.label-err-message{
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+			}
+			.email-div{
+				margin-top: 16px;
+				height: 104px;
 			}
 			.search-label{
 				height: 24px;
-				width: 100%;
+				width: 200px;
 				color: #3E4547;
 				font-family: "Hind Vadodara";
 				font-size: 18px;
@@ -187,39 +180,31 @@ export class ProofOfAccount extends View {
 				letter-spacing: 0;
 				line-height: 24px;
 				margin-top: 0px;
-				margin-bottom: 18px;
+				margin-bottom: 16px;
 			}
-			.search-field-row{
-				height: 72px;
-				margin-top: 8px;
-			}
-
-			div[slot="body"] {
-				width: 100%;
-				height: 300px;
-			}
-			.reset-margin-bottom{
-				margin-bottom : 0px;
-			}
-			.email-text{
-				margin-bottom:20px;
-				
-			}
-			#id-error-banner{
-				color: #D4781C;
+			.confirm-search-label{
+				height: 24px;
+				width: 200px;
+				color: #3E4547;
 				font-family: "Hind Vadodara";
-				font-size: 14px;
+				font-size: 18px;
 				font-weight: 600;
 				letter-spacing: 0;
-				line-height: 20px;
-				margin-right:3px;
+				line-height: 24px;
+				margin-bottom: 16px;
 			}
-			#id-error-banner-message{
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				letter-spacing: 0;
-				line-height: 20px;
+			.email-text{
+				height: 72px;
+			}
+			.alert-banner{
+				margin-top:16px;
+				height:48px;
+			}
+			capitec-modal {
+				width: 531px;
+				height: 721px;
+				--theme-modal-header-padding-left: 16px;
+				
 			}
 			`
         ];
@@ -234,15 +219,13 @@ export class ProofOfAccount extends View {
     _webTemplate() {
         console.log("render");
         return html`
-		<capitec-modal type="form" header-align="left" header="Proof Of Account">
-			<div slot="body">
-				<capitec-content-box>
-					${this._renderAlertBanner()}
-					${this._renderEmailFields()}
-				</capitec-content-box>
+		<capitec-modal type="free" header-align="left" header="Proof Of Account">
+			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
+				${this._renderAlertBanner()}
+				${this._renderEmailFields()}
 				${this._renderLoadingIndicator()}
 			</div>
-			<div slot="footer">
+			<div slot="footer" class="footer-class">
 				${this._renderFooter()}
 			</div>
 		</capitec-modal>
@@ -252,17 +235,16 @@ export class ProofOfAccount extends View {
     _renderAlertBanner() {
         if (!this._isNullorEmpty(this.alertBannerMessage)) {
             return html`
-		<capitec-alert-banner type="unsuccessful-red">
-			<capitec-group id="id-notify-banner-group" layout="horizontal">
-				<capitec-label label="Notify: " id="id-error-banner"></capitec-label>
-				<capitec-label label="${this.alertBannerMessage}" id="id-error-banner-message"></capitec-label>
+		<capitec-alert-banner type="unsuccessful-red" class="alert-banner">
+			<capitec-group layout="horizontal">
+				<capitec-label label="Notify: " class="label-err-message"></capitec-label>
+				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
 			</capitec-group>
 		
 		</capitec-alert-banner>
 		 	`;
         }
-        return html`<capitec-label class="search-label" label="Enter email address" tabindex="-1" }>
-</capitec-label>`;
+        return html``;
     }
 
     _renderLoadingIndicator() {
@@ -276,17 +258,19 @@ export class ProofOfAccount extends View {
     _renderEmailFields() {
         return html`
 <capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
-	<div class="search-field-row">
-		<capitec-text-field id="id_emailAddress" focussed value="${this.id_emailAddress}" name="mailAddress"
-			@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
-			label="Email address" class="email-text" error="${this.errMessage.id_emailAddress}">
+	<div class="email-div">
+		<capitec-label class="search-label" label="Enter email address" tabindex="-1"> </capitec-label>
+		<capitec-text-field class="email-text" id="id_emailAddress" focussed value="${this.id_emailAddress}"
+			name="mailAddress" @value-changed="${(e) => this._valueChanged(e)}"
+			@key-input="${(e) => this._onKeyPress(e)}" label="Email address" error="${this.errMessage.id_emailAddress}">
 		</capitec-text-field>
-		<br>
+	</div>
 
-		<capitec-label class="search-label" label="Confirm email address" type="title"></capitec-label>
-		<capitec-text-field id="id_confirmEmail" .value="${this.id_confirmEmail}"
+	<div class="email-div">
+		<capitec-label class="confirm-search-label" label="Confirm email address" type="title"></capitec-label>
+		<capitec-text-field class="email-text" id="id_confirmEmail" .value="${this.id_confirmEmail}"
 			@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
-			name="confirmMailAddress" label="Email address" class="email-text">
+			name="confirmMailAddress" label="Email address" error="${this.errMessage.id_confirmEmail}">
 		</capitec-text-field>
 	</div>
 </capitec-group>
