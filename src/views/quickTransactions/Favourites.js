@@ -267,10 +267,6 @@ export class Favourites extends View {
 		}
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
-
 	_updateTopBar() {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -325,6 +321,10 @@ export class Favourites extends View {
 		};
 
 		this.horizonStore.saveState(state);
+	}
+
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
 	}
 
 	_toggleBusyFlag() {

@@ -169,11 +169,13 @@ export class HorizonRouter {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const savings = () => this.navigateToSavingsAccount();
 
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: insure
+			Insure: insure,
+			Savings: savings
 		}[ivrOption]();
 	};
 
@@ -456,11 +458,11 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-savings-account`,
+		name: `horizon-savings-account-landing-page`,
 		title: `SavingsAccount`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
-		load: () => import(`../views/savingsAccount/SavingsAccount`),
+		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
