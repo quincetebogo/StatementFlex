@@ -14,6 +14,7 @@
 		"cdsUrl": "",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
+	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
 			"option": "1",
@@ -35,5 +36,32 @@
 			"option": "52",
 			"primaryNeed": "Insure"
 		}
-	]
+	],
+	"mock" : {
+		"enabled": false,
+		"acceptCall": { 
+			"enabled": true,
+			"positiveCase": true
+		},
+		"favouritesLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckMandates": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"xdsQuestions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"verifySecurityQuestions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckDetails": {
+			"enabled": true,
+			"positiveCase": true
+		}
+	}
 }

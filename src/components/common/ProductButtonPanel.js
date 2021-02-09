@@ -73,9 +73,12 @@ export class ProductButtonPanel extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	// TODO Refeactor these methods to raise events. The caller should handle the navigation
 	_savingsAccountClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
+		} else {
+			this.horizonRouter.navigateToLandingPage(`Savings`, false);
 		}
 	}
 
@@ -130,7 +133,16 @@ export class ProductButtonPanel extends Component {
 	}
 
 	render() {
-		const activePage = this.horizonRouter._getCurrentRoute();
+
+		// TODO: Refactor this out into the calling components
+		let activePage = this.horizonRouter._getCurrentRoute(); // TODO: _getCurrentRoute() was supposed to be a private function, re-evaluate
+
+		// Initialise activePage properly if the current route is not yet readable
+		if (!activePage) {
+			activePage = {
+				title: ``
+			};
+		}
 
 		return html`
 			<horizon-product-tile 
