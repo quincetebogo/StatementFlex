@@ -267,10 +267,6 @@ export class Favourites extends View {
 		}
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
-
 	_updateTopBar() {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -327,6 +323,10 @@ export class Favourites extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -376,7 +376,6 @@ export class Favourites extends View {
 	}
 
 	_updateCardLimits() {
-		this.cards = mockCards;
 		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
 	}
