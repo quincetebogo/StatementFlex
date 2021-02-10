@@ -51,3 +51,15 @@ export function getDateOrdinal(date) {
 		default: return `th`;
 	}
 }
+
+/**
+ * Determine month name for input month
+ *
+ * @export
+ * @param {*} month month value
+ * @returns {*} Month name (Jan, Feb..)
+ */
+export function getMonthName(month) {
+	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	return monthNames[month];
+}
