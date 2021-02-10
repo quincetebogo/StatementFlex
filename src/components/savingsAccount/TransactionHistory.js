@@ -1,6 +1,6 @@
-import { Component, css, html,unsafeCSS } from 'platform/elements';
+import { Component, css, html, unsafeCSS } from 'platform/elements';
 
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL} from 'app/css/TransactionHistory';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
@@ -86,12 +86,12 @@ export class TransactionHistory extends Component {
 		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
 		this.accountDetails = transactionHistoryMockData.accountDetails;
 		this.transactionHistory.map((item) => {
-			const date = new Date(Date.parse(item.TransactionDate))
+			const date = new Date(Date.parse(item.TransactionDate));
 
 			item.TranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`
+			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 		});
 
 		this.filteredData = this.transactionHistory;
@@ -162,10 +162,10 @@ export class TransactionHistory extends Component {
 
 		this.filteredData = this.transactionHistory;
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(' ');
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
-			const searchTextResult = searchText.map(key => key !== "" ? this.filteredData.filter(item => item.Description.toLowerCase().indexOf(key) !== -1 ||
-																parseInt(item.Amount, 10) === parseInt(key, 10)) : [] )
+			const searchTextResult = searchText.map(key => key !== `` ? this.filteredData.filter(item => item.Description.toLowerCase().indexOf(key) !== -1 ||
+																parseInt(item.Amount, 10) === parseInt(key, 10)) : [])
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
 
@@ -502,16 +502,16 @@ export class TransactionHistory extends Component {
 					layout="horizontal"
 					halign="left" valign="center" gap="none"
 					nopadding
-					@click="${()=> this._showCalendar()}">
+					@click="${() => this._showCalendar()}">
 						<capitec-label
 							label="Choose a date"
 							type="default"
-							@click="${()=> this._showCalendar()}">
+							@click="${() => this._showCalendar()}">
 						</capitec-label>
 						<capitec-icon
 							size="small"
 							icon="system/calendar-action"
-							@click="${()=> this._showCalendar()}">
+							@click="${() => this._showCalendar()}">
 						</capitec-icon>
 				</capitec-content-box>
 
@@ -597,7 +597,7 @@ export class TransactionHistory extends Component {
 	
 	_renderTextChip() {
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-			return	html`
+			return html`
 				<capitec-chip
 					label="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					@remove="${() => this._closeChip(FILTER_BY.TEXT)}"
@@ -671,7 +671,7 @@ export class TransactionHistory extends Component {
 	_renderExpander (item) {
 		return html`
 			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL)}" 
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
 				label="Statement description: POS Purchase SPAR Die Boord card no 3445">
 			</capitec-label>
 	
@@ -799,4 +799,4 @@ export class TransactionHistory extends Component {
 	}
 }
 
-customElements.define(`transaction-history`, TransactionHistory);
+customElements.define(`horizon-transaction-history`, TransactionHistory);
