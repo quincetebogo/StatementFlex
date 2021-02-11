@@ -214,7 +214,7 @@ export class Favourites extends View {
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.landingPageInfo.cifNumber, event.detail.mandateId, event.detail.registerId);
+			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
 			if (returnValue.succeeded && returnValue.result) {
 				this.debiCheckDetails = returnValue.result;
 				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
@@ -227,7 +227,7 @@ export class Favourites extends View {
 	async _declineDebiCheckMandate(event) {
 		this.mandateId = event.detail.mandateId;
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.landingPageInfo.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -265,10 +265,6 @@ export class Favourites extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
 	}
 
 	_updateTopBar() {
@@ -327,6 +323,10 @@ export class Favourites extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -365,7 +365,7 @@ export class Favourites extends View {
 	}
 
 	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.landingPageInfo.cifNumber);
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
 			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
