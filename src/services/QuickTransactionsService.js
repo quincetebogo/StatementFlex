@@ -19,6 +19,7 @@ export class QuickTransactionsService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
+
 	favouritesLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
