@@ -1,4 +1,4 @@
-import { Logger, Security, Service } from 'platform/core';
+import { Configuration, Logger, Security, Service } from 'platform/core';
 import { v4 } from 'uuid';
 
 /**
@@ -23,13 +23,57 @@ export class HorizonChannelService extends Service {
 		});
 
 		this._version = `v1`;
+		this._mocking = null;
+		this._mock = null;
 
+		this._configuration = Configuration.getInstance();
 		this._logger = Logger.getInstance();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	/**
+	 * Determine if mocking is enabled for the specified method
+	 *
+	 * @param {string} mockName Mock name/method name in the config.json file
+	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
+	 * @memberof HorizonChannelService
+	 */
+	async _mockEnabled (mockName) {
+		if (this._mocking === null) {
+			try {
+				this._mocking = await this._configuration.getSetting(`mock`);
+
+				// Disable mocking in the SLDC environments. Only for local development
+				if (this._configuration.config.runtime.environment !== `LOCAL`) {
+					this._mocking = { enabled: false }; 
+				}
+			} catch {
+				// disable mocking if the setting is not present
+				this._mocking = { enabled: false }; 
+			}
+
+			if (this._mocking.enabled) {
+				// Dynamically load the configured mocks
+				this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
+				await this._mock.initialise(this._mocking);
+			}
+		}
+
+		// Check if mocking is switched off globally
+		if (!this._mocking.enabled) {
+			return false;
+		}
+
+		// Check if specified mock is configured and enabled
+		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+			return this._mocking[mockName].enabled;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Wraps the platform's post method
@@ -110,6 +154,13 @@ export class HorizonChannelService extends Service {
 		}
 	}
 
+	/**
+	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
+	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
+	 *
+	 * @returns {object} The X-User-Token custom header object
+	 * @memberof HorizonChannelService
+	 */
 	_setToken() {
 		return {
 			"X-User-Token": Security.getInstance().token
@@ -131,15 +182,19 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
 	 * @memberof HorizonChannelService
 	 */
-	acceptCall(incomingCallData) {
-			const url = `/clientcare/call/${this._version}/accept-call?` +
-				`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-				`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
-				`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
-				`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
+	async acceptCall(incomingCallData) {
+		if (await this._mockEnabled(`acceptCall`)) {
+			return this._mock.acceptCall(incomingCallData);
+		}
 
-			return this._get(url, this._setToken(), `acceptCall`);
+		const url = `/clientcare/call/${this._version}/accept-call?` +
+			`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+			`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
+			`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
+			`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
+
+		return this._get(url, this._setToken(), `acceptCall`);
 	}
 
 	// addCallerDetailsRequest
@@ -356,29 +411,63 @@ export class HorizonChannelService extends Service {
 	// XDS Questions Methods
 	// ---------------------
 
-	xdsQuestions(clientID) {
-		const url = `/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`;
+	async xdsQuestions(clientID) {
+		if (await this._mockEnabled(`xdsQuestions`)) {
+			return this._mock.xdsQuestions(clientID);
+		}
 
-		return this._get(url, null, `xdsQuestions`);
+		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, null, `xdsQuestions`);
 	}
 
-	verifySecurityQuestions(answers) {
-		const url = `/clientcare/call/${this._version}/xds-questions`;
-		const model = answers;
+	async verifySecurityQuestions(answers) {
+		if (await this._mockEnabled(`verifySecurityQuestions`)) {
+			return this._mock.verifySecurityQuestions(answers);
+		}
 
-		return this._post(url, model, null, `verifySecurityQuestions`);
+		return this._post(`/clientcare/call/${this._version}/xds-questions`, answers, null, `verifySecurityQuestions`);
 	}
 
 	// ------------------
 	// Favourites Methods
 	// ------------------
 
-	favouritesLanding(clientInfo) {
-			const url = `/clientcare/favourites/${this._version}/landing?` +
-				`CifNumber=${clientInfo.cifNumber}&` +
-				`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
-				`IsCallerVerified=${clientInfo.isCallerVerified}`;
+	async favouritesLanding(clientInfo) {
+		if (await this._mockEnabled(`favouritesLanding`)) {
+			return this._mock.favouritesLanding(clientInfo);
+		}
+
+		const url = `/clientcare/favourites/${this._version}/landing?` +
+			`CifNumber=${clientInfo.cifNumber}&` +
+			`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
+			`IsCallerVerified=${clientInfo.isCallerVerified}`;
 
 		return this._get(url, this._setToken(), `favouritesLanding`);
+	}
+
+	// --------------------------
+	// Debi Check Mandate Methods
+	// --------------------------
+
+	async debiCheckMandates(cifNumber) {
+		if (await this._mockEnabled(`debiCheckMandates`)) {
+			return this._mock.debiCheckMandates(cifNumber);
+		}
+
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandates`;
+		return this._get(url, null, `debiCheckMandates`);
+	}
+
+	async debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (await this._mockEnabled(`debiCheckDetails`)) {
+			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
+		}
+
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
+		return this._get(url, null, `debiCheckDetails`);
+	}
+
+	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
+		return this._post(url, model, null, `debiCheckDecline`);
 	}
 }
