@@ -1,5 +1,4 @@
 import { View, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 export class ProofOfAccount extends View {
     /*
@@ -17,13 +16,8 @@ export class ProofOfAccount extends View {
         };
         this.label_err = ``;
 
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
         this.savingAccInfo = {};
-        this.landingPageInfo = ``;
-
-        this.horizonStore = HorizonStore.getInstance();
-
+        this.landingPageInfo = {};
     }
 
     /*
@@ -31,11 +25,16 @@ export class ProofOfAccount extends View {
      */
     static get properties() {
         return {
-            isBusy: { type: Boolean },
+			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+			
+            isBusy: { attribute: false },
+			
             emailAddress: { type: String },
             alertBannerMessage: { type: String },
-            account_open_Date: { type: date },
-            account_number: {type: String}
+            account_open_Date: { type: Date },
+            account_number: {type: String }
         };
     }
 

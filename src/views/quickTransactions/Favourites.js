@@ -15,6 +15,7 @@ import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
+import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -394,9 +395,7 @@ export class Favourites extends View {
 	}
 
 	_proofOfAccount() {
-		// TODO: Functionality to generate proof of account comes here
         this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-
 	}
 
 	_unavailableOption() {
@@ -555,8 +554,8 @@ export class Favourites extends View {
                 <horizon-proof-of-account
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}"
-                    ><horizon-proof-of-account>`
+                    .landingPageInfo="${this.landingPageInfo}">
+                </horizon-proof-of-account>`
             : html``; 
     }
 }
