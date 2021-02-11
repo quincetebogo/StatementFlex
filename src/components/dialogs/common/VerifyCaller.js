@@ -204,7 +204,7 @@ export class VerifyCaller extends Component {
 		}
 	}
 
-	_onEndCall() {
+	_endCall() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -451,7 +451,7 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
-					@on-end-call="${() => this._onEndCall()}">
+					@on-end-call="${() => this._endCall()}">
 					<div slot="body">
 						${this._renderNotificationStatus()}
 						${this._renderXdsError()}
@@ -482,6 +482,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="VerifyClient"
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;
 	}
@@ -551,10 +552,7 @@ export class VerifyCaller extends Component {
 		if (this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" 
-                                    halign="stretch"
-                                    valign="top"
-                                    gap="clear">
+					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 						<capitec-alert-banner type="error">
 							${this.xdsMessage}
 						</capitec-alert-banner>

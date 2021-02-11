@@ -1,11 +1,11 @@
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, getValue, isDisabled, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/CallerInfoBar';
@@ -350,11 +350,9 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
-										value="${getValue(this.firstNameTextField)}"
+										value="${this.firstNameTextField.value}"
 										error="${this._getErrorMessage(this.firstNameTextField)}"
-										?hidden=${isHidden(this.firstNameTextField)}
-										.disabled="${isDisabled(this.firstNameTextField)}"
-										tabindex="${getTabIndex(this.firstNameTextField)}"
+										tabindex="1"
 										@value-changed="${(e) => this._valueChanged(e)}" 
 										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
@@ -362,11 +360,9 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field label="Surname"
 										id="surnameTextField"
-										value="${getValue(this.surnameTextField)}"
+										value="${this.surnameTextField.value}"
 										error="${this._getErrorMessage(this.surnameTextField)}"
-										?hidden=${isHidden(this.surnameTextField)}
-										.disabled="${isDisabled(this.surnameTextField)}"
-										tabindex="${getTabIndex(this.surnameTextField)}"
+										tabindex="2"
 										@value-changed="${(e) => this._valueChanged(e)}"
 										@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
@@ -374,12 +370,10 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
-										value="${getValue(this.cellPhoneTextField)}"
+										value="${this.cellPhoneTextField.value}"
 										error="${this._getErrorMessage(this.cellPhoneTextField)}"
 										label="Cellphone Number (Optional)"
-										?hidden=${isHidden(this.cellPhoneTextField)}
-										.disabled="${isDisabled(this.cellPhoneTextField)}"
-										tabindex="${getTabIndex(this.cellPhoneTextField)}"
+										tabindex="3"
 										@key-input="${(e) => this._keyPress(e)}"
 										@value-changed="${(e) => this._valueChanged(e)}">
 					</capitec-text-field><br>
@@ -387,12 +381,10 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
                                     label="Choose relationship type (Optional)"
-						            value="${getValue(this.nonClientRelationship)}"
+						            value="${this.nonClientRelationship.value}"
                                     .items="${this.nonClientRelationship.possibleValues}"
 						            @value-changed="${(e) => this._valueChanged(e)}"
-                                    tabindex="${getTabIndex(this.nonClientRelationship)}"
-						            ?hidden=${isHidden(this.nonClientRelationship)} 
-                                    .disabled="${isDisabled(this.nonClientRelationship)}"
+                                    tabindex="4"
 						            id-field="key"
                                     display-field="value">
 					</capitec-select>
@@ -406,17 +398,13 @@ export class AddCallerDetails extends Component {
 				<capitec-button id="id-back-button"
 								type="clear"
 								label="Cancel"
-								?hidden=${isHidden(this.backButton)}
-								.disabled="${isDisabled(this.backButton)}"
-								tabindex="${getTabIndex(this.backButton)}"
+								tabindex="6"
 								@click="${(e) => this._backClick()}">
 				</capitec-button>
 				<capitec-button id="id-confirm-button"
 								type="primary"
 								label="Confirm"
-								?hidden=${isHidden(this.confirmButton)}
-								.disabled="${isDisabled(this.confirmButton)}"
-								tabindex="${getTabIndex(this.confirmButton)}"
+								tabindex="5"
 								@click="${() => this._confirmClick()}">
 				</capitec-button>
 			</capitec-group>`;
@@ -424,8 +412,9 @@ export class AddCallerDetails extends Component {
 
 	_renderEndCallModal() {
 		return html`<horizon-end-call-session 
-						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}"
-						.incomingCallDetails = "${this.incomingCallDetails}">
+						.incomingCallDetails = "${this.incomingCallDetails}"
+						endCallContext="ConfirmClient"
+						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 					</horizon-end-call-session>`;
 	}
 }

@@ -217,7 +217,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_callEnded() {
+	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -462,8 +462,10 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session @cancel="{${() => this._callEnded()}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+				<horizon-end-call-session 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage"
+					@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;

@@ -163,6 +163,7 @@ export class XdsVerificationFailed extends View {
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isReassigned="${this.isReassigned}"
+					endCallContext="LandingPage"
 					@cancel="{${() => this._cancelEndCallClick()}}">
 				</horizon-end-call-session>`;
 		}

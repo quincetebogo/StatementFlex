@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
@@ -30,6 +31,7 @@ export class SystemError extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
@@ -82,7 +84,7 @@ export class SystemError extends View {
 	}
 
 	_assignClick() {
-		console.log(`Assign is still to be developed`);
+		this.horizonRouter.navigateToWaitingForCall();
 	}
 
 	// ---------
@@ -133,7 +135,8 @@ export class SystemError extends View {
 			return html`
 				<horizon-end-call-session 
 					@cancel="{${() => this.renderMode = RENDER_MODE.SYSTEM_ERROR}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage">
 				</horizon-end-call-session>`;
 		}
 		return html``;

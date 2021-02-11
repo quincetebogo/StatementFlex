@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/MiniProfile';
@@ -26,9 +27,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		console.log(`ProfileAndProductSummaryBar - constructor`);
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-
 		this.miniProfile = {
 			name: ``,
 			idNumber: ``,
@@ -49,11 +47,15 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.subtitle = {};
 		this.detail = null;
 
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
 		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
 		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
-		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites)
+		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
 	// ----------
@@ -62,18 +64,17 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	/**
 	 *
-	 *
 	 * @readonly
 	 * @static
 	 * @memberof ProfileAndProductSummaryBar
 	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object },
-			disableNavigation: { type: Boolean },
-			hasFavourites: { type: Boolean },
-			subtitle: { type: Object },
-			detail: { type: Object }
+			miniProfile: { attribute: false },
+			disableNavigation: { attribute: false },
+			hasFavourites: { attribute: false },
+			subtitle: { attribute: false },
+			detail: { attribute: false }
 		};
 	}
 
@@ -83,7 +84,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
 		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
 	}
 
@@ -119,6 +119,11 @@ export class ProfileAndProductSummaryBar extends Component {
 	// PRIVATE
 	// ---------
 
+	_favouritesClicked() {
+		const state = this.horizonStore.recoverState();
+		this.horizonRouter.navigateToLandingPage(`Transact`, state.callerInformation.hasInsuranceProducts);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -144,9 +149,13 @@ export class ProfileAndProductSummaryBar extends Component {
 	_webTemplate() {
 		return html`
 		<section class="left-card">
-		 	<horizon-mini-profile .miniProfile="${this.miniProfile}"></horizon-mini-profile>
-			 ${this._renderFavourites()}
-			<horizon-product-button-panel 
+			<horizon-mini-profile 
+				.miniProfile="${this.miniProfile}">
+			</horizon-mini-profile>
+			
+			${this._renderFavourites()}
+			
+			<horizon-product-button-panel
 				.subtitle="${this.subtitle}"
 				.detail="${this.detail}"
 				?disablenavigation=${true}>
@@ -155,12 +164,16 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_renderFavourites() {
+		const activePage = this.horizonRouter._getCurrentRoute();
+
 		if (this.hasFavourites) {
 			return html`
-				<horizon-favourites-tile 
-					class="favourites-button" 
-					label="Favourites" 
-					subtitle="Transact, dispute, cards and more">
+				<horizon-favourites-tile
+					class="favourites-button"
+					label="Favourites"
+					subtitle="Transact, dispute, cards and more"
+					@click="${() => this._favouritesClicked()}"
+					?selected=${activePage.title === `Favourites`}>
 				</horizon-favourites-tile>`;
 		};
 		return html``;

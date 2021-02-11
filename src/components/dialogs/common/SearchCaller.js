@@ -562,13 +562,22 @@ export class SearchCaller extends Component {
 
 	_renderClientType() {
 		return html`
-			<capitec-label class="client-type-label" label="Client Type"></capitec-label>
+			<capitec-label 
+				class="client-type-label" 
+				label="Client Type">
+			</capitec-label>
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
-					<capitec-radio id="capitecClient" label="Capitec Client" @value-changed="${(e) => this._clientTypeChanged(e)}"
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
-					<capitec-radio id="nonCient" label="Non Client" @value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
 				</capitec-group>
@@ -578,8 +587,10 @@ export class SearchCaller extends Component {
 	_renderCapitecClientFields() {
 		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
 			return html`
-					<capitec-label class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
-						label="Search existing client">
+					<capitec-label 
+						class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
+						label="Search existing client"
+						tabindex="-1">
 					</capitec-label>
 					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 						<div class="search-field-row">
@@ -591,13 +602,22 @@ export class SearchCaller extends Component {
 								.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
 								id-field="key" 
 								display-field="displayText"
-								@value-changed="${(e) => this._valueChanged(e)}">
+								@value-changed="${(e) => this._valueChanged(e)}"
+								tabindex=3>
 							</capitec-select>
 						</div>
 						<div class="search-field-row">
-							<capitec-text-field id="searchValue" type="search" keyboardMode="numeric" label="Search" focussed
-								value="${this.searchValue}" @value-changed="${(e) => this._valueChanged(e)}"
-								@key-input="${(e) => this._onKeyPress(e)}" error="${this.errMessage.searchValue}">
+							<capitec-text-field 
+								id="searchValue" 
+								type="search" 
+								keyboardMode="numeric" 
+								label="Search" 
+								focussed
+								value="${this.searchValue}" 
+								@value-changed="${(e) => this._valueChanged(e)}"
+								@key-input="${(e) => this._onKeyPress(e)}" 
+								error="${this.errMessage.searchValue}"
+								tabindex="4">
 							</capitec-text-field>
 						</div>
 					</capitec-group>`;
@@ -649,22 +669,25 @@ export class SearchCaller extends Component {
 				<capitec-button
                     type="primary"
                     @click="${(e) => this._onSearchClient(e)}" label="Search Client"
-					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}>
+					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}
+					tabindex="5">
 				</capitec-button>
 				<capitec-button
                     type="primary"
                     @click="${(e) => this._onContinue(e)}"
                     label="Continue"
-                    ?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}>
+					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
+					tabindex="6">
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
-			<horizon-end-call-session
-                @cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
 	}
 }
