@@ -27,7 +27,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_APPROVE: 7,
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
-	UPDATE_CARD_LIMITS: 10
+    UPDATE_CARD_LIMITS: 10,
+    PROOF_OF_ACCOUNT: 11
 });
 
 /**
@@ -254,8 +255,8 @@ export class Favourites extends View {
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 			 
 			 if (returnValue.succeeded) {
-			 	this.isLoading = false;
-			 	this.landingPageInfo = returnValue.result;
+                 this.isLoading = false;
+                 this.landingPageInfo = returnValue.result;
 
 			 	// Now we can update the information on the product buttons as well
 			 	this._updateLeftBar();
@@ -394,6 +395,8 @@ export class Favourites extends View {
 
 	_proofOfAccount() {
 		// TODO: Functionality to generate proof of account comes here
+        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+
 	}
 
 	_unavailableOption() {
@@ -440,6 +443,7 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+            ${this._renderProofOfAccount()}
 		`;
 	}
 
@@ -543,7 +547,18 @@ export class Favourites extends View {
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-update-card-limits>`
 			: html``;
-	}
+    }
+
+    _renderProofOfAccount() {
+        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+            ? html`
+                <horizon-proof-of-account
+                    .incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+                    .landingPageInfo="${this.landingPageInfo}"
+                    ><horizon-proof-of-account>`
+            : html``; 
+    }
 }
 
 customElements.define(`horizon-favourites`, Favourites);
