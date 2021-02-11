@@ -47,6 +47,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"cardLimitsLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckMandates": {
 			"enabled": true,
 			"positiveCase": true
