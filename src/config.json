@@ -38,7 +38,7 @@
 		}
 	],
 	"mock" : {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": { 
 			"enabled": true,
 			"positiveCase": true
@@ -47,8 +47,12 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"debiCheckMandates": {
+		"cardLimitsLanding": {
 			"enabled": true,
+			"positiveCase": true
+		},
+		"debiCheckMandates": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -60,7 +64,7 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

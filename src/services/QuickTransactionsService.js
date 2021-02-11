@@ -23,4 +23,8 @@ export class QuickTransactionsService extends ServiceBase {
 	favouritesLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
+
+	cardLimitsLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.cardLimitsLanding(clientInfo), `cardLimitsLanding`, errorHandler, autoRetries);
+	}
 }

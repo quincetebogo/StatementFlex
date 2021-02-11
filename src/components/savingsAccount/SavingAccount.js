@@ -8,7 +8,8 @@ import 'app/components/common/HorizonLabel';
  *
  * Events Raised
  * -------------
- * -
+ * 
+ * option-click
  * 
  * @export
  * @class SavingsAccount
@@ -54,6 +55,10 @@ export class SavingsAccount extends Component {
 	// EVENT HANDLERS
 	// --------------
 	
+	_optionSelectedClick(selectedOption) {
+		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -258,12 +263,14 @@ export class SavingsAccount extends Component {
 					<horizon-option-button 
 						class="button-margin" 
 						label="Transaction History" 
-						icon="system/time-action">
+						icon="system/time-action"
+						@click="${() => this._optionSelectedClick(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
 						label="DebiCheck" 
-						icon="system/debit-order-action">
+						icon="system/debit-order-action"
+						@click="${() => this._optionSelectedClick(`debi-check`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
