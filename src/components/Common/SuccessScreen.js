@@ -21,6 +21,7 @@ export class SuccessScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
+		this.secondaryImage=``;
 	}
 
 	// -------------------
@@ -54,7 +55,8 @@ export class SuccessScreen extends Component {
 			right: { type: String },
 			toast: { type: String },
 			displayToast: { type: Boolean },
-			image: { type: String }
+			image: { type: String },
+			secondaryImage:{type:String}
 		};
 	}
 
@@ -76,8 +78,12 @@ export class SuccessScreen extends Component {
 					width: 100%;
 				}
 
+				.card > capitec-group[layout="vertical"] {
+					height: 744px;
+				}
+
 				#id-successful-img {
-					margin-top: 174px;
+					width: auto;
 				}
 
 				#id-successful-header {
@@ -116,7 +122,7 @@ export class SuccessScreen extends Component {
 				}
 
 				.related-options {
-					margin-top:144px;
+					/*margin-top:144px;*/
 					height: 32px;
 					width: 100%;
 					background-color: #F4F4F4;
@@ -181,14 +187,19 @@ export class SuccessScreen extends Component {
 		return html`
 			<capitec-card class="card">
 				<capitec-toast ?hidden="${!this.displayToast}" 
-                                id="id-success-toast" type="success" 
-                                header="Successfull"
+                                id="id-success-toast" type="success"
+                                header="Successful"
 					            detail="${this.toast}" 
                                 closable
                                 @click="${() => this.displayToast = false}">
 				</capitec-toast>
+				<capitec-group
+				layout="vertical"
+					gap="none"
+					halign="center"
+					valign="center">
 				<img id="id-successful-img" src="${this.image}" />
-				<img src="/images/transactions/debiCheckLogo.svg" />
+				<img id="id-secondary-img" src="${this.secondaryImage}" />
 				<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
 				<capitec-group id="id-msg-group" layout="horizontal">
 					<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
@@ -205,6 +216,7 @@ export class SuccessScreen extends Component {
 								</capitec-button>`
 						: html``
 					}
+				</capitec-group>
 				</capitec-group>
 				<div class="related-options">
 					<p class="related-options-text">Related Options</p>

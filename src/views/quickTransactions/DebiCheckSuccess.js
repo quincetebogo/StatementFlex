@@ -127,8 +127,9 @@ export class DebiCheckSuccess extends View {
 
 	_renderSuccessScreen() {
 		return html`
-			<horizon-success-screen header="DebiCheck mandate approved" 
+			<horizon-success-screen header="DebiCheck mandate approved"
 									image="/images/transactions/debiCheckMandate.svg"
+								    secondaryImage="/images/transactions/debiCheckLogo.svg"
 									left="Done"
 									right="DebiCheck Mandates"
 									toast="DebiCheck mandate declined."
