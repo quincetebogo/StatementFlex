@@ -2,6 +2,8 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 
 /**
@@ -36,6 +38,9 @@ export class SavingsAccountLandingPage extends View {
 		// private properites
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
+
+		this.savingsAccountService = new SavingsAccountService(() => ex => this._errorHandler(ex));
+		
 	}
 
 	// -------------------
@@ -69,7 +74,7 @@ export class SavingsAccountLandingPage extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	async _initialise() {
 		this._updateTopBar();
 
 		// At this point this will just update the mini-profile
@@ -81,8 +86,18 @@ export class SavingsAccountLandingPage extends View {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+				getGenericData: true
 			};
+
+			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber,landingRequest.getGenericData);
+			 
+			if (returnValue.succeeded) {
+				this.isLoading = false;
+				this.landingPageInfo = returnValue.result;
+
+				// Now we can update the information on the product buttons as well
+				this._updateLeftBar();
+			}
 
 		} else {
 			// minimal object for the Favourites landing page component
@@ -103,6 +118,25 @@ export class SavingsAccountLandingPage extends View {
 	}
 
 	_updateLeftBar() {
+		let subtitle = null;
+		let detail = null;
+
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
+
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
+
 		const state = {
 			miniProfile: {
 				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
@@ -159,7 +193,8 @@ export class SavingsAccountLandingPage extends View {
 	_webTemplate() {
 		return html`
 			<horizon-savings-account
-				class="savingsaccount">
+				class="savingsaccount"
+				.landingPageInfo="${this.landingPageInfo}">
 			</horizon-savings-account>`;
 	}
 }

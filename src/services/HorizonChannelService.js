@@ -470,4 +470,14 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, null, `debiCheckDecline`);
 	}
+
+	savingsAccountLanding (cifNumber,nationalIDNumber,getGenericData) {
+		
+		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
+		`CifNumber=${cifNumber}&` +
+		`NationalIDNumber=${nationalIDNumber}&` +
+		`GetGenericData=${getGenericData}`;
+
+		return this._get(url, null, `savingsAccountLanding`);
+	}
 }
