@@ -2,11 +2,13 @@ import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
+import 'app/components/dialogs/common/DiscardChanges';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
-	UPDATE_LIMITS: 1
-}
+	UPDATE_LIMITS: 1,
+	DISCARD: 2
+};
 
 /**
  * This component implements the update card limits for Quick Transactions
@@ -82,6 +84,9 @@ export class CardLimitsLanding extends Component {
 		this.renderMode = RENDER_MODE.UPDATE_LIMITS;
 	}
 
+	_discardChanges() {
+		this.renderMode = RENDER_MODE.DISCARD;
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -235,6 +240,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			${this._renderContent()}
 			${this._renderUpdateLimits()}
+			${this._renderDiscard()}
 		`;
 	}
 
@@ -443,16 +449,28 @@ export class CardLimitsLanding extends Component {
 
 	_renderUpdateLimits() {
 		if (this.renderMode === RENDER_MODE.UPDATE_LIMITS) {
-			return html `
+			return html`
 				<horizon-update-card-limits
 					.updateType="${this._updateType}"
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@cancel="${() => this.renderMode = RENDER_MODE.DISCARD}">
 				</horizon-update-card-limits>
 			`;
 		}
 
 		return html``;
 	}
+
+	
+	_renderDiscard() {
+		if (this.renderMode === RENDER_MODE.DISCARD) {
+			return html`
+			<horizon-discard-changes
+				@on-cancel="${() => this.renderMode = RENDER_MODE.UPDATE_LIMITS}"
+				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+			></horizon-discard-changes>`;
+		}
+	}
+
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);

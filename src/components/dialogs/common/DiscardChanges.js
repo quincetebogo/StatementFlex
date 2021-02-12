@@ -15,7 +15,7 @@ export class DiscardChanges extends Component {
 	// --------------
 	_onCancelClick() {
 		console.log(`dispatch new event`);
-		this.dispatchEvent(new CustomEvent(`click`, {
+		this.dispatchEvent(new CustomEvent(`on-cancel`, {
 			detail: {}
 		}));
 	}

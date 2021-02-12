@@ -293,6 +293,7 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
+		
 			<capitec-modal type="free" header-align="left" header="Update ${this.updateType} Limits">
 				<div slot="body">
 					<capitec-stepper
@@ -421,7 +422,7 @@ export class UpdateCardLimits extends Component {
 						<capitec-expander
 							expandbuttonalignment="left"
 							label="View Agreement">
-								<capitec-label type 
+								<capitec-label type="default"
 									label="Your content comes here.">
 								</capitec-label>
 						</capitec-expander>
