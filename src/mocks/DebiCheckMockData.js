@@ -92,4 +92,46 @@ export const mockMandates = {
 			"mandateStatus": "Declined"
 		}
 	]
-}
+};
+
+export const mandateInfo = [
+	{
+		mandateId: 0,
+		registerId: 0,
+		mandateInfo: {
+			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
+			"tracking": true,
+			"contractReference": "12345678010",
+			"collectorContact": "021 101 0810",
+			"mandateReference": "XYZ4367",
+			"collectorEmail": "mandate1@collector.bank",
+			"mrti": "4573"
+		}
+	},
+	{
+		mandateId: 1,
+		registerId: 1,
+		mandateInfo: {
+			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
+			"tracking": false,
+			"contractReference": "6586854658",
+			"collectorContact": "021 101 0810",
+			"mandateReference": "JFGJ457487",
+			"collectorEmail": "mandate2@collector.bank",
+			"mrti": "547452"
+		}
+	},
+	{
+		mandateId: 2,
+		registerId: 2,
+		mandateInfo: {
+			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
+			"tracking": true,
+			"contractReference": "65498569",
+			"collectorContact": "021 101 1111",
+			"mandateReference": "kgyh85698",
+			"collectorEmail": "mandate3@collector.bank",
+			"mrti": "780780"
+		}
+	}
+];

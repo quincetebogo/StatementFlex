@@ -22,7 +22,6 @@ export class DeclineDebiCheckMandate extends Component {
 	
 	constructor() {
 		super();
-		// TODO: Mandate ID to be supplied by input property
 		this.mandateId = ``;
 	}
 
@@ -49,8 +48,6 @@ export class DeclineDebiCheckMandate extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
-		this.mandateId = `DISCLIFE5130111776-2?`;
 	}
 
 	// --------------

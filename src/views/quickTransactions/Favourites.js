@@ -5,10 +5,7 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-
-// TODO: Below mocks import has to be removed when service call is implemented
-import { mockCards } from 'app/mocks/CardLimitsMock';
-import { mockMandates } from 'app/mocks/DebiCheckMockData';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -17,6 +14,7 @@ import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
+import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -29,7 +27,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_APPROVE: 7,
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
-	UPDATE_CARD_LIMITS: 10
+    UPDATE_CARD_LIMITS: 10,
+    PROOF_OF_ACCOUNT: 11
 });
 
 /**
@@ -68,6 +67,7 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
 		this.cards = [];
+		this.debiCheckDetails = {};
 
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
@@ -82,8 +82,9 @@ export class Favourites extends View {
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -200,9 +201,9 @@ export class Favourites extends View {
 		}
 	}
 
-	_mandateActionClick (event) {
-		this.mandateId = event.detail.mandateId;
+	async _mandateActionClick (event) {
 		if (event.detail.action === `decline`) {
+			this.mandateId = event.detail.mandateId;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
 		} else if (event.detail.action === `approve`) {
 			const state = {
@@ -213,13 +214,21 @@ export class Favourites extends View {
 			};
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
+		} else if (event.detail.action === `viewInfo`) {
+			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
+			if (returnValue.succeeded && returnValue.result) {
+				this.debiCheckDetails = returnValue.result;
+				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
+			} else {
+				this.horizonRouter.navigateToSystemError();
+			}
 		}
 	}
 
-	_declineDebiCheckMandate(event) {
+	async _declineDebiCheckMandate(event) {
 		this.mandateId = event.detail.mandateId;
 
-		// TODO: Actually decline the debi check mandate
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -244,10 +253,10 @@ export class Favourites extends View {
 			};
 
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
-
+			 
 			 if (returnValue.succeeded) {
-			 	this.isLoading = false;
-			 	this.landingPageInfo = returnValue.result;
+                 this.isLoading = false;
+                 this.landingPageInfo = returnValue.result;
 
 			 	// Now we can update the information on the product buttons as well
 			 	this._updateLeftBar();
@@ -257,10 +266,6 @@ export class Favourites extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
 	}
 
 	_updateTopBar() {
@@ -319,6 +324,10 @@ export class Favourites extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -356,14 +365,18 @@ export class Favourites extends View {
 		}
 	}
 
-	_debiCheck() {
-		this.debiCheckMandates = mockMandates.mandateSummaryList;
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		// TODO: Service call to get mandates comes here
+	async _debiCheck() {
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
+
+		if (returnValue.succeeded) {
+			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		} else {
+			// Todo: Handle error scenario
+        }
 	}
 
 	_updateCardLimits() {
-		this.cards = mockCards;
 		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
 	}
@@ -382,6 +395,8 @@ export class Favourites extends View {
 
 	_proofOfAccount() {
 		// TODO: Functionality to generate proof of account comes here
+        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+
 	}
 
 	_unavailableOption() {
@@ -419,21 +434,23 @@ export class Favourites extends View {
 		return html`
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
+
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckViewMandateInfo()}
+
 			${this._renderAlertModal()}
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+            ${this._renderProofOfAccount()}
 		`;
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 
 	_renderFavouritesLandingPage() {
@@ -488,6 +505,8 @@ export class Favourites extends View {
 		}
 	}
 
+
+	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
 			? html`
@@ -503,12 +522,21 @@ export class Favourites extends View {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
 			? html`
 				<horizon-decline-debicheck-mandate
-					mandateId=""
+					mandateId=${this.mandateId}
 					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}"
-		>
+					@decline="${(event) => this._declineDebiCheckMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
 			: html``;
+	}
+
+	_renderDebiCheckViewMandateInfo() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
+		? html`
+			<horizon-viewinfo-debicheck
+				.debiCheckDetails=${this.debiCheckDetails}
+				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+			></horizon-viewinfo-debicheck>`
+		: html``;
 	}
 
 	_renderUpdateCardLimits() {
@@ -519,7 +547,18 @@ export class Favourites extends View {
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-update-card-limits>`
 			: html``;
-	}
+    }
+
+    _renderProofOfAccount() {
+        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+            ? html`
+                <horizon-proof-of-account
+                    .incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+                    .landingPageInfo="${this.landingPageInfo}"
+                    ><horizon-proof-of-account>`
+            : html``; 
+    }
 }
 
 customElements.define(`horizon-favourites`, Favourites);
