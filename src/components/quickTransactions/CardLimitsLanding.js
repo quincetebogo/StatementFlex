@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
@@ -29,12 +30,15 @@ export class CardLimitsLanding extends Component {
 		super();
 
 		// private properites
+		this._cardLimits = {};
+		this._updateType = ``;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
 		this.primaryCards = [];
 		this.supplementaryCards = [];
 		this.virtualCards = [];
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this._updateType = ``;
 
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -77,9 +81,15 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_updateLimits(type) {
-		this._updateType = type;
-		this.renderMode = RENDER_MODE.UPDATE_LIMITS;
+	async _updateLimits(type) {
+
+		const returnValue = await this.quickTransactionService.getCardLimits();
+
+		if (returnValue.succeeded) {
+			this._updateType = type;
+			this._cardLimits = returnValue.result;
+			this.renderMode = RENDER_MODE.UPDATE_LIMITS;
+		}
 	}
 
 	// --------------
@@ -92,7 +102,14 @@ export class CardLimitsLanding extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// N/A
+	_errorHandler() {
+		// TODO: Error handler comes here
+	}
+
+	_toggleBusyFlag() {
+		// TODO: Toggle busy indicator comes here
+	}
+
 
 	// ---------
 	// RENDERING
@@ -446,6 +463,7 @@ export class CardLimitsLanding extends Component {
 			return html `
 				<horizon-update-card-limits
 					.updateType="${this._updateType}"
+					.cardLimits="${this._cardLimits}"
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-update-card-limits>
 			`;

@@ -450,6 +450,12 @@ export class HorizonChannelService extends Service {
 		}
 	}
 
+	async getCardLimits() {
+		if (await this._mockEnabled(`cardLimits`)) {
+			return this._mock.getCardLimits();
+		}
+	}
+
 	// --------------------------
 	// Debi Check Mandate Methods
 	// --------------------------
