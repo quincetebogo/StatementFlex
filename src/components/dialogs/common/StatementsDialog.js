@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/popups/Modal';
 
@@ -26,6 +27,14 @@ export class StatementsDialog extends Component {
 
 		super();
 		this.currentStep = 1;
+        this.horizonStore = HorizonStore.getInstance();
+		// this.callerInformation = this.state.callerInformation;
+        // this.incomingCallDetails = this.state.incomingCallDetails;
+
+		// console.log(this.callerInformation);
+		// console.log(this.incomingCallDetails);
+
+		//TODO: Remove unused 
 		this.availableSavings = "R " + 0;
 		this.availableSavingsPlans = "R " + 0;
 		this.availableCredit = "R " + 0;
@@ -94,7 +103,22 @@ export class StatementsDialog extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	
+	connectedCallback() {
+		//Holding values
+		super.connectedCallback();
+
+
+	}
+
+	_cancel () {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_clearErrors () {
+		this.infoOrError = "info";
+		this.emailError = "";
+		this.confirmError = "";
+	}
 	_updateStep(e) {
 			this.currentStep = e;
 			if (this.currentStep == 2) {
@@ -158,6 +182,19 @@ export class StatementsDialog extends Component {
 		}
 	}
 
+	_sendStatement () {
+		if (this._emailFormatCheck()) {
+			//if email is in correct format and matches confirm email
+			const state = {
+				//still to fill these in
+			};
+
+			this.horizonStore.saveState(state);
+
+			//Candice: According to your ProofOfAccount.js the service call would be added here
+		}
+	}
+
 	//value of account selction
 	_accountSelectionChanged(e, name) {
 		//account and sub account selection under savings plans
@@ -169,12 +206,18 @@ export class StatementsDialog extends Component {
 
 			if (name == "savingsAccount") {
 				this.focusTransact = "transactFocus";
+				this.focusSave = "";
+				this.focusCredit = "";
+
 				this.accountSelected = name;
 				console.log(this.accountSelected)
 			}
 
 			if (name == "savingsPlans") {
 				this.focusSave = "saveFocus";
+				this.focusTransact = "";
+				this.focusCredit = "";
+
 				this.savingsPlansSelected = name;
 				this.accountSelected = name;
 				console.log(this.accountSelected)
@@ -185,13 +228,17 @@ export class StatementsDialog extends Component {
 	
 			if (name == "creditCards") {
 				this.focusCredit = "creditFocus";
+				this.focusSave = "";
+				this.focusTransact = "";
+
 				this.accountSelected = name;
 				console.log(this.accountSelected)
 			}
 		}
 
 		//TODO: Loop through clients savings plans
-		this.savingsPlans = [{
+		this.savingsPlans = [
+			{
 			value: 1,
 			name: "Name",
 			amount: "R " + "546844.25"
@@ -201,9 +248,7 @@ export class StatementsDialog extends Component {
 			name: "Name 1",
 			amount: "R " + "504.25"
 		}
-	]
-
-	}
+	]};
 
 	_savingsPlanChanged(e, savingsPlan) {
 		console.log(e)
@@ -296,8 +341,10 @@ export class StatementsDialog extends Component {
 			if(regCheck.test(e.detail.new)) {
 				this.email = e.detail.new;
 				console.log(e.detail.new);
+				return true;
 			} else {
 				this.emailError = "Invalid email format";
+				return false;
 			}
 		} else if (e.detail.new.length < 1 || e.detail.new !== e.detail.old) {
 			this.emailError = "";
@@ -318,6 +365,7 @@ export class StatementsDialog extends Component {
 				this.confirmError = "Emails do not match";
 			} else {
 				this.confirmError = "";
+
 			}
 		} else {
 			this.confirmError = "";
@@ -655,7 +703,7 @@ ${
 				<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
 			</div>
 			<div slot="footer" style="margin-right: 0">
-				<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${(e) => this._navigateSteppers(e, `cancel`)}"></capitec-button>
+				<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
 				<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
 			</div>
 		`
@@ -770,7 +818,7 @@ ${
 		<capitec-radio-group>
 					<div class="period">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._showDateRange(e)}">
+							<capitec-radio @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
 						</div>
 						<div class="savingsPlanLabel">
@@ -805,10 +853,10 @@ ${
 	_renderSpecifyEmail() {
 		return html`
 		<capitec-label class="chooseText" type="subtitle" label="Enter email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" error="${this.emailError}" @key-input="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}"></capitec-text-field>
+		<capitec-text-field class="email" label="Email address" error="${this.emailError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
 		
 		<capitec-label class="chooseText" type="subtitle" label="Confirm email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" error="${this.confirmError}" @key-input="${(e) => this._emailInput(e)}" @value-change="${(e) => this._confirmEmailMatch(e)}"></capitec-text-field>
+		<capitec-text-field class="email" label="Email address" error="${this.confirmError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._confirmEmailMatch(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
 
 		<hr class="seperator">
 

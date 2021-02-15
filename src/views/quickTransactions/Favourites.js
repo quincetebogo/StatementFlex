@@ -10,6 +10,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
@@ -28,7 +29,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
     UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11
+    PROOF_OF_ACCOUNT: 11,
+	STATEMENTS: 12
 });
 
 /**
@@ -387,6 +389,7 @@ export class Favourites extends View {
 
 	_getStatements() {
 		// TODO: Functionality to generate statements comes here
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_taxCertificates() {
@@ -444,6 +447,7 @@ export class Favourites extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
             ${this._renderProofOfAccount()}
+			${this._renderStatementsModal()}
 		`;
 	}
 
@@ -559,6 +563,20 @@ export class Favourites extends View {
                     ><horizon-proof-of-account>`
             : html``; 
     }
+
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS 
+		? html `
+			<horizon-statements-dialog
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
+				.landingPageInfo="${this.landingPageInfo}"
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+			>
+			</horizon-statements-dialog>
+		` :
+		html ``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
