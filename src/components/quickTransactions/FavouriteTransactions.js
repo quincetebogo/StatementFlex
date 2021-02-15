@@ -127,8 +127,13 @@ export class FavouriteTransactions extends Component {
 				--theme-type-default-background: rgb(244, 244, 244);
 				--theme-label-title-font-size: 14px;
 				--theme-label-title-font-weight: 600;
-
+				width: 100%;
 				border-top: 1px solid #E1E1E1;
+				box-shadow: none!important;
+			}
+
+			.transact-title {
+				border-top: none!important;
 			}
 
 			capitec-button-bar {
@@ -271,7 +276,7 @@ export class FavouriteTransactions extends Component {
 
 	_renderTransactSection() {
 		return html`
-				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
+				<capitec-title-bar class="transact-title" type="default" label="Transact"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"

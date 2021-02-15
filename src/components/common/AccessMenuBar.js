@@ -66,7 +66,20 @@ export class AccessMenuBar extends Component {
 				font-size:  14px;
 				line-height: 0px;
 				text-align: left;
+				padding-top:24px;
 			}
+
+			.insights-label{
+				height: 24px;
+				width: 114px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+
 			.subtitle {
 				height: 10px;
 				color: #4E6066;
@@ -77,32 +90,69 @@ export class AccessMenuBar extends Component {
 			}
 			.back-ground-card{
 				height:300px;
+				border: none!important;
 			}
 			.access-card{
 				height:320px;
 				width:320px;
 				background-color: #F5F5F5;
 				padding: 20px 0px 0px 0px;
+				border: none!important;
+				
 			}
 			.access-header{
 				height:60px;
 				padding: 0px 0px 0px 20px;
+			
 			}
+
 			.header-icon{
 				padding:0px 20px 0px 0px;
 			}
-			.header-label{
-				font: 600 18px/30px Hind Vadodara;
-				line-height:50px
+
+			#notify-icon {
+				padding-left: 145px;
 			}
+
+			.header-label{
+				height: 24px;
+				width: 141px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+			}
+
+			#access-label {
+				background-color: #4E6066;
+				height:52px;
+				width: 320x;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				background-color: #F7F7F7;
+				padding-left: 16px;
+			}
+
 			.box-items{
-				height:50px;
-				padding: 0px 0px 0px 20px;
+				height: auto;
+				align-items: center;
+				padding: 24px 24px 24px 24px;
 			}
 			.box-label{
 				font-size:22px;
 				font-weight:600;
 				line-height: 15px;
+			}
+			
+			.box-image {
+				height: 108px;
+ 				width: 108px;
 			}
 			.box-icon{
 				align-self:flex-end;
@@ -130,15 +180,14 @@ export class AccessMenuBar extends Component {
 			<capitec-card class="insights-card">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
 					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-						<capitec-icon class="header-icon" size="small" icon="system/info"></capitec-icon>
-						<capitec-label class="header-label" label="Client Insights"></capitec-label>
+							<capitec-label class="insights-label" label="Client Insights"></capitec-label>
+							<capitec-icon class="header-icon" id="notify-icon" size="small" icon="system/notify"></capitec-icon>
 					</capitec-content-box>
 					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-						<capitec-label class="box-label" label="Incomplete Credit Estimate"></capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-label class="insights-subtitle" label="Reference no. 0987865463"></capitec-label>
+						<img class="box-image" src="images/ClientInsights.svg"/>
+						<capitec-label class="insights-subtitle" label="Client insights coming soon..."></capitec-label>
 					</capitec-content-box>
-					<hr>
+					<!-- <hr> -->
 				</capitec-group>
 			</capitec-card>`;
 	}
@@ -148,12 +197,12 @@ export class AccessMenuBar extends Component {
 			<capitec-card class="access-card">
 				<capitec-card class="back-ground-card"> 
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-						<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none">
-							<capitec-icon class="header-icon" 
+						<capitec-content-box class="access-header" id="access-label" layout="horizontal" halign="left" valign="center" gap="none">
+							<!-- <capitec-icon class="header-icon" 
 										  size="medium" 
 										  icon="system/unlock-files-action">
-							</capitec-icon>
-							<capitec-label class="header-label" label="Access"></capitec-label>
+							</capitec-icon> -->
+							<capitec-label class="header-label" label="Access Channels"></capitec-label>
 						</capitec-content-box>
 						${this.renderAccessChannels()}
 					</capitec-group>
