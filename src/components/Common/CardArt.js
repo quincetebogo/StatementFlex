@@ -48,7 +48,7 @@ export class CardArt extends Component {
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof UpdateCardLimits
+	 * @memberof CardArt
 	 */
 	static get properties() {
 		return {

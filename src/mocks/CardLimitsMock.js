@@ -16,7 +16,7 @@ export const mockCards = [
 		"linkedCardSequenceNumber": "",
 		"isSupplementaryCard": false,
 		"isContactlessCard": false,
-		"tapToPayStatus": "Off"
+		"isContactlessActivated": false
 	},
 	{
 		"cardId": "4526125468979087",
@@ -34,8 +34,8 @@ export const mockCards = [
 		"linkedCardExpiryMonth": "",
 		"linkedCardSequenceNumber": "",
 		"isSupplementaryCard": true,
-		"isContactlessCard": false,
-		"tapToPayStatus": "On"
+		"isContactlessCard": true,
+		"isContactlessActivated": true
 	},
 	{
 		"cardId": "1234852196417890",
@@ -54,7 +54,7 @@ export const mockCards = [
 		"linkedCardSequenceNumber": "",
 		"isSupplementaryCard": true,
 		"isContactlessCard": false,
-		"tapToPayStatus": null
+		"isContactlessActivated": false
 	},
 	{
 		"cardId": "5238923676988907",
@@ -73,6 +73,6 @@ export const mockCards = [
 		"linkedCardSequenceNumber": "",
 		"isSupplementaryCard": true,
 		"isContactlessCard": true,
-		"tapToPayStatus": null
+		"isContactlessActivated": false
 	}
 ]; ``

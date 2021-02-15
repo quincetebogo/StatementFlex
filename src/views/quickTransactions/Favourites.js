@@ -13,7 +13,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
-import 'app/components/quickTransactions/UpdateCardLimits';
+import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 
 const RENDER_MODE = Object.freeze({
@@ -373,12 +373,16 @@ export class Favourites extends View {
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
 			// Todo: Handle error scenario
-        }
+		}
 	}
 
-	_updateCardLimits() {
-		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
-		// TODO: Service call to get cards list comes here
+	async _updateCardLimits() {
+		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
+		}
 	}
 
 	_tapToPay() {
@@ -542,10 +546,10 @@ export class Favourites extends View {
 	_renderUpdateCardLimits() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
-				<horizon-update-card-limits
+				<horizon-card-limits-landing
 					.cards="${this.cards}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-update-card-limits>`
+				</horizon-card-limits-landing>`
 			: html``;
     }
 
@@ -555,8 +559,8 @@ export class Favourites extends View {
                 <horizon-proof-of-account
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}"
-                    ><horizon-proof-of-account>`
+                    .landingPageInfo="${this.landingPageInfo}">
+				</horizon-proof-of-account>`
             : html``; 
     }
 }

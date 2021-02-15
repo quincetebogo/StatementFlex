@@ -444,6 +444,14 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `favouritesLanding`);
 	}
 
+	async cardLimitsLanding(cifNumber) {
+		if (await this._mockEnabled(`cardLimitsLanding`)) {
+			return this._mock.cardLimitsLanding(cifNumber);
+		}
+
+		return this._get(`/clientcare/card/${this._version}/limits-landing?${cifNumber}`, this._setToken(), `cardLimitsLanding`);
+	}
+
 	// --------------------------
 	// Debi Check Mandate Methods
 	// --------------------------
