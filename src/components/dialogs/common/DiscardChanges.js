@@ -43,7 +43,7 @@ export class DiscardChanges extends Component {
 				--theme-modal-header-padding-right: 31px;
 				--theme-modal-header-padding-left: 31px;
 				--theme-modal-header-background-color: #F9EBDD;
-				--theme-modal-footer-padding: 0px 12px 17px 0px;
+				--theme-modal-footer-padding: 0px 16px 17px 0px;
 			}
 
 			div[slot="header"] {
