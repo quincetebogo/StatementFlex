@@ -215,14 +215,15 @@ export class TransactionHistory extends Component {
 			super.styles,
 			css`
 				.transaction-card {
-					height: 888px;
-					width: 1064px;
+					height: 924px;
+					width: 1066px;
 					border-radius: 5px;
 					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
+
 				.transaction-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
@@ -385,18 +386,22 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					height: 768px;
+					height: 733px;
 					width: auto;
 				}
 				capitec-table{
 					width: 1064px;
+					height: 733px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-padding-left: 16px;
 					--theme-data-table-body-group-color: #3A3A3A;
 					--theme-data-table-font-color: #3A3A3A;
-					--theme-data-table-padding-right: 15px;
+					--theme-data-table-padding-right: 21px;
+					--theme-data-table-padding-top: 9px;
+					--theme-data-table-padding-bottom: 9px;
+					--theme-data-table-expander-size: 12px;
 				}
-				
+
 				/* Modal Calendar Styles */
 				capitec-modal {
 					--theme-modal-header-background-color: #F7F7F7;
@@ -407,6 +412,7 @@ export class TransactionHistory extends Component {
 					--theme-modal-header-padding-top: 12px;
 					--theme-modal-header-padding-bottom: 12px;
 					--theme-modal-footer-padding: 7.5px 12px 7.5px 0px;
+					--theme-modal-free-max-width: 695px;
 				}
 				div[slot="body"] {
 					display: flex;
@@ -416,6 +422,9 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-font-size: 15px;
 					--theme-calendar-days-color: #3A3A3A;
 					--theme-calendar-not-selectable-color: #969B9D;
+					--theme-calendar-calendar-width: 347px;
+					--theme-calendar-days-padding: 0px 18px;
+					--theme-calendar-calendar-border-radius: 0px;
 				}
 			`
 		];
@@ -470,7 +479,7 @@ export class TransactionHistory extends Component {
 					value="${this.accountDetails.availableBalance}">
 				</horizon-label>
 				<horizon-label
-					label="Pending amount"
+					label="Pending Amount"
 					value="${this.accountDetails.pendingAmount}">
 				</horizon-label>
 				<horizon-label
@@ -636,7 +645,7 @@ export class TransactionHistory extends Component {
 			<capitec-table
 				.items="${this.filteredData}"
 				groupField="groupByItem"
-				displayMode="LoadMore"
+				displayMode="Full"
 				expandable="right"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
 					<capitec-table-column label="Transaction Date" field="TransactionDate" size="161px;"></capitec-table-column>
@@ -647,7 +656,7 @@ export class TransactionHistory extends Component {
 						size="190px;" 
 						.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
-					<capitec-table-column label="Amount(R)" field="Amount" size="100px;" type="currency"></capitec-table-column>
+					<capitec-table-column label="Amount" field="Amount" size="100px;" type="currency"></capitec-table-column>
 					<capitec-table-column label="Balance" field="Balance" size="131px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
 		`;
@@ -768,6 +777,8 @@ export class TransactionHistory extends Component {
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							maxDate="${this.endDate}"
+							month = "Jan"
+ 							year="2021"
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
 						</capitec-calendar>
@@ -775,6 +786,8 @@ export class TransactionHistory extends Component {
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							minDate="${this.startDate}"
+							month = "Mar"
+							year="2021"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>
@@ -788,7 +801,7 @@ export class TransactionHistory extends Component {
 						</capitec-button>
 						<capitec-button
 							label="Apply"
-							type="clear"
+							type="primary"
 							@click=${() => this._apply()}>
 						</capitec-button>
 					</capitec-group>

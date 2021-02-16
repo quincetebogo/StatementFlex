@@ -2,10 +2,11 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
-import 'app/copmponents/savingsAccount/DebiCheckMandates';
+import 'app/components/savingsAccount/DebiCheckMandates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -42,11 +43,14 @@ export class SavingsAccountLandingPage extends View {
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.isBusy = false;
 	
 		// private properites
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
 
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -74,9 +78,24 @@ export class SavingsAccountLandingPage extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_optionClick(event) {
+async _optionClick(event) {
 		if (event.detail.option === `transaction-history`) {
-			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+
+			const transactionHistoryRequest = {
+				cifNumber : "209851163",
+				accountNumber : "1119611146",
+				accountType : "PRIMARY_SAVINGS",
+				startDate : "2021-01-01",
+				endDate : "2021-02-14",
+				startAtIndex : 0,
+				maxResults : 20,
+				moneyType : "BOTH"
+			}
+			const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+
+			if(returnValue.succeeded){
+				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+			}
 		} else if (event.detail.option === `debi-check`) {
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		}
@@ -150,6 +169,10 @@ export class SavingsAccountLandingPage extends View {
 		};
 
 		this.horizonStore.saveState(state);
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	
