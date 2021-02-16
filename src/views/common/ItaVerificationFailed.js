@@ -176,6 +176,9 @@ export class ItaVerificationFailed extends View {
 				#id-error-msg{
 					width: 550px;
 				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 912px;
+				}
 			`
 		];
 	}
@@ -186,8 +189,13 @@ export class ItaVerificationFailed extends View {
 	_webTemplate() {
 		return html`
 				${this._renderLoadingIndicator()}
-				<horizon--error-screen header="Verification was unsuccessful" left="Continue Unverified"
-					right="Verify Via Security Questions" toast="Your Verification has failed." @left-click=${() => this._leftClick()}
+				<horizon--error-screen 
+					header="Verification was unsuccessful" 
+					left="Continue Unverified"
+					right="Verify Via Security Questions" 
+					toast="Your Verification has failed." 
+					image="/images/insure/assign-pay-arrears.svg"
+					@left-click=${() => this._leftClick()}
 					@right-click=${() => this._rightClick()}>
 						<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24
 							hours.</section>
