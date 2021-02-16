@@ -447,11 +447,11 @@ export class CardLimitsLanding extends Component {
 							gap="clear"
 							halign="right"
 							valign="top"
-							class="${card.isContactlessActivated == null ? `hide` : `show`}">
+							class="${card.isContactlessActivated === null ? `hide` : `show`}">
 				<capitec-label label="Tap to Pay"
 								type="default">
 				</capitec-label>
-				<capitec-label label="${card.isContactlessActivated}"
+				<capitec-label label="${card.isContactlessActivated ? `On` : `Off`}"
 								type="strong">
 				</capitec-label>
 			</capitec-group>

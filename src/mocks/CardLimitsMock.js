@@ -54,7 +54,7 @@ export const mockCards = [
 		"linkedCardSequenceNumber": ``,
 		"isSupplementaryCard": true,
 		"isContactlessCard": false,
-		"isContactlessActivated": false
+		"isContactlessActivated": null
 	},
 	{
 		"cardId": `5238923676988907`,

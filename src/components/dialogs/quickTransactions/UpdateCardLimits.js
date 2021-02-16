@@ -33,7 +33,6 @@ export class UpdateCardLimits extends Component {
 
 		// private properites
 		this.renderMode = RENDER_MODE.LIMITS;
-		this.tapToPayStatus = false;
 		this.cardlimitsInfo = {};
 		this.updateLimitSteps = [
 			{
@@ -76,8 +75,7 @@ export class UpdateCardLimits extends Component {
 			cardLimits:{ type: Object },
 			updateType: { type: String },
 
-			renderMode: { attribute: false },
-			tapToPayStatus: { attribute: false }
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -99,18 +97,18 @@ export class UpdateCardLimits extends Component {
 		if (e.detail.new) {
 			this.cardlimitsInfo[transactionType][e.currentTarget.id] = e.detail.new;
 
-			if (Number(parseInt(e.detail.new)) > parseInt(maxLimit)) {
-				this.error[transactionType][e.currentTarget.id] = `${this._getHint(maxLimit)}`;
-			}
-			else {
+			if (Number(e.detail.new) > Number(maxLimit)) {
+				this.error[transactionType][e.currentTarget.id] = maxLimit;
+			} else {
 				this.error[transactionType][e.currentTarget.id] = ``;
 			}
-			this.maxValue = this._hasInputError() ? maxLimit : ``;
 			this.requestUpdate();
 		}
 	}
 
 	_back() {
+		this.cardlimitsInfo.acceptedLimitsAgreement = false;
+		this.cardlimitsInfo.acceptedTapToPayAgreement = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 	}
 
@@ -119,11 +117,30 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_next() {
+		if (this._getErrorsCount() > 0) {
+			return;
+		}
 		this.renderMode = RENDER_MODE.AGGREMENT;
 	}
 
+	_agree() {
+		const accepedToAgreement = this.cardlimitsInfo.tapToPayEnabled 
+									? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement 
+									: this.cardlimitsInfo.acceptedLimitsAgreement;
+		if (accepedToAgreement) {
+			// TODO: Navigate to successful screen
+			// Harwired to show landing page at the moment
+			this.dispatchEvent(new CustomEvent(`cancel`, {}));
+		}
+	}
+
 	_toggleTapToPay(e) {
-		this.tapToPayStatus = e.detail.new;
+		this.cardlimitsInfo.tapToPayEnabled = e.detail.new;
+		this.requestUpdate();
+	}
+
+	_toggleAgreementsAccept(e) {
+		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
 	}
 
 	// --------------
@@ -137,10 +154,15 @@ export class UpdateCardLimits extends Component {
 	// ---------------
 
 	_initialise() {
-		this.cardlimitsInfo.credit = {};
-		this.cardlimitsInfo.debit = {};
+		this.cardlimitsInfo = {
+			credit: {},
+			debit: {},
+			tapToPayEnabled: false,
+			acceptedLimitsAgreement: false,
+			acceptedTapToPayAgreement: false
+		};
 
-		const init_UpdatePermanentLimit = (info) => {
+		const initUpdatePermanentLimit = (info) => {
 			const obj = {
 				cashLimit: info.permanentCashAmountLimit,
 				maxCashLimit: info.maxPermanentCashAmountLimit,
@@ -154,7 +176,7 @@ export class UpdateCardLimits extends Component {
 			Object.assign(this.cardlimitsInfo.debit, obj);
 		};
 
-		const init_UpdateTemporaryLimit = (info) => {
+		const initUpdateTemporaryLimit = (info) => {
 			const obj = {
 				cashLimit: info.tempCashAmountLimit,
 				maxCashLimit: info.maxTemporaryCashAmountLimit,
@@ -169,8 +191,8 @@ export class UpdateCardLimits extends Component {
 		};
 
 		return {
-			'Permanent': init_UpdatePermanentLimit,
-			'Temporary': init_UpdateTemporaryLimit
+			'Permanent': initUpdatePermanentLimit,
+			'Temporary': initUpdateTemporaryLimit
 		}[this.updateType](this.cardLimits);
 	}
 
@@ -178,13 +200,35 @@ export class UpdateCardLimits extends Component {
 		return `Max limit - R${formatCurrency(value)}`;
 	}
 
-	_hasInputError() {
-		return !(!this.error.credit.cashLimit &&
-				 !this.error.credit.purchaseLimit &&
-				 !this.error.credit.cnpLimit &&
-				 !this.error.debit.cashLimit &&
-				 !this.error.debit.purchaseLimit &&
-				 !this.error.debit.cnpLimit);
+	_getErrorsCount() {
+		const debitErrors = Object.values(this.error.debit).filter(item => item !== ``);
+		const creditErrors = Object.values(this.error.credit).filter(item => item !== ``);
+		
+		if (debitErrors.length + creditErrors.length === 1) {
+			this.maxValue = debitErrors[0] || creditErrors[0];
+		}
+
+		return debitErrors.length + creditErrors.length;
+	}
+
+	_getAlertMessage() {
+		
+		if (this._getErrorsCount() > 1) {
+			return html`
+				<capitec-label
+					label="Maximum limits have been exceeded"
+					type="strong">
+				</capitec-label>`;
+		} 
+		return html`
+			<div>
+				Maximum limit for cash withdrawl is <strong>R${formatCurrency(this.maxValue)}</strong>
+			</div>
+		`;
+	}
+
+	_getFieldError(value) {
+		return !value ? `` : `Max limit - R${formatCurrency(value)}`;
 	}
 
 	// ---------
@@ -414,7 +458,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (!this._hasInputError()) {
+		if (this._getErrorsCount() === 0) {
 			return html``;
 		}
 		return html`
@@ -424,14 +468,7 @@ export class UpdateCardLimits extends Component {
 						label="Notify client: "
 						type="default">
 					</capitec-label>
-					<capitec-label
-						label="Maximum limit for cash withdrawl is "
-						type="strong">
-					</capitec-label>
-					<capitec-label
-						label="R${formatCurrency(this.maxValue)}"
-						type="default">
-					</capitec-label>
+					${this._getAlertMessage()}
 				</capitec-group>
 			</capitec-alert-banner>
 		`;
@@ -483,32 +520,32 @@ export class UpdateCardLimits extends Component {
 			<capitec-text-field
 				id="cashLimit"
 				label="Cash withdrawal"
-				value="${this.cardlimitsInfo[transactionType].cashLimit}"
 				keyboardMode="numeric"
 				type="currency"
+				value="${this.cardlimitsInfo[transactionType].cashLimit}"
 				hint="${this._getHint(this.cardlimitsInfo[transactionType].maxCashLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCashLimit)}"
-				error="${this.error[transactionType].cashLimit}">
+				error="${this._getFieldError(this.error[transactionType].cashLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCashLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
 				id="purchaseLimit"
 				label="Card machine purchases"
-				value="${this.cardlimitsInfo[transactionType].purchaseLimit}"
 				keyboardMode="numeric"
 				type="currency"
+				value="${this.cardlimitsInfo[transactionType].purchaseLimit}"
 				hint="${this._getHint(this.cardlimitsInfo[transactionType].maxPurchaseLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxPurchaseLimit)}"
-				error="${this.error[transactionType].purchaseLimit}">
+				error="${this._getFieldError(this.error[transactionType].purchaseLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxPurchaseLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
 				id="cnpLimit"
 				label="Online/telephone/mail purchases"
-				value="${this.cardlimitsInfo[transactionType].cnpLimit}"
 				keyboardMode="numeric"
 				type="currency"
+				value="${this.cardlimitsInfo[transactionType].cnpLimit}"
 				hint="${this._getHint(this.cardlimitsInfo[transactionType].maxCnpLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCnpLimit)}"
-				error="${this.error[transactionType].cnpLimit}">
+				error="${this._getFieldError(this.error[transactionType].cnpLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCnpLimit)}">
 			</capitec-text-field>
 		`;
 	}
@@ -528,13 +565,13 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label
-						label="${this.tapToPayStatus ? `On: Pending` : `Off`}"
+						label="${this.cardlimitsInfo.tapToPayEnabled ? `On: Pending` : `Off`}"
 						type="default">
 					</capitec-label>
 					<capitec-toggle 
 						label=""
 						@value-change="${(e) => this._toggleTapToPay(e)}"
-						?checked="${this.tapToPayStatus}">
+						?checked="${this.cardlimitsInfo.tapToPayEnabled}">
 					</capitec-toggle>
 				</capitec-group>
 
@@ -562,22 +599,25 @@ export class UpdateCardLimits extends Component {
 					<capitec-expander
 						expandbuttonalignment="left"
 						label="View Agreement">
-							<capitec-label type 
-								label="Your content comes here.">
-							</capitec-label>
+							<capitec-content-box class="expander-cb" halign="center" valign="center" gap="none">
+								<capitec-label type
+									label="Placeholder for agreement">
+								</capitec-label>
+							</capitec-content-box>
 					</capitec-expander>
 
 					<capitec-expander
 						expandbuttonalignment="left"
-						label="Update Card Limits">
-							${this._renderTermsAndConditions()}
+						label="Update Card Limits"
+						.expanded="${true}">
+							${this._renderTermsAndConditions(`LimitsAgreement`)}
 					</capitec-expander>
 
-					${this.tapToPayStatus ? html`
+					${this.cardlimitsInfo.tapToPayEnabled ? html`
 						<capitec-expander
 							expandbuttonalignment="left"
 							label="Tap To Pay">
-								${this._renderTermsAndConditions()}
+								${this._renderTermsAndConditions(`TapToPayAgreement`)}
 						</capitec-expander>` : html``}
 				</capitec-expander-group>
 			`;
@@ -585,7 +625,7 @@ export class UpdateCardLimits extends Component {
 		return html``;
 	}
 
-	_renderTermsAndConditions() {
+	_renderTermsAndConditions(type) {
 		return html`
 			<capitec-content-box class="expander-cb">
 				<div class="agreement-lb">
@@ -601,7 +641,9 @@ export class UpdateCardLimits extends Component {
 				</div>
 				<capitec-card class="agreement-terms">
 					<capitec-check 
-						label="Please confirm that you agree to these terms and conditions and that your are bound by them?">
+						id="accepted${type}"
+						label="Please confirm that you agree to these terms and conditions and that your are bound by them?"
+						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
 			</capitec-content-box>
