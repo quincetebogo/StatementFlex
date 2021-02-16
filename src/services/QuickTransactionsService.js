@@ -28,7 +28,7 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.cardLimitsLanding(cifNumber), `cardLimitsLanding`, errorHandler, autoRetries);
 	}
 
-	getCardLimits(clientInfo = null, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.getCardLimits(), `getCardLimits`, errorHandler, autoRetries);
+	getCardLimits(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getCardLimits(cardDetails), `getCardLimits`, errorHandler, autoRetries);
 	}
 }

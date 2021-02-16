@@ -449,13 +449,17 @@ export class HorizonChannelService extends Service {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
 
-		return this._get(`/clientcare/card/${this._version}/limits-landing?${cifNumber}`, this._setToken(), `cardLimitsLanding`);
+		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
-	async getCardLimits() {
+	async getCardLimits(cardDetails) {
 		if (await this._mockEnabled(`cardLimits`)) {
 			return this._mock.getCardLimits();
 		}
+
+		const url = `/clientcare/card/${this._version}/temporary-limits`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
 	// --------------------------

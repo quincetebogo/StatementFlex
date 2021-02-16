@@ -83,9 +83,9 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	async _updateLimits(type) {
+	async _updateLimits(type, cardDetails) {
 
-		const returnValue = await this.quickTransactionService.getCardLimits();
+		const returnValue = await this.quickTransactionService.getCardLimits(cardDetails);
 
 		if (returnValue.succeeded) {
 			this._updateType = type;
@@ -423,11 +423,11 @@ export class CardLimitsLanding extends Component {
 				<capitec-button
 					class="permanent-btn"
 					label="Permanent Limits"
-					@click="${() => this._updateLimits(`Permanent`)}">
+					@click="${() => this._updateLimits(`Permanent`, card)}">
 				</capitec-button>
 				<capitec-button
 					label="Temporary Limits"
-					@click="${() => this._updateLimits(`Temporary`)}">
+					@click="${() => this._updateLimits(`Temporary`, card)}">
 				</capitec-button>
 		
 				<capitec-alert-banner type="info" label="Temporary limits expire after 3 days">
