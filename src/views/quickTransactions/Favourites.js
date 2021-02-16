@@ -377,8 +377,7 @@ export class Favourites extends View {
 	}
 
 	async _updateCardLimits() {
-
-		const returnValue = await this.quickTransactionService.cardLimitsLanding({});
+		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result;
@@ -560,8 +559,8 @@ export class Favourites extends View {
                 <horizon-proof-of-account
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}"
-                    ><horizon-proof-of-account>`
+                    .landingPageInfo="${this.landingPageInfo}">
+				</horizon-proof-of-account>`
             : html``; 
     }
 }

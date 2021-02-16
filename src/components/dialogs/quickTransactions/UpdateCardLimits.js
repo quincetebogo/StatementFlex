@@ -6,10 +6,14 @@ const RENDER_MODE = {
 	AGGREMENT: 2
 };
 
-const UPDATE_TYPE = {
-	Permanent: `Permanent`,
-	Temporary: `Temporary`
-};
+const UPDATE_LIMIT_STEPS = [
+	{
+		title: `Set Limits`
+	},
+	{
+		title: `Agreement`
+	}
+];
 
 /**
  * This component implements the modal for update card limits
@@ -34,14 +38,6 @@ export class UpdateCardLimits extends Component {
 		// private properites
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
-		this.updateLimitSteps = [
-			{
-				title: `Set Limits`
-			},
-			{
-				title: `Agreement`
-			}
-		];
 		this.error = {
 			credit: {
 				cashLimit: ``,
@@ -435,11 +431,12 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
+		
 			<capitec-modal type="free" header-align="left" header="Update ${this.updateType} Limits">
 				<div slot="body">
 					<capitec-stepper
 						layout="horizontal"
-						.steps="${this.updateLimitSteps}"
+						.steps="${UPDATE_LIMIT_STEPS}"
 						active-step-number="${this.renderMode}">
  					</capitec-stepper>
 

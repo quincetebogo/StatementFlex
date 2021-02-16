@@ -52,7 +52,7 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -64,7 +64,7 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimits": {
