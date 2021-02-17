@@ -49,14 +49,17 @@ export class HorizonChannelService extends Service {
 				// Disable mocking in the SLDC environments. Only for local development
 				if (this._configuration.config.runtime.environment !== `LOCAL`) {
 					this._mocking = { enabled: false }; 
+					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
 				}
 			} catch {
 				// disable mocking if the setting is not present
 				this._mocking = { enabled: false }; 
+				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
 			}
 
 			if (this._mocking.enabled) {
 				// Dynamically load the configured mocks
+				this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
 				this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
 				await this._mock.initialise(this._mocking);
 			}

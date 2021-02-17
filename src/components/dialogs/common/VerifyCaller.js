@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -69,6 +69,7 @@ export class VerifyCaller extends Component {
 		this.connectionID = ``;
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
@@ -108,6 +109,8 @@ export class VerifyCaller extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+
 		// Extracting incoming call details
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
@@ -130,7 +133,10 @@ export class VerifyCaller extends Component {
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
 
 		// Declaring stop timer
-		this._stopTimer = () => clearInterval(this.itaTimer);
+		this._stopTimer = () => {
+			clearInterval(this.itaTimer);
+			this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
+		};
 
 		// Initialising ITA verification
 		this._initiateItaVerification();
@@ -194,12 +200,11 @@ export class VerifyCaller extends Component {
 			this.itaTimer = null;
 		}
 
-		//Re-initialting the ITA verification
-		this._itaServiceCall();
-
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
-			this.itaTimer = this._startTimer();
+			// Re-initialting the ITA verification
+			this._itaServiceCall();
 		} else {
+			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
 			this._navigateToItaVerificationFailed();
 		}
 	}
@@ -238,12 +243,17 @@ export class VerifyCaller extends Component {
 		return true;
 	}
 
+	_itaErrorHandler(exception) {
+		return true;
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
 	_startTimer() {
 		const startTimer = setInterval(() => {
+
 			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
 			this.seconds--;
 
@@ -277,11 +287,13 @@ export class VerifyCaller extends Component {
 	}
 
 	async _initialiseSignalR() {
-
+		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
 		// Starting signalR connection
 		this.horizonSignalRClient.startConnection();
 		// Fetching connection id from signalR client
 		this.connectionID = await this.horizonSignalRClient.getConnectionId();
+
+		this.logger.log(`info`, `SignalR connection established`, `_initialiseSignalR`);
 	}
 
 	async _itaServiceCall() {
@@ -292,32 +304,38 @@ export class VerifyCaller extends Component {
 				connectionID: this.connectionID
 			};
 
-			const returnValue = await this.callHandleService.itaVerification(request);
+			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 			if (returnValue.succeeded) {
-				console.log(`ConnectionID: ${this.connectionID}`);
 				
+				this.logger.log(`INFO`, `ITA verification request initiated`, `_itaServiceCall`);
+
 				// Registering handler to perform post event action
 				await this.horizonSignalRClient.registerHandler((verificationStatus) => {
 					this._signalRPostEventAction(verificationStatus);
 				});
 
 				if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
+					this.logger.log(`info`, `ITA timer started`, `_itaServiceCall`);
 					this.itaTimer = this._startTimer();
 				}
 			} else {
-				// Error message to be shown
+				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`);
 			}
 		}
 	}
 
 	_signalRPostEventAction(verificationStatus) {
+		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 		
 		alert(`${verificationStatus}`);
+
 
 		if (verificationStatus) {
 			this._stopTimer();
 			this.horizonSignalRClient.stopConnection();
+			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
+
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
@@ -325,7 +343,7 @@ export class VerifyCaller extends Component {
 				}
 			}));
 		} else {
-			// TODO: Determine what error needs to be shown
+			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
 		}
 	}
 
