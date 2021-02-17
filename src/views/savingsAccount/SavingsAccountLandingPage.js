@@ -4,6 +4,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
+import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
+
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -43,6 +45,8 @@ export class SavingsAccountLandingPage extends View {
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.transactionHistory = null;
+		this.accountDetails = null;
 		this.isBusy = false;
 	
 		// private properites
@@ -88,12 +92,14 @@ async _optionClick(event) {
 				startDate : "2021-01-01",
 				endDate : "2021-02-14",
 				startAtIndex : 0,
-				maxResults : 20,
+				maxResults : 6,
 				moneyType : "BOTH"
 			}
 			const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
-			if(returnValue.succeeded){
+			if(returnValue.succeeded && returnValue.result){
+				this.transactionHistory = returnValue.result.transactionHistoryList;
+				this.accountDetails = returnValue.result.accountDetails;
 				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 			}
 		} else if (event.detail.option === `debi-check`) {
@@ -207,7 +213,14 @@ async _optionClick(event) {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
+			${this._renderLoadingIndicator()}
 			`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 
 	_renderSavingsLandingPage() {
@@ -224,6 +237,8 @@ async _optionClick(event) {
 		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY 
 			? html`
 				<horizon-transaction-history
+					.transactionHistory = "${this.transactionHistory}"
+					.accountDetails = "${this.accountDetails}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-transaction-history>`
 			: html``;

@@ -471,8 +471,12 @@ export class HorizonChannelService extends Service {
 		return this._post(url, model, null, `debiCheckDecline`);
 	}
 
-	transactionHistory (transactionHistoryRequest) {
-		const url = `/clientcare/savingsaccount/${this._version}/client/transactions?` + 
+	async transactionHistory (transactionHistoryRequest) {
+		if (await this._mockEnabled(`transactionHistory`)) {
+			return this._mock.transactionHistory(transactionHistoryRequest);
+		}
+
+		const url = `/clientcare/savingsaccount/${this._version}//transactions?` + 
 		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +

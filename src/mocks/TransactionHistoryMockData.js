@@ -36,6 +36,26 @@ export const transactionHistoryMockData = {
 			"Balance": 1962.00
 		},
 		{
+			"TransactionId": 1234567894,
+			"PostingDate": "15 Sep 2020",
+			"ProcessDate": "16 Sep 2020 14:32",
+			"TransactionCode": 464848464746,
+			"CardNumber": "6563 **** **** 2340",
+			"CardAuthType": "Normal",
+			"TransferAccount": "Savings (3984 8347 829)",
+			"JournalNumber": "FDE42334334",
+			"IncludesVat": "Yes",
+			"ExternalTerminalId": 656234234345345546787,
+			"Cashback": "-",
+			"Branch": "-",
+			"Teller": "-",
+			"TransactionDate": "02 Feb 2021",
+			"Description": "Purchase Boord Stell Card No 3445",
+			"TransactionStatus": "Processed",
+			"Amount": 3220.00,
+			"Balance": 1662.00
+		},
+		{
 			"TransactionId": 1234567890,
 			"PostingDate": "15 Sep 2020",
 			"ProcessDate": "16 Sep 2020 14:32",
@@ -89,11 +109,11 @@ export const transactionHistoryMockData = {
 			"Cashback": "-",
 			"Branch": "-",
 			"Teller": "-",
-			"TransactionDate": "10 Jan 2021",
-			"Description": "Purchase SPAR Die Boord Stell Card No 3445",
-			"TransactionStatus": "Expired",
-			"Amount": 340.00,
-			"Balance": 66962.00
+			"TransactionDate": "12 Jan 2021",
+			"Description": "Purchase SPAR Die Boord Card No 3445",
+			"TransactionStatus": "Pending",
+			"Amount": 3340.00,
+			"Balance": 6962.00
 		},
 		{
 			"TransactionId": 1234567892,
@@ -194,25 +214,6 @@ export const transactionHistoryMockData = {
 			"TransactionStatus": "Reversed",
 			"Amount": 45600.00,
 			"Balance": 10962.00
-		},{
-			"TransactionId": 1234567894,
-			"PostingDate": "15 Sep 2020",
-			"ProcessDate": "16 Sep 2020 14:32",
-			"TransactionCode": 464848464746,
-			"CardNumber": "6563 **** **** 2340",
-			"CardAuthType": "Normal",
-			"TransferAccount": "Savings (3984 8347 829)",
-			"JournalNumber": "FDE42334334",
-			"IncludesVat": "Yes",
-			"ExternalTerminalId": 656234234345345546787,
-			"Cashback": "-",
-			"Branch": "-",
-			"Teller": "-",
-			"TransactionDate": "04 Feb 2021",
-			"Description": "Purchase SPAR Die Boord Stell Card No 3445",
-			"TransactionStatus": "Processed",
-			"Amount": 1200.00,
-			"Balance": 1962.00
 		},
 		{
 			"TransactionId": 1234567890,
@@ -290,7 +291,7 @@ export const transactionHistoryMockData = {
 			"Teller": "-",
 			"TransactionDate": "06 Jan 2021",
 			"Description": "POS Boord Stell Card No 3445",
-			"TransactionStatus": "Processed",
+			"TransactionStatus": "Reversed",
 			"Amount": 5.00,
 			"Balance": 200.00
 		},

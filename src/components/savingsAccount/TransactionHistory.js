@@ -3,7 +3,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
-import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
+import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -44,14 +44,24 @@ export class TransactionHistory extends Component {
 	constructor() {
 		super();
 		
-		this.transactionHistory = [];
+		this.transactionHistory = null;
 		this.accountDetails = null;
+		
+		this.isBusy = false;
+		this.rawData = [];
+		this.stopLoadMore = false;
 		
 		// private properites
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.startDate = ``;
+		this.startDateMonth = ``;
+		this.startDateYear = ``;
 		this.endDate = ``;
+		this.endDateMonth =``;
+		this.endDateYear =``;
 		this.filteredData = [];
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+	
 	}
 
 	// --------------
@@ -69,10 +79,16 @@ export class TransactionHistory extends Component {
 	static get properties() {
 		return {
 			transactionHistory: { type: Object },
+			accountDetails: { type: Object },
+			filteredData: { type: Object },
 
 			renderMode: { attribute: false },
 			startDate: { attribute: false },
-			endDate: { attribute: false }
+			startDateMonth: { attribute: false },
+			startDateYear: { attribute: false },
+			endDate: { attribute: false },
+			endDateMonth: { attribute: false },
+			endDateYear: { attribute: false }
 		};
 	}
 
@@ -83,18 +99,9 @@ export class TransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
-		this.accountDetails = transactionHistoryMockData.accountDetails;
-		this.transactionHistory.map((item) => {
-			const date = new Date(Date.parse(item.TransactionDate));
-
-			item.TranDate = date;
-			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-		});
-
+		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
+		
 	}
 
 	// --------------
@@ -113,12 +120,16 @@ export class TransactionHistory extends Component {
 	_startDateChanged(e) {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
+			this.startDateMonth = e.detail.new.date.getMonth();
+			this.startDateYear = e.detail.new.date.getFullYear();
 		}
 	}
 
 	_endDateChanged(e) {
 		if (e.detail.new.date) {
 			this.endDate = this._formatDate(e.detail.new.date);
+			this.endDateMonth = e.detail.new.date.getMonth();
+			this.endDateYear = e.detail.new.date.getFullYear();
 		}
 	}
 
@@ -154,9 +165,25 @@ export class TransactionHistory extends Component {
 		this.requestUpdate();
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_initialize(tableData){
+		tableData.map((item) => {
+			const date = new Date(Date.parse(item.TransactionDate));
+
+			item.TranDate = date;
+			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+			item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+		});
+		return tableData;
+	}
 
 	_refineSearch() {
 
@@ -198,6 +225,89 @@ export class TransactionHistory extends Component {
 		
 		return `${startDate} - ${endDate}`;
 	}
+
+	async _renderCollection(renderSet){
+
+		if(this.stopLoadMore){
+			return renderSet;
+		}
+		if( RENDER_CHIPS[FILTER_BY.TEXT] || RENDER_CHIPS[FILTER_BY.DATE] || RENDER_CHIPS[FILTER_BY.STATUS]){
+			
+			return	this._renderGroupBy(this.rawData)
+		}
+
+		const data = await this.serviceCall(renderSet) ;
+		
+		if(data.length > 0){
+			this.rawData = [...this.rawData, ...data];
+			this._renderGroupBy(this.rawData)
+			const tableData = this._initialize(loadMoreData);
+			this.transactionHistory = [...this.transactionHistory,...tableData];
+		} else if(this.rawData.length >0){
+			this.stopLoadMore = true;
+		}
+
+		this.filteredData = this.transactionHistory;
+		
+		return {
+
+			pagedItems: this.filteredData,
+			totalCount: this.transactionHistory.length,
+			groupLabel:"groupByItem",
+			strategy: {
+				groupField: "groupByItem"
+			}
+		};
+	}
+
+	async serviceCall(filteredData){
+		const transactionHistoryRequest = {
+			cifNumber : "209851163",
+			accountNumber : "1119611146",
+			accountType : "PRIMARY_SAVINGS",
+			startDate : "2021-01-01",
+			endDate : "2021-02-14",
+			startAtIndex : filteredData.totalCount,
+			maxResults : 4,
+			moneyType : "BOTH"
+		}
+		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+
+		if(returnValue.succeeded && returnValue.result){
+			return returnValue.result.transactionHistoryList;
+		}
+	}
+
+	_renderGroupBy(renderSet){
+
+			const groupedValues = Utilities.groupBy(renderSet.items, renderSet.strategy.groupField);
+	
+			const newRows = [];
+	
+			for (const key in groupedValues) {
+				if (groupedValues.hasOwnProperty(key)) {
+	
+					let groupName = key;
+					if (renderSet.groupLabel && Utilities.isFunction(renderSet.groupLabel)) {
+						groupName = renderSet.groupLabel(key);
+					} else if (typeof renderSet.groupLabel === `string`) {
+						groupName = renderSet.groupLabel;
+					}
+	
+					newRows.push({
+						group: groupName
+					});
+					const rows = groupedValues[key];
+					newRows.push(...rows);
+				}
+			}
+	
+			return {
+				pagedItems: newRows
+			};
+		
+	}
+
 
 	// ---------
 	// RENDERING
@@ -391,7 +501,7 @@ export class TransactionHistory extends Component {
 				}
 				capitec-table{
 					width: 1064px;
-					height: 733px;
+					height: auto;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-padding-left: 16px;
 					--theme-data-table-body-group-color: #3A3A3A;
@@ -426,6 +536,11 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-padding: 0px 18px;
 					--theme-calendar-calendar-border-radius: 0px;
 				}
+				.load-more-bar{
+					--theme-actionbar-min-height: 48px;
+    				--theme-actionbar-padding: 12px;
+				}
+
 			`
 		];
 	}
@@ -643,10 +758,10 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				.items="${this.filteredData}"
 				groupField="groupByItem"
-				displayMode="Full"
+				displayMode="LoadMore"
 				expandable="right"
+				.dataHandler="${(renderSet) => this._renderCollection(renderSet)}"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
 					<capitec-table-column label="Transaction Date" field="TransactionDate" size="161px;"></capitec-table-column>
 					<capitec-table-column label="Description" field="Description" size="411px;"></capitec-table-column>
@@ -659,6 +774,7 @@ export class TransactionHistory extends Component {
 					<capitec-table-column label="Amount" field="Amount" size="100px;" type="currency"></capitec-table-column>
 					<capitec-table-column label="Balance" field="Balance" size="131px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
+
 		`;
 	}
 
@@ -777,8 +893,8 @@ export class TransactionHistory extends Component {
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							maxDate="${this.endDate}"
-							month = "Jan"
- 							year="2021"
+							month = "${this.startDateMonth}"
+ 							year="${this.startDateYear}"
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
 						</capitec-calendar>
@@ -786,8 +902,8 @@ export class TransactionHistory extends Component {
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							minDate="${this.startDate}"
-							month = "Mar"
-							year="2021"
+							month = "${this.endDateMonth}"
+							year="${this.endDateYear}"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>

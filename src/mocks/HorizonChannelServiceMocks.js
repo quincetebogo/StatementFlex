@@ -43,6 +43,7 @@ export class HorizonChannelServiceMocks {
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`));
 	}
 
 	// ===============================
@@ -95,12 +96,11 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	debiCheckDetails(cifNumber, mandateId, registerId) {
-		if (this._mocking.debiCheckDetails.positiveCase) {
-			const mandateDetails = this.mandatesMocks.mandateInfo.find((entry, index, mandateInfo) => entry.mandateId === mandateId && entry.registerId === registerId);
-			if (mandateDetails) {
-				return mandateDetails.mandateInfo;
-			}
+	transactionHistory(transactionHistoryRequest) {
+		if (this._mocking.transactionHistory.positiveCase) {
+			const transactionHistoryList =  this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex+transactionHistoryRequest.maxResults);
+			const accountDetails = this.transactionHistoryMocks.transactionHistoryMockData.accountDetails;
+			return{transactionHistoryList,accountDetails}
 		}
 
 		return null;
