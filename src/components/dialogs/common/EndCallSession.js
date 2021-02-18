@@ -227,7 +227,7 @@ export class EndCallSession extends Component {
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 24px;
-				margin: 0px;
+				margin: 0px 0px 8px 0px;
 			  }
 
 			#id-cancel-button {
