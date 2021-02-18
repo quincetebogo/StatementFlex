@@ -95,11 +95,11 @@ export class EndCallSession extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onCancel() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _onReasonSelected() {
+	async _endCallClick() {
 		const callToEnd = {
 			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endCallReason: {
@@ -118,7 +118,7 @@ export class EndCallSession extends Component {
 		this._returnToCallWaitingPage();
 	}
 
-	_onValueChanged(e) {
+	_valueChanged(e) {
 		if (e.detail.new) {
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
 		}
@@ -234,6 +234,7 @@ export class EndCallSession extends Component {
 				height: 48px;
 				width: 95px;
 				margin-right: 17px;
+				margin-bottom: 8px;
 				--theme-button-line-height: 20px;
 				--theme-button-clear-border-width: 0px;
 				--theme-button-padding-top: 13px;
@@ -245,6 +246,7 @@ export class EndCallSession extends Component {
 			#id-continue-button {
 				height: 48px;
 				width: 112px;
+				margin-bottom: 8px;
 				--theme-button-line-height: 20px;
 				--theme-button-primary-border-width: 0px;
 				--theme-button-padding-top: 14px;
@@ -290,7 +292,7 @@ export class EndCallSession extends Component {
                 class="radio-button"
                 .radioButtonsAvailable="${this.endCallReasons}"
                 @value-change="${(e) => {
-				this._onValueChanged(e);
+				this._valueChanged(e);
 			}}">
 			</horizon-radio-button-group>
 		`;
@@ -303,14 +305,14 @@ export class EndCallSession extends Component {
                     id="id-cancel-button"
                     type="clear"
                     label="Cancel"
-                    @click="${() => this._onCancel()}">
+                    @click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-button
                     id="id-continue-button"
                     type="primary"
-                    label="Continue"
-                    @click="${() => this._onReasonSelected()}">
+                    label="End Call"
+                    @click="${() => this._endCallClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;
