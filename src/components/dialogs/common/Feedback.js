@@ -24,8 +24,8 @@ export class Feedback extends View {
 
     static get properties() {
         return {
-            alertBannerMessage: { type: String },
-            selectedFeedback: { type: Number }
+            alertBannerMessage: { attribute: false },
+            selectedFeedback: { attribute: false }
         };
     }
 
