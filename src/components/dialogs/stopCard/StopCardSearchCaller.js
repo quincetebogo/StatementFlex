@@ -276,6 +276,8 @@ export class StopCardSearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
+		} else {
+			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 		}
 	}
 
