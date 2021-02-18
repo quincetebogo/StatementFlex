@@ -25,7 +25,8 @@ const HORIZON_ROUTES = Object.freeze({
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
-	DEBICHECK_SUCCESS: `/success/debicheck`
+	DEBICHECK_SUCCESS: `/success/debicheck`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`
 });
 
 /**
@@ -168,11 +169,13 @@ export class HorizonRouter {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const savings = () => this.navigateToSavingsAccount();
 
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: insure
+			Insure: insure,
+			Savings: savings
 		}[ivrOption]();
 	};
 
@@ -183,6 +186,10 @@ export class HorizonRouter {
 		horizonStore.saveState(state);
 
 		this.router.navigateByPath(state.returnTo.route);
+	}
+
+	navigateToSavingsAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
 	_productLandingPagesActive() {
@@ -241,7 +248,7 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
-		const shellLayout = layout;
+		let shellLayout = layout;
 
 		const setShellLayout = () => {
 			viewManager.transitionToView(shellLayout);
@@ -448,6 +455,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
 		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-savings-account-landing-page`,
+		title: `SavingsAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
+		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

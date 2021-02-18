@@ -77,6 +77,8 @@ export class ProductButtonPanel extends Component {
 	_savingsAccountClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
+		} else {
+			this.horizonRouter.navigateToLandingPage(`Savings`, false);
 		}
 	}
 
