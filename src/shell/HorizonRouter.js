@@ -26,9 +26,9 @@ const HORIZON_ROUTES = Object.freeze({
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
-	SAVINGS_ACCOUNT: `/transact/savings-account`
-	// STATEMENTS_SUCCESSFUL: ``,
-	// STATEMENTS_UNSUCCESSFUL: ``
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	STATEMENTS_SUCCESSFUL: `/views/Statements/StatementsSuccess`,
+	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`
 });
 
 /**
@@ -166,13 +166,13 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
 	}
 
-	// navigateToStatementSuccessful() {
-	// 	this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_SUCCESSFUL}`);
-	// }
+	navigateToStatementSuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_SUCCESSFUL}`);
+	}
 
-	// navigateToStatementUnsuccessful() {
-	// 	this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
-	// }
+	navigateToStatementUnsuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
+	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 
@@ -473,6 +473,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-statements-success`,
+		title: `StatementSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_SUCCESSFUL,
+		load: () => import(`../views/Statements/StatementsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-statements-unsuccess`,
+		title: `StatementUnsuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
+		load: () => import(`../views/Statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

@@ -194,8 +194,6 @@ export class StatementsDialog extends Component {
 
 
    async _sendStatement() {
-        if (this._emailFormatCheck()) {
-            //if email is in correct format and matches confirm email
             const state = {
                 //still to fill these in
             };
@@ -220,13 +218,13 @@ export class StatementsDialog extends Component {
 
             if (returnValue.succeeded) {
                 //TODO: Ramesh to add navigation to successfull page
-              //  this.horizonRouter.navigateToStatementSent();
+               this.horizonRouter.navigateToStatementSent();
             } else {
                 //TODO: Unsuccessful page nav
-               // this.horizonRouter.navigateToStatementNotSent();
+               this.horizonRouter.navigateToStatementNotSent();
             }
         }
-    }
+    
 
     //value of account selction
     _accountSelectionChanged(e, name) {
@@ -425,7 +423,6 @@ export class StatementsDialog extends Component {
     }
 
     _sendingError(exception) {
-
         return true;
     }
 
