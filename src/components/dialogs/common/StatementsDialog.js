@@ -48,12 +48,13 @@ export class StatementsDialog extends Component {
 		this.startDate;
 		this.endDate;
 		this.email = "";
+		this.confirmEmail = "";
 		this.emailError = "";
 		this.confirmError = "";
 		this.displayDialog = "open";
 		this.displayPDF = false;
 		this.statementsHeader = "Statements";
-		this.accountSelected = null;
+		this.accountSelected = "savingsAccount";
 		this.savingsPlanSelected = null;
 		this.statementPeriod;
 		this.statmentDays;
@@ -221,7 +222,7 @@ export class StatementsDialog extends Component {
 				this.savingsPlansSelected = name;
 				this.accountSelected = name;
 				console.log(this.accountSelected)
-				this._savingsPlanSelection();
+				this._renderSavingsPlanSelection();
 			} else {
 				this.savingsPlansSelected = false;
 			} 
@@ -232,6 +233,14 @@ export class StatementsDialog extends Component {
 				this.focusTransact = "";
 
 				this.accountSelected = name;
+				console.log(this.accountSelected)
+			}
+		} else {
+			if (this.accountSelected == "savingsAccount") {
+				this.focusTransact = "transactFocus";
+				this.focusSave = "";
+				this.focusCredit = "";
+
 				console.log(this.accountSelected)
 			}
 		}
@@ -360,8 +369,8 @@ export class StatementsDialog extends Component {
 
 	_confirmEmailMatch(e) {
 		if(e.detail.new.length > 1) {
-			var confirmEmail = e.detail.new;
-			if(confirmEmail !== this.email) {
+			this.confirmEmail = e.detail.new;
+			if(this.confirmEmail !== this.email) {
 				this.confirmError = "Emails do not match";
 			} else {
 				this.confirmError = "";
@@ -375,7 +384,6 @@ export class StatementsDialog extends Component {
 	_viewPDF() {
 		this.displayPDF = true;
 		this.statementsHeader = "View Document";
-		console.log("open pdf");
 	}
 
 	_closePDF(){
@@ -390,14 +398,19 @@ export class StatementsDialog extends Component {
 			.statementsModal {
 				height: 930px;
 				width: 976px;
-
 			}
-			.button-bar {
-				width: 980px;
+			capitec-modal {
+				--theme-modal-header-height: 64px;
+				--theme-modal-header-font-size: 18px;
+				--theme-modal-header-padding-left: 16px;
+				--theme-modal-header-color: #3A3A3A;
+				--theme-modal-header-background-color: #F7F7F7;
 			}
-			capitec-stepper {
-				--theme-stepper-step-container-width: 33%;
-				--theme-stepper-step-disabled-width: 100%;
+			div[slot="footer"] {
+				padding-left: 16px;
+				width: 976px;
+				left: 0;
+				right: 0;
 			}
 			.open {
 				display: block;
@@ -443,17 +456,15 @@ export class StatementsDialog extends Component {
 				line-height: 20px;
 				margin-top: 2px;
 			}
-			.subTitleText {
-				text-align: left;
-			}
-			.alert {
+			
+			capitec-alert-banner {
 				height: 48px;
 				width: 944px;
 				margin: 18px;
-			}
-			
-			capitec-alert-banner {
 				--theme-alert-banner-info-background-color: #DAF2F4;
+				--theme-alert-banner-info-color: #05829B;
+				--theme-alert-banner-unsuccessful-red-color: #C83B37;
+				--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1
 			}
 			
 			.chooseText {
@@ -493,7 +504,7 @@ export class StatementsDialog extends Component {
 			}
 			.choosePeriod {
 				width: 23%;
-				height: 62px;
+				height: 65px;
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
 				display: inline-block;
@@ -535,9 +546,13 @@ export class StatementsDialog extends Component {
 				margin-left: 15.5px;
 			}
 			.calendar, .rangePicker {
-				width: 769px;
 				height: 303px;
 				margin-left: 16px;
+				--theme-calendar-calendar-width: 345px;
+				--theme-date-time-picker-host-max-width: 690px;
+			}
+			.calendarHeader {
+				display: none;
 			}
 			.email {
 				width: 944px;
@@ -551,9 +566,9 @@ export class StatementsDialog extends Component {
 				margin-bottom: 30px;
 				margin-top: 30px;
 			}
-			.docButton {
+			.viewPDFbtn {
 				float: right;
-				margin-top: -40px;
+				margin-top: -45px;
 				margin-right: 15.5px;
 
 			}
@@ -574,31 +589,24 @@ export class StatementsDialog extends Component {
 				width: 472px;
 			}
 			.show {
-				margin-left: 15.5px;
 				display: block;
 				left: 0;
 				float: left;
 			}
 			.hide {
 				left: 0;
-				margin-left: 15.5px;
 				display: none;
 				float: left;
 			}
-			.nextBtn {
-				margin-right: 15.5px;
+			capitec-button {
+				margin: 16px;
 				float: right;
 			}
-			.cancelBtn {
-				margin-right: 15.5px;
-			}
+
 			.pdfView {
 				width: 832px;
 				height: 996px;
 				z-index: 99;
-			}
-			capitec-date-time-picker {
-				--theme-calendar-calendar-width: 694px;
 			}
 			capitec-group {
 				height: 70px;
@@ -620,7 +628,6 @@ export class StatementsDialog extends Component {
 				border: 2px solid #009DE0;
 				border-radius: 4px;
 			}
-
 			.transactFocus {
 				border: 2px solid #009DE0;
 				border-radius: 4px;
@@ -647,10 +654,14 @@ export class StatementsDialog extends Component {
 				margin-bottom: 4px;
 				font-weight: bold;
 			}
-			capitec-modal {
-				--theme-modal-header-color: #3A3A3A;
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-modal-slot-footer-width: 100%;
+			.left {
+				float: left;
+				width: 100px;
+				padding: 0;
+			}
+			.right {
+				float: right;
+				width: 300px;
 			}
 			`
 		]
@@ -699,18 +710,20 @@ ${
 			this._renderSpecifyEmail()
 		}
 	</div>
-			<div slot="footer" style="margin-left: -50px">
+	<div slot="footer">
+			<div class="left">
 				<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
 			</div>
-			<div slot="footer" style="margin-right: 0">
-				<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
+			<div class="right">
 				<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
+				<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
 			</div>
+	</div>
 		`
 	}
 	_renderAccountSelection() {
 		return html`
-			<capitec-label class="chooseText" type="subtitle" label="Choose an Account" class="subTitleText"></capitec-label>
+			<capitec-label class="chooseText" type="subtitle" label="Choose an Account"></capitec-label>
 			<div class="accountSelect transact ${this.focusTransact}" @click="${(e) => this._accountSelectionChanged(e, `savingsAccount`)}">
 				<img src="src/images/statement/transact@1x.png" class="accountSelectIcon"/>
 				<capitec-label class="accountSelectLabel" label="Savings Account" type="subtitle"></capitec-label>
@@ -730,14 +743,14 @@ ${
 			<div>
 				${
 					this.savingsPlansSelected ?
-					this._savingsPlanSelection():
+					this._renderSavingsPlanSelection():
 					html``
 				}
 			</div>
 		`
 	}
 
-	_savingsPlanSelection() {
+	_renderSavingsPlanSelection() {
 		return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose a Savings Plan"></capitec-label>
 			${this.savingsPlans.map( item => html`
@@ -806,13 +819,13 @@ ${
 				</capitec-radio-group>
 
 					${ this.showDatePicker ?
-						this._periodSelected() :
+						this._renderPeriodSelected() :
 						html ``
 					}
 		`
 	}
 
-	_periodSelected() {
+	_renderPeriodSelected() {
 		return html `
 		<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
 		<capitec-radio-group>
@@ -853,10 +866,10 @@ ${
 	_renderSpecifyEmail() {
 		return html`
 		<capitec-label class="chooseText" type="subtitle" label="Enter email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" error="${this.emailError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
+		<capitec-text-field class="email" label="Email address" value="${this.email}" error="${this.emailError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
 		
 		<capitec-label class="chooseText" type="subtitle" label="Confirm email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" error="${this.confirmError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._confirmEmailMatch(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
+		<capitec-text-field class="email" label="Email address" value="${this.confirmEmail}" error="${this.confirmError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._confirmEmailMatch(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
 
 		<hr class="seperator">
 
@@ -866,7 +879,7 @@ ${
 				<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
 				<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
 			</div>
-			<capitec-button class="docButton" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
+			<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
 		</div>
 
 		`
