@@ -15,6 +15,7 @@ import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
+import 'app/views/quickTransactions/SearchOtherNeed';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
