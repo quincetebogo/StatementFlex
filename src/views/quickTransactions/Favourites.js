@@ -57,6 +57,9 @@ export class Favourites extends View {
 		this.incomingCallDetails = this.state.incomingCallDetails;
 
 		// private properites
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+
+
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
 		this.isLoading = true;
@@ -81,7 +84,9 @@ export class Favourites extends View {
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.eventAggregator.subscribe(`toast-displayed`, (event) => this._verificationToastDisplayed(event));
 
+		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -95,7 +100,8 @@ export class Favourites extends View {
 			isBusy: { attribute: false },
 			isLoading: { attribute: false },
 			renderMode: { attribute: false },
-			verificationStatus: { attribute: false }
+			verificationStatus: { attribute: false },
+			verificationToastDisplayed: { attribute: false }
 		};
 	}
 
@@ -187,6 +193,18 @@ export class Favourites extends View {
 			const optionSelected = this.curOptionEvent.detail.option;
 			this.curOptionEvent = {};
 			this._performAction(optionSelected)();
+		}
+	}
+
+	_mainPage() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationToastDisplayed(event) {
+		if (event.displayToast) {
+			this.verificationToastDisplayed = event.displayToast;
+			this.callerInformation.verificationToastDisplayed = event.displayToast;
+			// this.horizonStore.saveState(this.callerInformation);
 		}
 	}
 
@@ -466,6 +484,7 @@ export class Favourites extends View {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.callerInformation="${this.callerInformation}"
 						.verificationStatus="${this.verificationStatus}"
+						?verificationToastDisplayed="${this.verificationToastDisplayed}"
 						@verify-click="${() => this._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourites-transactions>`
@@ -518,7 +537,7 @@ export class Favourites extends View {
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._mainPage()}">
 				</debi-check-mandates>`
 			: html``;
 	}
@@ -549,7 +568,7 @@ export class Favourites extends View {
 			? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._mainPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
     }
@@ -561,7 +580,7 @@ export class Favourites extends View {
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"
-                    ><horizon-proof-of-account>`
+                    ></horizon-proof-of-account>`
             : html``; 
     }
 }

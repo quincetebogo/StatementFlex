@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
+
 import 'app/components/common/OptionButton';
 
 /**
@@ -23,9 +25,9 @@ export class FavouriteTransactions extends Component {
 		super();
 
 		this.landingPageInfo = null;
-
 		this.displayToast = false;
 		this.isBusy = false;
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------
@@ -38,6 +40,7 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {Boolean} verificationToastDisplayed If true, displaying a toast for the verification status will be suppressed.
 	 *
 	 * @readonly
 	 * @static
@@ -49,6 +52,7 @@ export class FavouriteTransactions extends Component {
 			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
+			verificationToastDisplayed: { type: Boolean },
 
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -62,10 +66,12 @@ export class FavouriteTransactions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.verificationStatus === `verified`) {
+		if (this.verificationStatus === `verified` && !this.verificationToastDisplayed) {
 			this.displayToast = true;
+			this.eventAggregator.publish(`toast-displayed`, { displayToast: this.displayToast });
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
 		}
+		
 	}
 
 	// ---------------

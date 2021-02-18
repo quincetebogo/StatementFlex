@@ -65,7 +65,7 @@ export class EndCallSession extends Component {
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
-			endCallReasons: { attribute: false },
+			endCallReasons: { attribute: false }
 		};
 	}
 
@@ -88,7 +88,7 @@ export class EndCallSession extends Component {
 			endCallContext: this.endCallContext
 		};
 
-		this._loadCallOptions(endCallDetails)
+		this._loadCallOptions(endCallDetails);
 	}
 
 	// --------------
@@ -215,12 +215,13 @@ export class EndCallSession extends Component {
 				--theme-container-padding-bottom: 0px;
 				--theme-container-padding-left: 72px;
 				--theme-container-padding-right: 73px;
+				padding: 16px;
 			}
 
 			.end-reason-label {
 				height: 24px;
-				width: 546px;
-				color: #545D60;
+				width: 117px;
+				color: #3E4547;
 				font-family: "Hind Vadodara";
 				font-size: 18px;
 				font-weight: 600;
@@ -253,7 +254,8 @@ export class EndCallSession extends Component {
 			}
 
 			.radio-button {
-				margin-top: 15px;
+				margin-top: 0px;
+				padding-bottom: 8px;
 			}`
 		];
 	}
@@ -283,7 +285,7 @@ export class EndCallSession extends Component {
 
 	_renderChooseEndCallReason() {
 		return html`
-			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
+			<capitec-label class="end-reason-label" label="Choose reason"></capitec-label>
 			<horizon-radio-button-group
                 class="radio-button"
                 .radioButtonsAvailable="${this.endCallReasons}"

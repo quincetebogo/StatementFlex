@@ -151,8 +151,8 @@ export class AccessMenuBar extends Component {
 			}
 			
 			.box-image {
-				height: 108px;
- 				width: 108px;
+				height: 152px;
+ 				width: 210px;
 			}
 			.box-icon{
 				align-self:flex-end;
@@ -184,7 +184,7 @@ export class AccessMenuBar extends Component {
 							<capitec-icon class="header-icon" id="notify-icon" size="small" icon="system/notify"></capitec-icon>
 					</capitec-content-box>
 					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-						<img class="box-image" src="images/ClientInsights.svg"/>
+						<img class="box-image" src="images/landingPageImages/marketing.svg"/>
 						<capitec-label class="insights-subtitle" label="Client insights coming soon..."></capitec-label>
 					</capitec-content-box>
 					<!-- <hr> -->
