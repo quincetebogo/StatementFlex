@@ -73,7 +73,9 @@ export class ErrorScreen extends Component {
 					width: 1064px;
 				}
 				#id-unsuccessful-img {
-					margin-top: 270px;
+					margin: 174px auto 50px auto;
+					width: 256px;
+					height: 184px;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
