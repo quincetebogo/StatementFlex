@@ -27,6 +27,8 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`
+	// STATEMENTS_SUCCESSFUL: ``,
+	// STATEMENTS_UNSUCCESSFUL: ``
 });
 
 /**
@@ -163,6 +165,14 @@ export class HorizonRouter {
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
 	}
+
+	// navigateToStatementSuccessful() {
+	// 	this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_SUCCESSFUL}`);
+	// }
+
+	// navigateToStatementUnsuccessful() {
+	// 	this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
+	// }
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 

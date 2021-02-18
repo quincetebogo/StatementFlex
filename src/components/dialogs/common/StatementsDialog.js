@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
-
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import 'platform/components/popups/Modal';
 
 /**
@@ -28,16 +28,12 @@ export class StatementsDialog extends Component {
         super();
         this.currentStep = 1;
         this.horizonStore = HorizonStore.getInstance();
-        // this.callerInformation = this.state.callerInformation;
-        // this.incomingCallDetails = this.state.incomingCallDetails;
 
-        // console.log(this.callerInformation);
-        // console.log(this.incomingCallDetails);
 
 		//TODO: Remove unused 
-		this.availableSavings = "R " + 0;
-		this.availableSavingsPlans = "R " + 0;
-		this.availableCredit = "R " + 0;
+		this.availableSavings = "R" + "5 670.40";
+		this.availableSavingsPlans = "R" + "15 400.20";
+		this.availableCredit = "R" + "29 700.30";
 		this.savingsPlans = null;
 		this.savingsPlansSelected = false;
 		this.periodSelected = false;
@@ -67,8 +63,8 @@ export class StatementsDialog extends Component {
 		this.choosePeriodFocus = "";
 		this.nextSend = "Next";
 
-        this.callerInformation = this.state.callerInformation;
-        this.landingPageInfo = this.state.landingPageInfo;
+        // this.callerInformation = this.state.callerInformation;
+        // this.landingPageInfo = this.state.landingPageInfo;
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
@@ -179,7 +175,8 @@ export class StatementsDialog extends Component {
                     this.errorBannerMessage = "Complete all fields."
                 } else {
                     this.displayDialog = "close";
-                    console.log("statement sent screen")
+                    //send statement service call
+					this._sendStatement();
                 }
             } else if (btn == "back") {
                 this.currentStep--;
@@ -196,7 +193,7 @@ export class StatementsDialog extends Component {
     }
 
 
-   async  _sendStatement() {
+   async _sendStatement() {
         if (this._emailFormatCheck()) {
             //if email is in correct format and matches confirm email
             const state = {
@@ -204,8 +201,6 @@ export class StatementsDialog extends Component {
             };
 
             this.horizonStore.saveState(state);
-
-            //Candice: According to your ProofOfAccount.js the service call would be added here
 
             const statement = {
                 "emailAddress": this.email,
