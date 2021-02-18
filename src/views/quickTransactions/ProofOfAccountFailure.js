@@ -83,7 +83,7 @@ connectedCallback() {
 		this.horizonRouter.navigateToReturnPage(`done`);
 	}
 
-	_handOffClick() {
+	_assignClick() {
 		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
 		//TODO: might make service call over here to resend or navigate to Proof of account model again
 	}
@@ -164,10 +164,10 @@ connectedCallback() {
 			<horizon--error-screen 
 				header="Proof of account not sent" 
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="Proof of account not sent"
 				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._handOffClick()}>
+				@right-click=${() => this._assignClick()}>
 				<section 
 					id="id-error-msg" 
 					slot="detail">The proof of account was not emailed to <b>${this.emailAddress}</b></section>
