@@ -5,7 +5,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
-import 'app/copmponents/savingsAccount/DebiCheckMandates';
+import 'app/components/savingsAccount/DebiCheckMandates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,

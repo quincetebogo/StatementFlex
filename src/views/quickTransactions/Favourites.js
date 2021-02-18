@@ -28,7 +28,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
     UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11
+    PROOF_OF_ACCOUNT: 11,
+	SEARCH_OTHER_NEED:12
 });
 
 /**
@@ -116,6 +117,7 @@ export class Favourites extends View {
 			const statements = () => this._getStatements();
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
+			const searchOtherNeed=()=>this._searchOtherNeed()
 
 			const actions = {
 				'stop-card': stopCard,
@@ -124,7 +126,8 @@ export class Favourites extends View {
 				'tap-to-pay': tapToPay,
 				'statements': statements,
 				'tax-certificate': taxCertificates,
-				'proof-of-account': proofOfAccount
+				'proof-of-account': proofOfAccount,
+				'search-other-need':searchOtherNeed
 			};
 
 			if (actions[option]) {
@@ -376,6 +379,7 @@ export class Favourites extends View {
         }
 	}
 
+
 	_updateCardLimits() {
 		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		// TODO: Service call to get cards list comes here
@@ -401,6 +405,11 @@ export class Favourites extends View {
 
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
+	}
+
+	_searchOtherNeed(){
+		//TODO: Navigation to search other needs page 
+		this.renderMode=RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------
@@ -444,6 +453,7 @@ export class Favourites extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
             ${this._renderProofOfAccount()}
+			${this._renderSearchOtherNeed()}
 		`;
 	}
 
@@ -556,9 +566,21 @@ export class Favourites extends View {
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"
-                    ><horizon-proof-of-account>`
+                    ></horizon-proof-of-account>`
             : html``; 
     }
+
+	_renderSearchOtherNeed(){
+		return this.renderMode=== RENDER_MODE.SEARCH_OTHER_NEED
+		? html`
+		<search-other-need
+		    .incomingCallDetails="${this.incomingCallDetails}"
+		    .callerInformation="${this.callerInformation}"
+            .landingPageInfo="${this.landingPageInfo}"
+			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+		</search-other-need>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
