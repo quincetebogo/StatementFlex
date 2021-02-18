@@ -19,8 +19,7 @@ export class ProofOfAccount extends View {
 
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.savingAccInfo = {};
-        this.landingPageInfo = ``;
+        this.landingPageInfo = this.state.landingPageInfo;
 
         this.horizonStore = HorizonStore.getInstance();
 

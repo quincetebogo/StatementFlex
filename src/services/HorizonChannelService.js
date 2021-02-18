@@ -469,5 +469,17 @@ export class HorizonChannelService extends Service {
 	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, null, `debiCheckDecline`);
-	}
+    }
+
+    sendStatement(statement) {
+        const url = `/clientcare/documents/${this._version}/statements/send-statement`;
+
+        return this._post(url, statement, this._setToken(), `sendSatement`);
+    }
+
+    viewStatement(statement) {
+        const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+
+        return this._post(url, statement, this._setToken(), `viewSatement`);
+    }
 }
