@@ -369,7 +369,7 @@ export class Favourites extends View {
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
-			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
+			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList || [];
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
 			// Todo: Handle error scenario
