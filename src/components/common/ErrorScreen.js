@@ -20,6 +20,7 @@ export class ErrorScreen extends Component {
 		this.right = ``;
 		this.toast = ``;
 		this.displayToast = true;
+		this.image = null;
 	}
 
 	// -------------------
@@ -51,7 +52,8 @@ export class ErrorScreen extends Component {
 			left: { type: String },
 			right: { type: String },
 			toast: { type: String },
-			displayToast: { type: Boolean }
+			displayToast: { type: Boolean },
+			image: { type: String }
 		};
 	}
 
@@ -69,18 +71,18 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: 876px;
-					width: 1064px;
+					width: 100%;
+				}
+				.card > capitec-group[layout="vertical"] {
+					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-					margin: 174px auto 50px auto;
-					width: 256px;
-					height: 184px;
+					width: auto;
 				}
 				#id-verify-unsuccessful {
-					height: 32px;
-					width: 312px;
-					margin: 0px auto 0px auto;
+					height: 26px;
+					margin-top: 50px;
+					margin-bottom: 26px;
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
@@ -90,7 +92,6 @@ export class ErrorScreen extends Component {
 					text-align: center;
 				}
 				#id-msg-group{
-					margin-top: 16px;
 					justify-content: center;
 				}
 				#id-visit-branch-msg{
@@ -121,8 +122,7 @@ export class ErrorScreen extends Component {
 						margin-left: var(--toast-margin-left, 382px);
 				}
 				slot[name=detail]::slotted(*){
-					height: 24px;
-					width: 543px;
+					height: 26px;
 					color: #545D60;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
@@ -162,21 +162,27 @@ export class ErrorScreen extends Component {
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>
-				<img id="id-unsuccessful-img" src="/images/insure/assign-pay-arrears.svg"/>
-				<capitec-label id="id-verify-unsuccessful" label="${this.header}"></capitec-label>
-				<capitec-group id = "id-msg-group" layout="horizontal">
-					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
-					<slot name="detail"></slot>
-				</capitec-group>
-				<capitec-group id="id-button-group" layout="horizontal">
-					${this.left
-						? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
-						: html``
-					}
-					${this.right
-						? html`<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>`
-						: html``
-					}
+				<capitec-group
+					layout="vertical"
+					gap="none"
+					halign="center"
+					valign="center">
+					<img id="id-unsuccessful-img" src="${this.image}" />
+					<capitec-label id="id-verify-unsuccessful" label="${this.header}"></capitec-label>
+					<capitec-group id = "id-msg-group" layout="horizontal">
+						<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
+						<slot name="detail"></slot>
+					</capitec-group>
+					<capitec-group id="id-button-group" layout="horizontal">
+						${this.left
+							? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
+							: html``
+						}
+						${this.right
+							? html`<capitec-button class="button" type="primary" label="${this.right}" @click="${() => this._rightClick()}"></capitec-button>`
+							: html``
+						}
+					</capitec-group>
 				</capitec-group>
 			</capitec-card>
 		`;
