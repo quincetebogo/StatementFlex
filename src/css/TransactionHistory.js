@@ -8,6 +8,41 @@ const firstcolumn = `width :240px;
 const expanderColumns = `width :256px;
 					padding: 8px 0px 7.5px 12px;`;
 
+const statusColumnContainer =
+				 	`display: inline-flex;
+					box-sizing: border-box;
+					flex-direction: row;
+					align-items: center;
+					border-radius: 16px;
+					padding-top: 8px;
+					padding-bottom: 8px;`
+					
+const statusTagTypeInfo =
+					`background-color: #DAF2F4;
+					color: #08A6B5;`
+
+const statusTagTypeSuccess =
+					`background-color: #EAF3D9;
+					color: #5A9600;`
+
+const statusTagTypewarning =
+					`background-color: #F9EBDD;
+					color: #D4781C;`
+
+const statusTagTypeerror =
+					`background-color: #F7E2E1;
+					color: #C83B37;`
+
+const statusColumnLabel = 
+					`font-size: 12px;
+					font-weight: 600;
+					line-height: 14px;
+					text-align: center;
+					margin-left: 16px;
+					margin-right: 16px;
+					height: 13px;`
+
+
 const expanderCell =`height: 57px;
 					font-weight: 300;
 					justify-content: left;
@@ -36,5 +71,13 @@ export const TABLE_EXPANDER_CELL = {
 	firstcolumn : firstcolumn,
 	expanderColumns : expanderColumns,
 	expanderCell : expanderCell
-
 };
+
+export const STATUS_TAG = {
+	tagContainer : statusColumnContainer,
+	tagLabel : statusColumnLabel,
+	Processed :statusTagTypeSuccess,
+	Pending : statusTagTypewarning,
+	Expired:statusTagTypeerror,
+	Reversed : statusTagTypeInfo
+}

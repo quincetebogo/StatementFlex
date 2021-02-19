@@ -4,8 +4,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
-import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
-
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -74,7 +72,8 @@ export class SavingsAccountLandingPage extends View {
 
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			isBusy: {type: Boolean}
 		};
 	}
 	
@@ -86,20 +85,19 @@ async _optionClick(event) {
 		if (event.detail.option === `transaction-history`) {
 
 			const transactionHistoryRequest = {
-				cifNumber : "209851163",
-				accountNumber : "1119611146",
+				cifNumber : "309692997",
+				accountNumber : "6008203940",
 				accountType : "PRIMARY_SAVINGS",
 				startDate : "2021-01-01",
 				endDate : "2021-02-14",
 				startAtIndex : 0,
-				maxResults : 6,
+				maxResults : 20,
 				moneyType : "BOTH"
 			}
 			const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 			if(returnValue.succeeded && returnValue.result){
-				this.transactionHistory = returnValue.result.transactionHistoryList;
-				this.accountDetails = returnValue.result.accountDetails;
+				this.transactionHistory = returnValue.result.transactions;
 				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 			}
 		} else if (event.detail.option === `debi-check`) {

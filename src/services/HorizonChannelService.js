@@ -476,7 +476,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.transactionHistory(transactionHistoryRequest);
 		}
 
-		const url = `/clientcare/savingsaccount/${this._version}//transactions?` + 
+		const url = `/clientcare/savingsaccount/${this._version}/client/transactions?` + 
 		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +
@@ -486,6 +486,6 @@ export class HorizonChannelService extends Service {
 		`MaxResults=${transactionHistoryRequest.maxResults}&`+
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
-		return this._get(url, null, `transactionHistory`);
+		return this._get(url, this._setToken(), `transactionHistory`);
 	}
 }

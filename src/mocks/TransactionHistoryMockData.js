@@ -52,7 +52,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "02 Feb 2021",
 			"Description": "Purchase Boord Stell Card No 3445",
 			"TransactionStatus": "Processed",
-			"Amount": 3220.00,
+			"Amount": -3220.00,
 			"Balance": 1662.00
 		},
 		{
@@ -92,7 +92,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "16 Jan 2021",
 			"Description": "Purchase SPAR Die Boord Stell Card No 3445",
 			"TransactionStatus": "Pending",
-			"Amount": 340.00,
+			"Amount": -340.00,
 			"Balance": 66962.00
 		},
 		{
@@ -112,7 +112,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "12 Jan 2021",
 			"Description": "Purchase SPAR Die Boord Card No 3445",
 			"TransactionStatus": "Pending",
-			"Amount": 3340.00,
+			"Amount": -3340.00,
 			"Balance": 6962.00
 		},
 		{
@@ -152,7 +152,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "01 Feb 2021",
 			"Description": "Boord Stell Card No 3445",
 			"TransactionStatus": "Processed",
-			"Amount": 50.00,
+			"Amount": -50.00,
 			"Balance": 962.00
 		},
 		{
@@ -212,7 +212,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "20 Dec 2020",
 			"Description": "ATM Boord Stell Card No 3445",
 			"TransactionStatus": "Reversed",
-			"Amount": 45600.00,
+			"Amount": -45600.00,
 			"Balance": 10962.00
 		},
 		{
@@ -292,7 +292,7 @@ export const transactionHistoryMockData = {
 			"TransactionDate": "06 Jan 2021",
 			"Description": "POS Boord Stell Card No 3445",
 			"TransactionStatus": "Reversed",
-			"Amount": 5.00,
+			"Amount": -5.00,
 			"Balance": 200.00
 		},
 	]

@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { EXPANDER_LABEL, TABLE_EXPANDER_CELL, STATUS_TAG } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
@@ -48,8 +48,6 @@ export class TransactionHistory extends Component {
 		this.accountDetails = null;
 		
 		this.isBusy = false;
-		this.rawData = [];
-		this.stopLoadMore = false;
 		
 		// private properites
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -179,7 +177,7 @@ export class TransactionHistory extends Component {
 
 			item.TranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.Amount = `-R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.Amount = item.Amount > 0 ? `R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.Amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 		});
 		return tableData;
@@ -226,89 +224,6 @@ export class TransactionHistory extends Component {
 		return `${startDate} - ${endDate}`;
 	}
 
-	async _renderCollection(renderSet){
-
-		if(this.stopLoadMore){
-			return renderSet;
-		}
-		if( RENDER_CHIPS[FILTER_BY.TEXT] || RENDER_CHIPS[FILTER_BY.DATE] || RENDER_CHIPS[FILTER_BY.STATUS]){
-			
-			return	this._renderGroupBy(this.rawData)
-		}
-
-		const data = await this.serviceCall(renderSet) ;
-		
-		if(data.length > 0){
-			this.rawData = [...this.rawData, ...data];
-			this._renderGroupBy(this.rawData)
-			const tableData = this._initialize(loadMoreData);
-			this.transactionHistory = [...this.transactionHistory,...tableData];
-		} else if(this.rawData.length >0){
-			this.stopLoadMore = true;
-		}
-
-		this.filteredData = this.transactionHistory;
-		
-		return {
-
-			pagedItems: this.filteredData,
-			totalCount: this.transactionHistory.length,
-			groupLabel:"groupByItem",
-			strategy: {
-				groupField: "groupByItem"
-			}
-		};
-	}
-
-	async serviceCall(filteredData){
-		const transactionHistoryRequest = {
-			cifNumber : "209851163",
-			accountNumber : "1119611146",
-			accountType : "PRIMARY_SAVINGS",
-			startDate : "2021-01-01",
-			endDate : "2021-02-14",
-			startAtIndex : filteredData.totalCount,
-			maxResults : 4,
-			moneyType : "BOTH"
-		}
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
-		if(returnValue.succeeded && returnValue.result){
-			return returnValue.result.transactionHistoryList;
-		}
-	}
-
-	_renderGroupBy(renderSet){
-
-			const groupedValues = Utilities.groupBy(renderSet.items, renderSet.strategy.groupField);
-	
-			const newRows = [];
-	
-			for (const key in groupedValues) {
-				if (groupedValues.hasOwnProperty(key)) {
-	
-					let groupName = key;
-					if (renderSet.groupLabel && Utilities.isFunction(renderSet.groupLabel)) {
-						groupName = renderSet.groupLabel(key);
-					} else if (typeof renderSet.groupLabel === `string`) {
-						groupName = renderSet.groupLabel;
-					}
-	
-					newRows.push({
-						group: groupName
-					});
-					const rows = groupedValues[key];
-					newRows.push(...rows);
-				}
-			}
-	
-			return {
-				pagedItems: newRows
-			};
-		
-	}
-
-
 	// ---------
 	// RENDERING
 	// ---------
@@ -324,12 +239,10 @@ export class TransactionHistory extends Component {
 		return [
 			super.styles,
 			css`
+			
 				.transaction-card {
 					height: 924px;
 					width: 1066px;
-					border-radius: 5px;
-					box-sizing: border-box;
-					border: 1px solid #E1E1E1;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
@@ -340,7 +253,6 @@ export class TransactionHistory extends Component {
 
 				/* Header Styles */
 				.transaction-history-title {
-					height: 64px;
 					width: 1064px;
 					border-bottom: 0px;
 					border-radius: 4px 4px 0 0;
@@ -348,7 +260,6 @@ export class TransactionHistory extends Component {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
 				.transaction-history-title > img {
-					height: 26px;
 					width: 26px;
 					margin-right: 10px;
 					cursor: pointer;
@@ -365,16 +276,10 @@ export class TransactionHistory extends Component {
 				.actionbar-header > horizon-label {
 					width: 156px;
 					height: 100%;
-					font-weight: 300;
-					justify-content: left;
 					padding: 0px 0px 0px 16px;
 				
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-color: #FFFFFF;
-					--horizon-label-text-font-size: 14px;
-					--horizon-label-text-line-height: 20px;
-					
-					--horizon-label-value-height: 20px;
 					--horizon-label-value-color: #FFFFFF;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
@@ -393,7 +298,7 @@ export class TransactionHistory extends Component {
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
-					width: 380px;
+					width: 388px;
 					padding-left: 8px;
 				
 					--theme-input-label-font-size: 16px;
@@ -404,9 +309,7 @@ export class TransactionHistory extends Component {
 					width: 201px;
 					margin-right: 8px;
 					border-radius: 5px;
-					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
-					background-color: #FFFFFF;
 					cursor: pointer;
 				}
 				.cb-datepicker > capitec-label {
@@ -620,7 +523,7 @@ export class TransactionHistory extends Component {
 					@value-change="${(e) => this._searchTextChange(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
 				</capitec-text-field>
-
+					
 				<capitec-content-box
 					class="cb-datepicker"
 					layout="horizontal"
@@ -758,10 +661,10 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
+				.items = ${this.filteredData}
 				groupField="groupByItem"
 				displayMode="LoadMore"
 				expandable="right"
-				.dataHandler="${(renderSet) => this._renderCollection(renderSet)}"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
 					<capitec-table-column label="Transaction Date" field="TransactionDate" size="161px;"></capitec-table-column>
 					<capitec-table-column label="Description" field="Description" size="411px;"></capitec-table-column>
@@ -779,17 +682,9 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionStatus(value) {
-		const processed = () => html`<capitec-tag label="Processed" type="success"></capitec-tag>`;
-		const pending = () => html`<capitec-tag label="Pending" type="warning"></capitec-tag>`;
-		const expired = () => html`<capitec-tag label="Expired" type="error"></capitec-tag>`;
-		const reversed = () => html`<capitec-tag label="Reversed" type="info"></capitec-tag>`;
-		
-		return {
-			Processed: processed,
-			Pending: pending,
-			Expired: expired,
-			Reversed: reversed
-		}[value]();
+		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG[value])}">
+						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
+					</div>`;
 
 	}
 
