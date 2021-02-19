@@ -29,6 +29,9 @@ const HORIZON_ROUTES = Object.freeze({
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	STATEMENTS_SUCCESSFUL: `/views/Statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
+	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
 });
 
 /**
@@ -164,6 +167,14 @@ export class HorizonRouter {
 
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
+	}
+
+	navigateToCardLimitUpdateSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS}`);
+	}
+
+	navigateToCardLimitUpdateFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED}`);
 	}
 
 	navigateToStatementSuccessful() {
@@ -473,6 +484,22 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `card-limit-update-success`,
+		title: `CardLimitUpdateSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS,
+		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `card-limit-update-failure`,
+		title: `CardLimitUpdateFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
+		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
