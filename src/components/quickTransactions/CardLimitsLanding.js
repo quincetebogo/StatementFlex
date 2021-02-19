@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
@@ -31,12 +32,15 @@ export class CardLimitsLanding extends Component {
 		super();
 
 		// private properites
+		this._cardLimits = {};
+		this._updateType = ``;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
 		this.primaryCards = [];
 		this.supplementaryCards = [];
 		this.virtualCards = [];
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-		this._updateType = ``;
 
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -79,9 +83,15 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_updateLimits(type) {
-		this._updateType = type;
-		this.renderMode = RENDER_MODE.UPDATE_LIMITS;
+	async _updateLimits(type, cardDetails) {
+
+		const returnValue = await this.quickTransactionService.getCardLimits(cardDetails);
+
+		if (returnValue.succeeded) {
+			this._updateType = type;
+			this._cardLimits = returnValue.result;
+			this.renderMode = RENDER_MODE.UPDATE_LIMITS;
+		}
 	}
 
 	_discardChanges() {
@@ -97,7 +107,14 @@ export class CardLimitsLanding extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// N/A
+	_errorHandler() {
+		// TODO: Error handler comes here
+	}
+
+	_toggleBusyFlag() {
+		// TODO: Toggle busy indicator comes here
+	}
+
 
 	// ---------
 	// RENDERING
@@ -406,11 +423,11 @@ export class CardLimitsLanding extends Component {
 				<capitec-button
 					class="permanent-btn"
 					label="Permanent Limits"
-					@click="${() => this._updateLimits(`Permanent`)}">
+					@click="${() => this._updateLimits(`Permanent`, card)}">
 				</capitec-button>
 				<capitec-button
 					label="Temporary Limits"
-					@click="${() => this._updateLimits(`Temporary`)}">
+					@click="${() => this._updateLimits(`Temporary`, card)}">
 				</capitec-button>
 		
 				<capitec-alert-banner type="info" label="Temporary limits expire after 3 days">
@@ -436,11 +453,11 @@ export class CardLimitsLanding extends Component {
 							gap="clear"
 							halign="right"
 							valign="top"
-							class="${card.isContactlessActivated == null ? `hide` : `show`}">
+							class="${card.isContactlessActivated === null ? `hide` : `show`}">
 				<capitec-label label="Tap to Pay"
 								type="default">
 				</capitec-label>
-				<capitec-label label="${card.isContactlessActivated}"
+				<capitec-label label="${card.isContactlessActivated ? `On` : `Off`}"
 								type="strong">
 				</capitec-label>
 			</capitec-group>
@@ -452,6 +469,7 @@ export class CardLimitsLanding extends Component {
 			return html`
 				<horizon-update-card-limits
 					.updateType="${this._updateType}"
+					.cardLimits="${this._cardLimits}"
 					@cancel="${() => this.renderMode = RENDER_MODE.DISCARD}">
 				</horizon-update-card-limits>
 			`;
