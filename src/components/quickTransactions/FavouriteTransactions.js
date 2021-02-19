@@ -1,12 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import 'app/components/common/OptionButton';
 
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	SEARCH_OTHER_NEED:2
-});
-
 /**
  * This component implements the Favourites Landing Page for Quick Transactions
  *
