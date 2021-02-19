@@ -13,7 +13,7 @@ import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
-import 'app/components/quickTransactions/UpdateCardLimits';
+import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 
 const RENDER_MODE = Object.freeze({
@@ -27,7 +27,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_APPROVE: 7,
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
-	UPDATE_CARD_LIMITS: 10
+    UPDATE_CARD_LIMITS: 10,
+    PROOF_OF_ACCOUNT: 11
 });
 
 /**
@@ -214,7 +215,7 @@ export class Favourites extends View {
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.landingPageInfo.cifNumber, event.detail.mandateId, event.detail.registerId);
+			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
 			if (returnValue.succeeded && returnValue.result) {
 				this.debiCheckDetails = returnValue.result;
 				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
@@ -227,7 +228,7 @@ export class Favourites extends View {
 	async _declineDebiCheckMandate(event) {
 		this.mandateId = event.detail.mandateId;
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.landingPageInfo.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -254,8 +255,8 @@ export class Favourites extends View {
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 			 
 			 if (returnValue.succeeded) {
-			 	this.isLoading = false;
-			 	this.landingPageInfo = returnValue.result;
+                 this.isLoading = false;
+                 this.landingPageInfo = returnValue.result;
 
 			 	// Now we can update the information on the product buttons as well
 			 	this._updateLeftBar();
@@ -265,10 +266,6 @@ export class Favourites extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
 	}
 
 	_updateTopBar() {
@@ -327,6 +324,10 @@ export class Favourites extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -365,20 +366,23 @@ export class Favourites extends View {
 	}
 
 	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.landingPageInfo.cifNumber);
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
 			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		} else {
 			// Todo: Handle error scenario
-        }
+		}
 	}
 
-	_updateCardLimits() {
-		this.cards = mockCards;
-		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
-		// TODO: Service call to get cards list comes here
+	async _updateCardLimits() {
+		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
+		}
 	}
 
 	_tapToPay() {
@@ -395,6 +399,8 @@ export class Favourites extends View {
 
 	_proofOfAccount() {
 		// TODO: Functionality to generate proof of account comes here
+        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+
 	}
 
 	_unavailableOption() {
@@ -441,6 +447,7 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+            ${this._renderProofOfAccount()}
 		`;
 	}
 
@@ -539,12 +546,23 @@ export class Favourites extends View {
 	_renderUpdateCardLimits() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
-				<horizon-update-card-limits
+				<horizon-card-limits-landing
 					.cards="${this.cards}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-				</horizon-update-card-limits>`
+				</horizon-card-limits-landing>`
 			: html``;
-	}
+    }
+
+    _renderProofOfAccount() {
+        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+            ? html`
+                <horizon-proof-of-account
+                    .incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+                    .landingPageInfo="${this.landingPageInfo}">
+				</horizon-proof-of-account>`
+            : html``; 
+    }
 }
 
 customElements.define(`horizon-favourites`, Favourites);

@@ -2,6 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
 	},
+	"signalRUrl": "https://horizoncs.platform-dev.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -38,12 +39,16 @@
 		}
 	],
 	"mock" : {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": { 
 			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"cardLimitsLanding": {
 			"enabled": true,
 			"positiveCase": true
 		},
