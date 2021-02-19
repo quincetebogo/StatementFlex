@@ -28,7 +28,30 @@ import 'app/components/dialogs/common/EndCallSession';
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.chooseNeed = true;
+		this.chooseIssue = true;
 		this.someObject = { code: 'AL', text: 'Alabama' };
+		this.searchObject = [
+			{code: 'ATM', text: 'ATM' },
+			{code: 'Category 2', text: 'Category 2' },
+			{code: 'Category 3', text: 'Category 3' },
+			{code: 'Category 4', text: 'Category 4' },
+			{code: 'Category 5', text: 'Category 5' }
+		]
+		this.specificNeedObjects =
+		[
+			{code: 'Option 1', text: 'Option 1' },
+			{code: 'Option 2', text: 'Option 2' },
+			{code: 'Option 3', text: 'Option 3' },
+			{code: 'Option 4', text: 'Option 4' }
+		]
+		this.issueTypeObjects =
+	[
+		{code: 'Option 1', text: 'Unauthorized transaction - ATM Retain...' },
+			{code: 'Option 2', text: 'Capitec ATM - Cash did not dispense' },
+			{code: 'Option 3', text: 'Capitec ATM - Cash dispensed short' },
+			{code: 'Option 4', text: 'CF not available at the ATM' }
+	]
 this.dataObjects = [
 	this.someObject,
 	{ code: 'AK', text: 'Alaska' },
@@ -55,7 +78,9 @@ this.dataObjects = [
 	 */
 	static get properties() {
 		return {
-			searchOtherNeed: { type: Object }
+			searchOtherNeed: { type: Object },
+			chooseNeed: {type: Boolean},
+			chooseIssue: {type: Boolean}
 		};
 	}
 
@@ -75,6 +100,17 @@ this.dataObjects = [
 	_back() {
 		//initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	// PRIVATE METHODS
+	_searchOtherNeed(e){
+		this.chooseNeed = false;
+	}
+	_searchSpecificNeed(e) {
+		this.chooseIssue = false;
+	}
+	_chooseIssueType(e) {
+		this.solutionDisplay = false;
 	}
 // ---------
 	// RENDERING
@@ -128,9 +164,17 @@ this.dataObjects = [
 					width: 333px;
 					--theme-input-label-font-color: #969B9D;
 				}
+				#id-button-group {
+					justify-content: right;
+					padding: 16px;
+				}
+				#button-right {
+					margin-right: 16px;
+				}
 				/* No Results CSS */
 				.search-icon {
 					margin-top: 282px;
+					/* change to capitec group */
 				}
 				.find-need {
 					margin-top: 13px;
@@ -155,6 +199,9 @@ this.dataObjects = [
 						${this._renderNoResults()}
 					</capitec-content-box>
 				</capitec-group>
+				
+				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+				</capitec-group>
 			</capitec-card>
 		`;
 	}
@@ -175,32 +222,55 @@ this.dataObjects = [
 	// render search 
 	_renderActionBar() {
 		//add if statement to render next text boxes/drop downs
+		// must have a hidden property for the text field
+		//create an object 3 properties- hidden object should set to false when properties are populated
+		//@input="${(e) => this._searchOtherNeed(e)}"
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-text-field 
 					label="Search client need"
 					type="search"
 					keyboardMode="alpha-numeric"
-					@input="${(e) => this._filterByText(e)}"
-					@value-changed="${(e) => this._filterByText(e)}">
+					
+					.items="${this.searchObject}"
+					@value-changed="${(e) => this._searchOtherNeed(e)}">
 				</capitec-text-field>
 				<capitec-select 
 					label="Choose specific need" 
-					.items="${this.dataObjects}"
+					.items="${this.specificNeedObjects}"
 					display-field="text"
 					id-field="code"
 					.value="Search specific need"
+					?hidden = ${this.chooseNeed}
+					@value-changed="${(e) => this._searchSpecificNeed(e)}"
 					searchable>
 				</capitec-select>
 				<capitec-select 
 					label="Choose issue type" 
-					.items="${this.dataObjects}"
+					.items="${this.issueTypeObjects}"
 					display-field="text"
 					id-field="code"
 					.value="Search specific need"
+					?hidden = ${this.chooseIssue}
+					@value-changed="${(e) => this._chooseIssueType(e)}"
 					searchable>
 				</capitec-select>
 			</capitec-action-bar>
+		`;
+	}
+
+	_renderSolution() {
+		return html`
+		<capitec-group layout="vertical" halign="left" valign="top" gap ="none">
+			<capitec-label 
+				class="solution"
+				label="Solution"
+				type="strong"></capitec-label>
+		</capitec-group>
+		<capitec-group id= "id-button-group" layout="horizontal" halign="right" valign="bottom" gap ="none">
+		<capitec-button id="button-right" class="center-button" type="primary" label="Launch STrack" @click="${() => this._sTrackClick()}">
+							</capitec-button>
+		</capitec-group>
 		`;
 	}
 
@@ -208,29 +278,18 @@ this.dataObjects = [
 		/* if (this._hasIncidentToDisplay()) {
 			return html ``;
 		} */
-		if (this.solutionDisplay){
-			return html`
-			<capitec-group layout="vertical" halign="center" valign="top" gap ="none">
-				<img src="/images/common/search.svg" class="search-icon"/>
-				<capitec-label 
-					class="find-need"
-					label="Find other need"
-					type="strong"></capitec-label>
-			</capitec-group>
-			`;
-		}
-		else {
 				return html`
 				<capitec-group layout="vertical" halign="center" valign="top" gap ="none">
 				<img src="/images/common/search.svg" class="search-icon"/>
 				<capitec-label 
 					class="find-need"
 					label="Find other need"
-					type="strong"></capitec-label>
+					type="strong"
+					?hidden = ${this.solutionDisplay}></capitec-label>
 				</capitec-group>
 				`;
 		}
-	}
+
  }
  
 customElements.define(`search-other-need`, SearchOtherNeed);
