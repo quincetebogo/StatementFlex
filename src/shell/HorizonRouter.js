@@ -28,7 +28,7 @@ const HORIZON_ROUTES = Object.freeze({
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	STATEMENTS_SUCCESSFUL: `/views/Statements/StatementsSuccess`,
-	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`
+	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
 	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,

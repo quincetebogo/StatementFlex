@@ -487,9 +487,6 @@ export class HorizonChannelService extends Service {
 									`ConnectionId=${request.connectionID}`);
 	}
 
-
-    }
-
     sendStatement(statement) {
         const url = `/clientcare/documents/${this._version}/statements/send-statement`;
 
