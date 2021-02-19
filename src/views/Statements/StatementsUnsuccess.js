@@ -61,7 +61,8 @@ export class StatementsUnsuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
+			// this.returnRoute = state.returnTo.route;
+			//Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
 			this.mailId=`ivanmakatini@gmail.com`;

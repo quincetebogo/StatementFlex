@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { EventAggregator, NavigationContext } from 'platform/core';
 import 'platform/components/popups/Modal';
 
@@ -33,6 +34,8 @@ export class StatementsDialog extends Component {
 		this.state = this.horizonStore.recoverState();
 		this.navigationContext = NavigationContext.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+
 		
 		this.callerInformation = this.state.callerInformation;
         this.landingPageInfo = this.state.landingPageInfo;
@@ -116,6 +119,10 @@ export class StatementsDialog extends Component {
         super.connectedCallback();
     }
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
     _cancel() {
         this.dispatchEvent(new CustomEvent(`cancel`, {}));
     }
@@ -159,7 +166,7 @@ export class StatementsDialog extends Component {
             }
         } else if (this.currentStep == 2 && e.type == "click") {
             if (btn == "next") {
-                if (!this.periodSelected || !this.showDatePicker || !this.showCalendar) {
+                if (!this.periodSelected) {
                     this.infoOrError = "error";
                     this.errorBannerMessage = "Select a statement period."
                 } else {
@@ -222,10 +229,10 @@ export class StatementsDialog extends Component {
 
             if (returnValue.succeeded) {
                 //TODO: Ramesh to add navigation to successfull page
-               this.horizonRouter.navigateToStatementSent();
+               this.horizonRouter.navigateToStatementSuccessful();
             } else {
                 //TODO: Unsuccessful page nav
-               this.horizonRouter.navigateToStatementNotSent();
+               this.horizonRouter.navigateToStatementUnsuccessful();
             }
         }
     
@@ -312,14 +319,9 @@ export class StatementsDialog extends Component {
         var currentDays = days;
         this.statementPeriod = days / 30 + " months (" + days + " days)";
         this.statmentDays = "Last " + days + " days";
+		this.periodSelected = true;
         console.log(this.periodSelected)
-        if (e.detail.new !== e.detail.old) {
-            this.showCalendar = false;
-        }
-        if (e.currentTarget.checked) {
-            this.showDatePicker = true;
-            this._changePeriodSelection(currentDays);
-        }
+		this._changePeriodSelection(currentDays);
     }
 
     //change message according to the step in the statements roadmap
@@ -420,8 +422,16 @@ export class StatementsDialog extends Component {
 		this.displayPDF = true;
 		this.statementsHeader = "View Document";
 
-		// const returnValue = await this.quickTransactionService.viewStatement();
-		// console.log(returnValue);
+		const returnValue = await this.quickTransactionService.viewStatement();
+		console.log(returnValue);
+
+		if (returnValue) {
+			if (returnValue.succeeded) {
+				//render the PDF
+			} else {
+				//render an error
+			}
+		}
 	}
 
     _closePDF() {
@@ -447,7 +457,8 @@ export class StatementsDialog extends Component {
 				--theme-modal-header-padding-left: 16px;
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-background-color: #F7F7F7;
-			}
+			} 
+
 			div[slot="footer"] {
 				padding-left: 16px;
 				width: 976px;
@@ -733,11 +744,11 @@ export class StatementsDialog extends Component {
 
 ${
             this.infoOrError === "error" ?
-                html`<capitec-alert-banner class="alert error" type="unsuccessful-red" closable>
+                html`<capitec-alert-banner class="alert error" type="unsuccessful-red">
 		<p><b>Notify:</b> ${this.errorBannerMessage}</p>
 		</capitec-alert-banner>`:
 
-                html`<capitec-alert-banner class="alert info" type="info" closable>
+                html`<capitec-alert-banner class="alert info" type="info">
 		<p><b>Notify client:</b> ${this.infoBannerMessage}</p>
 		</capitec-alert-banner>`
 
@@ -860,10 +871,10 @@ ${
 				</capitec-group>
 				</capitec-radio-group>
 
-					${ this.showDatePicker ?
-						this._renderPeriodSelected() :
-						html ``
+					${
+						this._renderPeriodSelected()
 					}
+
 		`
     }
 

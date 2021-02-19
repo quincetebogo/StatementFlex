@@ -24,7 +24,7 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
     }
 
-    sendSatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+    sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.sendStatement(statement), `sendStatement`, errorHandler, autoRetries);
     }
 
