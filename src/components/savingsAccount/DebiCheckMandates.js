@@ -71,6 +71,7 @@ export class DebiCheckMandates extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+		
 	}
 
 	_performFilter(type) {
@@ -177,7 +178,7 @@ export class DebiCheckMandates extends Component {
 					border: 1px solid #E1E1E1;
 					border-radius: 5px;
 					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+					box-shadow: none!important;
 				}
 				capitec-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
@@ -192,15 +193,19 @@ export class DebiCheckMandates extends Component {
 					margin-right: 34px;
 				}
 				.debicheck-action-bar {
-					height: 56px;
+					height: 64px;
 					--theme-actionbar-padding: 4px 16px 4px 16px;
 					--theme-actionbar-min-height: 56px;
 					--theme-actionbar-item-gap: 8px;
+					box-shadow: none!important;
+					margin: 0px;
 				}
 				.debicheck-action-bar > capitec-text-field {
 					height: 49px;
 					width: 441px;
 					--theme-input-label-font-color: #969B9D;
+					margin-top: 8px;
+					line-height: 24px;
 				}
 				capitec-radio-group {
 					margin-left: 12px;
