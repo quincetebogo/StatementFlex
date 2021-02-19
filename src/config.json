@@ -56,7 +56,7 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
