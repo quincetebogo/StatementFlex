@@ -6,7 +6,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
-import 'app/copmponents/savingsAccount/DebiCheckMandates';
+import 'app/components/savingsAccount/DebiCheckMandates';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -50,7 +50,7 @@ export class SavingsAccountLandingPage extends View {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
-		this.savingsAccountService = new SavingsAccountService(() => ex => this._errorHandler(ex));
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
 	}
 
@@ -104,8 +104,8 @@ export class SavingsAccountLandingPage extends View {
 
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
-				cifNumber: this.callerInformation.cifNumber,
-				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+                cifNumber: this.callerInformation.cifNumber,
+                nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 				getGenericData: true
 			};
 
@@ -182,7 +182,13 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 	
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -222,6 +228,7 @@ export class SavingsAccountLandingPage extends View {
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
+					.landingPageInfo = "${this.landingPageInfo}"
 					@option-click="${(event) => this._optionClick(event)}">
 				</horizon-savings-account>`
 			: html``;

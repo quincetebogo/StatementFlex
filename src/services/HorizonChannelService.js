@@ -478,6 +478,6 @@ export class HorizonChannelService extends Service {
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
 
-		return this._get(url, null, `savingsAccountLanding`);
+		return this._get(url, this._setToken(), `savingsAccountLanding`);
 	}
 }
