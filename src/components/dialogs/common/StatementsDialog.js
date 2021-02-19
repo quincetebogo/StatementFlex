@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { EventAggregator, NavigationContext } from 'platform/core';
 import 'platform/components/popups/Modal';
 
 /**
@@ -26,14 +27,21 @@ export class StatementsDialog extends Component {
     constructor() {
 
         super();
+
         this.currentStep = 1;
         this.horizonStore = HorizonStore.getInstance();
-
+		this.state = this.horizonStore.recoverState();
+		this.navigationContext = NavigationContext.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+		
+		this.callerInformation = this.state.callerInformation;
+        this.landingPageInfo = this.state.landingPageInfo;
+		this.accountInformation = this.state.leftBarButtonConfig.detail;
 
 		//TODO: Remove unused 
-		this.availableSavings = "R" + "5 670.40";
-		this.availableSavingsPlans = "R" + "15 400.20";
-		this.availableCredit = "R" + "29 700.30";
+		this.availableSavings = "R" + this.accountInformation.savingsAccount;
+		this.availableSavingsPlans = "R" + this.accountInformation.savingsPlan;
+		this.availableCredit = "R" + this.accountInformation.credit;
 		this.savingsPlans = null;
 		this.savingsPlansSelected = false;
 		this.periodSelected = false;
@@ -63,15 +71,12 @@ export class StatementsDialog extends Component {
 		this.choosePeriodFocus = "";
 		this.nextSend = "Next";
 
-        // this.callerInformation = this.state.callerInformation;
-        // this.landingPageInfo = this.state.landingPageInfo;
-
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
         this._changePeriodSelection();
 
 
-        this.callHandleService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
+        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
 
     }
 
@@ -109,8 +114,6 @@ export class StatementsDialog extends Component {
     connectedCallback() {
         //Holding values
         super.connectedCallback();
-
-
     }
 
     _cancel() {
@@ -122,6 +125,7 @@ export class StatementsDialog extends Component {
         this.emailError = "";
         this.confirmError = "";
     }
+
     _updateStep(e) {
         this.currentStep = e;
         if (this.currentStep == 2) {
@@ -244,7 +248,7 @@ export class StatementsDialog extends Component {
                 console.log(this.accountSelected)
             }
 
-            if (name == "savingsPlans") {
+            if (name == "savingsPlan") {
                 this.focusSave = "saveFocus";
                 this.focusTransact = "";
                 this.focusCredit = "";
@@ -257,7 +261,7 @@ export class StatementsDialog extends Component {
 				this.savingsPlansSelected = false;
 			} 
 	
-			if (name == "creditCards") {
+			if (name == "credit") {
 				this.focusCredit = "creditFocus";
 				this.focusSave = "";
 				this.focusTransact = "";
@@ -412,9 +416,12 @@ export class StatementsDialog extends Component {
         }
     }
 
-	_viewPDF() {
+	async _viewPDF() {
 		this.displayPDF = true;
 		this.statementsHeader = "View Document";
+
+		// const returnValue = await this.quickTransactionService.viewStatement();
+		// console.log(returnValue);
 	}
 
     _closePDF() {
@@ -764,12 +771,12 @@ ${
 				<capitec-label class="accountSelectLabel" label="Savings Account" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableSavings}</b></p>
 			</div>
-			<div class="accountSelect save ${this.focusSave}" @click="${(e) => this._accountSelectionChanged(e, `savingsPlans`)}">
+			<div class="accountSelect save ${this.focusSave}" @click="${(e) => this._accountSelectionChanged(e, `savingsPlan`)}">
 				<img src="src/images/statement/savings@1x.png" class="accountSelectIcon"/>
 				<capitec-label class="accountSelectLabel" label="Savings Plans" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableSavingsPlans}</b></p>
 			</div>
-			<div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `creditCards`)}">
+			<div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
 				<img src="src/images/statement/credit@1x.png" class="accountSelectIcon"/>
 				<capitec-label class="accountSelectLabel" label="Credit Card" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableCredit}</b></p>
