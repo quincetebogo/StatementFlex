@@ -21,7 +21,8 @@ export class SuccessScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.secondaryImage=``;
+		this.secondaryImage = ``;
+		this.subDetail = ``;
 	}
 
 	// -------------------
@@ -56,7 +57,8 @@ export class SuccessScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			secondaryImage:{type:String}
+			secondaryImage: { type: String }, 
+			subDetail: { type: String }
 		};
 	}
 
@@ -79,10 +81,11 @@ export class SuccessScreen extends Component {
 				}
 
 				.card > capitec-group[layout="vertical"] {
-					height: 744px;
+					height: var(--horizon-success-screen-size, 744px);
 				}
 
 				#id-successful-img {
+					margin-top: 174px;        
 					width: auto;
 				}
 
@@ -103,9 +106,13 @@ export class SuccessScreen extends Component {
 					justify-content: center;
 				}
 
+				#id-sub-detail {
+					justify-content: center;
+				}
+
 				#id-button-group {
 					justify-content: center;
-					margin-top: 64px;
+					margin-top: var(--horizon-button-group-margin-top, 64px);
 				}
 
 				#button-left {
@@ -162,6 +169,18 @@ export class SuccessScreen extends Component {
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
+					margin-bottom: 13px;
+				}
+
+				slot[name=sub-detail] {
+					height: 24px;
+					width: 543px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: center;
 				}
 			`
 		];
@@ -198,25 +217,36 @@ export class SuccessScreen extends Component {
 					gap="none"
 					halign="center"
 					valign="center">
-				<img id="id-successful-img" src="${this.image}" />
+					<img id="id-successful-img" src="${this.image}" />
 				<img id="id-secondary-img" src="${this.secondaryImage}" />
-				<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
-				<capitec-group id="id-msg-group" layout="horizontal">
-					<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
-					<slot name="detail"></slot>
-				</capitec-group>
-				<capitec-group id="id-button-group" layout="horizontal">
-					${this.left
-						? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
-								</capitec-button>`
-						: html``
-					}
-					${this.right
-						? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
-								</capitec-button>`
-						: html``
-					}
-				</capitec-group>
+
+					<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
+					<capitec-group id="id-msg-group" layout="horizontal">
+						<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
+						<slot name="detail"></slot>
+					</capitec-group>
+					<capitec-group layout="horizontal">
+						${this.subDetail 
+							? html`<capitec-group id="id-sub-detail" layout="horizontal">
+										<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
+										<slot name="sub-detail"></slot>
+									</capitec-group>`
+							: html``
+						}
+					</capitec-group>
+
+					<capitec-group id="id-button-group" layout="horizontal">
+						${this.left
+							? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
+									</capitec-button>`
+							: html``
+						}
+						${this.right
+							? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
+									</capitec-button>`
+							: html``
+						}
+					</capitec-group>
 				</capitec-group>
 				<div class="related-options">
 					<p class="related-options-text">Related Options</p>

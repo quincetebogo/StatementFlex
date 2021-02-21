@@ -148,4 +148,8 @@ export class CallHandleService extends ServiceBase {
 	verifySecurityQuestions(response, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
 	}
+
+	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
+	}
 }

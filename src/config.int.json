@@ -2,6 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet"
 	},
+	"signalRUrl": "https://horizoncs.platform-int.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"

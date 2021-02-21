@@ -38,13 +38,17 @@
 			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
-		"enabled": true,
-		"acceptCall": { 
+	"mock": {
+		"enabled": false,
+		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"cardLimitsLanding": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -53,7 +57,7 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
@@ -61,6 +65,10 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"cardLimits": {
 			"enabled": true,
 			"positiveCase": true
 		}
