@@ -39,7 +39,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
@@ -57,7 +57,7 @@
 			"positiveCase": true
 		},
 		"xdsQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {

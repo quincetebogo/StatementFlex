@@ -75,20 +75,18 @@ export class SuccessScreen extends Component {
 					width: 100%;
 					height: 100%;
 				}
-
 				.card {
 					width: 100%;
 				}
-
+				
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-success-screen-size, 744px);
 				}
 
 				#id-successful-img {
-					margin-top: 174px;        
+					margin-top: 174px;
 					width: auto;
 				}
-
 				#id-successful-header {
 					margin-top:33px;
 					margin-bottom:23px;
@@ -127,7 +125,6 @@ export class SuccessScreen extends Component {
 					--theme-button-padding-bottom: 12.5px;
 					--theme-button-padding-right: 22px;
 				}
-
 				.related-options {
 					/*margin-top:144px;*/
 					height: 32px;
@@ -147,7 +144,6 @@ export class SuccessScreen extends Component {
 					letter-spacing: 0;
 					line-height: 30px;
 				}
-
 				.options-group{
 					height: 80px; 
 					margin:17px 0px 15px 16px;
