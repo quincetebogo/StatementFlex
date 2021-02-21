@@ -34,7 +34,7 @@ export class ProofOfAccount extends View {
             isBusy: { type: Boolean },
             emailAddress: { type: String },
             alertBannerMessage: { type: String },
-            account_open_Date: { type: date },
+            account_open_Date: { attributge: false },
             account_number: {type: String}
         };
     }
