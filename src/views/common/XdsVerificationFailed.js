@@ -119,6 +119,9 @@ export class XdsVerificationFailed extends View {
 				#id-error-msg{
 					width: 550px;
 				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 889px;
+				}
 			`
 		];
 	}
@@ -134,6 +137,7 @@ export class XdsVerificationFailed extends View {
 				left="Continue Unverified"
 				right="Verify Via Banking App"
 				toast="Your Verification has failed."
+				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => this._verifyViaAppClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>

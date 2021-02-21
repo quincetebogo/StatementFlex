@@ -1,4 +1,4 @@
-let mockResponse = []
+let mockResponse = [];
 export default mockResponse = {
 	cards: [
 		{

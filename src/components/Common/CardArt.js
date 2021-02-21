@@ -48,7 +48,7 @@ export class CardArt extends Component {
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof UpdateCardLimits
+	 * @memberof CardArt
 	 */
 	static get properties() {
 		return {
@@ -316,11 +316,11 @@ export class CardArt extends Component {
 							   gap="clear"
 							   halign="right"
 							   valign="top"
-							   class="${this.card.tapToPayStatus === null ? `hide` : `show`}">
+							   class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
 					<capitec-label label="Tap to Pay"
 								   type="default">
 					</capitec-label>
-					<capitec-label label="${this.card.tapToPayStatus}"
+					<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
 								   type="strong">
 					</capitec-label>
 				</capitec-group>
