@@ -68,7 +68,7 @@ export class UpdateCardLimits extends Component {
 	 */
 	static get properties() {
 		return {
-			cardLimits:{ type: Object },
+			cardLimits: { type: Object },
 			updateType: { type: String },
 
 			renderMode: { attribute: false }
@@ -597,7 +597,7 @@ export class UpdateCardLimits extends Component {
 						expandbuttonalignment="left"
 						label="View Agreement">
 							<capitec-content-box class="expander-cb" halign="center" valign="center" gap="none">
-								<capitec-label type
+								<capitec-label 
 									label="Placeholder for agreement">
 								</capitec-label>
 							</capitec-content-box>

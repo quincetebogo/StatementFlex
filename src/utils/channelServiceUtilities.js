@@ -60,7 +60,7 @@ export function getDateOrdinal(date) {
  * @returns {*} Month name (Jan, Feb..)
  */
 export function getMonthName(month) {
-	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 	return monthNames[month];
 }
 

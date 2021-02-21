@@ -14,7 +14,7 @@ const MANDATE_STATUS = {
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
 	SUSPENDED: `Expired`
-}
+};
 
 /**
  * DebiCheck mandates component

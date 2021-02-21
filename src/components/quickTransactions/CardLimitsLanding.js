@@ -70,9 +70,9 @@ export class CardLimitsLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.primaryCards = this.cards.filter(card => card.isSupplementaryCard == false);
-		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard == true && card.isContactlessCard == false);
-		this.virtualCards = this.cards.filter(card => card.isSupplementaryCard == true && card.isContactlessCard == true);
+		this.primaryCards = this.cards.filter(card => card.isSupplementaryCard === false);
+		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && card.isContactlessCard === false);
+		this.virtualCards = this.cards.filter(card => card.isSupplementaryCard === true && card.isContactlessCard === true);
 	}
 
 	// --------------
@@ -319,8 +319,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderPrimaryCards() {
-		return this.primaryCards.map((card, index) => {
-			return html`
+		return this.primaryCards.map((card, index) => html`
 				<horizon-card-art
 					id="primaryCard-widget-${index}"
 					.card="${card}"
@@ -329,8 +328,7 @@ export class CardLimitsLanding extends Component {
 							${this._renderCardAction(card)}
 						</capitec-content-box>
 				</horizon-card-art>
-			`;
-		});
+			`);
 	}
 
 	_renderSupplementaryCardGroup() {
@@ -357,9 +355,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderSupplementaryCards() {
-		return this.supplementaryCards.map((card, index) => {
-
-			return html`
+		return this.supplementaryCards.map((card, index) => html`
 				<horizon-card-art id="supplementaryCard-widget-${index}"
 								  .card="${card}"
 								  .disableHover=${false}>
@@ -367,8 +363,7 @@ export class CardLimitsLanding extends Component {
 						${this._renderCardAction(card)}
 					</capitec-content-box>
 				</horizon-card-art>
-			`;
-		});
+			`);
 	}
 
 	_renderVirtualCardGroup() {
@@ -395,9 +390,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderVirtualCards() {
-		return this.virtualCards.map((card, index) => {
-
-			return html`
+		return this.virtualCards.map((card, index) => html`
 				<horizon-card-art id="virtualCard-widget-${index}"
 								  .card="${card}"
 								  .disableHover=${false}>
@@ -405,8 +398,7 @@ export class CardLimitsLanding extends Component {
 						${this._renderCardAction(card)}
 					</capitec-content-box>
 				</horizon-card-art>
-			`;
-		});
+			`);
 	}
 
 	_renderCardAction(card) {

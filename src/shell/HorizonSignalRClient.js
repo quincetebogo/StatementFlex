@@ -33,10 +33,7 @@ export class HorizonSignalRClient extends SignalRClient {
 	}
 
 	async registerHandler(callback) {
-		await super.on(`ita-verification-status`, async (verificationStatus) => {
-			
-			return callback(verificationStatus);
-		});
+		await super.on(`ita-verification-status`, (verificationStatus) => callback(verificationStatus));
 	}
 
 }
