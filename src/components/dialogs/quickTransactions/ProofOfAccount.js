@@ -33,7 +33,7 @@ export class ProofOfAccount extends View {
 			
             emailAddress: { type: String },
             alertBannerMessage: { type: String },
-            account_open_Date: { type: Date },
+            account_open_Date: { attribute: false },
             account_number: {type: String }
         };
     }

@@ -413,7 +413,6 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
-		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 

@@ -2,6 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
 	},
+	"signalRUrl": "https://horizoncs.platform-dev.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -37,9 +38,9 @@
 			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
+	"mock": {
 		"enabled": true,
-		"acceptCall": { 
+		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
 		},
@@ -47,8 +48,12 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"cardLimitsLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -60,7 +65,11 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": false,
+			"enabled": true,
+			"positiveCase": true
+		},
+		"cardLimits": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}
