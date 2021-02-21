@@ -477,7 +477,7 @@ export class Favourites extends View {
 	}
 
 	_renderFavouritesLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.isLoading
+		return (this.renderMode === RENDER_MODE.MAIN_PAGE || this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT) && !this.isLoading
 			? html`<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
