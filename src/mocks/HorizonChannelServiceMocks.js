@@ -87,7 +87,7 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	cardLimitsLanding(clientInfo) {
+	cardLimitsLanding() {
 		if (this._mocking.cardLimitsLanding.positiveCase) {
 			return this.cardLimitsMocks.mockCards;
 		}
@@ -113,6 +113,15 @@ export class HorizonChannelServiceMocks {
 			}
 		}
 
+		return null;
+	}
+
+	getCardLimits() {
+		if (this._mocking.cardLimits.positiveCase) {
+			return this.cardLimitsMocks.mockCardLimits.cardLimits;
+		}
+
+		// Code for a negative case could come here
 		return null;
 	}
 }

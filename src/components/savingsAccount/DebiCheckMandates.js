@@ -9,6 +9,13 @@ const FILTER_BY = {
 	INACTIVE: 3
 };
 
+const MANDATE_STATUS = {
+	ACTIVE: `Accepted`,
+	INACTIVE: `Expired`,
+	PENDING: `Pending`,
+	SUSPENDED: `Expired`
+};
+
 /**
  * DebiCheck mandates component
  *
@@ -104,9 +111,9 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Pending`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Accepted`);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Expired` || item.mandateStatus === `Declined`);
+		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `PENDING`);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `ACTIVE`);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `INACTIVE` || item.mandateStatus === `SUSPENDED`);
 	}
 	
 	_formatCollectionDate(collectionDate) {
@@ -172,7 +179,7 @@ export class DebiCheckMandates extends Component {
 			super.styles,
 			css`
 				.debi-check {
-					height: 888px;
+					height: 889px;
 					width: 1064px;
 					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
@@ -235,7 +242,7 @@ export class DebiCheckMandates extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
-					height: 768px;
+					height: 761px;
 				}
 				capitec-content-box > .section-header {
 					height: 44px;
@@ -471,10 +478,10 @@ export class DebiCheckMandates extends Component {
 					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
-					${this._renderCell(`Collection date`, this._formatCollectionDate(rowData.collectionDate))}
+					${this._renderCell(`Collection date`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
-					${this._renderCell(`Status`, rowData.mandateStatus)}
+					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
 					${this._renderButtons(rowData.mandateStatus, rowData.mandateId, rowData.registerId)}

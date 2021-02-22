@@ -38,9 +38,9 @@
 			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
-		"enabled": false,
-		"acceptCall": { 
+	"mock": {
+		"enabled": true,
+		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -65,6 +65,10 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"cardLimits": {
 			"enabled": true,
 			"positiveCase": true
 		}

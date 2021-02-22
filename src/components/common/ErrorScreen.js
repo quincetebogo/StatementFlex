@@ -71,18 +71,33 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
+<<<<<<<<< Temporary merge branch 1
+					height: var(--horizon-error-screen-height, 876px);
+					width: 1064px;
+				}
+				#id-unsuccessful-img {
+					margin-top: 174px;
+				}
+				#id-verify-unsuccessful {
+					height: 32px;
+					width: 312px;
+					margin: 0px auto 0px auto;
+					margin-top:51px;
+=========
 					width: 100%;
 				}
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-					width: auto;
+					margin-top: 270px;
+          width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 26px;
 					margin-top: 50px;
 					margin-bottom: 26px;
+>>>>>>>>> Temporary merge branch 2
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 24px;

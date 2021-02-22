@@ -21,8 +21,8 @@ export class SuccessScreen extends Component {
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
-		this.secondaryImage=``;
-		this.sub_detail = ``;
+		this.secondaryImage = ``;
+		this.subDetail = ``;
 	}
 
 	// -------------------
@@ -57,8 +57,8 @@ export class SuccessScreen extends Component {
 			toast: { type: String },
 			displayToast: { type: Boolean },
 			image: { type: String },
-			secondaryImage:{type:String},
-			sub_detail: { type: String }
+			secondaryImage: { type: String }, 
+			subDetail: { type: String }
 		};
 	}
 
@@ -75,19 +75,18 @@ export class SuccessScreen extends Component {
 					width: 100%;
 					height: 100%;
 				}
-
 				.card {
 					width: 100%;
 				}
-
+				
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-success-screen-size, 744px);
 				}
 
 				#id-successful-img {
+					margin-top: 174px;
 					width: auto;
 				}
-
 				#id-successful-header {
 					margin-top:33px;
 					margin-bottom:23px;
@@ -126,7 +125,6 @@ export class SuccessScreen extends Component {
 					--theme-button-padding-bottom: 12.5px;
 					--theme-button-padding-right: 22px;
 				}
-
 				.related-options {
 					/*margin-top:144px;*/
 					height: 32px;
@@ -146,7 +144,6 @@ export class SuccessScreen extends Component {
 					letter-spacing: 0;
 					line-height: 30px;
 				}
-
 				.options-group{
 					height: 80px; 
 					margin:17px 0px 15px 16px;
@@ -212,12 +209,12 @@ export class SuccessScreen extends Component {
                                 @click="${() => this.displayToast = false}">
 				</capitec-toast>
 				<capitec-group
-						layout="vertical"
-						gap="none"
-						halign="center"
-						valign="center">
+				layout="vertical"
+					gap="none"
+					halign="center"
+					valign="center">
 					<img id="id-successful-img" src="${this.image}" />
-					<img id="id-secondary-img" src="${this.secondaryImage}" />
+				<img id="id-secondary-img" src="${this.secondaryImage}" />
 
 					<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
 					<capitec-group id="id-msg-group" layout="horizontal">
@@ -225,7 +222,7 @@ export class SuccessScreen extends Component {
 						<slot name="detail"></slot>
 					</capitec-group>
 					<capitec-group layout="horizontal">
-						${this.sub_detail 
+						${this.subDetail 
 							? html`<capitec-group id="id-sub-detail" layout="horizontal">
 										<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
 										<slot name="sub-detail"></slot>

@@ -39,11 +39,11 @@ export class SuccessfulCardLimitUpdate extends View {
 	// --------------
 
 	_doneClick() {
-		//TODO : Functionality to navigate after card limit successfully updated
+		// TODO : Functionality to navigate after card limit successfully updated
 	}
 
 	_updateCardLimitsClick() {
-		//TODO : Functionality to update card limits
+		// TODO : Functionality to update card limits
 	}
 
 	// --------------
