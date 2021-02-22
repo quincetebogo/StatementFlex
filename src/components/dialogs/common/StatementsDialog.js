@@ -51,7 +51,6 @@ export class StatementsDialog extends Component {
 		this.showDatePicker = false;
 		this.showCalendar = false;
 		this.showHide = "hide";
-		this.range;
 		this.startDate;
 		this.endDate;
 		this.email = "";
@@ -166,14 +165,11 @@ export class StatementsDialog extends Component {
             }
         } else if (this.currentStep == 2 && e.type == "click") {
             if (btn == "next") {
-                if (!this.periodSelected) {
-                    this.infoOrError = "error";
-                    this.errorBannerMessage = "Select a statement period."
-                } else {
+                
                     this.infoOrError = "info";
                     this.nextSend = "Send";
                     this.currentStep++;
-                }
+                
             } else if (btn == "back") {
                 this.currentStep--;
             } else if (btn == "cancel") {
@@ -312,7 +308,6 @@ export class StatementsDialog extends Component {
     _changeDateRange(days) {
         this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
         this.endDate = new Date();
-        this.range = days;
     }
 
     _periodChange(e, days) {
@@ -362,13 +357,14 @@ export class StatementsDialog extends Component {
 
     _calendarSelectionChange(e) {
         var newDate = e.detail.new.date;
-        var dateDiff = this.range;
+		this.startDate = newDate;
+		this.endDate = new Date();
         var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
         var roundedRangeDiff = Math.floor(rangeDiff);
 
         console.log(rangeDiff)
 
-        if (roundedRangeDiff > dateDiff) {
+        if (roundedRangeDiff > 90) {
             this.infoOrError = "error";
             this.errorBannerMessage = "Out of range."
         }
@@ -428,6 +424,7 @@ export class StatementsDialog extends Component {
 		if (returnValue) {
 			if (returnValue.succeeded) {
 				//render the PDF
+				this.viewStatementPDF = returnValue;
 			} else {
 				//render an error
 			}
@@ -889,7 +886,7 @@ ${
 						</div>
 						<div class="savingsPlanLabel">
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
-							<capitec-label label="Up to ${this.periodSelected} days"></capitec-label>
+							<capitec-label label="Up to 90 days"></capitec-label>
 						</div>
 					</div>
 				</capitec-radio-group>
@@ -929,8 +926,8 @@ ${
 		<capitec-label class="chooseText" type="subtitle" label="View document"></capitec-label>
 		<div class="viewDocument">
 			<div class="labelSpace">
-				<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
-				<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
+				<capitec-label class="docLabel" label="1 Month (30 Days)" type="subtitle"></capitec-label>
+				<capitec-label class="docLabel" label="Last 30 days"></capitec-label>
 			</div>
 			<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
 		</div>
@@ -941,7 +938,7 @@ ${
     _renderPDFViewer() {
         return html`
 			<div slot="body" class="body">
-			
+			<embed type="application/pdf" src="${this.viewStatementPDF}" />
 			</div>
 				<capitec-button slot="footer" type="primary" label="Close" class="pdfClose" @click="${this._closePDF}"></capitec-button>
 
