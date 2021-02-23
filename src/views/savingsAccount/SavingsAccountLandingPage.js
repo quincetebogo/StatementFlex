@@ -2,7 +2,17 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+
 import 'app/components/savingsAccount/SavingAccount';
+import 'app/components/savingsAccount/TransactionHistory';
+import 'app/components/savingsAccount/DebiCheckMandates';
+
+const RENDER_MODE = Object.freeze({
+	MAIN_PAGE: 0,
+	END_CALL: 1,
+	TRANSACTION_HISTORY: 2,
+	DEBI_CHECK_PAGE: 3
+});
 
 /**
  * Savings Account View
@@ -36,6 +46,8 @@ export class SavingsAccountLandingPage extends View {
 		// private properites
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// -------------------
@@ -54,12 +66,21 @@ export class SavingsAccountLandingPage extends View {
 
 	static get properties() {
 		return {
+			renderMode: { attribute: false }
 		};
 	}
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_optionClick(event) {
+		if (event.detail.option === `transaction-history`) {
+			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+		} else if (event.detail.option === `debi-check`) {
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		}
+	}
 	
 	// --------------
 	// PUBLIC METHODS
@@ -103,6 +124,9 @@ export class SavingsAccountLandingPage extends View {
 	}
 
 	_updateLeftBar() {
+		const subtitle = ``;
+		const detail = ``;
+
 		const state = {
 			miniProfile: {
 				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
@@ -158,9 +182,28 @@ export class SavingsAccountLandingPage extends View {
 
 	_webTemplate() {
 		return html`
-			<horizon-savings-account
-				class="savingsaccount">
-			</horizon-savings-account>`;
+			${this._renderSavingsLandingPage()}
+			${this._renderTransactionHistory()}
+			`;
+	}
+
+	_renderSavingsLandingPage() {
+		return this.renderMode === RENDER_MODE.MAIN_PAGE 
+			? html`
+				<horizon-savings-account
+					class="savingsaccount"
+					@option-click="${(event) => this._optionClick(event)}">
+				</horizon-savings-account>`
+			: html``;
+	}
+
+	_renderTransactionHistory() {
+		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY 
+			? html`
+				<horizon-transaction-history
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</horizon-transaction-history>`
+			: html``;
 	}
 }
 

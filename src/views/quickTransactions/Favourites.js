@@ -15,6 +15,7 @@ import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
+import 'app/views/quickTransactions/SearchOtherNeed';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -27,7 +28,9 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_APPROVE: 7,
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
-	UPDATE_CARD_LIMITS: 10
+    UPDATE_CARD_LIMITS: 10,
+    PROOF_OF_ACCOUNT: 11,
+	SEARCH_OTHER_NEED:12
 });
 
 /**
@@ -115,6 +118,7 @@ export class Favourites extends View {
 			const statements = () => this._getStatements();
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
+			const searchOtherNeed=()=>this._searchOtherNeed()
 
 			const actions = {
 				'stop-card': stopCard,
@@ -123,7 +127,8 @@ export class Favourites extends View {
 				'tap-to-pay': tapToPay,
 				'statements': statements,
 				'tax-certificate': taxCertificates,
-				'proof-of-account': proofOfAccount
+				'proof-of-account': proofOfAccount,
+				'search-other-need':searchOtherNeed
 			};
 
 			if (actions[option]) {
@@ -214,7 +219,7 @@ export class Favourites extends View {
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.landingPageInfo.cifNumber, event.detail.mandateId, event.detail.registerId);
+			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
 			if (returnValue.succeeded && returnValue.result) {
 				this.debiCheckDetails = returnValue.result;
 				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
@@ -227,7 +232,7 @@ export class Favourites extends View {
 	async _declineDebiCheckMandate(event) {
 		this.mandateId = event.detail.mandateId;
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.landingPageInfo.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -254,8 +259,8 @@ export class Favourites extends View {
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 			 
 			 if (returnValue.succeeded) {
-			 	this.isLoading = false;
-			 	this.landingPageInfo = returnValue.result;
+                 this.isLoading = false;
+                 this.landingPageInfo = returnValue.result;
 
 			 	// Now we can update the information on the product buttons as well
 			 	this._updateLeftBar();
@@ -365,7 +370,7 @@ export class Favourites extends View {
 	}
 
 	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.landingPageInfo.cifNumber);
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 
 		if (returnValue.succeeded) {
 			this.debiCheckMandates = returnValue.result && returnValue.result.mandateSummaryList;
@@ -374,6 +379,7 @@ export class Favourites extends View {
 			// Todo: Handle error scenario
         }
 	}
+
 
 	_updateCardLimits() {
 		this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
@@ -394,10 +400,17 @@ export class Favourites extends View {
 
 	_proofOfAccount() {
 		// TODO: Functionality to generate proof of account comes here
+        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+
 	}
 
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
+	}
+
+	_searchOtherNeed(){
+		//TODO: Navigation to search other needs page 
+		this.renderMode=RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------
@@ -440,6 +453,8 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+            ${this._renderProofOfAccount()}
+			${this._renderSearchOtherNeed()}
 		`;
 	}
 
@@ -543,6 +558,29 @@ export class Favourites extends View {
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-update-card-limits>`
 			: html``;
+    }
+
+    _renderProofOfAccount() {
+        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+            ? html`
+                <horizon-proof-of-account
+                    .incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+                    .landingPageInfo="${this.landingPageInfo}"
+                    ></horizon-proof-of-account>`
+            : html``; 
+    }
+
+	_renderSearchOtherNeed(){
+		return this.renderMode=== RENDER_MODE.SEARCH_OTHER_NEED
+		? html`
+		<search-other-need
+		    .incomingCallDetails="${this.incomingCallDetails}"
+		    .callerInformation="${this.callerInformation}"
+            .landingPageInfo="${this.landingPageInfo}"
+			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+		</search-other-need>`
+		: html``;
 	}
 }
 

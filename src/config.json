@@ -48,7 +48,7 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -60,7 +60,7 @@
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
