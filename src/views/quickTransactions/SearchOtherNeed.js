@@ -112,6 +112,10 @@ this.dataObjects = [
 	_chooseIssueType(e) {
 		this.solutionDisplay = false;
 	}
+
+	_onLaunchStrackClick() {
+
+	}
 // ---------
 	// RENDERING
 	// ---------
