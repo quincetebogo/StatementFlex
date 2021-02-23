@@ -326,7 +326,7 @@ export class FavouriteTransactions extends Component {
 
 	_renderSearchOtherNeed() {
 		return html`
-				<capitec-title-bar type="default" label="Search other need(not on Horizon)"></capitec-title-bar>
+				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Search Other Need" icon="system/search-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`search-other-need`)}"
