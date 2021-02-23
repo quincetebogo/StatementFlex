@@ -1,5 +1,7 @@
 import { View, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 export class ProofOfAccount extends View {
     /*
@@ -8,6 +10,7 @@ export class ProofOfAccount extends View {
     constructor() {
         super();
         // Variables
+        this.horizonRouter = HorizonRouter.getInstance();
         this.id_emailAddress = ``;
         this.id_confirmEmail = ``;
         this.isBusy = false;
@@ -19,10 +22,11 @@ export class ProofOfAccount extends View {
 
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.savingAccInfo = {};
-        this.landingPageInfo = ``;
+        this.landingPageInfo = this.state.landingPageInfo;
 
         this.horizonStore = HorizonStore.getInstance();
+
+        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
     }
 
@@ -31,11 +35,12 @@ export class ProofOfAccount extends View {
      */
     static get properties() {
         return {
-            isBusy: { type: Boolean },
-            emailAddress: { type: String },
-            alertBannerMessage: { type: String },
-            account_open_Date: { type: date },
-            account_number: {type: String}
+            isBusy: { attribute: false },
+            emailAddress: { attribute: false },
+            alertBannerMessage: { attribute: false },
+            account_open_Date: { attribute: false },
+            account_number: { attribute: false },
+            account_type: {attribute:false}
         };
     }
 
@@ -46,7 +51,9 @@ export class ProofOfAccount extends View {
         super.connectedCallback();
         //holding values in your page
         this.emailAddress = null;
-        //TODO: add values used in screen such as acc number and open date
+        this.account_open_Date = null;
+        this.account_number = null;
+        this.account_type = null;
     }
 
     /*
@@ -54,7 +61,7 @@ export class ProofOfAccount extends View {
      */
 
 
-    _sendClick() {
+   async _sendClick() {
         if (this._validateEmail()) {
             //get account open date and number and save to state
             const state = {
@@ -64,13 +71,28 @@ export class ProofOfAccount extends View {
 
             this.horizonStore.saveState(state);
 
-            //add service call
-            //if(this._serviceCall()){
-            //navigate to success}
-            //else {
-            //navigate to unsuccess}
+            const clientInfo = {
+                "cifNumber": this.callerInformation.cifNumber,
+                "account_number": this.landingPageInfo.account_number,
+                "account_open_Date": this._formatDate(this.landingPageInfo.account_open_Date),
+                "emailAddress": this.emailAddress,
+                "account_type": this.landingPageInfo.account_type
+            };
+            
+            const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+            if (returnValue.succeeded) {
+                this.horizonRouter.navigateToStatementSuccessful();
+            } else {
+                this.horizonRouter.navigateToStatementUnsuccessful();
+            }
         }
 
+    }
+
+    _formatDate(dateToFormat) {
+        var tempdate = dateToFormat.toISOString().slice(0, 10);
+        return tempdate;
     }
 
     _cancelClick() {
@@ -80,15 +102,6 @@ export class ProofOfAccount extends View {
     /*
      * PRIVATE METHODS
      */
-
-    _serviceCall() {
-        //TODO
-       // /clientcare/documents / v1 / client / send - proof - of - account 
-
-        //fetch('url')
-        //.then(response => { return response.json(); })
-        //.then(user=>{console.log(user);})
-    }
 
     _validateEmail() {
         var emailAddress = this.id_emailAddress;
@@ -126,6 +139,11 @@ export class ProofOfAccount extends View {
 
     _isNullorEmpty(fieldValue) {
         return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+    }
+
+    _errorHandler(ex) {
+
+        return true;
     }
 
     /*
@@ -217,7 +235,6 @@ export class ProofOfAccount extends View {
 
 
     _webTemplate() {
-        console.log("render");
         return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">

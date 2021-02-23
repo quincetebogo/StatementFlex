@@ -380,5 +380,18 @@ export class HorizonChannelService extends Service {
 				`IsCallerVerified=${clientInfo.isCallerVerified}`;
 
 		return this._get(url, this._setToken(), `favouritesLanding`);
-	}
+    }
+
+    sendProofOfAccount(clientInfo) {
+        const url = `?/clientcare?/documents?/${this._version}?/statements?/send-proof-of-account`;
+
+        return this._get(url, this._setToken(), `sendProofOfAccount`);
+    }
+
+    viewProofOfAccount(clientInfo) {
+        const url = `?/clientcare?/documents?/${this._version}?/statements?/view-proof-of-account`;
+
+        return this._get(url, this._setToken(), `viewProofOfAccount`);
+    }
+
 }
