@@ -1,4 +1,4 @@
-import { Logger, Security, Service } from 'platform/core';
+import { Configuration, Logger, Security, Service } from 'platform/core';
 import { v4 } from 'uuid';
 
 /**
@@ -23,13 +23,60 @@ export class HorizonChannelService extends Service {
 		});
 
 		this._version = `v1`;
+		this._mocking = null;
+		this._mock = null;
 
+		this._configuration = Configuration.getInstance();
 		this._logger = Logger.getInstance();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	/**
+	 * Determine if mocking is enabled for the specified method
+	 *
+	 * @param {string} mockName Mock name/method name in the config.json file
+	 * @returns {Promise<boolean>} A promise for a boolean that is true if the mock is enabled
+	 * @memberof HorizonChannelService
+	 */
+	async _mockEnabled (mockName) {
+		if (this._mocking === null) {
+			try {
+				this._mocking = await this._configuration.getSetting(`mock`);
+
+				// Disable mocking in the SLDC environments. Only for local development
+				if (this._configuration.config.runtime.environment !== `LOCAL`) {
+					this._mocking = { enabled: false }; 
+					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
+				}
+			} catch {
+				// disable mocking if the setting is not present
+				this._mocking = { enabled: false }; 
+				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
+			}
+
+			if (this._mocking.enabled) {
+				// Dynamically load the configured mocks
+				this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
+				this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
+				await this._mock.initialise(this._mocking);
+			}
+		}
+
+		// Check if mocking is switched off globally
+		if (!this._mocking.enabled) {
+			return false;
+		}
+
+		// Check if specified mock is configured and enabled
+		if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+			return this._mocking[mockName].enabled;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Wraps the platform's post method
@@ -110,6 +157,13 @@ export class HorizonChannelService extends Service {
 		}
 	}
 
+	/**
+	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
+	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
+	 *
+	 * @returns {object} The X-User-Token custom header object
+	 * @memberof HorizonChannelService
+	 */
 	_setToken() {
 		return {
 			"X-User-Token": Security.getInstance().token
@@ -131,15 +185,19 @@ export class HorizonChannelService extends Service {
 	 * @returns {Promise<*>} Caller information if the call is originating from a verified number
 	 * @memberof HorizonChannelService
 	 */
-	acceptCall(incomingCallData) {
-			const url = `/clientcare/call/${this._version}/accept-call?` +
-				`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
-				`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
-				`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
-				`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
-				`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
+	async acceptCall(incomingCallData) {
+		if (await this._mockEnabled(`acceptCall`)) {
+			return this._mock.acceptCall(incomingCallData);
+		}
 
-			return this._get(url, this._setToken(), `acceptCall`);
+		const url = `/clientcare/call/${this._version}/accept-call?` +
+			`incomingTelephoneNumber=${incomingCallData.incomingTelephoneNumber}&` +
+			`voiceReferenceNumber=${incomingCallData.voiceReferenceNumber}&` +
+			`ivrOptionCode=${incomingCallData.ivrOptionCode}&` +
+			`incidentReferenceNumber=${incomingCallData.incidentReferenceNumber}&` +
+			`agentTelephoneNumber=${incomingCallData.agentTelephoneNumber}`;
+
+		return this._get(url, this._setToken(), `acceptCall`);
 	}
 
 	// addCallerDetailsRequest
@@ -153,7 +211,7 @@ export class HorizonChannelService extends Service {
 			'agentTelephoneNumber': callerData.agentPhoneNumber
 		};
 
-		return this._post(url, model, null, `addCallerDetails`);
+		return this._post(url, model, this._setToken(), `addCallerDetails`);
 	}
 
 	// ----------------
@@ -177,7 +235,7 @@ export class HorizonChannelService extends Service {
 				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
 				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
 				`EndCallContext=${endCallDetails.endCallContext}`, 
-			null, 
+				this._setToken(), 
 			`loadEndCallOptions`
 		);
 	}
@@ -196,7 +254,7 @@ export class HorizonChannelService extends Service {
 				"incidentRecId": incidentRecId,
 				"endReason": reasonCode
 			},
-			null,
+			this._setToken(),
 			`endCall`
 		);
 	}
@@ -213,7 +271,7 @@ export class HorizonChannelService extends Service {
 			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
 		};
 
-		return this._post(url, model, null, `stopCard`);
+		return this._post(url, model, this._setToken(), `stopCard`);
 	}
 
 	// loadAssignRequest
@@ -223,7 +281,7 @@ export class HorizonChannelService extends Service {
 				"cardIds": incidentData.cardIds,
 				"incidentRecId": incidentData.incidentRecId
 			},
-			null,
+			this._setToken(),
 			`assignTeams`
 		);
 	}
@@ -236,7 +294,7 @@ export class HorizonChannelService extends Service {
 				"incidentRecId": assignData.incidentRecId,
 				"team": assignData.Everyteam
 			},
-			null,
+			this._setToken(),
 			`assign`
 		);
 	}
@@ -275,7 +333,7 @@ export class HorizonChannelService extends Service {
 				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
 				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
 			},
-			null,
+			this._setToken(),
 			`searchOptions`
 		);
 	}
@@ -301,7 +359,7 @@ export class HorizonChannelService extends Service {
 	initialise() {
 		const url = `/clientcare/initialise/${this._version}`;
 
-		return this._get(url, null, `initialise`);
+		return this._get(url, this._setToken(), `initialise`);
 	}
 
 	// newIncidentRequest
@@ -309,7 +367,7 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/initialise/${this._version}/CreateIncident`;
 		const model = createIncidentRequest;
 
-		return this._post(url, model, null, `createIncident`);
+		return this._post(url, model, this._setToken(), `createIncident`);
 	}
 
 	// --------------
@@ -335,7 +393,7 @@ export class HorizonChannelService extends Service {
 				'surname': callerData.surname,
 				'cellPhone': callerData.cellPhone
 			},
-			null, 
+			this._setToken(), 
 			`addNonClientDetails`
 		);
 	}
@@ -347,7 +405,7 @@ export class HorizonChannelService extends Service {
 				'feedback': feedbackDetails.feedback,
 				'updateIncident': feedbackDetails.updateIncident
 			},
-			null,
+			this._setToken(),
 			`calculatePremiumDone`
 		);
 	}
@@ -356,30 +414,90 @@ export class HorizonChannelService extends Service {
 	// XDS Questions Methods
 	// ---------------------
 
-	xdsQuestions(clientID) {
-		const url = `/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`;
+	async xdsQuestions(clientID) {
+		if (await this._mockEnabled(`xdsQuestions`)) {
+			return this._mock.xdsQuestions(clientID);
+		}
 
-		return this._get(url, null, `xdsQuestions`);
+		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
 	}
 
-	verifySecurityQuestions(answers) {
-		const url = `/clientcare/call/${this._version}/xds-questions`;
-		const model = answers;
+	async verifySecurityQuestions(answers) {
+		if (await this._mockEnabled(`verifySecurityQuestions`)) {
+			return this._mock.verifySecurityQuestions(answers);
+		}
 
-		return this._post(url, model, null, `verifySecurityQuestions`);
+		return this._post(`/clientcare/call/${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`);
 	}
 
 	// ------------------
 	// Favourites Methods
 	// ------------------
 
-	favouritesLanding(clientInfo) {
-			const url = `/clientcare/favourites/${this._version}/landing?` +
-				`CifNumber=${clientInfo.cifNumber}&` +
-				`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
-				`IsCallerVerified=${clientInfo.isCallerVerified}`;
+	async favouritesLanding(clientInfo) {
+		if (await this._mockEnabled(`favouritesLanding`)) {
+			return this._mock.favouritesLanding(clientInfo);
+		}
+
+		const url = `/clientcare/favourites/${this._version}/landing?` +
+			`CifNumber=${clientInfo.cifNumber}&` +
+			`NationalIDNumber=${clientInfo.nationalIDNumber}&` +
+			`IsCallerVerified=${clientInfo.isCallerVerified}`;
 
 		return this._get(url, this._setToken(), `favouritesLanding`);
+	}
+
+	async cardLimitsLanding(cifNumber) {
+		if (await this._mockEnabled(`cardLimitsLanding`)) {
+			return this._mock.cardLimitsLanding(cifNumber);
+		}
+
+		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	async getCardLimits(cardDetails) {
+		if (await this._mockEnabled(`cardLimits`)) {
+			return this._mock.getCardLimits();
+		}
+
+		const url = `/clientcare/card/${this._version}/temporary-limits`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	// --------------------------
+	// Debi Check Mandate Methods
+	// --------------------------
+
+	async debiCheckMandates(cifNumber) {
+		if (await this._mockEnabled(`debiCheckMandates`)) {
+			return this._mock.debiCheckMandates(cifNumber);
+		}
+
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandates`;
+		return this._get(url, this._setToken(), `debiCheckMandates`);
+	}
+
+	async debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (await this._mockEnabled(`debiCheckDetails`)) {
+			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
+		}
+
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
+		return this._get(url, this._setToken(), `debiCheckDetails`);
+	}
+
+	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
+		return this._post(url, model, this._setToken(), `debiCheckDecline`);
+	}
+
+	itaVerification(request) {
+		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`);
+	}
+
+
     }
 
     sendProofOfAccount(clientInfo) {
