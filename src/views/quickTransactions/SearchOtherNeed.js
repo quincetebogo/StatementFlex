@@ -5,6 +5,10 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
+
+const RENDER_MODE = Object.freeze({
+    FEEDBACK = 0;
+});
 /**
  * Search Other Need component
  *
@@ -122,7 +126,7 @@ this.dataObjects = [
 	_onLaunchStrackClick() {
         this.strackURL = this.strackURL.replace("$incidentRecId", this.incidentRecId);
         window.open(this.strackURL);
-        this._renderFeedback();
+        this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 // ---------
 	// RENDERING
@@ -303,11 +307,14 @@ this.dataObjects = [
      }
 
      _renderFeedback() {
-         return html`
+         if (this.renderMode === RENDER_MODE.FEEDBACK) {
+             return html`
          <horizon-feedback>
 
          </horizon-feedback>
-`;
+         `;
+         }
+         return html``;
      }
 
  }
