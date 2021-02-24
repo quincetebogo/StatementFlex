@@ -65,8 +65,8 @@ this.dataObjects = [
         ];
 
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.strack_url = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$recId&frameless=false`
-        this.recID = incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
+        this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
+        this.incidentRecId = incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
 
 	}
 	// --------------
@@ -120,8 +120,8 @@ this.dataObjects = [
 	}
 
 	_onLaunchStrackClick() {
-        this.strack_url = this.strack_url.replace("$recId", this.recID);
-        window.open(this.strack_url);
+        this.strackURL = this.strackURL.replace("$incidentRecId", this.incidentRecId);
+        window.open(this.strackURL);
         this._renderFeedback();
 	}
 // ---------
