@@ -276,11 +276,12 @@ export class StopCardSearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
+		} else {
+			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 		}
 	}
 
 	extractIdentificationMethods(identificationMethods) {
-
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
 			Object.assign(identificationMethod, identificationMethod.value);
@@ -311,7 +312,6 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	isRequiredFieldsEmpty() {
-
 		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_TEXT : ``;
 		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_OPTION : ``;
 

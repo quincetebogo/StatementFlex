@@ -229,6 +229,8 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 			}
 		}
 	}
@@ -411,12 +413,11 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
-		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
 	_handleSearchClientException(exception) {
-		this.horizonRouter.navigateToSystemError();
+		// We stay on the search dialog and display an error if their is a CS  call failure
 		return true;
 	}
 

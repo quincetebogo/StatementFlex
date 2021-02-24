@@ -44,8 +44,20 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.disableNavigation = true;
 		this.hasFavourites = false;
-		this.subtitle = {};
-		this.detail = null;
+
+		this.subtitle = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
+
+		this.detail = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -64,21 +76,17 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	/**
 	 *
-	 * @property {Object} miniProfile Object holds client profile information
-	 * @property {Boolean} disableNavigation Flag to disable navigation to client need landing pages
-	 * @property {Boolean} disableNavigation Flag to disable navigation to client need landing pages
-	 * 
 	 * @readonly
 	 * @static
 	 * @memberof ProfileAndProductSummaryBar
 	 */
 	static get properties() {
 		return {
-			miniProfile: { type: Object },
-			disableNavigation: { type: Boolean },
-			hasFavourites: { type: Boolean },
-			subtitle: { type: Object },
-			detail: { type: Object }
+			miniProfile: { attribute: false },
+			disableNavigation: { attribute: false },
+			hasFavourites: { attribute: false },
+			subtitle: { attribute: false },
+			detail: { attribute: false }
 		};
 	}
 
