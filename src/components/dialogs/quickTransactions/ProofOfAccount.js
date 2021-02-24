@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
+
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
@@ -11,6 +12,8 @@ export class ProofOfAccount extends View {
         super();
         // Variables
         this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
         this.id_emailAddress = ``;
         this.id_confirmEmail = ``;
         this.isBusy = false;
@@ -20,11 +23,9 @@ export class ProofOfAccount extends View {
         };
         this.label_err = ``;
 
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.landingPageInfo = this.state.landingPageInfo;
+        this.savingAccInfo = {};
+        this.landingPageInfo = {};
 
-        this.horizonStore = HorizonStore.getInstance();
 
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
@@ -35,6 +36,9 @@ export class ProofOfAccount extends View {
      */
     static get properties() {
         return {
+			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
             isBusy: { attribute: false },
             emailAddress: { attribute: false },
             alertBannerMessage: { attribute: false },

@@ -446,4 +446,46 @@ export class HorizonChannelService extends Service {
 
 		return this._get(url, this._setToken(), `favouritesLanding`);
 	}
+
+	async cardLimitsLanding(cifNumber) {
+		if (await this._mockEnabled(`cardLimitsLanding`)) {
+			return this._mock.cardLimitsLanding(cifNumber);
+		}
+		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	async getCardLimits(cardDetails) {
+		if (await this._mockEnabled(`cardLimits`)) {
+			return this._mock.getCardLimits();
+		}
+		const url = `/clientcare/card/${this._version}/temporary-limits`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	async debiCheckMandates(cifNumber) {
+		if (await this._mockEnabled(`debiCheckMandates`)) {
+			return this._mock.debiCheckMandates(cifNumber);
+		}
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandates`;
+		return this._get(url, this._setToken(), `debiCheckMandates`);
+	}
+
+	async debiCheckDetails(cifNumber, mandateId, registerId) {
+		if (await this._mockEnabled(`debiCheckDetails`)) {
+			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
+		}
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
+		return this._get(url, this._setToken(), `debiCheckDetails`);
+	}
+
+	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
+		return this._post(url, model, this._setToken(), `debiCheckDecline`);
+	}
+	
+	itaVerification(request) {
+		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`);
+	}
 }
