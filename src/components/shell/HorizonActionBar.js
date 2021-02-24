@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
@@ -20,7 +21,10 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
-		this.isHidden = false;
+        this.isHidden = false;
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -67,7 +71,8 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-	_onAssign() {
+    _onAssign() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
 	}
 

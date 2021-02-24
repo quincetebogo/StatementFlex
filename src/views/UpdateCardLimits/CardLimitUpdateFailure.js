@@ -13,7 +13,11 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		super();
 
 		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
+        this.card2 = `5238 **** **** 8907`;
+
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -42,7 +46,8 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		// TODO : Functionality to navigate after card limit successfully updated
 	}
 
-	_onHandoff() {
+    _onHandoff() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		// TODO : Functionality to update card limits
 	}
 

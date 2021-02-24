@@ -48,7 +48,10 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 		this.isReassigned = false;
 
-		this.failedCards = [];
+        this.failedCards = [];
+
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = incomingCallDetails.incidentRecId;
 
 	}
 
@@ -146,7 +149,8 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
-		this.isReassigned = true;
+        this.isReassigned = true;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 

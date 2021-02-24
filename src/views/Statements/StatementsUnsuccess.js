@@ -32,7 +32,10 @@ export class StatementsUnsuccess extends View {
 		this.encryptedCardId = `5284 **** **** 1322`;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = incomingCallDetails.incidentRecId;
 	}
 
 
@@ -87,7 +90,8 @@ export class StatementsUnsuccess extends View {
 		this.horizonRouter.navigateToReturnPage(`done`);
 	}
 
-	_handoffClick() {
+    _handoffClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.horizonRouter.navigateToReturnPage(`handoff`);
 	}
 

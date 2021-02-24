@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { Utilities } from '@cb/platform-web-core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'platform/components';
 
@@ -59,7 +60,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.isReassigned = false;
+        this.isReassigned = false;
+
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -257,7 +262,8 @@ export class StopCard extends Component {
 	}
 
 	_onHandOff(e) {
-		this.isReassigned = true;
+        this.isReassigned = true;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 

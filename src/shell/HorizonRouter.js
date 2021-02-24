@@ -45,7 +45,8 @@ export class HorizonRouter {
 		this.verificationStatus = ``;
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
-		this.router = Router.getInstance();
+        this.router = Router.getInstance();
+        this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`;
 	}
 
 	static getInstance() {
@@ -200,7 +201,13 @@ export class HorizonRouter {
 
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
-	}
+    }
+
+    navigateToStrack(incidentRecId) {
+        //get the rec id and replace the keyword in the constant url
+        this.strackURL = this.strackURL.replace("$incidentRecId", incidentRecId);
+        window.open(this.strackURL);
+    }
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
