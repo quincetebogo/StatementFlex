@@ -97,6 +97,7 @@ export class FavouriteTransactions extends Component {
 		}));
 	};
 
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -225,6 +226,7 @@ export class FavouriteTransactions extends Component {
 						${this._renderTransactSection()}
 						${this._renderCardsSection()}
 						${this._renderDocumentsSections()}
+						${this._renderSearchOtherNeed()}
 					</capitec-group>
 				</capitec-card>
 			`;
@@ -316,6 +318,18 @@ export class FavouriteTransactions extends Component {
 					</horizon-option-button>
 					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
+					</horizon-option-button>
+				</capitec-button-bar>
+		`;
+	}
+
+	_renderSearchOtherNeed() {
+		return html`
+				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
+				<capitec-button-bar>
+					<horizon-option-button label="Search Other Need" icon="system/search-action" iconSize="default"
+						@click="${() => this._optionSelectedClick(`search-other-need`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
 				</capitec-button-bar>
