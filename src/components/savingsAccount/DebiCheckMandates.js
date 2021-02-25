@@ -111,9 +111,9 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `PENDING`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `ACTIVE`);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `INACTIVE` || item.mandateStatus === `SUSPENDED`);
+		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `PENDING`);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `ACTIVE`);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `INACTIVE` || item.mandateStatus.toUpperCase() === `SUSPENDED`);
 	}
 	
 	_formatCollectionDate(collectionDate) {
