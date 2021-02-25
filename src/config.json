@@ -44,16 +44,16 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"stopCard": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"favouritesLanding": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -64,12 +64,16 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"debiCheckMandates": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckDetails": {
 			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}
