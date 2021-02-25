@@ -497,5 +497,14 @@ export class HorizonChannelService extends Service {
     viewProofOfAccount(clientInfo) {
         const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
-    }
+	}
+  
+	savingsAccountLanding (cifNumber,nationalIDNumber,getGenericData) {	
+		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
+		`CifNumber=${cifNumber}&` +
+		`NationalIDNumber=${nationalIDNumber}&` +
+		`GetGenericData=${getGenericData}`;
+
+		return this._get(url, this._setToken(), `savingsAccountLanding`);
+	}  
 }
