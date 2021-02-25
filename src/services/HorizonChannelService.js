@@ -487,5 +487,15 @@ export class HorizonChannelService extends Service {
 	itaVerification(request) {
 		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`);
-	}
+    }
+
+    sendProofOfAccount(clientInfo) {
+        const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+    }
+
+    viewProofOfAccount(clientInfo) {
+        const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+    }
 }
