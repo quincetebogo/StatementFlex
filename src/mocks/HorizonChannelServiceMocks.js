@@ -40,6 +40,7 @@ export class HorizonChannelServiceMocks {
 
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
@@ -86,6 +87,15 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
+	cardLimitsLanding() {
+		if (this._mocking.cardLimitsLanding.positiveCase) {
+			return this.cardLimitsMocks.mockCards;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
 	debiCheckMandates(cifNumber) {
 		if (this._mocking.debiCheckMandates.positiveCase) {
 			return this.mandatesMocks.mockMandates;
@@ -103,6 +113,15 @@ export class HorizonChannelServiceMocks {
 			}
 		}
 
+		return null;
+	}
+
+	getCardLimits() {
+		if (this._mocking.cardLimits.positiveCase) {
+			return this.cardLimitsMocks.mockCardLimits.cardLimits;
+		}
+
+		// Code for a negative case could come here
 		return null;
 	}
 }
