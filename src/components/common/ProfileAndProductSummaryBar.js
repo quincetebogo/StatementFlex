@@ -44,8 +44,20 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.disableNavigation = true;
 		this.hasFavourites = false;
-		this.subtitle = {};
-		this.detail = null;
+
+		this.subtitle = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
+
+		this.detail = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();

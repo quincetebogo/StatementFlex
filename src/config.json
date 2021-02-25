@@ -39,13 +39,13 @@
 		}
 	],
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
