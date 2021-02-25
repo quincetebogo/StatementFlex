@@ -546,7 +546,7 @@ export class DebiCheckMandates extends Component {
 				<img src="/images/debi-check/debi-check-logo.svg" class="debi-check-logo"/>
 				<capitec-label
 					class="no-results"
-					label="No results found"
+					label="No DebiCheck mandates on the account"
 					type="strong">
 				</capitec-label>
 			</capitec-group>
