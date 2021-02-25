@@ -26,6 +26,7 @@ export class FavouriteTransactions extends Component {
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
+		this.selected = true;
 	}
 
 	// --------------
@@ -297,7 +298,8 @@ export class FavouriteTransactions extends Component {
 				<capitec-button-bar>
 					<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`stop-card`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
+						?disabled="${this.verificationStatus === `non-client`}"
+						?selected="${this.selected}">
 					</horizon-option-button>
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"

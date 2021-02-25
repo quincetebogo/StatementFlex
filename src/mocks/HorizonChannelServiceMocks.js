@@ -15,16 +15,21 @@ export class HorizonChannelServiceMocks {
 	 * @memberof HorizonChannelServiceMocks
 	 */
 	_loadMockModule(mockObj, mockName, doImport) {
-		if (!mockObj) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
-				if (this._mocking[mockName].enabled) {
-					return doImport();
+		try {
+			if (!mockObj) {
+				if (Object.prototype.hasOwnProperty.call(this._mocking, mockName)) {
+					if (this._mocking[mockName].enabled) {
+						return doImport();
+					}
+				} else {
+					this._mocking[mockName] = { enabled: false };
 				}
-			} else {
-				this._mocking[mockName] = { enabled: false };
 			}
+			return mockObj;
 		}
-		return mockObj;
+		catch (exception) {
+			return null;
+		}
 	}
 
 	/**
@@ -39,6 +44,7 @@ export class HorizonChannelServiceMocks {
 		this._mocking = mocking;
 
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`));
+		this.stopCardMocks = await this._loadMockModule(this.stopCardMocks, `stopCard`, () => import(`../mocks/StopCardMockData`));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
@@ -62,6 +68,14 @@ export class HorizonChannelServiceMocks {
 
 		// Code for a negative case could come here
 		return null;
+	}
+
+	stopCard() {
+		if (this._mocking.stopCard.positiveCase) {
+			const mockResponse = this.stopCardMocks.mockResponse;
+
+			return mockResponse;
+		}
 	}
 
 	xdsQuestions(clientID) {

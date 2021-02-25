@@ -43,11 +43,15 @@ export class StopCardLandingPage extends View {
 	}
 
 	render() {
+		const activePage = this.horizonRouter._getCurrentRoute();
+		
 		return html`
 		<horizon-stop-card
+		 class="tile ${this.type ? this.type : `stopCard`}${this.selected ? ` selected` : ``}"
 			.clientProfileDetails="${this.clientProfileDetails}"
 			.incomingCallDetails="${this.incomingCallDetails}"
-			@cards-stopped="${(event) => this._stoppedCards(event)}">
+			@cards-stopped="${(event) => this._stoppedCards(event)}"
+			?selected=${activePage.title === `Favourites`}>
 		</horizon-stop-card>`;
 	}
 }

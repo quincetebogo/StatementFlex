@@ -60,6 +60,7 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isReassigned = false;
+		this.selected = true;
 	}
 
 	// ----------

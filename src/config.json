@@ -44,6 +44,10 @@
 			"enabled": true,
 			"positiveCase": true
 		},
+		"stopCard": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"favouritesLanding": {
 			"enabled": true,
 			"positiveCase": true

@@ -1,6 +1,7 @@
 let mockResponse = [];
 export default mockResponse = {
-		cards: [
+	instruction: `string`,
+	cards: [
 			{
 				cardNumber: `4000000000000062`,
 				maskedCardNumber: `4*************62`,
@@ -31,5 +32,188 @@ export default mockResponse = {
 					visible: true
 				}
 			}
-		]
+		],
+		incomingTelephoneNumber: `string`,
+		voiceReferenceNumber: `string`,
+		notificationBell: {
+		  enabled: true,
+		  tabIndex: 0,
+		  visible: true
+		},
+		clientPersonalInformation: {
+			required: true,
+			value: {
+			  name: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+					validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  southAfricanIDNumber: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+					validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  verifiedTelephoneNumber: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+				  validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  livesIn: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+				  validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  languagePreference: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+				  validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  birthdate: {
+				required: true,
+				value: `string`,
+				inputValidationOption: {
+				  validationEnabled: true,
+				  inputRegexValidation: `string`,
+				  validationFailedMessage: `string`
+				},
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  viewProfileButton: {
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  },
+			  documentsButton: {
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			  }
+			},
+			inputValidationOption: {
+			  validationEnabled: true,
+			  inputRegexValidation: `string`,
+			  validationFailedMessage: `string`
+			},
+			enabled: true,
+			tabIndex: 0,
+			visible: true
+		  },
+		  notAuthorizedLink: {
+			enabled: true,
+			tabIndex: 0,
+			visible: true
+		  },
+		  authorized: true,
+		  clientInsights: {},
+		  clientAccess: {
+			app: {
+			  possibleValues: [
+				{
+				  key: 0,
+				  value: `string`
+				}
+			  ],
+			  required: true,
+			  value: `string`,
+			  inputValidationOption: {
+				validationEnabled: true,
+				inputRegexValidation: `string`,
+				validationFailedMessage: `string`
+			  },
+			  enabled: true,
+			  tabIndex: 0,
+			  visible: true
+			},
+			ussd: {
+			  possibleValues: [
+				{
+				  key: 0,
+				  value: string
+				}
+			  ],
+			  required: true,
+			  value: string,
+			  inputValidationOption: {
+				validationEnabled: true,
+				inputRegexValidation: `string`,
+				validationFailedMessage: `string`
+			  },
+			  enabled: true,
+			  tabIndex: 0,
+			  visible: true
+			},
+			smsNotification: {
+			  possibleValues: [
+				{
+				  key: 0,
+				  value: `string`
+				}
+			  ],
+			  required: true,
+			  value: `string`,
+			  inputValidationOption: {
+				validationEnabled: true,
+				inputRegexValidation: `string`,
+				validationFailedMessage: `string`
+			  },
+			  enabled: true,
+			  tabIndex: 0,
+			  visible: true
+			},
+			cards: {
+			  possibleValues: [
+				{
+				  key: 0,
+				  value: `string`
+				}
+			  ],
+			  required: true,
+			  value: `string`,
+			  inputValidationOption: {
+				validationEnabled: true,
+				inputRegexValidation: `string`,
+				validationFailedMessage: `string`
+			  },
+			  enabled: true,
+			  tabIndex: 0,
+			  visible: true
+			}
+		}
 };

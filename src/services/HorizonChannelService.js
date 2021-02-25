@@ -304,7 +304,12 @@ export class HorizonChannelService extends Service {
 	// -----------------------
 
 	// confirmedClientProfileRequest
-	identifyCaller(callerData) {
+	async identifyCaller(callerData) {
+
+		if (await this._mockEnabled(`stopCard`)) {
+			return this._mock.stopCard();
+		}
+
 		const url = `/clientcare/card/${this._version}/LoadConfirmedClientProfile`;
 		const model = {
 			'incidentRecId': callerData.incidentRecId,

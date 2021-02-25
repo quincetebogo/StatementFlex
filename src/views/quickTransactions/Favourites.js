@@ -368,7 +368,7 @@ export class Favourites extends View {
 		};
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-		const clientProfileDetails = returnValue.result;
+		// const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
@@ -377,7 +377,8 @@ export class Favourites extends View {
 			this.horizonStore.saveState({
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation,
-				clientProfileDetails: clientProfileDetails
+				clientProfileDetails: returnValue.result
+
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
