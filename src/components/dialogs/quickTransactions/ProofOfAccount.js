@@ -86,9 +86,9 @@ export class ProofOfAccount extends View {
             const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
             if (returnValue.succeeded) {
-                this.horizonRouter.navigateToStatementSuccessful();
+                this.horizonRouter.navigateToProofOfAccountSuccess();
             } else {
-                this.horizonRouter.navigateToStatementUnsuccessful();
+                this.horizonRouter.navigateToProofOfAccountFailed();
             }
         }
 
