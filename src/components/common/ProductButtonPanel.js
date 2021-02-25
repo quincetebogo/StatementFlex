@@ -29,9 +29,21 @@ export class ProductButtonPanel extends Component {
 		super();
 
 		this.disableNavigation = false;
-		this.subtitle = {};
-		this.detail = {};
+		
+		this.subtitle = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
 
+		this.detail = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
+		
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
