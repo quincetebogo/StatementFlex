@@ -45,10 +45,8 @@ export class SavingsAccountLandingPage extends View {
 		this.incomingCallDetails = this.state.incomingCallDetails;
 	
 		// private properites
-		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
@@ -70,6 +68,7 @@ export class SavingsAccountLandingPage extends View {
 
 	static get properties() {
 		return {
+			isBusy: { attribute: false },
 			renderMode: { attribute: false }
 		};
 	}
@@ -104,19 +103,19 @@ export class SavingsAccountLandingPage extends View {
 
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
-                cifNumber: this.callerInformation.cifNumber,
-                nationalIDNumber: this.callerInformation.southAfricanIDNumber,
+				cifNumber: this.callerInformation.cifNumber,
+				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
 				getGenericData: true
 			};
 
 			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber,landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
-				this.isLoading = false;
 				this.landingPageInfo = returnValue.result;
 
 				// Now we can update the information on the product buttons as well
 				this._updateLeftBar();
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 
 		} else {
@@ -220,11 +219,18 @@ export class SavingsAccountLandingPage extends View {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
+			${this._renderLoadingIndicator()}
 			`;
 	}
 
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
 	_renderSavingsLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE 
+		return this.renderMode === RENDER_MODE.MAIN_PAGE
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
