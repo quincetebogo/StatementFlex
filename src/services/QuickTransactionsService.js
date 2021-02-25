@@ -31,7 +31,6 @@ export class QuickTransactionsService extends ServiceBase {
 	getCardLimits(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.getCardLimits(cardDetails), `getCardLimits`, errorHandler, autoRetries);
 	}
-    }
 
     sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.sendProofOfAccount(clientInfo), `sendProofOfAccount`, errorHandler, autoRetries);
