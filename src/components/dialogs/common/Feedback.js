@@ -137,7 +137,7 @@ export class Feedback extends View {
 			}
 
 			.label-err-message{
-				color: #D4781C;
+				color:#C83B37;
 				font-family: "Hind Vadodara";
 				font-size: 14px;
 				font-weight: 600;
