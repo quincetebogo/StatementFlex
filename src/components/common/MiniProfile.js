@@ -285,7 +285,7 @@ export class MiniProfile extends Component {
 					</capitec-label>
 				</span>
 				<span row="3" column="1">
-					<capitec-label label="Contact Number: " type="subtitle">
+					<capitec-label label="Verified Number: " type="subtitle">
 					</capitec-label>
 					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle">
 					</capitec-label>
