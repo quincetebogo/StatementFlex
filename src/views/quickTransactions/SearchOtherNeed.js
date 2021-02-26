@@ -29,8 +29,8 @@ const RENDER_MODE = Object.freeze({
 
 	constructor() {
 		super();
-		this.solutionDisplay = false;
 		this.horizonStore = HorizonStore.getInstance();
+        this.state = this.horizonStore.recoverState();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.chooseNeed = true;
@@ -52,26 +52,26 @@ const RENDER_MODE = Object.freeze({
 			{code: 'Option 4', text: 'Option 4' }
 		]
 		this.issueTypeObjects =
-	[
-		{code: 'Option 1', text: 'Unauthorized transaction - ATM Retain...' },
+		[
+			{code: 'Option 1', text: 'Unauthorized transaction - ATM Retain...' },
 			{code: 'Option 2', text: 'Capitec ATM - Cash did not dispense' },
 			{code: 'Option 3', text: 'Capitec ATM - Cash dispensed short' },
 			{code: 'Option 4', text: 'CF not available at the ATM' }
-	]
-this.dataObjects = [
-	this.someObject,
-	{ code: 'AK', text: 'Alaska' },
-	{ code: 'OK', text: 'Oklahoma' },
-	{ code: 'NM', text: 'New Mexico' },
-	{ code: 'NY', text: 'New York' },
-	{ code: 'TX', text: 'Texas' },
-	{ code: 'TN', text: 'Tennessee' },
-	{ code: 'NJ', text: 'New Jersey' }
+		]
+		this.dataObjects = [
+			this.someObject,
+			{ code: 'AK', text: 'Alaska' },
+			{ code: 'OK', text: 'Oklahoma' },
+			{ code: 'NM', text: 'New Mexico' },
+			{ code: 'NY', text: 'New York' },
+			{ code: 'TX', text: 'Texas' },
+			{ code: 'TN', text: 'Tennessee' },
+			{ code: 'NJ', text: 'New Jersey' }
         ];
 
-        this.incomingCallDetails = this.state.incomingCallDetails;
+       	this.incomingCallDetails = this.state.incomingCallDetails;
         this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
-        this.incidentRecId = incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
+        this.incidentRecId = this.incomingCallDetails.incidentRecId; /* "76E4F06B294147D2A295FE5AA02C9138" */
 
 	}
 	// --------------
@@ -92,7 +92,8 @@ this.dataObjects = [
 			searchOtherNeed: { type: Object },
 			chooseNeed: {type: Boolean},
 			chooseIssue: {type: Boolean},
-			solutionDisplay: {type: Boolean}
+			solutionDisplay: {type: Boolean},
+			renderMode: {attribute: false}
 		};
 	}
 
@@ -113,8 +114,10 @@ this.dataObjects = [
 		//initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
-
+	// ---------
 	// PRIVATE METHODS
+	// ---------
+	 
 	_searchOtherNeed(e){
 		this.chooseNeed = false;
 		if (e = null) {
@@ -133,7 +136,7 @@ this.dataObjects = [
         window.open(this.strackURL);
         this.renderMode = RENDER_MODE.FEEDBACK;
 	}
-// ---------
+	// ---------
 	// RENDERING
 	// ---------
 	
@@ -254,32 +257,34 @@ this.dataObjects = [
 
 	_webTemplate() {
 		return html`
-			<capitec-card class="other-need">
-			<capitec-title-bar type="default">
-				<capitec-icon 
-					size="small"
-					icon="system/arrow-left-action"
-					@click="${() => this._back()}">
-				</capitec-icon>
-				<capitec-label label="Other Need" type="title"></capitec-label>
-			</capitec-title-bar>
-				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-				
-				${this._renderActionBar()}
-				</capitec-group>
-				
-				<capitec-group layout="vertical" gap="line" halign="center" valign="center">
-				
-				${this._renderNoResults()}
-				</capitec-group>
-				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
-				
-				${this._renderSolution()}
-				</capitec-group>
-			</capitec-card>
+			${this._renderOtherNeeds()}
+			${this._renderFeedback()}
 		`;
 	}
 
+	_renderOtherNeeds(){
+		return html`<capitec-card class="other-need">
+		<capitec-title-bar type="default">
+			<capitec-icon 
+				size="small"
+				icon="system/arrow-left-action"
+				@click="${() => this._back()}">
+			</capitec-icon>
+			<capitec-label label="Other Need" type="title"></capitec-label>
+		</capitec-title-bar>
+			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+			${this._renderActionBar()}
+			</capitec-group>
+			<capitec-group layout="vertical" gap="line" halign="center" valign="center">
+			${this._renderNoResults()}
+			</capitec-group>
+			<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+			${this._renderSolution()}
+			</capitec-group>
+		</capitec-card>
+		`;
+
+	}
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar type="default">
@@ -293,10 +298,9 @@ this.dataObjects = [
 		`;
 	}
 
-	// render search 
 	_renderActionBar() {
 		//add if statement to render next text boxes/drop downs
-		// must have a hidden property for the text field
+		//must have a hidden property for the text field
 		//create an object 3 properties- hidden object should set to false when properties are populated
 		//@input="${(e) => this._searchOtherNeed(e)}"
 		return html`
@@ -382,7 +386,7 @@ this.dataObjects = [
 					</capitec-group>
 			</capitec-content-box>
 		<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
-			<capitec-button class="strack-button" type="primary" label="Launch STrack" @click="${() => this._sTrackClick()}">
+			<capitec-button class="strack-button" type="primary" label="Launch STrack" @click="${() => this._onLaunchStrackClick()}">
 			</capitec-button>
 		</capitec-group>
 		`;
@@ -400,17 +404,15 @@ this.dataObjects = [
 				<capitec-label 
 					class="find-need"
 					label="Find other need"
-					type="strong"
-					></capitec-label>
+					type="strong"></capitec-label>
 				<capitec-label
 					class="find-need-second"
 					label="Search a client need not currently on Horizon"
-					type="strong"
-					 >
+					type="strong">
 				</capitec-label>
 				</capitec-group>
 				`;
-     }
+		}
 	}
 
      _renderFeedback() {
@@ -421,7 +423,7 @@ this.dataObjects = [
          </horizon-feedback>
          `;
          }
-         return html``;
+        else { return html``;}
      }
 
  }
