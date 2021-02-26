@@ -64,8 +64,8 @@ export class ProofOfAccount extends Component {
      */
 
 
-   async _sendClick() {
-        if (this._validateEmail()) {
+   async _sendClick(e) {
+        if (this._validateEmail(e)) {
             // get account open date and number and save to state
             const state = {
                 account_number: this.landingPageInfo.account_number,
@@ -87,14 +87,14 @@ export class ProofOfAccount extends Component {
             if (returnValue.succeeded) {
                 this.horizonRouter.navigateToProofOfAccountSuccess();
             } else {
-                this.horizonRouter.navigateToProofOfAccountFailed();
+                this.horizonRouter.navigateToProofOfAccountFailed();                
             }
         }
 
     }
 
     _formatDate(dateToFormat) {
-        const tempdate = dateToFormat.toISOString().slice(0, 10);
+	   const tempdate = dateToFormat.toISOString().slice(0, 10);
         return tempdate;
     }
 
@@ -106,22 +106,47 @@ export class ProofOfAccount extends Component {
      * PRIVATE METHODS
      */
 
-    _validateEmail() {
+    _validateEmail(e) {
         const emailAddress = this.id_emailAddress;
         const confirmEmailAddress = this.id_confirmEmail;
-        if (emailAddress !== null && emailAddress.includes(`@`) && emailAddress === confirmEmailAddress) {
-            this.alertBannerMessage = ``;
-            return true;
-        } else if (emailAddress === `` || confirmEmailAddress === ``) {
+
+        var regCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+        //CORRECT
+        if (!this._isNullorEmpty(emailAddress) && (emailAddress == confirmEmailAddress)) {
+            if (regCheck.test(emailAddress)) {
+                this.alertBannerMessage = ``;
+                this.errMessage.id_emailAddress = ``;
+                this.errMessage.id_confirmEmail = ``;
+                return true;
+            } else if (!emailAddress.includes("@")) {
+                this.alertBannerMessage = `Email address is invalid`;
+                this.errMessage.id_emailAddress = `An email must contain a single @`;
+                return false;
+            } else {
+                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+                this.errMessage.id_emailAddress = `Invalid email address`;
+                 this.errMessage.id_confirmEmail = `Invalid email address`;
+                return false;
+            }
+        }//EMAIL EMPTY
+        else if (this._isNullorEmpty(emailAddress)) {
+            if (this._isNullorEmpty(confirmEmailAddress)) {
+                this.errMessage.id_confirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+            }
             this.alertBannerMessage = `Complete all fields to continue`;
+            this.errMessage.id_emailAddress = `Enter a valid email address i.e. email@gmail.com`;
             return false;
-        } else if (emailAddress !== confirmEmailAddress) {
-            this.alertBannerMessage = `Email addresses do not match.`;
+        } else if (this._isNullorEmpty(confirmEmailAddress)) {
+            this.alertBannerMessage = `Complete all fields to continue`;
+            this.errMessage.id_confirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+            return false;
+        }//EMAILS DON'T MATCH 
+        else if (emailAddress != confirmEmailAddress) {
+            this.alertBannerMessage = `Email and Confirm email don't match`;
+            this.errMessage.id_emailAddress = `Invalid email`;
+            this.errMessage.id_confirmEmail = `Invalid email`;
             return false;
         }
-
-        this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-        return false;
     }
 
     _onKeyPress(e) {
@@ -131,6 +156,7 @@ export class ProofOfAccount extends Component {
 
     _clearErrors(e) {
         this.errMessage.id_emailAddress = ``;
+        this.errMessage.id_confirmEmail = ``;
         this.alertBannerMessage = ``;
 
     }
@@ -161,6 +187,17 @@ export class ProofOfAccount extends Component {
         return [
             super.styles,
             css`
+
+capitec-alert-banner{
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+
+					margin: 0px 0px 16px 0px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+}
 			.body-class {
 				width: 531px;
 				height: 280px;
@@ -171,12 +208,12 @@ export class ProofOfAccount extends Component {
 				margin-right:4px;
 			}
 
-			.err-body{
-				width: 531px;
-				height: 315px;
-				margin-left:16px;
-				margin-right: 16px;
-			}
+			//.err-body{
+			//	width: 531px;
+			//	height: 315px;
+			//	margin-left:16px;
+			//	margin-right: 16px;
+			//}
 			.label-err-message{
 				color: #D4781C;
 				font-family: "Hind Vadodara";
@@ -215,10 +252,10 @@ export class ProofOfAccount extends Component {
 			.email-text{
 				height: 72px;
 			}
-			.alert-banner{
-				margin-top:16px;
-				height:48px;
-			}
+			//.alert-banner{
+			//	margin-top:16px;
+			//	height:48px;
+			//}
 			capitec-modal {
 				width: 531px;
 				height: 721px;
