@@ -4,6 +4,11 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/Feedback';
+
+const RENDER_MODE = Object.freeze({
+    FEEDBACK = 0;
+});
 /**
  * Search Other Need component
  *
@@ -62,7 +67,11 @@ this.dataObjects = [
 	{ code: 'TX', text: 'Texas' },
 	{ code: 'TN', text: 'Tennessee' },
 	{ code: 'NJ', text: 'New Jersey' }
-];
+        ];
+
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
+        this.incidentRecId = incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
 
 	}
 	// --------------
@@ -78,7 +87,8 @@ this.dataObjects = [
 	 * @memberof SearchOtherNeed
 	 */
 	static get properties() {
-		return {
+        return {
+            incomingCallDetails: {type: Object},
 			searchOtherNeed: { type: Object },
 			chooseNeed: {type: Boolean},
 			chooseIssue: {type: Boolean},
@@ -119,7 +129,9 @@ this.dataObjects = [
 	}
 
 	_onLaunchStrackClick() {
-
+        this.strackURL = this.strackURL.replace("$incidentRecId", this.incidentRecId);
+        window.open(this.strackURL);
+        this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 // ---------
 	// RENDERING
@@ -398,8 +410,18 @@ this.dataObjects = [
 				</capitec-label>
 				</capitec-group>
 				`;
-		}
-	}
+     }
+
+     _renderFeedback() {
+         if (this.renderMode === RENDER_MODE.FEEDBACK) {
+             return html`
+         <horizon-feedback>
+
+         </horizon-feedback>
+         `;
+         }
+         return html``;
+     }
 
  }
  
