@@ -35,15 +35,11 @@ export class ProofOfAccount extends Component {
      */
     static get properties() {
         return {
-			callerInformation: { type: Object },
-			incomingCallDetails: { type: Object },
-			landingPageInfo: { type: Object },
-            isBusy: { attribute: false },
-            emailAddress: { attribute: false },
-            alertBannerMessage: { attribute: false },
-            account_open_Date: { attribute: false },
-            account_number: { attribute: false },
-            account_type: {attribute: false }
+            isBusy: { type: Boolean },
+            emailAddress: { type: String },
+            alertBannerMessage: { type: String },
+            account_open_Date: { attributge: false },
+            account_number: {type: String}
         };
     }
 
@@ -52,11 +48,9 @@ export class ProofOfAccount extends Component {
      */
     connectedCallback() {
         super.connectedCallback();
-        // holding values in your page
+        //holding values in your page
         this.emailAddress = null;
-        this.account_open_Date = null;
-        this.account_number = null;
-        this.account_type = null;
+        //TODO: add values used in screen such as acc number and open date
     }
 
     /*
@@ -64,9 +58,9 @@ export class ProofOfAccount extends Component {
      */
 
 
-   async _sendClick() {
+    _sendClick() {
         if (this._validateEmail()) {
-            // get account open date and number and save to state
+            //get account open date and number and save to state
             const state = {
                 account_number: this.landingPageInfo.account_number,
                 account_open_Date: this.landingPageInfo.account_open_Date
@@ -74,28 +68,13 @@ export class ProofOfAccount extends Component {
 
             this.horizonStore.saveState(state);
 
-            const clientInfo = {
-                "cifNumber": this.callerInformation.cifNumber,
-                "account_number": this.landingPageInfo.account_number,
-                "account_open_Date": this._formatDate(this.landingPageInfo.account_open_Date),
-                "emailAddress": this.emailAddress,
-                "account_type": this.landingPageInfo.account_type
-            };
-            
-            const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
-
-            if (returnValue.succeeded) {
-                this.horizonRouter.navigateToProofOfAccountSuccess();
-            } else {
-                this.horizonRouter.navigateToProofOfAccountFailed();
-            }
+            //add service call
+            //if(this._serviceCall()){
+            //navigate to success}
+            //else {
+            //navigate to unsuccess}
         }
 
-    }
-
-    _formatDate(dateToFormat) {
-        const tempdate = dateToFormat.toISOString().slice(0, 10);
-        return tempdate;
     }
 
     _cancelClick() {
@@ -106,22 +85,31 @@ export class ProofOfAccount extends Component {
      * PRIVATE METHODS
      */
 
+    _serviceCall() {
+        //TODO
+       // /clientcare/documents / v1 / client / send - proof - of - account 
+
+        //fetch('url')
+        //.then(response => { return response.json(); })
+        //.then(user=>{console.log(user);})
+    }
+
     _validateEmail() {
-        const emailAddress = this.id_emailAddress;
-        const confirmEmailAddress = this.id_confirmEmail;
-        if (emailAddress !== null && emailAddress.includes(`@`) && emailAddress === confirmEmailAddress) {
+        var emailAddress = this.id_emailAddress;
+        var confirmEmailAddress = this.id_confirmEmail;
+        if (emailAddress != null && emailAddress.includes("@") && (emailAddress == confirmEmailAddress)) {
             this.alertBannerMessage = ``;
             return true;
-        } else if (emailAddress === `` || confirmEmailAddress === ``) {
-            this.alertBannerMessage = `Complete all fields to continue`;
+        } else if (emailAddress == '' || confirmEmailAddress == '') {
+            this.alertBannerMessage = `Please complete all fields`;
             return false;
-        } else if (emailAddress !== confirmEmailAddress) {
+        } else if (emailAddress != confirmEmailAddress) {
             this.alertBannerMessage = `Email addresses do not match.`;
             return false;
+        } else {
+            this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+            return false;
         }
-
-        this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-        return false;
     }
 
     _onKeyPress(e) {
@@ -144,14 +132,11 @@ export class ProofOfAccount extends Component {
         return fieldValue === `` || fieldValue === null || fieldValue === undefined;
     }
 
-    _errorHandler(ex) {
-
-        return true;
-    }
-
     /*
      * PUBLIC METHODS
      */
+
+
 
     /*
      * RENDERING

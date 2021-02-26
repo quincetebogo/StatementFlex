@@ -27,6 +27,9 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	STATEMENTS_SUCCESSFUL: `/views/Statements/StatementsSuccess`,
+	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
@@ -174,6 +177,14 @@ export class HorizonRouter {
 
 	navigateToCardLimitUpdateFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED}`);
+	}
+
+	navigateToStatementSuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_SUCCESSFUL}`);
+	}
+
+	navigateToStatementUnsuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -500,6 +511,23 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
 		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-statements-success`,
+		title: `StatementSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_SUCCESSFUL,
+		load: () => import(`../views/Statements/StatementsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-statements-unsuccess`,
+		title: `StatementUnsuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
+		load: () => import(`../views/Statements/StatementsUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	}
     },
     {
         name: `horizon-proof-of-account-success`,

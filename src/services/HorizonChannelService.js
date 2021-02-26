@@ -504,7 +504,17 @@ export class HorizonChannelService extends Service {
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
+    sendStatement(statement) {
+        const url = `/clientcare/documents/${this._version}/statements/send-statement`;
+
+        return this._post(url, statement, this._setToken(), `sendSatement`);
+    }
 
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
 	}  
+    viewStatement(statement) {
+        const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+
+        return this._post(url, statement, this._setToken(), `viewSatement`);
+    }
 }
