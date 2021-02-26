@@ -17,9 +17,10 @@ export class ProofOfAccount extends Component {
         this.id_confirmEmail = ``;
         this.isBusy = false;
         this.alertBannerMessage = ``;
+        this.emailText = `Email address`;
         this.errMessage = {
             id_emailAddress: ``,
-			id_confirmEmail: ``
+            id_confirmEmail: ``
         };
         this.label_err = ``;
 
@@ -35,15 +36,16 @@ export class ProofOfAccount extends Component {
      */
     static get properties() {
         return {
-			callerInformation: { type: Object },
-			incomingCallDetails: { type: Object },
-			landingPageInfo: { type: Object },
+            callerInformation: { type: Object },
+            incomingCallDetails: { type: Object },
+            landingPageInfo: { type: Object },
             isBusy: { attribute: false },
             emailAddress: { attribute: false },
             alertBannerMessage: { attribute: false },
+            emailText: { attribute: false },
             account_open_Date: { attribute: false },
             account_number: { attribute: false },
-            account_type: {attribute: false }
+            account_type: { attribute: false }
         };
     }
 
@@ -64,7 +66,7 @@ export class ProofOfAccount extends Component {
      */
 
 
-   async _sendClick(e) {
+    async _sendClick(e) {
         if (this._validateEmail(e)) {
             // get account open date and number and save to state
             const state = {
@@ -81,13 +83,13 @@ export class ProofOfAccount extends Component {
                 "emailAddress": this.emailAddress,
                 "account_type": this.landingPageInfo.account_type
             };
-            
+
             const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
             if (returnValue.succeeded) {
                 this.horizonRouter.navigateToProofOfAccountSuccess();
             } else {
-                this.horizonRouter.navigateToProofOfAccountFailed();                
+                this.horizonRouter.navigateToProofOfAccountFailed();
             }
         }
 
@@ -126,20 +128,23 @@ export class ProofOfAccount extends Component {
             } else {
                 this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
                 this.errMessage.id_emailAddress = `Invalid email address`;
-                 this.errMessage.id_confirmEmail = `Invalid email address`;
+                this.errMessage.id_confirmEmail = `Invalid email address`;
                 return false;
             }
         }//EMAIL EMPTY
         else if (this._isNullorEmpty(emailAddress)) {
             if (this._isNullorEmpty(confirmEmailAddress)) {
                 this.errMessage.id_confirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+                this.emailText = `email@gmail.com`;
             }
             this.alertBannerMessage = `Complete all fields to continue`;
             this.errMessage.id_emailAddress = `Enter a valid email address i.e. email@gmail.com`;
+            this.emailText = `email@gmail.com`;
             return false;
         } else if (this._isNullorEmpty(confirmEmailAddress)) {
             this.alertBannerMessage = `Complete all fields to continue`;
             this.errMessage.id_confirmEmail = `Enter a valid email address i.e. email@gmail.com`;
+            this.emailText = `email@gmail.com`;
             return false;
         }//EMAILS DON'T MATCH 
         else if (emailAddress != confirmEmailAddress) {
@@ -159,12 +164,14 @@ export class ProofOfAccount extends Component {
         this.errMessage.id_emailAddress = ``;
         this.errMessage.id_confirmEmail = ``;
         this.alertBannerMessage = ``;
+        this.emailText = `Email address`;
 
     }
 
     _valueChanged(e) {
         this[e.currentTarget.id] = e.detail.new;
         this._clearErrors(e);
+        this.emailText = `Email address`;
     }
 
     _isNullorEmpty(fieldValue) {
@@ -191,7 +198,11 @@ export class ProofOfAccount extends Component {
 			capitec-modal {
 				width: 531px;
 				height: 721px;
-				--theme-modal-header-padding-left: 16px;				
+				--theme-modal-header-padding-left: 16px;
+                --theme-modal-header-color: #3A3A3A;
+                --theme-modal-header-background-color: #F7F7F7;
+--theme-modal-header-padding-top: 20px;
+--theme-modal-header-padding-bottom: 20px;
 			}
 
 			capitec-alert-banner{
@@ -201,11 +212,16 @@ export class ProofOfAccount extends Component {
 				--theme-alert-banner-icon-margin-right: 15px;
 
 				margin: 16px 0px 0px 0px;
-				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+			
 			}
+           .label-err-message{
+                --theme-label-font-color:#C83C37;
+            }
+
 			capitec-label{
-				margin: 16px 0px 16px 0px
+				margin: 16px 0px 16px 0px;
+                --theme-label-font-size: 18px;
+                --theme-label-font-family: Hind Vadodara;
 			}
 
 			.body-class {
@@ -219,6 +235,29 @@ export class ProofOfAccount extends Component {
 				height: 315px;
 				margin-left:16px;
 				margin-right: 16px;
+			}
+.search-label{
+				height: 24px;
+				width: 200px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-top: 16px;
+				margin-bottom: 16px;
+			}
+			.confirm-search-label{
+				height: 24px;
+				width: 200px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-bottom: 16px;
 			}
 
 			`
@@ -250,7 +289,7 @@ export class ProofOfAccount extends Component {
             return html`
 		<capitec-alert-banner type="unsuccessful-red">
 			<capitec-group layout="horizontal">
-				<capitec-label label="Notify: " class="label-err-message"></capitec-label>
+				<capitec-label type="subtitle" label="Notify: " class="label-err-message"></capitec-label>
 				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
 			</capitec-group>
 		
@@ -280,19 +319,19 @@ export class ProofOfAccount extends Component {
 					name="mailAddress" 
 					@value-changed="${(e) => this._valueChanged(e)}"
 					@key-input="${(e) => this._onKeyPress(e)}" 
-					label="Email address" 
+					label="${this.emailText}" 
 					error="${this.errMessage.id_emailAddress}">
 				</capitec-text-field>
 			</div>
 
 			<div class="email-div">
-				<capitec-label class="confirm-search-label" label="Confirm email address" type="title"></capitec-label>
+				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
 				<capitec-text-field 
 					class="email-text" id="id_confirmEmail" 
 					.value="${this.id_confirmEmail}"
 					@value-changed="${(e) => this._valueChanged(e)}" 
 					@key-input="${(e) => this._onKeyPress(e)}"
-					name="confirmMailAddress" label="Email address" 
+					name="confirmMailAddress" label="${this.emailText}" 
 					error="${this.errMessage.id_confirmEmail}">
 				</capitec-text-field>
 			</div>
