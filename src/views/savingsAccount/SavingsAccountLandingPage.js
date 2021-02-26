@@ -85,11 +85,11 @@ async _optionClick(event) {
 		if (event.detail.option === `transaction-history`) {
 
 			const transactionHistoryRequest = {
-				cifNumber : "309692997",
-				accountNumber : "6008203940",
-				accountType : "PRIMARY_SAVINGS",
-				startDate : "2021-01-01",
-				endDate : "2021-02-14",
+				cifNumber : "157866564",
+				accountNumber : "1315285787",
+				accountType : "FIXED_TERM_MULTIPLE_DEPOSITS",
+				startDate : "2020-12-01",
+				endDate : "2020-12-26",
 				startAtIndex : 0,
 				maxResults : 20,
 				moneyType : "BOTH"
@@ -98,6 +98,14 @@ async _optionClick(event) {
 
 			if(returnValue.succeeded && returnValue.result){
 				this.transactionHistory = returnValue.result.transactions;
+				this.accountDetails =  {
+					"accountNumber": '1928247288',
+					"balance": 'R20 916.00', 
+					"availableBalance": 'R20 567.00', 
+					"pendingAmount": 'R349.00', 
+					"interest": '5.5%',
+					"status": 'Active'
+				},
 				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 			}
 		} else if (event.detail.option === `debi-check`) {

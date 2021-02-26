@@ -173,12 +173,12 @@ export class TransactionHistory extends Component {
 
 	_initialize(tableData){
 		tableData.map((item) => {
-			const date = new Date(Date.parse(item.TransactionDate));
+			const date = new Date(Date.parse(item.transactionDate));
 
-			item.TranDate = date;
+			item.tranDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.Amount = item.Amount > 0 ? `R${item.Amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.Amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 		});
 		return tableData;
 	}
@@ -189,8 +189,8 @@ export class TransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
-			const searchTextResult = searchText.map(key => key !== `` ? this.filteredData.filter(item => item.Description.toLowerCase().indexOf(key) !== -1 ||
-																parseInt(item.Amount, 10) === parseInt(key, 10)) : [])
+			const searchTextResult = searchText.map(key => key !== `` ? this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 ||
+																parseInt(item.amount, 10) === parseInt(key, 10)) : [])
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
 
@@ -198,13 +198,13 @@ export class TransactionHistory extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			this.filteredData = this.filteredData.filter(item => item.TranDate >= startDate && item.TranDate <= endDate);
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
 			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
-			this.filteredData = this.filteredData.filter(item => item.TransactionStatus === status);
+			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
 		}
 		this.requestUpdate();
 	}
@@ -666,16 +666,16 @@ export class TransactionHistory extends Component {
 				displayMode="LoadMore"
 				expandable="right"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
-					<capitec-table-column label="Transaction Date" field="TransactionDate" size="161px;"></capitec-table-column>
-					<capitec-table-column label="Description" field="Description" size="411px;"></capitec-table-column>
+					<capitec-table-column label="Transaction Date" field="tranDate" size="161px;"></capitec-table-column>
+					<capitec-table-column label="Description" field="description" size="411px;"></capitec-table-column>
 					<capitec-table-column
 						label="Transaction Status"
-						field="TransactionStatus"
+						field="transactionStatus"
 						size="190px;" 
 						.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
-					<capitec-table-column label="Amount" field="Amount" size="100px;" type="currency"></capitec-table-column>
-					<capitec-table-column label="Balance" field="Balance" size="131px;" type="currency" align ="right"></capitec-table-column>
+					<capitec-table-column label="Amount" field="amount" size="100px;" type="currency"></capitec-table-column>
+					<capitec-table-column label="Balance" field="balance" size="131px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
 
 		`;
@@ -692,19 +692,19 @@ export class TransactionHistory extends Component {
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
-				label="Statement description: POS Purchase SPAR Die Boord card no 3445">
+				label="${item.description}">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label 
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${item.PostingDate}">
+					value = "${item.postingDate}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${item.ProcessDate}">
+					value = "${item.processDate}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
@@ -717,22 +717,22 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.TransactionCode}">
+					value = "${item.transactionCode}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card number"
-					value = "${item.CardNumber}">
+					value = "${item.cardNumber}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card authentication type"
-					value = "${item.CardAuthType}">
+					value = "${item.cardAuthType}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transfer account"
-					value = "${item.TransferAccount}">
+					value = "${item.transferAccount}">
 				</horizon-label>
 			</capitec-group>
 
@@ -740,17 +740,17 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Journal number"
-					value = "${item.JournalNumber}">
+					value = "${item.journalNumber}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Includes Vat"
-					value = "${item.IncludesVat}">
+					value = "${item.includesVat}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
-					value = "${item.ExternalTerminalId}">
+					value = "${item.externalTerminalId}">
 				</horizon-label>
 			</capitec-group>
 
@@ -763,17 +763,17 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Cash back"
-					value = "${item.Cashback}">
+					value = "${item.cashback}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Branch" 
-					value = "${item.Branch}">
+					value = "${item.branch}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Teller"
-					value = "${item.Teller}">
+					value = "${item.teller}">
 				</horizon-label>
 			</capitec-group>
 		`;
