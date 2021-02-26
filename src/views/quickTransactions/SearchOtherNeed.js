@@ -7,7 +7,7 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
 
 const RENDER_MODE = Object.freeze({
-    FEEDBACK = 0;
+    FEEDBACK : 0
 });
 /**
  * Search Other Need component
@@ -411,6 +411,7 @@ this.dataObjects = [
 				</capitec-group>
 				`;
      }
+	}
 
      _renderFeedback() {
          if (this.renderMode === RENDER_MODE.FEEDBACK) {
