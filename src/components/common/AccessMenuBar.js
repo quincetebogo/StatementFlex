@@ -64,12 +64,12 @@ export class AccessMenuBar extends Component {
 				width: 288px;
 				color: #3A3A3A;
 				font-family: "Hind Vadodara";
-				font-size: 16px;
-				font-weight: 500;
+				--theme-label-subtitle-font-size: 16px;
+				--theme-label-subtitle-font-weight: 500;
 				letter-spacing: 0;
 				line-height: 20px;
 				text-align: center;
-				padding-top:24px;
+				margin-top: 12px;
 			}
 
 			.insights-label{
@@ -188,7 +188,7 @@ export class AccessMenuBar extends Component {
 					</capitec-content-box>
 					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
 						<img class="box-image" src="images/landingPageImages/marketing.svg"/>
-						<capitec-label class="insights-subtitle" label="Client insights coming soon..."></capitec-label>
+						<capitec-label class="insights-subtitle" type="subtitle" label="Client insights coming soon..."></capitec-label>
 					</capitec-content-box>
 					<!-- <hr> -->
 				</capitec-group>
