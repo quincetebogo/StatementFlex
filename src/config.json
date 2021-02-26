@@ -71,6 +71,14 @@
 		"cardLimits": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"hasInsuranceProducts": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

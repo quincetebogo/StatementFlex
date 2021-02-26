@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
@@ -41,6 +42,7 @@ export class EndCallSession extends Component {
 		this.isBusy = false;
 		this.isReassigned = false;
 
+		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
@@ -100,11 +102,18 @@ export class EndCallSession extends Component {
 	}
 
 	async _endCallClick() {
+
+		if (this._stopPropagation()) {
+			// Updating state as call ended and redirecting it to call waiting page
+			this._returnToCallWaitingPage();
+			return;
+		}
+
 		const callToEnd = {
 			incidentRecId: this.incomingCallDetails.incidentRecId,
-			endCallReason: {
-				key: this.endCallReason.key
-			}
+			endReason: this.endCallReason.key,
+			resolution: ``,
+			causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 
 		const returnValue = await this.callHandleService.endCall(callToEnd);
@@ -160,6 +169,19 @@ export class EndCallSession extends Component {
 		// Errors on this screen will be logged by the caller and a return the the call waiting landing page will be effected
 
 		return true;
+	}
+
+	/**
+	 * Specical case: When a client need is stop card and client identity is not confirmed
+	 * Assume call is dropped then incident should not be closed.
+	 * 
+	 * @returns {Boolean} True / False
+	 */
+	_stopPropagation() {
+		const state = this.horizonStore.recoverState();
+
+		return (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
+			   (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
 	}
 
 	// ---------

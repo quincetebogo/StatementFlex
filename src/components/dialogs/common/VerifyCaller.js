@@ -266,6 +266,8 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
+				} else {
+					this._updateApplicationState(`unverified`);
 				}
 			}
 
@@ -486,7 +488,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-security-question 
 					.incomingCallDetails="${this.incomingCallDetails}"
-	                                .callerInformation="${this.callerInformation}" 
+					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
