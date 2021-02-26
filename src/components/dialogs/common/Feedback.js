@@ -117,7 +117,11 @@ export class Feedback extends View {
 			capitec-modal {
 				width: 531px;
 				height: 721px;
-				--theme-modal-header-padding-left: 16px;				
+				--theme-modal-header-padding-left: 16px;
+                --theme-modal-header-color: #3A3A3A;
+                --theme-modal-header-background-color: #F7F7F7;
+                --theme-modal-header-padding-top: 20px;
+                --theme-modal-header-padding-bottom: 20px;
 			}
 
 			.err-body{
