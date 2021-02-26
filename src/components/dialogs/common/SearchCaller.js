@@ -417,6 +417,7 @@ export class SearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
 		return true;
 	}
 
