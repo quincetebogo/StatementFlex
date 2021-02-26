@@ -187,86 +187,43 @@ export class ProofOfAccount extends Component {
     static get styles() {
         return [
             super.styles,
-            css`
+            css`			
+			capitec-modal {
+				width: 531px;
+				height: 721px;
+				--theme-modal-header-padding-left: 16px;				
+			}
 
-capitec-alert-banner{
-					--theme-alert-banner-height: 48px;
-					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
-					--theme-alert-banner-icon-margin-left: 15px;
-					--theme-alert-banner-icon-margin-right: 15px;
+			capitec-alert-banner{
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 15px;
 
-					margin: 0px 0px 16px 0px;
-					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
-}
+				margin: 16px 0px 0px 0px;
+				background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+				color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+			}
+			capitec-label{
+				margin: 16px 0px 16px 0px
+			}
+
 			.body-class {
 				width: 531px;
 				height: 280px;
 				margin-left:16px;
 				margin-right: 16px;			
 			}
-			div[slot="footer"]{
-				margin-right:4px;
+			.err-body{
+				width: 531px;
+				height: 315px;
+				margin-left:16px;
+				margin-right: 16px;
 			}
 
-			//.err-body{
-			//	width: 531px;
-			//	height: 315px;
-			//	margin-left:16px;
-			//	margin-right: 16px;
-			//}
-			.label-err-message{
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 20px;
-			}
-			.email-div{
-				margin-top: 16px;
-				height: 104px;
-			}
-			.search-label{
-				height: 24px;
-				width: 200px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				margin-top: 0px;
-				margin-bottom: 16px;
-			}
-			.confirm-search-label{
-				height: 24px;
-				width: 200px;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				margin-bottom: 16px;
-			}
-			.email-text{
-				height: 72px;
-			}
-			//.alert-banner{
-			//	margin-top:16px;
-			//	height:48px;
-			//}
-			capitec-modal {
-				width: 531px;
-				height: 721px;
-				--theme-modal-header-padding-left: 16px;
-				
-			}
 			`
         ];
     }
-
 
     _mobileTemplate() {
         return _webTemplate();
@@ -291,7 +248,7 @@ capitec-alert-banner{
     _renderAlertBanner() {
         if (!this._isNullorEmpty(this.alertBannerMessage)) {
             return html`
-		<capitec-alert-banner type="unsuccessful-red" class="alert-banner">
+		<capitec-alert-banner type="unsuccessful-red">
 			<capitec-group layout="horizontal">
 				<capitec-label label="Notify: " class="label-err-message"></capitec-label>
 				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
@@ -315,7 +272,7 @@ capitec-alert-banner{
         return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 			<div class="email-div">
-				<capitec-label class="search-label" label="Enter email address" tabindex="-1"> </capitec-label>
+				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
 				<capitec-text-field 
 					class="email-text" 
 					id="id_emailAddress" 
