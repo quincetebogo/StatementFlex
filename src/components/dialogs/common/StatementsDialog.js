@@ -195,7 +195,8 @@ export class StatementsDialog extends Component {
 
 
     _formatDate(dateToFormat) {
-        var tempdate = dateToFormat.toISOString().slice(0, 10);
+        var stringToDate = new Date(dateToFormat);
+        var tempdate = stringToDate.toISOString().slice(0, 10);
         return tempdate;
     }
 
