@@ -3,6 +3,7 @@ import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -44,10 +45,11 @@ export class SavingsAccountLandingPage extends View {
 		this.incomingCallDetails = this.state.incomingCallDetails;
 	
 		// private properites
-		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isBusy = false;
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		
 	}
 
 	// -------------------
@@ -66,6 +68,7 @@ export class SavingsAccountLandingPage extends View {
 
 	static get properties() {
 		return {
+			isBusy: { attribute: false },
 			renderMode: { attribute: false }
 		};
 	}
@@ -90,7 +93,7 @@ export class SavingsAccountLandingPage extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	async _initialise() {
 		this._updateTopBar();
 
 		// At this point this will just update the mini-profile
@@ -102,8 +105,18 @@ export class SavingsAccountLandingPage extends View {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
-				isCallerVerified: this.callerInformation.verificationStatus === `verified`
+				getGenericData: true
 			};
+
+			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber,landingRequest.getGenericData);
+			 
+			if (returnValue.succeeded) {
+				this.landingPageInfo = returnValue.result;
+
+				// Now we can update the information on the product buttons as well
+				this._updateLeftBar();
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
+			}
 
 		} else {
 			// minimal object for the Favourites landing page component
@@ -124,8 +137,24 @@ export class SavingsAccountLandingPage extends View {
 	}
 
 	_updateLeftBar() {
-		const subtitle = ``;
-		const detail = ``;
+		let subtitle = null;
+		let detail = null;
+
+		if (this.landingPageInfo) {
+			subtitle = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+				insure: this.landingPageInfo.insureProductDescription,
+				credit: this.landingPageInfo.creditProductDescription
+			};
+
+			detail = {
+				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+				insure: this.landingPageInfo.insureProductAmount,
+				credit: this.landingPageInfo.creditProductAmount
+			};
+		}
 
 		const state = {
 			miniProfile: {
@@ -152,7 +181,13 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 	
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -184,14 +219,22 @@ export class SavingsAccountLandingPage extends View {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
+			${this._renderLoadingIndicator()}
 			`;
 	}
 
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
 	_renderSavingsLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE 
+		return this.renderMode === RENDER_MODE.MAIN_PAGE
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
+					.landingPageInfo = "${this.landingPageInfo}"
 					@option-click="${(event) => this._optionClick(event)}">
 				</horizon-savings-account>`
 			: html``;
