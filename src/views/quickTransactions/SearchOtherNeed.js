@@ -30,6 +30,7 @@ import 'app/components/dialogs/common/EndCallSession';
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.chooseNeed = true;
 		this.chooseIssue = true;
+		this.solutionDisplay = false;
 		this.someObject = { code: 'AL', text: 'Alabama' };
 		this.searchObject = [
 			{code: 'ATM', text: 'ATM' },
@@ -80,7 +81,8 @@ this.dataObjects = [
 		return {
 			searchOtherNeed: { type: Object },
 			chooseNeed: {type: Boolean},
-			chooseIssue: {type: Boolean}
+			chooseIssue: {type: Boolean},
+			solutionDisplay: {type: Boolean}
 		};
 	}
 
@@ -105,12 +107,15 @@ this.dataObjects = [
 	// PRIVATE METHODS
 	_searchOtherNeed(e){
 		this.chooseNeed = false;
+		if (e = null) {
+			this.chooseNeed = true;
+		}
 	}
 	_searchSpecificNeed(e) {
 		this.chooseIssue = false;
 	}
 	_chooseIssueType(e) {
-		this.solutionDisplay = false;
+		this.solutionDisplay = true;
 	}
 
 	_onLaunchStrackClick() {
@@ -152,10 +157,23 @@ this.dataObjects = [
 					cursor: pointer;
 					margin-right: 34px;
 				}
+				capitec-group > capitec-title-bar {
+					--theme-titlebar-min-height: 20px;
+					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-type-default-background: rgb(244, 244, 244);
+					--theme-label-title-font-size: 14px;
+					--theme-label-title-font-weight: 600;
+					padding-top: 3px;
+					padding-bottom:3px;
+					border-top: 0px solid #E1E1E1;
+				}
+				capitec-content-box{
+					height: 645px;
+				}
 				.otherneed-action-bar {
 					height: 56px;
-					--theme-actionbar-padding: 4px 16px 4px 16px;
-					--theme-actionbar-min-height: 56px;
+					--theme-actionbar-padding: 8px 16px 8px 16px;
+					--theme-actionbar-min-height: 64px;
 					--theme-actionbar-item-gap: 8px;
 				}
 				.otherneed-action-bar > capitec-text-field {
@@ -175,9 +193,35 @@ this.dataObjects = [
 				#button-right {
 					margin-right: 16px;
 				}
+				.solution-heading {
+ 					color: #3E4547;
+ 					font-size: 16px;
+ 					font-weight: 600;
+ 					letter-spacing: 0;
+ 					line-height: 20px;
+				}
+				.solution-content {
+					line-height: 20px;
+					color: #3A3A3A;
+					font-size: 15px;
+					letter-spacing: 0;
+				}
+				.strack-heading {
+					margin-left: -10px;
+					font-size: 15px;
+					font-weight: 600;
+					line-height: 20px;
+				}
+				.strack-solution-content {
+					display: inline;
+					line-height: 20px;
+					color: #3A3A3A;
+					font-size: 15px;
+					letter-spacing: 0;
+				}
 				/* No Results CSS */
 				.search-icon {
-					margin-top: 282px;
+					margin-top: 92px; 
 					/* change to capitec group */
 				}
 				.find-need {
@@ -185,6 +229,9 @@ this.dataObjects = [
 					--theme-label-strong-font-size: 24px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
+				}
+				.strack-button {
+					padding-right: 16px;
 				}
 			`
 		];
@@ -196,15 +243,26 @@ this.dataObjects = [
 	_webTemplate() {
 		return html`
 			<capitec-card class="other-need">
+			<capitec-title-bar type="default">
+				<capitec-icon 
+					size="small"
+					icon="system/arrow-left-action"
+					@click="${() => this._back()}">
+				</capitec-icon>
+				<capitec-label label="Other Need" type="title"></capitec-label>
+			</capitec-title-bar>
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-				${this._renderTitleBar()}
+				
 				${this._renderActionBar()}
-					<capitec-content-box>
-						${this._renderNoResults()}
-					</capitec-content-box>
 				</capitec-group>
 				
-				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+				<capitec-group layout="vertical" gap="line" halign="center" valign="center">
+				
+				${this._renderNoResults()}
+				</capitec-group>
+				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+				
+				${this._renderSolution()}
 				</capitec-group>
 			</capitec-card>
 		`;
@@ -233,10 +291,11 @@ this.dataObjects = [
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-text-field 
 					label="Search client need"
+					.items="${this.searchObject}"
+					display-field="text"
+					id-field="code"
 					type="search"
 					keyboardMode="alpha-numeric"
-					
-					.items="${this.searchObject}"
 					@value-changed="${(e) => this._searchOtherNeed(e)}">
 				</capitec-text-field>
 				<capitec-select 
@@ -264,35 +323,83 @@ this.dataObjects = [
 	}
 
 	_renderSolution() {
+		if (this.solutionDisplay) {
 		return html`
-		<capitec-group layout="vertical" halign="left" valign="top" gap ="none">
-			<capitec-label 
-				class="solution"
-				label="Solution"
-				type="strong"></capitec-label>
-		</capitec-group>
-		<capitec-group id= "id-button-group" layout="horizontal" halign="right" valign="bottom" gap ="none">
-		<capitec-button id="button-right" class="center-button" type="primary" label="Launch STrack" @click="${() => this._sTrackClick()}">
-							</capitec-button>
+		
+		<capitec-title-bar type="default" label="Solution"></capitec-title-bar>
+			<capitec-content-box>
+				<capitec-label class="solution-heading" type="subtitle" label="Minimum Information Needed"></capitec-label>
+			
+					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+						<capitec-label class="solution-content" type="default" 
+						label="Client ID number"></capitec-label> 
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Savings account number"></capitec-label>
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Amount of Disputed transaction/s"></capitec-label>
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Transaction Date range"></capitec-label>
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Transaction time"></capitec-label>
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Client preferred method of contact along with contact information"></capitec-label>
+						<capitec-label class="solution-content" type="default" halign="left" 
+						label="Masked Card number"></capitec-label>
+					</capitec-group>
+				<capitec-label class="solution-heading" type="subtitle" label="Background"></capitec-label>
+					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+						<capitec-label class="solution-content" type="default" 
+						label="This is when a Capitec Bank client/cardholder does a withdrawal at a foreign MasterCard (overseas) ATM and the cash either does not dispense at all or only part of the requested amount dispensed."></capitec-label> 
+					</capitec-group>
+
+			
+				<capitec-label class="solution-heading" type="subtitle" label="Steps"></capitec-label>
+			
+				<capitec-label class="strack-heading" type="subtitle" label="STrack-info"></capitec-label>
+					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+						<li><capitec-label class="strack-solution-content" type="default" label="Complete client savings account number in Client ID field."></capitec-label></li>
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Complete the details in the Incident Detail Tab"></capitec-label></li>
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Capture the minimum information and the reason for the cardholders dispute in the description box"></capitec-label></li>
+					</capitec-group>
+				<capitec-label class="strack-heading" type="subtitle" label="2.	Hand Off"></capitec-label>
+					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Hand off the incident to Card disputes."></capitec-label></li>
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform the client that this enquiry can take up to 5 days to investigate."></capitec-label></li>
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform client that Card Disputes will contact client with feedback."></capitec-label></li>
+						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Provide the client with the Incident Number and end the call."></capitec-label></li>
+					</capitec-group>
+			</capitec-content-box>
+		<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+			<capitec-button class="strack-button" type="primary" label="Launch STrack" @click="${() => this._sTrackClick()}">
+			</capitec-button>
 		</capitec-group>
 		`;
+		}
 	}
 
 	_renderNoResults() {
-		/* if (this._hasIncidentToDisplay()) {
+		 if (this.solutionDisplay) {
 			return html ``;
-		} */
+		} 
+		else{
 				return html`
-				<capitec-group layout="vertical" halign="center" valign="top" gap ="none">
-				<img src="/images/common/search.svg" class="search-icon"/>
+				<capitec-group layout="vertical" halign="center" valign="center" gap ="clear"  >
+				<img src="/images/common/search.svg" class="search-icon"  />
 				<capitec-label 
 					class="find-need"
 					label="Find other need"
 					type="strong"
-					?hidden = ${this.solutionDisplay}></capitec-label>
+					></capitec-label>
+				<capitec-label
+					class="find-need-second"
+					label="Search a client need not currently on Horizon"
+					type="strong"
+					 >
+				</capitec-label>
 				</capitec-group>
 				`;
 		}
+	}
 
  }
  
