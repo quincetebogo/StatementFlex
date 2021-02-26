@@ -60,12 +60,15 @@ export class AccessMenuBar extends Component {
 				width:320px
 			}
 			.insights-subtitle{
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  14px;
-				line-height: 0px;
-				text-align: left;
+				height: 20px;
+				width: 288px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+				font-weight: 500;
+				letter-spacing: 0;
+				line-height: 20px;
+				text-align: center;
 				padding-top:24px;
 			}
 
@@ -151,8 +154,8 @@ export class AccessMenuBar extends Component {
 			}
 			
 			.box-image {
-				height: 152px;
- 				width: 210px;
+				height: 108px;
+ 				width: 108px;
 			}
 			.box-icon{
 				align-self:flex-end;

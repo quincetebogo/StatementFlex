@@ -379,7 +379,7 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
-		title: `ClientProfile`,
+		title: `Favourites`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
