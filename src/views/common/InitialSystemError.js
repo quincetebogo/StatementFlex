@@ -20,7 +20,7 @@ export class InitialSystemError extends View {
         super();
         this.horizonRouter = HorizonRouter.getInstance();
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------

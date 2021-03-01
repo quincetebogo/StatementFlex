@@ -70,7 +70,7 @@ this.dataObjects = [
 
         this.incomingCallDetails = this.state.incomingCallDetails;
        // this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
-        this.incidentRecId = incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
+        this.incidentRecId = this.incomingCallDetails.incidentRecId; // "76E4F06B294147D2A295FE5AA02C9138"
 
 	}
 	// --------------

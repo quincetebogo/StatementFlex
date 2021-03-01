@@ -64,7 +64,7 @@ export class StopCard extends Component {
 
         this.horizonRouter = HorizonRouter.getInstance();
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------

@@ -24,7 +24,7 @@ export class HorizonActionBar extends Component {
         this.isHidden = false;
         this.horizonRouter = HorizonRouter.getInstance();
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------

@@ -51,7 +51,7 @@ export class StopCardFailure extends View {
         this.failedCards = [];
 
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 
 	}
 

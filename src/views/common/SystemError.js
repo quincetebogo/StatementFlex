@@ -37,7 +37,7 @@ export class SystemError extends View {
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
 
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------

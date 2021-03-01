@@ -35,7 +35,7 @@ export class StatementsUnsuccess extends View {
         this.horizonRouter = HorizonRouter.getInstance();
 
         this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = incomingCallDetails.incidentRecId;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 
