@@ -50,6 +50,11 @@ export class AccessMenuBar extends Component {
 		return [
 			super.styles,
 			css`
+
+			capitec-title-bar {
+				--theme-label-title-font-size: 18px;
+			}
+
 			.insights{
 				width: 320px;
 				height: auto;
@@ -69,7 +74,6 @@ export class AccessMenuBar extends Component {
 				letter-spacing: 0;
 				line-height: 20px;
 				text-align: center;
-				margin-top: 12px;
 			}
 
 			.insights-label{
@@ -83,14 +87,6 @@ export class AccessMenuBar extends Component {
 				line-height: 24px;
 			}
 
-			.subtitle {
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  15px;
-				line-height: 14px;
-				text-align: left;
-			}
 			.back-ground-card{
 				height:300px;
 				border: none!important;
@@ -106,15 +102,6 @@ export class AccessMenuBar extends Component {
 			.access-header{
 				height:60px;
 				padding: 0px 0px 0px 20px;
-			
-			}
-
-			.header-icon{
-				padding:0px 20px 0px 0px;
-			}
-
-			#notify-icon {
-				padding-left: 145px;
 			}
 
 			.header-label{
@@ -152,10 +139,13 @@ export class AccessMenuBar extends Component {
 				font-weight:600;
 				line-height: 15px;
 			}
-			
+			capitec-group {
+				height: 306px;
+			}
 			.box-image {
 				height: 108px;
  				width: 108px;
+				 --theme-layout-gap-spacing: 22px;
 			}
 			.box-icon{
 				align-self:flex-end;
@@ -181,16 +171,16 @@ export class AccessMenuBar extends Component {
 	renderClientInsights() {
 		return html`
 			<capitec-card class="insights-card">
-				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-							<capitec-label class="insights-label" label="Client Insights"></capitec-label>
-							<capitec-icon class="header-icon" id="notify-icon" size="small" icon="system/notify"></capitec-icon>
-					</capitec-content-box>
-					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+				<capitec-title-bar type="default" label="Client Insights">
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon size="small" icon="system/notify"></capitec-icon>
+				</capitec-title-bar>
+
+				<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
+			
 						<img class="box-image" src="images/landingPageImages/marketing.svg"/>
 						<capitec-label class="insights-subtitle" type="subtitle" label="Client insights coming soon..."></capitec-label>
-					</capitec-content-box>
-					<!-- <hr> -->
+
 				</capitec-group>
 			</capitec-card>`;
 	}
@@ -214,7 +204,7 @@ export class AccessMenuBar extends Component {
 	}
 
 	renderAccessChannels() {
-		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="center" valign="center" gap="none">
 							<capitec-label class="box-label" label="${access}"></capitec-label>
 							<capitec-icon class="box-icon" 
 											size="small" 
