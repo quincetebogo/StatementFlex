@@ -175,7 +175,7 @@ export class TransactionHistory extends Component {
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
-			item.tranDate = `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+			item.tranDate = date; 
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
@@ -198,7 +198,7 @@ export class TransactionHistory extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -214,7 +214,8 @@ export class TransactionHistory extends Component {
 	}
 
 	_formatDate(date) {
-		return `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+		const newdate = new Date(Date.parse(date));
+		return `${newdate.getDate()} ${getMonthName(newdate.getMonth())} ${newdate.getFullYear()}`;
 	}
 
 	_getDateRange() {
@@ -406,10 +407,11 @@ export class TransactionHistory extends Component {
 					width: 1064px;
 					height: auto;
 					--theme-data-table-body-group-font-weight: 600;
+					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;
 					--theme-data-table-body-group-color: #3A3A3A;
 					--theme-data-table-font-color: #3A3A3A;
-					--theme-data-table-padding-right: 21px;
+					--theme-data-table-padding-right: 16px;
 					--theme-data-table-padding-top: 9px;
 					--theme-data-table-padding-bottom: 9px;
 					--theme-data-table-expander-size: 12px;
@@ -665,17 +667,18 @@ export class TransactionHistory extends Component {
 				groupField="groupByItem"
 				displayMode="LoadMore"
 				expandable="right"
+				fixed = ${true}
 				.expandRenderer="${(item) => this._renderExpander(item)}">
-					<capitec-table-column label="Transaction Date" field="tranDate" size="161px;"></capitec-table-column>
-					<capitec-table-column label="Description" field="description" size="411px;"></capitec-table-column>
+					<capitec-table-column label="Transaction Date" field="transactionDate" type="date" size="156px;"></capitec-table-column>
+					<capitec-table-column label="Description" field="description" size="410px;"></capitec-table-column>
 					<capitec-table-column
 						label="Transaction Status"
 						field="transactionStatus"
-						size="190px;" 
+						size="144px;" 
 						.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
-					<capitec-table-column label="Amount" field="amount" size="100px;" type="currency"></capitec-table-column>
-					<capitec-table-column label="Balance" field="balance" size="131px;" type="currency" align ="right"></capitec-table-column>
+					<capitec-table-column label="Amount" field="amount" size="158px;" type="currency"></capitec-table-column>
+					<capitec-table-column label="Balance" field="balance" size="130px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
 
 		`;
@@ -699,17 +702,17 @@ export class TransactionHistory extends Component {
 				<horizon-label 
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${item.postingDate}">
+					value = "${this._formatDate(item.postingDate)}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${item.processDate}">
+					value = "${this._formatDate(item.processDate)}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "POS">
+					value = "${item.transactionType}">
 				</horizon-label>
 			</capitec-group>
 
