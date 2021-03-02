@@ -80,9 +80,7 @@ export class FavouritesTile extends Component {
 
 		// Notify any subscribers that the link was clicked.
 		this.dispatchEvent(new CustomEvent(`click`, {
-			detail: {
-				selected: this.selected
-			}
+			detail: {}
 		}));
 		// Prevent the event from bubbling up.
 		event.stopPropagation();

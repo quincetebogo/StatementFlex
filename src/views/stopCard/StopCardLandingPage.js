@@ -47,7 +47,6 @@ export class StopCardLandingPage extends View {
 		
 		return html`
 		<horizon-stop-card
-		 class="tile ${this.type ? this.type : `stopCard`}${this.selected ? ` selected` : ``}"
 			.clientProfileDetails="${this.clientProfileDetails}"
 			.incomingCallDetails="${this.incomingCallDetails}"
 			@cards-stopped="${(event) => this._stoppedCards(event)}"
