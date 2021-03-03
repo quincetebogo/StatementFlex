@@ -112,7 +112,7 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incomingCallDetails.incidentRecId,
 			endReason: this.endCallReason.key,
-			resolution: ``,
+			resolution: this.endCallReason.value,
 			causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 

@@ -1,6 +1,6 @@
 import { HorizonStore } from 'app/store/HorizonStore';
 
-const DEFAULT_CAUSECODE = `ValidTransaction`;
+const DEFAULT_CAUSECODE = `NormalEnquiry`;
 
 /**
  * End call cause code
@@ -24,13 +24,13 @@ export class EndCallCauseCode {
 			"Need incomplete, bad connection": `ClientFailedSecurityCheck`
 		});
 		this.causeCode.set(`StopCard`, {
-			"Need Fulfilled": `NormalEnquiry`
+			"Need fulfilled": `NormalEnquiry`
 		});
 		this.causeCode.set(`Transact`, {
 			"Need incomplete, bad connection": `NormalEnquiry`
 		});
 		this.causeCode.set(`Transact`, {
-			"Need Fulfilled": `NormalEnquiry`
+			"Need fulfilled": `NormalEnquiry`
 		});
 	}
 
@@ -77,7 +77,7 @@ export class EndCallCauseCode {
 		};
 
 		if (toDoActionByClietNeed[clientNeed]) {
-			return this.causeCode.get(clientNeed)[reasonCode];
+			return toDoActionByClietNeed[clientNeed]();
 		}
 		return DEFAULT_CAUSECODE; // Default cause code
 	}
