@@ -247,7 +247,7 @@ export class Favourites extends View {
 	// ---------------
 
 	async _initialise() {
-        this._updateTopBar();
+       // this._updateTopBar();
 
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
