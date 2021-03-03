@@ -368,7 +368,6 @@ export class Favourites extends View {
 		};
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-		// const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
