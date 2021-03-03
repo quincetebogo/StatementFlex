@@ -12,7 +12,7 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "",
+		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
 	"LogRequestResponseModels" : true,
@@ -41,19 +41,19 @@
 	"mock": {
 		"enabled": false,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -73,7 +73,7 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
