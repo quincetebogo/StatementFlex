@@ -147,6 +147,13 @@ export class ConfirmCallerDetails extends Component {
 				this.confirmedCaller.cifNumber,
 				false
 			);
+
+			const state = {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation,
+				canCloseIncident: false
+			};
+			this.horizonStore.saveState(state);
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -263,7 +270,8 @@ export class ConfirmCallerDetails extends Component {
 
 		const state = {
 			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
+			callerInformation: this.callerInformation,
+			canCloseIncident: false
 		};
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {

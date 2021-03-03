@@ -75,6 +75,10 @@
 		"cardLimits": {
 			"enabled": false,
 			"positiveCase": true
+		},
+		"hasInsuranceProducts": {
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }

@@ -112,17 +112,14 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 *  Closes the incident that was created to track the call.
 	 * 
-	 * @param { object } details An object containg the incident for the call and the reason for ending the call
+	 * @param { object } endCallRequest An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
-	endCall(details, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const incidentRecId = details.incidentRecId;
-		const endCallReasonKey = details.endCallReason.key;
-
-		return this.wrapCall(this.channelService.endCall(incidentRecId, endCallReasonKey), `endCall`, errorHandler, autoRetries);
+	endCall(endCallRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.endCall(endCallRequest), `endCall`, errorHandler, autoRetries);
 	}
 
 	/**
