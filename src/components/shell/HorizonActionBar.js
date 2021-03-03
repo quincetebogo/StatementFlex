@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
@@ -14,13 +15,17 @@ export class HorizonActionBar extends Component {
 	// INITIALISATION
 	// --------------
 
-	constructor() {
-		super();
+    constructor() {
+        super();
 		this.referenceNo = ``;
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
-		this.isHidden = false;
+        this.isHidden = false;
+        this.horizonStore = HorizonStore.getInstance();
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 	}
 
 	// ----------
@@ -41,10 +46,11 @@ export class HorizonActionBar extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
-		super.connectedCallback();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
+    connectedCallback() {
+        super.connectedCallback();
+        this.eventAggregator = EventAggregator.getInstance();
+        this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		//this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
 		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
@@ -52,10 +58,20 @@ export class HorizonActionBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_onUpdateCallDetails(event) {
-		this.referenceNo = event.referenceNo;
-		this.phoneNumber = event.phoneNumber;
-		this.clientNeed = event.ivrOptionCode;
+    _stateChanged(state) {
+        if (state) {
+            this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
+            this.phoneNumber= this.incomingCallDetails.incomingTelephoneNumber;
+            this.clientNeed=this.incomingCallDetails.ivrOptionCode;
+            this.isUnverifiedNumber= this.isUnverifiedNumber;
+
+        }
+    }
+
+    _onUpdateCallDetails(event) {
+        this.referenceNo = event.referenceNo;
+        this.phoneNumber = event.phoneNumber;
+        this.clientNeed = event.ivrOptionCode;
 		this.isUnverifiedNumber = event.isUnverifiedNumber;
 	}
 
@@ -140,7 +156,7 @@ export class HorizonActionBar extends Component {
 	_mobileTemplate() {
 	}
 
-	_webTemplate() {
+    _webTemplate() {
 		return html`
 			<capitec-title-bar>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
