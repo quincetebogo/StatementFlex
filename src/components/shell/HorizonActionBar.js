@@ -50,7 +50,6 @@ export class HorizonActionBar extends Component {
         super.connectedCallback();
         this.eventAggregator = EventAggregator.getInstance();
         this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
-		//this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
 		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
@@ -61,9 +60,9 @@ export class HorizonActionBar extends Component {
     _stateChanged(state) {
         if (state) {
             this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
-            this.phoneNumber= this.incomingCallDetails.incomingTelephoneNumber;
-            this.clientNeed=this.incomingCallDetails.ivrOptionCode;
-            this.isUnverifiedNumber= this.isUnverifiedNumber;
+            this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+            this.clientNeed = this.incomingCallDetails.ivrOptionCode;
+            this.isUnverifiedNumber = this.isUnverifiedNumber;
 
         }
     }

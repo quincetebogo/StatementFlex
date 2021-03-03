@@ -2,9 +2,8 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
-import { HorizonStore } from 'app/store/HorizonStore';
-import 'platform/components';
 
+import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 
@@ -152,20 +151,7 @@ export class StopCard extends Component {
             }
         };
         this.horizonStore.saveState(state);
-
-		//this.eventAggregator.publish(`horizon-update-mini-profile`, {
-		//		name: this.clientProfileDetails.clientPersonalInformation.value.name.value,
-		//		idNumber: this.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
-		//		phoneNumber: this.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
-		//		livesIn: this.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
-		//		languagePreference: this.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
-		//		birthday: this.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-		//		isConfirmed: true,
-		//		isVerified: false,
-		//		verificationFailed: false,
-		//		is3rdParty: false
-		//	});
-
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
