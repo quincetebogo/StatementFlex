@@ -80,22 +80,15 @@ export class AccessMenuBar extends Component {
 				line-height: 24px;
 			}
 
-			.subtitle {
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  15px;
-				line-height: 14px;
-				text-align: left;
-			}
 			.back-ground-card{
 				height:300px;
 				border: none!important;
+				background-color :rgb(244, 244, 244);
 			}
 			.access-card{
 				height:320px;
 				width:320px;
-				background-color: #F5F5F5;
+				background-color: rgb(244, 244, 244);
 				padding: 20px 0px 0px 0px;
 				border: none!important;
 				
@@ -137,12 +130,19 @@ export class AccessMenuBar extends Component {
 				line-height: 24px;
 				background-color: #F7F7F7;
 				padding-left: 16px;
+				border-bottom: 0px;
+				margin-bottom: 4px;
 			}
 
 			.box-items{
 				height: auto;
 				align-items: center;
 				padding: 24px 24px 24px 24px;
+			}
+			.access-box-items {
+				height: auto;
+				align-items: center;
+				padding: 0px;
 			}
 			.box-label{
 				font-size:22px;
@@ -158,7 +158,54 @@ export class AccessMenuBar extends Component {
 				align-self:flex-end;
 				padding:0px 30px 0px 0px;
 				cursor:pointer;
-			}`
+			}
+			.tile-favourites {
+				width: 100%;
+				padding: 0px;
+				border-width: 0px;
+				margin-bottom: 16px;
+			}
+			.product {
+				width: var(--theme-product-tile-colour-display-width, 57px);
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			.tile-container {
+				display: inline-flex;
+				flex-direction: row;
+				box-sizing: border-box;
+				height: var(--theme-product-tile--height, 80px);
+				background-color: transparent;
+				padding: 0px;
+				width: 100%;
+				position: relative;
+				background-color: white;
+			}
+			.rectangle {
+				height: 72px;
+				width: 4px;
+				border-radius: 4px 0 0 4px;
+				background-color: #009DE0;
+			}
+			.heading {
+				align-self: center;
+			}
+
+			capitec-icon {
+				height: 26px;
+				width: 26px;
+			}
+			.label-title {
+				font-weight: 600;
+				--theme-label-strong-font-size: 18px;
+			}
+			.active-title {
+				--theme-label-strong-font-size: 15px;
+				text-align: left;
+			}
+		`
 		];
 	}
 
@@ -211,15 +258,48 @@ export class AccessMenuBar extends Component {
 	}
 
 	renderAccessChannels() {
-		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-							<capitec-label class="box-label" label="${access}"></capitec-label>
-							<capitec-icon class="box-icon" 
-											size="small" 
-											icon="system/more-action"
-											@click="${() => this.showAlert = true}">
-							</capitec-icon>
-							<capitec-label class="subtitle" label="Active"></capitec-label>
-						</capitec-content-box>`);
+		return html`
+			<capitec-content-box class="access-box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+
+				<button class="tile-favourites">
+						<div class="tile-container">
+							<div class="rectangle"></div>
+							<div class="product favourites">
+								<capitec-icon size="default" icon="system/access"></capitec-icon>
+							</div>
+							<div class="heading">
+								<capitec-label class="label-title" type="strong" label="App & Online Banking"></capitec-label>
+								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
+							</div>
+						</div>
+				</button>
+
+				<button class="tile-favourites">
+						<div class="tile-container">
+							<div class="rectangle"></div>
+							<div class="product favourites">
+							<capitec-icon size="default" icon="system/cellphone"></capitec-icon>
+							</div>
+							<div class="heading">
+								<capitec-label class="label-title" type="strong" label="USSD">${this.label}</capitec-label>
+								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
+							</div>
+						</div>
+				</button>
+
+				<button class="tile-favourites">
+						<div class="tile-container">
+							<div class="rectangle"></div>
+							<div class="product favourites">
+							<capitec-icon size="default" icon="system/messages"></capitec-icon>
+							</div>
+							<div class="heading">
+								<capitec-label class="label-title" type="strong" label="Notifications">${this.label}</capitec-label>
+								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
+							</div>
+						</div>
+				</button>
+			</capitec-content-box>`;
 	}
 
 	renderAccessChannelError() {
