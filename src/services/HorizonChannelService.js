@@ -421,7 +421,11 @@ export class HorizonChannelService extends Service {
 
 	async xdsQuestions(clientID) {
 		if (await this._mockEnabled(`xdsQuestions`)) {
-			return this._mock.xdsQuestions(clientID);
+			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+				clientID = this._mocking.xdsQuestions.substituteIdOnly;
+			} else {
+				return this._mock.xdsQuestions(clientID);
+			}
 		}
 
 		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
@@ -504,7 +508,7 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
   
-	savingsAccountLanding (cifNumber,nationalIDNumber,getGenericData) {	
+	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
 		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
