@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components';
@@ -53,6 +54,8 @@ export class StopCard extends Component {
 
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 
@@ -225,6 +228,7 @@ export class StopCard extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+		this._updateApplicationState();
 	}
 
 	_onClickReason(cardStopReason, rowData) {
@@ -305,6 +309,15 @@ export class StopCard extends Component {
 	_onAssignIncident() {
 		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderMode = RENDER_MODE.ASSIGN;
+	}
+
+	_updateApplicationState() {
+		if (this.cards.some(card => card.selected)) {
+			let state = this.horizonStore.recoverState();
+			state.canCloseIncident = true;
+			
+			this.horizonStore.saveState(state);
+		}
 	}
 
 	// ---------
