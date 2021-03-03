@@ -24,14 +24,7 @@ export class SavingsAccount extends Component {
 	constructor() {
 		super();
 
-		this.headerRecords = {
-			columnOne: `1928247288`,
-			columnTwo: `R20 916.00`, 
-			columnThree: `R20 567.00`, 
-			columnFour: `R349.00`, 
-			columnFive: `5.5%`,
-			columnSix: `Active`
-		};
+		this.landingPageInfo = null;
 	}
 
 	// -------------------
@@ -46,8 +39,17 @@ export class SavingsAccount extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 *
+	 * @property {Object} landingPageInfo Data for the Savings Account Landing Page display
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof SavingsAccount
+	 */
 	static get properties() {
 		return {
+			landingPageInfo: { type: Object },
 		};
 	}
 	
@@ -66,6 +68,10 @@ export class SavingsAccount extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	_formatCollectionAmount(amount) {
+		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	}
 	
 	// ---------
 	// RENDERING
@@ -227,27 +233,27 @@ export class SavingsAccount extends Component {
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
 					<horizon-label
 						label="Account Number"
-						value="${this.headerRecords.columnOne}">
+						value="${this.landingPageInfo.accountNumber}">
 					</horizon-label>
 					<horizon-label
 						label="Balance"
-						value="${this.headerRecords.columnTwo}">
+						value="${this._formatCollectionAmount(this.landingPageInfo.accountBalance)}">
 					</horizon-label>
 					<horizon-label
 						label="Available Balance"
-						value="${this.headerRecords.columnThree}">
+						value="${this._formatCollectionAmount(this.landingPageInfo.accountAvailableBalance)}">
 					</horizon-label>
 					<horizon-label
 						label="Pending amount"
-						value="${this.headerRecords.columnFour}">
+						value="${this._formatCollectionAmount(this.landingPageInfo.accountPendingAmount)}">
 					</horizon-label>
 					<horizon-label
 						label="Interest"
-						value="${this.headerRecords.columnFive}">
+						value="${this.landingPageInfo.interestRatePercentage}%">
 					</horizon-label>
 					<horizon-label
 						label="Status"
-						value="${this.headerRecords.columnSix}">
+						value="${this.landingPageInfo.accountStatus}">
 					</horizon-label>
 				</capitec-group>
 			</div>

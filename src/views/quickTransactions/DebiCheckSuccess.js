@@ -134,8 +134,8 @@ export class DebiCheckSuccess extends View {
 									right="DebiCheck Mandates"
 									toast="DebiCheck mandate declined."
 									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._debiCheckMandatesClick()}
-									?secondaryImage=${true}>
+									@right-click=${() => this._debiCheckMandatesClick()}>
+									
 				<section 
 					id="id-error-msg" 
 					slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
