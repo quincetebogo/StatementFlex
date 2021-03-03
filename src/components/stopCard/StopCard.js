@@ -4,7 +4,6 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
-
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 
@@ -52,6 +51,7 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+        this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
@@ -62,7 +62,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.isReassigned = false;
+        this.isReassigned = false;
+
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 	}
 
 	// ----------
@@ -118,7 +122,8 @@ export class StopCard extends Component {
 		};
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+        this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
@@ -129,19 +134,24 @@ export class StopCard extends Component {
 			}
 		);
 
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-				name: this.clientProfileDetails.clientPersonalInformation.value.name.value,
-				idNumber: this.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
-				phoneNumber: this.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
-				livesIn: this.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
-				languagePreference: this.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
-				birthday: this.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-				isConfirmed: true,
-				isVerified: false,
-				verificationFailed: false,
-				is3rdParty: false
-			});
-
+        const state = {
+            miniProfile: {
+                name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
+                idNumber: this.callerInformation.southAfricanIDNumber,
+                phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+                livesIn: this.callerInformation.livesIn,
+                languagePreference: this.callerInformation.languagePreference,
+                birthday: this.callerInformation.birthdate,
+                showButtons: this.callerInformation.verificationStatus === `verified`,
+                isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
+                isVerified: this.callerInformation.verificationStatus === `verified`,
+                verificationFailed: this.callerInformation.verificationStatus === `failed`,
+                is3rdParty: false,
+                isNonClient: this.callerInformation.verificationStatus === `non-client`
+            }
+        };
+        this.horizonStore.saveState(state);
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
