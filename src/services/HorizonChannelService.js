@@ -503,7 +503,12 @@ export class HorizonChannelService extends Service {
         return this._post(url, statement, this._setToken(), `sendSatement`);
     }
 
-    viewStatement(statement) {
+    async viewStatement(statement) {
+
+        if (await this._mockEnabled(`viewStatements`)) {
+            return this._mock.viewStatementsMocks();
+        }
+
         const url = `/clientcare/documents/${this._version}/statements/view-statement`;
 
         return this._post(url, statement, this._setToken(), `viewSatement`);

@@ -47,8 +47,8 @@ export class StatementsDialog extends Component {
 		this.availableCredit = "R" + this.accountInformation.credit;
 		this.savingsPlans = null;
 		this.savingsPlansSelected = false;
-		this.periodSelected = false;
-		this.showDatePicker = false;
+		this.periodSelected = "";
+		this.showDatePicker = true;
 		this.showCalendar = false;
 		this.showHide = "hide";
 		this.startDate;
@@ -62,8 +62,8 @@ export class StatementsDialog extends Component {
 		this.statementsHeader = "Statements";
 		this.accountSelected = "savingsAccount";
 		this.savingsPlanSelected = null;
-		this.statementPeriod;
-		this.statmentDays;
+		this.statementPeriod = "";
+		this.statmentDays="";
 		this.infoOrError = "info";
 		this.focusTransact = "";
 		this.focusSave = "";
@@ -71,11 +71,13 @@ export class StatementsDialog extends Component {
 		this.savingsPlanFocus = "";
 		this.firstPeriod = "";
 		this.choosePeriodFocus = "";
-		this.nextSend = "Next";
+        this.nextSend = "Next";
+        this.flag = "";
+		this.viewStatementPDF = "";
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
-        this._changePeriodSelection();
+      //  this._changePeriodSelection();
 
 
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
@@ -84,27 +86,29 @@ export class StatementsDialog extends Component {
 
     static get properties() {
         return {
-            currentStep: { type: Number },
-            availableSavings: { type: Number },
-            accountSelect: { type: String },
-            availableSavingsPlans: { type: Number },
-            availableCredit: { type: Number },
-            infoBannerMessage: { type: String },
-            savingsPlans: { type: Object },
-            period: { type: Object },
-            showDatePicker: { type: Boolean },
-            showCalendar: { type: Boolean },
-            startDate: { type: String },
-            endDate: { type: String },
-            range: { type: Number },
-            showHide: { type: String },
-            email: { type: String },
-            emailError: { type: String },
-            confirmError: { type: String },
-            displayDialog: { type: String },
-            displayPDF: { type: String },
-            statementsHeader: { type: String },
-            infoOrError: { type: String }
+            currentStep: { attribute: false },
+            availableSavings: { attribute: false },
+            accountSelect: { attribute: false },
+            availableSavingsPlans: { attribute: false },
+            availableCredit: { attribute: false },
+            infoBannerMessage: { attribute: false },
+            savingsPlans: { attribute: false },
+            period: { attribute: false },
+            showDatePicker: { attribute: false },
+            showCalendar: { attribute: false },
+            startDate: { attribute: false },
+            endDate: { attribute: false },
+            range: { attribute: false },
+            showHide: { attribute: false },
+            email: { attribute: false },
+            emailError: { attribute: false },
+            confirmError: { attribute: false },
+            displayDialog: { attribute: false },
+            displayPDF: { attribute: false },
+            statementsHeader: { attribute: false },
+            infoOrError: { attribute: false },
+            flag: { attribute: false },
+			viewStatementPDF: {attribute:false}
         };
     }
 
@@ -149,7 +153,7 @@ export class StatementsDialog extends Component {
     }
 
     _navigateSteppers(e, btn) {
-        console.log(e)
+        console.log("Navigate stepper e "+ e)
         if (this.currentStep == 1 && e.type == "click") {
             if (btn == "next") {
                 if (this.accountSelected == null) {
@@ -165,11 +169,13 @@ export class StatementsDialog extends Component {
             }
         } else if (this.currentStep == 2 && e.type == "click") {
             if (btn == "next") {
-                
+                if (this.statmentDays == "") {
+                    console.log("no date selected");
+                } else {
                     this.infoOrError = "info";
                     this.nextSend = "Send";
                     this.currentStep++;
-                
+                }                                             
             } else if (btn == "back") {
                 this.currentStep--;
             } else if (btn == "cancel") {
@@ -187,6 +193,7 @@ export class StatementsDialog extends Component {
                 }
             } else if (btn == "back") {
                 this.currentStep--;
+                this.nextSend = "Next";
             } else if (btn == "cancel") {
                 this.displayDialog = "close";
             }
@@ -312,69 +319,51 @@ export class StatementsDialog extends Component {
     }
 
     _periodChange(e, days) {
+        console.log("showCalendar " + this.showCalendar);
+        this.flag = e.currentTarget.id;
+        this.showCalendar = false;
         var currentDays = days;
-        this.statementPeriod = days / 30 + " months (" + days + " days)";
+        this.statementPeriod = days == 30 ? '1 Month (30 days)' : days / 30 + " months (" + days + " days)";
         this.statmentDays = "Last " + days + " days";
-		this.periodSelected = true;
-        console.log(this.periodSelected)
-		this._changePeriodSelection(currentDays);
-    }
-
-    //change message according to the step in the statements roadmap
-    _changePeriodSelection(period) {
-        this.infoOrError = "info";
-        if (period == "30") {
-            this.periodSelected = "30";
-            this.firstPeriod = "choosePeriodFocus";
-            this.secondPeriod = "";
-            this.thirdPeriod = "";
-            this.forthPeriod = "";
-            this._changeDateRange(30);
-        } else if (period == "90") {
-            this.periodSelected = "90";
-            this.secondPeriod = "choosePeriodFocus";
-            this.firstPeriod = "";
-            this.thirdPeriod = "";
-            this.forthPeriod = "";
-            this._changeDateRange(90);
-        } else if (period == "180") {
-            this.periodSelected = "180";
-            this.thirdPeriod = "choosePeriodFocus"
-            this.firstPeriod = "";
-            this.secondPeriod = "";
-            this.forthPeriod = "";
-            this._changeDateRange(180);
-        } else if (period == "270") {
-            this.periodSelected = "270";
-            this.forthPeriod = "choosePeriodFocus";
-            this.firstPeriod = "";
-            this.secondPeriod = "";
-            this.thirdPeriod = "";
-            this._changeDateRange(270);
+        if (e.currentTarget.checked) {
+            this._changeDateRange(currentDays);
+           // this._changePeriodSelection(currentDays);
         }
-
-
     }
-
+   
     _calendarSelectionChange(e) {
+       // this._clearErrors();
         var newDate = e.detail.new.date;
 		this.startDate = newDate;
 		this.endDate = new Date();
         var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
         var roundedRangeDiff = Math.floor(rangeDiff);
 
-        console.log(rangeDiff)
+        this.statmentDays = "Last " + roundedRangeDiff + " days";
+        this.statementPeriod = this._fullDate(this.startDate) + " - " + this._fullDate(this.endDate);
+        console.log("Difference range "+roundedRangeDiff)
 
         if (roundedRangeDiff > 90) {
             this.infoOrError = "error";
             this.errorBannerMessage = "Out of range."
         }
-        if (roundedRangeDiff == dateDiff || roundedRangeDiff < dateDiff) {
+        if (roundedRangeDiff == 90 || roundedRangeDiff < 90) {
             this.infoOrError = "info";
         }
     }
 
+
+    _fullDate(dateToFormat) {
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var fullDateString = dateToFormat.getDay() + " " + monthNames[dateToFormat.getMonth()] + " " + (dateToFormat.getYear() + 1900);
+        return fullDateString;
+    }
     _showDateRange(e) {
+        this.flag = "";
+        this.statmentDays = "";
+        console.log("showCalendar showrange " + this.showCalendar);
         this.showCalendar = e.currentTarget.checked;
     }
 
@@ -421,21 +410,21 @@ export class StatementsDialog extends Component {
 
 		const returnValue = await this.quickTransactionService.viewStatement();
 		console.log(returnValue);
-
-		if (returnValue) {
 			if (returnValue.succeeded) {
 				//render the PDF
-				this.viewStatementPDF = returnValue;
-			} else {
+				this.viewStatementPDF = returnValue.result.statementData;
+            } else {
+                console.log("can't view cs call failed");
 				//render an error
 			}
-		}
+		
 	}
 
     _closePDF() {
         this.displayPDF = false;
         this.statementsHeader = "Statements";
     }
+
 
     _sendingError(exception) {
         return true;
@@ -824,11 +813,10 @@ ${
     _renderChoosePeriod() {
         return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose Period"></capitec-label>
-				<capitec-radio-group class="periodRadioGroup">
-				<capitec-group layout="grid" rows="auto" column="auto">
-					<div class="choosePeriod ${this.firstPeriod}">
+				<capitec-group layout="grid" rows="auto" column="auto" class="periodRadioGroup">
+					<div class="choosePeriod ${this.flag === "oneMonth" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._periodChange(e, 30)}">
+							<capitec-radio id="oneMonth" @value-change="${(e) => this._periodChange(e, 30)}" ?checked="${this.flag==="oneMonth"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -836,9 +824,9 @@ ${
 							<capitec-label class="bottomLabel" label="Last 30 days"></capitec-label>
 						</div>
 					</div>
-					<div class="choosePeriod ${this.secondPeriod}">
+					<div class="choosePeriod ${this.flag === "threeMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._periodChange(e, 90)}">
+							<capitec-radio id="threeMonths" @value-change="${(e) => this._periodChange(e, 90)}" ?checked="${this.flag==="threeMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -846,9 +834,9 @@ ${
 							<capitec-label class="bottomLabel" label="Last 90 days"></capitec-label>
 						</div>
 					</div>
-					<div class="choosePeriod ${this.thirdPeriod}">
+					<div class="choosePeriod ${this.flag === "sixMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._periodChange(e, 180)}">
+							<capitec-radio id="sixMonths" @value-change="${(e) => this._periodChange(e, 180)}" ?checked="${this.flag==="sixMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -856,9 +844,9 @@ ${
 							<capitec-label class="bottomLabel" label="Last 180 days"></capitec-label>
 						</div>
 					</div>
-					<div class="choosePeriod ${this.forthPeriod}">
+					<div class="choosePeriod ${this.flag === "nineMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._periodChange(e, 270)}">
+							<capitec-radio id="nineMonths" @value-change="${(e) => this._periodChange(e, 270)}" ?checked="${this.flag==="nineMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -867,7 +855,6 @@ ${
 						</div>
 					</div>
 				</capitec-group>
-				</capitec-radio-group>
 
 					${
 						this._renderPeriodSelected()
@@ -879,10 +866,9 @@ ${
 	_renderPeriodSelected() {
 		return html `
 		<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-		<capitec-radio-group>
 					<div class="period">
 						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
+							<capitec-radio  @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
 						</div>
 						<div class="savingsPlanLabel">
@@ -890,7 +876,6 @@ ${
 							<capitec-label label="Up to 90 days"></capitec-label>
 						</div>
 					</div>
-				</capitec-radio-group>
 
 				${
             this.showCalendar ?
@@ -927,8 +912,8 @@ ${
 		<capitec-label class="chooseText" type="subtitle" label="View document"></capitec-label>
 		<div class="viewDocument">
 			<div class="labelSpace">
-				<capitec-label class="docLabel" label="1 Month (30 Days)" type="subtitle"></capitec-label>
-				<capitec-label class="docLabel" label="Last 30 days"></capitec-label>
+				<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
+				<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
 			</div>
 			<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
 		</div>
@@ -939,7 +924,10 @@ ${
     _renderPDFViewer() {
         return html`
 			<div slot="body" class="body">
-			<embed type="application/pdf" src="${this.viewStatementPDF}" />
+
+                <object data="data:base64,${this.viewStatementPDF}" type="application/pdf">
+                    <embed object-src="data:base64,${this.viewStatementPDF}" height="785px" width="976px" type="application/pdf" alt="pdf"/>
+                </object>
 			</div>
 				<capitec-button slot="footer" type="primary" label="Close" class="pdfClose" @click="${this._closePDF}"></capitec-button>
 

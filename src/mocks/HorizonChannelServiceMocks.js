@@ -43,7 +43,8 @@ export class HorizonChannelServiceMocks {
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`));
-		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
+        this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
+        this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`));
 	}
 
 	// ===============================
@@ -123,5 +124,12 @@ export class HorizonChannelServiceMocks {
 
 		// Code for a negative case could come here
 		return null;
-	}
+    }
+
+    viewStatementsMocks() {
+        if (this._mocking.viewStatements.positiveCase) {
+            return this.viewStatementsMock.PDF;
+        }
+        return null;
+    }
 }
