@@ -268,6 +268,8 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
+				} else {
+					this._updateApplicationState(`unverified`);
 				}
 			}
 

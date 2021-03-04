@@ -44,6 +44,8 @@ export class HorizonChannelServiceMocks {
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`));
+		this.stopCardMocks = await this._loadMockModule(this.stopCardMocks, `stopCard`, () => import(`../mocks/StopCardMockData`));
+		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`));
 	}
 
 	// ===============================
@@ -119,6 +121,24 @@ export class HorizonChannelServiceMocks {
 	getCardLimits() {
 		if (this._mocking.cardLimits.positiveCase) {
 			return this.cardLimitsMocks.mockCardLimits.cardLimits;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	stopCard() {
+		if (this._mocking.stopCard.positiveCase) {
+			return this.stopCardMocks.mockResponse;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	hasInsuranceProducts() {
+		if (this._mocking.hasInsuranceProducts.positiveCase) {
+			return this.hasInsuranceProductsMock.mockHasInsuranceProducts;
 		}
 
 		// Code for a negative case could come here
