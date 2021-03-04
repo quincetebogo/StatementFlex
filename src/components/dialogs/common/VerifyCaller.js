@@ -147,6 +147,9 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	async _securityQuestionsClick() {
+
+		this._stopSignalRConnection();
+
 		const clientID = this.callerInformation.southAfricanIDNumber;
 
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
@@ -169,6 +172,7 @@ export class VerifyCaller extends Component {
 
 	_skipClick() {
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this._stopSignalRConnection();
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
@@ -342,7 +346,7 @@ export class VerifyCaller extends Component {
 
 		if (verificationStatus) {
 			this._stopTimer();
-			this.horizonSignalRClient.stopConnection();
+			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
@@ -354,6 +358,10 @@ export class VerifyCaller extends Component {
 		} else {
 			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
 		}
+	}
+
+	_stopSignalRConnection() {
+		this.horizonSignalRClient.stopConnection();
 	}
 
 	// ---------
