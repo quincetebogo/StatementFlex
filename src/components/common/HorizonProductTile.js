@@ -233,7 +233,7 @@ export class HorizonProductTile extends Component {
                 }
 
                 .product {
-					height: calc(var(--theme-product-tile--height, 80px) - 2px);
+					height: calc(var(--theme-product-tile--height, 80px) - 3px);
                     width: var(--theme-product-tile-colour-display-width, 57px);
                     border-radius:  var(--theme-product-tile-colour-border-radius, 5.05px 0 0 5.05px);
 					border-left: var(--theme-product-tile-default-border-left, none);

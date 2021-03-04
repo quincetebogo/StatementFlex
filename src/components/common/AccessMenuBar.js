@@ -80,23 +80,14 @@ export class AccessMenuBar extends Component {
 				line-height: 24px;
 			}
 
-			.back-ground-card{
-				height:300px;
-				border: none!important;
-				background-color :rgb(244, 244, 244);
-			}
-			.access-card{
-				height:320px;
-				width:320px;
-				background-color: rgb(244, 244, 244);
-				padding: 20px 0px 0px 0px;
-				border: none!important;
-				
+			.access-group {
+				height: auto;
+				width: auto;
+				padding: 24px 0px 0px 0px;
 			}
 			.access-header{
 				height:60px;
 				padding: 0px 0px 0px 20px;
-			
 			}
 
 			.header-icon{
@@ -108,30 +99,12 @@ export class AccessMenuBar extends Component {
 			}
 
 			.header-label{
-				height: 24px;
-				width: 141px;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-			}
-
-			#access-label {
-				background-color: #4E6066;
-				height:52px;
-				width: 320x;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				background-color: #F7F7F7;
+				height: auto;
+				width: auto;
 				padding-left: 16px;
-				border-bottom: 0px;
-				margin-bottom: 4px;
+				--theme-label-default-font-size: 18px;
+				--theme-label-default-font-weight: 600;
+				--theme-layout-gap-spacing: 18px;
 			}
 
 			.box-items{
@@ -139,70 +112,9 @@ export class AccessMenuBar extends Component {
 				align-items: center;
 				padding: 24px 24px 24px 24px;
 			}
-			.access-box-items {
-				height: auto;
-				padding: 0px;
-			}
-			.box-label{
-				font-size:22px;
-				font-weight:600;
-				line-height: 15px;
-			}
-			
 			.box-image {
 				height: 152px;
  				width: 210px;
-			}
-			.box-icon{
-				align-self:flex-end;
-				padding:0px 30px 0px 0px;
-				cursor:pointer;
-			}
-			.tile-favourites {
-				width: 100%;
-				padding: 0px;
-				border-width: 0px;
-				margin-bottom: 16px;
-			}
-			.product {
-				width: var(--theme-product-tile-colour-display-width, 57px);
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-			}
-
-			.tile-container {
-				display: inline-flex;
-				flex-direction: row;
-				box-sizing: border-box;
-				height: var(--theme-product-tile--height, 80px);
-				background-color: transparent;
-				padding: 0px;
-				width: 100%;
-				position: relative;
-				background-color: white;
-			}
-			.rectangle {
-				height: 72px;
-				width: 4px;
-				border-radius: 4px 0 0 4px;
-				background-color: #009DE0;
-			}
-			.heading {
-				align-self: center;
-			}
-
-			capitec-icon {
-				height: 26px;
-				width: 26px;
-			}
-			.label-title {
-				font-weight: 600;
-				--theme-label-strong-font-size: 18px;
-			}
-			.active-title {
-				--theme-label-strong-font-size: 15px;
-				text-align: left;
 			}
 			horizon-product-tile {
 				--theme-product-tile--height: 72px;
@@ -223,7 +135,7 @@ export class AccessMenuBar extends Component {
 					${this.renderClientInsights()}
 				</div>
 				<div>
-					${this.renderAccessExpander()}
+					${this.renderAccessChannelTabs()}
 				</div>
 			</section>
 			${this.renderAccessChannelError()}`;
@@ -246,27 +158,11 @@ export class AccessMenuBar extends Component {
 			</capitec-card>`;
 	}
 
-	renderAccessExpander() {
+	renderAccessChannelTabs() {
 		return html`
-			<capitec-card class="access-card">
-				<capitec-card class="back-ground-card"> 
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-						<capitec-content-box class="access-header" id="access-label" layout="horizontal" halign="left" valign="center" gap="none">
-							<!-- <capitec-icon class="header-icon" 
-										  size="medium" 
-										  icon="system/unlock-files-action">
-							</capitec-icon> -->
-							<capitec-label class="header-label" label="Access Channels"></capitec-label>
-						</capitec-content-box>
-						${this.renderAccessChannels()}
-					</capitec-group>
-				</capitec-card>
-			</capitec-card>`;
-	}
+			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
-	renderAccessChannels() {
-		return html`
-			<capitec-content-box class="access-box-items" layout="vertical" halign="stretch" valign="top" gap="none">
 				<horizon-product-tile 
 					type="default"
 					label="App & Online Banking"
@@ -293,7 +189,9 @@ export class AccessMenuBar extends Component {
 					icon="system/messages"
 					style="width: 320px;">
 				</horizon-product-tile>
-			</capitec-content-box>`;
+
+			</capitec-group>
+		`;
 	}
 
 	renderAccessChannelError() {
