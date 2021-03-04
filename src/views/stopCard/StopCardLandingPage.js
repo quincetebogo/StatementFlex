@@ -43,7 +43,6 @@ export class StopCardLandingPage extends View {
 	}
 
 	render() {
-		
 		return html`
 		<horizon-stop-card
 			.clientProfileDetails="${this.clientProfileDetails}"
