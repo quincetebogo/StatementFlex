@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'platform/components';
-
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 
@@ -52,7 +52,10 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+        this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 
@@ -60,6 +63,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
+        this.isReassigned = false;
+
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
         this.isReassigned = false;
 
         this.horizonRouter = HorizonRouter.getInstance();
@@ -120,7 +128,8 @@ export class StopCard extends Component {
 		};
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+        this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
@@ -131,19 +140,24 @@ export class StopCard extends Component {
 			}
 		);
 
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-				name: this.clientProfileDetails.clientPersonalInformation.value.name.value,
-				idNumber: this.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
-				phoneNumber: this.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
-				livesIn: this.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
-				languagePreference: this.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
-				birthday: this.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-				isConfirmed: true,
-				isVerified: false,
-				verificationFailed: false,
-				is3rdParty: false
-			});
-
+        const state = {
+            miniProfile: {
+                name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
+                idNumber: this.callerInformation.southAfricanIDNumber,
+                phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+                livesIn: this.callerInformation.livesIn,
+                languagePreference: this.callerInformation.languagePreference,
+                birthday: this.callerInformation.birthdate,
+                showButtons: this.callerInformation.verificationStatus === `verified`,
+                isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
+                isVerified: this.callerInformation.verificationStatus === `verified`,
+                verificationFailed: this.callerInformation.verificationStatus === `failed`,
+                is3rdParty: false,
+                isNonClient: this.callerInformation.verificationStatus === `non-client`
+            }
+        };
+        this.horizonStore.saveState(state);
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
@@ -206,6 +220,7 @@ export class StopCard extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+		this._updateApplicationState();
 	}
 
 	_onClickReason(cardStopReason, rowData) {
@@ -287,6 +302,15 @@ export class StopCard extends Component {
 	_onAssignIncident() {
 		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderMode = RENDER_MODE.ASSIGN;
+	}
+
+	_updateApplicationState() {
+		if (this.cards.some(card => card.selected)) {
+			let state = this.horizonStore.recoverState();
+			state.canCloseIncident = true;
+			
+			this.horizonStore.saveState(state);
+		}
 	}
 
 	// ---------

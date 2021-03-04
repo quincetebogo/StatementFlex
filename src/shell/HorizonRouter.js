@@ -28,7 +28,9 @@ const HORIZON_ROUTES = Object.freeze({
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
-	CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`
+    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
+    PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
+    PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
 });
 
 /**
@@ -207,6 +209,14 @@ export class HorizonRouter {
         //get the rec id and replace the keyword in the constant url
         this.strackURL = this.strackURL.replace("$incidentRecId", incidentRecId);
         window.open(this.strackURL);
+    }
+
+    navigateToProofOfAccountSuccess() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
+    }
+
+    navigateToProofOfAccountFailed() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
     }
 
 	_productLandingPagesActive() {
@@ -497,5 +507,21 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
 		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
+    },
+    {
+        name: `horizon-proof-of-account-success`,
+        title: `ProofOfAccountSuccess`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    },
+    {
+        name: `horizon-proof-of-account-failure`,
+        title: `ProofOfAccountFailed`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    }
 ];

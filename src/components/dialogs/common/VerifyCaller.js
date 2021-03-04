@@ -158,6 +158,8 @@ export class VerifyCaller extends Component {
 				this._updateApplicationState(`failed`);
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+				this._stopTimer(this.itaTimer);
+				this.itaTimer = null;
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
@@ -195,9 +197,9 @@ export class VerifyCaller extends Component {
 		this.seconds = ITA_TIMEOUT_SECS;
 
 		if (this.itaTimer) {
-			this.itaFailedCount += 1;
-			clearInterval(this.itaTimer);
+			this._stopTimer(this.itaTimer);
 			this.itaTimer = null;
+			this.itaFailedCount += 1;
 		}
 
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
@@ -266,6 +268,8 @@ export class VerifyCaller extends Component {
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
 					this._navigateToItaVerificationFailed();
+				} else {
+					this._updateApplicationState(`unverified`);
 				}
 			}
 
@@ -273,6 +277,11 @@ export class VerifyCaller extends Component {
 		}, 1000);
 
 		return startTimer;
+	}
+
+	_stopTimer(timer) { 
+		clearInterval(timer);
+		return null;
 	}
 
 	_navigateToItaVerificationFailed() {
@@ -486,7 +495,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-security-question 
 					.incomingCallDetails="${this.incomingCallDetails}"
-	                                .callerInformation="${this.callerInformation}" 
+					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"

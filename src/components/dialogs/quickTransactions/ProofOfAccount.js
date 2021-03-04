@@ -1,29 +1,33 @@
-import { View, css, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
-export class ProofOfAccount extends View {
+export class ProofOfAccount extends Component {
     /*
      * INITIALIZATION
      */
     constructor() {
         super();
         // Variables
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
         this.id_emailAddress = ``;
         this.id_confirmEmail = ``;
         this.isBusy = false;
         this.alertBannerMessage = ``;
         this.errMessage = {
-            id_emailAddress: ``
+            id_emailAddress: ``,
+			id_confirmEmail: ``
         };
         this.label_err = ``;
 
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
         this.savingAccInfo = {};
-        this.landingPageInfo = ``;
+        this.landingPageInfo = {};
 
-        this.horizonStore = HorizonStore.getInstance();
 
+        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
 
     /*
@@ -31,11 +35,15 @@ export class ProofOfAccount extends View {
      */
     static get properties() {
         return {
-            isBusy: { type: Boolean },
-            emailAddress: { type: String },
-            alertBannerMessage: { type: String },
-            account_open_Date: { attributge: false },
-            account_number: {type: String}
+			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+            isBusy: { attribute: false },
+            emailAddress: { attribute: false },
+            alertBannerMessage: { attribute: false },
+            account_open_Date: { attribute: false },
+            account_number: { attribute: false },
+            account_type: {attribute: false }
         };
     }
 
@@ -44,9 +52,11 @@ export class ProofOfAccount extends View {
      */
     connectedCallback() {
         super.connectedCallback();
-        //holding values in your page
+        // holding values in your page
         this.emailAddress = null;
-        //TODO: add values used in screen such as acc number and open date
+        this.account_open_Date = null;
+        this.account_number = null;
+        this.account_type = null;
     }
 
     /*
@@ -54,9 +64,9 @@ export class ProofOfAccount extends View {
      */
 
 
-    _sendClick() {
+   async _sendClick() {
         if (this._validateEmail()) {
-            //get account open date and number and save to state
+            // get account open date and number and save to state
             const state = {
                 account_number: this.landingPageInfo.account_number,
                 account_open_Date: this.landingPageInfo.account_open_Date
@@ -64,13 +74,28 @@ export class ProofOfAccount extends View {
 
             this.horizonStore.saveState(state);
 
-            //add service call
-            //if(this._serviceCall()){
-            //navigate to success}
-            //else {
-            //navigate to unsuccess}
+            const clientInfo = {
+                "cifNumber": this.callerInformation.cifNumber,
+                "account_number": this.landingPageInfo.account_number,
+                "account_open_Date": this._formatDate(this.landingPageInfo.account_open_Date),
+                "emailAddress": this.emailAddress,
+                "account_type": this.landingPageInfo.account_type
+            };
+            
+            const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+            if (returnValue.succeeded) {
+                this.horizonRouter.navigateToProofOfAccountSuccess();
+            } else {
+                this.horizonRouter.navigateToProofOfAccountFailed();
+            }
         }
 
+    }
+
+    _formatDate(dateToFormat) {
+        const tempdate = dateToFormat.toISOString().slice(0, 10);
+        return tempdate;
     }
 
     _cancelClick() {
@@ -81,31 +106,22 @@ export class ProofOfAccount extends View {
      * PRIVATE METHODS
      */
 
-    _serviceCall() {
-        //TODO
-       // /clientcare/documents / v1 / client / send - proof - of - account 
-
-        //fetch('url')
-        //.then(response => { return response.json(); })
-        //.then(user=>{console.log(user);})
-    }
-
     _validateEmail() {
-        var emailAddress = this.id_emailAddress;
-        var confirmEmailAddress = this.id_confirmEmail;
-        if (emailAddress != null && emailAddress.includes("@") && (emailAddress == confirmEmailAddress)) {
+        const emailAddress = this.id_emailAddress;
+        const confirmEmailAddress = this.id_confirmEmail;
+        if (emailAddress !== null && emailAddress.includes(`@`) && emailAddress === confirmEmailAddress) {
             this.alertBannerMessage = ``;
             return true;
-        } else if (emailAddress == '' || confirmEmailAddress == '') {
-            this.alertBannerMessage = `Please complete all fields`;
+        } else if (emailAddress === `` || confirmEmailAddress === ``) {
+            this.alertBannerMessage = `Complete all fields to continue`;
             return false;
-        } else if (emailAddress != confirmEmailAddress) {
+        } else if (emailAddress !== confirmEmailAddress) {
             this.alertBannerMessage = `Email addresses do not match.`;
             return false;
-        } else {
-            this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
-            return false;
         }
+
+        this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+        return false;
     }
 
     _onKeyPress(e) {
@@ -128,11 +144,14 @@ export class ProofOfAccount extends View {
         return fieldValue === `` || fieldValue === null || fieldValue === undefined;
     }
 
+    _errorHandler(ex) {
+
+        return true;
+    }
+
     /*
      * PUBLIC METHODS
      */
-
-
 
     /*
      * RENDERING
@@ -212,12 +231,11 @@ export class ProofOfAccount extends View {
 
 
     _mobileTemplate() {
-        _webTemplate();
+        return _webTemplate();
     }
 
 
     _webTemplate() {
-        console.log("render");
         return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
@@ -257,32 +275,50 @@ export class ProofOfAccount extends View {
 
     _renderEmailFields() {
         return html`
-<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
-	<div class="email-div">
-		<capitec-label class="search-label" label="Enter email address" tabindex="-1"> </capitec-label>
-		<capitec-text-field class="email-text" id="id_emailAddress" focussed value="${this.id_emailAddress}"
-			name="mailAddress" @value-changed="${(e) => this._valueChanged(e)}"
-			@key-input="${(e) => this._onKeyPress(e)}" label="Email address" error="${this.errMessage.id_emailAddress}">
-		</capitec-text-field>
-	</div>
+		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
+			<div class="email-div">
+				<capitec-label class="search-label" label="Enter email address" tabindex="-1"> </capitec-label>
+				<capitec-text-field 
+					class="email-text" 
+					id="id_emailAddress" 
+					focussed value="${this.id_emailAddress}"
+					name="mailAddress" 
+					@value-changed="${(e) => this._valueChanged(e)}"
+					@key-input="${(e) => this._onKeyPress(e)}" 
+					label="Email address" 
+					error="${this.errMessage.id_emailAddress}">
+				</capitec-text-field>
+			</div>
 
-	<div class="email-div">
-		<capitec-label class="confirm-search-label" label="Confirm email address" type="title"></capitec-label>
-		<capitec-text-field class="email-text" id="id_confirmEmail" .value="${this.id_confirmEmail}"
-			@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
-			name="confirmMailAddress" label="Email address" error="${this.errMessage.id_confirmEmail}">
-		</capitec-text-field>
-	</div>
-</capitec-group>
+			<div class="email-div">
+				<capitec-label class="confirm-search-label" label="Confirm email address" type="title"></capitec-label>
+				<capitec-text-field 
+					class="email-text" id="id_confirmEmail" 
+					.value="${this.id_confirmEmail}"
+					@value-changed="${(e) => this._valueChanged(e)}" 
+					@key-input="${(e) => this._onKeyPress(e)}"
+					name="confirmMailAddress" label="Email address" 
+					error="${this.errMessage.id_confirmEmail}">
+				</capitec-text-field>
+			</div>
+		</capitec-group>
 		`;
     }
 
     _renderFooter() {
         return html`
 		<capitec-group layout="horizontal">
-			<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${(e) => this._cancelClick(e)}">
+			<capitec-button 
+				id="id-cancel-button" 
+				type="clear" 
+				label="Cancel" 
+				@click="${(e) => this._cancelClick(e)}">
 			</capitec-button>
-			<capitec-button id="id-send-button" type="primary" label="Send" @click="${(e) => this._sendClick(e)}">
+			<capitec-button 
+				id="id-send-button" 
+				type="primary" 
+				label="Send" 
+				@click="${(e) => this._sendClick(e)}">
 			</capitec-button>
 		</capitec-group>
 		`;

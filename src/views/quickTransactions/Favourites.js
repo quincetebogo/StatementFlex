@@ -53,9 +53,9 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -70,7 +70,8 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
 		this.cards = [];
-		this.debiCheckDetails = {};
+        this.debiCheckDetails = {};
+        this.isUnverifiedNumber = false
 
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
@@ -246,7 +247,7 @@ export class Favourites extends View {
 	// ---------------
 
 	async _initialise() {
-		this._updateTopBar();
+       // this._updateTopBar();
 
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
@@ -276,13 +277,14 @@ export class Favourites extends View {
 		}
 	}
 
-	_updateTopBar() {
+    _updateTopBar() {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+                ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+                isUnverifiedNumber: this.isUnverifiedNumber
 			}
 		);
 	}
@@ -419,9 +421,7 @@ export class Favourites extends View {
 	}
 
 	_proofOfAccount() {
-		// TODO: Functionality to generate proof of account comes here
         this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-
 	}
 
 	_unavailableOption() {
@@ -479,7 +479,7 @@ export class Favourites extends View {
 	}
 
 	_renderFavouritesLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.isLoading
+		return (this.renderMode === RENDER_MODE.MAIN_PAGE || this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT) && !this.isLoading
 			? html`<horizon-favourite-transactions 
 						class="favourites"
 						.landingPageInfo="${this.landingPageInfo}"
@@ -582,7 +582,7 @@ export class Favourites extends View {
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}">
-				</horizon-proof-of-account>`
+                </horizon-proof-of-account>`
             : html``; 
     }
 }
