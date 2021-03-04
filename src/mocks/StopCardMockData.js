@@ -1,5 +1,6 @@
+
 export const stopCardMockResponse = {
-	"instruction": "string",
+	instruction: ``,
 	cards: [
 		{
 			cardNumber: `4000000000000062`,
@@ -32,187 +33,126 @@ export const stopCardMockResponse = {
 			}
 		}
 	],
-	"incomingTelephoneNumber": "string",
-	"voiceReferenceNumber": "string",
-	"notificationBell": {
-	  "enabled": true,
-	  "tabIndex": 0,
-	  "visible": true
+	incomingTelephoneNumber: ``,
+	voiceReferenceNumber: ``,
+	notificationBell: {
+		enabled: true,
+		tabIndex: 0,
+		visible: true
 	},
-	"clientPersonalInformation": {
-	  "required": true,
-	  "value": {
-		"name": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
+	clientPersonalInformation: {
+		required: true,
+		value: {
+			name: {
+				required: true,
+				value: `Mr A RUITERS`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			southAfricanIDNumber: {
+				required: true,
+				value: `7207125191084`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			verifiedTelephoneNumber: {
+				required: true,
+				value: null,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			livesIn: {
+				required: true,
+				value: `ROBERTSON`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			languagePreference: {
+				required: true,
+				value: `Y`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			birthdate: {
+				required: true,
+				value: `07/12/1972`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			cifNumber: {
+				required: true,
+				value: `152486852`,
+				inputValidationOption: {
+					validationEnabled: false,
+					inputRegexValidation: ``,
+					validationFailedMessage: ``
+				},
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			viewProfileButton: {
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			},
+			documentsButton: {
+				enabled: false,
+				tabIndex: -1,
+				visible: true
+			}
 		},
-		"southAfricanIDNumber": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
+		inputValidationOption: {
+			validationEnabled: true,
+			inputRegexValidation: ``,
+			validationFailedMessage: ``
 		},
-		"verifiedTelephoneNumber": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		},
-		"livesIn": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		},
-		"languagePreference": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		},
-		"birthdate": {
-		  "required": true,
-		  "value": "string",
-		  "inputValidationOption": {
-			"validationEnabled": true,
-			"inputRegexValidation": "string",
-			"validationFailedMessage": "string"
-		  },
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		},
-		"viewProfileButton": {
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		},
-		"documentsButton": {
-		  "enabled": true,
-		  "tabIndex": 0,
-		  "visible": true
-		}
-	  },
-	  "inputValidationOption": {
-		"validationEnabled": true,
-		"inputRegexValidation": "string",
-		"validationFailedMessage": "string"
-	  },
-	  "enabled": true,
-	  "tabIndex": 0,
-	  "visible": true
+		enabled: false,
+		tabIndex: -1,
+		visible: true
 	},
-	"notAuthorizedLink": {
-	  "enabled": true,
-	  "tabIndex": 0,
-	  "visible": true
+	notAuthorizedLink: {
+		enabled: true,
+		tabIndex: -1,
+		visible: true
 	},
-	"authorized": true,
-	"clientInsights": {},
-	"clientAccess": {
-	  "app": {
-		"possibleValues": [
-		  {
-			"key": 0,
-			"value": "string"
-		  }
-		],
-		"required": true,
-		"value": "string",
-		"inputValidationOption": {
-		  "validationEnabled": true,
-		  "inputRegexValidation": "string",
-		  "validationFailedMessage": "string"
-		},
-		"enabled": true,
-		"tabIndex": 0,
-		"visible": true
-	  },
-	  "ussd": {
-		"possibleValues": [
-		  {
-			"key": 0,
-			"value": "string"
-		  }
-		],
-		"required": true,
-		"value": "string",
-		"inputValidationOption": {
-		  "validationEnabled": true,
-		  "inputRegexValidation": "string",
-		  "validationFailedMessage": "string"
-		},
-		"enabled": true,
-		"tabIndex": 0,
-		"visible": true
-	  },
-	  "smsNotification": {
-		"possibleValues": [
-		  {
-			"key": 0,
-			"value": "string"
-		  }
-		],
-		"required": true,
-		"value": "string",
-		"inputValidationOption": {
-		  "validationEnabled": true,
-		  "inputRegexValidation": "string",
-		  "validationFailedMessage": "string"
-		},
-		"enabled": true,
-		"tabIndex": 0,
-		"visible": true
-	  },
-	  "cards": {
-		"possibleValues": [
-		  {
-			"key": 0,
-			"value": "string"
-		  }
-		],
-		"required": true,
-		"value": "string",
-		"inputValidationOption": {
-		  "validationEnabled": true,
-		  "inputRegexValidation": "string",
-		  "validationFailedMessage": "string"
-		},
-		"enabled": true,
-		"tabIndex": 0,
-		"visible": true
-	  }
-	}
-  };
+	authorized: true,
+	clientInsights: {},
+	clientAccess: {}
+};

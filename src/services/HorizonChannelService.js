@@ -243,17 +243,14 @@ export class HorizonChannelService extends Service {
 	/**
 	 * Records the end call reason/cause code against an incident
 	 * 
-	 * @param {string} incidentRecId The Incident identfier
-	 * @param {string} reasonCode The end call reason/cause code
+	 * @param {Object} endCallRequest End call request
 	 * @returns {Object} Either success or a failure object
 	 * @memberof HorizonChannelService
 	 */
-	endCall(incidentRecId, reasonCode) {
+	endCall(endCallRequest) {
 		return this._post(
-			`/clientcare/call/${this._version}/end-call`, {
-				"incidentRecId": incidentRecId,
-				"endReason": reasonCode
-			},
+			`/clientcare/call/${this._version}/end-call`,
+			endCallRequest,
 			this._setToken(),
 			`endCall`
 		);
@@ -305,7 +302,6 @@ export class HorizonChannelService extends Service {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-
 		if (await this._mockEnabled(`stopCard`)) {
 			return this._mock.stopCard();
 		}
@@ -379,7 +375,11 @@ export class HorizonChannelService extends Service {
 	// INSURE METHODS
 	// --------------
 
-	hasInsuranceProducts(insuranceClientInfo) {
+	async hasInsuranceProducts(insuranceClientInfo) {
+		if (await this._mockEnabled(`hasInsuranceProducts`)) {
+			return this._mock.hasInsuranceProducts();
+		}
+
 		const url = `/clientcare/insure/${this._version}/landing?` +
 			`IdNumber=${insuranceClientInfo.IdNumber}&` +
 			`Cif=${insuranceClientInfo.CifNumber}&` +
@@ -421,7 +421,11 @@ export class HorizonChannelService extends Service {
 
 	async xdsQuestions(clientID) {
 		if (await this._mockEnabled(`xdsQuestions`)) {
-			return this._mock.xdsQuestions(clientID);
+			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+				clientID = this._mocking.xdsQuestions.substituteIdOnly;
+			} else {
+				return this._mock.xdsQuestions(clientID);
+			}
 		}
 
 		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
@@ -504,7 +508,7 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
   
-	savingsAccountLanding (cifNumber,nationalIDNumber,getGenericData) {	
+	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
 		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
