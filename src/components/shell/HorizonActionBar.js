@@ -62,7 +62,7 @@ export class HorizonActionBar extends Component {
             this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
             this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
             this.clientNeed = this.incomingCallDetails.ivrOptionCode;
-            this.isUnverifiedNumber = this.isUnverifiedNumber;
+            this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
 
         }
     }
