@@ -123,6 +123,7 @@ export class AccessMenuBar extends Component {
 				--theme-product-tile-default-border-left: 4px solid #009DE0;
 				--theme-product-tile-hover-shadow: none;
 				--theme-product-tile-focus-shadow: none;
+				--theme-layout-gap-spacing: 16px;
 			}
 		`
 		];
@@ -168,8 +169,7 @@ export class AccessMenuBar extends Component {
 					label="App & Online Banking"
 					subtitle="active"
 					detail=""
-					icon="system/access"
-					style="width: 320px; margin-bottom: 16px;">
+					icon="system/access">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -177,8 +177,7 @@ export class AccessMenuBar extends Component {
 					label="USSD"
 					subtitle="active"
 					detail=""
-					icon="system/cellphone"
-					style="width: 320px; margin-bottom: 16px;">
+					icon="system/cellphone">
 				</horizon-product-tile>
 
 				<horizon-product-tile 
@@ -186,8 +185,7 @@ export class AccessMenuBar extends Component {
 					label="Notifications"
 					subtitle="active"
 					detail=""
-					icon="system/messages"
-					style="width: 320px;">
+					icon="system/messages">
 				</horizon-product-tile>
 
 			</capitec-group>
