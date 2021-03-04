@@ -39,21 +39,21 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -73,7 +73,7 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

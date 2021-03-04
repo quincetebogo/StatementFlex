@@ -141,7 +141,6 @@ export class AccessMenuBar extends Component {
 			}
 			.access-box-items {
 				height: auto;
-				align-items: center;
 				padding: 0px;
 			}
 			.box-label{
@@ -205,6 +204,14 @@ export class AccessMenuBar extends Component {
 				--theme-label-strong-font-size: 15px;
 				text-align: left;
 			}
+			horizon-product-tile {
+				--theme-product-tile--height: 72px;
+				--theme-product-tile-border-radius: 4px;
+				--theme-product-tile-colour-border-radius: 4px 0 0 4px;
+				--theme-product-tile-default-border-left: 4px solid #009DE0;
+				--theme-product-tile-hover-shadow: none;
+				--theme-product-tile-focus-shadow: none;
+			}
 		`
 		];
 	}
@@ -260,45 +267,32 @@ export class AccessMenuBar extends Component {
 	renderAccessChannels() {
 		return html`
 			<capitec-content-box class="access-box-items" layout="vertical" halign="stretch" valign="top" gap="none">
+				<horizon-product-tile 
+					type="default"
+					label="App & Online Banking"
+					subtitle="active"
+					detail=""
+					icon="system/access"
+					style="width: 320px; margin-bottom: 16px;">
+				</horizon-product-tile>
 
-				<button class="tile-favourites">
-						<div class="tile-container">
-							<div class="rectangle"></div>
-							<div class="product favourites">
-								<capitec-icon size="default" icon="system/access"></capitec-icon>
-							</div>
-							<div class="heading">
-								<capitec-label class="label-title" type="strong" label="App & Online Banking"></capitec-label>
-								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
-							</div>
-						</div>
-				</button>
+				<horizon-product-tile 
+					type="default"
+					label="USSD"
+					subtitle="active"
+					detail=""
+					icon="system/cellphone"
+					style="width: 320px; margin-bottom: 16px;">
+				</horizon-product-tile>
 
-				<button class="tile-favourites">
-						<div class="tile-container">
-							<div class="rectangle"></div>
-							<div class="product favourites">
-							<capitec-icon size="default" icon="system/cellphone"></capitec-icon>
-							</div>
-							<div class="heading">
-								<capitec-label class="label-title" type="strong" label="USSD">${this.label}</capitec-label>
-								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
-							</div>
-						</div>
-				</button>
-
-				<button class="tile-favourites">
-						<div class="tile-container">
-							<div class="rectangle"></div>
-							<div class="product favourites">
-							<capitec-icon size="default" icon="system/messages"></capitec-icon>
-							</div>
-							<div class="heading">
-								<capitec-label class="label-title" type="strong" label="Notifications">${this.label}</capitec-label>
-								<capitec-label class="active-title" type="strong" label="active"></capitec-label>
-							</div>
-						</div>
-				</button>
+				<horizon-product-tile 
+					type="default"
+					label="Notifications"
+					subtitle="active"
+					detail=""
+					icon="system/messages"
+					style="width: 320px;">
+				</horizon-product-tile>
 			</capitec-content-box>`;
 	}
 
