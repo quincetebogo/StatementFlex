@@ -135,7 +135,7 @@ export class VerifyBySecurityQuestions extends Component {
 			this.alertBannerMessage = ``;
 			this.checked = false;
 
-			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestionss);
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
 
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this.callerInformation.verificationStatus = `verified`;
