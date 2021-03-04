@@ -241,8 +241,7 @@ export class VerifyCaller extends Component {
 			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToSystemError();
-		return true;
+		this.xdsMessage = `System error. Please try again later`;
 	}
 
 	_itaErrorHandler(exception) {
