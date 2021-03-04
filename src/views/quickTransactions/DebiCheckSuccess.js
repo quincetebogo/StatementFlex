@@ -65,11 +65,6 @@ export class DebiCheckSuccess extends View {
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
 		}
 	}
 

@@ -53,9 +53,9 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -70,7 +70,7 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = {};
 		this.cards = [];
-		this.debiCheckDetails = {};
+        this.debiCheckDetails = {};
 
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
@@ -246,8 +246,6 @@ export class Favourites extends View {
 	// ---------------
 
 	async _initialise() {
-		this._updateTopBar();
-
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
 
@@ -274,17 +272,6 @@ export class Favourites extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
 	}
 
 	_updateLeftBar() {
