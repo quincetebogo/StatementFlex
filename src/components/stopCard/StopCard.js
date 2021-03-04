@@ -54,8 +54,6 @@ export class StopCard extends Component {
 
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
 
@@ -63,15 +61,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-        this.isReassigned = false;
-
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
         this.isReassigned = false;
-
         this.horizonRouter = HorizonRouter.getInstance();
-        this.incomingCallDetails = this.state.incomingCallDetails;
         this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
