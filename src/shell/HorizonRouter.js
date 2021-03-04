@@ -30,7 +30,8 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
-    PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
+	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
+	PRODUCT_INFO_PAGE: `/product/information`
 });
 
 /**
@@ -216,6 +217,9 @@ export class HorizonRouter {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
+	productInformationPage() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO_PAGE}`);
+	}
 	
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
@@ -516,5 +520,13 @@ export default horizonRoutes = [
         path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
         load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
         onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+        name: `horizon-product-information`,
+        title: `ProductInformationScreen`,
+        icon: null,
+        path: HORIZON_ROUTES.PRODUCT_INFO_PAGE,
+        load: () => import(`../views/product/ProductInformation`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
     }
 ];
