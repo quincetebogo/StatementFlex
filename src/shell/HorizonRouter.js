@@ -386,7 +386,7 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-stop-card-success`,
-		title: `StopCard`,
+		title: `StopCardSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),

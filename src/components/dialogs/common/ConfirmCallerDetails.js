@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
@@ -65,6 +65,7 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
@@ -317,9 +318,16 @@ export class ConfirmCallerDetails extends Component {
 		*/
 
 		// Check if the client has digital channels
-		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber);
+		// Disabled error handler because if this call fails we will still attempt to help the client.
+		// It will just be with XDS Security Questions
+		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
 
-		this.hasDigitalChannels = returnValue.succeeded && returnValue.result;
+		if (returnValue.succeeded) {
+			this.hasDigitalChannels = returnValue.result;
+		} else {
+			this.hasDigitalChannels = true;
+			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
+		}
 
 		// Save above flags to state
 		const state = {
