@@ -65,20 +65,17 @@ export class VerifyCaller extends Component {
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
-
 		this.connectionID = ``;
+		this.itaFailedCount = 0;
+		this.itaTimer = null;
+		this.loading = true;
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
-
-		this.itaFailedCount = 0;
-
-		this.itaTimer = null;
 	}
 
 	// ----------
@@ -99,14 +96,15 @@ export class VerifyCaller extends Component {
 			timeLeft: { attribute: false },
 			xdsMessage: { attribute: false },
 			itaFailedCount: { attribute: false },
-			connectionID: { attribute: false }
+			connectionID: { attribute: false },
+			loading: { attribute: false }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
@@ -132,14 +130,21 @@ export class VerifyCaller extends Component {
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
 
-		// Declaring stop timer
-		this._stopTimer = () => {
-			clearInterval(this.itaTimer);
-			this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
-		};
+		// If we have digital channels (XDS/USSD)
+		if (this.callerInformation.hasDigitalChannels) {
+			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 
-		// Initialising ITA verification
-		this._initiateItaVerification();
+			this._stopTimer = () => {
+				clearInterval(this.itaTimer);
+				this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
+			};
+
+			this._initiateItaVerification();
+		} else {
+			await this._securityQuestionsClick();
+		}
+
+		this.loading = false;
 	}
 
 	// --------------
@@ -148,7 +153,6 @@ export class VerifyCaller extends Component {
 
 	async _securityQuestionsClick() {
 		const clientID = this.callerInformation.southAfricanIDNumber;
-
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
@@ -241,7 +245,8 @@ export class VerifyCaller extends Component {
 			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToSystemError();
+		this.xdsMessage = `System error. Please try again later`;
+
 		return true;
 	}
 
@@ -471,6 +476,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
+		if (this.loading) {
+			return html`${this._renderLoadingIndicator()}`;
+		}
+
 		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
@@ -634,11 +643,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
+		if (this.isBusy || this.loading) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html``;
 	}
 }
 
