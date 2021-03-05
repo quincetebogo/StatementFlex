@@ -65,6 +65,7 @@ export class VerifyCaller extends Component {
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
+		this.isBusy = false;
 
 		this.connectionID = ``;
 
@@ -99,7 +100,8 @@ export class VerifyCaller extends Component {
 			timeLeft: { attribute: false },
 			xdsMessage: { attribute: false },
 			itaFailedCount: { attribute: false },
-			connectionID: { attribute: false }
+			connectionID: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -250,6 +252,12 @@ export class VerifyCaller extends Component {
 	}
 
 	_itaErrorHandler(exception) {
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
 
@@ -271,6 +279,7 @@ export class VerifyCaller extends Component {
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
+					this._stopSignalRConnection();
 					this._navigateToItaVerificationFailed();
 				} else {
 					this._updateApplicationState(`unverified`);
@@ -320,7 +329,7 @@ export class VerifyCaller extends Component {
 			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 			if (returnValue.succeeded) {
-				
+
 				this.logger.log(`INFO`, `ITA verification request initiated`, `_itaServiceCall`);
 
 				// Registering handler to perform post event action
@@ -340,9 +349,8 @@ export class VerifyCaller extends Component {
 
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
-		
-		alert(`${verificationStatus}`);
 
+		console.log(`${verificationStatus}`);
 
 		if (verificationStatus) {
 			this._stopTimer();
@@ -361,6 +369,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_stopSignalRConnection() {
+		console.log(`SignalR connection stopped`);
 		this.horizonSignalRClient.stopConnection();
 	}
 
