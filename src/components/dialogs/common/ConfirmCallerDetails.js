@@ -386,84 +386,54 @@ export class ConfirmCallerDetails extends Component {
 		return [
 			super.styles,
 			css`
-
+				horizon-caller-dialog {
+					--horizon-modal-footer-padding: 16px 16px 16px 0px;
+				}
 				capitec-content-box{
-					height: 332px;
+					height: 319px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-right: 17px;
 				}
-
 				#id-banner-addcallerdetails{
 					--theme-alert-banner-warning-border: 1px solid rgba(228,124,40,0.1);
 					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-layout-gap-spacing: 28px;
+					--theme-alert-banner-height: 48px;
 				}
-
-				.client-info{
-					display: flex;
-					flex-direction: row;
+				capitec-avatar {
+					--theme-avatar-size-large: 200px;
+					--theme-layout-gap-spacing: 25px;
 				}
-
-				.image{
-					width: 200px;
-					height: 200px;
-					padding: 0px;
-					margin-top: 16px;
-					background: gainsboro;
-					display: inline-block;
-				}
-
-				#id-caller-group{
-					margin-left: 25px;
-					margin-top: 16px;
-				}
-
-				.fullname{
-					height: 34px;
-					width: auto;
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 20px;
-					font-weight: 600;
-					letter-spacing: 0;
+				capitec-label[type="title"] {
+					--theme-label-title-font-weight: 600;
 					line-height: 28px;
 				}
-
 				.client-info-row {
 					height: 56px;
 					width: 216px;
 					justify-content: center;
 
 					--horizon-label-text-height: 16px;
-					--horizon-label-text-color: #545D60;
+					--horizon-label-text-color: #3A3A3A;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-line-height: 16px;
 					
 					--horizon-label-value-height: 20px;
-					--horizon-label-value-color: #545D60;
+					--horizon-label-value-color: #3E4547;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
 				}
-
-				#id-search-button{
-					margin-right: 10px;
-					height: 48px;
-					width: 133px;
-					--theme-button-padding-top: 13px;
-					--theme-button-padding-right: 12px;
-					--theme-button-padding-bottom: 12px;
-					--theme-button-padding-left: 12px;
+				.footer-group > capitec-button:first-child {
+					--theme-layout-gap-spacing: 16px;
+					--theme-button-padding-right: 15px;
+					--theme-button-padding-left: 15px;
 				}
-
-				#id-confirm-button {
-					height: 48px;
-					width: 105px;
+				.footer-group > capitec-button {
 					--theme-button-padding-top: 13px;
-					--theme-button-padding-right: 12px;
 					--theme-button-padding-bottom: 12px;
-					--theme-button-padding-left: 12px;
 				}
 			`
 		];
@@ -526,14 +496,13 @@ export class ConfirmCallerDetails extends Component {
 
 	renderConfirmedCaller() {
 		return html`
-				<capitec-group class="client-info" layout="horizontal" gap="none">
+				<capitec-group class="client-info" layout="horizontal" gap="clear">
 					<capitec-avatar 
-						class="image" 
-						shape="none" 
-						value="">
+						shape="square"
+						icon="../../../images/common/avatar.svg">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
-						<capitec-label row="1" column="1" colspan="2" class="fullname" 
+						<capitec-label row="1" column="1" colspan="2" type="title"
 							label="${this.confirmedCaller.name}">
 						</capitec-label>
 						<horizon-label class="client-info-row" row="2" column="1" 
@@ -563,7 +532,7 @@ export class ConfirmCallerDetails extends Component {
 
 	renderFooter() {
 		return html`
-			<capitec-group layout="horizontal">
+			<capitec-group layout="horizontal" halign="right" valign="top" gap="clear" class="footer-group">
 				<capitec-button 
 					id="id-search-button" 
 					type="clear" 
