@@ -1,4 +1,4 @@
-import { EventAggregator, Logger } from 'platform/core';
+import { Configuration,EventAggregator, Logger } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -54,6 +54,7 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();
+		this._configuration = Configuration.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -62,6 +63,7 @@ export class LandingPage extends View {
 		this.incomingCallDetails = new IncomingCallDetails();
 
 		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
+		this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
 		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
 		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
 
@@ -123,6 +125,21 @@ export class LandingPage extends View {
 			// Dismiss error dialog once the Desktop Agent is up and running
 			this.renderMode = RENDER_MODE.PAGE_ONLY;
 		}
+	}
+
+	async _onSearchCaller(){
+		var d=new Date();
+        var currentdate=d.toString();
+
+		 const vdn=await this._configuration.getSetting(`VDN`);
+    	 const newCallInfo={
+	        "incomingTelephoneNumber": `0000000000`,
+			"VDN": vdn,
+			"voiceReferenceNumber":currentdate
+		};
+		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
+		const incident = returnValue.result;
+		await this._dispatchCall(null,incident,true);
 	}
 
 	async _onNewCall(newCallInfo) {

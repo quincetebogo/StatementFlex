@@ -41,6 +41,14 @@ export class TitleBar extends Component {
 	}
 
 	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_searchCaller() {
+		this.eventAggregator.publish(`search-caller`,{});
+	}
+
+	// --------------
 	// PUBLIC METHODS
 	// --------------
 
@@ -86,10 +94,13 @@ export class TitleBar extends Component {
 			<capitec-title-bar class="title-bar" type="clear" row=1>
 				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 				<capitec-spacer></capitec-spacer>
+				<capitec-group layout="horizontal" gap="line" halign="right" valign="center">
+				<capitec-icon size="meadium" icon="system/search" @click="${() => this._searchCaller()}"></capitec-icon>
 				<div class="logged-in-user">
 					<capitec-label label="${this.fullname}"></capitec-label>
 					<capitec-label label="${this.employeeId}"></capitec-label>
 				</div>
+				</capitec-group>
 			</capitec-title-bar>
 		`;
 	}
