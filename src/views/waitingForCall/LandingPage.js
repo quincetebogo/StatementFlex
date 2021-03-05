@@ -131,8 +131,8 @@ export class LandingPage extends View {
 		var d=new Date();
         var currentdate=d.toString();
 
-		 const vdn=await this._configuration.getSetting(`VDN`);
-    	 const newCallInfo={
+		const vdn=await this._configuration.getSetting(`VDN`);
+    	const newCallInfo={
 	        "incomingTelephoneNumber": `0000000000`,
 			"VDN": vdn,
 			"voiceReferenceNumber":currentdate
