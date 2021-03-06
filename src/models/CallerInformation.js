@@ -27,6 +27,7 @@ export class CallerInformation {
 	 * @param {boolean} is3rdParty  Indicates if the incoming caller is a third-party calling in about a Capitec client
 	 * @param {boolean} isNonClient Indicates if the incoming callers is not a client
 	 * @param {boolean} hasInsuranceProducts Indicates if the incoming caller has insurance products
+	 * @param {boolean} hasDigitalChannels Indicates if the incoming caller has digital channels (APP/USSD) 
 	 * @param {Object} verificationAttempts The number if XDS/ITA verification attempts for this client
 	 * @memberof CallerInformation
 	 */
@@ -47,7 +48,8 @@ export class CallerInformation {
 		verificationToastDisplayed,
 		is3rdParty,
 		isNonClient,
-		hasInsuranceProducts,
+		hasInsuranceProducts = false,
+		hasDigitalChannels = false,
 		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 }
 	) {
 		this.cifNumber = cifNumber;
@@ -67,6 +69,7 @@ export class CallerInformation {
 		this.is3rdParty = is3rdParty;
 		this.isNonClient = isNonClient;
 		this.hasInsuranceProducts = hasInsuranceProducts;
+		this.hasDigitalChannels = hasDigitalChannels;
 		this.verificationAttempts = verificationAttempts;
 	}
 }
