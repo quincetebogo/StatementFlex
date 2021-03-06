@@ -323,9 +323,9 @@ export class ConfirmCallerDetails extends Component {
 		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
 
 		if (returnValue.succeeded) {
-			this.hasDigitalChannels = returnValue.result;
+			this.callerInformation.hasDigitalChannels = returnValue.result;
 		} else {
-			this.hasDigitalChannels = true;
+			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
 		}
 

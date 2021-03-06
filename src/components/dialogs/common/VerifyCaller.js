@@ -98,7 +98,7 @@ export class VerifyCaller extends Component {
 			xdsMessage: { attribute: false },
 			itaFailedCount: { attribute: false },
 			connectionID: { attribute: false },
-			isBusy: { attribute: false }
+			isBusy: { attribute: false },
 			loading: { attribute: false }
 		};
 	}
