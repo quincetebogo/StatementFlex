@@ -58,7 +58,6 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 
-		this._updateTopBar();
 		this._updateLeftBar();
 
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
@@ -71,17 +70,6 @@ export class ItaVerificationFailed extends View {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
 	}
 
 	_updateLeftBar() {
