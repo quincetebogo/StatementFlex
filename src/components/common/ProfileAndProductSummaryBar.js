@@ -50,7 +50,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
-		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
+		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
 		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
@@ -80,7 +80,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
 	}
 
 	// ---------
@@ -92,7 +91,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			this.miniProfile = {
 				name: state.callerInformation.isNonClient ? state.callerInformation.nonClientFullName : state.callerInformation.name,
 				idNumber: state.callerInformation.southAfricanIDNumber,
-				phoneNumber: state.incomingCallDetails.incomingTelephoneNumber,
+				phoneNumber: state.callerInformation.verificationStatus !== `non-client` ? state.callerInformation.verifiedTelephoneNumber : state.incomingCallDetails.incomingTelephoneNumber,
 				livesIn: state.callerInformation.livesIn,
 				languagePreference: state.callerInformation.languagePreference,
 				birthday: state.callerInformation.birthdate,
@@ -114,13 +113,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 	}
 
-	_updateMiniProfile(miniProfile) {
-		if (miniProfile) {
-			this.miniProfile = miniProfile;
-		}
-	}
-
-	_onUpdatePageDetails(buttonConfig) {
+	_updateButtons(buttonConfig) {
 		this.hasFavourites = buttonConfig.hasFavourites;
 		this.subtitle = buttonConfig.subtitle;
 		this.detail = buttonConfig.detail;
