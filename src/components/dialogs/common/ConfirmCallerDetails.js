@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
+import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
@@ -23,9 +24,6 @@ import 'app/components/common/CallerInfoBar';
 import 'app/components/common/CallerDialog';
 
 
-/**
- * 
- */
 const RENDER_MODE = {
 	CONFIRM_CALLER: 0,
 	ADD_CALLER_DETAILS: 1,
@@ -67,11 +65,15 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.isBusy = false;
+		this.errorMessage = ``;
+		this.errorCount = 0;
 	}
 
 	// ----------
@@ -92,7 +94,8 @@ export class ConfirmCallerDetails extends Component {
 			incomingCallDetails: { type: Object },
 
 			isBusy: { attribute: false },
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			errorMessage: { attribute: false }
 		};
 	}
 
@@ -138,22 +141,16 @@ export class ConfirmCallerDetails extends Component {
 		this._navigateToLandingPage();
 	}
 
-	async _confirmClick() {
+	_confirmClick() {
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._navigateToLandingPage();
 		} else {
-			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-				this.confirmedCaller.southAfricanIDNumber, 
-				this.confirmedCaller.cifNumber,
-				false
-			);
+			this._verifyCaller();
+		}
+	}
 
-			const state = {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
-				canCloseIncident: false
-			};
-			this.horizonStore.saveState(state);
+	async _verifyCaller() {
+		if (await this._setAvailabilityFlags()) {
 			this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		}
 	}
@@ -257,22 +254,17 @@ export class ConfirmCallerDetails extends Component {
 			false,
 			false,
 			false,
+			false,
 			false
 		);
 	}
 
 	async _navigateToLandingPage() {
-		this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
-			this.confirmedCaller.southAfricanIDNumber, 
-			this.confirmedCaller.cifNumber,
-			false
-		);
-
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation,
-			canCloseIncident: false
-		};
+		if (!await this._setAvailabilityFlags()) {
+			// The channel service calls to set the availability flags failed.
+			// Do nothing here. The error handler for the channel service calls will do the necessary.
+			return;
+		}
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			const confirmedCaller = {
@@ -296,10 +288,9 @@ export class ConfirmCallerDetails extends Component {
 				return; 
 			}
 
-			state.clientProfileDetails = returnValue.result;
+			this.horizonStore.saveState({ clientProfileDetails: returnValue.result });
 		};
 
-		this.horizonStore.saveState(state);
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -310,29 +301,57 @@ export class ConfirmCallerDetails extends Component {
 			isCallerVarified: isCallerVerified
 		};
 
-		// TODO: Remove temporary error handler. 
-		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo, (ex) => this._temporaryErrorHander(ex), 1);
-
-		// TODO: Remmove temporary code that forces hasInsurance flag if CS call does not work. This is to allow testing of Stop Card in INT in the meantime.
-		if (!returnValue.succeeded) {
-			return true;
-		}
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
 		return returnValue.result.hasInsurance;
 	}
 
-	_handleChannelServiceError(ex) {
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails
-		});
-		this.horizonRouter.navigateToSystemError();
+	async _setAvailabilityFlags() {
 
-		return true;
+		/* This will be put back. Insure is not part of the first release
+
+			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
+				this.confirmedCaller.southAfricanIDNumber, 
+				this.confirmedCaller.cifNumber,
+				false
+			);
+		*/
+
+		// Check if the client has digital channels
+		// Disabled error handler because if this call fails we will still attempt to help the client.
+		// It will just be with XDS Security Questions
+		const returnValue = await this.callService.digitalVerificationChannelsAvailable(this.callerInformation.cifNumber, () => true);
+
+		if (returnValue.succeeded) {
+			this.hasDigitalChannels = returnValue.result;
+		} else {
+			this.hasDigitalChannels = true;
+			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
+		}
+
+		// Save above flags to state
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation,
+			canCloseIncident: false
+		};
+
+		this.horizonStore.saveState(state);
+
+		return returnValue.succeeded;
 	}
 
-	// TODO: remove temporary function
-	_temporaryErrorHander(ex) {
-		console.log(ex);
+	_handleChannelServiceError(ex) {
+		this.errorMessage = `System error. Please try again.`;
+		this.errorCount++;
+
+		if (this.errorCount > 2) {
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation
+			});
+			this.horizonRouter.navigateToSystemError();
+		}
 		return true;
 	}
 
@@ -388,7 +407,7 @@ export class ConfirmCallerDetails extends Component {
 			css`
 
 				capitec-content-box{
-					height: 332px;
+					height: ${this.errorMessage = `` ? css`332px` : css`364`};
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
 					--theme-container-padding-left: 16px;
@@ -485,9 +504,10 @@ export class ConfirmCallerDetails extends Component {
 							@on-need-changed="${(e) => this._needChanged(e)}">
 						<div slot="body">
 							<capitec-content-box>
-								${this.renderAddCallerDetails()}
-								${this.renderConfirmedCaller()}
-								${this.renderLoadingIndicator()}
+								${this._renderError()}
+								${this._renderAddCallerDetails()}
+								${this._renderConfirmedCaller()}
+								${this._renderLoadingIndicator()}
 							</capitec-content-box>
 						</div>
 						<div slot="footer">
@@ -514,7 +534,17 @@ export class ConfirmCallerDetails extends Component {
 		}
 	}
 
-	renderAddCallerDetails() {
+	_renderError() {
+		return this.errorMessage === `` 
+			? html``
+			: html`
+				<capitec-alert-banner 
+					type="unsuccessful-red"
+					label=${this.errorMessage}>
+				</capitec-alert-banner>`;
+	}
+
+	_renderAddCallerDetails() {
 		return html`
 		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
 			<capitec-hyperlink label="Add Caller Details" 
@@ -524,7 +554,7 @@ export class ConfirmCallerDetails extends Component {
 		</capitec-alert-banner>`;
 	}
 
-	renderConfirmedCaller() {
+	_renderConfirmedCaller() {
 		return html`
 				<capitec-group class="client-info" layout="horizontal" gap="none">
 					<capitec-avatar 
@@ -583,7 +613,7 @@ export class ConfirmCallerDetails extends Component {
 			</capitec-group>`;
 	}
 
-	renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 
 		if (!this.isBusy) {
 			return html``;

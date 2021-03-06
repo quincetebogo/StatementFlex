@@ -257,7 +257,17 @@ export class HorizonChannelService extends Service {
 	}
 	
 	// stopCardRequest
-	stopCard(stopCardRequest) {
+	async stopCard(stopCardRequest) {
+		// Force loading of mocking settings
+		await this._mockEnabled(`stopCard`);
+
+		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
+		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failCard && this._configuration.config.runtime.environment === `DEV`) {
+			if (this._mocking.stopCard.failedCard !== ``) {
+				throw new Error(`Mock Stop Card Error`);
+			}
+		}
+
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -302,7 +312,7 @@ export class HorizonChannelService extends Service {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`stopCard`)) {
+		if (await this._mockEnabled(`identifyCaller`)) {
 			return this._mock.stopCard();
 		}
 
@@ -415,9 +425,17 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
-	// ---------------------
-	// XDS Questions Methods
-	// ---------------------
+	// ----------------
+	// call - ITA & XDS
+	// ----------------
+	itaVerification(request) {
+		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
+    }
+
+	digitalVerificationChannelsAvailable(cifNumber) {
+		return this._get(`/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
+	}
 
 	async xdsQuestions(clientID) {
 		if (await this._mockEnabled(`xdsQuestions`)) {
@@ -456,6 +474,10 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `favouritesLanding`);
 	}
 
+	// ------------------
+	// card - card limits
+	// ------------------
+
 	async cardLimitsLanding(cifNumber) {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
@@ -471,6 +493,10 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/card/${this._version}/temporary-limits`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
+
+	// --------------------------
+	// card - debi-check mandates
+	// --------------------------
 
 	async debiCheckMandates(cifNumber) {
 		if (await this._mockEnabled(`debiCheckMandates`)) {
@@ -492,11 +518,6 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, this._setToken(), `debiCheckDecline`);
 	}
-	
-	itaVerification(request) {
-		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
-									`ConnectionId=${request.connectionID}`);
-    }
 
     sendProofOfAccount(clientInfo) {
         const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;

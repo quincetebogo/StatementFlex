@@ -1,5 +1,5 @@
 
-export const mockResponse = {
+export const stopCardMockResponse = {
 	instruction: ``,
 	cards: [
 		{

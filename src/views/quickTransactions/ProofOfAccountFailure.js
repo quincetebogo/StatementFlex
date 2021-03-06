@@ -1,4 +1,4 @@
-import {View, css, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -11,6 +11,7 @@ const RENDER_MODE = {
 	PROOFOFACCOUNT_FAILURE: 0,
 	END_CALLSESSION: 1
 };
+
 /**
  * Proof of Account send failure Screen that can be displayed when channel service calls fail. 
  *
@@ -63,11 +64,6 @@ connectedCallback() {
 			// TODO: email address received from API or using restore function.
 			this.emailAddress = `ivanmakatini@gmail.com`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
 		}
 	}
 
@@ -85,7 +81,7 @@ connectedCallback() {
 
 	_assignClick() {
 		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
-		//TODO: might make service call over here to resend or navigate to Proof of account model again
+		// TODO: might make service call over here to resend or navigate to Proof of account model again
 	}
 
 	// ---------
@@ -174,7 +170,8 @@ connectedCallback() {
 			</horizon--error-screen>
 			`;
 	}
-	_renderRelatedOptions(){
+
+	_renderRelatedOptions() {
         return html`
         <div class="related-options">
                     <p class="related-options-text">Related Options</p>
@@ -196,6 +193,7 @@ connectedCallback() {
         `;
         
     }
+	
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 				// TODO: edit the card stop success render mode 
