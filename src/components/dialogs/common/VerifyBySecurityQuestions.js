@@ -205,6 +205,8 @@ export class VerifyBySecurityQuestions extends Component {
 		};
 		this.horizonStore.saveState(state);
 		this.alertBannerMessage = SYSTEM_ERROR;
+
+		return true;
 	}
 
 	_toggleBusyFlag() {
