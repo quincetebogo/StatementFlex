@@ -74,20 +74,6 @@ export class ItaVerificationFailed extends View {
 
 	_updateLeftBar() {
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: false,
-				isConfirmed: false,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: false
-			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,

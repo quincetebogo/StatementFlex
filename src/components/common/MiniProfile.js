@@ -19,21 +19,7 @@ export class MiniProfile extends Component {
 
 	constructor() {
 		super();
-
-		this.miniProfile = {
-			name: ``,
-			idNumber: ``,
-			phoneNumber: ``,
-			livesIn: ``,
-			languagePreference: ``,
-			birthday: ``,
-			showButtons: false,
-			isConfirmed: false,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		};
+		this.miniProfile = null;
 	}
 
 	/**
@@ -61,24 +47,6 @@ export class MiniProfile extends Component {
 	// ---------
 	// EVENTS
 	// ---------
-
-	_onUpdateMiniClientProfile(profile) {
-
-		this.miniProfile = {
-			name: profile.name,
-			idNumber: profile.idNumber,
-			phoneNumber: profile.phoneNumber,
-			livesIn: profile.livesIn,
-			languagePreference: profile.languagePreference,
-			birthday: profile.birthday,
-			showButtons: profile.showButtons,
-			isConfirmed: profile.isConfirmed,
-			isVerified: profile.isVerified,
-			verificationFailed: profile.verificationFailed,
-			is3rdParty: profile.is3rdParty,
-			isNonClient: profile.isNonClient
-		};
-	}
 
 	_onDocumentClick() {
 		this.eventAggregator.publish(`horizon-view-documents-click`, {});
@@ -251,7 +219,9 @@ export class MiniProfile extends Component {
 	}
 
 	_webTemplate() {
-		return html`
+		return this.miniProfile === null 
+			? html``
+			: html`
 			<capitec-card class="hello-card">
 				<capitec-group class="client-details-group" layout="grid" gap="none" rows="auto" columns="auto">
 					<capitec-content-box class="client-image-box" row="1" column="1" colspan="2" nopadding>
@@ -331,7 +301,14 @@ export class MiniProfile extends Component {
 	}
 
 	_renderBanner() {
-		if (this.miniProfile.isVerified || this.miniProfile.isNonClient) {
+		const noBanner = this.miniProfile.isVerified || 
+							this.miniProfile.isNonClient || 
+							// eslint-disable-next-line no-extra-parens
+							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.xdsAttempts >= 2) ||
+							// eslint-disable-next-line no-extra-parens
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.xdsAttempts >= 2);
+
+		if (noBanner) {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`
@@ -339,14 +316,14 @@ export class MiniProfile extends Component {
 				Client has not been verified
 			</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed) {
+		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
 			<capitec-alert-banner class="banner" type="unsuccessful-red">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
 					<capitec-label id="id-verify-via-app-msg" label="Verification Unsuccessful"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaSecurityQuestions()}"
-						label="Verify via Security Questions">
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
+						label="Verify Now">
 					</capitec-hyperlink>
 				</capitec-group>
 			</capitec-alert-banner>

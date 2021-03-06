@@ -25,22 +25,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	constructor() {
 		super();
 
-		console.log(`ProfileAndProductSummaryBar - constructor`);
-
-		this.miniProfile = {
-			name: ``,
-			idNumber: ``,
-			phoneNumber: ``,
-			livesIn: ``,
-			languagePreference: ``,
-			birthday: ``,
-			showButtons: false,
-			isConfirmed: false,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		};
+		this.miniProfile = null;
 
 		this.disableNavigation = true;
 		this.hasFavourites = false;
@@ -65,7 +50,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
-		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
 		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
 		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
@@ -104,8 +88,23 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_stateChanged(state) {
-		if (state && state.miniProfile) {
-			this.miniProfile = state.miniProfile;
+		if (state && state.callerInformation) {
+			this.miniProfile = {
+				name: state.callerInformation.isNonClient ? state.callerInformation.nonClientFullName : state.callerInformation.name,
+				idNumber: state.callerInformation.southAfricanIDNumber,
+				phoneNumber: state.incomingCallDetails.incomingTelephoneNumber,
+				livesIn: state.callerInformation.livesIn,
+				languagePreference: state.callerInformation.languagePreference,
+				birthday: state.callerInformation.birthdate,
+				showButtons: state.callerInformation.verificationStatus === `verified`,
+				isVerified: state.callerInformation.verificationStatus === `verified`,
+				verificationFailed: state.callerInformation.verificationStatus === `failed`,
+				isConfirmed: state.callerInformation.verificationStatus !== `non-client`,
+				isNonClient: state.callerInformation.verificationStatus === `non-client`,
+				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
+				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
+				verificationAttempts: state.callerInformation.verificationAttempts
+			};
 		}
 
 		if (state && state.leftBarButtonConfig) {
