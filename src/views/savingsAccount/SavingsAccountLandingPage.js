@@ -94,9 +94,6 @@ export class SavingsAccountLandingPage extends View {
 	// ---------------
 
 	async _initialise() {
-		// At this point this will just update the mini-profile
-		this._updateLeftBar();
-
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		if (this.callerInformation.verificationStatus !== `non-client`) {
@@ -111,7 +108,7 @@ export class SavingsAccountLandingPage extends View {
 			if (returnValue.succeeded) {
 				this.landingPageInfo = returnValue.result;
 
-				// Now we can update the information on the product buttons as well
+				// Now we can update the information on the product buttons
 				this._updateLeftBar();
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
@@ -144,20 +141,6 @@ export class SavingsAccountLandingPage extends View {
 		}
 
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: this.callerInformation.verificationStatus === `verified`,
-				isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: this.callerInformation.verificationStatus === `non-client`
-			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,

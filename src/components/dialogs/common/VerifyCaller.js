@@ -147,6 +147,7 @@ export class VerifyCaller extends Component {
 
 		// If we have digital channels (XDS/USSD)
 		if (this.callerInformation.hasDigitalChannels) {
+			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
 		} else {
@@ -557,7 +558,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (!this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
@@ -587,7 +588,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && this.appTimedOut && !this.itaMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
@@ -666,8 +667,8 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
-						?hidden=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>

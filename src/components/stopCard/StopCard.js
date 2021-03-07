@@ -288,20 +288,7 @@ export class StopCard extends Component {
 
 	_updateLeftBar() {
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: this.callerInformation.verificationStatus === `verified`,
-				isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: this.callerInformation.verificationStatus === `non-client`
-			}
+			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
 
