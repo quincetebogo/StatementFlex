@@ -121,20 +121,7 @@ export class InsureInformation extends Component {
 
 	_updateMiniProfile() {
 		const state = { 
-			miniProfile: {
-				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: this.callerInformation.verificationStatus === `verified`,
-				isConfirmed: this.callerInformation.isConfirmed,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: this.callerInformation.verificationStatus === `3rdparty`,
-				isNonClient: this.callerInformation.verificationStatus === `non-client`
-			},
+			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
