@@ -94,8 +94,6 @@ export class SavingsAccountLandingPage extends View {
 	// ---------------
 
 	async _initialise() {
-		this._updateTopBar();
-
 		// At this point this will just update the mini-profile
 		this._updateLeftBar();
 
@@ -123,17 +121,6 @@ export class SavingsAccountLandingPage extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
 	}
 
 	_updateLeftBar() {

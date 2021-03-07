@@ -100,7 +100,7 @@ export const mandateInfo = [
 		registerId: 0,
 		mandateInfo: {
 			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
-			"tracking": true,
+			"tracking": "Yes",
 			"contractReference": "12345678010",
 			"collectorContact": "021 101 0810",
 			"mandateReference": "XYZ4367",
@@ -113,7 +113,7 @@ export const mandateInfo = [
 		registerId: 1,
 		mandateInfo: {
 			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
-			"tracking": false,
+			"tracking": "No",
 			"contractReference": "6586854658",
 			"collectorContact": "021 101 0810",
 			"mandateReference": "JFGJ457487",
@@ -126,7 +126,7 @@ export const mandateInfo = [
 		registerId: 2,
 		mandateInfo: {
 			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
-			"tracking": true,
+			"tracking": "Yes",
 			"contractReference": "65498569",
 			"collectorContact": "021 101 1111",
 			"mandateReference": "kgyh85698",

@@ -61,15 +61,6 @@ export class SystemError extends View {
 			this.incomingCallDetails = state.incomingCallDetails;
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
-
-			if (this.incomingCallDetails) {
-				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-				});
-			}
 		}
 	}
 
