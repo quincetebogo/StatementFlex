@@ -64,14 +64,9 @@ export class StatementsUnsuccess extends View {
 			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
-			this.mailId=`ivanmakatini@gmail.com`;
-			this.encryptedCardId=`5284 **** **** 1322`;
+			this.mailId = `ivanmakatini@gmail.com`;
+			this.encryptedCardId = `5284 **** **** 1322`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
 		}
 	}
 
@@ -181,7 +176,7 @@ export class StatementsUnsuccess extends View {
 		`;
 	}
 
-	_renderRelatedOptions(){
+	_renderRelatedOptions() {
 		return html`
 		<div class="related-options">
 					<p class="related-options-text">Related Options</p>
