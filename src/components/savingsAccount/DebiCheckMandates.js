@@ -512,13 +512,12 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status, mandateId, registerId) {
-		return status !== `Pending` 
-			? html`<capitec-label type="subtitle"
+		return html`<capitec-label type="subtitle"
 									label="View Info"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._viewInfo(mandateId, registerId)}">
-					 </capitec-label>` 
-			: html``;
+					 </capitec-label>
+					 `;
 
 			/* Remove approve/decline buttons as this functionality is now part of release 2
 			  html`<capitec-label type="subtitle"
