@@ -31,53 +31,54 @@ export class StatementsDialog extends Component {
 
         this.currentStep = 1;
         this.horizonStore = HorizonStore.getInstance();
-		this.state = this.horizonStore.recoverState();
-		this.navigationContext = NavigationContext.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.state = this.horizonStore.recoverState();
+        this.navigationContext = NavigationContext.getInstance();
+        this.eventAggregator = EventAggregator.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
 
-		
-		this.callerInformation = this.state.callerInformation;
+
+        this.callerInformation = this.state.callerInformation;
         this.landingPageInfo = this.state.landingPageInfo;
-		this.accountInformation = this.state.leftBarButtonConfig.detail;
+        this.accountInformation = this.state.leftBarButtonConfig.detail;
 
-		//TODO: Remove unused 
-		this.availableSavings = "R" + this.accountInformation.savingsAccount;
-		this.availableSavingsPlans = "R" + this.accountInformation.savingsPlan;
-		this.availableCredit = "R" + this.accountInformation.credit;
-		this.savingsPlans = null;
-		this.savingsPlansSelected = false;
-		this.periodSelected = "";
-		this.showDatePicker = true;
-		this.showCalendar = false;
-		this.showHide = "hide";
-		this.startDate;
-		this.endDate;
-		this.email = "";
-		this.confirmEmail = "";
-		this.emailError = "";
-		this.confirmError = "";
-		this.displayDialog = "open";
-		this.displayPDF = false;
-		this.statementsHeader = "Statements";
-		this.accountSelected = "savingsAccount";
-		this.savingsPlanSelected = null;
-		this.statementPeriod = "";
-		this.statmentDays="";
-		this.infoOrError = "info";
-		this.focusTransact = "";
-		this.focusSave = "";
-		this.focusCredit = "";
-		this.savingsPlanFocus = "";
-		this.firstPeriod = "";
-		this.choosePeriodFocus = "";
+        //TODO: Remove unused 
+        this.availableSavings = "R" + this.accountInformation.savingsAccount;
+        this.availableSavingsPlans = "R" + this.accountInformation.savingsPlan;
+        this.availableCredit = "R" + this.accountInformation.credit;
+        this.savingsPlans = null;
+        this.savingsPlansSelected = false;
+        this.periodSelected = "";
+        this.showDatePicker = true;
+        this.showCalendar = false;
+        this.showHide = "hide";
+        this.startDate;
+        this.endDate;
+        this.email = "";
+        this.confirmEmail = "";
+        this.emailError = "";
+        this.confirmError = "";
+        this.displayDialog = "open";
+        this.displayPDF = false;
+        this.statementsHeader = "Statements";
+        this.accountSelected = "savingsAccount";
+        this.savingsPlanSelected = null;
+        this.statementPeriod = "";
+        this.statmentDays = "";
+        this.infoOrError = "info";
+        this.focusTransact = "";
+        this.focusSave = "";
+        this.focusCredit = "";
+        this.savingsPlanFocus = "";
+        this.firstPeriod = "";
+        this.choosePeriodFocus = "";
         this.nextSend = "Next";
         this.flag = "";
-		this.viewStatementPDF = "";
+        this.viewStatementPDF = "";
+		this.showScrollbar = false;
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
-      //  this._changePeriodSelection();
+        //  this._changePeriodSelection();
 
 
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
@@ -108,7 +109,7 @@ export class StatementsDialog extends Component {
             statementsHeader: { attribute: false },
             infoOrError: { attribute: false },
             flag: { attribute: false },
-			viewStatementPDF: {attribute:false}
+            viewStatementPDF: { attribute: false }
         };
     }
 
@@ -122,9 +123,9 @@ export class StatementsDialog extends Component {
         super.connectedCallback();
     }
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
+    _toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
+    }
 
     _cancel() {
         this.dispatchEvent(new CustomEvent(`cancel`, {}));
@@ -153,13 +154,16 @@ export class StatementsDialog extends Component {
     }
 
     _navigateSteppers(e, btn) {
-        console.log("Navigate stepper e "+ e)
+        console.log("Navigate stepper e " + e)
         if (this.currentStep == 1 && e.type == "click") {
-            if (btn == "next") {
+            if (btn == "next" && this.infoOrError == "info") {
                 if (this.accountSelected == null) {
                     this.infoOrError = "error";
                     this.errorBannerMessage = "Select an account."
                 } else {
+					if(this.showCalendar){
+						this.showScrollbar=this.showCalendar;
+					}
                     this.showHide = "show";
                     this.infoOrError = "info";
                     this.currentStep++;
@@ -168,32 +172,49 @@ export class StatementsDialog extends Component {
                 this.displayDialog = "close";
             }
         } else if (this.currentStep == 2 && e.type == "click") {
-            if (btn == "next") {
-                if (this.statmentDays == "") {
+            if (btn == "next" && this.infoOrError == "info") {
+                if (!this.showCalendar && (this.statmentDays=="")) {
                     console.log("no date selected");
-                } else {
+					this.infoOrError = "error";
+					this.errorBannerMessage = "Please choose a from and to date";
+                } else if(this.showCalendar && (this.statmentDays=="")){
+					console.log("no date selected");
+					this.infoOrError = "error";
+					this.errorBannerMessage = "Please choose a date";
+				}else{
                     this.infoOrError = "info";
                     this.nextSend = "Send";
                     this.currentStep++;
-                }                                             
+                    if(this.showScrollbar){
+						this.showScrollbar = !this.showScrollbar;
+					}
+                }
             } else if (btn == "back") {
+				this.infoOrError = "info";
                 this.currentStep--;
+				if(this.showScrollbar){
+					this.showScrollbar=!this.showScrollbar;
+				}
             } else if (btn == "cancel") {
                 this.displayDialog = "close";
             }
         } else if (this.currentStep == 3 && e.type) {
-            if (btn == "next") {
+            if (btn == "next" && this.infoOrError == "info") {
                 if (this.email.length == 0) {
                     this.infoOrError = "error";
                     this.errorBannerMessage = "Complete all fields."
                 } else {
                     this.displayDialog = "close";
                     //send statement service call
-					this._sendStatement();
+                    this._sendStatement();
                 }
             } else if (btn == "back") {
+				this.infoOrError = "info";
                 this.currentStep--;
                 this.nextSend = "Next";
+				if(this.showCalendar){
+					this.showScrollbar = this.showCalendar;
+				}
             } else if (btn == "cancel") {
                 this.displayDialog = "close";
             }
@@ -208,38 +229,38 @@ export class StatementsDialog extends Component {
     }
 
 
-   async _sendStatement() {
-            const state = {
-                //still to fill these in
-            };
+    async _sendStatement() {
+        const state = {
+            //still to fill these in
+        };
 
-            this.horizonStore.saveState(state);
+        this.horizonStore.saveState(state);
 
-            const statement = {
-                "emailAddress": this.email,
-                "cifNumber": this.callerInformation.cifNumber,
-                "accountNumber": this.landingPageInfo.account_number,
-                "accountType": this.accountSelected,
-                "statementDateRange": {
-                    "dateRange": {
-                        "startDate": this._formatDate(this.startDate),
-                        "endDate": this._formatDate(this.endDate)
-                    },
-                    "presetInterval": ""
-                }
-            };
-
-            const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-            if (returnValue.succeeded) {
-                //TODO: Ramesh to add navigation to successfull page
-               this.horizonRouter.navigateToStatementSuccessful();
-            } else {
-                //TODO: Unsuccessful page nav
-               this.horizonRouter.navigateToStatementUnsuccessful();
+        const statement = {
+            "emailAddress": this.email,
+            "cifNumber": this.callerInformation.cifNumber,
+            "accountNumber": this.landingPageInfo.account_number,
+            "accountType": this.accountSelected,
+            "statementDateRange": {
+                "dateRange": {
+                    "startDate": this._formatDate(this.startDate),
+                    "endDate": this._formatDate(this.endDate)
+                },
+                "presetInterval": ""
             }
+        };
+
+        const returnValue = await this.quickTransactionService.sendStatement(statement);
+
+        if (returnValue.succeeded) {
+            //TODO: Ramesh to add navigation to successfull page
+            this.horizonRouter.navigateToStatementSuccessful();
+        } else {
+            //TODO: Unsuccessful page nav
+            this.horizonRouter.navigateToStatementUnsuccessful();
         }
-    
+    }
+
 
     //value of account selction
     _accountSelectionChanged(e, name) {
@@ -264,31 +285,31 @@ export class StatementsDialog extends Component {
                 this.focusTransact = "";
                 this.focusCredit = "";
 
-				this.savingsPlansSelected = name;
-				this.accountSelected = name;
-				console.log(this.accountSelected)
-				this._renderSavingsPlanSelection();
-			} else {
-				this.savingsPlansSelected = false;
-			} 
-	
-			if (name == "credit") {
-				this.focusCredit = "creditFocus";
-				this.focusSave = "";
-				this.focusTransact = "";
+                this.savingsPlansSelected = name;
+                this.accountSelected = name;
+                console.log(this.accountSelected)
+                this._renderSavingsPlanSelection();
+            } else {
+                this.savingsPlansSelected = false;
+            }
 
-				this.accountSelected = name;
-				console.log(this.accountSelected)
-			}
-		} else {
-			if (this.accountSelected == "savingsAccount") {
-				this.focusTransact = "transactFocus";
-				this.focusSave = "";
-				this.focusCredit = "";
+            if (name == "credit") {
+                this.focusCredit = "creditFocus";
+                this.focusSave = "";
+                this.focusTransact = "";
 
-				console.log(this.accountSelected)
-			}
-		}
+                this.accountSelected = name;
+                console.log(this.accountSelected)
+            }
+        } else {
+            if (this.accountSelected == "savingsAccount") {
+                this.focusTransact = "transactFocus";
+                this.focusSave = "";
+                this.focusCredit = "";
+
+                console.log(this.accountSelected)
+            }
+        }
 
         //TODO: Loop through clients savings plans
         this.savingsPlans = [
@@ -320,44 +341,49 @@ export class StatementsDialog extends Component {
 
     _periodChange(e, days) {
         console.log("showCalendar " + this.showCalendar);
+        this.infoOrError = "info";
         this.flag = e.currentTarget.id;
         this.showCalendar = false;
+		this.showScrollbar = false;
         var currentDays = days;
         this.statementPeriod = days == 30 ? '1 Month (30 days)' : days / 30 + " months (" + days + " days)";
         this.statmentDays = "Last " + days + " days";
         if (e.currentTarget.checked) {
             this._changeDateRange(currentDays);
-           // this._changePeriodSelection(currentDays);
+            // this._changePeriodSelection(currentDays);
         }
     }
-   
+
     _calendarSelectionChange(e) {
-       // this._clearErrors();
-        var newDate = e.detail.new.date;
-		this.startDate = newDate;
-		this.endDate = new Date();
+        // this._clearErrors();
+        var newDate = new Date(e.detail.new.startDate);
+        var oldDate = new Date(e.detail.new.endDate);
+        this.startDate = newDate;
+        this.endDate = oldDate; 
+        console.log("start: " + this.startDate + " end: " + this.endDate);
         var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
         var roundedRangeDiff = Math.floor(rangeDiff);
-
         this.statmentDays = "Last " + roundedRangeDiff + " days";
         this.statementPeriod = this._fullDate(this.startDate) + " - " + this._fullDate(this.endDate);
-        console.log("Difference range "+roundedRangeDiff)
+
+
+
 
         if (roundedRangeDiff > 90) {
             this.infoOrError = "error";
-            this.errorBannerMessage = "Out of range."
-        }
-        if (roundedRangeDiff == 90 || roundedRangeDiff < 90) {
-            this.infoOrError = "info";
+            this.errorBannerMessage = "Date selection is out of range.";
+        }else if (roundedRangeDiff == 90 || roundedRangeDiff < 90) {
+			            this.infoOrError = "info";
         }
     }
 
 
     _fullDate(dateToFormat) {
+		var myDate = new Date(dateToFormat);
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        var fullDateString = dateToFormat.getDay() + " " + monthNames[dateToFormat.getMonth()] + " " + (dateToFormat.getYear() + 1900);
+        var fullDateString = myDate.getDay() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
         return fullDateString;
     }
     _showDateRange(e) {
@@ -365,6 +391,7 @@ export class StatementsDialog extends Component {
         this.statmentDays = "";
         console.log("showCalendar showrange " + this.showCalendar);
         this.showCalendar = e.currentTarget.checked;
+		this.showScrollbar = this.showCalendar;
     }
 
     _emailFormatCheck(e) {
@@ -390,13 +417,13 @@ export class StatementsDialog extends Component {
         }
     }
 
-	_confirmEmailMatch(e) {
-		if(e.detail.new.length > 1) {
-			this.confirmEmail = e.detail.new;
-			if(this.confirmEmail !== this.email) {
-				this.confirmError = "Emails do not match";
-			} else {
-				this.confirmError = "";
+    _confirmEmailMatch(e) {
+        if (e.detail.new.length > 1) {
+            this.confirmEmail = e.detail.new;
+            if (this.confirmEmail !== this.email) {
+                this.confirmError = "Emails do not match";
+            } else {
+                this.confirmError = "";
 
             }
         } else {
@@ -404,21 +431,21 @@ export class StatementsDialog extends Component {
         }
     }
 
-	async _viewPDF() {
-		this.displayPDF = true;
-		this.statementsHeader = "View Document";
+    async _viewPDF() {
+        this.displayPDF = true;
+        this.statementsHeader = "View Document";
 
-		const returnValue = await this.quickTransactionService.viewStatement();
-		console.log(returnValue);
-			if (returnValue.succeeded) {
-				//render the PDF
-				this.viewStatementPDF = returnValue.result.statementData;
-            } else {
-                console.log("can't view cs call failed");
-				//render an error
-			}
-		
-	}
+        const returnValue = await this.quickTransactionService.viewStatement();
+        console.log(returnValue);
+        if (returnValue.succeeded) {
+            //render the PDF
+            this.viewStatementPDF = returnValue.result.statementData;
+        } else {
+            console.log("can't view cs call failed");
+            //render an error
+        }
+
+    }
 
     _closePDF() {
         this.displayPDF = false;
@@ -434,11 +461,9 @@ export class StatementsDialog extends Component {
         return [
             super.styles,
             css`
-			.statementsModal {
-				height: 930px;
-				width: 976px;
-			}
 			capitec-modal {
+                height: 930px;
+				width: 976px;
 				--theme-modal-header-height: 64px;
 				--theme-modal-header-font-size: 18px;
 				--theme-modal-header-padding-left: 16px;
@@ -452,17 +477,23 @@ export class StatementsDialog extends Component {
 				left: 0;
 				right: 0;
 			}
-			.open {
-				display: block;
-			}
-			.close {
-				display: none;
-			}
-			.body {
-				height: 785px;
-				width: 976px;
+            //div[slot="body"]{
+            //    height: 930px;
+            //    width: 976px;
+            //    margin-left: 16px;
+            //    margin-right: 16px;
+            //}
+            .plain-body{
+                height: 930px;
+                width: 976px;
 				background-color: #FFFFFF;
-			}
+            }
+
+
+            .scrollbar-body {
+                height: 866px;
+                width:976px;
+            }
 			.accountSelect {
 				height: 64px;
 				width: 944px;
@@ -482,7 +513,7 @@ export class StatementsDialog extends Component {
 			.accountSelectLabel {
 				text-align: left;
 				color: #3A3A3A;
-				font-size: 16;
+				font-size: 16px;
 				font-weight: bold;
 				margin-left: 56px;
 				margin-top: 11px;
@@ -530,6 +561,7 @@ export class StatementsDialog extends Component {
 				margin-left: 56px;
 				margin-top: 7px;
 				margin-bottom: 11px;
+                margin-right:16px;
 			}
 			.radioBtn {
 				width: 30px;
@@ -551,14 +583,10 @@ export class StatementsDialog extends Component {
 				margin-top: 2px;
 				margin-left: 14px;
 			}
-			.choosePeriod:hover {
+			.choosePeriod:hover, .choosePeriodFocus, .transactFocus, .savingsPlanFocus, .transact:hover {
 				border: 2px solid #009DE0;
 				border-radius: 4px;
-			}
-			.choosePeriodFocus {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}
+			}		
 			.choosePeriodLabel{
 				text-align: left; 
 				margin-left: 56px;
@@ -651,11 +679,7 @@ export class StatementsDialog extends Component {
 			capitec-group {
 				height: 70px;
 				display: inline-block;
-			}
-			.transact:hover {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}
+			}			
 			.save:hover {
 				border: 2px solid #00486D;
 				border-radius: 4px;
@@ -668,10 +692,7 @@ export class StatementsDialog extends Component {
 				border: 2px solid #009DE0;
 				border-radius: 4px;
 			}
-			.transactFocus {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}
+			
 			.saveFocus {
 				border: 2px solid #00486D;
 				border-radius: 4px;
@@ -680,10 +701,7 @@ export class StatementsDialog extends Component {
 				border: 2px solid #C83C37;
 				border-radius: 4px;
 			}
-			.savingsPlanFocus {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}
+			
 			.fromTo {
 				line-height: 20px;
 				color: #3A3A3A;
@@ -703,34 +721,63 @@ export class StatementsDialog extends Component {
 				float: right;
 				width: 300px;
 			}
+            capitec-stepper{
+                --theme-stepper-inner-step-container-height: 56px;
+                --theme-stepper-inner-step-container-width: 326px;
+                --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
+                --theme-stepper-step-title-font-size: 15px;
+                --theme-stepper-step-content-container-padding-left: 16px;
+                width: 976px;               
+            }
+           
+.border{
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
+}
 			`
         ]
     };
 
     _webTemplate() {
         return html`
-			<capitec-modal class="statementsModal ${this.displayDialog}" type="free" header="${this.statementsHeader}">
-			${
-            this.displayPDF ?
-                this._renderPDFViewer() :
-                this._renderStatementsModal()
-            }
+			<capitec-modal type="free" header="${this.statementsHeader}">
+			<!-- <content-box> -->
+			    <div slot="body">
+					${this._renderTabs()}				
+					${this._renderAlertBanner()}
+            		${this.currentStep==1?this._renderAccountSelection():this.currentStep== 2 ? this._renderChoosePeriod(): this._renderSpecifyEmail()}
+					${this.displayPDF ? this._renderPDFViewer() : ``}
+                </div>
+                <div slot="footer">
+					<div class="left">
+						<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
+					</div>
+					<div class="right">
+						<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
+						<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
+					</div>
+				</div>
+			<!-- </content-box> -->
 			</capitec-modal>
 		`
     }
 
-    _renderStatementsModal() {
+
+
+    _renderTabs() {
         return html`
-		<div slot="body" class="body">
 		<capitec-stepper
+        class="stepper"
 		layout="horizontal"
 		.steps="${[{ title: 'Choose Account' }, { title: "Choose Period" }, { title: "Specify Email and View Documents" }]}"
 		active-step-number="${this.currentStep}"
 		@step-click="${(e) => this._updateStep(e)}"
-		></capitec-stepper>
-
-${
-            this.infoOrError === "error" ?
+		></capitec-stepper>`;
+    }
+	_renderAlertBanner(){
+		return html `		
+		${
+            this.infoOrError == "error" ?
                 html`<capitec-alert-banner class="alert error" type="unsuccessful-red">
 		<p><b>Notify:</b> ${this.errorBannerMessage}</p>
 		</capitec-alert-banner>`:
@@ -738,31 +785,15 @@ ${
                 html`<capitec-alert-banner class="alert info" type="info">
 		<p><b>Notify client:</b> ${this.infoBannerMessage}</p>
 		</capitec-alert-banner>`
-
-            }
-		
-
-		${
-            this.currentStep == 1 ?
-                this._renderAccountSelection() :
-                this.currentStep == 2 ?
-                    this._renderChoosePeriod() :
-                    this._renderSpecifyEmail()
-            }
-	</div>
-	<div slot="footer">
-			<div class="left">
-				<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
-			</div>
-			<div class="right">
-				<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
-				<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
-			</div>
-	</div>
-		`
+            }`;
 	}
-	_renderAccountSelection() {
-		return html`
+
+
+
+
+
+    _renderAccountSelection() {
+        return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose an Account"></capitec-label>
 			<div class="accountSelect transact ${this.focusTransact}" @click="${(e) => this._accountSelectionChanged(e, `savingsAccount`)}">
 				<img src="src/images/statement/transact@1x.png" class="accountSelectIcon"/>
@@ -782,16 +813,16 @@ ${
 
 			<div>
 				${
-					this.savingsPlansSelected ?
-					this._renderSavingsPlanSelection():
-					html``
-				}
+            this.savingsPlansSelected ?
+                this._renderSavingsPlanSelection() :
+                html``
+            }
 			</div>
 		`
     }
 
-	_renderSavingsPlanSelection() {
-		return html`
+    _renderSavingsPlanSelection() {
+        return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose a Savings Plan"></capitec-label>
 			${this.savingsPlans.map(item => html`
 				<capitec-radio-group>
@@ -816,7 +847,7 @@ ${
 				<capitec-group layout="grid" rows="auto" column="auto" class="periodRadioGroup">
 					<div class="choosePeriod ${this.flag === "oneMonth" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio id="oneMonth" @value-change="${(e) => this._periodChange(e, 30)}" ?checked="${this.flag==="oneMonth"}">
+							<capitec-radio id="oneMonth" @value-change="${(e) => this._periodChange(e, 30)}" ?checked="${this.flag === "oneMonth"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -826,7 +857,7 @@ ${
 					</div>
 					<div class="choosePeriod ${this.flag === "threeMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio id="threeMonths" @value-change="${(e) => this._periodChange(e, 90)}" ?checked="${this.flag==="threeMonths"}">
+							<capitec-radio id="threeMonths" @value-change="${(e) => this._periodChange(e, 90)}" ?checked="${this.flag === "threeMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -836,7 +867,7 @@ ${
 					</div>
 					<div class="choosePeriod ${this.flag === "sixMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio id="sixMonths" @value-change="${(e) => this._periodChange(e, 180)}" ?checked="${this.flag==="sixMonths"}">
+							<capitec-radio id="sixMonths" @value-change="${(e) => this._periodChange(e, 180)}" ?checked="${this.flag === "sixMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -846,7 +877,7 @@ ${
 					</div>
 					<div class="choosePeriod ${this.flag === "nineMonths" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
-							<capitec-radio id="nineMonths" @value-change="${(e) => this._periodChange(e, 270)}" ?checked="${this.flag==="nineMonths"}">
+							<capitec-radio id="nineMonths" @value-change="${(e) => this._periodChange(e, 270)}" ?checked="${this.flag === "nineMonths"}">
 							</capitec-radio>
 						</div>
 						<div class="choosePeriodLabel">
@@ -857,16 +888,18 @@ ${
 				</capitec-group>
 
 					${
-						this._renderPeriodSelected()
-					}
+            this._renderPeriodSelected()
+            }
 
 		`
     }
 
-	_renderPeriodSelected() {
-		return html `
-		<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-					<div class="period">
+    _renderPeriodSelected() {
+        return html`
+
+			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
+					
+                    <div class="period">
 						<div class="radioBtn">
 							<capitec-radio  @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
@@ -874,9 +907,8 @@ ${
 						<div class="savingsPlanLabel">
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
 							<capitec-label label="Up to 90 days"></capitec-label>
-						</div>
-					</div>
-
+						</div>	
+						</div>				
 				${
             this.showCalendar ?
                 html`
@@ -885,16 +917,15 @@ ${
 							class="calendar"
 							type="range"
 							mode="date"
+                            label="Choose from and to date"
 							inputType="calendar"
-							startDate= ${this.startDate}
-							endDate= ${this.endDate}
-							maxDate= ${this.endDate}
 							outputType="string"
 							@value-change="${(e) => this._calendarSelectionChange(e)}">
 					</capitec-date-time-picker>
 					` :
                 html``
             }
+	
 				
 		`
     }
