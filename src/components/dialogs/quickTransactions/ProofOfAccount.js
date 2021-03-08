@@ -23,6 +23,7 @@ export class ProofOfAccount extends Component {
             id_confirmEmail: ``
         };
         this.label_err = ``;
+        this.accountType = "PRIMARY_SAVINGS";
 
         this.savingAccInfo = {};
         this.landingPageInfo = {};
@@ -81,7 +82,7 @@ export class ProofOfAccount extends Component {
                 "account_number": this.landingPageInfo.accountNumber,
                 "account_open_Date": this._formatDate(this.landingPageInfo.accountOpenedDate),
                 "emailAddress": this.emailAddress,
-                "account_type": this.landingPageInfo.account_type
+                "account_type": this.accountType;
             };
 
             const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
