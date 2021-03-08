@@ -156,7 +156,6 @@ export class StatementsDialog extends Component {
     }
 
     _navigateSteppers(e, btn) {
-        console.log("Navigate stepper e " + e)
         if (this.currentStep == 1 && e.type == "click") {
             if (btn == "next" && this.infoOrError == "info") {
                 if (this.accountSelected == null) {
@@ -177,11 +176,9 @@ export class StatementsDialog extends Component {
         } else if (this.currentStep == 2 && e.type == "click") {
             if (btn == "next" && this.infoOrError == "info") {
                 if (!this.showCalendar && (this.statmentDays=="")) {
-                    console.log("no date selected");
 					this.infoOrError = "error";
 					this.errorBannerMessage = "Please choose a from and to date";
                 } else if(this.showCalendar && (this.statmentDays=="")){
-					console.log("no date selected");
 					this.infoOrError = "error";
 					this.errorBannerMessage = "Please choose a date";
 				}else{
@@ -281,7 +278,6 @@ export class StatementsDialog extends Component {
                 this.focusCredit = "";
 
                 this.accountSelected = name;
-                console.log(this.accountSelected)
             }
 
             if (name == "savingsPlan") {
@@ -291,7 +287,6 @@ export class StatementsDialog extends Component {
 
                 this.savingsPlansSelected = name;
                 this.accountSelected = name;
-                console.log(this.accountSelected)
                 this._renderSavingsPlanSelection();
             } else {
                 this.savingsPlansSelected = false;
@@ -303,7 +298,6 @@ export class StatementsDialog extends Component {
                 this.focusTransact = "";
 
                 this.accountSelected = name;
-                console.log(this.accountSelected)
             }
         } else {
             if (this.accountSelected == "savingsAccount") {
@@ -311,7 +305,6 @@ export class StatementsDialog extends Component {
                 this.focusSave = "";
                 this.focusCredit = "";
 
-                console.log(this.accountSelected)
             }
         }
 
@@ -331,7 +324,6 @@ export class StatementsDialog extends Component {
     };
 
     _savingsPlanChanged(e, savingsPlan) {
-        console.log(e)
         if (e) {
             this.savingsPlanSelected = savingsPlan;
             this.savingsPlanFocus = "savingsPlanFocus";
@@ -344,7 +336,6 @@ export class StatementsDialog extends Component {
     }
 
     _periodChange(e, days) {
-        console.log("showCalendar " + this.showCalendar);
         this.infoOrError = "info";
         this.flag = e.currentTarget.id;
         this.showCalendar = false;
@@ -364,7 +355,6 @@ export class StatementsDialog extends Component {
         var oldDate = new Date(e.detail.new.endDate);
         this.startDate = newDate;
         this.endDate = oldDate; 
-        console.log("start: " + this.startDate + " end: " + this.endDate);
         var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
         var roundedRangeDiff = Math.floor(rangeDiff);
         this.statmentDays = "Last " + roundedRangeDiff + " days";
@@ -387,15 +377,12 @@ export class StatementsDialog extends Component {
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        console.log("dateToFormat: " + dateToFormat);
-        var fullDateString = myDate.getDay() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
-        console.log("Day " + myDate.getDay() + "  date " + myDate.getDate + " month " + monthNames[myDate.getMonth]);
+        var fullDateString = myDate.getDate() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
         return fullDateString;
     }
     _showDateRange(e) {
         this.flag = "";
         this.statmentDays = "";
-        console.log("showCalendar showrange " + this.showCalendar);
         this.showCalendar = e.currentTarget.checked;
 		this.showScrollbar = this.showCalendar;
     }
@@ -405,7 +392,6 @@ export class StatementsDialog extends Component {
         if (e.detail.new.length > 1) {
             if (regCheck.test(e.detail.new)) {
                 this.email = e.detail.new;
-                console.log(e.detail.new);
                 return true;
             } else {
                 this.emailError = "Invalid email format";
@@ -445,7 +431,6 @@ export class StatementsDialog extends Component {
         this.nextSend = "Close";
 
         const returnValue = await this.quickTransactionService.viewStatement();
-        console.log(returnValue);
         if (returnValue.succeeded) {
             //render the PDF
             this.viewStatementPDF = returnValue.result.statementData;
