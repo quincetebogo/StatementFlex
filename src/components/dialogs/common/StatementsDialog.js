@@ -491,7 +491,7 @@ export class StatementsDialog extends Component {
 
 
             .scrollbar-body {
-                height: 866px;
+                height: 700px;
                 width:976px;
             }
 			.accountSelect {
@@ -742,7 +742,7 @@ export class StatementsDialog extends Component {
         return html`
 			<capitec-modal type="free" header="${this.statementsHeader}">
 			<!-- <content-box> -->
-			    <div slot="body">
+			    <div slot="body" class="${this.showCalendar ? `plain-body` : `scrollbar-body`}">
 					${this._renderTabs()}				
 					${this._renderAlertBanner()}
             		${this.currentStep==1?this._renderAccountSelection():this.currentStep== 2 ? this._renderChoosePeriod(): this._renderSpecifyEmail()}
@@ -898,8 +898,8 @@ export class StatementsDialog extends Component {
         return html`
 
 			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-					
-                    <div class="period">
+		 <div class="period">
+			                   
 						<div class="radioBtn">
 							<capitec-radio  @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
@@ -908,7 +908,7 @@ export class StatementsDialog extends Component {
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
 							<capitec-label label="Up to 90 days"></capitec-label>
 						</div>	
-						</div>				
+					
 				${
             this.showCalendar ?
                 html`
@@ -925,7 +925,7 @@ export class StatementsDialog extends Component {
 					` :
                 html``
             }
-	
+	</div>	
 				
 		`
     }
