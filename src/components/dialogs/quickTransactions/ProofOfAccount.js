@@ -24,6 +24,7 @@ export class ProofOfAccount extends Component {
         };
         this.label_err = ``;
         this.accountType = "PRIMARY_SAVINGS";
+        this.isBusy = false;
 
         this.savingAccInfo = {};
         this.landingPageInfo = {};
@@ -37,6 +38,7 @@ export class ProofOfAccount extends Component {
      */
     static get properties() {
         return {
+            isBusy: { attribute: false },
             callerInformation: { type: Object },
             incomingCallDetails: { type: Object },
             landingPageInfo: { type: Object },
@@ -66,6 +68,9 @@ export class ProofOfAccount extends Component {
      * EVENT HANDLERS
      */
 
+    _toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
+    }
 
     async _sendClick(e) {
         if (this._validateEmail(e)) {
@@ -82,7 +87,7 @@ export class ProofOfAccount extends Component {
                 "account_number": this.landingPageInfo.accountNumber,
                 "account_open_Date": this._formatDate(this.landingPageInfo.accountOpenedDate),
                 "emailAddress": this.emailAddress,
-                "account_type": this.accountType;
+                "account_type": this.accountType
             };
 
             const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
@@ -358,7 +363,11 @@ export class ProofOfAccount extends Component {
 		</capitec-group>
 		`;
     }
-
+    _renderLoadingIndicator() {
+        return this.isBusy
+            ? html`<capitec-loading-indicator></capitec-loading-indicator>`
+            : html``;
+    }
 
 }
 customElements.define(`horizon-proof-of-account`, ProofOfAccount);
