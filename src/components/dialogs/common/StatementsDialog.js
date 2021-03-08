@@ -74,7 +74,9 @@ export class StatementsDialog extends Component {
         this.nextSend = "Next";
         this.flag = "";
         this.viewStatementPDF = "";
-		this.showScrollbar = false;
+        this.showScrollbar = false;
+        this.cancelButton = "Cancel";
+        this.backButton = "";
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
@@ -166,6 +168,7 @@ export class StatementsDialog extends Component {
 					}
                     this.showHide = "show";
                     this.infoOrError = "info";
+                    this.backButton = "Back";
                     this.currentStep++;
                 }
             } else if (btn == "cancel") {
@@ -190,6 +193,7 @@ export class StatementsDialog extends Component {
 					}
                 }
             } else if (btn == "back") {
+                this.backButton = "";
 				this.infoOrError = "info";
                 this.currentStep--;
 				if(this.showScrollbar){
@@ -383,7 +387,9 @@ export class StatementsDialog extends Component {
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
+        console.log("dateToFormat: " + dateToFormat);
         var fullDateString = myDate.getDay() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
+        console.log("Day " + myDate.getDay() + "  date " + myDate.getDate + " month " + monthNames[myDate.getMonth]);
         return fullDateString;
     }
     _showDateRange(e) {
@@ -434,6 +440,9 @@ export class StatementsDialog extends Component {
     async _viewPDF() {
         this.displayPDF = true;
         this.statementsHeader = "View Document";
+        this.backButton = "";
+        this.cancelButton = "";
+        this.nextSend = "Close";
 
         const returnValue = await this.quickTransactionService.viewStatement();
         console.log(returnValue);
@@ -449,6 +458,9 @@ export class StatementsDialog extends Component {
 
     _closePDF() {
         this.displayPDF = false;
+        this.nextSend = "Send";
+        this.cancelButton = "Cancel";
+        this.backButton = "Back";
         this.statementsHeader = "Statements";
     }
 
@@ -478,10 +490,10 @@ export class StatementsDialog extends Component {
 				right: 0;
 			}
             //div[slot="body"]{
-            //    height: 930px;
-            //    width: 976px;
-            //    margin-left: 16px;
-            //    margin-right: 16px;
+            //   height: 930px;
+            //   width: 976px;
+            //   margin-left: 16px;
+            //   margin-right: 16px;
             //}
             .plain-body{
                 height: 930px;
@@ -493,6 +505,8 @@ export class StatementsDialog extends Component {
             .scrollbar-body {
                 height: 700px;
                 width:976px;
+				padding-right:0px;
+				margin-right:0px;
             }
 			.accountSelect {
 				height: 64px;
@@ -546,7 +560,7 @@ export class StatementsDialog extends Component {
 				font-weight: 900;
 				color: #3A3A3A;
 			}
-			.savingsPlans, .period {
+			.savingsPlans  {
 				height: 64px;
 				width: 944px;
 				margin: 8px;
@@ -555,6 +569,14 @@ export class StatementsDialog extends Component {
 				border-radius: 4px;
 				display: inline-block;
 			}
+            .period{
+				width: 944px;
+				margin: 8px;
+				margin-left: 15.5px;
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
+				display: inline-block;
+            }
 			.savingsPlanLabel, .periodLabel {
 				width: 300px; 
 				text-align: left; 
@@ -723,17 +745,18 @@ export class StatementsDialog extends Component {
 			}
             capitec-stepper{
                 --theme-stepper-inner-step-container-height: 56px;
-                --theme-stepper-inner-step-container-width: 326px;
+                --theme-stepper-inner-step-container-width: 327px;
                 --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
                 --theme-stepper-step-title-font-size: 15px;
+                --theme-stepper-step-title-max-width: 327px;
                 --theme-stepper-step-content-container-padding-left: 16px;
                 width: 976px;               
             }
            
-.border{
+            .border{
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
-}
+            }
 			`
         ]
     };
@@ -750,11 +773,11 @@ export class StatementsDialog extends Component {
                 </div>
                 <div slot="footer">
 					<div class="left">
-						<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
+						<capitec-button class="${this.showHide}" type="clear" label="${this.backButton}" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
 					</div>
 					<div class="right">
-						<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
-						<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
+						<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${this.nextSend == "Close" ? () => this._closePDF() : (e) => this._navigateSteppers(e, `next`)}"></capitec-button>
+						<capitec-button class="cancelBtn" type="clear" label="${this.cancelButton}" @click="${() => this._cancel()}"></capitec-button>
 					</div>
 				</div>
 			<!-- </content-box> -->
@@ -898,8 +921,8 @@ export class StatementsDialog extends Component {
         return html`
 
 			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-		 <div class="period">
-			                   
+ <capitec-content-box class="period">
+						                   
 						<div class="radioBtn">
 							<capitec-radio  @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
@@ -908,7 +931,7 @@ export class StatementsDialog extends Component {
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
 							<capitec-label label="Up to 90 days"></capitec-label>
 						</div>	
-					
+
 				${
             this.showCalendar ?
                 html`
@@ -925,7 +948,7 @@ export class StatementsDialog extends Component {
 					` :
                 html``
             }
-	</div>	
+</capitec-content-box>	
 				
 		`
     }
