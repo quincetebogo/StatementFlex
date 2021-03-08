@@ -90,13 +90,22 @@ export class ProductButtonPanel extends Component {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
 		} else {
-			this.horizonRouter.navigateToLandingPage(`Savings`, false);
+			const state = this.horizonStore.recoverState();
+			if(state.callerInformation.verificationStatus === `non-client`){
+				this.horizonRouter.navigateToProductInfoPage(`SavingsAccount`);
+				this.requestUpdate();
+			} else{
+				this.horizonRouter.navigateToLandingPage(`Savings`, false);
+			}
 		}
 	}
 
 	_savingsPlanClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
+		} else {
+			this.horizonRouter.navigateToProductInfoPage(`SavingsPlan`);
+			this.requestUpdate();
 		}
 	}
 
@@ -107,12 +116,16 @@ export class ProductButtonPanel extends Component {
 		} else {
 			const state = this.horizonStore.recoverState();
 			this.horizonRouter.navigateToLandingPage(`Insure`, state.callerInformation.hasInsuranceProducts);
+			this.requestUpdate();
 		}
 	}
 
 	_creditClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
+		} else {
+			this.horizonRouter.navigateToProductInfoPage(`Credit`);
+			this.requestUpdate();
 		}
 	}
 

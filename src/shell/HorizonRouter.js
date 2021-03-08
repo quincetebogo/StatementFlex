@@ -31,7 +31,10 @@ const HORIZON_ROUTES = Object.freeze({
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
-	PRODUCT_INFO_PAGE: `/product/information`
+	SAVINGS_ACCOUNT_PRODUCT_INFO: `/product-info/savings-account`,
+	SAVINGS_PLAN_PRODUCT_INFO: `/product-info/savings-plan`,
+	INSURE_PRODUCT_INFO: `/product-info/insure`,
+	CREDIT_PRODUCT_INFO: `/product-info/credit`
 });
 
 /**
@@ -183,7 +186,7 @@ export class HorizonRouter {
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const savings = () => this.navigateToSavingsAccount();
-
+		
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
@@ -217,9 +220,35 @@ export class HorizonRouter {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
-	productInformationPage() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO_PAGE}`);
+	navigateToSavingsAccountInfo() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_INFO}`);
 	}
+
+	navigateToSavingsPlanInfo() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_INFO}`);
+	}
+
+	navigateToInsureInfo() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_PRODUCT_INFO}`);
+	}
+
+	navigateToCreditInfo() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_PRODUCT_INFO}`);
+	}
+
+	navigateToProductInfoPage(type) {
+		const savingsAccount = () => this.navigateToSavingsAccountInfo();
+		const savingsPlan = () => this.navigateToSavingsPlanInfo();
+		const insure = () => this.navigateToInsureInfo();
+		const credit = () => this.navigateToCreditInfo();
+
+		const landingPageFunc = {
+			SavingsAccount: savingsAccount,
+			SavingsPlan: savingsPlan,
+			Insure: insure,
+			Credit: credit
+		}[type]();
+	};
 	
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
@@ -522,11 +551,35 @@ export default horizonRoutes = [
         onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-        name: `horizon-product-information`,
-        title: `ProductInformationScreen`,
+        name: `horizon-savings-account-product-info`,
+        title: `SavingsAccount`,
         icon: null,
-        path: HORIZON_ROUTES.PRODUCT_INFO_PAGE,
-        load: () => import(`../views/product/ProductInformation`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+        path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_INFO,
+        load: () => import(`../views/product/ProductInformation/SavingsAccountProductInfo`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+        name: `horizon-savings-plan-product-info`,
+        title: `SavingsPlan`,
+        icon: null,
+        path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_INFO,
+        load: () => import(`../views/product/ProductInformation/SavingsPlanProductInfo`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+        name: `horizon-insure-product-info`,
+        title: `Insure`,
+        icon: null,
+        path: HORIZON_ROUTES.INSURE_PRODUCT_INFO,
+        load: () => import(`../views/product/ProductInformation/InsureProductInfo`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+    },
+	{
+        name: `horizon-credit-product-info`,
+        title: `Credit`,
+        icon: null,
+        path: HORIZON_ROUTES.CREDIT_PRODUCT_INFO,
+        load: () => import(`../views/product/ProductInformation/CreditProductInfo`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
     }
 ];
