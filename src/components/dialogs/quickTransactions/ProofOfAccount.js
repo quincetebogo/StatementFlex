@@ -70,16 +70,16 @@ export class ProofOfAccount extends Component {
         if (this._validateEmail(e)) {
             // get account open date and number and save to state
             const state = {
-                account_number: this.landingPageInfo.account_number,
-                account_open_Date: this.landingPageInfo.account_open_Date
+                account_number: this.landingPageInfo.accountNumber,
+                account_open_Date: this.landingPageInfo.accountOpenedDate
             };
 
             this.horizonStore.saveState(state);
 
             const clientInfo = {
                 "cifNumber": this.callerInformation.cifNumber,
-                "account_number": this.landingPageInfo.account_number,
-                "account_open_Date": this._formatDate(this.landingPageInfo.account_open_Date),
+                "account_number": this.landingPageInfo.accountNumber,
+                "account_open_Date": this._formatDate(this.landingPageInfo.accountOpenedDate),
                 "emailAddress": this.emailAddress,
                 "account_type": this.landingPageInfo.account_type
             };
