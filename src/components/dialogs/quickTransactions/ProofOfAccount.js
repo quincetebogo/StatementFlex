@@ -1,0 +1,329 @@
+import { Component, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+
+export class ProofOfAccount extends Component {
+    /*
+     * INITIALIZATION
+     */
+    constructor() {
+        super();
+        // Variables
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
+        this.id_emailAddress = ``;
+        this.id_confirmEmail = ``;
+        this.isBusy = false;
+        this.alertBannerMessage = ``;
+        this.errMessage = {
+            id_emailAddress: ``,
+			id_confirmEmail: ``
+        };
+        this.label_err = ``;
+
+        this.savingAccInfo = {};
+        this.landingPageInfo = {};
+
+
+        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+    }
+
+    /*
+     * PROPERTIES
+     */
+    static get properties() {
+        return {
+			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+            isBusy: { attribute: false },
+            emailAddress: { attribute: false },
+            alertBannerMessage: { attribute: false },
+            account_open_Date: { attribute: false },
+            account_number: { attribute: false },
+            account_type: {attribute: false }
+        };
+    }
+
+    /*
+     * LIFECYCLE OVERRIDES
+     */
+    connectedCallback() {
+        super.connectedCallback();
+        // holding values in your page
+        this.emailAddress = null;
+        this.account_open_Date = null;
+        this.account_number = null;
+        this.account_type = null;
+    }
+
+    /*
+     * EVENT HANDLERS
+     */
+
+
+   async _sendClick() {
+        if (this._validateEmail()) {
+            // get account open date and number and save to state
+            const state = {
+                account_number: this.landingPageInfo.account_number,
+                account_open_Date: this.landingPageInfo.account_open_Date
+            };
+
+            this.horizonStore.saveState(state);
+
+            const clientInfo = {
+                "cifNumber": this.callerInformation.cifNumber,
+                "account_number": this.landingPageInfo.account_number,
+                "account_open_Date": this._formatDate(this.landingPageInfo.account_open_Date),
+                "emailAddress": this.emailAddress,
+                "account_type": this.landingPageInfo.account_type
+            };
+            
+            const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+            if (returnValue.succeeded) {
+                this.horizonRouter.navigateToProofOfAccountSuccess();
+            } else {
+                this.horizonRouter.navigateToProofOfAccountFailed();
+            }
+        }
+
+    }
+
+    _formatDate(dateToFormat) {
+        const tempdate = dateToFormat.toISOString().slice(0, 10);
+        return tempdate;
+    }
+
+    _cancelClick() {
+        this.dispatchEvent(new CustomEvent(`cancel`));
+    }
+
+    /*
+     * PRIVATE METHODS
+     */
+
+    _validateEmail() {
+        const emailAddress = this.id_emailAddress;
+        const confirmEmailAddress = this.id_confirmEmail;
+        if (emailAddress !== null && emailAddress.includes(`@`) && emailAddress === confirmEmailAddress) {
+            this.alertBannerMessage = ``;
+            return true;
+        } else if (emailAddress === `` || confirmEmailAddress === ``) {
+            this.alertBannerMessage = `Complete all fields to continue`;
+            return false;
+        } else if (emailAddress !== confirmEmailAddress) {
+            this.alertBannerMessage = `Email addresses do not match.`;
+            return false;
+        }
+
+        this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+        return false;
+    }
+
+    _onKeyPress(e) {
+        this._clearErrors(e);
+    }
+
+
+    _clearErrors(e) {
+        this.errMessage.id_emailAddress = ``;
+        this.alertBannerMessage = ``;
+
+    }
+
+    _valueChanged(e) {
+        this[e.currentTarget.id] = e.detail.new;
+        this._clearErrors(e);
+    }
+
+    _isNullorEmpty(fieldValue) {
+        return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+    }
+
+    _errorHandler(ex) {
+
+        return true;
+    }
+
+    /*
+     * PUBLIC METHODS
+     */
+
+    /*
+     * RENDERING
+     */
+
+    static get styles() {
+        return [
+            super.styles,
+            css`
+			.body-class {
+				width: 531px;
+				height: 280px;
+				margin-left:16px;
+				margin-right: 16px;			
+			}
+			div[slot="footer"]{
+				margin-right:4px;
+			}
+
+			.err-body{
+				width: 531px;
+				height: 315px;
+				margin-left:16px;
+				margin-right: 16px;
+			}
+			.label-err-message{
+				color: #D4781C;
+				font-family: "Hind Vadodara";
+				font-size: 14px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 20px;
+			}
+			.email-div{
+				margin-top: 16px;
+				height: 104px;
+			}
+			.search-label{
+				height: 24px;
+				width: 200px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-top: 0px;
+				margin-bottom: 16px;
+			}
+			.confirm-search-label{
+				height: 24px;
+				width: 200px;
+				color: #3E4547;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
+				margin-bottom: 16px;
+			}
+			.email-text{
+				height: 72px;
+			}
+			.alert-banner{
+				margin-top:16px;
+				height:48px;
+			}
+			capitec-modal {
+				width: 531px;
+				height: 721px;
+				--theme-modal-header-padding-left: 16px;
+				
+			}
+			`
+        ];
+    }
+
+
+    _mobileTemplate() {
+        return _webTemplate();
+    }
+
+
+    _webTemplate() {
+        return html`
+		<capitec-modal type="free" header-align="left" header="Proof Of Account">
+			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
+				${this._renderAlertBanner()}
+				${this._renderEmailFields()}
+				${this._renderLoadingIndicator()}
+			</div>
+			<div slot="footer" class="footer-class">
+				${this._renderFooter()}
+			</div>
+		</capitec-modal>
+		`;
+    }
+
+    _renderAlertBanner() {
+        if (!this._isNullorEmpty(this.alertBannerMessage)) {
+            return html`
+		<capitec-alert-banner type="unsuccessful-red" class="alert-banner">
+			<capitec-group layout="horizontal">
+				<capitec-label label="Notify: " class="label-err-message"></capitec-label>
+				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
+			</capitec-group>
+		
+		</capitec-alert-banner>
+		 	`;
+        }
+        return html``;
+    }
+
+    _renderLoadingIndicator() {
+        if (!this.isBusy) {
+            return html``;
+        }
+
+        return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+    }
+
+    _renderEmailFields() {
+        return html`
+		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
+			<div class="email-div">
+				<capitec-label class="search-label" label="Enter email address" tabindex="-1"> </capitec-label>
+				<capitec-text-field 
+					class="email-text" 
+					id="id_emailAddress" 
+					focussed value="${this.id_emailAddress}"
+					name="mailAddress" 
+					@value-changed="${(e) => this._valueChanged(e)}"
+					@key-input="${(e) => this._onKeyPress(e)}" 
+					label="Email address" 
+					error="${this.errMessage.id_emailAddress}">
+				</capitec-text-field>
+			</div>
+
+			<div class="email-div">
+				<capitec-label class="confirm-search-label" label="Confirm email address" type="title"></capitec-label>
+				<capitec-text-field 
+					class="email-text" id="id_confirmEmail" 
+					.value="${this.id_confirmEmail}"
+					@value-changed="${(e) => this._valueChanged(e)}" 
+					@key-input="${(e) => this._onKeyPress(e)}"
+					name="confirmMailAddress" label="Email address" 
+					error="${this.errMessage.id_confirmEmail}">
+				</capitec-text-field>
+			</div>
+		</capitec-group>
+		`;
+    }
+
+    _renderFooter() {
+        return html`
+		<capitec-group layout="horizontal">
+			<capitec-button 
+				id="id-cancel-button" 
+				type="clear" 
+				label="Cancel" 
+				@click="${(e) => this._cancelClick(e)}">
+			</capitec-button>
+			<capitec-button 
+				id="id-send-button" 
+				type="primary" 
+				label="Send" 
+				@click="${(e) => this._sendClick(e)}">
+			</capitec-button>
+		</capitec-group>
+		`;
+    }
+
+
+}
+customElements.define(`horizon-proof-of-account`, ProofOfAccount);

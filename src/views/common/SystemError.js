@@ -61,15 +61,6 @@ export class SystemError extends View {
 			this.incomingCallDetails = state.incomingCallDetails;
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
-
-			if (this.incomingCallDetails) {
-				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-				});
-			}
 		}
 	}
 
@@ -102,6 +93,9 @@ export class SystemError extends View {
 				#id-error-msg{
 					width: 329px;
 				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 912px;
+				}
 			`
 		];
 	}
@@ -124,6 +118,7 @@ export class SystemError extends View {
 					left=""
 					right="Assign"
 					toast="Network error"
+					image="/images/insure/assign-pay-arrears.svg"
 					@right-click=${() => this._assignClick()}>
 					<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
 				</horizon--error-screen>`;

@@ -9,6 +9,13 @@ const FILTER_BY = {
 	INACTIVE: 3
 };
 
+const MANDATE_STATUS = {
+	ACTIVE: `Accepted`,
+	INACTIVE: `Expired`,
+	PENDING: `Pending`,
+	SUSPENDED: `Expired`
+};
+
 /**
  * DebiCheck mandates component
  *
@@ -71,6 +78,7 @@ export class DebiCheckMandates extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+		
 	}
 
 	_performFilter(type) {
@@ -103,9 +111,9 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Pending`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Accepted`);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `Expired` || item.mandateStatus === `Declined`);
+		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `PENDING`);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `ACTIVE`);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `INACTIVE` || item.mandateStatus.toUpperCase() === `SUSPENDED`);
 	}
 	
 	_formatCollectionDate(collectionDate) {
@@ -171,13 +179,13 @@ export class DebiCheckMandates extends Component {
 			super.styles,
 			css`
 				.debi-check {
-					height: 888px;
+					height: 889px;
 					width: 1064px;
 					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
 					border-radius: 5px;
 					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+					box-shadow: none!important;
 				}
 				capitec-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
@@ -192,15 +200,19 @@ export class DebiCheckMandates extends Component {
 					margin-right: 34px;
 				}
 				.debicheck-action-bar {
-					height: 56px;
+					height: 64px;
 					--theme-actionbar-padding: 4px 16px 4px 16px;
 					--theme-actionbar-min-height: 56px;
 					--theme-actionbar-item-gap: 8px;
+					box-shadow: none!important;
+					margin: 0px;
 				}
 				.debicheck-action-bar > capitec-text-field {
 					height: 49px;
 					width: 441px;
 					--theme-input-label-font-color: #969B9D;
+					margin-top: 8px;
+					line-height: 24px;
 				}
 				capitec-radio-group {
 					margin-left: 12px;
@@ -230,7 +242,7 @@ export class DebiCheckMandates extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
-					height: 768px;
+					height: 761px;
 				}
 				capitec-content-box > .section-header {
 					height: 44px;
@@ -466,10 +478,10 @@ export class DebiCheckMandates extends Component {
 					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
-					${this._renderCell(`Collection date`, this._formatCollectionDate(rowData.collectionDate))}
+					${this._renderCell(`Collection date`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
-					${this._renderCell(`Status`, rowData.mandateStatus)}
+					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
 				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
 					${this._renderButtons(rowData.mandateStatus, rowData.mandateId, rowData.registerId)}
@@ -500,13 +512,12 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status, mandateId, registerId) {
-		return status !== `Pending` 
-			? html`<capitec-label type="subtitle"
+		return html`<capitec-label type="subtitle"
 									label="View Info"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._viewInfo(mandateId, registerId)}">
-					 </capitec-label>` 
-			: html``;
+					 </capitec-label>
+					 `;
 
 			/* Remove approve/decline buttons as this functionality is now part of release 2
 			  html`<capitec-label type="subtitle"
@@ -534,7 +545,7 @@ export class DebiCheckMandates extends Component {
 				<img src="/images/debi-check/debi-check-logo.svg" class="debi-check-logo"/>
 				<capitec-label
 					class="no-results"
-					label="No results found"
+					label="No DebiCheck mandates on the account"
 					type="strong">
 				</capitec-label>
 			</capitec-group>

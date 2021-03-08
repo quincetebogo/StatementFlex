@@ -2,6 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
 	},
+	"signalRUrl": "https://horizoncs.platform-dev.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -11,7 +12,7 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "",
+		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
 	"LogRequestResponseModels" : true,
@@ -37,35 +38,52 @@
 			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
+	"mock": {
 		"enabled": false,
-		"acceptCall": { 
-			"enabled": true,
+		"acceptCall": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cardLimitsLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"xdsQuestions": {
 			"enabled": true,
+			"substituteIdOnly": "",
+			"positiveCase": true
+		},
+		"verifySecurityQuestions": {
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
 			"enabled": false,
 			"positiveCase": true
 		},
-		"xdsQuestions": {
-			"enabled": true,
-			"positiveCase": true
-		},
-		"verifySecurityQuestions": {
-			"enabled": true,
-			"positiveCase": true
-		},
 		"debiCheckDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cardLimits": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"hasInsuranceProducts": {
 			"enabled": false,
 			"positiveCase": true
 		},
 		"transactionHistory": {
 			"enabled": true,
 			"positiveCase": true
-		}
+		}		
 	}
 }

@@ -66,49 +66,66 @@ export class AccessMenuBar extends Component {
 				font-size:  14px;
 				line-height: 0px;
 				text-align: left;
+				padding-top:24px;
 			}
-			.subtitle {
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  15px;
-				line-height: 14px;
-				text-align: left;
+
+			.insights-label{
+				height: 24px;
+				width: 114px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 18px;
+				font-weight: 600;
+				letter-spacing: 0;
+				line-height: 24px;
 			}
-			.back-ground-card{
-				height:300px;
-			}
-			.access-card{
-				height:320px;
-				width:320px;
-				background-color: #F5F5F5;
-				padding: 20px 0px 0px 0px;
+
+			.access-group {
+				height: auto;
+				width: auto;
+				padding: 24px 0px 0px 0px;
 			}
 			.access-header{
 				height:60px;
 				padding: 0px 0px 0px 20px;
 			}
+
 			.header-icon{
 				padding:0px 20px 0px 0px;
 			}
+
+			#notify-icon {
+				padding-left: 145px;
+			}
+
 			.header-label{
-				font: 600 18px/30px Hind Vadodara;
-				line-height:50px
+				height: auto;
+				width: auto;
+				padding-left: 16px;
+				--theme-label-default-font-size: 18px;
+				--theme-label-default-font-weight: 600;
+				--theme-layout-gap-spacing: 18px;
 			}
+
 			.box-items{
-				height:50px;
-				padding: 0px 0px 0px 20px;
+				height: auto;
+				align-items: center;
+				padding: 24px 24px 24px 24px;
 			}
-			.box-label{
-				font-size:22px;
-				font-weight:600;
-				line-height: 15px;
+			.box-image {
+				height: 152px;
+ 				width: 210px;
 			}
-			.box-icon{
-				align-self:flex-end;
-				padding:0px 30px 0px 0px;
-				cursor:pointer;
-			}`
+			horizon-product-tile {
+				--theme-product-tile--height: 72px;
+				--theme-product-tile-border-radius: 4px;
+				--theme-product-tile-colour-border-radius: 4px 0 0 4px;
+				--theme-product-tile-default-border-left: 4px solid #009DE0;
+				--theme-product-tile-hover-shadow: none;
+				--theme-product-tile-focus-shadow: none;
+				--theme-layout-gap-spacing: 16px;
+			}
+		`
 		];
 	}
 
@@ -119,7 +136,7 @@ export class AccessMenuBar extends Component {
 					${this.renderClientInsights()}
 				</div>
 				<div>
-					${this.renderAccessExpander()}
+					${this.renderAccessChannelTabs()}
 				</div>
 			</section>
 			${this.renderAccessChannelError()}`;
@@ -130,47 +147,49 @@ export class AccessMenuBar extends Component {
 			<capitec-card class="insights-card">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
 					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-						<capitec-icon class="header-icon" size="small" icon="system/info"></capitec-icon>
-						<capitec-label class="header-label" label="Client Insights"></capitec-label>
+							<capitec-label class="insights-label" label="Client Insights"></capitec-label>
+							<capitec-icon class="header-icon" id="notify-icon" size="small" icon="system/notify"></capitec-icon>
 					</capitec-content-box>
 					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-						<capitec-label class="box-label" label="Incomplete Credit Estimate"></capitec-label>
-						<capitec-spacer></capitec-spacer>
-						<capitec-label class="insights-subtitle" label="Reference no. 0987865463"></capitec-label>
+						<img class="box-image" src="images/landingPageImages/marketing.svg"/>
+						<capitec-label class="insights-subtitle" label="Client insights coming soon..."></capitec-label>
 					</capitec-content-box>
-					<hr>
+					<!-- <hr> -->
 				</capitec-group>
 			</capitec-card>`;
 	}
 
-	renderAccessExpander() {
+	renderAccessChannelTabs() {
 		return html`
-			<capitec-card class="access-card">
-				<capitec-card class="back-ground-card"> 
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-						<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none">
-							<capitec-icon class="header-icon" 
-										  size="medium" 
-										  icon="system/unlock-files-action">
-							</capitec-icon>
-							<capitec-label class="header-label" label="Access"></capitec-label>
-						</capitec-content-box>
-						${this.renderAccessChannels()}
-					</capitec-group>
-				</capitec-card>
-			</capitec-card>`;
-	}
+			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
-	renderAccessChannels() {
-		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-							<capitec-label class="box-label" label="${access}"></capitec-label>
-							<capitec-icon class="box-icon" 
-											size="small" 
-											icon="system/more-action"
-											@click="${() => this.showAlert = true}">
-							</capitec-icon>
-							<capitec-label class="subtitle" label="Active"></capitec-label>
-						</capitec-content-box>`);
+				<horizon-product-tile 
+					type="default"
+					label="App & Online Banking"
+					subtitle="active"
+					detail=""
+					icon="system/access">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="USSD"
+					subtitle="active"
+					detail=""
+					icon="system/cellphone">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="Notifications"
+					subtitle="active"
+					detail=""
+					icon="system/messages">
+				</horizon-product-tile>
+
+			</capitec-group>
+		`;
 	}
 
 	renderAccessChannelError() {

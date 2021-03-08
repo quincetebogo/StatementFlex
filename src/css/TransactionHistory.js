@@ -43,7 +43,7 @@ const statusColumnLabel =
 					height: 13px;`
 
 
-const expanderCell =`height: 57px;
+const expanderCell = `height: 57px;
 					font-weight: 300;
 					justify-content: left;
 
@@ -68,9 +68,9 @@ export const EXPANDER_LABEL = `margin:2px 0px 12px 0px;
 					line-height: 20px;`;
 
 export const TABLE_EXPANDER_CELL = {
-	firstcolumn : firstcolumn,
-	expanderColumns : expanderColumns,
-	expanderCell : expanderCell
+	firstcolumn: firstcolumn,
+	expanderColumns: expanderColumns,
+	expanderCell: expanderCell
 };
 
 export const STATUS_TAG = {

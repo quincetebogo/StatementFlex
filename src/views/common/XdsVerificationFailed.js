@@ -44,6 +44,7 @@ export class XdsVerificationFailed extends View {
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyViaAppClick());
 	}
 
 	// ----------
@@ -73,7 +74,9 @@ export class XdsVerificationFailed extends View {
 	}
 
 	_verifyViaAppClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
+		if (this.callerInformation.hasDigitalChannels) {
+			this.renderMode = RENDER_MODE.VERIFY_NOW;
+		}
 	}
 
 	_skipVerification(event) {
@@ -119,6 +122,9 @@ export class XdsVerificationFailed extends View {
 				#id-error-msg{
 					width: 550px;
 				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 889px;
+				}
 			`
 		];
 	}
@@ -132,8 +138,9 @@ export class XdsVerificationFailed extends View {
 			<horizon--error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
-				right="Verify Via Banking App"
+				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
 				toast="Your Verification has failed."
+				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => this._verifyViaAppClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>

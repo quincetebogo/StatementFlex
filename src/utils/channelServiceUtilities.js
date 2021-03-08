@@ -60,6 +60,28 @@ export function getDateOrdinal(date) {
  * @returns {*} Month name (Jan, Feb..)
  */
 export function getMonthName(month) {
-	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
 	return monthNames[month];
+}
+
+/**
+ * Formatting currency
+ *
+ * @export
+ * @param {*} value currency value
+ * @returns {*} Formatted currency value (E.g R 250 000)
+ */
+export function formatCurrency(value) {
+	return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+}
+
+/**
+ * Formatting phone number
+ *
+ * @export
+ * @param {*} value phone number
+ * @returns {*} Formatted phone number with spaces (E.g 071 256 9875)
+ */
+export function formatPhoneNumber(value) {
+	return !value ? `-` : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, `$1 $2 $3`);
 }
