@@ -84,8 +84,8 @@ export class StatementsUnsuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+	_doneClick() {    
+        this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_handoffClick() {
@@ -108,7 +108,6 @@ export class StatementsUnsuccess extends View {
 					font-weight:500;
 					color:#3A3A3A;
 					margin-bottom:35px;
-					
 				}
 
 				.card-related-options {
@@ -168,7 +167,8 @@ export class StatementsUnsuccess extends View {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen header="Statement not emailed" 
+			<horizon--error-screen header="Statement not emailed"
+			                        image="/images/insure/assign-pay-arrears.svg"
 									left="Done"
 									right="Assign"
 									toast="Statement not emailed"

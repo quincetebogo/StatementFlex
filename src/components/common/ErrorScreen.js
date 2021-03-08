@@ -71,7 +71,6 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-<<<<<<<<< Temporary merge branch 1
 					height: var(--horizon-error-screen-height, 876px);
 					width: 1064px;
 				}
@@ -83,7 +82,6 @@ export class ErrorScreen extends Component {
 					width: 312px;
 					margin: 0px auto 0px auto;
 					margin-top:51px;
-=========
 					width: 100%;
 				}
 				.card > capitec-group[layout="vertical"] {
@@ -91,7 +89,7 @@ export class ErrorScreen extends Component {
 				}
 				#id-unsuccessful-img {
 					margin-top: 270px;
-          width: auto;
+                    width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;

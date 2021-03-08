@@ -78,11 +78,11 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-		this.horizonRouter.navigateToReturnPage(`statement`);
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	// ---------

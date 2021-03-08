@@ -162,7 +162,8 @@ connectedCallback() {
 	_renderProofOfAccountFailure() {
 		return html`
 			<horizon--error-screen 
-				header="Proof of account not sent" 
+				header="Proof of account not sent"
+				image="/images/insure/assign-pay-arrears.svg"
 				left="Done"
 				right="Assign"
 				toast="Proof of account not sent"

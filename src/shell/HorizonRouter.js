@@ -527,7 +527,6 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
 		load: () => import(`../views/Statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
     },
     {
         name: `horizon-proof-of-account-success`,
