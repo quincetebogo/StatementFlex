@@ -546,7 +546,7 @@ export class StatementsDialog extends Component {
 				font-weight: 900;
 				color: #3A3A3A;
 			}
-			.savingsPlans, .period {
+			.savingsPlans {
 				height: 64px;
 				width: 944px;
 				margin: 8px;
@@ -554,6 +554,15 @@ export class StatementsDialog extends Component {
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
 				display: inline-block;
+			}
+			capitec-card {
+				width: 944px;
+				margin: 8px;
+				margin-left: 15.5px;
+				border: 1px solid #E1E1E1;
+				display: inline-block;
+				--theme-card-border-radius: 4px;
+				--theme-card-min-height: auto;
 			}
 			.savingsPlanLabel, .periodLabel {
 				width: 300px; 
@@ -591,9 +600,6 @@ export class StatementsDialog extends Component {
 				text-align: left; 
 				margin-left: 56px;
 			}
-			.period {
-				margin-bottom: 0;
-			}
 			.topLabel {
 				font-weight: bold;
 				line-height: 20px;
@@ -613,14 +619,12 @@ export class StatementsDialog extends Component {
 			.datePicker {
 				margin-left: 15.5px;
 			}
-			.calendar, .rangePicker {
-				height: 303px;
+			.calendar {
+				height: auto;
 				margin-left: 16px;
+				margin-bottom: 16px;
 				--theme-calendar-calendar-width: 345px;
 				--theme-date-time-picker-host-max-width: 690px;
-			}
-			.calendarHeader {
-				display: none;
 			}
 			.email {
 				width: 944px;
@@ -813,16 +817,16 @@ export class StatementsDialog extends Component {
 
 			<div>
 				${
-            this.savingsPlansSelected ?
-                this._renderSavingsPlanSelection() :
-                html``
-            }
+			this.savingsPlansSelected ?
+				this._renderSavingsPlanSelection() :
+				html``
+			}
 			</div>
 		`
-    }
+	}
 
-    _renderSavingsPlanSelection() {
-        return html`
+	_renderSavingsPlanSelection() {
+		return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose a Savings Plan"></capitec-label>
 			${this.savingsPlans.map(item => html`
 				<capitec-radio-group>
@@ -839,10 +843,10 @@ export class StatementsDialog extends Component {
 				</capitec-radio-group>
 			`)}
 		`
-    }
+	}
 
-    _renderChoosePeriod() {
-        return html`
+	_renderChoosePeriod() {
+		return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose Period"></capitec-label>
 				<capitec-group layout="grid" rows="auto" column="auto" class="periodRadioGroup">
 					<div class="choosePeriod ${this.flag === "oneMonth" ? `choosePeriodFocus` : ``}">
@@ -888,50 +892,50 @@ export class StatementsDialog extends Component {
 				</capitec-group>
 
 					${
-            this._renderPeriodSelected()
-            }
+			this._renderPeriodSelected()
+			}
 
 		`
-    }
+	}
 
-    _renderPeriodSelected() {
-        return html`
+	_renderPeriodSelected() {
+		return html`
 
 			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-		 <div class="period">
-			                   
+			<capitec-card layout="vertical">
+
 						<div class="radioBtn">
-							<capitec-radio  @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
+							<capitec-radio @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
 						</div>
 						<div class="savingsPlanLabel">
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
 							<capitec-label label="Up to 90 days"></capitec-label>
-						</div>	
-					
-				${
-            this.showCalendar ?
-                html`
-					<capitec-label class="fromTo" label="From and To Date" type="strong"></capitec-label>
-					<capitec-date-time-picker
-							class="calendar"
-							type="range"
-							mode="date"
-                            label="Choose from and to date"
-							inputType="calendar"
-							outputType="string"
-							@value-change="${(e) => this._calendarSelectionChange(e)}">
-					</capitec-date-time-picker>
-					` :
-                html``
-            }
-	</div>	
-				
-		`
-    }
+						</div>
+					${this._renderCalendar()}
+			</capitec-card>
+		`;
+	}
 
-    _renderSpecifyEmail() {
-        return html`
+	_renderCalendar() {
+		if(this.showCalendar) {
+			return html`
+				<capitec-label class="fromTo" label="From and To Date" type="strong"></capitec-label>
+							<capitec-date-time-picker
+									class="calendar"
+									type="range"
+									mode="date"
+									label="Choose from and to date"
+									inputType="calendar"
+									outputType="string"
+									@value-change="${(e) => this._calendarSelectionChange(e)}">
+							</capitec-date-time-picker>
+				`;
+		}
+	}
+
+	_renderSpecifyEmail() {
+		return html`
 		<capitec-label class="chooseText" type="subtitle" label="Enter email address"></capitec-label>
 		<capitec-text-field class="email" label="Email address" value="${this.email}" error="${this.emailError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
 		
@@ -950,20 +954,20 @@ export class StatementsDialog extends Component {
 		</div>
 
 		`
-    }
+	}
 
-    _renderPDFViewer() {
-        return html`
+	_renderPDFViewer() {
+		return html`
 			<div slot="body" class="body">
 
-                <object data="data:base64,${this.viewStatementPDF}" type="application/pdf">
-                    <embed object-src="data:base64,${this.viewStatementPDF}" height="785px" width="976px" type="application/pdf" alt="pdf"/>
-                </object>
+				<object data="data:base64,${this.viewStatementPDF}" type="application/pdf">
+					<embed object-src="data:base64,${this.viewStatementPDF}" height="785px" width="976px" type="application/pdf" alt="pdf"/>
+				</object>
 			</div>
 				<capitec-button slot="footer" type="primary" label="Close" class="pdfClose" @click="${this._closePDF}"></capitec-button>
 
 		`
-    }
+	}
 
 }
 
