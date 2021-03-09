@@ -1,4 +1,5 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { Configuration} from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
@@ -51,6 +52,7 @@ export class HorizonRouter {
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
+		this._configuration = Configuration.getInstance();
 	}
 
 	static getInstance() {
@@ -188,17 +190,27 @@ export class HorizonRouter {
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
-
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const savings = () => this.navigateToSavingsAccount();
 		
+		const savingsAccountProductInfo = () => this.navigateToSavingsAccountInfo();
+		const savingsPlanProductInfo = () => this.navigateToSavingsPlanInfo();
+		const insureProductInfo = () => this.navigateToInsureInfo();
+		const creditProductInfo = () => this.navigateToCreditInfo();
+
+		// Navigation to Product Information screens based on verification status is controlled using "toProductInformation".
+		// toProductInformation is to handle the code according to the releases we have.
+		const toProductInformation = (this._configuration.config.runtime.environment === `DEV`|| this._configuration.config.runtime.environment === `LOCAL`)
+
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: insure,
-			Savings: savings
+			Insure: toProductInformation ? insure : insureProductInfo,
+			Savings: toProductInformation ? savings : savingsAccountProductInfo,
+			SavingsPlan: savingsPlanProductInfo,
+			Credit: creditProductInfo
 		}[ivrOption]();
 	};
 
@@ -329,9 +341,19 @@ export class HorizonRouter {
 			setShellLayout(shellLayout);
 		};
 
+		const setShellLayoutByCallStatus = () => {
+			const routingInfo = horizonRouter.getRoutingInfo();
+			if(routingInfo.callStatus === `WAITING-FOR-CALL`){
+				shellLayout = HORIZON_VIEW_SET.LANDING_PAGES;
+			} else {
+				shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
+			}
+		};
+
 		return {
 			layout: setShellLayout,
-			layoutByVerifictionMode: setShellLayoutByVerificationMode
+			layoutByVerifictionMode: setShellLayoutByVerificationMode,
+			layoutByCallStatus : setShellLayoutByCallStatus
 		}[prenavFunc]();
 	}
 }
@@ -360,8 +382,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-savings-plan-product`,
@@ -369,8 +390,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-flexible-savings-plan-product`,
@@ -378,8 +398,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-fixed-term-savings-product`,
@@ -387,8 +406,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-tax-free-savings-product`,
@@ -396,8 +414,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-insure-product`,
@@ -405,8 +422,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-credit-product`,
@@ -414,8 +430,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
-		guard: () => HorizonRouter._guard(`productPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
 	},
 	{
 		name: `horizon-stop-card-landing-page`,

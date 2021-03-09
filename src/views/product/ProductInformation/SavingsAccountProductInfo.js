@@ -81,13 +81,13 @@ export class SavingsAccountProductInfo extends View {
 				birthday: this.callerInformation.birthdate,
 				showButtons: this.callerInformation.verificationStatus === `verified`,
 				isConfirmed: this.callerInformation.isConfirmed,
-				isVerified: false,	//Always 'false' because, this view is only for 'un-verified' and 'non-client'.
+				isVerified: this.callerInformation.verificationStatus === `verified`,
 				verificationFailed: this.callerInformation.verificationStatus === `failed`,
 				is3rdParty: this.callerInformation.verificationStatus === `3rdparty`,
-				isNonClient: true
+				isNonClient: this.callerInformation.verificationStatus === `non-client`,
 			},
 			leftBarButtonConfig: {
-				hasFavourites: false,
+				hasFavourites: true,
 				subtitle: ``,
 				detail: ``
 			}

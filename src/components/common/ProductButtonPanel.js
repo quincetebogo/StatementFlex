@@ -87,26 +87,23 @@ export class ProductButtonPanel extends Component {
 
 	// TODO Refeactor these methods to raise events. The caller should handle the navigation
 	_savingsAccountClick() {
+	
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
 		} else {
-			const state = this.horizonStore.recoverState();
-			if(state.callerInformation.verificationStatus === `non-client`){
-				this.horizonRouter.navigateToProductInfoPage(`SavingsAccount`);
-				this.requestUpdate();
-			} else{
 				this.horizonRouter.navigateToLandingPage(`Savings`, false);
-			}
 		}
+		this.requestUpdate();
 	}
 
 	_savingsPlanClick() {
+		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
 		} else {
-			this.horizonRouter.navigateToProductInfoPage(`SavingsPlan`);
-			this.requestUpdate();
+			this.horizonRouter.navigateToLandingPage(`SavingsPlan`,false);
 		}
+		this.requestUpdate();
 	}
 
 	_insureClick() {
@@ -115,18 +112,19 @@ export class ProductButtonPanel extends Component {
 			this.horizonRouter.navigateToInsureProduct();
 		} else {
 			const state = this.horizonStore.recoverState();
-			this.horizonRouter.navigateToLandingPage(`Insure`, state.callerInformation.hasInsuranceProducts);
-			this.requestUpdate();
+			this.horizonRouter.navigateToLandingPage(`Insure`, state.callerInformation.hasInsuranceProducts)
 		}
+		this.requestUpdate();
 	}
 
 	_creditClick() {
+	
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
 		} else {
-			this.horizonRouter.navigateToProductInfoPage(`Credit`);
-			this.requestUpdate();
+			this.horizonRouter.navigateToLandingPage(`Credit`,false);
 		}
+		this.requestUpdate();
 	}
 
 	// ---------
