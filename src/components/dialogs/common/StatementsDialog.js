@@ -77,6 +77,7 @@ export class StatementsDialog extends Component {
         this.showScrollbar = false;
         this.cancelButton = "Cancel";
         this.backButton = "";
+        this.today = new Date();
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
@@ -458,13 +459,14 @@ export class StatementsDialog extends Component {
 			capitec-modal {
                 height: 930px;
 				width: 976px;
+                margin-right: 0px
+                padding-right: 0px;
 				--theme-modal-header-height: 64px;
 				--theme-modal-header-font-size: 18px;
 				--theme-modal-header-padding-left: 16px;
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-background-color: #F7F7F7;
 			} 
-
 			div[slot="footer"] {
 				padding-left: 16px;
 				width: 976px;
@@ -480,6 +482,7 @@ export class StatementsDialog extends Component {
             .plain-body{
                 height: 930px;
                 width: 976px;
+                margin-right:0px;
 				background-color: #FFFFFF;
             }
 
@@ -527,7 +530,9 @@ export class StatementsDialog extends Component {
 			capitec-alert-banner {
 				height: 48px;
 				width: 944px;
-				margin: 18px;
+                margin: 16px 0px 0px 16px;
+				//margin-left: 16px;
+    //            margin-right: 16px;
 				--theme-alert-banner-info-background-color: #DAF2F4;
 				--theme-alert-banner-info-color: #05829B;
 				--theme-alert-banner-unsuccessful-red-color: #C83B37;
@@ -723,10 +728,10 @@ export class StatementsDialog extends Component {
 			}
             capitec-stepper{
                 --theme-stepper-inner-step-container-height: 56px;
-                --theme-stepper-inner-step-container-width: 327px;
+                --theme-stepper-inner-step-container-width: 328px;
                 --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
                 --theme-stepper-step-title-font-size: 15px;
-                --theme-stepper-step-title-max-width: 327px;
+                --theme-stepper-step-title-max-width: 328px;
                 --theme-stepper-step-content-container-padding-left: 16px;
                 width: 976px;               
             }
@@ -734,6 +739,13 @@ export class StatementsDialog extends Component {
             .border{
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
+            }
+            capitec-group{
+                width:944px;
+            }
+            .chooseRangeCard{
+                border-bottom: 1px solid #E1E1E1;
+                margin: 0px 0px 0px 0px;
             }
 			`
         ]
@@ -743,7 +755,7 @@ export class StatementsDialog extends Component {
         return html`
 			<capitec-modal type="free" header="${this.statementsHeader}">
 			<!-- <content-box> -->
-			    <div slot="body" class="${this.showCalendar ? `plain-body` : `scrollbar-body`}">
+			    <div slot="body" class="${this.showScrollbar ? `plain-body` : `scrollbar-body`}">
 					${this._renderTabs()}				
 					${this._renderAlertBanner()}
             		${this.currentStep==1?this._renderAccountSelection():this.currentStep== 2 ? this._renderChoosePeriod(): this._renderSpecifyEmail()}
@@ -900,7 +912,7 @@ export class StatementsDialog extends Component {
 
 			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
 			<capitec-card layout="vertical">
-
+                <capitec-group layout="vertical" class="${this.showCalendar ? `chooseRangeCard` : ``}">
 						<div class="radioBtn">
 							<capitec-radio @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
 							</capitec-radio>
@@ -909,6 +921,7 @@ export class StatementsDialog extends Component {
 							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
 							<capitec-label label="Up to 90 days"></capitec-label>
 						</div>
+                </capitec-group>
 					${this._renderCalendar()}
 			</capitec-card>
 		`;
@@ -922,6 +935,7 @@ export class StatementsDialog extends Component {
 									class="calendar"
 									type="range"
 									mode="date"
+                                    maxDate= "${this.today}"
 									label="Choose from and to date"
 									inputType="calendar"
 									outputType="string"
