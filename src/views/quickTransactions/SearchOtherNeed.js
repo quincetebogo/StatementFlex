@@ -154,11 +154,7 @@ const RENDER_MODE = Object.freeze({
 				.other-need {
 					height: 888px;
 					width: 1064px;
-					box-sizing: border-box;
-					border: 1px solid #E1E1E1;
-					border-radius: 5px;
-					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
+					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 				capitec-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
@@ -234,13 +230,15 @@ const RENDER_MODE = Object.freeze({
 					font-size: 15px;
 					letter-spacing: 0;
 				}
+				.bullet-group {
+					margin-left: 20px;
+				}
 				/* No Results CSS */
-				.search-icon {
-					margin-top: 92px; 
-					/* change to capitec group */
+				.find-need-image-group {
+					margin-top: 92px;
 				}
 				.find-need {
-					margin-top: 13px;
+					--theme-layout-gap-spacing: 13px;
 					--theme-label-strong-font-size: 24px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3A3A3A;
@@ -371,14 +369,14 @@ const RENDER_MODE = Object.freeze({
 			
 				<capitec-label class="solution-heading" type="subtitle" label="Steps"></capitec-label>
 			
-				<capitec-label class="strack-heading" type="subtitle" label="STrack-info"></capitec-label>
-					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+				<capitec-label class="solution-heading" type="subtitle" label="1.	STrack-info"></capitec-label>
+					<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
 						<li><capitec-label class="strack-solution-content" type="default" label="Complete client savings account number in Client ID field."></capitec-label></li>
 						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Complete the details in the Incident Detail Tab"></capitec-label></li>
 						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Capture the minimum information and the reason for the cardholders dispute in the description box"></capitec-label></li>
 					</capitec-group>
-				<capitec-label class="strack-heading" type="subtitle" label="2.	Hand Off"></capitec-label>
-					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+				<capitec-label class="solution-heading" type="subtitle" label="2.	Hand Off"></capitec-label>
+					<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
 						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Hand off the incident to Card disputes."></capitec-label></li>
 						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform the client that this enquiry can take up to 5 days to investigate."></capitec-label></li>
 						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform client that Card Disputes will contact client with feedback."></capitec-label></li>
@@ -399,7 +397,7 @@ const RENDER_MODE = Object.freeze({
 		} 
 		else{
 				return html`
-				<capitec-group layout="vertical" halign="center" valign="center" gap ="clear"  >
+				<capitec-group class="find-need-image-group" layout="vertical" halign="center" valign="center" gap ="clear"  >
 				<img src="/images/common/search.svg" class="search-icon"  />
 				<capitec-label 
 					class="find-need"
