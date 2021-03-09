@@ -29,7 +29,6 @@ export class ProofOfAccount extends Component {
         this.savingAccInfo = {};
         this.landingPageInfo = {};
 
-
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
 
@@ -107,7 +106,7 @@ export class ProofOfAccount extends Component {
         return tempdate;
     }
 
-    _cancelClick() {
+    _cancelClick(e) {
         this.dispatchEvent(new CustomEvent(`cancel`, {}));
     }
 
