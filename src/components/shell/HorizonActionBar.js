@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/layouts/Group';
 
@@ -62,7 +63,7 @@ export class HorizonActionBar extends Component {
             this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
             this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
             this.clientNeed = this.incomingCallDetails.ivrOptionCode;
-            this.isUnverifiedNumber = this.isUnverifiedNumber;
+            this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
 
         }
     }
@@ -172,7 +173,7 @@ export class HorizonActionBar extends Component {
 					<img class="end-call-icon" src="/images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
-						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
+						value="${this.isUnverifiedNumber ? `Private Number` : formatPhoneNumber(this.phoneNumber)}">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>

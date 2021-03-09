@@ -14,8 +14,7 @@ const HORIZON_ROUTES = Object.freeze({
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	CARD_STOP_VERIFIED_PAGE: `/card-stop/verified`,
-	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
+	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
@@ -129,7 +128,7 @@ export class HorizonRouter {
 	}
 
 	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
 
 	navigateToStoppedCards() {
@@ -153,10 +152,18 @@ export class HorizonRouter {
 	}
 
 	navigateToXdsVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
+		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
 
 	navigateToItaVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
+		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
 
@@ -412,15 +419,15 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
-		title: `ClientProfile`,
+		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
+		path: HORIZON_ROUTES.CARD_STOP_PAGE,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-success`,
-		title: `StopCard`,
+		title: `StopCardSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
