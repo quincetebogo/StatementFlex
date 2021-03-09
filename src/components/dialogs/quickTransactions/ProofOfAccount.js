@@ -108,7 +108,7 @@ export class ProofOfAccount extends Component {
     }
 
     _cancelClick() {
-        this.dispatchEvent(new CustomEvent(`cancel`));
+        this.dispatchEvent(new CustomEvent(`cancel`, {}));
     }
 
     /*
