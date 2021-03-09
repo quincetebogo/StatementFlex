@@ -74,7 +74,9 @@ export class StatementsDialog extends Component {
         this.nextSend = "Next";
         this.flag = "";
         this.viewStatementPDF = "";
-		this.showScrollbar = false;
+        this.showScrollbar = false;
+        this.cancelButton = "Cancel";
+        this.backButton = "";
 
         this._accountSelectionChanged();
         this._updateStep(this.currentStep);
@@ -154,7 +156,6 @@ export class StatementsDialog extends Component {
     }
 
     _navigateSteppers(e, btn) {
-        console.log("Navigate stepper e " + e)
         if (this.currentStep == 1 && e.type == "click") {
             if (btn == "next" && this.infoOrError == "info") {
                 if (this.accountSelected == null) {
@@ -166,6 +167,7 @@ export class StatementsDialog extends Component {
 					}
                     this.showHide = "show";
                     this.infoOrError = "info";
+                    this.backButton = "Back";
                     this.currentStep++;
                 }
             } else if (btn == "cancel") {
@@ -174,11 +176,9 @@ export class StatementsDialog extends Component {
         } else if (this.currentStep == 2 && e.type == "click") {
             if (btn == "next" && this.infoOrError == "info") {
                 if (!this.showCalendar && (this.statmentDays=="")) {
-                    console.log("no date selected");
 					this.infoOrError = "error";
 					this.errorBannerMessage = "Please choose a from and to date";
                 } else if(this.showCalendar && (this.statmentDays=="")){
-					console.log("no date selected");
 					this.infoOrError = "error";
 					this.errorBannerMessage = "Please choose a date";
 				}else{
@@ -190,6 +190,7 @@ export class StatementsDialog extends Component {
 					}
                 }
             } else if (btn == "back") {
+                this.backButton = "";
 				this.infoOrError = "info";
                 this.currentStep--;
 				if(this.showScrollbar){
@@ -277,7 +278,6 @@ export class StatementsDialog extends Component {
                 this.focusCredit = "";
 
                 this.accountSelected = name;
-                console.log(this.accountSelected)
             }
 
             if (name == "savingsPlan") {
@@ -287,7 +287,6 @@ export class StatementsDialog extends Component {
 
                 this.savingsPlansSelected = name;
                 this.accountSelected = name;
-                console.log(this.accountSelected)
                 this._renderSavingsPlanSelection();
             } else {
                 this.savingsPlansSelected = false;
@@ -299,7 +298,6 @@ export class StatementsDialog extends Component {
                 this.focusTransact = "";
 
                 this.accountSelected = name;
-                console.log(this.accountSelected)
             }
         } else {
             if (this.accountSelected == "savingsAccount") {
@@ -307,7 +305,6 @@ export class StatementsDialog extends Component {
                 this.focusSave = "";
                 this.focusCredit = "";
 
-                console.log(this.accountSelected)
             }
         }
 
@@ -327,20 +324,13 @@ export class StatementsDialog extends Component {
     };
 
     _savingsPlanChanged(e, savingsPlan) {
-        console.log(e)
         if (e) {
             this.savingsPlanSelected = savingsPlan;
             this.savingsPlanFocus = "savingsPlanFocus";
         }
     }
 
-    _changeDateRange(days) {
-        this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-        this.endDate = new Date();
-    }
-
     _periodChange(e, days) {
-        console.log("showCalendar " + this.showCalendar);
         this.infoOrError = "info";
         this.flag = e.currentTarget.id;
         this.showCalendar = false;
@@ -349,7 +339,9 @@ export class StatementsDialog extends Component {
         this.statementPeriod = days == 30 ? '1 Month (30 days)' : days / 30 + " months (" + days + " days)";
         this.statmentDays = "Last " + days + " days";
         if (e.currentTarget.checked) {
-            this._changeDateRange(currentDays);
+            this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+            this.endDate = new Date();
+            //this._changeDateRange(currentDays);
             // this._changePeriodSelection(currentDays);
         }
     }
@@ -360,7 +352,6 @@ export class StatementsDialog extends Component {
         var oldDate = new Date(e.detail.new.endDate);
         this.startDate = newDate;
         this.endDate = oldDate; 
-        console.log("start: " + this.startDate + " end: " + this.endDate);
         var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
         var roundedRangeDiff = Math.floor(rangeDiff);
         this.statmentDays = "Last " + roundedRangeDiff + " days";
@@ -383,13 +374,12 @@ export class StatementsDialog extends Component {
         const monthNames = ["January", "February", "March", "April", "May", "June",
             "July", "August", "September", "October", "November", "December"
         ];
-        var fullDateString = myDate.getDay() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
+        var fullDateString = myDate.getDate() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
         return fullDateString;
     }
     _showDateRange(e) {
         this.flag = "";
         this.statmentDays = "";
-        console.log("showCalendar showrange " + this.showCalendar);
         this.showCalendar = e.currentTarget.checked;
 		this.showScrollbar = this.showCalendar;
     }
@@ -399,7 +389,6 @@ export class StatementsDialog extends Component {
         if (e.detail.new.length > 1) {
             if (regCheck.test(e.detail.new)) {
                 this.email = e.detail.new;
-                console.log(e.detail.new);
                 return true;
             } else {
                 this.emailError = "Invalid email format";
@@ -434,9 +423,11 @@ export class StatementsDialog extends Component {
     async _viewPDF() {
         this.displayPDF = true;
         this.statementsHeader = "View Document";
+        this.backButton = "";
+        this.cancelButton = "";
+        this.nextSend = "Close";
 
         const returnValue = await this.quickTransactionService.viewStatement();
-        console.log(returnValue);
         if (returnValue.succeeded) {
             //render the PDF
             this.viewStatementPDF = returnValue.result.statementData;
@@ -449,6 +440,9 @@ export class StatementsDialog extends Component {
 
     _closePDF() {
         this.displayPDF = false;
+        this.nextSend = "Send";
+        this.cancelButton = "Cancel";
+        this.backButton = "Back";
         this.statementsHeader = "Statements";
     }
 
@@ -478,10 +472,10 @@ export class StatementsDialog extends Component {
 				right: 0;
 			}
             //div[slot="body"]{
-            //    height: 930px;
-            //    width: 976px;
-            //    margin-left: 16px;
-            //    margin-right: 16px;
+            //   height: 930px;
+            //   width: 976px;
+            //   margin-left: 16px;
+            //   margin-right: 16px;
             //}
             .plain-body{
                 height: 930px;
@@ -493,6 +487,8 @@ export class StatementsDialog extends Component {
             .scrollbar-body {
                 height: 700px;
                 width:976px;
+				padding-right:0px;
+				margin-right:0px;
             }
 			.accountSelect {
 				height: 64px;
@@ -546,7 +542,7 @@ export class StatementsDialog extends Component {
 				font-weight: 900;
 				color: #3A3A3A;
 			}
-			.savingsPlans {
+			.savingsPlans  {
 				height: 64px;
 				width: 944px;
 				margin: 8px;
@@ -727,17 +723,18 @@ export class StatementsDialog extends Component {
 			}
             capitec-stepper{
                 --theme-stepper-inner-step-container-height: 56px;
-                --theme-stepper-inner-step-container-width: 326px;
+                --theme-stepper-inner-step-container-width: 327px;
                 --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
                 --theme-stepper-step-title-font-size: 15px;
+                --theme-stepper-step-title-max-width: 327px;
                 --theme-stepper-step-content-container-padding-left: 16px;
                 width: 976px;               
             }
            
-.border{
+            .border{
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
-}
+            }
 			`
         ]
     };
@@ -754,11 +751,11 @@ export class StatementsDialog extends Component {
                 </div>
                 <div slot="footer">
 					<div class="left">
-						<capitec-button class="${this.showHide}" type="clear" label="Back" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
+						<capitec-button class="${this.showHide}" type="clear" label="${this.backButton}" @click="${(e) => this._navigateSteppers(e, `back`)}"></capitec-button>
 					</div>
 					<div class="right">
-						<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${(e) => this._navigateSteppers(e, `next`)}"></capitec-button>
-						<capitec-button class="cancelBtn" type="clear" label="Cancel" @click="${() => this._cancel()}"></capitec-button>
+						<capitec-button class="nextBtn" type="primary" label="${this.nextSend}" @click="${this.nextSend == "Close" ? () => this._closePDF() : (e) => this._navigateSteppers(e, `next`)}"></capitec-button>
+						<capitec-button class="cancelBtn" type="clear" label="${this.cancelButton}" @click="${() => this._cancel()}"></capitec-button>
 					</div>
 				</div>
 			<!-- </content-box> -->
