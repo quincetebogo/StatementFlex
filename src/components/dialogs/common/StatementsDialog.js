@@ -330,11 +330,6 @@ export class StatementsDialog extends Component {
         }
     }
 
-    _changeDateRange(days) {
-        this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-        this.endDate = new Date();
-    }
-
     _periodChange(e, days) {
         this.infoOrError = "info";
         this.flag = e.currentTarget.id;
@@ -344,7 +339,9 @@ export class StatementsDialog extends Component {
         this.statementPeriod = days == 30 ? '1 Month (30 days)' : days / 30 + " months (" + days + " days)";
         this.statmentDays = "Last " + days + " days";
         if (e.currentTarget.checked) {
-            this._changeDateRange(currentDays);
+            this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+            this.endDate = new Date();
+            //this._changeDateRange(currentDays);
             // this._changePeriodSelection(currentDays);
         }
     }
