@@ -52,6 +52,7 @@ export class TransactionHistory extends Component {
 		this.startDate = ``;
 		this.endDate = ``;
 		this.filteredData = [];
+		this.searchTextLabel = `Search for amount or transaction name`;
 	}
 
 	// --------------
@@ -72,7 +73,8 @@ export class TransactionHistory extends Component {
 
 			renderMode: { attribute: false },
 			startDate: { attribute: false },
-			endDate: { attribute: false }
+			endDate: { attribute: false },
+			searchTextLabel: { attribute: false }
 		};
 	}
 
@@ -110,11 +112,22 @@ export class TransactionHistory extends Component {
 		this._refineSearch();
 	}
 
+	_searchTextFocussed(e) {
+		this.searchTextLabel = ``;
+	}
+
+	_searchTextBlur(e) {
+		if (RENDER_CHIPS[FILTER_BY.TEXT] === ``) {
+			this.searchTextLabel = `Search for amount or transaction name`;
+		}
+	}
+
 	_startDateChanged(e) {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
 		}
 	}
+
 
 	_endDateChanged(e) {
 		if (e.detail.new.date) {
@@ -168,7 +181,7 @@ export class TransactionHistory extends Component {
 																parseInt(item.Amount, 10) === parseInt(key, 10)) : [])
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
-
+		
 		if (RENDER_CHIPS[FILTER_BY.DATE]) {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
@@ -489,11 +502,13 @@ export class TransactionHistory extends Component {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-action-bar">
 				<capitec-text-field 
-					label="Search for amount or transaction name"
+					label=${this.searchTextLabel}
 					type="search"
 					keyboardMode="alpha-numeric"
 					@key-input="${(e) => this._searchTextChange(e)}"
 					@value-change="${(e) => this._searchTextChange(e)}"
+					@focus="${(e) => this._searchTextFocussed(e)}"
+					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
 				</capitec-text-field>
 

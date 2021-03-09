@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 import 'app/components/common/OptionButton';
 
 /**
@@ -23,7 +24,6 @@ export class FavouriteTransactions extends Component {
 		super();
 
 		this.landingPageInfo = null;
-
 		this.displayToast = false;
 		this.isBusy = false;
 	}
@@ -38,6 +38,7 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
 	 *
 	 * @readonly
 	 * @static
@@ -49,6 +50,7 @@ export class FavouriteTransactions extends Component {
 			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
+			displayVerificationStatusToast: { type: Boolean },
 
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -62,10 +64,12 @@ export class FavouriteTransactions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.verificationStatus === `verified`) {
+		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
+			this.displayVerificationStatusToast = false;
 			this.displayToast = true;
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
 		}
+		
 	}
 
 	// ---------------
@@ -128,8 +132,13 @@ export class FavouriteTransactions extends Component {
 				--theme-type-default-background: rgb(244, 244, 244);
 				--theme-label-title-font-size: 14px;
 				--theme-label-title-font-weight: 600;
-
+				width: 100%;
 				border-top: 1px solid #E1E1E1;
+				box-shadow: none!important;
+			}
+
+			.transact-title {
+				border-top: none!important;
 			}
 
 			capitec-button-bar {
@@ -273,7 +282,7 @@ export class FavouriteTransactions extends Component {
 
 	_renderTransactSection() {
 		return html`
-				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
+				<capitec-title-bar class="transact-title" type="default" label="Transact"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
@@ -346,4 +355,4 @@ export class FavouriteTransactions extends Component {
 	}
 }
 
-customElements.define(`horizon-favourites-transactions`, FavouriteTransactions);
+customElements.define(`horizon-favourite-transactions`, FavouriteTransactions);

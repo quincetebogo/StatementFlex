@@ -20,6 +20,7 @@ const RENDER_MODE = Object.freeze({
 const HEADER_LABEL = `Security Questions`;
 
 const ERROR_MESSAGE = `Please choose an option`;
+const SYSTEM_ERROR = `System error. Please try again later`;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
@@ -203,7 +204,8 @@ export class VerifyBySecurityQuestions extends Component {
 			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToSystemError();
+		this.alertBannerMessage = SYSTEM_ERROR;
+
 		return true;
 	}
 

@@ -14,8 +14,7 @@ const HORIZON_ROUTES = Object.freeze({
 	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	CARD_STOP_VERIFIED_PAGE: `/card-stop/verified`,
-	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
+	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
@@ -26,7 +25,11 @@ const HORIZON_ROUTES = Object.freeze({
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
-	SAVINGS_ACCOUNT: `/transact/savings-account`
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
+    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
+    PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
+    PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
 });
 
 /**
@@ -121,7 +124,7 @@ export class HorizonRouter {
 	}
 
 	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
 
 	navigateToStoppedCards() {
@@ -145,10 +148,18 @@ export class HorizonRouter {
 	}
 
 	navigateToXdsVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
+		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
 
 	navigateToItaVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
+		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
 
@@ -162,6 +173,14 @@ export class HorizonRouter {
 
 	navigateToDebiCheckSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
+	}
+
+	navigateToCardLimitUpdateSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS}`);
+	}
+
+	navigateToCardLimitUpdateFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -190,7 +209,15 @@ export class HorizonRouter {
 
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
-	}
+    }
+
+    navigateToProofOfAccountSuccess() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
+    }
+
+    navigateToProofOfAccountFailed() {
+        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+    }
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
@@ -359,15 +386,15 @@ export default horizonRoutes = [
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
-		title: `ClientProfile`,
+		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
+		path: HORIZON_ROUTES.CARD_STOP_PAGE,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-success`,
-		title: `StopCard`,
+		title: `StopCardSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
@@ -464,5 +491,37 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
+	},
+	{
+		name: `card-limit-update-success`,
+		title: `CardLimitUpdateSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS,
+		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `card-limit-update-failure`,
+		title: `CardLimitUpdateFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
+		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    },
+    {
+        name: `horizon-proof-of-account-success`,
+        title: `ProofOfAccountSuccess`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    },
+    {
+        name: `horizon-proof-of-account-failure`,
+        title: `ProofOfAccountFailed`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    }
 ];

@@ -164,9 +164,11 @@ export class AddCallerDetails extends Component {
 						this.nonClientRelationship.value,
 						true,
 						`unverified`,
+						false,
 						true,
 						false,
-						false // not yet determined. 
+						false, // presence of insurance products not yet determined
+						false // availability of digital channels not yet determined
 					)
 				}
 			}));

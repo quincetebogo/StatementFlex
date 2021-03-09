@@ -49,14 +49,17 @@ export class HorizonChannelService extends Service {
 				// Disable mocking in the SLDC environments. Only for local development
 				if (this._configuration.config.runtime.environment !== `LOCAL`) {
 					this._mocking = { enabled: false }; 
+					this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as the application is not running locally.`, `_mockEnabled`);
 				}
 			} catch {
 				// disable mocking if the setting is not present
 				this._mocking = { enabled: false }; 
+				this._logger.log(`info`, `Channel Service Mocking has been automatically disabled as no configuration is present.`, `_mockEnabled`);
 			}
 
 			if (this._mocking.enabled) {
 				// Dynamically load the configured mocks
+				this._logger.log(`info`, `Channel Service Mocking is enabled.`, `_mockEnabled`);
 				this._mock = new (await import(`../mocks/HorizonChannelServiceMocks`)).HorizonChannelServiceMocks();
 				await this._mock.initialise(this._mocking);
 			}
@@ -208,7 +211,7 @@ export class HorizonChannelService extends Service {
 			'agentTelephoneNumber': callerData.agentPhoneNumber
 		};
 
-		return this._post(url, model, null, `addCallerDetails`);
+		return this._post(url, model, this._setToken(), `addCallerDetails`);
 	}
 
 	// ----------------
@@ -232,7 +235,7 @@ export class HorizonChannelService extends Service {
 				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
 				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
 				`EndCallContext=${endCallDetails.endCallContext}`, 
-			null, 
+				this._setToken(), 
 			`loadEndCallOptions`
 		);
 	}
@@ -240,24 +243,31 @@ export class HorizonChannelService extends Service {
 	/**
 	 * Records the end call reason/cause code against an incident
 	 * 
-	 * @param {string} incidentRecId The Incident identfier
-	 * @param {string} reasonCode The end call reason/cause code
+	 * @param {Object} endCallRequest End call request
 	 * @returns {Object} Either success or a failure object
 	 * @memberof HorizonChannelService
 	 */
-	endCall(incidentRecId, reasonCode) {
+	endCall(endCallRequest) {
 		return this._post(
-			`/clientcare/call/${this._version}/end-call`, {
-				"incidentRecId": incidentRecId,
-				"endReason": reasonCode
-			},
-			null,
+			`/clientcare/call/${this._version}/end-call`,
+			endCallRequest,
+			this._setToken(),
 			`endCall`
 		);
 	}
 	
 	// stopCardRequest
-	stopCard(stopCardRequest) {
+	async stopCard(stopCardRequest) {
+		// Force loading of mocking settings
+		await this._mockEnabled(`stopCard`);
+
+		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
+		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failCard && this._configuration.config.runtime.environment === `DEV`) {
+			if (this._mocking.stopCard.failedCard !== ``) {
+				throw new Error(`Mock Stop Card Error`);
+			}
+		}
+
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -268,7 +278,7 @@ export class HorizonChannelService extends Service {
 			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
 		};
 
-		return this._post(url, model, null, `stopCard`);
+		return this._post(url, model, this._setToken(), `stopCard`);
 	}
 
 	// loadAssignRequest
@@ -278,7 +288,7 @@ export class HorizonChannelService extends Service {
 				"cardIds": incidentData.cardIds,
 				"incidentRecId": incidentData.incidentRecId
 			},
-			null,
+			this._setToken(),
 			`assignTeams`
 		);
 	}
@@ -291,7 +301,7 @@ export class HorizonChannelService extends Service {
 				"incidentRecId": assignData.incidentRecId,
 				"team": assignData.Everyteam
 			},
-			null,
+			this._setToken(),
 			`assign`
 		);
 	}
@@ -301,7 +311,11 @@ export class HorizonChannelService extends Service {
 	// -----------------------
 
 	// confirmedClientProfileRequest
-	identifyCaller(callerData) {
+	async identifyCaller(callerData) {
+		if (await this._mockEnabled(`identifyCaller`)) {
+			return this._mock.stopCard();
+		}
+
 		const url = `/clientcare/card/${this._version}/LoadConfirmedClientProfile`;
 		const model = {
 			'incidentRecId': callerData.incidentRecId,
@@ -330,7 +344,7 @@ export class HorizonChannelService extends Service {
 				"incidentReferenceNumber": incomingCallData.incidentReferenceNumber,
 				"agentTelephoneNumber": incomingCallData.agentTelephoneNumber
 			},
-			null,
+			this._setToken(),
 			`searchOptions`
 		);
 	}
@@ -356,7 +370,7 @@ export class HorizonChannelService extends Service {
 	initialise() {
 		const url = `/clientcare/initialise/${this._version}`;
 
-		return this._get(url, null, `initialise`);
+		return this._get(url, this._setToken(), `initialise`);
 	}
 
 	// newIncidentRequest
@@ -364,14 +378,18 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/initialise/${this._version}/CreateIncident`;
 		const model = createIncidentRequest;
 
-		return this._post(url, model, null, `createIncident`);
+		return this._post(url, model, this._setToken(), `createIncident`);
 	}
 
 	// --------------
 	// INSURE METHODS
 	// --------------
 
-	hasInsuranceProducts(insuranceClientInfo) {
+	async hasInsuranceProducts(insuranceClientInfo) {
+		if (await this._mockEnabled(`hasInsuranceProducts`)) {
+			return this._mock.hasInsuranceProducts();
+		}
+
 		const url = `/clientcare/insure/${this._version}/landing?` +
 			`IdNumber=${insuranceClientInfo.IdNumber}&` +
 			`Cif=${insuranceClientInfo.CifNumber}&` +
@@ -390,7 +408,7 @@ export class HorizonChannelService extends Service {
 				'surname': callerData.surname,
 				'cellPhone': callerData.cellPhone
 			},
-			null, 
+			this._setToken(), 
 			`addNonClientDetails`
 		);
 	}
@@ -402,21 +420,33 @@ export class HorizonChannelService extends Service {
 				'feedback': feedbackDetails.feedback,
 				'updateIncident': feedbackDetails.updateIncident
 			},
-			null,
+			this._setToken(),
 			`calculatePremiumDone`
 		);
 	}
 
-	// ---------------------
-	// XDS Questions Methods
-	// ---------------------
+	// ----------------
+	// call - ITA & XDS
+	// ----------------
+	itaVerification(request) {
+		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
+    }
+
+	digitalVerificationChannelsAvailable(cifNumber) {
+		return this._get(`/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
+	}
 
 	async xdsQuestions(clientID) {
 		if (await this._mockEnabled(`xdsQuestions`)) {
-			return this._mock.xdsQuestions(clientID);
+			if (this._mocking.xdsQuestions.substituteIdOnly && this._mocking.xdsQuestions.substituteIdOnly !== ``) {
+				clientID = this._mocking.xdsQuestions.substituteIdOnly;
+			} else {
+				return this._mock.xdsQuestions(clientID);
+			}
 		}
 
-		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, null, `xdsQuestions`);
+		return this._get(`/clientcare/call/${this._version}/xds-questions?clientID=${clientID}`, this._setToken(), `xdsQuestions`);
 	}
 
 	async verifySecurityQuestions(answers) {
@@ -424,7 +454,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.verifySecurityQuestions(answers);
 		}
 
-		return this._post(`/clientcare/call/${this._version}/xds-questions`, answers, null, `verifySecurityQuestions`);
+		return this._post(`/clientcare/call/${this._version}/xds-questions`, answers, this._setToken(), `verifySecurityQuestions`);
 	}
 
 	// ------------------
@@ -444,30 +474,67 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `favouritesLanding`);
 	}
 
+	// ------------------
+	// card - card limits
+	// ------------------
+
+	async cardLimitsLanding(cifNumber) {
+		if (await this._mockEnabled(`cardLimitsLanding`)) {
+			return this._mock.cardLimitsLanding(cifNumber);
+		}
+		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	async getCardLimits(cardDetails) {
+		if (await this._mockEnabled(`cardLimits`)) {
+			return this._mock.getCardLimits();
+		}
+		const url = `/clientcare/card/${this._version}/temporary-limits`;
+		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
 	// --------------------------
-	// Debi Check Mandate Methods
+	// card - debi-check mandates
 	// --------------------------
 
 	async debiCheckMandates(cifNumber) {
 		if (await this._mockEnabled(`debiCheckMandates`)) {
 			return this._mock.debiCheckMandates(cifNumber);
 		}
-
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandates`;
-		return this._get(url, null, `debiCheckMandates`);
+		return this._get(url, this._setToken(), `debiCheckMandates`);
 	}
 
 	async debiCheckDetails(cifNumber, mandateId, registerId) {
 		if (await this._mockEnabled(`debiCheckDetails`)) {
 			return this._mock.debiCheckDetails(cifNumber, mandateId, registerId);
 		}
-
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateId}/register/${registerId}/details`;
-		return this._get(url, null, `debiCheckDetails`);
+		return this._get(url, this._setToken(), `debiCheckDetails`);
 	}
 
 	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
-		return this._post(url, model, null, `debiCheckDecline`);
+		return this._post(url, model, this._setToken(), `debiCheckDecline`);
 	}
+
+    sendProofOfAccount(clientInfo) {
+        const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+    }
+
+    viewProofOfAccount(clientInfo) {
+        const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
+        return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+	}
+  
+	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
+		`CifNumber=${cifNumber}&` +
+		`NationalIDNumber=${nationalIDNumber}&` +
+		`GetGenericData=${getGenericData}`;
+
+		return this._get(url, this._setToken(), `savingsAccountLanding`);
+	}  
 }
