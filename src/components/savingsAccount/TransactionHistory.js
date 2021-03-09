@@ -1,9 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL, STATUS_TAG } from 'app/css/TransactionHistory';
+import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-
-import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -55,8 +53,8 @@ export class TransactionHistory extends Component {
 		this.startDateMonth = ``;
 		this.startDateYear = ``;
 		this.endDate = ``;
-		this.endDateMonth =``;
-		this.endDateYear =``;
+		this.endDateMonth = ``;
+		this.endDateYear = ``;
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 	
@@ -78,7 +76,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			filteredData: { type: Object },
+			filteredData: { attribute: false },
 
 			renderMode: { attribute: false },
 			startDate: { attribute: false },
@@ -183,14 +181,16 @@ export class TransactionHistory extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialize(tableData){
+	_initialize(tableData) {
 		tableData.map((item) => {
-			const date = new Date(Date.parse(item.transactionDate));
+			const date = new Date(Date.parse(item.TransactionDate));
 
 			item.tranDate = date; 
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			// item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00` : `- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.Balance = `R${item.Balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+
+			return item;
 		});
 		return tableData;
 	}
@@ -201,8 +201,13 @@ export class TransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
-			const searchTextResult = searchText.map(key => key !== `` ? this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 ||
-																parseInt(item.amount, 10) === parseInt(key, 10)) : [])
+			const searchTextResult = searchText.map(key => { 
+				if (key !== ``) {
+					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10));
+				} 
+				return [];
+			});
+
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
 		
@@ -677,13 +682,13 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				.items = ${this.filteredData}
+				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="LoadMore"
 				expandable="right"
-				fixed = ${true}
+				?fixed = "${true}"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
-					<capitec-table-column label="Transaction Date" field="transactionDate" type="date" size="156px;"></capitec-table-column>
+					<capitec-table-column label="Transaction Date" field="TransactionDate" type="date" size="156px;"></capitec-table-column>
 					<capitec-table-column label="Description" field="description" size="410px;"></capitec-table-column>
 					<capitec-table-column
 						label="Transaction Status"
@@ -700,7 +705,7 @@ export class TransactionHistory extends Component {
 
 	_renderTransactionStatus(value) {
 		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG[value])}">
-						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
+						<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
 					</div>`;
 
 	}

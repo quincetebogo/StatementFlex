@@ -147,10 +147,10 @@ export class VerifyCaller extends Component {
 
 		// If we have digital channels (XDS/USSD)
 		if (this.callerInformation.hasDigitalChannels) {
-			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
 		} else {
+			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
 			await this._securityQuestionsClick();
 		}
 
