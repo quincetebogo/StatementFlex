@@ -307,8 +307,13 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	async _setAvailabilityFlags() {
+		let flagsSet = false;
 
 		/* This will be put back. Insure is not part of the first release
+
+			Error handling needs to be re-assessed. This function currently always returns true but
+			may need to return false and trigger the display of a system error once additional 
+			flags (insurance are checked)
 
 			this.callerInformation.hasInsuranceProducts = await this._checkForInsuranceProducts(
 				this.confirmedCaller.southAfricanIDNumber, 
@@ -324,7 +329,11 @@ export class ConfirmCallerDetails extends Component {
 
 		if (returnValue.succeeded) {
 			this.callerInformation.hasDigitalChannels = returnValue.result;
+			flagsSet = true;
 		} else {
+			// Function will indicate success (i.e. and digital channels is defaulted to on)
+			// When we do other calls to set other flags (hasInsuranceProducts we may prefer to show a system error and return false)
+			flagsSet = true; 
 			this.callerInformation.hasDigitalChannels = true;
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
 		}
@@ -338,7 +347,7 @@ export class ConfirmCallerDetails extends Component {
 
 		this.horizonStore.saveState(state);
 
-		return returnValue.succeeded;
+		return flagsSet;
 	}
 
 	_handleChannelServiceError(ex) {
