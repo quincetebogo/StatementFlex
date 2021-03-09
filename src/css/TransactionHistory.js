@@ -17,21 +17,9 @@ const statusColumnContainer =
 					padding-top: 8px;
 					padding-bottom: 8px;`
 					
-const statusTagTypeInfo =
-					`background-color: #DAF2F4;
-					color: #08A6B5;`
-
-const statusTagTypeSuccess =
-					`background-color: #EAF3D9;
-					color: #5A9600;`
-
-const statusTagTypewarning =
-					`background-color: #F9EBDD;
-					color: #D4781C;`
-
-const statusTagTypeerror =
-					`background-color: #F7E2E1;
-					color: #C83B37;`
+const statusTagType =
+					`background-color: rgb(239, 239, 239);
+					color: #3A3A3A;`
 
 const statusColumnLabel = 
 					`font-size: 12px;
@@ -76,8 +64,5 @@ export const TABLE_EXPANDER_CELL = {
 export const STATUS_TAG = {
 	tagContainer : statusColumnContainer,
 	tagLabel : statusColumnLabel,
-	Processed :statusTagTypeSuccess,
-	Pending : statusTagTypewarning,
-	Expired:statusTagTypeerror,
-	Reversed : statusTagTypeInfo
+	tagType :statusTagType
 }

@@ -59,6 +59,14 @@ export class TransactionHistory extends Component {
 		this.endDateYear =``;
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
+		this.transactionStatusList = [
+			`Financial`,
+			`Non Financial`,
+			`Processing`,
+			`Reversed`,
+			`Partial reversal`,
+			`Partial reversal processed`
+		]
 	
 	}
 
@@ -157,7 +165,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_filterByStatus(event) {
-		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.label;
+		RENDER_CHIPS[FILTER_BY.STATUS] = event.detail.new;
 		this._refineSearch();
 	}
 
@@ -187,7 +195,15 @@ export class TransactionHistory extends Component {
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
-			item.tranDate = date; 
+			item.tranDate = date;
+			item.transactionStatus = {
+					FEE: `Financial`,
+					NON_FINANCIAL:	`Non Financial`,
+					CARD_AUTH_FINANCIAL: `Processing`,
+					CARD_AUTH_REVERSED: `Reversed`,
+					CARD_AUTH_PARTIAL_REVERSAL: `Partial reversal`,
+					CARD_AUTH_PARTIAL_REVERSAL_COMPLETE: `Partial reversal processed`
+			}[item.transactionStatus];
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
 			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
@@ -458,6 +474,18 @@ export class TransactionHistory extends Component {
     				--theme-actionbar-padding: 12px;
 				}
 
+				.transaction-status-select{
+					--theme-input-label-font-size: 16px;
+					--theme-input-label-padding-top: 17px;
+					--theme-select-options-max-height: 304px;
+					--theme-input-padding-top: 14px;
+					--theme-input-font-size: 15px;
+					--theme-input-font-color: #3a3a3a;
+					--theme-input-font-weight: 400;
+					line-height: 20px;
+					width: 224px;
+				}
+
 			`
 		];
 	}
@@ -558,13 +586,22 @@ export class TransactionHistory extends Component {
 						</capitec-icon>
 				</capitec-content-box>
 
-				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-status">
+				<capitec-select 
+					label="Transaction status" 
+					class="transaction-status-select"
+					.items="${this.transactionStatusList}" 
+					display-field="text"
+					@value-change = "${(e) => this._filterByStatus(e)}"
+					hint="">
+				</capitec-select>
+
+				<!-- <capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-status">
 					<capitec-label
 						label="Transaction Status"
 						type="default">
 					</capitec-label>
 					${this._renderStatusOptions()}
-				</capitec-group>
+				</capitec-group> -->
 			</capitec-group>
 		`;
 	}
@@ -679,7 +716,7 @@ export class TransactionHistory extends Component {
 			<capitec-table
 				.items = ${this.filteredData}
 				groupField="groupByItem"
-				displayMode="LoadMore"
+				displayMode="Full"
 				expandable="right"
 				fixed = ${true}
 				.expandRenderer="${(item) => this._renderExpander(item)}">
@@ -699,7 +736,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionStatus(value) {
-		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG[value])}">
+		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
 						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
 					</div>`;
 
