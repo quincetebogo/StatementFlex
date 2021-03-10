@@ -3,6 +3,13 @@ import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/product/ProductInfo';
+import 'app/components/dialogs/common/EndCallSession';
+
+const RENDER_MODE = Object.freeze({
+	SAVINGS_ACCOUNT_INFO: 0,
+	END_CALL: 1
+});
+
 
 /**
  * Implements the view for Savings Account Product Information screen.
@@ -20,9 +27,20 @@ export class SavingsAccountProductInfo extends View {
 	constructor() {
 		super();
 		
+		this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_INFO;
 		this.pageDetails = null;
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	static get properties() {
+		return {
+			renderMode: { type: Number }
+		};
 	}
 
 	// -------------------
@@ -66,6 +84,12 @@ export class SavingsAccountProductInfo extends View {
 		window.open("https://www.capitecbank.co.za/global-one/transact/")
 	}
 
+	_endCallClick() {
+		if (this.incomingCallDetails) {
+			this.renderMode = RENDER_MODE.END_CALL;
+		}
+	}
+	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -115,12 +139,35 @@ export class SavingsAccountProductInfo extends View {
 	}
 
 	_webTemplate() {
-		return html`<horizon-product-info 
-						class="savings-details"
-						.pageDetails = "${this.pageDetails}"
-						@view-benefits ="${() => this._viewBenefits()}">
-					</horizon-product-info>`;
+		return html`
+			${this._renderSavingsAccountProductInfo()}
+			${this._renderEndCallSessionModal()}
+		`;
 	}
+
+	_renderSavingsAccountProductInfo() {
+		if(this.renderMode === RENDER_MODE.SAVINGS_ACCOUNT_INFO){
+		return html`
+			<horizon-product-info 
+				class="savings-details"
+				.pageDetails = "${this.pageDetails}"
+				@view-benefits ="${() => this._viewBenefits()}">
+			</horizon-product-info>`;
+		}
+	}
+
+	_renderEndCallSessionModal() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					@cancel="{${() => this.renderMode = RENDER_MODE.SAVINGS_ACCOUNT_INFO}}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage">
+				</horizon-end-call-session>`;
+		}
+		return html``;
+	}
+
 }
 
 customElements.define(`horizon-savings-account-product-info`, SavingsAccountProductInfo);

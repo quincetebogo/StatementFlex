@@ -3,6 +3,12 @@ import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/product/ProductInfo';
+import 'app/components/dialogs/common/EndCallSession';
+
+const RENDER_MODE = Object.freeze({
+	INSURE_INFO: 0,
+	END_CALL: 1
+});
 
 /**
  * Implements the view for Insure Product Information screen.
@@ -20,9 +26,20 @@ export class InsureProductInfo extends View {
 	constructor() {
 		super();
 		
+		this.renderMode = RENDER_MODE.INSURE_INFO;
 		this.pageDetails = null;
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	static get properties() {
+		return {
+			renderMode: { type: Number }
+		};
 	}
 
 	// -------------------
@@ -66,6 +83,12 @@ export class InsureProductInfo extends View {
 		window.open("https://www.capitecbank.co.za/global-one/insure/")
 	}
 
+	_endCallClick() {
+		if (this.incomingCallDetails) {
+			this.renderMode = RENDER_MODE.END_CALL;
+		}
+	}
+	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -115,11 +138,33 @@ export class InsureProductInfo extends View {
 	}
 
 	_webTemplate() {
-		return html`<horizon-product-info 
-						class="savings-details"
-						.pageDetails = "${this.pageDetails}"
-						@view-benefits ="${() => this._viewBenefits()}">
-					</horizon-product-info>`;
+		return html`
+			${this._renderInsureProductInfo()}
+			${this._renderEndCallSessionModal()}
+		`;
+	}
+
+	_renderInsureProductInfo() {
+		if(this.renderMode === RENDER_MODE.INSURE_INFO){
+		return html`
+			<horizon-product-info 
+				class="savings-details"
+				.pageDetails = "${this.pageDetails}"
+				@view-benefits ="${() => this._viewBenefits()}">
+			</horizon-product-info>`;
+		}
+	}
+
+	_renderEndCallSessionModal() {
+		if (this.renderMode === RENDER_MODE.END_CALL) {
+			return html`
+				<horizon-end-call-session 
+					@cancel="{${() => this.renderMode = RENDER_MODE.INSURE_INFO}}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage">
+				</horizon-end-call-session>`;
+		}
+		return html``;
 	}
 }
 

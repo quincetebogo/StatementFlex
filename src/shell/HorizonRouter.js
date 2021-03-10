@@ -200,17 +200,27 @@ export class HorizonRouter {
 		const insureProductInfo = () => this.navigateToInsureInfo();
 		const creditProductInfo = () => this.navigateToCreditInfo();
 
-		// Navigation to Product Information screens based on verification status is controlled using "toProductInformation".
-		// toProductInformation is to handle the code according to the releases we have.
-		const toProductInformation = (this._configuration.config.runtime.environment === `DEV`|| this._configuration.config.runtime.environment === `LOCAL`)
+		const savingsAccountProduct = () => this.navigateToSavingsAccountProduct();
+		const savingsPlanProduct = () => this.navigateToSavingsPlanProduct();
+		const insureProduct = () => this.navigateToInsureProduct();
+		const creditProduct = () => this.navigateToCreditProduct();
 
+		/** 
+		* Navigation to Product Information screens based on verification status is controlled using "toProductInformation"and "showProductScreen".
+		* toProductInformation is to handle the code according to the releases we have.
+		* showProductScreen is to handle the navigation based on verification status.
+		**/
+		const state = HorizonStore.getInstance().recoverState();
+		const toProductInformation = (this._configuration.config.runtime.environment === `DEV`|| this._configuration.config.runtime.environment === `LOCAL`)
+		const showProductScreen = (state.callerInformation.isNonClient || state.callerInformation.is3rdParty);
+	
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: toProductInformation ? insure : insureProductInfo,
-			Savings: toProductInformation ? savings : savingsAccountProductInfo,
-			SavingsPlan: savingsPlanProductInfo,
-			Credit: creditProductInfo
+			Insure: toProductInformation ? insure : showProductScreen ? insureProduct : insureProductInfo,
+			Savings: showProductScreen ? savingsAccountProduct : toProductInformation ? savings : savingsAccountProductInfo,
+			SavingsPlan: showProductScreen ? savingsPlanProduct : savingsPlanProductInfo,
+			Credit: showProductScreen ? creditProduct : creditProductInfo
 		}[ivrOption]();
 	};
 

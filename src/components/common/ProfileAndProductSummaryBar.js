@@ -151,8 +151,6 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	_webTemplate() {
-		const state = this.horizonStore.recoverState()
-		const disablenavigation = !(state.callerInformation.isNonClient || state.callerInformation.is3rdParty);
 		return html`
 		<section class="left-card">
 			<horizon-mini-profile 
@@ -164,7 +162,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			<horizon-product-button-panel
 				.subtitle="${this.subtitle}"
 				.detail="${this.detail}"
-				?disablenavigation= ${disablenavigation}>
+				?disablenavigation= ${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}
