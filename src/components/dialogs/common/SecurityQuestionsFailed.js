@@ -86,6 +86,8 @@ export class SecurityQuestionsFailed extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+
+		this._updateMiniProfile();
 	}
 
 	// --------------
@@ -146,9 +148,33 @@ export class SecurityQuestionsFailed extends Component {
 		return true;
 	}
 
-	// ---------
-	// RENDERING
-	// ---------
+	_updateMiniProfile() {
+		const state = {
+			callerInformation: this.callerInformation,
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
+
+		this.horizonStore.saveState(state);
+	}
+
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.solutionSelected = ``;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	static get styles() {
 		return [
@@ -245,6 +271,7 @@ export class SecurityQuestionsFailed extends Component {
 							${this._renderNotificationStatus()}
 							${this._renderOtherOptions()}
 							${this._renderLoadingIndicator()}
+							${this._renderVerifyNowModal()}
 						</div>
 					</horizon-caller-dialog>
 				`;
@@ -322,6 +349,7 @@ export class SecurityQuestionsFailed extends Component {
                 @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
 	}
+
 }
 
 window.customElements.define(`horizon-security-questions-failed`, SecurityQuestionsFailed);
