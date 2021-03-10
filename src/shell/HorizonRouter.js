@@ -303,19 +303,9 @@ export class HorizonRouter {
 			setShellLayout(shellLayout);
 		};
 
-		const setShellLayoutByCallStatus = () => {
-			const routingInfo = horizonRouter.getRoutingInfo();
-			if (routingInfo.callStatus === `WAITING-FOR-CALL`) {
-				shellLayout = HORIZON_VIEW_SET.LANDING_PAGES;
-			} else {
-				shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
-			}
-		};
-
 		return {
 			layout: setShellLayout,
-			layoutByVerifictionMode: setShellLayoutByVerificationMode,
-			layoutByCallStatus: setShellLayoutByCallStatus
+			layoutByVerifictionMode: setShellLayoutByVerificationMode
 		}[prenavFunc]();
 	}
 }
@@ -344,7 +334,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-savings-plan-product`,
@@ -352,7 +343,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-flexible-savings-plan-product`,
@@ -360,7 +352,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-fixed-term-savings-product`,
@@ -368,7 +361,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-tax-free-savings-product`,
@@ -376,7 +370,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-insure-product`,
@@ -384,7 +379,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-credit-product`,
@@ -392,7 +388,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByCallStatus`)
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
