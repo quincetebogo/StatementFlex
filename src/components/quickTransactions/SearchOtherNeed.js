@@ -101,7 +101,6 @@ const RENDER_MODE = Object.freeze({
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	// --------------
@@ -205,29 +204,23 @@ const RENDER_MODE = Object.freeze({
 					margin-right: 16px;
 				}
 				.solution-heading {
- 					color: #3E4547;
- 					font-size: 16px;
- 					font-weight: 600;
+					--theme-label-subtitle-font-color: #3E4547;
+					--theme-label-subtitle-font-size: 16px;
+					--theme-label-subtitle-font-weight: 600;
  					letter-spacing: 0;
  					line-height: 20px;
 				}
 				.solution-content {
 					line-height: 20px;
-					color: #3A3A3A;
-					font-size: 15px;
+					--theme-label-default-font-color: #3A3A3A;
+					--theme-label-default-font-size: 15px;
 					letter-spacing: 0;
-				}
-				.strack-heading {
-					margin-left: -10px;
-					font-size: 15px;
-					font-weight: 600;
-					line-height: 20px;
 				}
 				.strack-solution-content {
 					display: inline;
 					line-height: 20px;
-					color: #3A3A3A;
-					font-size: 15px;
+					--theme-label-default-font-color: #3A3A3A;
+					--theme-label-default-font-size: 15px;
 					letter-spacing: 0;
 				}
 				.bullet-group {
@@ -241,7 +234,7 @@ const RENDER_MODE = Object.freeze({
 					--theme-layout-gap-spacing: 13px;
 					--theme-label-strong-font-size: 24px;
 					--theme-label-strong-font-weight: 600;
-					--theme-label-font-color: #3A3A3A;
+					--theme-label-strong-font-color: #3A3A3A;
 				}
 				.strack-button {
 					padding-right: 16px;
