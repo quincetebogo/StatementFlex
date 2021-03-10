@@ -72,6 +72,8 @@ export class VerifyCaller extends Component {
 		this.loading = true;
 		this.xdsMessage = ``;
 		this.itaMessage = ``;
+		this.authHistory = ``;
+		this.noOfXdsVerificationAttempted = 0;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -94,6 +96,7 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
+			noOfXdsVerificationAttempted: { type: Number },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
@@ -178,6 +181,10 @@ export class VerifyCaller extends Component {
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
+
+			this.authHistory = this.securityQuestions.authenticationHistory;
+			this.authHistory ? this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(this.authHistory) : 0;
+
 			if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
@@ -195,6 +202,20 @@ export class VerifyCaller extends Component {
 		} else {
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`);
 		}
+	}
+
+	_calculateXDSAttempts(authHistory) {
+		const curDateTime = new Date();
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+ 
+		const usedAttempts = authHistory.filter(item => {
+			const bureauDate = new Date(item.bureauDate);
+			if (bureauDate > yesterday && item.authenticationStatus === `Not Authenticated`) {
+				return item;
+			}
+		}).length;
+		return usedAttempts;
 	}
 
 	_skipClick() {
@@ -540,6 +561,7 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
+					.noOfXdsVerificationAttempted="${this.noOfXdsVerificationAttempted}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
 					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}">

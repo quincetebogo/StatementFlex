@@ -51,7 +51,6 @@ export class VerifyBySecurityQuestions extends Component {
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-		this.retryCount = 0;
 		this.alertBannerMessage = ``;
 
 
@@ -84,7 +83,7 @@ export class VerifyBySecurityQuestions extends Component {
 			securityQuestions: { type: Object },
 			renderMode: { type: Number },
 			questionNumber: { type: Number },
-			retryCount: { type: Number },
+			noOfXdsVerificationAttempted: { type: Number },
 			isBusy: { type: Boolean },
 			alertBannerMessage: { type: String }
 		};
@@ -140,9 +139,9 @@ export class VerifyBySecurityQuestions extends Component {
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this.callerInformation.verificationStatus = `verified`;
 				this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
+			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.retryCount++;
+				this.noOfXdsVerificationAttempted++;
 			} else if (returnValue.succeeded) {
 				this.callerInformation.verificationStatus = `failed`;
 
@@ -175,7 +174,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_retrySecurityQuestions(e) {
-		if (this.retryCount <= 1) {
+		if (this.noOfXdsVerificationAttempted <= 1) {
 			this.questionNumber = 0;
 			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
@@ -187,7 +186,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelEndCall() {
-		this.renderMode = this.retryCount === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+		this.renderMode = this.noOfXdsVerificationAttempted === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	// --------------
