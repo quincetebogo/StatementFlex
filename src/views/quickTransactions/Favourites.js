@@ -196,7 +196,7 @@ export class Favourites extends View {
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -555,6 +555,7 @@ export class Favourites extends View {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
                 <horizon-proof-of-account
+                    @cancel="${() => this._mainPage()}"
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}">
