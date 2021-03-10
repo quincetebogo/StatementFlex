@@ -76,6 +76,10 @@ export class MiniProfile extends Component {
 		return value;
 	}
 
+	_getLanguagePreference(value) {
+		return !value || value === `NOT_DEFINED` ? `-` : value;
+	}
+
 	_formatBirthDate(birthdate) {
 		if (birthdate === null || birthdate === ``) {
 			return `-`;
@@ -242,7 +246,7 @@ export class MiniProfile extends Component {
 					${this._renderInfo(`ID Number`, this._replaceEmptyValue(this.miniProfile.idNumber))}
 					${this._renderInfo(`Verified Number`, formatPhoneNumber(this.miniProfile.phoneNumber))}
 					${this._renderInfo(`Lives In`, this._replaceEmptyValue(this.miniProfile.livesIn))}
-					${this._renderInfo(`Language Preference`, this._replaceEmptyValue(this.miniProfile.languagePreference))}
+					${this._renderInfo(`Language Preference`, this._getLanguagePreference(this.miniProfile.languagePreference))}
 					${this._renderInfo(`Birthday`, this._formatBirthDate(this.miniProfile.birthday))}
 			</capitec-group>`;
 	}
