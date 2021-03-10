@@ -15,6 +15,7 @@
 		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{

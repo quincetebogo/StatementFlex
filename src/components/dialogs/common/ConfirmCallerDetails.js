@@ -367,7 +367,7 @@ export class ConfirmCallerDetails extends Component {
 	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.languagePreference;
 
-		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
+		if (!languagePreference || languagePreference === "NOT_DEFINED") {
 			languagePreference = `-`;
 		}
 		return languagePreference;

@@ -26,7 +26,12 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"mock" : {
-		"enabled": false
+	"mock": {
+		"enabled": false,
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
+			"positiveCase": true
+		}
 	}
 }
