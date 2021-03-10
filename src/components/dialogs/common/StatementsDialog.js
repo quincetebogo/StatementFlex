@@ -382,7 +382,9 @@ export class StatementsDialog extends Component {
         this.flag = "";
         this.statmentDays = "";
         this.showCalendar = e.currentTarget.checked;
-		this.showScrollbar = this.showCalendar;
+        this.showScrollbar = this.showCalendar;
+        this.startDate = "";
+        this.endDate = "";
     }
 
     _emailFormatCheck(e) {
@@ -935,6 +937,8 @@ export class StatementsDialog extends Component {
 									class="calendar"
 									type="range"
 									mode="date"
+                                    startDate = "${this.startDate == `` ? `` : this.startDate}"
+                                    endDate = "${this.endDate == `` ? `` : this.endDate}"
                                     maxDate= "${this.today}"
 									label="Choose from and to date"
 									inputType="calendar"
