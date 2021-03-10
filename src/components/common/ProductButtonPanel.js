@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration} from 'platform/core';
+import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
@@ -137,10 +137,12 @@ export class ProductButtonPanel extends Component {
 
 		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
 			this.horizonRouter.navigateToProductInfo(type);
-		} else if (env === `LOCAL` || env === `DEV` || env === `INT`) {
+		} else if (env === `LOCAL`) {
+			// For now, the product buttons only route to the proper landing pages when a developer is running on their local machine
 			this.horizonRouter.navigateToLandingPage(type, hasInsuranceProducts);
 		} else {
-			// Do Nothing
+			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
+			this.horizonRouter.navigateToProductInfo(type);
 		}
 	}
 
