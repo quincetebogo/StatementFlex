@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 
@@ -19,21 +20,7 @@ export class MiniProfile extends Component {
 
 	constructor() {
 		super();
-
-		this.miniProfile = {
-			name: ``,
-			idNumber: ``,
-			phoneNumber: ``,
-			livesIn: ``,
-			languagePreference: ``,
-			birthday: ``,
-			showButtons: false,
-			isConfirmed: false,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		};
+		this.miniProfile = null;
 	}
 
 	/**
@@ -62,24 +49,6 @@ export class MiniProfile extends Component {
 	// EVENTS
 	// ---------
 
-	_onUpdateMiniClientProfile(profile) {
-
-		this.miniProfile = {
-			name: profile.name,
-			idNumber: profile.idNumber,
-			phoneNumber: profile.phoneNumber,
-			livesIn: profile.livesIn,
-			languagePreference: profile.languagePreference,
-			birthday: profile.birthday,
-			showButtons: profile.showButtons,
-			isConfirmed: profile.isConfirmed,
-			isVerified: profile.isVerified,
-			verificationFailed: profile.verificationFailed,
-			is3rdParty: profile.is3rdParty,
-			isNonClient: profile.isNonClient
-		};
-	}
-
 	_onDocumentClick() {
 		this.eventAggregator.publish(`horizon-view-documents-click`, {});
 	}
@@ -107,6 +76,10 @@ export class MiniProfile extends Component {
 		return value;
 	}
 
+	_getLanguagePreference(value) {
+		return !value || value === `NOT_DEFINED` ? `-` : value;
+	}
+
 	_formatBirthDate(birthdate) {
 		if (birthdate === null || birthdate === ``) {
 			return `-`;
@@ -128,7 +101,7 @@ export class MiniProfile extends Component {
 			`July`, `August`, `September`, `October`, `November`, `December`
 		];
 
-		return `${dob.getDate()} ${months[dob.getMonth()]}`;
+		return `${dob.getDate()} ${months[dob.getMonth()]} ${dob.getFullYear()}`;
 	}
 
 	// ---------
@@ -139,127 +112,113 @@ export class MiniProfile extends Component {
 		return [
 			super.styles,
 			css`
-			.hello-card {
-				width: 440px;
-				height: auto;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-			}
-			.client-details-group{
-				height: auto;
-			}
-			.client-image-box{
-				height: auto;
-				padding: 16px 16px 16px 16px;
-				display: flex;
-				flex-direction: row;
-			}
-			.client-img{
-				width: 158px;
-				height: 158px;
-				padding: 55px 55px 55px 55px;
-				margin: 0px;
-				background-color: #F7F7F7;
-			}
-			.client-details-box{
-				width: 230px;
-				margin-left: 16px;
-			}
-			.name-row {
-				height: 24px;
-				line-height: 24px;
-				width: auto;
-				color: #3E4547;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				margin-bottom: 8px;
-			}
-			capitec-group > span {
-				display: flex;
-				flex-direction: row;
-			}
-			capitec-group > span > capitec-label:first-child {
-				--theme-label-font-weight: 400;
-				line-height: 20px;
-				height: 20px;
-				color: #545D60;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				letter-spacing: 0;
-				font-weight: normal;
-			}
-			capitec-group > span > capitec-label:nth-child(2) {
-				line-height: 20px;
-				height: 20px;
-				color: #545D60;
-				font-family: "Hind Vadodara";
-				font-size: 14px;
-				letter-spacing: 0;
-				font-weight: 600;
-			}
-			.client-wrapper-box{
-				height: auto;
-				padding-top: 0px;
-				padding-bottom:16px;
-			}
-			horizon-option-button {
-				height: 88px;
-				width: 198px;
-			}
-			.banner{
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-icon-margin-left: 15px;
-				--theme-alert-banner-icon-margin-right: 7px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-unsuccessful-red-border: none;
-				--theme-alert-banner-info-border: none;
+				.hello-card {
+					width: 440px;
+					height: auto;
 
-				--theme-icon-size-default: 20px;
-				--theme-alert-banner-warning-border: none;
-				--theme-alert-banner-height: 48px;
-			}
-			#id-notify-banner-group {
-				width: 380px;
-			}
-			#id-notify-client-warning-msg {
-				color: #D4781C;
-				font-family: "Hind Vadodara";
-				font-size: 15px;
-				letter-spacing: 0;
-			}
-			#id-verify-now-warning-link {
-				--theme-hyperlink-color: #D4781C;
-				--theme-font-family: "Hind Vadodara";
-				--theme-font-weight: 600;
-			}
-			#id-verify-via-app-msg {
-				color:#C83C37;
-				font-family: "Hind Vadodara";
-				font-size: 15px;
-				letter-spacing: 0;
-			}
-			#verify-via-app-link{
-				--theme-hyperlink-color:#C83C37;
-				--theme-font-family: "Hind Vadodara";
-				--theme-font-weight: 600;
-				text-decoration: underline;
-			}
+					--theme-card-border-radius: 4px;
+				}
+				.profile-cb {
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-bottom: 16px;
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-right: 16px;
+				}
+				capitec-avatar {
+					border-radius: 4px;
+
+					--theme-avatar-size-large: 158px;
+					--theme-layout-gap-spacing: 16px;
+				}
+				capitec-label[type="title"] {
+					margin-top: 9px;
+					line-height: 24px;
+
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}
+				.info-rowGroup {
+					height: 20px;
+
+					--theme-layout-gap-spacing: 2px;
+				}
+				capitec-label[type="default"] {
+					--theme-label-default-font-size: 14px;
+				}
+				capitec-label[type="strong"] {
+					--theme-label-strong-font-size: 14px;
+					--theme-label-strong-font-weight: 600;
+				}
+				.client-wrapper-cb{
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 16px;
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-right: 16px;
+				}
+				horizon-option-button {
+					height: 80px;
+					width: 196px;
+
+					--horizon-option-btn-text-margin-top: 6px;
+					--horizon-option-btn-text-line-height: 20px;
+					--horizon-option-btn-text-font-weight: 600;
+				}
+				.banner{
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 7px;
+					--theme-alert-banner-warning-border: none;
+					--theme-alert-banner-unsuccessful-red-border: none;
+					--theme-alert-banner-info-border: none;
+
+					--theme-icon-size-default: 20px;
+					--theme-alert-banner-warning-border: none;
+					--theme-alert-banner-height: 48px;
+				}
+				#id-notify-banner-group {
+					width: 380px;
+				}
+				#id-notify-client-warning-msg {
+					color: #D4781C;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					letter-spacing: 0;
+				}
+				#id-verify-now-warning-link {
+					--theme-hyperlink-color: #D4781C;
+					--theme-font-family: "Hind Vadodara";
+					--theme-font-weight: 600;
+				}
+				#id-verify-via-app-msg {
+					color:#C83C37;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					letter-spacing: 0;
+				}
+				#verify-via-app-link{
+					--theme-hyperlink-color:#C83C37;
+					--theme-font-family: "Hind Vadodara";
+					--theme-font-weight: 600;
+					text-decoration: underline;
+				}
 			`
 		];
 	}
 
 	_webTemplate() {
-		return html`
+		return this.miniProfile === null 
+			? html``
+			: html`
 			<capitec-card class="hello-card">
-				<capitec-group class="client-details-group" layout="grid" gap="none" rows="auto" columns="auto">
-					<capitec-content-box class="client-image-box" row="1" column="1" colspan="2" nopadding>
+				<capitec-content-box class="profile-cb"
+					layout="horizontal"
+					halign="left"
+					valign="top"
+					gap="clear">
 						${this._renderClientImage()}
 						${this._renderClientPersonalInfo()}
-					</capitec-content-box>
-					${this._renderActionButtons()}
-				</capitec-group>
+				</capitec-content-box>
+				${this._renderActionButtons()}
 			</capitec-card>
 			${this._renderBanner()}
 		`;
@@ -267,48 +226,48 @@ export class MiniProfile extends Component {
 
 	_renderClientImage() {
 		return html`
-			<div class="client-img">
-				<capitec-icon size="large" icon="system/client-insights-error">
-				</capitec-icon>
-			</div>`;
+			<capitec-avatar 
+				shape="square"
+				icon="../../../images/common/avatar.svg">
+			</capitec-avatar>`;
 	}
 
 	_renderClientPersonalInfo() {
 		return html`
-			<capitec-group layout="grid" row="auto" columns="auto" gap="none" class="client-details-box">
-				<capitec-label class="name-row" row="1" column="1" label="${this.miniProfile.name}" type="subtitle">
-				</capitec-label>
-				<span row="2" column="1">
-					<capitec-label label="ID Number: " type="subtitle">
+			<capitec-group 
+				layout="vertical"
+				halign="left"
+				valign="top"
+				gap="clear">
+					<capitec-label
+						label="${this.miniProfile.name}"
+						type="title">
 					</capitec-label>
-					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.idNumber)}" type="subtitle">
-					</capitec-label>
-				</span>
-				<span row="3" column="1">
-					<capitec-label label="Verified Number: " type="subtitle">
-					</capitec-label>
-					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.phoneNumber)}" type="subtitle">
-					</capitec-label>
-				</span>
-				<span row="4" column="1">
-					<capitec-label label="Lives In: " type="subtitle">
-					</capitec-label>
-					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.livesIn)}" type="subtitle">
-					</capitec-label>
-				</span>
-				<span row="5" column="1">
-					<capitec-label label="Language Preference: " type="subtitle">
-					</capitec-label>
-					<capitec-label label="${this._replaceEmptyValue(this.miniProfile.languagePreference)}" type="subtitle">
-					</capitec-label>
-				</span>
-				<span row="6" column="1">
-					<capitec-label label="Birthday: " type="subtitle">
-					</capitec-label>
-					<capitec-label label="${this._formatBirthDate(this.miniProfile.birthday)}" type="subtitle">
-					</capitec-label>
-				</span>
+					${this._renderInfo(`ID Number`, this._replaceEmptyValue(this.miniProfile.idNumber))}
+					${this._renderInfo(`Verified Number`, formatPhoneNumber(this.miniProfile.phoneNumber))}
+					${this._renderInfo(`Lives In`, this._replaceEmptyValue(this.miniProfile.livesIn))}
+					${this._renderInfo(`Language Preference`, this._getLanguagePreference(this.miniProfile.languagePreference))}
+					${this._renderInfo(`Birthday`, this._formatBirthDate(this.miniProfile.birthday))}
 			</capitec-group>`;
+	}
+
+	_renderInfo(key, value) {
+		return html`
+			<capitec-group class="info-rowGroup"
+				layout="horizontal"
+				halign="left"
+				valign="center"
+				gap="clear">
+					<capitec-label
+						label="${key}: "
+						type="default">
+					</capitec-label>
+					<capitec-label
+						label="${value}"
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
 	}
 
 	_renderActionButtons() {
@@ -317,21 +276,33 @@ export class MiniProfile extends Component {
 		}
 
 		return html`
-			<capitec-content-box class="client-wrapper-box" row="2" column="1" colspan="2">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button label="View profile" icon="system/profile-action" iconSize="default"
-						@click="${() => this._onViewProfileClick()}">
-					</horizon-option-button>
-			
-					<horizon-option-button label="Document" icon="system/documents-action" iconSize="default" @click=${() => this._onDocumentClick()}>
-					</horizon-option-button>
-				</capitec-group>
+			<capitec-content-box class="client-wrapper-cb" layout="horizontal" halign="left" valign="top" gap="clear">
+				<horizon-option-button
+					label="View Profile"
+					icon="system/profile-action"
+					iconSize="default"
+					@click="${() => this._onViewProfileClick()}">
+				</horizon-option-button>
+		
+				<horizon-option-button
+					label="Document"
+					icon="system/documents-action"
+					iconSize="default"
+					@click=${() => this._onDocumentClick()}>
+				</horizon-option-button>
 			</capitec-content-box>
 		`;
 	}
 
 	_renderBanner() {
-		if (this.miniProfile.isVerified || this.miniProfile.isNonClient) {
+		const noBanner = this.miniProfile.isVerified || 
+							this.miniProfile.isNonClient || 
+							// eslint-disable-next-line no-extra-parens
+							(!this.miniProfile.hasDigitalChannels && this.miniProfile.verificationAttempts.xdsAttempts >= 2) ||
+							// eslint-disable-next-line no-extra-parens
+							(this.miniProfile.verificationAttempts.itaAttempts >= 2 && this.miniProfile.verificationAttempts.xdsAttempts >= 2);
+
+		if (noBanner) {
 			return html``;
 		} else if (this.miniProfile.is3rdParty) {
 			return html`
@@ -339,14 +310,14 @@ export class MiniProfile extends Component {
 				Client has not been verified
 			</capitec-alert-banner>
 			`;
-		} else if (this.miniProfile.verificationFailed) {
+		} else if (this.miniProfile.verificationFailed && this.miniProfile.hasDigitalChannels) {
 			return html`
 			<capitec-alert-banner class="banner" type="unsuccessful-red">
 				<capitec-group id="id-notify-banner-group" layout="horizontal">
 					<capitec-label id="id-verify-via-app-msg" label="Verification Unsuccessful"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyViaSecurityQuestions()}"
-						label="Verify via Security Questions">
+					<capitec-hyperlink id="verify-via-app-link" @click="${() => this._onVerifyNowClick()}"
+						label="Verify Now">
 					</capitec-hyperlink>
 				</capitec-group>
 			</capitec-alert-banner>

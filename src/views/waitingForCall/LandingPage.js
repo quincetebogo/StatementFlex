@@ -233,6 +233,7 @@ export class LandingPage extends View {
 			false,
 			false,
 			true,
+			false,
 			false
 		);
 
