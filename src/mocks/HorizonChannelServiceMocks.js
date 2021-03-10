@@ -1,5 +1,3 @@
-import { isNullorEmpty } from "../utils/channelServiceUtilities";
-
 /**
  * Mocks for methods in the HorizonChannelService class
  */
@@ -70,14 +68,6 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	stopCard() {
-		if (this._mocking.stopCard.positiveCase) {
-			const mockResponse = this.stopCardMocks.stopCardMockResponse;
-
-			return mockResponse;
-		}
-	}
-
 	xdsQuestions(clientID) {
 		if (this._mocking.xdsQuestions.positiveCase) {
 			return this.securityQuestionMocks.securityQuestions;
@@ -141,7 +131,9 @@ export class HorizonChannelServiceMocks {
 
 	stopCard() {
 		if (this._mocking.stopCard.positiveCase) {
-			return this.stopCardMocks.mockResponse;
+			const mockResponse = this.stopCardMocks.stopCardMockResponse;
+
+			return mockResponse;
 		}
 
 		// Code for a negative case could come here
