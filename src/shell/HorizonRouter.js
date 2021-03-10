@@ -148,10 +148,18 @@ export class HorizonRouter {
 	}
 
 	navigateToXdsVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
+		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
 
 	navigateToItaVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
+		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
+		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
 
