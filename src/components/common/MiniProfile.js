@@ -79,6 +79,7 @@ export class MiniProfile extends Component {
 	_getLanguagePreference(value) {
 		return !value || value === `NOT_DEFINED` ? `-` : value;
 	}
+	
 	_formatBirthDate(birthdate) {
 		if (birthdate === null || birthdate === ``) {
 			return `-`;
