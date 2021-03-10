@@ -10,9 +10,15 @@
 			"client": "Horizon"
 		},
 		"csp": {
-			"connect-src": [
-				"http://localhost:8888"
-			]
+      "connect-src": [
+        "http://localhost:8888"
+      ],
+      "child-src": [
+        "data:"
+      ],
+      "default-src": [
+        "data:"
+      ]
 		}
 	}
 }

@@ -971,12 +971,12 @@ export class StatementsDialog extends Component {
 		`
 	}
 
-	_renderPDFViewer() {
+	_renderPDFViewer() {		
 		return html`
 			<div slot="body" class="body">
 
-				<object data="data:base64,${this.viewStatementPDF}" type="application/pdf">
-					<embed object-src="data:base64,${this.viewStatementPDF}" height="785px" width="976px" type="application/pdf" alt="pdf"/>
+
+				<object data="data:application/pdf;base64,${this.viewStatementPDF}" type="application/pdf">
 				</object>
 			</div>
 				<capitec-button slot="footer" type="primary" label="Close" class="pdfClose" @click="${this._closePDF}"></capitec-button>
