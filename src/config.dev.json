@@ -38,7 +38,12 @@
 			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
-		"enabled": false
+	"mock": {
+		"enabled": false,
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
+			"positiveCase": true
+		}
 	}
 }

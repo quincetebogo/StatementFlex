@@ -162,7 +162,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			<horizon-product-button-panel
 				.subtitle="${this.subtitle}"
 				.detail="${this.detail}"
-				?disablenavigation=${true}>
+				?disablenavigation= ${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}
