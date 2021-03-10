@@ -304,14 +304,6 @@ export class ProofOfAccount extends Component {
         return html``;
     }
 
-    _renderLoadingIndicator() {
-        if (!this.isBusy) {
-            return html``;
-        }
-
-        return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-    }
-
     _renderEmailFields() {
         return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
