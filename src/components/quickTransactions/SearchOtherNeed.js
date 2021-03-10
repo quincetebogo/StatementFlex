@@ -1,4 +1,4 @@
-import { View, css, html } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -19,10 +19,10 @@ const RENDER_MODE = Object.freeze({
  * 
  * @export
  * @class SearchOtherNeed
- * @extends {View}
+ * @extends {Component}
  */
 
- export class SearchOtherNeed extends View {
+ export class SearchOtherNeed extends Component {
 
 	// --------------
 	// INITIALISATION
