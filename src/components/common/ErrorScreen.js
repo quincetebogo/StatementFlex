@@ -78,7 +78,7 @@ export class ErrorScreen extends Component {
 				}
 				#id-unsuccessful-img {
 					margin-top: 270px;
-          width: auto;
+          			width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
@@ -91,7 +91,7 @@ export class ErrorScreen extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 32px;
-					text-align: center;		
+					text-align: center;
 				}
 				#id-msg-group{
 					justify-content: center;
