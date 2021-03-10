@@ -1,5 +1,4 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
-import { Configuration} from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
@@ -31,10 +30,7 @@ const HORIZON_ROUTES = Object.freeze({
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
-	SAVINGS_ACCOUNT_PRODUCT_INFO: `/product-info/savings-account`,
-	SAVINGS_PLAN_PRODUCT_INFO: `/product-info/savings-plan`,
-	INSURE_PRODUCT_INFO: `/product-info/insure`,
-	CREDIT_PRODUCT_INFO: `/product-info/credit`
+	PRODUCT_INFO: `/product-info`
 });
 
 /**
@@ -52,7 +48,6 @@ export class HorizonRouter {
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
-		this._configuration = Configuration.getInstance();
 	}
 
 	static getInstance() {
@@ -156,7 +151,7 @@ export class HorizonRouter {
 	navigateToXdsVerificationFailed() {
 		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
 		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
-		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
 		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
@@ -164,7 +159,7 @@ export class HorizonRouter {
 	navigateToItaVerificationFailed() {
 		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
 		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
-		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
@@ -194,33 +189,16 @@ export class HorizonRouter {
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const savings = () => this.navigateToSavingsAccount();
-		
-		const savingsAccountProductInfo = () => this.navigateToSavingsAccountInfo();
-		const savingsPlanProductInfo = () => this.navigateToSavingsPlanInfo();
-		const insureProductInfo = () => this.navigateToInsureInfo();
-		const creditProductInfo = () => this.navigateToCreditInfo();
+		const credit = () => {};
+		const savingsPlan = () => {};
 
-		const savingsAccountProduct = () => this.navigateToSavingsAccountProduct();
-		const savingsPlanProduct = () => this.navigateToSavingsPlanProduct();
-		const insureProduct = () => this.navigateToInsureProduct();
-		const creditProduct = () => this.navigateToCreditProduct();
-
-		/** 
-		* Navigation to Product Information screens based on verification status is controlled using "toProductInformation"and "showProductScreen".
-		* toProductInformation is to handle the code according to the releases we have.
-		* showProductScreen is to handle the navigation based on verification status.
-		**/
-		const state = HorizonStore.getInstance().recoverState();
-		const toProductInformation = (this._configuration.config.runtime.environment === `DEV`|| this._configuration.config.runtime.environment === `LOCAL`)
-		const showProductScreen = (state.callerInformation.isNonClient || state.callerInformation.is3rdParty);
-	
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: toProductInformation ? insure : showProductScreen ? insureProduct : insureProductInfo,
-			Savings: showProductScreen ? savingsAccountProduct : toProductInformation ? savings : savingsAccountProductInfo,
-			SavingsPlan: showProductScreen ? savingsPlanProduct : savingsPlanProductInfo,
-			Credit: showProductScreen ? creditProduct : creditProductInfo
+			Insure: insure,
+			SavingsAccount: savings,
+			Credit: credit,
+			SavingsPlan: savingsPlan
 		}[ivrOption]();
 	};
 
@@ -235,49 +213,23 @@ export class HorizonRouter {
 
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
-    }
+	}
 
-    navigateToProofOfAccountSuccess() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
-    }
+	navigateToProofOfAccountSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
+	}
 
-    navigateToProofOfAccountFailed() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
-    }
+	navigateToProofOfAccountFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+	}
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
-	navigateToSavingsAccountInfo() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_INFO}`);
+	navigateToProductInfo(type) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
 	}
-
-	navigateToSavingsPlanInfo() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_INFO}`);
-	}
-
-	navigateToInsureInfo() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.INSURE_PRODUCT_INFO}`);
-	}
-
-	navigateToCreditInfo() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.CREDIT_PRODUCT_INFO}`);
-	}
-
-	navigateToProductInfoPage(type) {
-		const savingsAccount = () => this.navigateToSavingsAccountInfo();
-		const savingsPlan = () => this.navigateToSavingsPlanInfo();
-		const insure = () => this.navigateToInsureInfo();
-		const credit = () => this.navigateToCreditInfo();
-
-		const landingPageFunc = {
-			SavingsAccount: savingsAccount,
-			SavingsPlan: savingsPlan,
-			Insure: insure,
-			Credit: credit
-		}[type]();
-	};
 	
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
@@ -353,7 +305,7 @@ export class HorizonRouter {
 
 		const setShellLayoutByCallStatus = () => {
 			const routingInfo = horizonRouter.getRoutingInfo();
-			if(routingInfo.callStatus === `WAITING-FOR-CALL`){
+			if (routingInfo.callStatus === `WAITING-FOR-CALL`) {
 				shellLayout = HORIZON_VIEW_SET.LANDING_PAGES;
 			} else {
 				shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
@@ -363,7 +315,7 @@ export class HorizonRouter {
 		return {
 			layout: setShellLayout,
 			layoutByVerifictionMode: setShellLayoutByVerificationMode,
-			layoutByCallStatus : setShellLayoutByCallStatus
+			layoutByCallStatus: setShellLayoutByCallStatus
 		}[prenavFunc]();
 	}
 }
@@ -565,53 +517,29 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
 		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
-        name: `horizon-proof-of-account-success`,
-        title: `ProofOfAccountSuccess`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
-        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
-        name: `horizon-proof-of-account-failure`,
-        title: `ProofOfAccountFailed`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
-        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-        name: `horizon-savings-account-product-info`,
-        title: `SavingsAccount`,
-        icon: null,
-        path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_INFO,
-        load: () => import(`../views/product/ProductInformation/SavingsAccountProductInfo`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+		name: `horizon-proof-of-account-success`,
+		title: `ProofOfAccountSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+		load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-        name: `horizon-savings-plan-product-info`,
-        title: `SavingsPlan`,
-        icon: null,
-        path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_INFO,
-        load: () => import(`../views/product/ProductInformation/SavingsPlanProductInfo`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+		name: `horizon-proof-of-account-failure`,
+		title: `ProofOfAccountFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+		load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-        name: `horizon-insure-product-info`,
-        title: `Insure`,
-        icon: null,
-        path: HORIZON_ROUTES.INSURE_PRODUCT_INFO,
-        load: () => import(`../views/product/ProductInformation/InsureProductInfo`),
+		name: `horizon-product-information`,
+		title: `ProductInfo`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_INFO,
+		load: () => import(`../views/product/ProductInformation`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-    },
-	{
-        name: `horizon-credit-product-info`,
-        title: `Credit`,
-        icon: null,
-        path: HORIZON_ROUTES.CREDIT_PRODUCT_INFO,
-        load: () => import(`../views/product/ProductInformation/CreditProductInfo`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-    }
+	}
 ];

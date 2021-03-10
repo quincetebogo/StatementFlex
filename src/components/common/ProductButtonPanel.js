@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { Configuration} from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
@@ -44,6 +45,7 @@ export class ProductButtonPanel extends Component {
 			credit: ``
 		};
 		
+		this._configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
@@ -87,44 +89,51 @@ export class ProductButtonPanel extends Component {
 
 	// TODO Refeactor these methods to raise events. The caller should handle the navigation
 	_savingsAccountClick() {
-	
+
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
-		} else {
-				this.horizonRouter.navigateToLandingPage(`Savings`, false);
 		}
-		this.requestUpdate();
+		this._performNavigation(`SavingsAccount`, false);
 	}
 
 	_savingsPlanClick() {
 		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
-		} else {
-			this.horizonRouter.navigateToLandingPage(`SavingsPlan`,false);
 		}
-		this.requestUpdate();
+		this._performNavigation(`SavingsPlan`, false);
 	}
 
 	_insureClick() {
 
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToInsureProduct();
-		} else {
-			const state = this.horizonStore.recoverState();
-			this.horizonRouter.navigateToLandingPage(`Insure`, state.callerInformation.hasInsuranceProducts)
 		}
-		this.requestUpdate();
+		const state = this.horizonStore.recoverState();
+		this._performNavigation(`Insure`, state.callerInformation.hasInsuranceProducts);
 	}
 
 	_creditClick() {
-	
+		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
-		} else {
-			this.horizonRouter.navigateToLandingPage(`Credit`,false);
 		}
-		this.requestUpdate();
+		this._performNavigation(`Credit`, false);
+	}
+
+	_performNavigation(type, hasInsuranceProducts) {
+
+		const env = this._configuration.config.runtime.environment;
+		const state = this.horizonStore.recoverState();
+		const callerInfo = state && state.callerInformation;
+		
+		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
+			this.horizonRouter.navigateToProductInfo(type);
+		} else if (env === `LOCAL` || env === `DEV` || env === `INT`) {
+			this.horizonRouter.navigateToLandingPage(type, hasInsuranceProducts);
+		} else {
+			// Do Nothing
+		}
 	}
 
 	// ---------

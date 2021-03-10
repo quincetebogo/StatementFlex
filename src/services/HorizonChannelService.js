@@ -312,7 +312,7 @@ export class HorizonChannelService extends Service {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`identifyCaller`)) {
+		if (await this._mockEnabled(`stopCard`)) {
 			return this._mock.stopCard();
 		}
 
