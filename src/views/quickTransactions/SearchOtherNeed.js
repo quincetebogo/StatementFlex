@@ -7,8 +7,9 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
 
 const RENDER_MODE = Object.freeze({
-    FEEDBACK : 0
+    FEEDBACK: 0
 });
+
 /**
  * Search Other Need component
  *
@@ -36,43 +37,40 @@ const RENDER_MODE = Object.freeze({
 		this.chooseNeed = true;
 		this.chooseIssue = true;
 		this.solutionDisplay = false;
-		this.someObject = { code: 'AL', text: 'Alabama' };
+		this.someObject = { code: `AL`, text: `Alabama` };
 		this.searchObject = [
-			{code: 'ATM', text: 'ATM' },
-			{code: 'Category 2', text: 'Category 2' },
-			{code: 'Category 3', text: 'Category 3' },
-			{code: 'Category 4', text: 'Category 4' },
-			{code: 'Category 5', text: 'Category 5' }
-		]
-		this.specificNeedObjects =
-		[
-			{code: 'Option 1', text: 'Option 1' },
-			{code: 'Option 2', text: 'Option 2' },
-			{code: 'Option 3', text: 'Option 3' },
-			{code: 'Option 4', text: 'Option 4' }
-		]
-		this.issueTypeObjects =
-		[
-			{code: 'Option 1', text: 'Unauthorized transaction - ATM Retain...' },
-			{code: 'Option 2', text: 'Capitec ATM - Cash did not dispense' },
-			{code: 'Option 3', text: 'Capitec ATM - Cash dispensed short' },
-			{code: 'Option 4', text: 'CF not available at the ATM' }
-		]
+			{ code: `ATM`, text: `ATM` },
+			{ code: `Category 2`, text: `Category 2` },
+			{ code: `Category 3`, text: `Category 3` },
+			{ code: `Category 4`, text: `Category 4` },
+			{ code: `Category 5`, text: `Category 5` }
+		];
+		this.specificNeedObjects = [
+			{ code: `Option 1`, text: `Option 1` },
+			{ code: `Option 2`, text: `Option 2` },
+			{ code: `Option 3`, text: `Option 3` },
+			{ code: `Option 4`, text: `Option 4` }
+		];
+		this.issueTypeObjects = [
+			{ code: `Option 1`, text: `Unauthorized transaction - ATM Retain...` },
+			{ code: `Option 2`, text: `Capitec ATM - Cash did not dispense` },
+			{ code: `Option 3`, text: `Capitec ATM - Cash dispensed short` },
+			{ code: `Option 4`, text: `CF not available at the ATM` }
+		];
 		this.dataObjects = [
 			this.someObject,
-			{ code: 'AK', text: 'Alaska' },
-			{ code: 'OK', text: 'Oklahoma' },
-			{ code: 'NM', text: 'New Mexico' },
-			{ code: 'NY', text: 'New York' },
-			{ code: 'TX', text: 'Texas' },
-			{ code: 'TN', text: 'Tennessee' },
-			{ code: 'NJ', text: 'New Jersey' }
+			{ code: `AK`, text: `Alaska` },
+			{ code: `OK`, text: `Oklahoma` },
+			{ code: `NM`, text: `New Mexico` },
+			{ code: `NY`, text: `New York` },
+			{ code: `TX`, text: `Texas` },
+			{ code: `TN`, text: `Tennessee` },
+			{ code: `NJ`, text: `New Jersey` }
         ];
 
        	this.incomingCallDetails = this.state.incomingCallDetails;
         this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
         this.incidentRecId = this.incomingCallDetails.incidentRecId; /* "76E4F06B294147D2A295FE5AA02C9138" */
-
 	}
 	// --------------
 	// PROPERTIES
@@ -111,28 +109,30 @@ const RENDER_MODE = Object.freeze({
 	// --------------
 
 	_back() {
-		//initate back to favourite transactions page (on back arrow)
+		// initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 	// ---------
 	// PRIVATE METHODS
 	// ---------
 	 
-	_searchOtherNeed(e){
+	_searchOtherNeed(e) {
 		this.chooseNeed = false;
 		if (e = null) {
 			this.chooseNeed = true;
 		}
-	}
+	 }
+
 	_searchSpecificNeed(e) {
 		this.chooseIssue = false;
-	}
+	 }
+
 	_chooseIssueType(e) {
 		this.solutionDisplay = true;
 	}
 
 	_onLaunchStrackClick() {
-        this.strackURL = this.strackURL.replace("$incidentRecId", this.incidentRecId);
+        this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
         window.open(this.strackURL);
         this.renderMode = RENDER_MODE.FEEDBACK;
 	}
@@ -248,7 +248,8 @@ const RENDER_MODE = Object.freeze({
 				}
 			`
 		];
-	}
+	 }
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -260,29 +261,30 @@ const RENDER_MODE = Object.freeze({
 		`;
 	}
 
-	_renderOtherNeeds(){
-		return html`<capitec-card class="other-need">
-		<capitec-title-bar type="default">
-			<capitec-icon 
-				size="small"
-				icon="system/arrow-left-action"
-				@click="${() => this._back()}">
-			</capitec-icon>
-			<capitec-label label="Other Need" type="title"></capitec-label>
-		</capitec-title-bar>
-			<capitec-group layout="vertical" gap="line" halign="left" valign="top">
-			${this._renderActionBar()}
-			</capitec-group>
-			<capitec-group layout="vertical" gap="line" halign="center" valign="center">
-			${this._renderNoResults()}
-			</capitec-group>
-			<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
-			${this._renderSolution()}
-			</capitec-group>
-		</capitec-card>
+	_renderOtherNeeds() {
+		return html`
+			<capitec-card class="other-need">
+				<capitec-title-bar type="default">
+					<capitec-icon 
+						size="small"
+						icon="system/arrow-left-action"
+						@click="${() => this._back()}">
+					</capitec-icon>
+					<capitec-label label="Other Need" type="title"></capitec-label>
+				</capitec-title-bar>
+				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
+					${this._renderActionBar()}
+				</capitec-group>
+				<capitec-group layout="vertical" gap="line" halign="center" valign="center">
+					${this._renderNoResults()}
+				</capitec-group>
+				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+					${this._renderSolution()}
+				</capitec-group>
+			</capitec-card>
 		`;
-
 	}
+
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar type="default">
@@ -297,10 +299,10 @@ const RENDER_MODE = Object.freeze({
 	}
 
 	_renderActionBar() {
-		//add if statement to render next text boxes/drop downs
-		//must have a hidden property for the text field
-		//create an object 3 properties- hidden object should set to false when properties are populated
-		//@input="${(e) => this._searchOtherNeed(e)}"
+		// add if statement to render next text boxes/drop downs
+		// must have a hidden property for the text field
+		// create an object 3 properties- hidden object should set to false when properties are populated
+		// @input="${(e) => this._searchOtherNeed(e)}"
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-text-field 
@@ -338,92 +340,193 @@ const RENDER_MODE = Object.freeze({
 
 	_renderSolution() {
 		if (this.solutionDisplay) {
-		return html`
-		
-		<capitec-title-bar type="default" label="Solution"></capitec-title-bar>
-			<capitec-content-box>
-				<capitec-label class="solution-heading" type="subtitle" label="Minimum Information Needed"></capitec-label>
+			return html`
+				<capitec-title-bar type="default" label="Solution"></capitec-title-bar>
+					<capitec-content-box>
+						<capitec-label
+							class="solution-heading"
+							type="subtitle"
+							label="Minimum Information Needed">
+						</capitec-label>
 			
-					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
-						<capitec-label class="solution-content" type="default" 
-						label="Client ID number"></capitec-label> 
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Savings account number"></capitec-label>
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Amount of Disputed transaction/s"></capitec-label>
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Transaction Date range"></capitec-label>
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Transaction time"></capitec-label>
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Client preferred method of contact along with contact information"></capitec-label>
-						<capitec-label class="solution-content" type="default" halign="left" 
-						label="Masked Card number"></capitec-label>
-					</capitec-group>
-				<capitec-label class="solution-heading" type="subtitle" label="Background"></capitec-label>
-					<capitec-group layout="vertical" gap="none" halign="left" valign="top">
-						<capitec-label class="solution-content" type="default" 
-						label="This is when a Capitec Bank client/cardholder does a withdrawal at a foreign MasterCard (overseas) ATM and the cash either does not dispense at all or only part of the requested amount dispensed."></capitec-label> 
-					</capitec-group>
+						<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+							<capitec-label
+								class="solution-content"
+								type="default" 
+								label="Client ID number">
+							</capitec-label> 
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left"
+								label="Savings account number">
+							</capitec-label>
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left"
+								label="Amount of Disputed transaction/s">
+							</capitec-label>
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left"
+								label="Transaction Date range">
+							</capitec-label>
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left"
+								label="Transaction time">
+							</capitec-label>
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left"
+								label="Client preferred method of contact along with contact information">
+							</capitec-label>
+							<capitec-label
+								class="solution-content"
+								type="default"
+								halign="left" 
+								label="Masked Card number">
+							</capitec-label>
+						</capitec-group>
+						
+						<capitec-label
+							class="solution-heading"
+							type="subtitle"
+							label="Background">
+						</capitec-label>
+						
+						<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+							<capitec-label
+								class="solution-content"
+								type="default"
+								label="This is when a Capitec Bank client/cardholder does a withdrawal at a foreign MasterCard (overseas) ATM and the cash either does not dispense at all or only part of the requested amount dispensed.">
+							</capitec-label> 
+						</capitec-group>
 
+						<capitec-label
+							class="solution-heading"
+							type="subtitle"
+							label="Steps">
+						</capitec-label>
 			
-				<capitec-label class="solution-heading" type="subtitle" label="Steps"></capitec-label>
-			
-				<capitec-label class="solution-heading" type="subtitle" label="1.	STrack-info"></capitec-label>
-					<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
-						<li><capitec-label class="strack-solution-content" type="default" label="Complete client savings account number in Client ID field."></capitec-label></li>
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Complete the details in the Incident Detail Tab"></capitec-label></li>
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Capture the minimum information and the reason for the cardholders dispute in the description box"></capitec-label></li>
+						<capitec-label
+							class="solution-heading"
+							type="subtitle"
+							label="1.	STrack-info">
+						</capitec-label>
+						
+						<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									label="Complete client savings account number in Client ID field.">
+								</capitec-label>
+							</li>
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Complete the details in the Incident Detail Tab">
+								</capitec-label></li>
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Capture the minimum information and the reason for the cardholders dispute in the description box">
+								</capitec-label>
+							</li>
+						</capitec-group>
+
+						<capitec-label
+							class="solution-heading"
+							type="subtitle"
+							label="2.	Hand Off">
+						</capitec-label>
+						
+						<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Hand off the incident to Card disputes.">
+								</capitec-label>
+							</li>
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Inform the client that this enquiry can take up to 5 days to investigate.">
+								</capitec-label>
+							</li>
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Inform client that Card Disputes will contact client with feedback.">
+								</capitec-label>
+							</li>
+							<li>
+								<capitec-label
+									class="strack-solution-content"
+									type="default"
+									halign="left"
+									label="Provide the client with the Incident Number and end the call.">
+								</capitec-label>
+							</li>
+						</capitec-group>
+					</capitec-content-box>
+					
+					<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+						<capitec-button
+							class="strack-button"
+							type="primary"
+							label="Launch STrack"
+							@click="${() => this._onLaunchStrackClick()}">
+						</capitec-button>
 					</capitec-group>
-				<capitec-label class="solution-heading" type="subtitle" label="2.	Hand Off"></capitec-label>
-					<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Hand off the incident to Card disputes."></capitec-label></li>
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform the client that this enquiry can take up to 5 days to investigate."></capitec-label></li>
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Inform client that Card Disputes will contact client with feedback."></capitec-label></li>
-						<li><capitec-label class="strack-solution-content" type="default" halign="left" label="Provide the client with the Incident Number and end the call."></capitec-label></li>
-					</capitec-group>
-			</capitec-content-box>
-		<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
-			<capitec-button class="strack-button" type="primary" label="Launch STrack" @click="${() => this._onLaunchStrackClick()}">
-			</capitec-button>
-		</capitec-group>
-		`;
+			`;
 		}
 	}
 
 	_renderNoResults() {
 		 if (this.solutionDisplay) {
-			return html ``;
-		} 
-		else{
-				return html`
-				<capitec-group class="find-need-image-group" layout="vertical" halign="center" valign="center" gap ="clear"  >
-				<img src="/images/common/search.svg" class="search-icon"  />
-				<capitec-label 
+			return html``;
+		}
+		return html`
+			<capitec-group class="find-need-image-group" layout="vertical" halign="center" valign="center" gap ="clear"  >
+				<img
+					src="/images/common/search.svg"
+					class="search-icon" />
+				<capitec-label
 					class="find-need"
 					label="Find other need"
-					type="strong"></capitec-label>
+					type="strong">
+				</capitec-label>
 				<capitec-label
 					class="find-need-second"
 					label="Search a client need not currently on Horizon"
 					type="strong">
 				</capitec-label>
-				</capitec-group>
-				`;
-		}
+			</capitec-group>
+		`;
 	}
 
-     _renderFeedback() {
-         if (this.renderMode === RENDER_MODE.FEEDBACK) {
-             return html`
-         <horizon-feedback>
-
-         </horizon-feedback>
-         `;
-         }
-        else { return html``;}
-     }
-
+	_renderFeedback() {
+		if (this.renderMode === RENDER_MODE.FEEDBACK) {
+			return html`<horizon-feedback></horizon-feedback>`;
+		}
+		return html``;
+	}
  }
  
 customElements.define(`search-other-need`, SearchOtherNeed);
