@@ -932,7 +932,6 @@ export class StatementsDialog extends Component {
 	_renderCalendar() {
 		if(this.showCalendar) {
 			return html`
-				<capitec-label class="fromTo" label="From and To Date" type="strong"></capitec-label>
 							<capitec-date-time-picker
 									class="calendar"
 									type="range"
