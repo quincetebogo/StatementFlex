@@ -72,7 +72,6 @@ export class VerifyCaller extends Component {
 		this.loading = true;
 		this.xdsMessage = ``;
 		this.itaMessage = ``;
-		this.authHistory = ``;
 		this.noOfXdsVerificationAttempted = 0;
 
 		this.eventAggregator = EventAggregator.getInstance();
@@ -182,8 +181,10 @@ export class VerifyCaller extends Component {
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
 
-			this.authHistory = this.securityQuestions.authenticationHistory;
-			this.authHistory ? this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(this.authHistory) : 0;
+			const authHistory = this.securityQuestions.authenticationHistory;
+			if (authHistory) {
+				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
+			}
 
 			if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
@@ -205,15 +206,15 @@ export class VerifyCaller extends Component {
 	}
 
 	_calculateXDSAttempts(authHistory) {
-		const curDateTime = new Date();
 		const yesterday = new Date();
 		yesterday.setDate(yesterday.getDate() - 1);
  
 		const usedAttempts = authHistory.filter(item => {
 			const bureauDate = new Date(item.bureauDate);
 			if (bureauDate > yesterday && item.authenticationStatus === `Not Authenticated`) {
-				return item;
+				return true;
 			}
+			return false;
 		}).length;
 		return usedAttempts;
 	}

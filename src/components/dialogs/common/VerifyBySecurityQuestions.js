@@ -22,6 +22,8 @@ const HEADER_LABEL = `Security Questions`;
 const ERROR_MESSAGE = `Please choose an option`;
 const SYSTEM_ERROR = `System error. Please try again later`;
 
+const MAX_XDS_ATTEMPTS = 2;
+
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
  * 
@@ -70,6 +72,7 @@ export class VerifyBySecurityQuestions extends Component {
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
+	 * @property {Object} noOfXdsVerificationAttempted Number of verification attempts so far
 	 * 
 	 * @readonly
 	 * @static
@@ -81,11 +84,11 @@ export class VerifyBySecurityQuestions extends Component {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
-			renderMode: { type: Number },
-			questionNumber: { type: Number },
 			noOfXdsVerificationAttempted: { type: Number },
-			isBusy: { type: Boolean },
-			alertBannerMessage: { type: String }
+			renderMode: { attribute: false },
+			questionNumber: { attribute: false },
+			isBusy: { attribute: false },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
@@ -143,7 +146,9 @@ export class VerifyBySecurityQuestions extends Component {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.noOfXdsVerificationAttempted++;
 			} else if (returnValue.succeeded) {
+				this.noOfXdsVerificationAttempted++;
 				this.callerInformation.verificationStatus = `failed`;
+				this.callerInformation.vericationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
 				const state = {
 					callerInformation: this.callerInformation,
@@ -174,7 +179,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_retrySecurityQuestions(e) {
-		if (this.noOfXdsVerificationAttempted <= 1) {
+		if (this.noOfXdsVerificationAttempted < MAX_XDS_ATTEMPTS) {
 			this.questionNumber = 0;
 			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
