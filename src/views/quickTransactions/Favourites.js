@@ -68,7 +68,7 @@ export class Favourites extends View {
 		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
-		this.curOptionEvent = {};
+		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
 
@@ -189,7 +189,7 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = {};
+			this.curOptionEvent = null;
 			this._performAction(optionSelected)();
 		}
 	}

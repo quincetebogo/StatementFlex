@@ -12,9 +12,10 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
+		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
@@ -26,7 +27,12 @@
 			"primaryNeed": "Transact"
 		}
 	],
-	"mock" : {
-		"enabled": false
+	"mock": {
+		"enabled": false,
+		"stopCard": {
+			"enabled": false,
+			"failStopCard": false,
+			"positiveCase": true
+		}
 	}
 }
