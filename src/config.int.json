@@ -24,18 +24,6 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
 	"mock" : {
