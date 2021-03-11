@@ -348,7 +348,6 @@ export class Favourites extends View {
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation,
 				clientProfileDetails: returnValue.result
-
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
