@@ -28,9 +28,9 @@ export class IncomingCallDetails {
 							{
 								key: `StopCard`, value: `Stop Card`
 							},
-							//{
-							//	key: `Insure`, value: `Insure`
-							//},
+							{
+								key: `Insure`, value: `Insure`
+							},
 							{
 								key: `Transact`, value: `Transact`
 							}
