@@ -608,7 +608,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification through security questions.">
+								label="Notify the client and either try again or complete verification vie the App.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
