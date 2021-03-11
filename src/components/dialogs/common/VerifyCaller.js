@@ -398,6 +398,8 @@ export class VerifyCaller extends Component {
 			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
+			this.callerInformation.verificationStatus = `verified`;  
+
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
