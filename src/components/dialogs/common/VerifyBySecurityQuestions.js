@@ -148,7 +148,7 @@ export class VerifyBySecurityQuestions extends Component {
 			} else if (returnValue.succeeded) {
 				this.noOfXdsVerificationAttempted++;
 				this.callerInformation.verificationStatus = `failed`;
-				this.callerInformation.vericationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
 				const state = {
 					callerInformation: this.callerInformation,
