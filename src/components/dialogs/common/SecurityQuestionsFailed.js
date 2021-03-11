@@ -86,6 +86,8 @@ export class SecurityQuestionsFailed extends Component {
 		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+
+		this._updateMiniProfile();
 	}
 
 	// --------------
@@ -146,9 +148,33 @@ export class SecurityQuestionsFailed extends Component {
 		return true;
 	}
 
-	// ---------
-	// RENDERING
-	// ---------
+	_updateMiniProfile() {
+		const state = {
+			callerInformation: this.callerInformation,
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
+
+		this.horizonStore.saveState(state);
+	}
+
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.solutionSelected = ``;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	static get styles() {
 		return [

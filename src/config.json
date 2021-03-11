@@ -15,6 +15,7 @@
 		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
@@ -24,28 +25,21 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
 		},
-		"stopCard": {
+		"identifyCaller": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -62,7 +56,7 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
