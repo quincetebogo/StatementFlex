@@ -245,6 +245,7 @@ export class SecurityQuestionsFailed extends Component {
 							${this._renderNotificationStatus()}
 							${this._renderOtherOptions()}
 							${this._renderLoadingIndicator()}
+                            ${this._renderVerifyNowModal()}
 						</div>
 					</horizon-caller-dialog>
 				`;
@@ -321,7 +322,21 @@ export class SecurityQuestionsFailed extends Component {
 				endCallContext = "VerifyClient"
                 @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
-	}
+    }
+
+    _renderVerifyNowModal() {
+        if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+            return html`
+				<horizon-verify-caller
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
+        }
+        return html``;
+    }
 }
 
 window.customElements.define(`horizon-security-questions-failed`, SecurityQuestionsFailed);
