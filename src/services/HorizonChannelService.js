@@ -262,10 +262,16 @@ export class HorizonChannelService extends Service {
 		await this._mockEnabled(`stopCard`);
 
 		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failCard && this._configuration.config.runtime.environment === `DEV`) {
-			if (this._mocking.stopCard.failedCard !== ``) {
-				throw new Error(`Mock Stop Card Error`);
-			}
+		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failStopCard && this._configuration.config.runtime.environment === `DEV`) {
+			const cardStopResponse = { 
+			   cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+					  result: {
+						statusCode: 400
+				  } }))
+				};
+
+			// throw new Error(`Mock Stop Card Error`);
+			return cardStopResponse;
 		}
 
 		const url = `/clientcare/card/${this._version}/StopCard`;
@@ -433,7 +439,14 @@ export class HorizonChannelService extends Service {
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
     }
 
-	digitalVerificationChannelsAvailable(cifNumber) {
+	async digitalVerificationChannelsAvailable(cifNumber) {
+		if (await this._mockEnabled(`digitalVerificationChannelsAvailable`)) {
+			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
+				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
+			}
+			return false;
+		}
+
 		return this._get(`/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
 	}
 
