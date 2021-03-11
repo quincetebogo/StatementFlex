@@ -12,7 +12,7 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
+		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
 	"VDN":"211377",
@@ -28,7 +28,7 @@
 		}
 	],
 	"mock": {
-		"enabled": true,
+		"enabled": false,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -38,7 +38,7 @@
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": true,
+			"enabled": false,
 			"failStopCard": true,
 			"positiveCase": true
 		},
@@ -56,6 +56,10 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
+			"enabled": true,
+			"positiveCase": false
+		},
+		"digitalVerificationChannelsAvailable": {
 			"enabled": true,
 			"positiveCase": true
 		},
