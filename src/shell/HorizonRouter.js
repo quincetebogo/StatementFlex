@@ -282,6 +282,10 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
+
+		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
+		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
+
 		let shellLayout = layout;
 
 		const setShellLayout = () => {
@@ -291,11 +295,14 @@ export class HorizonRouter {
 		const setShellLayoutByVerificationMode = () => {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
+
+				/* TEMPORARY LOCK TO MARKETING BAR
 				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
 					break;
 				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
 				case `3rdparty`:
+				*/
 				default:
 					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;

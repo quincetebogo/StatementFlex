@@ -57,10 +57,10 @@
 		},
 		"verifySecurityQuestions": {
 			"enabled": true,
-			"positiveCase": false
+			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
