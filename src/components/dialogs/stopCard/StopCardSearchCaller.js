@@ -27,23 +27,23 @@ const ERROR_MESSAGES = {
 	},
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
 			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
 			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
 			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
 			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
@@ -207,9 +207,9 @@ export class StopCardSearchCaller extends Component {
 			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
-			if (returnValue.succeeded && identifiedClient) {
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
 				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
@@ -282,7 +282,6 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	extractIdentificationMethods(identificationMethods) {
-
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
 			Object.assign(identificationMethod, identificationMethod.value);
@@ -313,7 +312,6 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	isRequiredFieldsEmpty() {
-
 		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_TEXT : ``;
 		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_OPTION : ``;
 

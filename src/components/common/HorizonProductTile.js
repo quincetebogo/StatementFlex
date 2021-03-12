@@ -181,6 +181,16 @@ export class HorizonProductTile extends Component {
                     border: var(--theme-product-tile-focus-transact-border, 1.5px solid #009DE0);
                     box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
+
+				.tile.default:hover {
+					border: var(--theme-product-tile-hover-default-border, 1px solid #E1E1E1);
+					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
+
+				.tile.default:focus, .tile.default.selected {
+					border: var(--theme-product-tile-focus-default-border, 1px solid #E1E1E1);
+					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
+				}
 				
                 .tile.transact:hover {
                     border: var(--theme-product-tile-hover-transact-border, 1px solid #009DE0);
@@ -223,12 +233,18 @@ export class HorizonProductTile extends Component {
                 }
 
                 .product {
+					height: calc(var(--theme-product-tile--height, 80px) - 3px);
                     width: var(--theme-product-tile-colour-display-width, 57px);
                     border-radius:  var(--theme-product-tile-colour-border-radius, 5.05px 0 0 5.05px);
+					border-left: var(--theme-product-tile-default-border-left, none);
 					display: inline-flex;
 					align-items: center;
 					justify-content: center;
                 }
+
+				.product.default {
+					background-color: var(--theme-product-tile-default-colour, #FFFFFF);
+				}
 
                 .product.transact {
                     background-color: var(--theme-product-tile-transact-colour, #009DE0);
@@ -266,6 +282,10 @@ export class HorizonProductTile extends Component {
 				}
 				.title.favourites{
 					color: black;
+				}
+
+				.title.transact {
+					color: var(--theme-product-tile-default-colour, #3A3A3A);
 				}
 
                 .title.transact {
@@ -355,7 +375,10 @@ export class HorizonProductTile extends Component {
 					<div class="tile-container">
 						${this.tileIcon ? html`<img src = "${this.tileIcon}" class="fav-icon" />` 
 										: html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
-													<capitec-icon class="icon" icon="product/${this.type}-white"></capitec-icon>
+													<capitec-icon
+														class="icon"
+														icon="${this.icon ? this.icon : `product/${this.type}-white`}">
+													</capitec-icon>
 												</div>`
 						}
 						<div class="heading">

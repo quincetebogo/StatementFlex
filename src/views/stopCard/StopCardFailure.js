@@ -85,12 +85,6 @@ export class StopCardFailure extends View {
 
 			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-			});
 		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
@@ -147,7 +141,8 @@ export class StopCardFailure extends View {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.renderDialog = RENDER_DIALOG.ENDCALL;
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	_toggleBusyFlag() {

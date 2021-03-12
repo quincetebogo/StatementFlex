@@ -91,13 +91,13 @@ export class ErrorScreen extends Component {
 				}
 				#id-unsuccessful-img {
 					margin-top: 270px;
-          width: auto;
+          			width: auto;
 				}
 				#id-verify-unsuccessful {
-					height: 26px;
-					margin-top: 50px;
-					margin-bottom: 26px;
->>>>>>>>> Temporary merge branch 2
+					height: 32px;
+					width: 312px;
+					margin: 0px auto 0px auto;
+					margin-top: 51px;
 					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
@@ -130,16 +130,31 @@ export class ErrorScreen extends Component {
 					--theme-button-font-family: "Hind Vadodara";
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
+					margin-bottom: 168px;
+				}
+				#button-left {
+					margin-right: 16px;
+				}
+
+				.center-button {
+					--theme-button-font-size: 16px;
+					--theme-button-font-weight: 600;
+					--theme-button-padding-left: 22px;
+					--theme-button-padding-top: 12.5px;
+					--theme-button-padding-bottom: 12.5px;
+					--theme-button-padding-right: 22px;
 				}
 				#id-error-toast {
 						position: absolute;
 						top : var(--toast-top, 56px);
 						margin-left: var(--toast-margin-left, 382px);
 				}
+				
 				slot[name=detail]::slotted(*){
 					height: 26px;
 					color: #545D60;
 					font-family: "Hind Vadodara";
+					font-weight: 600;
 					font-size: 16px;
 					letter-spacing: 0;
 					line-height: 24px;

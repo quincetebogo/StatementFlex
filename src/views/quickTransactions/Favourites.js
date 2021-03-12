@@ -55,9 +55,9 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -70,9 +70,9 @@ export class Favourites extends View {
 		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
-		this.curOptionEvent = {};
+		this.curOptionEvent = null;
 		this.cards = [];
-		this.debiCheckDetails = {};
+        this.debiCheckDetails = {};
 
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
@@ -191,14 +191,14 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = {};
+			this.curOptionEvent = null;
 			this._performAction(optionSelected)();
 		}
 	}
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -248,11 +248,6 @@ export class Favourites extends View {
 	// ---------------
 
 	async _initialise() {
-		this._updateTopBar();
-
-		// At this point this will just update the mini-profile
-		this._updateLeftBar();
-
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		if (this.callerInformation.verificationStatus !== `non-client`) {
@@ -268,7 +263,7 @@ export class Favourites extends View {
                  this.isLoading = false;
                  this.landingPageInfo = returnValue.result;
 
-			 	// Now we can update the information on the product buttons as well
+			 	// Now we can update the information on the product buttons
 			 	this._updateLeftBar();
 			 }
 		} else {
@@ -276,17 +271,6 @@ export class Favourites extends View {
 			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
-	}
-
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
 	}
 
 	_updateLeftBar() {
@@ -310,20 +294,7 @@ export class Favourites extends View {
 		}
 
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.isNonClient ? this.callerInformation.nonClientFullName : this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: this.callerInformation.verificationStatus === `verified`,
-				isConfirmed: this.callerInformation.verificationStatus !== `non-client`,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: this.callerInformation.verificationStatus === `non-client`
-			},
+			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
@@ -370,7 +341,6 @@ export class Favourites extends View {
 		};
 
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-		const clientProfileDetails = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
@@ -379,7 +349,7 @@ export class Favourites extends View {
 			this.horizonStore.saveState({
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation,
-				clientProfileDetails: clientProfileDetails
+				clientProfileDetails: returnValue.result
 			});
 			this.horizonRouter.navigateToStopCard();
 		} else {
@@ -422,9 +392,7 @@ export class Favourites extends View {
 	}
 
 	_proofOfAccount() {
-		// TODO: Functionality to generate proof of account comes here
         this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
-
 	}
 
 	_unavailableOption() {
@@ -483,18 +451,26 @@ export class Favourites extends View {
 	}
 
 	_renderFavouritesLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE && !this.isLoading
-			? html`<horizon-favourite-transactions 
-						class="favourites"
-						.landingPageInfo="${this.landingPageInfo}"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.callerInformation="${this.callerInformation}"
-						.verificationStatus="${this.verificationStatus}"
-						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-						@verify-click="${() => this._verifyClick()}"
-						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
-					</horizon-favourite-transactions>`
-			: html``;
+		switch (this.renderMode) {
+			case RENDER_MODE.MAIN_PAGE:
+			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.VERIFY_NOW:
+			case RENDER_MODE.END_CALL:
+			case RENDER_MODE.ALERT_MODAL:
+				return html`
+				<horizon-favourite-transactions 
+					class="favourites"
+					.landingPageInfo="${this.landingPageInfo}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					.verificationStatus="${this.verificationStatus}"
+					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+					@verify-click="${() => this._verifyClick()}"
+					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
+				</horizon-favourite-transactions>`;
+			default:
+				return html``;
+		}
 	}
 
 	_renderVerifyNowModal() {
@@ -583,10 +559,11 @@ export class Favourites extends View {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
                 <horizon-proof-of-account
+                    @cancel="${() => this._mainPage()}"
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}">
-				</horizon-proof-of-account>`
+                </horizon-proof-of-account>`
             : html``; 
     }
 

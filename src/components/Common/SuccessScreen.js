@@ -75,6 +75,7 @@ export class SuccessScreen extends Component {
 					width: 100%;
 					height: 100%;
 				}
+
 				.card {
 					width: 100%;
 				}
@@ -137,7 +138,7 @@ export class SuccessScreen extends Component {
 				.related-options-text{
 					margin: 0px 0px 0px 16px;
 					padding: 0px 0px 0px 0px;
-					color: #003652;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					font-weight: 600;

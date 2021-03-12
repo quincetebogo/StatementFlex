@@ -65,11 +65,6 @@ export class DebiCheckSuccess extends View {
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
 		}
 	}
 
@@ -134,8 +129,8 @@ export class DebiCheckSuccess extends View {
 									right="DebiCheck Mandates"
 									toast="DebiCheck mandate declined."
 									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._debiCheckMandatesClick()}
-									?secondaryImage=${true}>
+									@right-click=${() => this._debiCheckMandatesClick()}>
+									
 				<section 
 					id="id-error-msg" 
 					slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.

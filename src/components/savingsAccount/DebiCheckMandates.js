@@ -111,9 +111,9 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `PENDING`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `ACTIVE`);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus === `INACTIVE` || item.mandateStatus === `SUSPENDED`);
+		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `PENDING`);
+		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `ACTIVE`);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `INACTIVE` || item.mandateStatus.toUpperCase() === `SUSPENDED`);
 	}
 	
 	_formatCollectionDate(collectionDate) {
@@ -512,13 +512,12 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status, mandateId, registerId) {
-		return status !== `Pending` 
-			? html`<capitec-label type="subtitle"
+		return html`<capitec-label type="subtitle"
 									label="View Info"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._viewInfo(mandateId, registerId)}">
-					 </capitec-label>` 
-			: html``;
+					 </capitec-label>
+					 `;
 
 			/* Remove approve/decline buttons as this functionality is now part of release 2
 			  html`<capitec-label type="subtitle"
@@ -546,7 +545,7 @@ export class DebiCheckMandates extends Component {
 				<img src="/images/debi-check/debi-check-logo.svg" class="debi-check-logo"/>
 				<capitec-label
 					class="no-results"
-					label="No results found"
+					label="No DebiCheck mandates on the account"
 					type="strong">
 				</capitec-label>
 			</capitec-group>

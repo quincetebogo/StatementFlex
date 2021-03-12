@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
@@ -29,9 +30,22 @@ export class ProductButtonPanel extends Component {
 		super();
 
 		this.disableNavigation = false;
-		this.subtitle = {};
-		this.detail = {};
+		
+		this.subtitle = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
 
+		this.detail = {
+			savingsAccount: ``,
+			savingsPlan: ``,
+			insure: ``, 
+			credit: ``
+		};
+		
+		this._configuration = Configuration.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	}
@@ -75,32 +89,60 @@ export class ProductButtonPanel extends Component {
 
 	// TODO Refeactor these methods to raise events. The caller should handle the navigation
 	_savingsAccountClick() {
+
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
-		} else {
-			this.horizonRouter.navigateToLandingPage(`Savings`, false);
 		}
+		this._performNavigation(`SavingsAccount`, false);
 	}
 
 	_savingsPlanClick() {
+		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
 		}
+		this._performNavigation(`SavingsPlan`, false);
 	}
 
 	_insureClick() {
 
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToInsureProduct();
-		} else {
-			const state = this.horizonStore.recoverState();
-			this.horizonRouter.navigateToLandingPage(`Insure`, state.callerInformation.hasInsuranceProducts);
 		}
+		const state = this.horizonStore.recoverState();
+		this._performNavigation(`Insure`, state.callerInformation.hasInsuranceProducts);
 	}
 
 	_creditClick() {
+		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
+		}
+		this._performNavigation(`Credit`, false);
+	}
+
+	_performNavigation(type, hasInsuranceProducts) {
+
+		const env = this._configuration.config.runtime.environment;
+		const state = this.horizonStore.recoverState();
+		const callerInfo = state && state.callerInformation;
+		
+		/**
+		 * Scenario 1: When a 3rd party or non-client is dialing for any need, clicking on the products buttons
+		 * 			   should display product info coming soon screen
+		 * Scenario 2: We are going production only with stop card, apart from dev / int regions product buttons
+		 * 			   are set to do nothing
+		 * TODO: Remove this environment check when product screens are ready/ when we want to map it to other needs
+		 */
+
+		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
+			this.horizonRouter.navigateToProductInfo(type);
+		} else if (env === `LOCAL`) {
+			// For now, the product buttons only route to the proper landing pages when a developer is running on their local machine
+			this.horizonRouter.navigateToLandingPage(type, hasInsuranceProducts);
+		} else {
+			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
+			this.horizonRouter.navigateToProductInfo(type);
 		}
 	}
 

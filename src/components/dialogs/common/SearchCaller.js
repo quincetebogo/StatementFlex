@@ -30,23 +30,23 @@ const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
 			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
 			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
 			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
 			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
@@ -88,8 +88,8 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
-		PATTERN: /^[0-9]{6}$/,
-		FIELD_ERROR: `Reference number must be 6 characters long`,
+		PATTERN: /^[0-9]{8}$/,
+		FIELD_ERROR: `Reference number must be 8 characters long`,
 		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
@@ -223,9 +223,9 @@ export class SearchCaller extends Component {
 			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
-			if (returnValue.succeeded && identifiedClient) {
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
@@ -417,6 +417,7 @@ export class SearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
 		return true;
 	}
 

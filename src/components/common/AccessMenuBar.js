@@ -50,127 +50,63 @@ export class AccessMenuBar extends Component {
 		return [
 			super.styles,
 			css`
-			.insights{
-				width: 320px;
-				height: auto;
-				padding: 0px 0px 0px 0px;
-			}
-			.insights-card{
-				height:370px;
-				width:320px
-			}
-			.insights-subtitle{
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  14px;
-				line-height: 0px;
-				text-align: left;
-				padding-top:24px;
-			}
+				.insights-card {
+					height: 462px;
+					width: 320px
+				}
+				capitec-title-bar {
+					border-bottom: 1px solid #E1E1E1;
 
-			.insights-label{
-				height: 24px;
-				width: 114px;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-			}
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+					--theme-card-border-radius: 0px 4px 0 0;
+					--theme-titlebar-shadow: 1px solid #E1E1E1;
+				}
+				capitec-icon[icon="system/notify"] {
+					--theme-icon-size-small: 26px;
+				}
+				.insights-group {
+					height: 398px;
+				}
+				.box-image {
+					height: 108px;
+					width: 108px;
 
-			.subtitle {
-				height: 10px;
-				color: #4E6066;
-				font-family: Hind Vadodara;
-				font-size:  15px;
-				line-height: 14px;
-				text-align: left;
-			}
-			.back-ground-card{
-				height:300px;
-				border: none!important;
-			}
-			.access-card{
-				height:320px;
-				width:320px;
-				background-color: #F5F5F5;
-				padding: 20px 0px 0px 0px;
-				border: none!important;
-				
-			}
-			.access-header{
-				height:60px;
-				padding: 0px 0px 0px 20px;
-			
-			}
-
-			.header-icon{
-				padding:0px 20px 0px 0px;
-			}
-
-			#notify-icon {
-				padding-left: 145px;
-			}
-
-			.header-label{
-				height: 24px;
-				width: 141px;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-			}
-
-			#access-label {
-				background-color: #4E6066;
-				height:52px;
-				width: 320x;
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 18px;
-				font-weight: 600;
-				letter-spacing: 0;
-				line-height: 24px;
-				background-color: #F7F7F7;
-				padding-left: 16px;
-			}
-
-			.box-items{
-				height: auto;
-				align-items: center;
-				padding: 24px 24px 24px 24px;
-			}
-			.box-label{
-				font-size:22px;
-				font-weight:600;
-				line-height: 15px;
-			}
-			
-			.box-image {
-				height: 152px;
- 				width: 210px;
-			}
-			.box-icon{
-				align-self:flex-end;
-				padding:0px 30px 0px 0px;
-				cursor:pointer;
-			}`
+					--theme-layout-gap-spacing: 22px;
+				}
+				.access-group {
+					height: auto;
+					width: auto;
+					padding: 24px 0px 0px 0px;
+				}
+				.header-label {
+					height: auto;
+					width: auto;
+					padding-left: 16px;
+					--theme-label-default-font-size: 18px;
+					--theme-label-default-font-weight: 600;
+					--theme-layout-gap-spacing: 18px;
+				}
+				horizon-product-tile {
+					--theme-product-tile--height: 72px;
+					--theme-product-tile-border-radius: 4px;
+					--theme-product-tile-colour-border-radius: 4px 0 0 4px;
+					--theme-product-tile-default-border-left: 4px solid #009DE0;
+					--theme-product-tile-hover-shadow: none;
+					--theme-product-tile-focus-shadow: none;
+					--theme-product-tile-title-height: 24px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-layout-gap-spacing: 16px;
+				}
+			`
 		];
 	}
 
 	render() {
 		return html`
-			<section class="insights">
-				<div>
-					${this.renderClientInsights()}
-				</div>
-				<div>
-					${this.renderAccessExpander()}
-				</div>
+			<section>
+				${this.renderClientInsights()}
+				${this.renderAccessChannelTabs()}
 			</section>
 			${this.renderAccessChannelError()}`;
 	}
@@ -178,48 +114,59 @@ export class AccessMenuBar extends Component {
 	renderClientInsights() {
 		return html`
 			<capitec-card class="insights-card">
-				<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-					<capitec-content-box class="access-header" layout="horizontal" halign="left" valign="center" gap="none" >
-							<capitec-label class="insights-label" label="Client Insights"></capitec-label>
-							<capitec-icon class="header-icon" id="notify-icon" size="small" icon="system/notify"></capitec-icon>
-					</capitec-content-box>
-					<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-						<img class="box-image" src="images/landingPageImages/marketing.svg"/>
-						<capitec-label class="insights-subtitle" label="Client insights coming soon..."></capitec-label>
-					</capitec-content-box>
-					<!-- <hr> -->
+				<capitec-title-bar
+					type="default"
+					label="Client Insights">
+						<capitec-spacer></capitec-spacer>
+						<capitec-icon
+							size="small"
+							icon="system/notify">
+						</capitec-icon>
+				</capitec-title-bar>
+
+				<capitec-group layout="vertical" halign="center" valign="center" gap="clear" class="insights-group">
+					<img
+						class="box-image"
+						src="images/landingPageImages/marketing.svg"/>
+					<capitec-label
+						type="subtitle"
+						label="Client insights coming soon...">
+					</capitec-label>
 				</capitec-group>
 			</capitec-card>`;
 	}
 
-	renderAccessExpander() {
+	renderAccessChannelTabs() {
 		return html`
-			<capitec-card class="access-card">
-				<capitec-card class="back-ground-card"> 
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="line">
-						<capitec-content-box class="access-header" id="access-label" layout="horizontal" halign="left" valign="center" gap="none">
-							<!-- <capitec-icon class="header-icon" 
-										  size="medium" 
-										  icon="system/unlock-files-action">
-							</capitec-icon> -->
-							<capitec-label class="header-label" label="Access Channels"></capitec-label>
-						</capitec-content-box>
-						${this.renderAccessChannels()}
-					</capitec-group>
-				</capitec-card>
-			</capitec-card>`;
-	}
+			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
+				<capitec-label class="header-label" label="Access Channels"></capitec-label>
 
-	renderAccessChannels() {
-		return this.accessChannels.map(access => html`<capitec-content-box class="box-items" layout="vertical" halign="stretch" valign="top" gap="none">
-							<capitec-label class="box-label" label="${access}"></capitec-label>
-							<capitec-icon class="box-icon" 
-											size="small" 
-											icon="system/more-action"
-											@click="${() => this.showAlert = true}">
-							</capitec-icon>
-							<capitec-label class="subtitle" label="Active"></capitec-label>
-						</capitec-content-box>`);
+				<horizon-product-tile 
+					type="default"
+					label="App & Online Banking"
+					subtitle="active"
+					detail=""
+					icon="system/access">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="USSD"
+					subtitle="active"
+					detail=""
+					icon="system/cellphone">
+				</horizon-product-tile>
+
+				<horizon-product-tile 
+					type="default"
+					label="Notifications"
+					subtitle="active"
+					detail=""
+					icon="system/messages">
+				</horizon-product-tile>
+
+			</capitec-group>
+		`;
 	}
 
 	renderAccessChannelError() {

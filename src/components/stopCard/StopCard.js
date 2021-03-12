@@ -1,11 +1,12 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
-
 import 'platform/components';
-
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
+import 'app/components/dialogs/common/VerifyCaller';
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
@@ -13,12 +14,13 @@ const COLUMNS = {
 };
 
 const RENDER_MODE = {
-	CLIENT_PROFILE: 0,
+	MAIN_PAGE: 0,
 	CARD_STOP_MODAL: 1,
 	CARD_STOP_SUCCESS: 2,
 	END_CALLSESSION: 3,
 	ASSIGN: 4,
-	ASSIGN_REASON_SELECTED: 5
+	ASSIGN_REASON_SELECTED: 5,
+	VERIFY_NOW: 6
 };
 
 const TABLE_STYLE = {
@@ -51,15 +53,24 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
+        this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+
 		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
 		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 
-		this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.isReassigned = false;
+
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 	}
 
 	// ----------
@@ -116,47 +127,8 @@ export class StopCard extends Component {
 
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-			}
-		);
 
-		this.eventAggregator.publish(`horizon-update-mini-profile`, {
-				name: this.clientProfileDetails.clientPersonalInformation.value.name.value,
-				idNumber: this.clientProfileDetails.clientPersonalInformation.value.southAfricanIDNumber.value,
-				phoneNumber: this.clientProfileDetails.clientPersonalInformation.value.verifiedTelephoneNumber.value,
-				livesIn: this.clientProfileDetails.clientPersonalInformation.value.livesIn.value,
-				languagePreference: this.clientProfileDetails.clientPersonalInformation.value.languagePreference.value,
-				birthday: this.clientProfileDetails.clientPersonalInformation.value.birthdate.value,
-				isConfirmed: true,
-				isVerified: false,
-				verificationFailed: false,
-				is3rdParty: false
-			});
-
-		this.eventAggregator.publish(
-			`horizon-update-left-hand-bar`,
-			{
-				hasFavourites: true,
-				subtitle: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				},
-				detail: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				}
-			}
-		);
+        this._updateLeftBar();
 	}
 
 	// --------------
@@ -201,6 +173,7 @@ export class StopCard extends Component {
 	_valueChanged(event, rowData) {
 		this.cards[rowData.rowIndex].selected = event.detail.new;
 		this.selectedCardCount = this.cards.filter(card => card.selected).length;
+		this._updateApplicationState();
 	}
 
 	_onClickReason(cardStopReason, rowData) {
@@ -258,7 +231,31 @@ export class StopCard extends Component {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.renderMode = RENDER_MODE.END_CALLSESSION;
+	}
+
+	_verifyClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	 _clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this._updateLeftBar();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// --------------
@@ -281,6 +278,41 @@ export class StopCard extends Component {
 	_onAssignIncident() {
 		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderMode = RENDER_MODE.ASSIGN;
+	}
+
+	_updateApplicationState() {
+		if (this.cards.some(card => card.selected)) {
+			const state = this.horizonStore.recoverState();
+			state.canCloseIncident = true;
+			
+			this.horizonStore.saveState(state);
+		}
+	}
+
+	_updateLeftBar() {
+		const state = {
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+
+		this.eventAggregator.publish(
+			`horizon-update-left-hand-bar`,
+			{
+				hasFavourites: true,
+				subtitle: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				},
+				detail: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				}
+			}
+		);
 	}
 
 	// ---------
@@ -364,6 +396,7 @@ export class StopCard extends Component {
 			${this._renderEndCallModal()}
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
+			${this._renderVerifyNowModal()}
 		`;
 	}
 
@@ -493,7 +526,7 @@ export class StopCard extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
-					@on-cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-stop-card-confirm>
 			`;
 		}
@@ -519,7 +552,7 @@ export class StopCard extends Component {
 				.incomingCallDetails = "${this.incomingCallDetails}" 
 				endCallContext="LandingPage"
 				.isReassigned = "${this.isReassigned}"
-				@cancel="${() => this.renderMode = RENDER_MODE.CLIENT_PROFILE}">
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-end-call-session>`;
 		}
 		return html``;
@@ -532,11 +565,25 @@ export class StopCard extends Component {
                     .callerInfo=${this.callerInfo} 
                     .cards=${this.cards} 
                     @on-cancel="${() => {
-									this.renderMode = RENDER_MODE.CLIENT_PROFILE;
+					this.renderMode = RENDER_MODE.MAIN_PAGE;
                     }}" 
                     @on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>
 			`;
+		}
+		return html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
 		}
 		return html``;
 	}

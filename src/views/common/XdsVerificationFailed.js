@@ -44,6 +44,7 @@ export class XdsVerificationFailed extends View {
 
 		// Subscribe to shell events
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyViaAppClick());
 	}
 
 	// ----------
@@ -62,6 +63,7 @@ export class XdsVerificationFailed extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._updateMiniProfile();
 	}
 
 	// --------------
@@ -73,7 +75,9 @@ export class XdsVerificationFailed extends View {
 	}
 
 	_verifyViaAppClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
+		if (this.callerInformation.hasDigitalChannels) {
+			this.renderMode = RENDER_MODE.VERIFY_NOW;
+		}
 	}
 
 	_skipVerification(event) {
@@ -102,6 +106,19 @@ export class XdsVerificationFailed extends View {
 
 	_cancelEndCallClick() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_updateMiniProfile() {
+		const state = { 
+			callerInformation: this.callerInformation,
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------
@@ -135,7 +152,7 @@ export class XdsVerificationFailed extends View {
 			<horizon--error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
-				right="Verify Via Banking App"
+				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
 				toast="Your Verification has failed."
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
