@@ -597,7 +597,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
