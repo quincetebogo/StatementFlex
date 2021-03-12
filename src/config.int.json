@@ -10,10 +10,11 @@
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
-	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	"otherSystemsURL": {
+		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"strack": "http://strackintnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false"
 	},
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [

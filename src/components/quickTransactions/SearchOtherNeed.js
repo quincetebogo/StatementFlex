@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { Configuration } from 'platform/core';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -7,7 +8,7 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
 
 const RENDER_MODE = Object.freeze({
-    FEEDBACK: 0
+	FEEDBACK: 0
 });
 
 /**
@@ -30,10 +31,7 @@ const RENDER_MODE = Object.freeze({
 
 	constructor() {
 		super();
-		this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+		
 		this.chooseNeed = true;
 		this.chooseIssue = true;
 		this.solutionDisplay = false;
@@ -66,11 +64,13 @@ const RENDER_MODE = Object.freeze({
 			{ code: `TX`, text: `Texas` },
 			{ code: `TN`, text: `Tennessee` },
 			{ code: `NJ`, text: `New Jersey` }
-        ];
+		];
 
-       	this.incomingCallDetails = this.state.incomingCallDetails;
-        this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
-        this.incidentRecId = this.incomingCallDetails.incidentRecId; /* "76E4F06B294147D2A295FE5AA02C9138" */
+		this._configuration = Configuration.getInstance();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 	// --------------
 	// PROPERTIES
@@ -85,13 +85,13 @@ const RENDER_MODE = Object.freeze({
 	 * @memberof SearchOtherNeed
 	 */
 	static get properties() {
-        return {
-            incomingCallDetails: {type: Object},
+		return {
+			incomingCallDetails: { type: Object },
 			searchOtherNeed: { type: Object },
-			chooseNeed: {type: Boolean},
-			chooseIssue: {type: Boolean},
-			solutionDisplay: {type: Boolean},
-			renderMode: {attribute: false}
+			chooseNeed: { type: Boolean },
+			chooseIssue: { type: Boolean },
+			solutionDisplay: { type: Boolean },
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -99,8 +99,11 @@ const RENDER_MODE = Object.freeze({
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+
+		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -131,9 +134,9 @@ const RENDER_MODE = Object.freeze({
 	}
 
 	_onLaunchStrackClick() {
-        this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
-        window.open(this.strackURL);
-        this.renderMode = RENDER_MODE.FEEDBACK;
+		this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
+		window.open(this.strackURL);
+		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 	// ---------
 	// RENDERING
@@ -165,20 +168,17 @@ const RENDER_MODE = Object.freeze({
 				}
 				capitec-title-bar > capitec-icon {
 					cursor: pointer;
-					margin-right: 34px;
+					margin-right: 15px;
 				}
 				capitec-group > capitec-title-bar {
-					--theme-titlebar-min-height: 20px;
-					--theme-titlebar-padding: 0px 0px 0px 16px;
+					--theme-titlebar-min-height: 33px;
 					--theme-type-default-background: rgb(244, 244, 244);
 					--theme-label-title-font-size: 14px;
 					--theme-label-title-font-weight: 600;
-					padding-top: 3px;
-					padding-bottom:3px;
-					border-top: 0px solid #E1E1E1;
+					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-content-box{
-					height: 645px;
+					height: 655px;
 				}
 				.otherneed-action-bar {
 					height: 56px;
@@ -292,10 +292,6 @@ const RENDER_MODE = Object.freeze({
 	}
 
 	_renderActionBar() {
-		// add if statement to render next text boxes/drop downs
-		// must have a hidden property for the text field
-		// create an object 3 properties- hidden object should set to false when properties are populated
-		// @input="${(e) => this._searchOtherNeed(e)}"
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-text-field 
@@ -516,7 +512,11 @@ const RENDER_MODE = Object.freeze({
 
 	_renderFeedback() {
 		if (this.renderMode === RENDER_MODE.FEEDBACK) {
-			return html`<horizon-feedback></horizon-feedback>`;
+			return html`
+				<horizon-feedback
+					@done="${() => this._back()}">
+				</horizon-feedback>
+			`;
 		}
 		return html``;
 	}
