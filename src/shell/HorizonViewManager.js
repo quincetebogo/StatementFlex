@@ -133,8 +133,8 @@ export class HorizonViewManager {
 	}
 
 	renderRightBar(viewSet) {
-		if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
-			return html`<landingpage-marketing></landingpage-marketing>`;
+        if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
+            return html`<landingpage-marketing></landingpage-marketing>`;        
 		} else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
 			return html`<access-component></access-component>`;
 		}

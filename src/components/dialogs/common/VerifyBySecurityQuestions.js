@@ -118,6 +118,10 @@ export class VerifyBySecurityQuestions extends Component {
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
+	_verifyViaApp() {
+		this.dispatchEvent(new CustomEvent(`verify-via-app`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
 	_continueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
@@ -148,7 +152,7 @@ export class VerifyBySecurityQuestions extends Component {
 			} else if (returnValue.succeeded) {
 				this.noOfXdsVerificationAttempted++;
 				this.callerInformation.verificationStatus = `failed`;
-				this.callerInformation.vericationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
 				const state = {
 					callerInformation: this.callerInformation,
@@ -422,7 +426,9 @@ export class VerifyBySecurityQuestions extends Component {
 			<horizon-security-questions-failed
                 .incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
-				@skip="${() => this._skipClick()}">
+				@skip="${() => this._skipClick()}"
+				@verify-via-app="${() => this._verifyViaApp()}"
+				>
 			</horizon-security-questions-failed>`;
 	}
 

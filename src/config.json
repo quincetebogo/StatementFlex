@@ -12,7 +12,7 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
+		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
 	"VDN":"211377",
@@ -25,18 +25,6 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
 	"mock": {
@@ -45,8 +33,13 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"identifyCaller": {
+			"enabled": false,
+			"positiveCase": true
+		},
 		"stopCard": {
 			"enabled": false,
+			"failStopCard": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -63,6 +56,10 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"digitalVerificationChannelsAvailable": {
 			"enabled": false,
 			"positiveCase": true
 		},

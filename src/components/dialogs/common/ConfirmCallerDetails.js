@@ -389,7 +389,7 @@ export class ConfirmCallerDetails extends Component {
 		if (birthdate instanceof Date) {
 			dob = birthdate;
 		} else if (birthdate) {
-			dob = new Date(birthdate);
+			dob = new Date(birthdate) || Date.parse(birthdate);
 		} else {
 			dob = null;
 		}

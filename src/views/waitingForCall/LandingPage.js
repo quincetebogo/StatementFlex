@@ -1,4 +1,4 @@
-import { Configuration,EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -9,6 +9,7 @@ import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
+import { NewCallEvent } from 'app/models/NewCallEvent';
 
 import 'platform/components/buttons/Button';
 
@@ -79,6 +80,8 @@ export class LandingPage extends View {
 				this.renderMode = RENDER_MODE.PAGE_ONLY;
 			}
 		});
+
+		this.employeeId = ``;
 	}
 
 	// ----------
@@ -127,32 +130,43 @@ export class LandingPage extends View {
 		}
 	}
 
-	async _onSearchCaller(){
-		var d=new Date();
-        var currentdate=d.toString();
+	async _onSearchCaller() {
+		const d = new Date();
+        const currentdate = d.toISOString();
 
-		const vdn=await this._configuration.getSetting(`VDN`);
-    	const newCallInfo={
-	        "incomingTelephoneNumber": `0000000000`,
-			"VDN": vdn,
-			"voiceReferenceNumber":currentdate
-		};
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
-		const incident = returnValue.result;
-		await this._dispatchCall(null,incident,true);
+		const vdn = await this._configuration.getSetting(`VDN`);
+    	const newCallInfo = new NewCallEvent(
+			`0000000000`, // incoming telephone number
+			`${this.employeeId}-${currentdate}`, // voicedReferenceNumber
+			`Transact`, // IvrOptionCode
+			``, // Agent Extension
+			currentdate
+		);
+		newCallInfo.VDN = vdn;
+
+		const incident = await this.createIncident(newCallInfo);
+		newCallInfo.incidentReferenceNumber = incident ? incident.incidentNumber : `0`;
+		newCallInfo.incidentRecId = incident ? incident.incidentRecId : `0`;
+
+		this._dispatchCall(null, newCallInfo, true);
 	}
 
 	async _onNewCall(newCallInfo) {
 		// Create an incident in STrack for the new incoming call. This was intially planned to happen
 		// in the desktop agent but has moved here. 
+		const incident = await this.createIncident(newCallInfo);
+
+		this._acceptCall(newCallInfo, incident);
+	}
+
+	async createIncident(newCallInfo) {
 		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
 		if (!returnValue.succeeded || !incident) {
 			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_onNewCall`, returnValue.correlationId);
 		}
-
-		await this._acceptCall(newCallInfo, incident);
+		return incident;
 	}
 
 	async _acceptCall(newCallInfo, incident) {
@@ -267,6 +281,7 @@ export class LandingPage extends View {
 	async _GetLandingPageData() {
 		const returnValue = await this.initialiseService.initialise();
 		const landingPageData = returnValue.result;
+		this.employeeId = landingPageData.loggedInAgent.employeeId;
 
 		if (returnValue.succeeded) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });

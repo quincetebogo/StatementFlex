@@ -242,6 +242,14 @@ export class VerifyCaller extends Component {
 		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
+	_verifyViaApp(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+		this._initiateItaVerification();
+	}
+
 	_tryAgain() {
 		this.appTimedOut = false;
 		this.itaMessage = ``;
@@ -397,6 +405,8 @@ export class VerifyCaller extends Component {
 			this._stopTimer();
 			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
+
+			this.callerInformation.verificationStatus = `verified`;  
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -565,7 +575,8 @@ export class VerifyCaller extends Component {
 					.noOfXdsVerificationAttempted="${this.noOfXdsVerificationAttempted}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
-					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}">
+					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
+					@verify-via-app="${(event) => this._verifyViaApp(event)}">
 				</horizon-security-question>`;
 	}
 
@@ -631,7 +642,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification through security questions.">
+								label="Notify the client and either try again or complete through security questions.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -659,7 +670,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification via the App.">
+								label="Notify the client and either try again or complete verification verification via the App.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
