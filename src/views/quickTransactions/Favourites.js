@@ -70,7 +70,7 @@ export class Favourites extends View {
 		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
-		this.curOptionEvent = {};
+		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
 
@@ -193,14 +193,14 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = {};
+			this.curOptionEvent = null;
 			this._performAction(optionSelected)();
 		}
 	}
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -565,6 +565,7 @@ export class Favourites extends View {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
                 <horizon-proof-of-account
+                    @cancel="${() => this._mainPage()}"
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"

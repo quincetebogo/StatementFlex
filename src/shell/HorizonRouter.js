@@ -29,7 +29,8 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
-    PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
+	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
+	PRODUCT_INFO: `/product-info`
 });
 
 /**
@@ -150,7 +151,7 @@ export class HorizonRouter {
 	navigateToXdsVerificationFailed() {
 		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
 		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
-		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
 		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
@@ -158,7 +159,7 @@ export class HorizonRouter {
 	navigateToItaVerificationFailed() {
 		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
 		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
-		// 	this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
@@ -184,17 +185,20 @@ export class HorizonRouter {
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
-
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
 		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const savings = () => this.navigateToSavingsAccount();
+		const credit = () => {};
+		const savingsPlan = () => {};
 
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
 			Insure: insure,
-			Savings: savings
+			SavingsAccount: savings,
+			Credit: credit,
+			SavingsPlan: savingsPlan
 		}[ivrOption]();
 	};
 
@@ -209,20 +213,23 @@ export class HorizonRouter {
 
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
-    }
+	}
 
-    navigateToProofOfAccountSuccess() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
-    }
+	navigateToProofOfAccountSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
+	}
 
-    navigateToProofOfAccountFailed() {
-        this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
-    }
+	navigateToProofOfAccountFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+	}
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
+	navigateToProductInfo(type) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
+	}
 	
 	/**
 	 * Guard functions to prevent navigation to pages which the correct conditions are not met
@@ -275,6 +282,10 @@ export class HorizonRouter {
 	static _preNavigate(prenavFunc, layout) {
 		const viewManager = HorizonViewManager.getInstance();
 		const horizonRouter = HorizonRouter.getInstance();
+
+		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
+		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
+
 		let shellLayout = layout;
 
 		const setShellLayout = () => {
@@ -284,11 +295,14 @@ export class HorizonRouter {
 		const setShellLayoutByVerificationMode = () => {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
+
+				/* TEMPORARY LOCK TO MARKETING BAR
 				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
 					break;
 				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
 				case `3rdparty`:
+				*/
 				default:
 					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
@@ -442,7 +456,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-xds-verification-failed`,
@@ -507,21 +521,29 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
 		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
-        name: `horizon-proof-of-account-success`,
-        title: `ProofOfAccountSuccess`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
-        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
-        name: `horizon-proof-of-account-failure`,
-        title: `ProofOfAccountFailed`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
-        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    }
+	},
+	{
+		name: `horizon-proof-of-account-success`,
+		title: `ProofOfAccountSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+		load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-proof-of-account-failure`,
+		title: `ProofOfAccountFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+		load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-product-information`,
+		title: `ProductInfo`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_INFO,
+		load: () => import(`../views/product/ProductInformation`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	}
 ];

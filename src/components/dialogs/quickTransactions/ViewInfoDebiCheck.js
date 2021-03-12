@@ -195,7 +195,7 @@ export class ViewInfoDebiCheck extends Component {
 				<capitec-label type="subtitle" label="First collection date" row="1" column="1"></capitec-label>
 				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.firstCollectionDate}" row="1" column="2"></capitec-label>
 				<capitec-label type="subtitle" label="Tracking allowed" row="2" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.tracking}" row="2" column="2"></capitec-label>
+				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.tracking ? `Yes` : `No`}" row="2" column="2"></capitec-label>
 				<capitec-label type="subtitle" label="Contract reference" row="3" column="1"></capitec-label>
 				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.contractReference}" row="3" column="2"></capitec-label>
 				<capitec-label type="subtitle" label="Collector contact number" row="4" column="1"></capitec-label>

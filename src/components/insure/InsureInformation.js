@@ -935,7 +935,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderVerifyNowModal() {
-		return this.renderMode !== RENDER_MODE.VERIFY_NOW 
+		return this.renderMode !== RENDER_MODE.VERIFY_NOW
 			? html``
 			: html`
 				<horizon-verify-caller 

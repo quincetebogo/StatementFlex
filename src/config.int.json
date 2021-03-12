@@ -12,10 +12,11 @@
 	},
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"cds": "https://clientdocsearchint.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
 		"strack": "http://strackintnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
@@ -25,21 +26,14 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
-		"enabled": false
+	"mock": {
+		"enabled": false,
+		"stopCard": {
+			"enabled": false,
+			"failStopCard": false,
+			"positiveCase": true
+		}
 	}
 }
