@@ -73,6 +73,7 @@ export class VerifyCaller extends Component {
 		this.xdsMessage = ``;
 		this.itaMessage = ``;
 		this.noOfXdsVerificationAttempted = 0;
+		this.itaVerificationFailed = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -104,7 +105,8 @@ export class VerifyCaller extends Component {
 			itaFailedCount: { attribute: false },
 			connectionID: { attribute: false },
 			isBusy: { attribute: false },
-			loading: { attribute: false }
+			loading: { attribute: false },
+			itaVerificationFailed: { attribute: false }
 		};
 	}
 
@@ -361,6 +363,7 @@ export class VerifyCaller extends Component {
 
 	async _initialiseSignalR() {
 		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
+		this.itaVerificationFailed = false;
 		// Starting signalR connection
 		this.horizonSignalRClient.startConnection();
 		// Fetching connection id from signalR client
@@ -415,6 +418,8 @@ export class VerifyCaller extends Component {
 				}
 			}));
 		} else {
+			this.itaVerificationFailed = true;
+			this.verificationAttempts.itaAttempts++;
 			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
 		}
 	}
@@ -622,7 +627,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
