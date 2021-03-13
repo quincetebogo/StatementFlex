@@ -404,9 +404,10 @@ export class VerifyCaller extends Component {
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
+		this._stopTimer();
+		this._stopSignalRConnection();
+
 		if (verificationStatus) {
-			this._stopTimer();
-			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
 			this.callerInformation.verificationStatus = `verified`;  
@@ -420,7 +421,7 @@ export class VerifyCaller extends Component {
 		} else {
 			this.itaVerificationFailed = true;
 			this.verificationAttempts.itaAttempts++;
-			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
+			this.logger.log(`error`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
 		}
 	}
 
@@ -628,6 +629,16 @@ export class VerifyCaller extends Component {
 
 	_renderPushNotificationError() {
 		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage) {
+
+			let message = ``;
+			if (this.appTimedOut) {
+				message = `The client did not accept the notification in time`;
+			} else if (this.itaVerificationFailed) {
+				message = `The client rejected the notification`;
+			} else {
+				message = `The notification didn't send due to a system error.`;
+			}
+
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
@@ -635,7 +646,7 @@ export class VerifyCaller extends Component {
                                     valign="top" 
                                     gap="clear">
 						<capitec-alert-banner type="error">
-							Notification didn't send due to a system error.
+							${message} 
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
                                         halign="center"
