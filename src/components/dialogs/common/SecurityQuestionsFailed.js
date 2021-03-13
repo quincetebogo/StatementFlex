@@ -89,17 +89,17 @@ export class SecurityQuestionsFailed extends Component {
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
-			this.securityQuestions = returnValue.result;
+			const securityQuestions = returnValue.result;
 
-			if (!this.securityQuestions.authenticationPermitted) {
+			if (securityQuestions.authenticationPermitted) {
 				// common code - imported from VerifyCaller
 				navigateToFailedScreen(this);
-			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (securityQuestions.questions && securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
-					detail: { 'securityQuestions': this.securityQuestions }
+					detail: { 'securityQuestions': securityQuestions }
 				}));
 			} else {
-				this.xdsMessage = this.securityQuestions.errorMessage;
+				this.xdsMessage = securityQuestions.errorMessage;
 			}
 		}
 	}
