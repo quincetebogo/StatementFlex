@@ -253,6 +253,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_tryAgain() {
+		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
 		this.itaMessage = ``;
 		this.minutes = 1;
@@ -333,7 +334,6 @@ export class VerifyCaller extends Component {
 				this._stopTimer();
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
-				this.notVerified = true;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
@@ -411,7 +411,7 @@ export class VerifyCaller extends Component {
 
 			this._stopSignalRConnection();
 
-			this.callerInformation.verificationStatus = `verified`;  
+			this.callerInformation.verificationStatus = `verified`;
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -420,9 +420,16 @@ export class VerifyCaller extends Component {
 				}
 			}));
 		} else {
-			this.itaVerificationFailed = true;
-			this.verificationAttempts.itaAttempts++;
 			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+
+			this.itaVerificationFailed = true;
+			this.itaFailedCount++;
+
+			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
+				this._stopSignalRConnection();
+				this._navigateToItaVerificationFailed();
+			}
+			this._updateApplicationState(`failed`);
 		}
 	}
 
@@ -603,17 +610,17 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch" 
-                                    valign="top"
-                                    gap="clear">
+									halign="stretch" 
+									valign="top"
+									gap="clear">
 						<capitec-alert-banner type="info">
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                    halign="center"
-                                    valign="top"
-                                    gap="clear"
-                                    id="notification-status-group">
+									halign="center"
+									valign="top"
+									gap="clear"
+									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
@@ -643,17 +650,17 @@ export class VerifyCaller extends Component {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
-                                    halign="stretch" 
-                                    valign="top" 
-                                    gap="clear">
+									halign="stretch" 
+									valign="top" 
+									gap="clear">
 						<capitec-alert-banner type="error">
 							${message} 
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                        halign="center"
-                                        valign="top"
-                                        gap="clear" 
-                                        id="notification-status-error-group">
+										halign="center"
+										valign="top"
+										gap="clear" 
+										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
@@ -704,8 +711,8 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-                        icon="system/apply-now-action"
-                        iconSize="default"
+						icon="system/apply-now-action"
+						iconSize="default"
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -718,8 +725,8 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
-						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
