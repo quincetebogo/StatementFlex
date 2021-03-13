@@ -139,7 +139,7 @@ export class LandingPage extends View {
 			`0000000000`, // incoming telephone number
 			`${this.employeeId}-${currentdate}`, // voicedReferenceNumber
 			`Transact`, // IvrOptionCode
-			``, // Agent Extension
+			`000000`, // Agent Extension
 			currentdate
 		);
 		newCallInfo.VDN = vdn;
@@ -204,7 +204,8 @@ export class LandingPage extends View {
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
+		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: true };
+
 		this.horizonStore.saveState(state);
 
 		// Display the Confirmed Caller Details Dialog, Stop Card Search Dialog or General Search Dialog based on 
