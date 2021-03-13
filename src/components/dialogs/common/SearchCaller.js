@@ -65,11 +65,18 @@ const NONCLIENT_REGEX_PATTERN = {
 		FIELD_ERROR: `Enter a surname`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
-	cellPhoneNumberValue: {
-		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: `Must be 10 digits`,
-		ALERT_BANNER: `Incorrect cellphone number`
-	}
+	cellPhoneNumberValue: [
+		{
+			PATTERN: /^[0-9]{10}$/,
+			FIELD_ERROR: `Must be 10 digits`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		},
+		{
+			PATTERN: /^0[0-9].*$/,
+			FIELD_ERROR: `Incorrect cellphone number`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		}
+	]
 };
 
 const REGEX_PATTERNS = {
@@ -331,6 +338,10 @@ export class SearchCaller extends Component {
 	}
 
 	_validateNonClientFields() {
+		// Trimming/ removing empty spaces around non client details
+		this.nameValue = this.nameValue.trim();
+		this.surNameValue = this.surNameValue.trim();
+
 		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
 			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
@@ -351,21 +362,22 @@ export class SearchCaller extends Component {
 				this.errMessage.surNameValue = ``;
 			}
 
-			if (!this.errMessage.nameValue === `` || !this.errMessage.surNameValue === ``) {
+			if (!isNullorEmpty(this.errMessage.nameValue) || !isNullorEmpty(this.errMessage.surNameValue)) {
 				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
 				return false;
 			}
 		}
 
 		if (this.cellPhoneNumberValue) {
-
-			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
-				this.errMessage.cellPhoneNumberValue = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.FIELD_ERROR;
-				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
-				return false;
+			// Handled value length and should start with 0
+			for (const item of NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue) {
+				if (!RegExp(item.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
+					this.errMessage.cellPhoneNumberValue = item.FIELD_ERROR;
+					this.alertBannerMessage = item.ALERT_BANNER;
+					return false;
+				}
 			}
 		}
-
 		return true;
 	}
 
@@ -630,23 +642,42 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
-					<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+					<capitec-label
+						id="id-label-enter-details"
+						type="title"
+						label="Enter details below:">
+					</capitec-label>
 					<div class="search-field-row">
-						<capitec-text-field id="nameValue" label="Name" hint="Required Field" .value="${this.nameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field
+							id="nameValue"
+							label="Name"
+							hint="Required Field"
+							.value="${this.nameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.nameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="surNameValue" label="Surname" hint="Required Field" .value="${this.surNameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field
+							id="surNameValue"
+							label="Surname"
+							hint="Required Field"
+							.value="${this.surNameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.surNameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="cellPhoneNumberValue" label="Cellphone number (optional)" type="numeric"
-							.value="${this.cellPhoneNumberValue}" @value-changed="${(e) => this._valueChanged(e)}"
-							@key-input="${(e) => this._onKeyPress(e)}" error="${this.errMessage.cellPhoneNumberValue}">
+						<capitec-text-field
+							id="cellPhoneNumberValue"
+							label="Cellphone number (optional)"
+							type="numeric"
+							.value="${this.cellPhoneNumberValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.cellPhoneNumberValue}">
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
