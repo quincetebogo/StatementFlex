@@ -678,6 +678,10 @@ export class VerifyCaller extends Component {
 
 	_renderXdsError() {
 		if (this.xdsMessage) {
+			const message = this.callerInformation.hasDigitalChannels
+				? `Notify the client and either try again or complete verification verification via the App.`
+				: `Notify the client and try again`;
+
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
@@ -694,7 +698,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification verification via the App.">
+								label="${message}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
