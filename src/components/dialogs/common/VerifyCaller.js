@@ -405,10 +405,11 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
 		this._stopTimer();
-		this._stopSignalRConnection();
 
 		if (verificationStatus) {
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
+
+			this._stopSignalRConnection();
 
 			this.callerInformation.verificationStatus = `verified`;  
 
@@ -421,7 +422,7 @@ export class VerifyCaller extends Component {
 		} else {
 			this.itaVerificationFailed = true;
 			this.verificationAttempts.itaAttempts++;
-			this.logger.log(`error`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
 		}
 	}
 
