@@ -28,7 +28,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -77,6 +77,10 @@
 		},
 		"hasInsuranceProducts": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"viewStatements": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

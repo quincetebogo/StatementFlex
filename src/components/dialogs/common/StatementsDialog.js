@@ -3,13 +3,19 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'app/components/Common/StepperModal';
 
+const RENDER_MODE = Object.freeze({
+	EMAIL: 0,
+	PDF: 1
+});
+
 const STATEMENTS_STEPS = [
 	{
-		title: 'Choose Account' 
+		title: `Choose Account`
 	},
 	{
 		title: "Choose Period" 
@@ -18,6 +24,12 @@ const STATEMENTS_STEPS = [
 		title: "Specify Email and View Documents" 
 	}
 ];
+
+const ACCOUNT_TYPES = {
+	SAVINGS_ACCOUNT: `SavingsAccount`,
+	SAVINGS_PLAN: `SavingsPlans`,
+	CREDIT: `Credit`
+}
 
 /**
  * View and email statements based on account selection and date range.
@@ -34,12 +46,6 @@ const STATEMENTS_STEPS = [
  * @extends {Component}
  */
 
-const RENDER_MODE = Object.freeze({
-	EMAIL: 0,
-	PDF: 1
-});
-
-
 export class StatementsDialog extends Component {
 
 	// --------------
@@ -50,27 +56,23 @@ export class StatementsDialog extends Component {
 
 		super();
 
-	
+		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 1;
+		this.accType = ``;
+		this.savingsPlanSelected = ``;
+		this.savingsPlans = [];
+
 		this.horizonStore = HorizonStore.getInstance();
-		this.state = this.horizonStore.recoverState();
 		this.navigationContext = NavigationContext.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-
+		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.landingPageInfo = this.state.landingPageInfo;
 		this.accountInformation = this.state.leftBarButtonConfig.detail;
 
 		//TODO: Remove unused 
-		this.availableSavings = "R" + this.accountInformation.savingsAccount;
-		this.availableSavingsPlans = "R" + this.accountInformation.savingsPlan;
-		this.availableCredit = "R" + this.accountInformation.credit;
-		this.savingsPlans = null;
-		this.savingsPlansSelected = false;
-		this.periodSelected = "";
-		this.showDatePicker = true;
 		this.showCalendar = false;
 		this.showHide = "hide";
 		this.startDate;
@@ -83,7 +85,6 @@ export class StatementsDialog extends Component {
 		this.displayPDF = false;
 		this.statementsHeader = "Statements";
 		this.accountSelected = "savingsAccount";
-		this.savingsPlanSelected = null;
 		this.statementPeriod = "";
 		this.statmentDays = "";
 		this.infoOrError = "info";
@@ -108,7 +109,6 @@ export class StatementsDialog extends Component {
 
 	static get properties() {
 		return {
-			currentStep: { attribute: false },
 			availableSavings: { attribute: false },
 			accountSelect: { attribute: false },
 			availableSavingsPlans: { attribute: false },
@@ -131,7 +131,11 @@ export class StatementsDialog extends Component {
 			infoOrError: { attribute: false },
 			flag: { attribute: false },
 			viewStatementPDF: { attribute: false },
-			renderMode: { attribute: false }
+
+			currentStep: { attribute: false },
+			renderMode: { attribute: false },
+			accType: { attribute: false },
+			savingsPlanSelected: { attribute: false }
 		};
 	}
 
@@ -151,6 +155,17 @@ export class StatementsDialog extends Component {
 
 	_cancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_next() {
+		// if (isNullorEmpty(this.accType) || isNullorEmpty(this.savingsPlanSelected)) {
+		// return;
+		// }
+		this.currentStep++;
+	}
+
+	_back() {
+		this.currentStep--;
 	}
 
 	_clearErrors() {
@@ -274,70 +289,26 @@ export class StatementsDialog extends Component {
 
 
 	//value of account selction
-	_accountSelectionChanged(e, name) {
-		//account and sub account selection under savings plans
-		//get card and account details
-		if (e) {
-			if (name !== null || name !== undefined) {
-				this.infoOrError = "info";
-			}
-
-			if (name == "savingsAccount") {
-				this.focusTransact = "transactFocus";
-				this.focusSave = "";
-				this.focusCredit = "";
-
-				this.accountSelected = name;
-			}
-
-			if (name == "savingsPlan") {
-				this.focusSave = "saveFocus";
-				this.focusTransact = "";
-				this.focusCredit = "";
-
-				this.savingsPlansSelected = name;
-				this.accountSelected = name;
-				this._renderSavingsPlanSelection();
-			} else {
-				this.savingsPlansSelected = false;
-			}
-
-			if (name == "credit") {
-				this.focusCredit = "creditFocus";
-				this.focusSave = "";
-				this.focusTransact = "";
-
-				this.accountSelected = name;
-			}
-		} else {
-			if (this.accountSelected == "savingsAccount") {
-				this.focusTransact = "transactFocus";
-				this.focusSave = "";
-				this.focusCredit = "";
-
-			}
-		}
+	_accountSelectionChanged(type) {
+		this.accType = type;
 
 		//TODO: Loop through clients savings plans
 		this.savingsPlans = [
 			{
 				value: 1,
-				name: "Name",
+				name: "Future savings",
 				amount: "R " + "546844.25"
 			},
 			{
 				value: 2,
-				name: "Name 1",
+				name: "Education",
 				amount: "R " + "504.25"
 			}
 		]
 	};
 
-	_savingsPlanChanged(e, savingsPlan) {
-		if (e) {
-			this.savingsPlanSelected = savingsPlan;
-			this.savingsPlanFocus = "savingsPlanFocus";
-		}
+	_savingsPlanChanged(savingsPlan) {
+		this.savingsPlanSelected = savingsPlan;
 	}
 
 	_periodChange(e, days) {
@@ -467,7 +438,10 @@ export class StatementsDialog extends Component {
 			super.styles,
 			css`
 
-			bb-stepper-modal  {              
+			bb-stepper-modal {
+				height: 930px;
+				width: 976px;
+
 				--theme-modal-header-height: 64px;
 				--theme-modal-header-font-size: 18px;
 				--theme-modal-header-padding-left: 16px;
@@ -487,6 +461,31 @@ export class StatementsDialog extends Component {
 				--theme-wizard-modal-max-height: 930px;
 				--theme-wizard-modal-lg-max-width:976px;
 			} 
+			capitec-content-box {
+				height: 730px;
+
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 0px;
+			}
+			capitec-alert-banner {
+				--theme-alert-banner-height: 48px;
+				--theme-alert-banner-info-background-color: #DAF2F4;
+				--theme-alert-banner-info-color: #05829B;
+				--theme-alert-banner-unsuccessful-red-color: #C83B37;
+				--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
+				--theme-layout-gap-spacing: 15px;
+			}
+			horizon-product-tile {
+				--theme-product-tile--height: 64px;
+				--theme-product-tile-title-height: 20px;
+				--theme-product-tile-title-font-size: 16px;
+				--theme-product-tile-subtitle-height: 20px;
+				--theme-product-tile-subtitle-font-size: 16px;
+				--theme-product-tile-heading-margin-left: 16px;
+				--theme-product-tile-heading-margin-left: 6px;
+			}
 			div[slot="footer"] {
 				padding-left: 16px;
 				width: 976px;
@@ -534,16 +533,6 @@ export class StatementsDialog extends Component {
 				margin-top: 2px;
 			}
 			
-			capitec-alert-banner {
-				height: 48px;
-				width: 944px;
-				margin: 16px 0px 0px 16px;
-				--theme-alert-banner-info-background-color: #DAF2F4;
-				--theme-alert-banner-info-color: #05829B;
-				--theme-alert-banner-unsuccessful-red-color: #C83B37;
-				--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1
-			}
-			
 			.chooseText {
 				margin: 18px;
 				text-align: left;
@@ -552,14 +541,10 @@ export class StatementsDialog extends Component {
 				font-weight: 900;
 				color: #3A3A3A;
 			}
-			.savingsPlans  {
+			.savingsPlans {
 				height: 64px;
-				width: 944px;
-				margin: 8px;
-				margin-left: 15.5px;
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
-				display: inline-block;
 			}
 			capitec-card {
 				width: 944px;
@@ -569,6 +554,12 @@ export class StatementsDialog extends Component {
 				display: inline-block;
 				--theme-card-border-radius: 4px;
 				--theme-card-min-height: auto;
+			}
+			capitec-label[type"subtitle"] {
+				line-height: 24px;
+
+				--theme-label-subtitle-font-size: 18px;
+				--theme-label-subtitle-font-weight: 600;
 			}
 			.savingsPlanLabel, .periodLabel {
 				width: 300px; 
@@ -584,10 +575,6 @@ export class StatementsDialog extends Component {
 				margin-top: 20px;
 				margin-bottom: 20px;
 				margin-left: 17px;
-			}
-			.periodRadioGroup {
-				width: 100%;
-				display: inline-block;
 			}
 			.choosePeriod {
 				width: 223px;
@@ -676,20 +663,11 @@ export class StatementsDialog extends Component {
 				display: none;
 				float: left;
 			}
-			capitec-button {
-				margin: 16px;
-				float: right;
-			}
-
 			.pdfView {
 				width: 832px;
 				height: 996px;
 				z-index: 99;
 			}
-			capitec-group {
-				height: 70px;
-				display: inline-block;
-			}			
 			.save:hover {
 				border: 2px solid #00486D;
 				border-radius: 4px;
@@ -736,9 +714,6 @@ export class StatementsDialog extends Component {
 				border: 1px solid #E1E1E1;
 				border-radius: 4px;
 			}
-			capitec-group{
-				width:944px;
-			}
 			.chooseRangeCard{
 				border-bottom: 1px solid #E1E1E1;
 				margin: 0px 16px 0px 0px;
@@ -756,55 +731,58 @@ export class StatementsDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<bb-stepper-modal 
-				class=""
+			<bb-stepper-modal
 				.steps="${STATEMENTS_STEPS}"
 				active-step-number="${this.currentStep}"
 				header="${this.statementsHeader}">
 					
-					${this._renderBody()}
+					<div slot="step">
+						${this._renderBody()}
+					</div>
 
 					<div slot="footer">
-						<div class="left">
-							<capitec-button 
-								class="${this.showHide}" 
-								type="clear" 
-								label="${this.backButton}" 
-								@click="${(e) => this._navigateSteppers(e, `back`)}">
-							</capitec-button>
-						</div>
-						<div class="right">
-							<capitec-button 
-								class="nextBtn" 
-								type="primary" 
-								label="${this.nextSend}" 
-								@click="${this.nextSend == "Close" ? () => this._closePDF() : (e) => this._navigateSteppers(e, `next`)}">
-							</capitec-button>
-							<capitec-button 
-								class="cancelBtn" 
-								type="clear" 
-								label="${this.cancelButton}" 
-								@click="${() => this._cancel()}">
-							</capitec-button>
-						</div>
+						<capitec-group 
+							layout="horizontal"
+							gap="clear"
+							halign="left"
+							valign="center">
+								<capitec-button 
+									type="clear"
+									label="Back"
+									@click="${(e) => this._back()}"
+									?hidden="${this.currentStep === 1}">
+								</capitec-button>
+								<capitec-spacer></capitec-spacer>
+								<capitec-button
+									type="clear"
+									label="Cancel"
+									@click="${() => this._cancel()}">
+								</capitec-button>
+								<capitec-button
+									type="primary"
+									label="Next"
+									@click="${() => this._next()}">
+								</capitec-button>
+						</capitec-group>
 					</div>
 			</bb-stepper-modal>`;
 	}
 
 	_renderBody() {
 		return html`
-			<div slot="step">
-				${this._renderAlertBanner()}
-				${this._renderAccountSelection()}
-				${this._renderChoosePeriod()}
-				${this._renderSpecifyEmail()}
-				${this._renderPDFViewer()}
-			</div>
+			<capitec-content-box
+				layout="vertical"
+				gap="clear">
+					${this._renderAlertBanner()}
+					${this._renderAccountSelection()}
+					${this._renderChoosePeriod()}
+					${this._renderSpecifyEmail()}
+					${this._renderPDFViewer()}
+			</capitec-content-box>
 		`;
 	}
 
-	_renderAlertBanner(){
-		
+	_renderAlertBanner() {
 		return this.infoOrError === `error`
 			? html`
 				<capitec-alert-banner
@@ -815,78 +793,86 @@ export class StatementsDialog extends Component {
 			: html`
 				<capitec-alert-banner
 					class="alert info"
-					type="info">
+					type="info"
+					closable>
 						<p><b>Notify client:</b> ${this.infoBannerMessage}</p>
 				</capitec-alert-banner>`;
 	}
 
 	_renderAccountSelection() {
-		return html`
-			<capitec-label
-				class="chooseText"
-				type="subtitle"
-				label="Choose an Account">
-			</capitec-label>
+		if (this.currentStep === 1) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Choose an Account">
+				</capitec-label>
 
-			<div 
-				class="accountSelect transact ${this.focusTransact}" 
-				@click="${(e) => this._accountSelectionChanged(e, `savingsAccount`)}">
-					<img
-						class="accountSelectIcon"
-						src="src/images/statement/transact@1x.png"/>
-					<capitec-label
-						class="accountSelectLabel"
-						label="Savings Account"
-						type="subtitle">
-					</capitec-label>
-					<p class="accountSelectSub">Available balance<b> ${ this.availableSavings}</b></p>
-			</div>
-			
-			<div class="accountSelect save ${this.focusSave}" @click="${(e) => this._accountSelectionChanged(e, `savingsPlan`)}">
-				<img src="src/images/statement/savings@1x.png" class="accountSelectIcon"/>
-				<capitec-label class="accountSelectLabel" label="Savings Plans" type="subtitle"></capitec-label>
-				<p class="accountSelectSub">Available balance<b> ${ this.availableSavingsPlans}</b></p>
-			</div>
-			<div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
-				<img src="src/images/statement/credit@1x.png" class="accountSelectIcon"/>
-				<capitec-label class="accountSelectLabel" label="Credit Card" type="subtitle"></capitec-label>
-				<p class="accountSelectSub">Available balance<b> ${ this.availableCredit}</b></p>
-			</div>
+				<horizon-product-tile 
+					type="default"
+					label="Savings Account"
+					subtitle="Available balance R5 670.40"
+					detail=""
+					icon="product/transact"
+					@click="${(e) => this._accountSelectionChanged(`SavingsAccount`)}">
+				</horizon-product-tile>
+				<horizon-product-tile 
+					type="default"
+					label="Savings Plans"
+					subtitle="Available balance R16 800.00"
+					detail=""
+					icon="product/save"
+					@click="${(e) => this._accountSelectionChanged(`SavingsPlans`)}">
+				</horizon-product-tile>
+				<horizon-product-tile 
+					type="default"
+					label="Credit Card"
+					subtitle="Available balance R22 400.00"
+					detail=""
+					icon="product/credit"
+					@click="${(e) => this._accountSelectionChanged(`Credit`)}">
+				</horizon-product-tile>
 
-			<div>
-				${
-			this.savingsPlansSelected ?
-				this._renderSavingsPlanSelection() :
-				html``
-			}
-			</div>
-		`
+				${this._renderSavingsPlanSelection()}
+			`;
+		}
 	}
 
 	_renderSavingsPlanSelection() {
-		return html`
-			<capitec-label class="chooseText" type="subtitle" label="Choose a Savings Plan"></capitec-label>
-			${this.savingsPlans.map(item => html`
+		if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Choose a Savings Plan">
+				</capitec-label>
+
 				<capitec-radio-group>
-					<div class="savingsPlans ${this.savingsPlanFocus}">
-						<div class="radioBtn">
-							<capitec-radio @click="${(e) => this._savingsPlanChanged(e, item.name)}">
-							</capitec-radio>
-						</div>
-						<div class="periodLabel">
-							<capitec-label class="topLabel" label="${item.name}"></capitec-label>
-							<capitec-label label="Available balance: ${item.amount}"></capitec-label>
-						</div>
-					</div>
+					${this.savingsPlans.map(item => html`
+						<horizon-product-tile 
+							type="radio-button"
+							label="${item.name}""
+							subtitle="Available balance: ${item.amount}"
+							detail=""
+							icon="product/transact"
+							@click="${(e) => this._savingsPlanChanged(item.name)}"
+							?selected="${this.savingsPlanSelected === item.name}">
+						</horizon-product-tile>
+					`)}
 				</capitec-radio-group>
-			`)}
-		`
+			`;
+		}
+		return html``;
 	}
 
 	_renderChoosePeriod() {
-		return html`
-			<capitec-label class="chooseText" type="subtitle" label="Choose Period"></capitec-label>
-				<capitec-group layout="grid" rows="auto" column="auto" class="periodRadioGroup">
+		if (this.currentStep === 2) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Choose Period">
+				</capitec-label>
+
+				<capitec-group
+					layout="horizontal">
 					<div class="choosePeriod ${this.flag === "oneMonth" ? `choosePeriodFocus` : ``}">
 						<div class="radioBtn">
 							<capitec-radio id="oneMonth" @value-change="${(e) => this._periodChange(e, 30)}" ?checked="${this.flag === "oneMonth"}">
@@ -929,16 +915,15 @@ export class StatementsDialog extends Component {
 					</div>
 				</capitec-group>
 
-					${
-			this._renderPeriodSelected()
-			}
-
-		`
+						${
+				this._renderPeriodSelected()
+				}
+			`;
+		}
 	}
 
 	_renderPeriodSelected() {
 		return html`
-
 			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
 			<capitec-card layout="vertical">
 				<capitec-group layout="vertical" class="${this.showCalendar ? `chooseRangeCard` : `collapsed`}">
@@ -976,27 +961,63 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSpecifyEmail() {
-		if (this.renderMode === RENDER_MODE.EMAIL) {
+		if (this.currentStep === 3) {
+			if (this.renderMode === RENDER_MODE.EMAIL) {
+				return html`
+					<capitec-label
+						class="chooseText"
+						type="subtitle"
+						label="Enter email address">
+					</capitec-label>
+					<capitec-text-field
+						class="email"
+						label="Email address"
+						value="${this.email}"
+						error="${this.emailError}"
+						@value-changed="${(e) => this._emailInput(e)}"
+						@value-change="${(e) => this._emailFormatCheck(e)}"
+						@key-input="${() => this._clearErrors()}">
+					</capitec-text-field>
+			
+					<capitec-label
+						class="chooseText"
+						type="subtitle"
+						label="Confirm email address">
+					</capitec-label>
+					<capitec-text-field
+						class="email"
+						label="Email address"
+						value="${this.confirmEmail}"
+						error="${this.confirmError}"
+						@value-changed="${(e) => this._emailInput(e)}"
+						@value-change="${(e) => this._confirmEmailMatch(e)}"
+						@key-input="${() => this._clearErrors()}">
+					</capitec-text-field>
+
+					<hr class="seperator">
+
+					<capitec-label
+						class="chooseText"
+						type="subtitle"
+						label="View document">
+					</capitec-label>
+					<div class="viewDocument">
+						<div class="labelSpace">
+							<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
+							<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
+						</div>
+						<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
+					</div>
+				`; 
+			}
 			return html`
-		<capitec-label class="chooseText" type="subtitle" label="Enter email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" value="${this.email}" error="${this.emailError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._emailFormatCheck(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
-		
-		<capitec-label class="chooseText" type="subtitle" label="Confirm email address"></capitec-label>
-		<capitec-text-field class="email" label="Email address" value="${this.confirmEmail}" error="${this.confirmError}" @value-changed="${(e) => this._emailInput(e)}" @value-change="${(e) => this._confirmEmailMatch(e)}" @key-input="${() => this._clearErrors()}"></capitec-text-field>
-
-		<hr class="seperator">
-
-		<capitec-label class="chooseText" type="subtitle" label="View document"></capitec-label>
-		<div class="viewDocument">
-			<div class="labelSpace">
-				<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
-				<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
-			</div>
-			<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
-		</div>
-
-		` }
-		return html`<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>`;
+				<capitec-button
+					class="viewPDFbtn"
+					type="clear"
+					label="View Document"
+					@click="${() => this._viewPDF()}">
+				</capitec-button>`;
+		}
 	}
 
 	_renderPDFViewer() {

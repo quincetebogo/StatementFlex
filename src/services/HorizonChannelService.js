@@ -547,23 +547,22 @@ export class HorizonChannelService extends Service {
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
-
-    sendStatement(statement) {
-        const url = `/clientcare/documents/${this._version}/statements/send-statement`;
-
-        return this._post(url, statement, this._setToken(), `sendSatement`);
-    }
-
-    async viewStatement(statement) {
-
+		
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
-	}  
-        if (await this._mockEnabled(`viewStatements`)) {
-            return this._mock.viewStatementsMocks();
-        }
+	}
 
-        const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+	sendStatement(statement) {
+		const url = `/clientcare/documents/${this._version}/statements/send-statement`;
+		return this._post(url, statement, this._setToken(), `sendSatement`);
+	}
 
-        return this._post(url, statement, this._setToken(), `viewSatement`);
-    }
+	async viewStatement(statement) {
+
+		if (await this._mockEnabled(`viewStatements`)) {
+			return this._mock.viewStatementsMocks();
+		}
+
+		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+		return this._post(url, statement, this._setToken(), `viewSatement`);
+	}
 }
