@@ -316,6 +316,8 @@ export class SearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
+		} else {
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
