@@ -73,6 +73,7 @@ export class VerifyCaller extends Component {
 		this.xdsMessage = ``;
 		this.itaMessage = ``;
 		this.noOfXdsVerificationAttempted = 0;
+		this.itaVerificationFailed = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -104,7 +105,8 @@ export class VerifyCaller extends Component {
 			itaFailedCount: { attribute: false },
 			connectionID: { attribute: false },
 			isBusy: { attribute: false },
-			loading: { attribute: false }
+			loading: { attribute: false },
+			itaVerificationFailed: { attribute: false }
 		};
 	}
 
@@ -251,6 +253,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_tryAgain() {
+		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
 		this.itaMessage = ``;
 		this.minutes = 1;
@@ -331,7 +334,6 @@ export class VerifyCaller extends Component {
 				this._stopTimer();
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
-				this.notVerified = true;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
@@ -361,6 +363,7 @@ export class VerifyCaller extends Component {
 
 	async _initialiseSignalR() {
 		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
+		this.itaVerificationFailed = false;
 		// Starting signalR connection
 		this.horizonSignalRClient.startConnection();
 		// Fetching connection id from signalR client
@@ -401,12 +404,14 @@ export class VerifyCaller extends Component {
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
+		this._stopTimer();
+
 		if (verificationStatus) {
-			this._stopTimer();
-			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
-			this.callerInformation.verificationStatus = `verified`;  
+			this._stopSignalRConnection();
+
+			this.callerInformation.verificationStatus = `verified`;
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -415,7 +420,16 @@ export class VerifyCaller extends Component {
 				}
 			}));
 		} else {
-			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
+			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+
+			this.itaVerificationFailed = true;
+			this.itaFailedCount++;
+
+			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
+				this._stopSignalRConnection();
+				this._navigateToItaVerificationFailed();
+			}
+			this._updateApplicationState(`failed`);
 		}
 	}
 
@@ -592,21 +606,21 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch" 
-                                    valign="top"
-                                    gap="clear">
+									halign="stretch" 
+									valign="top"
+									gap="clear">
 						<capitec-alert-banner type="info">
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                    halign="center"
-                                    valign="top"
-                                    gap="clear"
-                                    id="notification-status-group">
+									halign="center"
+									valign="top"
+									gap="clear"
+									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
@@ -622,21 +636,31 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && this.appTimedOut && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage) {
+
+			let message = ``;
+			if (this.appTimedOut) {
+				message = `The client did not accept the notification in time`;
+			} else if (this.itaVerificationFailed) {
+				message = `The client rejected the notification`;
+			} else {
+				message = `The notification didn't send due to a system error.`;
+			}
+
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
-                                    halign="stretch" 
-                                    valign="top" 
-                                    gap="clear">
+									halign="stretch" 
+									valign="top" 
+									gap="clear">
 						<capitec-alert-banner type="error">
-							Notification didn't send due to a system error.
+							${message} 
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                        halign="center"
-                                        valign="top"
-                                        gap="clear" 
-                                        id="notification-status-error-group">
+										halign="center"
+										valign="top"
+										gap="clear" 
+										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
@@ -687,8 +711,8 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-                        icon="system/apply-now-action"
-                        iconSize="default"
+						icon="system/apply-now-action"
+						iconSize="default"
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -701,8 +725,8 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
-						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
