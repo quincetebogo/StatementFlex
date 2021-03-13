@@ -29,7 +29,14 @@ const ACCOUNT_TYPES = {
 	SAVINGS_ACCOUNT: `SavingsAccount`,
 	SAVINGS_PLAN: `SavingsPlans`,
 	CREDIT: `Credit`
-}
+};
+
+const TIME_PERIOD = {
+	ONE_MONTH: 1,
+	THREE_MONHTS: 3,
+	SIX_MONTHS: 6,
+	NINE_MONTHS: 9
+};
 
 /**
  * View and email statements based on account selection and date range.
@@ -61,6 +68,7 @@ export class StatementsDialog extends Component {
 		this.accType = ``;
 		this.savingsPlanSelected = ``;
 		this.savingsPlans = [];
+		this.periodSelected = -1;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
@@ -135,7 +143,8 @@ export class StatementsDialog extends Component {
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			accType: { attribute: false },
-			savingsPlanSelected: { attribute: false }
+			savingsPlanSelected: { attribute: false },
+			periodSelected: { attribute: false }
 		};
 	}
 
@@ -437,55 +446,66 @@ export class StatementsDialog extends Component {
 		return [
 			super.styles,
 			css`
+				extra-space
+				bb-stepper-modal {
+					height: 930px;
+					width: 976px;
 
-			bb-stepper-modal {
-				height: 930px;
-				width: 976px;
+					--theme-modal-header-height: 64px;
+					--theme-modal-header-font-size: 18px;
+					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-stepper-inner-step-container-height: 56px;
+					--theme-stepper-inner-step-container-width: 328px;
+					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
+					--theme-stepper-step-title-font-size: 15px;
+					--theme-stepper-step-title-max-width: 328px;
+					--theme-stepper-step-content-container-padding-left: 16px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-wizard-modal-max-width: 976px;
+					--theme-wizard-modal-max-height: 930px;
+					--theme-wizard-modal-lg-max-width:976px;
+				}
+				capitec-content-box {
+					height: 730px;
 
-				--theme-modal-header-height: 64px;
-				--theme-modal-header-font-size: 18px;
-				--theme-modal-header-padding-left: 16px;
-				--theme-modal-header-color: #3A3A3A;
-				--theme-modal-header-background-color: #F7F7F7;
-				--theme-stepper-inner-step-container-height: 56px;
-				--theme-stepper-inner-step-container-width: 328px;
-				--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
-				--theme-stepper-step-title-font-size: 15px;
-				--theme-stepper-step-title-max-width: 328px;
-				--theme-stepper-step-content-container-padding-left: 16px;
-				--theme-container-padding-left: 0px;
-				--theme-container-padding-right: 0px;
-				--theme-container-padding-top: 0px;
-				--theme-container-padding-bottom: 0px;
-				--theme-wizard-modal-max-width: 976px;
-				--theme-wizard-modal-max-height: 930px;
-				--theme-wizard-modal-lg-max-width:976px;
-			} 
-			capitec-content-box {
-				height: 730px;
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 0px;
+				}
+				capitec-alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-info-background-color: #DAF2F4;
+					--theme-alert-banner-info-color: #05829B;
+					--theme-alert-banner-unsuccessful-red-color: #C83B37;
+					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
+					--theme-layout-gap-spacing: 15px;
+				}
+				capitec-content-box > capitec-label[type="subtitle"] {
+					line-height: 24px;
 
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
-				--theme-container-padding-right: 16px;
-				--theme-container-padding-bottom: 0px;
-			}
-			capitec-alert-banner {
-				--theme-alert-banner-height: 48px;
-				--theme-alert-banner-info-background-color: #DAF2F4;
-				--theme-alert-banner-info-color: #05829B;
-				--theme-alert-banner-unsuccessful-red-color: #C83B37;
-				--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
-				--theme-layout-gap-spacing: 15px;
-			}
-			horizon-product-tile {
-				--theme-product-tile--height: 64px;
-				--theme-product-tile-title-height: 20px;
-				--theme-product-tile-title-font-size: 16px;
-				--theme-product-tile-subtitle-height: 20px;
-				--theme-product-tile-subtitle-font-size: 16px;
-				--theme-product-tile-heading-margin-left: 16px;
-				--theme-product-tile-heading-margin-left: 6px;
-			}
+					--theme-label-subtitle-font-size: 18px;
+					--theme-label-subtitle-font-weight: 600;
+					--theme-layout-gap-spacing: 16px;
+				}
+				capitec-content-box > capitec-label[type="subtitle"]:last-child {
+					margin-top: 24px;
+				}
+				horizon-product-tile {
+					--theme-product-tile--height: 64px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 16px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-heading-margin-left: 6px;
+					--theme-layout-gap-spacing: 8px;
+				}
 			div[slot="footer"] {
 				padding-left: 16px;
 				width: 976px;
@@ -554,12 +574,6 @@ export class StatementsDialog extends Component {
 				display: inline-block;
 				--theme-card-border-radius: 4px;
 				--theme-card-min-height: auto;
-			}
-			capitec-label[type"subtitle"] {
-				line-height: 24px;
-
-				--theme-label-subtitle-font-size: 18px;
-				--theme-label-subtitle-font-weight: 600;
 			}
 			.savingsPlanLabel, .periodLabel {
 				width: 300px; 
@@ -873,71 +887,58 @@ export class StatementsDialog extends Component {
 
 				<capitec-group
 					layout="horizontal">
-					<div class="choosePeriod ${this.flag === "oneMonth" ? `choosePeriodFocus` : ``}">
-						<div class="radioBtn">
-							<capitec-radio id="oneMonth" @value-change="${(e) => this._periodChange(e, 30)}" ?checked="${this.flag === "oneMonth"}">
-							</capitec-radio>
-						</div>
-						<div class="choosePeriodLabel">
-							<capitec-label class="topLabel" label="1 month"></capitec-label>
-							<capitec-label class="bottomLabel" label="Last 30 days"></capitec-label>
-						</div>
-					</div>
-					<div class="choosePeriod ${this.flag === "threeMonths" ? `choosePeriodFocus` : ``}">
-						<div class="radioBtn">
-							<capitec-radio id="threeMonths" @value-change="${(e) => this._periodChange(e, 90)}" ?checked="${this.flag === "threeMonths"}">
-							</capitec-radio>
-						</div>
-						<div class="choosePeriodLabel">
-							<capitec-label class="topLabel" label="3 months"></capitec-label>
-							<capitec-label class="bottomLabel" label="Last 90 days"></capitec-label>
-						</div>
-					</div>
-					<div class="choosePeriod ${this.flag === "sixMonths" ? `choosePeriodFocus` : ``}">
-						<div class="radioBtn">
-							<capitec-radio id="sixMonths" @value-change="${(e) => this._periodChange(e, 180)}" ?checked="${this.flag === "sixMonths"}">
-							</capitec-radio>
-						</div>
-						<div class="choosePeriodLabel">
-							<capitec-label class="topLabel" label="6 months"></capitec-label>
-							<capitec-label class="bottomLabel" label="Last 180 days"></capitec-label>
-						</div>
-					</div>
-					<div class="choosePeriod ${this.flag === "nineMonths" ? `choosePeriodFocus` : ``}">
-						<div class="radioBtn">
-							<capitec-radio id="nineMonths" @value-change="${(e) => this._periodChange(e, 270)}" ?checked="${this.flag === "nineMonths"}">
-							</capitec-radio>
-						</div>
-						<div class="choosePeriodLabel">
-							<capitec-label class="topLabel" label="9 months"></capitec-label>
-							<capitec-label class="bottomLabel" label="Last 270 days"></capitec-label>
-						</div>
-					</div>
+						<horizon-product-tile
+							type="radio-button"
+							label="1 month"
+							subtitle="Last 30 days"
+							detail=""
+							@click="${(e) => this.periodSelected = TIME_PERIOD.ONE_MONTH}"
+							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH}">
+						</horizon-product-tile>
+						<horizon-product-tile
+							type="radio-button"
+							label="3 months"
+							subtitle="Last 90 days"
+							detail=""
+							@click="${(e) => this.periodSelected = TIME_PERIOD.THREE_MONHTS}"
+							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS}">
+						</horizon-product-tile>
+						<horizon-product-tile
+							type="radio-button"
+							label="6 months"
+							subtitle="Last 180 days"
+							detail=""
+							@click="${(e) => this.periodSelected = TIME_PERIOD.SIX_MONTHS}"
+							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS}">
+						</horizon-product-tile>
+						<horizon-product-tile
+							type="radio-button"
+							label="9 months"
+							subtitle="Last 270 days"
+							detail=""
+							@click="${(e) => this.periodSelected = TIME_PERIOD.NINE_MONTHS}"
+							?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS}">
+						</horizon-product-tile>
 				</capitec-group>
-
-						${
-				this._renderPeriodSelected()
-				}
+				${this._renderPeriodSelected()}
 			`;
 		}
 	}
 
 	_renderPeriodSelected() {
 		return html`
-			<capitec-label class="chooseText" type="subtitle" label="Choose date range"></capitec-label>
-			<capitec-card layout="vertical">
-				<capitec-group layout="vertical" class="${this.showCalendar ? `chooseRangeCard` : `collapsed`}">
-						<div class="radioBtn">
-							<capitec-radio @value-change="${(e) => this._showDateRange(e)}" ?checked="${this.showCalendar}">
-							</capitec-radio>
-						</div>
-						<div class="savingsPlanLabel">
-							<capitec-label class="topLabel" label="Choose date range"></capitec-label>
-							<capitec-label label="Up to 90 days"></capitec-label>
-						</div>
-				</capitec-group>
-					${this._renderCalendar()}
-			</capitec-card>
+			<capitec-label
+				type="subtitle"
+				label="Choose date range">
+			</capitec-label>
+
+			<horizon-product-tile
+				type="radio-button"
+				label="Choose date range"
+				subtitle="Up to 270 days"
+				detail=""
+				?selected="${false}">
+			</horizon-product-tile>
 		`;
 	}
 
