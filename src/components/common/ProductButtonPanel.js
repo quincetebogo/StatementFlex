@@ -89,7 +89,6 @@ export class ProductButtonPanel extends Component {
 
 	// TODO Refeactor these methods to raise events. The caller should handle the navigation
 	_savingsAccountClick() {
-
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
 		}
@@ -97,24 +96,23 @@ export class ProductButtonPanel extends Component {
 	}
 
 	_savingsPlanClick() {
-		
-		if (!this.disableNavigation) {
+				if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
 		}
 		this._performNavigation(`SavingsPlan`, false);
 	}
 
 	_insureClick() {
-
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToInsureProduct();
 		}
+
+		// Note we will not have callerInformation when being invoked from the Agent's waiting for call landing page
 		const state = this.horizonStore.recoverState();
-		this._performNavigation(`Insure`, state.callerInformation.hasInsuranceProducts);
+		this._performNavigation(`Insure`, state && state.callerInformation ? state.callerInformation.hasInsuranceProducts : false);
 	}
 
 	_creditClick() {
-		
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
 		}
@@ -135,7 +133,9 @@ export class ProductButtonPanel extends Component {
 		 * TODO: Remove this environment check when product screens are ready/ when we want to map it to other needs
 		 */
 
-		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
+		// Note that when invoked from the agent's waiting for call landing page we will
+		// not have caller information
+		if (callerInfo && (callerInfo.is3rdParty || callerInfo.isNonClient)) {
 			this.horizonRouter.navigateToProductInfo(type);
 		} else if (env === `LOCAL`) {
 			// For now, the product buttons only route to the proper landing pages when a developer is running on their local machine
