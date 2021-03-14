@@ -2,6 +2,12 @@ import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'platform/components';
 
+/**
+ * @deprecated The Tax Free Savings Product Plan View is no longer in use
+ * @export
+ * @class TaxFreeSavingsProduct
+ * @extends {View}
+ */
 export class TaxFreeSavingsProduct extends View {
 
 	// --------------

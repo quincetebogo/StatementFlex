@@ -1,5 +1,5 @@
-import { View, html } from 'platform/elements';
-
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
 import 'app/components/product/CnetProductInfo';
 
 /**
@@ -8,9 +8,9 @@ import 'app/components/product/CnetProductInfo';
  *
  * @export
  * @class SavingsPlanProduct
- * @extends {View}
+ * @extends {ProductPageBase}
  */
-export class SavingsPlanProduct extends View {
+export class SavingsPlanProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -28,12 +28,8 @@ export class SavingsPlanProduct extends View {
 		super.connectedCallback();
 	}
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	_viewBenefits() {
-		window.open(`https://www.capitecbank.co.za/global-one/save/`);
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// ---------
@@ -75,7 +71,7 @@ export class SavingsPlanProduct extends View {
 			<horizon-cnet-product-info 
 				viewType="save" 
 				viewHeader="Savings Plans"
-				@view-benefits="${() => this._viewBenefits()}">
+				@view-benefits="${() => this._viewBenefits(`save`)}">
 			</horizon-cnet-product-info>`;
 
 		/*

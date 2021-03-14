@@ -82,6 +82,12 @@ export class ProfileAndProductSummaryBar extends Component {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		this.stateChangeSub.unsubscribe();
+		
+		super.disconnectedCallback();
+	}
+
 	// ---------
 	// EVENTS
 	// ---------

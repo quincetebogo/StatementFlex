@@ -54,6 +54,11 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
+	disconnectedCallback() {
+		this.stateChangeSub.unsubscribe();
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
