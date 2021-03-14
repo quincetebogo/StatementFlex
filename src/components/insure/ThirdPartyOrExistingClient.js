@@ -100,8 +100,15 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		this._updateMiniProfile();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+
+		super.disconnectedCallback();
 	}
 
 	// ---------------

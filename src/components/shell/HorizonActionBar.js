@@ -51,10 +51,11 @@ export class HorizonActionBar extends Component {
         super.connectedCallback();
         this.eventAggregator = EventAggregator.getInstance();
         this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
-		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
+		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
 	disconnectedCallback() {
+		this.assignSub.dispose();
 		this.stateChangeSub.unsubscribe();
 		super.disconnectedCallback();
 	}

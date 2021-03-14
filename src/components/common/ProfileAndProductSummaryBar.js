@@ -50,8 +50,8 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
-		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
-		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
+		this.leftBarSub = this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
+		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
 	// ----------
@@ -83,6 +83,8 @@ export class ProfileAndProductSummaryBar extends Component {
 	}
 
 	disconnectedCallback() {
+		this.leftBarSub.dispose();
+		this.favouritesBarSub.dispose();
 		this.stateChangeSub.unsubscribe();
 		
 		super.disconnectedCallback();

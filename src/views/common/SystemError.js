@@ -60,8 +60,16 @@ export class SystemError extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------
