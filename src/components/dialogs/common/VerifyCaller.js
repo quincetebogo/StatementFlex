@@ -203,7 +203,7 @@ export class VerifyCaller extends Component {
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
 		} else {
-			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`);
+			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
 		}
 	}
 
@@ -396,7 +396,7 @@ export class VerifyCaller extends Component {
 					this.itaTimer = this._startTimer();
 				}
 			} else {
-				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`);
+				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
 			}
 		}
 	}

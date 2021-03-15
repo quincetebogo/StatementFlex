@@ -399,6 +399,15 @@ export class HorizonChannelService extends Service {
 		return this._post(url, model, this._setToken(), `createIncident`);
 	}
 
+	updateIncidentClientDetails(cifNumber, incidentRecId) {
+		const request = {
+			incidentRecId: incidentRecId,
+			cif: cifNumber
+		};
+
+		return this._post(`clientcare/initialise/${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+	}
+
 	// --------------
 	// INSURE METHODS
 	// --------------

@@ -5,6 +5,7 @@ import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { InitialiseService } from 'app/services/InitialiseService';
 import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
@@ -56,21 +57,21 @@ export class ConfirmCallerDetails extends Component {
 	constructor() {
 		super();
 
-		// Property initialization
-		this.confirmedCaller = null;
-		this.incomingCallDetails = null;
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-		this.isBusy = false;
+		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.initializeService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
+		// Property initialization
+		this.confirmedCaller = null;
+		this.incomingCallDetails = null;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
@@ -151,7 +152,18 @@ export class ConfirmCallerDetails extends Component {
 
 	async _verifyCaller() {
 		if (await this._setAvailabilityFlags()) {
-			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+
+			if (incidentRecId && incidentRecId !== ``) {
+				const returnValue = await this.initializeService(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
+
+				if (returnValue.succeeded) {
+					this.renderMode = RENDER_MODE.VERIFY_CALLER;
+				} else {
+					this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
+				}
+			} else {
+				this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
+			}
 		}
 	}
 
@@ -335,7 +347,7 @@ export class ConfirmCallerDetails extends Component {
 			// When we do other calls to set other flags (hasInsuranceProducts we may prefer to show a system error and return false)
 			flagsSet = true; 
 			this.callerInformation.hasDigitalChannels = true;
-			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
+			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
 
 		// Save above flags to state
