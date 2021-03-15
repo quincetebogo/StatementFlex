@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
@@ -34,39 +35,19 @@ const RENDER_MODE = Object.freeze({
         this.state = this.horizonStore.recoverState();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
+		this.isBusy = false;
 		this.chooseNeed = true;
 		this.chooseIssue = true;
+		this.orgUnit = 'Client Care';
+		this.category = '';
+		this.need = '';
+		this.issue = '';
 		this.solutionDisplay = false;
-		this.someObject = { code: `AL`, text: `Alabama` };
-		this.searchObject = [
-			{ code: `ATM`, text: `ATM` },
-			{ code: `Category 2`, text: `Category 2` },
-			{ code: `Category 3`, text: `Category 3` },
-			{ code: `Category 4`, text: `Category 4` },
-			{ code: `Category 5`, text: `Category 5` }
-		];
-		this.specificNeedObjects = [
-			{ code: `Option 1`, text: `Option 1` },
-			{ code: `Option 2`, text: `Option 2` },
-			{ code: `Option 3`, text: `Option 3` },
-			{ code: `Option 4`, text: `Option 4` }
-		];
-		this.issueTypeObjects = [
-			{ code: `Option 1`, text: `Unauthorized transaction - ATM Retain...` },
-			{ code: `Option 2`, text: `Capitec ATM - Cash did not dispense` },
-			{ code: `Option 3`, text: `Capitec ATM - Cash dispensed short` },
-			{ code: `Option 4`, text: `CF not available at the ATM` }
-		];
-		this.dataObjects = [
-			this.someObject,
-			{ code: `AK`, text: `Alaska` },
-			{ code: `OK`, text: `Oklahoma` },
-			{ code: `NM`, text: `New Mexico` },
-			{ code: `NY`, text: `New York` },
-			{ code: `TX`, text: `Texas` },
-			{ code: `TN`, text: `Tennessee` },
-			{ code: `NJ`, text: `New Jersey` }
-        ];
+		this.searchObject = null;
+		this.specificNeedObjects = null;
+		this.issueTypeObjects = null;
+		this.solutionObjects = null;
 
        	this.incomingCallDetails = this.state.incomingCallDetails;
         this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`
@@ -91,6 +72,10 @@ const RENDER_MODE = Object.freeze({
 			chooseNeed: {type: Boolean},
 			chooseIssue: {type: Boolean},
 			solutionDisplay: {type: Boolean},
+			searchObject: {type: Object},
+			specificNeedObjects: {type: Object},
+			issueTypeObjects: {type: Object},
+			solutionObjects: {type: Object},
 			renderMode: {attribute: false}
 		};
 	}
@@ -99,8 +84,14 @@ const RENDER_MODE = Object.freeze({
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		
+		const orgUnit = "Client Care";
+		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
+		if (returnValue.succeeded && returnValue.result) {
+			this.searchObject = returnValue.result.categories;
+		}
 	}
 
 	// --------------
@@ -111,26 +102,69 @@ const RENDER_MODE = Object.freeze({
 		// initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 	// ---------
 	// PRIVATE METHODS
 	// ---------
 	 
-	_searchOtherNeed(e) {
-		this.chooseNeed = false;
-		if (e = null) {
+	async _searchOtherNeed(e) {
+			
+		this.specificNeedObjects = null;
+		this.issueTypeObjects = null;
+		this.category = e.currentTarget.value;
+		if (this[e.currentTarget.value] = e.detail.new){
+			this.chooseNeed = false;
+			
+			const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(this.orgUnit, this.category);
+			
+			if (returnValue.succeeded && returnValue.result) {
+				this.specificNeedObjects = returnValue.result.needs;
+			}
+		}
+		else {
 			this.chooseNeed = true;
+			this.chooseIssue = true;
+			this.solutionDisplay = false;
 		}
 	 }
 
-	_searchSpecificNeed(e) {
-		this.chooseIssue = false;
+	async _searchSpecificNeed(e) {
+
+		this.solutionDisplay = false;
+		this.need = e.currentTarget.value.need;
+		
+		if (this[e.currentTarget.value.need] = e.detail.new) {
+			this.chooseIssue = false;
+		
+		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
+		
+				if (returnValue.succeeded && returnValue.result) {
+				this.issueTypeObjects = returnValue.result.issues.map(item=>{
+					return item.issue;
+				});
+			}
+		}
+		else {
+			this.chooseIssue = true;
+			this.solutionDisplay = false;
+		}
 	 }
 
-	_chooseIssueType(e) {
+	async _chooseIssueType(e) {
 		this.solutionDisplay = true;
+		this.issue = e.currentTarget.value.issue;
+		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
+		
+		if (returnValue.succeeded && returnValue.result) {
+			this.solutionObjects = returnValue.result.issues.map(item=>{
+				return item.solution;
+			});
+		}
 	}
 
-	_onLaunchStrackClick() {
+	async _onLaunchStrackClick() {
         this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
         window.open(this.strackURL);
         this.renderMode = RENDER_MODE.FEEDBACK;
@@ -251,9 +285,16 @@ const RENDER_MODE = Object.freeze({
 		return html`
 			${this._renderOtherNeeds()}
 			${this._renderFeedback()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
 
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
 	_renderOtherNeeds() {
 		return html`
 			<capitec-card class="other-need">
@@ -301,8 +342,9 @@ const RENDER_MODE = Object.freeze({
 				<capitec-text-field 
 					label="Search client need"
 					.items="${this.searchObject}"
-					display-field="text"
-					id-field="code"
+					data= "${this.searchObject}"
+					display-field="category"
+					id-field="category"
 					type="search"
 					keyboardMode="alpha-numeric"
 					@value-changed="${(e) => this._searchOtherNeed(e)}">
@@ -310,8 +352,8 @@ const RENDER_MODE = Object.freeze({
 				<capitec-select 
 					label="Choose specific need" 
 					.items="${this.specificNeedObjects}"
-					display-field="text"
-					id-field="code"
+					display-field="need"
+					id-field="need"
 					.value="Search specific need"
 					?hidden = ${this.chooseNeed}
 					@value-changed="${(e) => this._searchSpecificNeed(e)}"
@@ -320,8 +362,8 @@ const RENDER_MODE = Object.freeze({
 				<capitec-select 
 					label="Choose issue type" 
 					.items="${this.issueTypeObjects}"
-					display-field="text"
-					id-field="code"
+					display-field="issue"
+					id-field="issues"
 					.value="Search specific need"
 					?hidden = ${this.chooseIssue}
 					@value-changed="${(e) => this._chooseIssueType(e)}"
@@ -339,10 +381,10 @@ const RENDER_MODE = Object.freeze({
 						<capitec-label
 							class="solution-heading"
 							type="subtitle"
-							label="Minimum Information Needed">
+							label="${this.solutionObjects}">
 						</capitec-label>
 			
-						<capitec-group layout="vertical" gap="none" halign="left" valign="top">
+						<!-- <capitec-group layout="vertical" gap="none" halign="left" valign="top">
 							<capitec-label
 								class="solution-content"
 								type="default" 
@@ -476,7 +518,7 @@ const RENDER_MODE = Object.freeze({
 									label="Provide the client with the Incident Number and end the call.">
 								</capitec-label>
 							</li>
-						</capitec-group>
+						</capitec-group> -->
 					</capitec-content-box>
 					
 					<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
