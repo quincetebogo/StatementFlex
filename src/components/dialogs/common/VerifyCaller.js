@@ -176,6 +176,12 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	async _securityQuestionsClick() {
+
+		if (this.itaTimer) {
+			this._stopTimer();
+			this.horizonSignalRClient.deRegisterHandler();
+		}
+
 		this.xdsMessage = ``;
 		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
@@ -203,7 +209,7 @@ export class VerifyCaller extends Component {
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
 		} else {
-			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`);
+			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
 		}
 	}
 
@@ -256,6 +262,7 @@ export class VerifyCaller extends Component {
 		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
 		this.itaMessage = ``;
+		this.xdsMessage = ``;
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 
@@ -396,7 +403,7 @@ export class VerifyCaller extends Component {
 					this.itaTimer = this._startTimer();
 				}
 			} else {
-				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`);
+				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
 			}
 		}
 	}
@@ -436,6 +443,7 @@ export class VerifyCaller extends Component {
 	_stopSignalRConnection() {
 		if (this.horizonSignalRClient) {
 			this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_stopSignalRConnection`);
+			this.horizonSignalRClient.deRegisterHandler();
 			this.horizonSignalRClient.stopConnection();
 			this.horizonSignalRClient = null;
 		}
@@ -606,7 +614,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage && !this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
@@ -636,7 +644,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage && !this.xdsMessage) {
 
 			let message = ``;
 			if (this.appTimedOut) {
