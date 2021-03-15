@@ -56,12 +56,12 @@ const NONCLIENT_REGEX_PATTERN = {
 	CHARACTER_ERROR: `Invalid Special Character(s)`,
 	ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
 	nameValue: {
-		PATTERN: /^[A-Za-z]+$/,
+        PATTERN: /^[A-Za-z\s-]+$/,
 		FIELD_ERROR: `Enter a name`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
 	surNameValue: {
-		PATTERN: /^[A-Za-z]+$/,
+        PATTERN: /^[A-Za-z\s-]+$/,
 		FIELD_ERROR: `Enter a surname`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
