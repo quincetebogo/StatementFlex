@@ -31,7 +31,7 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_VIEW_INFO: 9,
     UPDATE_CARD_LIMITS: 10,
     PROOF_OF_ACCOUNT: 11,
-	SEARCH_OTHER_NEED:12
+	SEARCH_OTHER_NEED: 12
 });
 
 /**
@@ -70,7 +70,7 @@ export class Favourites extends View {
 		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
-		this.curOptionEvent = {};
+		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
 
@@ -122,7 +122,7 @@ export class Favourites extends View {
 			const statements = () => this._getStatements();
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
-			const searchOtherNeed=()=>this._searchOtherNeed()
+			const searchOtherNeed = () => this._searchOtherNeed();
 
 			const actions = {
 				'stop-card': stopCard,
@@ -132,7 +132,7 @@ export class Favourites extends View {
 				'statements': statements,
 				'tax-certificate': taxCertificates,
 				'proof-of-account': proofOfAccount,
-				'search-other-need':searchOtherNeed
+				'search-other-need': searchOtherNeed
 			};
 
 			if (actions[option]) {
@@ -193,14 +193,14 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = {};
+			this.curOptionEvent = null;
 			this._performAction(optionSelected)();
 		}
 	}
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -400,9 +400,9 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
 	}
 
-	_searchOtherNeed(){
-		//TODO: Navigation to search other needs page 
-		this.renderMode=RENDER_MODE.SEARCH_OTHER_NEED;
+	_searchOtherNeed() {
+		// TODO: Navigation to search other needs page 
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------
@@ -565,6 +565,7 @@ export class Favourites extends View {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
                 <horizon-proof-of-account
+                    @cancel="${() => this._mainPage()}"
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"
@@ -572,16 +573,16 @@ export class Favourites extends View {
             : html``; 
     }
 
-	_renderSearchOtherNeed(){
-		return this.renderMode=== RENDER_MODE.SEARCH_OTHER_NEED
-		? html`
-		<search-other-need
-		    .incomingCallDetails="${this.incomingCallDetails}"
-		    .callerInformation="${this.callerInformation}"
-            .landingPageInfo="${this.landingPageInfo}"
-			@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-		</search-other-need>`
-		: html``;
+	_renderSearchOtherNeed() {
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+			? html`
+				<search-other-need
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					.landingPageInfo="${this.landingPageInfo}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</search-other-need>`
+			: html``;
 	}
 }
 

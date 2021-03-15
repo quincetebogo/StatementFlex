@@ -63,6 +63,7 @@ export class XdsVerificationFailed extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._updateMiniProfile();
 	}
 
 	// --------------
@@ -105,6 +106,19 @@ export class XdsVerificationFailed extends View {
 
 	_cancelEndCallClick() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_updateMiniProfile() {
+		const state = { 
+			callerInformation: this.callerInformation,
+			leftBarButtonConfig: {
+				hasFavourites: true,
+				subtitle: ``,
+				detail: ``
+			}
+		};
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------

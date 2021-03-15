@@ -72,6 +72,7 @@ export class VerifyCaller extends Component {
 		this.loading = true;
 		this.xdsMessage = ``;
 		this.itaMessage = ``;
+		this.noOfXdsVerificationAttempted = 0;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -94,6 +95,7 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
+			noOfXdsVerificationAttempted: { type: Number },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
@@ -178,6 +180,12 @@ export class VerifyCaller extends Component {
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
+
+			const authHistory = this.securityQuestions.authenticationHistory;
+			if (authHistory) {
+				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
+			}
+
 			if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
@@ -195,6 +203,20 @@ export class VerifyCaller extends Component {
 		} else {
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`);
 		}
+	}
+
+	_calculateXDSAttempts(authHistory) {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+ 
+		const usedAttempts = authHistory.filter(item => {
+			const bureauDate = new Date(item.bureauDate);
+			if (bureauDate > yesterday && item.authenticationStatus === `Not Authenticated`) {
+				return true;
+			}
+			return false;
+		}).length;
+		return usedAttempts;
 	}
 
 	_skipClick() {
@@ -218,6 +240,14 @@ export class VerifyCaller extends Component {
 		this.callerInformation = event.detail.callerInformation;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
+	_verifyViaApp(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+		this._initiateItaVerification();
 	}
 
 	_tryAgain() {
@@ -375,6 +405,8 @@ export class VerifyCaller extends Component {
 			this._stopTimer();
 			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
+
+			this.callerInformation.verificationStatus = `verified`;  
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -540,9 +572,11 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
+					.noOfXdsVerificationAttempted="${this.noOfXdsVerificationAttempted}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
-					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}">
+					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
+					@verify-via-app="${(event) => this._verifyViaApp(event)}">
 				</horizon-security-question>`;
 	}
 
@@ -608,7 +642,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification through security questions.">
+								label="Notify the client and either try again or complete through security questions.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -636,7 +670,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification via the App.">
+								label="Notify the client and either try again or complete verification verification via the App.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>

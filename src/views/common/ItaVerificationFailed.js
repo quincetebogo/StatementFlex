@@ -164,7 +164,7 @@ export class ItaVerificationFailed extends View {
 		return html`
 				${this._renderLoadingIndicator()}
 				<horizon--error-screen 
-					header="Verification was unsuccessful" 
+					header="Verification was unsuccessful"
 					left="Continue Unverified"
 					right="Verify Via Security Questions" 
 					toast="Your Verification has failed." 

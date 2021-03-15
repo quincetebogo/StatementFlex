@@ -79,7 +79,9 @@ export class HorizonChannelServiceMocks {
 	verifySecurityQuestions(answers) {
 		if (this._mocking.verifySecurityQuestions.positiveCase) {
 			return `Authenticated`;
-		}
+		} 
+
+		return `not-authenticated`;
 	}
 
 	favouritesLanding(clientInfo) {

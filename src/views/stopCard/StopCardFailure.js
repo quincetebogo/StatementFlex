@@ -141,7 +141,8 @@ export class StopCardFailure extends View {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.renderDialog = RENDER_DIALOG.ENDCALL;
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	_toggleBusyFlag() {
