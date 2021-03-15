@@ -30,24 +30,24 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": false,
+			"enabled": true,
 			"failStopCard": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {

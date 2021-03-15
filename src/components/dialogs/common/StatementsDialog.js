@@ -446,31 +446,21 @@ export class StatementsDialog extends Component {
 		return [
 			super.styles,
 			css`
-				extra-space
-				bb-stepper-modal {
-					height: 930px;
-					width: 976px;
+				.margin-top {
+					margin-top: var(--horizon-statement-generic-margin-top, 24px);
+				}
+				capitec-modal {
+					width: 975px;
+				}
+				capitec-stepper {
+					width: 975px;
 
-					--theme-modal-header-height: 64px;
-					--theme-modal-header-font-size: 18px;
-					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-stepper-inner-step-container-height: 56px;
-					--theme-stepper-inner-step-container-width: 328px;
-					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
-					--theme-stepper-step-title-font-size: 15px;
-					--theme-stepper-step-title-max-width: 328px;
+					--theme-stepper-inner-step-container-width: 323px;
 					--theme-stepper-step-content-container-padding-left: 16px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 976px;
-					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:976px;
+					--theme-stepper-step-title-max-width: 100%;
 				}
 				capitec-content-box {
+					width: 975px;
 					height: 730px;
 
 					--theme-container-padding-left: 16px;
@@ -506,12 +496,11 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-heading-margin-left: 6px;
 					--theme-layout-gap-spacing: 8px;
 				}
-			div[slot="footer"] {
-				padding-left: 16px;
-				width: 976px;
-				left: 0;
-				right: 0;
-			}
+				.choose-period > horizon-product-tile {
+					width: 224px;
+
+					--theme-layout-gap-spacing: 16px;
+				}
 			.plain-body{
 				height: 930px;
 				width: 976px;
@@ -745,13 +734,12 @@ export class StatementsDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<bb-stepper-modal
-				.steps="${STATEMENTS_STEPS}"
-				active-step-number="${this.currentStep}"
+			<capitec-modal
+				type="free"
 				header="${this.statementsHeader}">
-					
-					<div slot="step">
-						${this._renderBody()}
+					<div slot="body">
+						${this._renderStepper()}
+						${this._renderContent()}
 					</div>
 
 					<div slot="footer">
@@ -779,10 +767,20 @@ export class StatementsDialog extends Component {
 								</capitec-button>
 						</capitec-group>
 					</div>
-			</bb-stepper-modal>`;
+			</capitec-modal>`;
 	}
 
-	_renderBody() {
+	_renderStepper() {
+		return html`
+			<capitec-stepper
+				layout="horizontal"
+				.steps="${STATEMENTS_STEPS}"
+				active-step-number="${this.currentStep}">
+	 		</capitec-stepper>
+		`;
+	}
+
+	_renderContent() {
 		return html`
 			<capitec-content-box
 				layout="vertical"
@@ -855,6 +853,7 @@ export class StatementsDialog extends Component {
 		if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN) {
 			return html`
 				<capitec-label
+					class="margin-top"
 					type="subtitle"
 					label="Choose a Savings Plan">
 				</capitec-label>
@@ -886,6 +885,7 @@ export class StatementsDialog extends Component {
 				</capitec-label>
 
 				<capitec-group
+					class="choose-period"
 					layout="horizontal">
 						<horizon-product-tile
 							type="radio-button"
@@ -928,6 +928,7 @@ export class StatementsDialog extends Component {
 	_renderPeriodSelected() {
 		return html`
 			<capitec-label
+				class="margin-top"
 				type="subtitle"
 				label="Choose date range">
 			</capitec-label>
