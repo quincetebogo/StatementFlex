@@ -1,4 +1,5 @@
-import { View, html } from 'platform/elements';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
 // import 'app/components/product/CreditProductDetails';
 import 'app/components/product/CnetProductInfo';
 
@@ -10,7 +11,7 @@ import 'app/components/product/CnetProductInfo';
  * @class CreditProduct
  * @extends {View}
  */
-export class CreditProduct extends View {
+export class CreditProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -26,14 +27,6 @@ export class CreditProduct extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	_viewBenefits() {
-		window.open(`https://www.capitecbank.co.za/global-one/credit/`);
 	}
 
 	// ---------
@@ -61,7 +54,7 @@ export class CreditProduct extends View {
 			<horizon-cnet-product-info 
 				viewType="credit" 
 				viewHeader="Credit"
-				@view-benefits="${() => this._viewBenefits()}">
+				@view-benefits="${() => this._viewBenefits(`credit`)}">
 			</horizon-cnet-product-info>`;
 
 		// return html`<horizon-credit-product-details class="credit-details"></horizon-credit-product-details>`;
