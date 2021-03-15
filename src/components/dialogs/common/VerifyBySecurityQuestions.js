@@ -185,6 +185,7 @@ export class VerifyBySecurityQuestions extends Component {
 	_retrySecurityQuestions(e) {
 		if (this.noOfXdsVerificationAttempted < MAX_XDS_ATTEMPTS) {
 			this.questionNumber = 0;
+			this.securityQuestions = e.detail.securityQuestions;
 			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
@@ -425,7 +426,8 @@ export class VerifyBySecurityQuestions extends Component {
 		return html`
 			<horizon-security-questions-failed
                 .incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
+				.callerInformation="${this.callerInformation}" 
+				@security-questions="${(e) => this._retrySecurityQuestions(e)}"
 				@skip="${() => this._skipClick()}"
 				@verify-via-app="${() => this._verifyViaApp()}"
 				>
