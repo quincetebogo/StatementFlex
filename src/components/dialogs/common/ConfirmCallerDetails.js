@@ -153,8 +153,8 @@ export class ConfirmCallerDetails extends Component {
 	async _verifyCaller() {
 		if (await this._setAvailabilityFlags()) {
 
-			if (incidentRecId && incidentRecId !== ``) {
-				const returnValue = await this.initializeService(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
+			if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
+				const returnValue = await this.initializeService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
 
 				if (returnValue.succeeded) {
 					this.renderMode = RENDER_MODE.VERIFY_CALLER;
