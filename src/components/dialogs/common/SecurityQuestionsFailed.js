@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
@@ -41,6 +42,7 @@ export class SecurityQuestionsFailed extends Component {
 		this.incomingCallDetails = null;
 		this.callerInformation = {};
 		this.xdsMessage = ERROR_MESSAGE.DEFAULT_NOTIFICATION;
+		this.logger = Logger.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
@@ -89,17 +91,19 @@ export class SecurityQuestionsFailed extends Component {
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
-			this.securityQuestions = returnValue.result;
+			const securityQuestions = returnValue.result;
 
-			if (!this.securityQuestions.authenticationPermitted) {
+			if (!securityQuestions.authenticationPermitted) {
+				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
+				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				// common code - imported from VerifyCaller
 				navigateToFailedScreen(this);
-			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (securityQuestions.questions && securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
-					detail: { 'securityQuestions': this.securityQuestions }
+					detail: { 'securityQuestions': securityQuestions }
 				}));
 			} else {
-				this.xdsMessage = this.securityQuestions.errorMessage;
+				this.xdsMessage = securityQuestions.errorMessage;
 			}
 		}
 	}

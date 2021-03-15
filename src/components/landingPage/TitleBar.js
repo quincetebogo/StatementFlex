@@ -12,7 +12,7 @@ export class TitleBar extends Component {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
+		this.titleBarSub = this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
 	}
 
 	// ----------
@@ -29,6 +29,12 @@ export class TitleBar extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+
+	disconnectedCallback() {
+		this.titleBarSub.dispose();
+
+		super.disconnectedCallback();
+	}
 
 
 	// --------------

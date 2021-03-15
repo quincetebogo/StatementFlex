@@ -1,4 +1,4 @@
-import { Configuration, EventAggregator, Logger, NavigationContext, Router } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -61,16 +61,16 @@ export class DesktopAgentService {
 
 		this._setValidationData();
 
-		this.eventAggregator = EventAggregator.getInstance();
+		this._configuration = Configuration.getInstance();
+		this._eventAggregator = EventAggregator.getInstance();
+		this._logger = Logger.getInstance();
+		this._navigationContext = NavigationContext.getInstance();
+		this._securityContext = SecurityContext.getInstance();
+
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.HorizonRouter = HorizonRouter.getInstance();
-		this.router = Router.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
-		this.logger = Logger.getInstance();
 
-		this.eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
-
-		this.configuration = Configuration.getInstance();
+		this._eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 	}
 
 
@@ -92,7 +92,7 @@ export class DesktopAgentService {
 		// Do nothing with hearbeats. They are just to keep the connection alive
 		if (Object.prototype.hasOwnProperty.call(eventData, `Heartbeat`)) {
 			if (this.connectionTries >= 3) {
-				this.eventAggregator.publish(`desktop-agent-up`, {});
+				this._eventAggregator.publish(`desktop-agent-up`, {});
 			}
 			this.connectionTries = 0;
 			return;
@@ -100,7 +100,7 @@ export class DesktopAgentService {
 
 		// If we get a call before a heartbeat, also automatically notify that the desktop agent is up.
 		if (this.connectionTries >= 3) {
-			this.eventAggregator.publish(`desktop-agent-up`, {});
+			this._eventAggregator.publish(`desktop-agent-up`, {});
 		}
 
 		// We have received an event so we must be connected to the Desktop Agent
@@ -127,19 +127,19 @@ export class DesktopAgentService {
 			this.lastEventId = event.lastEventId;
 
 			if (this.nextCall) {
-				this.logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `_onNewCall`);
+				this._logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `_onNewCall`);
 			}
 
 			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
 				newCallEvent.voiceReferenceNumber = 0;
-				this.logger.log(`error`, `No Voice Reference Number received!. The ACapitecAES Proxy component may be down!`, `_onNewCall`);
+				this._logger.log(`error`, `No Voice Reference Number received!. The ACapitecAES Proxy component may be down!`, `_onNewCall`);
 			}
 
 			this.nextCall = newCallEvent;
 
 			this._handleIncomingCall();
 		} catch (err) {
-			this.logger.log(`fatal`, err.message, `_onNewCall`);
+			this._logger.log(`fatal`, err.message, `_onNewCall`);
 		}
 	}
 
@@ -235,6 +235,30 @@ export class DesktopAgentService {
 		};
 	}
 
+	async manualCreateCall() {
+		if (!this.onCall) {
+			const d = new Date();
+			const currentdate = d.toISOString();
+			const newCallEvent = new NewCallEvent();
+			const vdn = await this._configuration.getSetting(`VDN`);
+
+			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
+			newCallEvent.voiceReferenceNumber = `${this._securityContext.getUserName}-${currentdate}`; // voicedReferenceNumber
+			newCallEvent.agentTelephoneNumber = `000000`;
+			newCallEvent.VDN = vdn;
+			newCallEvent.ivrOptionCode = `Transact`;
+			newCallEvent.date = currentdate;
+	
+			if (this.nextCall) {
+				this._logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `manualCreateCall`);
+			}
+	
+			this.nextCall = newCallEvent;
+	
+			this._handleIncomingCall();
+		}
+	}
+
 	/**
 	 * We maintain a flag (this.onCall) to prevent a new call from interrupting an incomplete call session.
 	 * The UI must invoke callComplete() once a call session has been completed in order to handle any
@@ -253,7 +277,7 @@ export class DesktopAgentService {
 	// ---------------
 
 	async _mapIvrOption(IvrOptionCode) {
-		const ivrMapping = await this.configuration.getSetting(`ivrMapping`);
+		const ivrMapping = await this._configuration.getSetting(`ivrMapping`);
 		const selectedOption = ivrMapping.find(element => element.option === IvrOptionCode);
 
 		return selectedOption ? selectedOption.primaryNeed : `Transact`;
@@ -271,21 +295,19 @@ export class DesktopAgentService {
 
 	_handleIncomingCall() {
 		// Don't handle incoming call if if application is still starting up
-		if (!this.nextCall || this.navigationContext.current === undefined) {
+		if (!this.nextCall || this._navigationContext.current === undefined) {
 			return;
 		}
-
-		// TODO: Fix the onCall handling - removed for now
 
 		// Get current view from router. Note that we are still on the landing page when presenting
 		// dialogs (such as Confirm Caller Details). Therefore we use a flag to indicate whether we 
 		// are on a call and accept only if no dialog has been presented (i.e. we are not on a call)
-		if (this._landingPageActive()) {
+		if (this._waitingForCallPageActive()) {
 			// If Landing Page => publish event
 
 			this.onCall = true;
 
-			this.eventAggregator.publish(`new-call`, this.nextCall);
+			this._eventAggregator.publish(`new-call`, this.nextCall);
 
 			this.nextCall = null;
 		} else if (this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES) {
@@ -297,8 +319,8 @@ export class DesktopAgentService {
 	}
 
 	_promptForDesktopAgent() {
-		if (this._landingPageActive()) {
-			this.eventAggregator.publish(`prompt-start-desktopagent`);
+		if (this._waitingForCallPageActive()) {
+			this._eventAggregator.publish(`prompt-start-desktopagent`);
 			// this.connectionTries = 0;
 		} else if (this._productLandingPagesActive()) {
 			this.HorizonRouter.navigateToWaitingForCall();
@@ -306,13 +328,13 @@ export class DesktopAgentService {
 	}
 
 	_productLandingPagesActive() {
-		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this._navigationContext.current !== undefined;
 	}
 
-	_landingPageActive() {
+	_waitingForCallPageActive() {
 		// TODO: Restore onCall check once all screens for insure etc. are properly wired up again
-		if (this.navigationContext.current !== undefined) {
-			return this.navigationContext.current.route.name === `horizon-landing-page`; /* && !this.onCall */
+		if (this._navigationContext.current !== undefined) {
+			return this._navigationContext.current.route.name === `horizon-landing-page`; /* && !this.onCall */
 		}
 
 		return false;

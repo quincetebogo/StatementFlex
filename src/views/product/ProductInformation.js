@@ -89,8 +89,16 @@ export class ProductInformation extends View {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
 		);
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
+
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.navSub.dispose();
+				
+		super.disconnectedCallback();
 	}
 
 	// ---------

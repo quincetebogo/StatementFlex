@@ -28,18 +28,13 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"false": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
-			"positiveCase": true
-		},
-		"stopCard": {
-			"enabled": false,
-			"failStopCard": true,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -77,6 +72,11 @@
 		},
 		"hasInsuranceProducts": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
 			"positiveCase": true
 		}
 	}

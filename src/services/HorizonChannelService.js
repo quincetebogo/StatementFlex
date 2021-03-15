@@ -257,23 +257,35 @@ export class HorizonChannelService extends Service {
 	}
 	
 	// stopCardRequest
-	async stopCard(stopCardRequest) {
+	stopCard(stopCardRequest) {
+
+		/*
 		// Force loading of mocking settings
 		await this._mockEnabled(`stopCard`);
 
 		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failStopCard && this._configuration.config.runtime.environment === `DEV`) {
-			const cardStopResponse = { 
-			   cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-					  result: {
-						statusCode: 400
-				  } }))
-				};
-
-			// throw new Error(`Mock Stop Card Error`);
-			return cardStopResponse;
+		if (this._mocking !== null && Object.prototype.hasOwnProperty.call(this._mocking, `stopCard`)) {
+			if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `enabled`) && this._mocking.stopCard.enabled) {
+				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
+					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
+		*/
+	/*
+						const cardStopResponse = { 
+							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+								result: {
+									statusCode: 400
+								  } }))
+						};
+		
+						// throw new Error(`Mock Stop Card Error`);
+						return cardStopResponse;
+	*/
+/*
+					 }
+				}
+			}
 		}
-
+*/
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -385,6 +397,21 @@ export class HorizonChannelService extends Service {
 		const model = createIncidentRequest;
 
 		return this._post(url, model, this._setToken(), `createIncident`);
+	}
+
+	updateIncidentClientDetails(cifNumber, incidentRecId) {
+		const request = {
+			incidentRecId: incidentRecId,
+			cif: cifNumber
+		};
+
+		return this._post(`/clientcare/incident/${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+	}
+
+	updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
+		nonClientDetails.incidentRecId = incidentRecId;
+
+		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
 	}
 
 	// --------------

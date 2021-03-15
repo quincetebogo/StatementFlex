@@ -53,7 +53,7 @@ const RENDER_MODE = {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		const state = this.horizonStore.recoverState();
@@ -63,8 +63,16 @@ connectedCallback() {
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: email address received from API or using restore function.
 			this.emailAddress = `ivanmakatini@gmail.com`;
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+
+		super.disconnectedCallback();
 	}
 
 	// --------------

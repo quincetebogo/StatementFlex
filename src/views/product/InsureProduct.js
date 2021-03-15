@@ -1,4 +1,5 @@
-import { View, css, html } from 'platform/elements';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
 import 'app/components/product/CnetProductInfo';
 
 // import 'app/components/product/InsureProductDetails';
@@ -11,7 +12,7 @@ import 'app/components/product/CnetProductInfo';
  * @class InsureProduct
  * @extends {View}
  */
-export class InsureProduct extends View {
+export class InsureProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -27,14 +28,6 @@ export class InsureProduct extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	_viewBenefits() {
-		window.open(`https://www.capitecbank.co.za/global-one/insure/`);
 	}
 
 	// ---------
@@ -62,7 +55,7 @@ export class InsureProduct extends View {
 			<horizon-cnet-product-info 
 				viewType="insure" 
 				viewHeader="Insure"
-				@view-benefits="${() => this._viewBenefits()}">
+				@view-benefits="${() => this._viewBenefits(`insure`)}">
 			</horizon-cnet-product-info>`;
 		// return html`<horizon-insure-product-details class="insure-details"></horizon-insure-product-details>`;
 	}

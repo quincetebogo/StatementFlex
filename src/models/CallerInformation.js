@@ -17,6 +17,8 @@ export class CallerInformation {
 	 * @param {string} name The client's full name
 	 * @param {string} southAfricanIDNumber The client's South African ID number
 	 * @param {string} verifiedTelephoneNumber The client's verified number (not necessarily the incoming number)
+	 * @param {string} nonClientFirstName A third-party/non-client's first name
+	 * @param {string} nonClientSurName A third-party/non-client's surname
 	 * @param {string} nonClientFullName A third-party/non-client's full name
 	 * @param {string} nonClientCellPhone The third-party/non-client's cell phone number
 	 * @param {string} nonClientIDNumber  The third-party/non-client's South African ID number
@@ -39,6 +41,8 @@ export class CallerInformation {
 		name, 
 		southAfricanIDNumber, 
 		verifiedTelephoneNumber,
+		nonClientFirstName,
+		nonClientSurName,
 		nonClientFullName,
 		nonClientCellPhone,
 		nonClientIDNumber,
@@ -59,6 +63,8 @@ export class CallerInformation {
 		this.name = name;
 		this.southAfricanIDNumber = southAfricanIDNumber;
 		this.verifiedTelephoneNumber = verifiedTelephoneNumber;
+		this.nonClientFirstName = nonClientFirstName;
+		this.nonClientSurName = nonClientSurName;
 		this.nonClientFullName = nonClientFullName;
 		this.nonClientCellPhone = nonClientCellPhone;
 		this.nonClientIDNumber = nonClientIDNumber;
