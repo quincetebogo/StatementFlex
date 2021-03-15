@@ -43,18 +43,4 @@ export class InitialiseService extends ServiceBase {
 	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.initialise(), `initialise`, errorHandler, autoRetries);
 	}
-
-	/**
-	 * Record the details of a client against an incident
-	 *
-	 * @param {String} cifNumber The client's CIF number
-	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
-	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
-	 * @memberof InitialiseService
-	 */
-	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.updateIncidentClientDetails(cifNumber, incidentRecId), `updateIncidentClientDetails`, errorHandler, autoRetries);
-	}
 }

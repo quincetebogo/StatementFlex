@@ -176,6 +176,12 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	async _securityQuestionsClick() {
+
+		if (this.itaTimer) {
+			this._stopTimer();
+			this.horizonSignalRClient.deRegisterHandler();
+		}
+
 		this.xdsMessage = ``;
 		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
@@ -256,6 +262,7 @@ export class VerifyCaller extends Component {
 		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
 		this.itaMessage = ``;
+		this.xdsMessage = ``;
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 
@@ -436,6 +443,7 @@ export class VerifyCaller extends Component {
 	_stopSignalRConnection() {
 		if (this.horizonSignalRClient) {
 			this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_stopSignalRConnection`);
+			this.horizonSignalRClient.deRegisterHandler();
 			this.horizonSignalRClient.stopConnection();
 			this.horizonSignalRClient = null;
 		}

@@ -5,7 +5,7 @@ import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { InitialiseService } from 'app/services/InitialiseService';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
@@ -66,8 +66,8 @@ export class ConfirmCallerDetails extends Component {
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-		this.initializeService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		
 		// Property initialization
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
@@ -136,10 +136,28 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	_addCallerDetailsConfirmed(event) {
+	async _addCallerDetailsConfirmed(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
-		this._navigateToLandingPage();
+		
+		if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
+
+			if (returnValue.succeeded) {
+				this._navigateToLandingPage();
+			} else {
+				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
+		}
 	}
 
 	_confirmClick() {
@@ -154,7 +172,7 @@ export class ConfirmCallerDetails extends Component {
 		if (await this._setAvailabilityFlags()) {
 
 			if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
-				const returnValue = await this.initializeService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
+				const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
 
 				if (returnValue.succeeded) {
 					this.renderMode = RENDER_MODE.VERIFY_CALLER;
@@ -257,6 +275,8 @@ export class ConfirmCallerDetails extends Component {
 			this.confirmedCaller.name,
 			this.confirmedCaller.southAfricanIDNumber,
 			this.confirmedCaller.verifiedTelephoneNumber,
+			``,
+			``,
 			``,
 			``,
 			``,
@@ -379,7 +399,7 @@ export class ConfirmCallerDetails extends Component {
 	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.languagePreference;
 
-		if (!languagePreference || languagePreference === "NOT_DEFINED") {
+		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
 			languagePreference = `-`;
 		}
 		return languagePreference;

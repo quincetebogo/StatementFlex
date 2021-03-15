@@ -240,6 +240,8 @@ export class LandingPage extends View {
 			``,
 			``,
 			``,
+			event.detail.nonClient.firstName,
+			event.detail.nonClient.surname,
 			`${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
 			event.detail.incomingCallDetails.incomingTelephoneNumber,
 			``,
