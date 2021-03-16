@@ -418,8 +418,10 @@ export class SearchCaller extends Component {
 	}
 
 	_clearErrors(e) {
-		this.errMessage[e.currentTarget.id] = ``;
-		this.alertBannerMessage = ``;
+        this.errMessage[e.currentTarget.id] = ``;
+        this.errMessage.nameValue = ``;
+        this.errMessage.surNameValue = ``;
+        this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
