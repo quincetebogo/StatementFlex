@@ -71,6 +71,10 @@
 		"cardLimits": {
 			"enabled": true,
 			"positiveCase": true
+		},
+		"viewStatements":{
+			"enabled": true,
+			"positiveCase": true
 		}
 	}
 }
