@@ -59,7 +59,7 @@ export class IncidentManagementService extends ServiceBase {
 	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
 	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
 	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
@@ -73,7 +73,7 @@ export class IncidentManagementService extends ServiceBase {
 	 * @param {String} nonClientDetails Non client details
 	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof IncidentManagementService
 	 */
 	 updateIncidentNonClientDetails(incidentRecId, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
