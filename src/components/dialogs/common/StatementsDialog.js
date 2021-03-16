@@ -816,11 +816,11 @@ export class StatementsDialog extends Component {
 				<capitec-label class="accountSelectLabel" label="Savings Plans" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableSavingsPlans}</b></p>
 			</div>
-			<div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
+			<!-- <div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
 				<img src="src/images/statement/credit@1x.png" class="accountSelectIcon"/>
 				<capitec-label class="accountSelectLabel" label="Credit Card" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableCredit}</b></p>
-			</div>
+			</div> -->
 
 			<div>
 				${
@@ -835,8 +835,8 @@ export class StatementsDialog extends Component {
 	_renderSavingsPlanSelection() {
 		return html`
 			<capitec-label class="chooseText" type="subtitle" label="Choose a Savings Plan"></capitec-label>
-			${this.savingsPlans.map(item => html`
-				<capitec-radio-group>
+		<capitec-radio-group>	${this.savingsPlans.map(item => html`
+				
 					<div class="savingsPlans ${this.savingsPlanFocus}">
 						<div class="radioBtn">
 							<capitec-radio @click="${(e) => this._savingsPlanChanged(e, item.name)}">
@@ -847,8 +847,8 @@ export class StatementsDialog extends Component {
 							<capitec-label label="Available balance: ${item.amount}"></capitec-label>
 						</div>
 					</div>
-				</capitec-radio-group>
-			`)}
+				
+			`)}</capitec-radio-group>
 		`
 	}
 
