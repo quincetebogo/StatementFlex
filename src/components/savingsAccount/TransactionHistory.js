@@ -1,7 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 
-import { EXPANDER_LABEL, TABLE_EXPANDER_CELL, STATUS_TAG } from 'app/css/TransactionHistory';
+import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
@@ -51,14 +52,16 @@ export class TransactionHistory extends Component {
 		
 		// private properites
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showLoadMore = true;
 		this.startDate = ``;
 		this.startDateMonth = ``;
 		this.startDateYear = ``;
 		this.endDate = ``;
-		this.endDateMonth =``;
-		this.endDateYear =``;
+		this.endDateMonth = ``;
+		this.endDateYear = ``;
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
+		this.statuslabel = `Transaction Status`;
 		this.transactionStatusList = [
 			`Financial`,
 			`Non Financial`,
@@ -66,8 +69,14 @@ export class TransactionHistory extends Component {
 			`Reversed`,
 			`Partial reversal`,
 			`Partial reversal processed`
-		]
+		];
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+
 	
+		this.horizonStore = HorizonStore.getInstance();
+	
+		this.state = this.horizonStore.recoverState();
+		this.callerInformation = this.state.callerInformation;
 	}
 
 	// --------------
@@ -86,16 +95,18 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			filteredData: { type: Object },
+			filteredData: { attribute: false },
 
 			renderMode: { attribute: false },
+			isBusy: { attribute: false },
 			startDate: { attribute: false },
 			startDateMonth: { attribute: false },
 			startDateYear: { attribute: false },
 			endDate: { attribute: false },
 			endDateMonth: { attribute: false },
 			endDateYear: { attribute: false },
-			searchTextLabel: { attribute: false }
+			searchTextLabel: { attribute: false },
+			statuslabel: { attribute: false }
 		};
 	}
 
@@ -132,6 +143,9 @@ export class TransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.TEXT] === ``) {
 			this.searchTextLabel = `Search for amount or transaction name`;
 		}
+	}
+	_statusFocussed() {
+		this.statuslabel = '';
 	}
 
 	_startDateChanged(e) {
@@ -171,6 +185,12 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
+		const closeChip = {
+			TEXT: this.searchTextLabel = `Search for amount or transaction name`,
+			DATE: ``,
+			STATUS: this.statuslabel = `Transaction Status`,
+		}[type];
+
 		this._refineSearch();
 	}
 
@@ -178,6 +198,8 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
+		this.searchTextLabel = `Search for amount or transaction name`;
+		this.statuslabel = `Transaction Status`
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
@@ -191,24 +213,64 @@ export class TransactionHistory extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialize(tableData){
+	_initialize(tableData) {
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
 			item.tranDate = date;
 			item.transactionStatus = {
-					FEE: `Financial`,
+					FINANCIAL : `Financial`,
+					FEE: `Fee`,
 					NON_FINANCIAL:	`Non Financial`,
-					CARD_AUTH_FINANCIAL: `Processing`,
+					CARD_AUTHORISATION: `Processing`,
+					CARD_AUTH_SETTLED : ``,
 					CARD_AUTH_REVERSED: `Reversed`,
+					CARD_AUTH_TIMED_OUT:``,
+					CARD_AUTH_FINANCIAL: ``,
 					CARD_AUTH_PARTIAL_REVERSAL: `Partial reversal`,
-					CARD_AUTH_PARTIAL_REVERSAL_COMPLETE: `Partial reversal processed`
+					CARD_AUTH_PARTIAL_REVERSAL_COMPLETE: `Partial reversal processed`,
+					CARD_AUTH_INTERNAL_TIMED_OUT: ``,
 			}[item.transactionStatus];
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`:`- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00` : `- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
 			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
+
+			return item;
 		});
-		return tableData;
+		
+		return tableData.filter(item => item.transactionStatus !== ``);
+	}
+
+	async _renderCollection(){
+
+		const loadMoreData = (this.transactionHistory.length > 0) ? await this.dummyServiceCall() : [];
+		if(loadMoreData.length > 0){
+			const tableData = this._initialize(loadMoreData);
+			this.transactionHistory = [...this.transactionHistory,...tableData];
+		}
+		if((!loadMoreData.length > 0) && this.transactionHistory.length>0){
+			this.showLoadMore = false
+		}
+		this.filteredData = this.transactionHistory;
+		this._clearFilters();
+	}
+
+	async dummyServiceCall(){
+		const transactionHistoryRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			accountNumber: this.accountDetails.accountNumber,
+			accountType: `PRIMARY_SAVINGS`,
+			startDate: `2020-01-01`,
+			endDate: `2020-12-26`,
+			startAtIndex: this.transactionHistory.length,
+			maxResults: 8,
+			moneyType: `BOTH`
+		}
+		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+
+		if(returnValue.succeeded && returnValue.result){
+			return returnValue.result.transactions;
+		}
 	}
 
 	_refineSearch() {
@@ -217,8 +279,13 @@ export class TransactionHistory extends Component {
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
-			const searchTextResult = searchText.map(key => key !== `` ? this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 ||
-																parseInt(item.amount, 10) === parseInt(key, 10)) : [])
+			const searchTextResult = searchText.map(key => { 
+				if (key !== ``) {
+					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10));
+				} 
+				return [];
+			});
+
 			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
 		}
 		
@@ -329,7 +396,8 @@ export class TransactionHistory extends Component {
 					height: 47px;
 					width: 388px;
 					padding-left: 8px;
-				
+
+					--theme-label-font-color: #3a3a3a;
 					--theme-input-label-font-size: 16px;
 					--theme-layout-gap-spacing: 8px;
 				}
@@ -345,7 +413,8 @@ export class TransactionHistory extends Component {
 					width: 143px;
 					cursor: pointer;
 					margin-left: 16.5px;
-				
+					margin-bottom: 2px;
+					--theme-label-font-color: #3a3a3a;
 					--theme-label-default-font-size: 16px;
 				}
 				.cb-datepicker > capitec-icon {
@@ -476,16 +545,24 @@ export class TransactionHistory extends Component {
 
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
-					--theme-input-label-padding-top: 17px;
+					--theme-input-padding-bottom: 12px;
 					--theme-select-options-max-height: 304px;
-					--theme-input-padding-top: 14px;
-					--theme-input-font-size: 15px;
-					--theme-input-font-color: #3a3a3a;
+					--theme-input-font-size: 16px;
+					--theme-input-label-font-color: #3A3A3A;
 					--theme-input-font-weight: 400;
 					line-height: 20px;
 					width: 224px;
 				}
-
+				.load-more-bar{
+					--theme-actionbar-min-height: 48px;
+    				--theme-actionbar-padding: 12px;
+				}
+				.show-load-more{
+					display: block;
+				}
+				.hide-load-more{
+					display: none;
+				}
 			`
 		];
 	}
@@ -504,12 +581,24 @@ export class TransactionHistory extends Component {
 					${this._renderFilterBar()}
 				<capitec-content-box class="main-view">
 					${this._renderTransactionHistory()}
+					<capitec-action-bar class="load-more-bar ${this.showLoadMore ? "show-load-more" : "hide-load-more"}">
+						<capitec-spacer></capitec-spacer>
+						<capitec-hyperlink @click = ${() => this._renderCollection()} label="Load More"></capitec-hyperlink>
+						<capitec-spacer></capitec-spacer>
+					</capitec-action-bar>
 				</capitec-content-box>
 				</capitec-group>
 			</capitec-card>
 			${this._renderCalendar()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
 
 	_renderTitleBar() {
 		return html`
@@ -532,23 +621,23 @@ export class TransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${this.accountDetails.balance}">
+					value="${this.accountDetails.accountBalance}">
 				</horizon-label>
 				<horizon-label
 					label="Available Balance"
-					value="${this.accountDetails.availableBalance}">
+					value="${this.accountDetails.accountAvailableBalance}">
 				</horizon-label>
 				<horizon-label
 					label="Pending Amount"
-					value="${this.accountDetails.pendingAmount}">
+					value="${this.accountDetails.accountPendingAmount}">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
-					value="${this.accountDetails.interest}">
+					value="${this.accountDetails.interestRatePercentage}">
 				</horizon-label>
 				<horizon-label
 					label="Status"
-					value="${this.accountDetails.status}">
+					value="${this.accountDetails.accountStatus}">
 				</horizon-label>
 			</capitec-group>
 		`;
@@ -587,11 +676,12 @@ export class TransactionHistory extends Component {
 				</capitec-content-box>
 
 				<capitec-select 
-					label="Transaction status" 
+					label="${this.statuslabel}" 
 					class="transaction-status-select"
-					.items="${this.transactionStatusList}" 
-					display-field="text"
+					.items="${this.transactionStatusList}"
+					@focus="${(e) => this._statusFocussed(e)}"
 					@value-change = "${(e) => this._filterByStatus(e)}"
+					value="${RENDER_CHIPS[FILTER_BY.STATUS]}"
 					hint="">
 				</capitec-select>
 
@@ -714,11 +804,11 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				.items = ${this.filteredData}
+				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
 				expandable="right"
-				fixed = ${true}
+				?fixed = "${true}"
 				.expandRenderer="${(item) => this._renderExpander(item)}">
 					<capitec-table-column label="Transaction Date" field="transactionDate" type="date" size="156px;"></capitec-table-column>
 					<capitec-table-column label="Description" field="description" size="410px;"></capitec-table-column>
@@ -750,6 +840,16 @@ export class TransactionHistory extends Component {
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transaction type"
+					value = "${item.transactionType}">
+				</horizon-label>
+				<horizon-label
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Transfer account"
+					value = "${item.transferAccount}">
+				</horizon-label>
 				<horizon-label 
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
@@ -759,11 +859,6 @@ export class TransactionHistory extends Component {
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
 					value = "${this._formatDate(item.processDate)}">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction type"
-					value = "${item.transactionType}">
 				</horizon-label>
 			</capitec-group>
 
@@ -784,20 +879,15 @@ export class TransactionHistory extends Component {
 					value = "${item.cardAuthType}">
 				</horizon-label>
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transfer account"
-					value = "${item.transferAccount}">
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					label="Journal number"
+					value = "${item.journalNumber}">
 				</horizon-label>
 			</capitec-group>
 
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "${item.journalNumber}">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Includes Vat"
 					value = "${item.includesVat}">
 				</horizon-label>
@@ -805,14 +895,6 @@ export class TransactionHistory extends Component {
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
 					value = "${item.externalTerminalId}">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Spend group"
-					value = "Category Name">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
@@ -824,8 +906,11 @@ export class TransactionHistory extends Component {
 					label="Branch" 
 					value = "${item.branch}">
 				</horizon-label>
+			</capitec-group>
+
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
+					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Teller"
 					value = "${item.teller}">
 				</horizon-label>

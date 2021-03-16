@@ -48,6 +48,7 @@ export class SavingsAccountLandingPage extends View {
 	
 		// private properites
 		this.isBusy = false;
+		this.loading = true;
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -72,7 +73,8 @@ export class SavingsAccountLandingPage extends View {
 	static get properties() {
 		return {
 			isBusy: { attribute: false },
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			loading: { attribute: false }
 		};
 	}
 	
@@ -84,28 +86,28 @@ async _optionClick(event) {
 		if (event.detail.option === `transaction-history`) {
 
 			const transactionHistoryRequest = {
-				cifNumber: `157866564`,
-				accountNumber: `1315285787`,
-				accountType: `FIXED_TERM_MULTIPLE_DEPOSITS`,
-				startDate: `2020-12-01`,
+				cifNumber: this.callerInformation.cifNumber,
+				accountNumber: this.landingPageInfo.accountNumber,
+				accountType: `PRIMARY_SAVINGS`,
+				startDate: `2020-01-01`,
 				endDate: `2020-12-26`,
 				startAtIndex: 0,
-				maxResults: 20,
+				maxResults: 8,
 				moneyType: `BOTH`
 			};
 
 			const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 			if (returnValue.succeeded && returnValue.result) {
-				this.transactionHistory = returnValue.result.transactions;
-				this.accountDetails = {
-					"accountNumber": `1928247288`,
-					"balance": `R20 916.00`, 
-					"availableBalance": `R20 567.00`, 
-					"pendingAmount": `R349.00`, 
-					"interest": `5.5%`,
-					"status": `Active`
-				};
+                this.transactionHistory = returnValue.result.transactions;
+                this.accountDetails = {
+                    "accountNumber": this.landingPageInfo.accountNumber,
+                    "balance": this.landingPageInfo.accountBalance,
+                    "availableBalance": this.landingPageInfo.accountAvailableBalance,
+                    "pendingAmount": this.landingPageInfo.accountPendingAmount,
+                    "interest": this.landingPageInfo.interestRatePercentage,
+                    "status": this.landingPageInfo.accountStatus
+                };
 				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 			}
 		} else if (event.detail.option === `debi-check`) {
@@ -134,7 +136,7 @@ async _optionClick(event) {
 			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
-				this.landingPageInfo = returnValue.result;
+                this.landingPageInfo = returnValue.result;
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
@@ -143,9 +145,10 @@ async _optionClick(event) {
 
 		} else {
 			// minimal object for the Favourites landing page component
-			this.isLoading = false;
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
+
+		this.loading = false;
 	}
 
 	_updateLeftBar() {
@@ -228,7 +231,7 @@ async _optionClick(event) {
 	}
 
 	_renderSavingsLandingPage() {
-		return this.renderMode === RENDER_MODE.MAIN_PAGE
+		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
 			? html`
 				<horizon-savings-account
 					class="savingsaccount"
