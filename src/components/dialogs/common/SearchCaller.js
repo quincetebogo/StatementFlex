@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { InsureService } from 'app/services/InsureService';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
@@ -153,11 +153,13 @@ export class SearchCaller extends Component {
 		this.surNameValue = ``;
 		this.cellPhoneNumberValue = ``;
 
+		this.logger = Logger.getInstance();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 	}
 
 	// ----------
@@ -274,27 +276,31 @@ export class SearchCaller extends Component {
 			callerDetails.nonClientIDNumber = ``;
 			callerDetails.nonClientRelationship = ``;
 
-			const nonClientData = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.nameValue,
 				surname: this.surNameValue,
-				cellphone: this.cellPhoneNumberValue
+				cellPhone: this.cellPhoneNumberValue
 			};
 
-			await this.insureService.addNonClientDetails(nonClientData);
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
 
-			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					nonClient: {
-						firstName: this.nameValue,
-						surname: this.surNameValue,
-						cellphone: this.cellPhoneNumberValue
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+					detail: {
+						incomingCallDetails: this.incomingCallDetails,
+						nonClient: {
+							firstName: this.nameValue,
+							surname: this.surNameValue,
+							cellphone: this.cellPhoneNumberValue
+						}
 					}
-				}
-			}));
+				}));
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+			} 
 		}
 	}
 
@@ -418,8 +424,10 @@ export class SearchCaller extends Component {
 	}
 
 	_clearErrors(e) {
-		this.errMessage[e.currentTarget.id] = ``;
-		this.alertBannerMessage = ``;
+        this.errMessage[e.currentTarget.id] = ``;
+        this.errMessage.nameValue = ``;
+        this.errMessage.surNameValue = ``;
+        this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
@@ -427,6 +435,7 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
 		return true;
 	}
 

@@ -233,21 +233,21 @@ export class LandingPage extends View {
 		// If a non-client is calling in (determined on the general search dialog), 
 		// navigate to the appopriate landing page
 		const callerInformation = new CallerInformation(
-			``,
-			``,
-			``,
-			``,
-			``,
-			``,
-			``,
+			``, // CIF Number
+			``, // Birth Date
+			``, // Language Preference
+			``, // Lives In
+			``, // Name 
+			``, // South African ID  Number
+			``, // Verified Number
 			event.detail.nonClient.firstName,
 			event.detail.nonClient.surname,
 			`${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
-			event.detail.incomingCallDetails.incomingTelephoneNumber,
-			``,
-			``,
-			false,
-			`non-client`,
+			event.detail.nonClient.cellphone,
+			``, // Non client ID Number
+			``, // Non client relationship
+			false, // is Confirmed Client
+			`non-client`, // Verification Status
 			false,
 			false,
 			true,
@@ -257,7 +257,11 @@ export class LandingPage extends View {
 
 		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
 
+		if(callerInformation.verificationStatus === `non-client`) {
+			this.horizonRouter.navigateToProductInfo('SavingsAccount');
+		} else {
 		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
+		}
 	}
 
 	_otherNeedSelected(event) {
