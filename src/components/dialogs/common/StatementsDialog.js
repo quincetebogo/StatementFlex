@@ -3,7 +3,7 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { isNullorEmpty, getMonthName, calculateDays } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'app/components/Common/StepperModal';
@@ -32,11 +32,29 @@ const ACCOUNT_TYPES = {
 };
 
 const TIME_PERIOD = {
-	ONE_MONTH: 1,
-	THREE_MONHTS: 3,
-	SIX_MONTHS: 6,
-	NINE_MONTHS: 9
+	ONE_MONTH: {
+		value: 1,
+		label: `1 month`,
+		range: `30 days`
+	},
+	THREE_MONHTS: {
+		value: 3,
+		label: `3 months`,
+		range: `90 days`
+	},
+	SIX_MONTHS: {
+		value: 6,
+		label: `6 months`,
+		range: `180 days`
+	},
+	NINE_MONTHS: {
+		value: 9,
+		label: `9 months`,
+		range: `270 days`
+	}
 };
+
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 /**
  * View and email statements based on account selection and date range.
@@ -65,203 +83,134 @@ export class StatementsDialog extends Component {
 
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 1;
+		this.notifyClient = true;
 		this.accType = ``;
-		this.savingsPlanSelected = ``;
+		this.savingsPlanAccType = ``;
 		this.savingsPlans = [];
 		this.periodSelected = -1;
+		this.showCalendar = false;
+		this._customDateRange = false;
+		this.fromDate = `dd mm yyyy`;
+		this.toDate = `dd mm yyyy`;
+		this.errorMessage = ``;
+		this.email = ``;
+		this.confirmEmail = ``;
+		this._summary = {
+			dateRangeLabel: ``,
+			detail: ``
+		};
+		this.mailClientError = {
+			email: ``,
+			confirmEmail: ``
+		};
+
+		// Static list, has to be pulled from service
+		this.savingsPlans = [
+			{
+				value: 1,
+				name: "Future savings",
+				amount: "R " + "546844.25"
+			},
+			{
+				value: 2,
+				name: "Education",
+				amount: "R " + "504.25"
+			}
+		];
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	static get properties() {
+		return {
+			currentStep: { attribute: false },
+			renderMode: { attribute: false },
+			notifyClient: {attribute: false },
+			accType: { attribute: false },
+			savingsPlanAccType: { attribute: false },
+			periodSelected: { attribute: false },
+			showCalendar: { attribute: false },
+			fromDate: { attribute: false },
+			toDate: { attribute: false },
+			_customDateRange: { attribute: false },
+			errorMessage: { attribute: false }
+		};
+	}
+
+	// ----------------
+	// LIFECYLCE EVENTS
+	// ----------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.landingPageInfo = this.state.landingPageInfo;
 		this.accountInformation = this.state.leftBarButtonConfig.detail;
-
-		//TODO: Remove unused 
-		this.showCalendar = false;
-		this.showHide = "hide";
-		this.startDate;
-		this.endDate;
-		this.email = "";
-		this.confirmEmail = "";
-		this.emailError = "";
-		this.confirmError = "";
-		this.displayDialog = "open";
-		this.displayPDF = false;
-		this.statementsHeader = "Statements";
-		this.accountSelected = "savingsAccount";
-		this.statementPeriod = "";
-		this.statmentDays = "";
-		this.infoOrError = "info";
-		this.focusTransact = "";
-		this.focusSave = "";
-		this.focusCredit = "";
-		this.savingsPlanFocus = "";
-		this.firstPeriod = "";
-		this.choosePeriodFocus = "";
-		this.nextSend = "Next";
-		this.flag = "";
-		this.viewStatementPDF = "";
-		this.cancelButton = "Cancel";
-		this.backButton = "";
-		this.today = new Date();
-
-		this._accountSelectionChanged();
-		this._updateStep(this.currentStep);
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
 	}
-
-	static get properties() {
-		return {
-			availableSavings: { attribute: false },
-			accountSelect: { attribute: false },
-			availableSavingsPlans: { attribute: false },
-			availableCredit: { attribute: false },
-			infoBannerMessage: { attribute: false },
-			savingsPlans: { attribute: false },
-			period: { attribute: false },
-			showDatePicker: { attribute: false },
-			showCalendar: { attribute: false },
-			startDate: { attribute: false },
-			endDate: { attribute: false },
-			range: { attribute: false },
-			showHide: { attribute: false },
-			email: { attribute: false },
-			emailError: { attribute: false },
-			confirmError: { attribute: false },
-			displayDialog: { attribute: false },
-			displayPDF: { attribute: false },
-			statementsHeader: { attribute: false },
-			infoOrError: { attribute: false },
-			flag: { attribute: false },
-			viewStatementPDF: { attribute: false },
-
-			currentStep: { attribute: false },
-			renderMode: { attribute: false },
-			accType: { attribute: false },
-			savingsPlanSelected: { attribute: false },
-			periodSelected: { attribute: false }
-		};
-	}
-
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	connectedCallback() {
-		//Holding values
-		super.connectedCallback();
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	_cancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_next() {
-		// if (isNullorEmpty(this.accType) || isNullorEmpty(this.savingsPlanSelected)) {
-		// return;
-		// }
-		this.currentStep++;
+		const selectAccount = () => this._validateAccountSelection();
+		const selectPeriod = () => this._validatePeriodSelection();
+		const emailClient = () => this._validateEmailAddress();
+
+		const validations = {
+			1: selectAccount,
+			2: selectPeriod,
+			3: emailClient
+		};
+		const result = validations[this.currentStep]();
+		if (result) {
+			this.currentStep++;
+		}
 	}
 
 	_back() {
+		this.errorMessage = ``;
 		this.currentStep--;
 	}
 
-	_clearErrors() {
-		this.infoOrError = "info";
-		this.emailError = "";
-		this.confirmError = "";
+	_selectAccount(type) {
+		this.accType = type;
+		this.savingsPlanAccType = ``;
+		this.errorMessage = ``;
+	};
+
+	_selectPlan(savingsPlan) {
+		this.savingsPlanAccType = savingsPlan;
+		this.errorMessage = ``;
 	}
 
-	_updateStep(e) {
-		this.currentStep = e;
-		if (this.currentStep == 2) {
-			this.infoOrError = "info";
-			this.infoBannerMessage = "A fee will be charged for email statements";
-		} else {
-			this.infoBannerMessage = "Did you know you can email statements from the app for free?";
-		}
+	_choosePeriod(range) {
+		this.periodSelected = TIME_PERIOD[range].value;
+		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range})`;
+		this._summary.detail = `Last ${TIME_PERIOD[range].range}`;
 
-		if (this.currentStep > 1) {
-			this.showHide = "show";
-		} else {
-			this.showHide = "hide";
-		}
+		this._customDateRange = false;
+		this.errorMessage = ``;
 	}
 
-	_navigateSteppers(e, btn) {
-		if (this.currentStep == 1 && e.type == "click") {
-			if (btn == "next" && this.infoOrError == "info") {
-				if (this.accountSelected == null) {
-					this.infoOrError = "error";
-					this.errorBannerMessage = "Select an account."
-				} else {
-					this.showHide = "show";
-					this.infoOrError = "info";
-					this.backButton = "Back";
-					this.currentStep++;
-				}
-			} else if (btn == "cancel") {
-				this.displayDialog = "close";
-			}
-		} else if (this.currentStep == 2 && e.type == "click") {
-			if (btn == "next" && this.infoOrError == "info") {
-				if (this.showCalendar && (this.statmentDays=="")) {
-					this.infoOrError = "error";
-					this.errorBannerMessage = "Please choose a from and to date";
-				} else if(!this.showCalendar && (this.statmentDays=="")){
-					this.infoOrError = "error";
-					this.errorBannerMessage = "Please choose a date";
-				} else {
-					this.renderMode = RENDER_MODE.EMAIL;
-					this.infoOrError = "info";
-					this.nextSend = "Send";
-					this.currentStep++;
-				}
-			} else if (btn == "back") {
-				this.backButton = "";
-				this.infoOrError = "info";
-				this.currentStep--;
-			} else if (btn == "cancel") {
-				this.displayDialog = "close";
-			}
-		} else if (this.currentStep == 3 && e.type) {
-			if (btn == "next" && this.infoOrError == "info") {
-				if (this.email.length == 0) {
-					this.infoOrError = "error";
-					this.errorBannerMessage = "Complete all fields."
-				} else {
-					this.displayDialog = "close";
-					//send statement service call
-					this._sendStatement();
-				}
-			} else if (btn == "back") {
-				this.infoOrError = "info";
-				this.currentStep--;
-				this.nextSend = "Next";
-				if(this.showCalendar){
-				}
-			} else if (btn == "cancel") {
-				this.displayDialog = "close";
-			}
-		}
-	}
-
-
-	_formatDate(dateToFormat) {
-		var stringToDate = new Date(dateToFormat);
-		var tempdate = stringToDate.toISOString().slice(0, 10);
-		return tempdate;
+	_customDateRangeSelected() {
+		this.periodSelected = -1;
+		this._customDateRange = !this._customDateRange;
 	}
 
 	async _sendStatement() {
@@ -296,117 +245,28 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-
-	//value of account selction
-	_accountSelectionChanged(type) {
-		this.accType = type;
-
-		//TODO: Loop through clients savings plans
-		this.savingsPlans = [
-			{
-				value: 1,
-				name: "Future savings",
-				amount: "R " + "546844.25"
-			},
-			{
-				value: 2,
-				name: "Education",
-				amount: "R " + "504.25"
-			}
-		]
-	};
-
-	_savingsPlanChanged(savingsPlan) {
-		this.savingsPlanSelected = savingsPlan;
-	}
-
-	_periodChange(e, days) {
-		this.infoOrError = "info";
-		this.flag = e.currentTarget.id;
-		this.showCalendar = false;
-		var currentDays = days;
-		this.statementPeriod = days == 30 ? '1 Month (30 days)' : days / 30 + " months (" + days + " days)";
-		this.statmentDays = "Last " + days + " days";
-		if (e.currentTarget.checked) {
-			this.startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-			this.endDate = new Date();
-			//this._changeDateRange(currentDays);
-			// this._changePeriodSelection(currentDays);
-		}
-	}
-
-	_calendarSelectionChange(e) {
-		// this._clearErrors();
-		var newDate = new Date(e.detail.new.startDate);
-		var oldDate = new Date(e.detail.new.endDate);
-		this.startDate = newDate;
-		this.endDate = oldDate; 
-		var rangeDiff = (this.endDate.getTime() - newDate.getTime()) / (1000 * 3600 * 24);
-		var roundedRangeDiff = Math.floor(rangeDiff);
-		this.statmentDays = "Last " + roundedRangeDiff + " days";
-		this.statementPeriod = this._fullDate(this.startDate) + " - " + this._fullDate(this.endDate);
-
-
-
-
-		if (roundedRangeDiff > 90) {
-			this.infoOrError = "error";
-			this.errorBannerMessage = "Date selection is out of range.";
-		}else if (roundedRangeDiff == 90 || roundedRangeDiff < 90) {
-						this.infoOrError = "info";
-		}
-	}
-
-
-	_fullDate(dateToFormat) {
-		var myDate = new Date(dateToFormat);
-		const monthNames = ["January", "February", "March", "April", "May", "June",
-			"July", "August", "September", "October", "November", "December"
-		];
-		var fullDateString = myDate.getDate() + " " + monthNames[myDate.getMonth()] + " " + (myDate.getYear() + 1900);
-		return fullDateString;
-	}
-	_showDateRange(e) {
-		this.flag = "";
-		this.statmentDays = "";
-		this.showCalendar = e.currentTarget.checked;
-		this.startDate = "";
-		this.endDate = "";
-	}
-
 	_emailFormatCheck(e) {
-		var regCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-		if (e.detail.new.length > 1) {
-			if (regCheck.test(e.detail.new)) {
-				this.email = e.detail.new;
-				return true;
-			} else {
-				this.emailError = "Invalid email format";
+		
+		if (e.detail.new.length > 0) {
+			if (!EMAIL_REGEX.test(e.detail.new)) {
+				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
+				this.requestUpdate();
 				return false;
+			} else {
+				this.mailClientError[e.currentTarget.id] = ``;
+				this.requestUpdate();
 			}
-		} else if (e.detail.new.length < 1 || e.detail.new !== e.detail.old) {
-			this.emailError = "";
-		} else {
-			this.infoOrError = "info";
 		}
-	}
-	_emailInput(e) {
-		if (e) {
-			this.infoOrError = "info";
-		}
+		if (!this._confirmEmailMatch()) {
+			this.errorMessage = `Emails don't match`;
+			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
+		};
 	}
 
 	_confirmEmailMatch(e) {
-		if (e.detail.new.length > 1) {
-			this.confirmEmail = e.detail.new;
-			if (this.confirmEmail !== this.email) {
-				this.confirmError = "Emails do not match";
-			} else {
-				this.confirmError = "";
-
-			}
-		} else {
-			this.confirmError = "";
+		
+		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
+			return this.email === this.confirmEmail;
 		}
 	}
 
@@ -438,9 +298,90 @@ export class StatementsDialog extends Component {
 		this.statementsHeader = "Statements";
 	}
 
+	_showCalendar() {
+		this.showCalendar = !this.showCalendar;
+	}
+
+	_startDateChanged(e) {
+		if (e.detail.new.date) {
+			this.fromDate = this._formatDate(e.detail.new.date);
+			this.showCalendar = this.toDate === `dd mm yyyy`;
+			this.errorMessage = ``;
+		}
+	}
+
+	_endDateChanged(e) {
+		if (e.detail.new.date) {
+			this.toDate = this._formatDate(e.detail.new.date);
+			this.showCalendar = this.fromDate === `dd mm yyyy`;
+			this._summary.dateRangeLabel = `Choose date range`;
+			this.errorMessage = ``;
+		}
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_validateAccountSelection() {
+		if (isNullorEmpty(this.accType)) {
+			this.errorMessage = `Select an account`;
+			return false;
+		} else if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN && isNullorEmpty(this.savingsPlanAccType)) {
+			this.errorMessage = `Select an account`;
+			return false;
+		}
+		return true;
+	}
+
+	_validatePeriodSelection() {
+		if (this.periodSelected === -1 && !this._customDateRange) {
+			this.errorMessage = `Please choose a from and to date`;
+			return false;
+		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
+			this.errorMessage = `Please choose a from and to date`;
+			return false;
+		} else {
+			this._getSummary();
+		}
+		return true;
+	}
+
+	_getSummary() {
+
+		if (this._customDateRange) {
+			const fromDate = new Date(this.fromDate);
+			const toDate = new Date(this.toDate);
+
+			this._summary.dateRangeLabel = `Choose a date range`;
+			this._summary.detail = `${fromDate.getDate()} ${this._getFullMonthName(this.fromDate)} - 
+									${toDate.getDate()} ${this._getFullMonthName(this.toDate)}
+									(${calculateDays(fromDate, toDate)} days)`;
+		} else {
+			// do nothing
+		}
+	}
+
+	_formatDate(date) {
+		return `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+	}
+
+	_getFullMonthName(date) {
+		const parsedDate = new Date(date);
+		return parsedDate.toLocaleString('default', { month: 'long' });
+	}
+
 	_sendingError(exception) {
 		return true;
 	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -451,6 +392,12 @@ export class StatementsDialog extends Component {
 				}
 				capitec-modal {
 					width: 975px;
+
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-modal-header-padding-top: 20px;
+					--theme-modal-header-padding-bottom: 20px;
+					--theme-modal-footer-padding: 0px;
 				}
 				capitec-stepper {
 					width: 975px;
@@ -459,7 +406,7 @@ export class StatementsDialog extends Component {
 					--theme-stepper-step-content-container-padding-left: 16px;
 					--theme-stepper-step-title-max-width: 100%;
 				}
-				capitec-content-box {
+				.main-cb {
 					width: 975px;
 					height: 730px;
 
@@ -468,7 +415,7 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 0px;
 				}
-				capitec-alert-banner {
+				.main-cb > capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-info-background-color: #DAF2F4;
 					--theme-alert-banner-info-color: #05829B;
@@ -476,15 +423,12 @@ export class StatementsDialog extends Component {
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
 				}
-				capitec-content-box > capitec-label[type="subtitle"] {
+				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
 
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 16px;
-				}
-				capitec-content-box > capitec-label[type="subtitle"]:last-child {
-					margin-top: 24px;
 				}
 				horizon-product-tile {
 					--theme-product-tile--height: 64px;
@@ -496,238 +440,122 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-heading-margin-left: 6px;
 					--theme-layout-gap-spacing: 8px;
 				}
+				.main-cb > .product-transact {
+					--theme-product-tile-hover-default-border: 1px solid #009DE0;
+					--theme-product-tile-focus-default-border: 1px solid #009DE0;
+				}
+				.main-cb > .product-save {
+					--theme-product-tile-hover-default-border: 1px solid #00486D;
+					--theme-product-tile-focus-default-border: 1px solid #00486D;
+				}
+				.main-cb > .product-credit {
+					--theme-product-tile-hover-default-border: 1px solid #C83B37;
+					--theme-product-tile-focus-default-border: 1px solid #C83B37;
+				}
 				.choose-period > horizon-product-tile {
 					width: 224px;
 
 					--theme-layout-gap-spacing: 16px;
 				}
-			.plain-body{
-				height: 930px;
-				width: 976px;
-				margin-right:0px;
-				background-color: #FFFFFF;
-			}
+				.choose-date-range {
+					margin-bottom: 0px;
 
-			.accountSelect {
-				height: 64px;
-				width: 944px;
-				margin-bottom: 8px;
-				margin-left: 16px;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-			}
-			.accountSelectIcon {
-				width: 24px;
-				height: 24px;
-				float: left;
-				margin-left: 16px;
-				margin-top: 20px;
-				margin-bottom: 20px;
-			}
-			.accountSelectLabel {
-				text-align: left;
-				color: #3A3A3A;
-				font-size: 16px;
-				font-weight: bold;
-				margin-left: 56px;
-				margin-top: 11px;
-				line-height: 20px;
-			}
-			.accountSelectSub {
-				text-align: left;
-				color: #3A3A3A;
-				font-size: 14px;
-				margin-left: 56px;
-				line-height: 20px;
-				margin-top: 2px;
-			}
-			
-			.chooseText {
-				margin: 18px;
-				text-align: left;
-				font-size: 18px;
-				line-height: 24px;
-				font-weight: 900;
-				color: #3A3A3A;
-			}
-			.savingsPlans {
-				height: 64px;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-			}
-			capitec-card {
-				width: 944px;
-				margin: 8px;
-				margin-left: 15.5px;
-				border: 1px solid #E1E1E1;
-				display: inline-block;
-				--theme-card-border-radius: 4px;
-				--theme-card-min-height: auto;
-			}
-			.savingsPlanLabel, .periodLabel {
-				width: 300px; 
-				text-align: left; 
-				margin-left: 56px;
-				margin-top: 7px;
-				margin-bottom: 11px;
-				margin-right:16px;
-			}
-			.radioBtn {
-				width: 30px;
-				float: left;
-				margin-top: 20px;
-				margin-bottom: 20px;
-				margin-left: 17px;
-			}
-			.choosePeriod {
-				width: 223px;
-				height: 65px;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-				display: inline-block;
-				margin-top: 2px;
-				margin-left: 14px;
-			}
-			.choosePeriod:hover, .choosePeriodFocus, .transactFocus, .savingsPlanFocus, .transact:hover {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}		
-			.choosePeriodLabel{
-				text-align: left; 
-				margin-left: 56px;
-			}
-			.topLabel {
-				font-weight: bold;
-				line-height: 20px;
-				text-align: left;
-				color: #3A3A3A;
-				font-size: 16px;
-				margin-top: 11px;
-			}
-			.bottomLabel {
-				line-height: 20px;
-				text-align: left;
-				color: #3A3A3A;
-				font-size: 14px;
-				margin-top: 2px;
-				margin-bottom: 11px;
-			}
-			.datePicker {
-				margin-left: 15.5px;
-			}
-			.calendar {
-				height: auto;
-				margin-left: 16px;
-				margin-bottom: 16px;
-				--theme-calendar-calendar-width: 345px;
-				--theme-date-time-picker-host-max-width: 690px;
-			}
-			.email {
-				width: 944px;
-				height: 48px;
-				margin-left: 15.5px;
-				text-align: left;
-			}
-			.seperator {
-				width: 944px;
-				border: 1px solid #E1E1E1;
-				margin-bottom: 30px;
-				margin-top: 30px;
-			}
-			.viewPDFbtn {
-				float: right;
-				margin-top: -45px;
-				margin-right: 15.5px;
+					--theme-product-tile-border-radius: 4px 4px 0px 0px;
+				}
+				.date-selector {
+					--theme-layout-gap-spacing: 16px;
+				}
+				.date-selector > capitec-label[type="default"] {
+					line-height: 20px;
 
-			}
-			.docLabel {
-				text-align: left;
-				margin-left: 15.5px;
-				line-height: 20px;
-			}
-			.viewDocument {
-				margin-left: 15.5px;
-				width: 944px;
-				height: 64px;
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-			}
-			.labelSpace {
-				margin-top: 11px;
-				width: 472px;
-			}
-			.show {
-				display: block;
-				left: 0;
-				float: left;
-			}
-			.hide {
-				left: 0;
-				display: none;
-				float: left;
-			}
-			.pdfView {
-				width: 832px;
-				height: 996px;
-				z-index: 99;
-			}
-			.save:hover {
-				border: 2px solid #00486D;
-				border-radius: 4px;
-			}
-			.credit:hover {
-				border: 2px solid #C83C37;
-				border-radius: 4px;
-			}
-			.savingsPlans:hover {
-				border: 2px solid #009DE0;
-				border-radius: 4px;
-			}
-			
-			.saveFocus {
-				border: 2px solid #00486D;
-				border-radius: 4px;
-			}
-			.creditFocus {
-				border: 2px solid #C83C37;
-				border-radius: 4px;
-			}
-			
-			.fromTo {
-				line-height: 20px;
-				color: #3A3A3A;
-				text-align: left;
-				font-size: 14px;
-				margin-top: 16px;
-				margin-left: 20px;
-				margin-bottom: 4px;
-				font-weight: bold;
-			}
-			.left {
-				float: left;
-				width: 100px;
-				padding: 0;
-			}
-			.right {
-				float: right;
-				width: 300px;
-			}
-		
-			.border{
-				border: 1px solid #E1E1E1;
-				border-radius: 4px;
-			}
-			.chooseRangeCard{
-				border-bottom: 1px solid #E1E1E1;
-				margin: 0px 16px 0px 0px;
-				height: 64px;
-			}
-			capitec-group.collapsed{
-				height: 64px;
-			}
-			capitec-date-time-picker.calendar{
-				margin-top:16px;
-			}
+					--theme-layout-gap-spacing: 4px;
+					--theme-label-default-font-size: 14px;
+					--theme-label-default-font-weight: 600;
+				}
+				.custom-date-card {
+					border-top: 0px;
+
+					--theme-card-border-radius: 0px 0px 4px 4px;
+					--theme-card-min-height: 80px;
+				}
+				.custom-date-card > capitec-content-box {
+					--theme-container-padding-bottom: 8px;
+				}
+				.custom-date-card > capitec-content-box > capitec-group:first-child {
+					--theme-layout-gap-spacing: 8px;
+				}
+				.datePicker-btn {
+					width: 386px;
+					height: 48px;
+
+					--theme-button-white-border-color: #E1E1E1;
+					--theme-button-padding-top: 6px;
+					--theme-button-padding-bottom: 6px;
+					--theme-button-padding-left: 16px;
+					--theme-button-padding-right: 16px;
+				}
+				.datePicker-btn:hover {
+					box-shadow: none;
+				}
+				.calendar-label {
+					font-weight: normal;
+					color: #3A3A3A;
+				}
+				capitec-icon {
+					width: 26px;
+					height: 26px;
+					margin-bottom: 3px;
+					margin-top: 3px;
+
+					--theme-icon-size-small: 26px;
+				}
+				.calendar {
+					--theme-calendar-calendar-width: 385px;
+					--theme-calendar-days-width: 385px;
+					--theme-date-time-picker-host-max-width: 769px;
+					--theme-calendar-days-padding: 0px 16px 2px 16px;
+					--theme-calendar-days-grid-template-columns: 49px 49px 49px 49px 49px 49px 49px;
+				}
+				capitec-group > .calendar:first-child {
+					--theme-layout-gap-spacing: 0px;
+				}
+				.footer {
+					width: 975px;
+					
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 16px;
+					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 16px;
+				}
+				.footer > capitec-button {
+					height: 48px;
+				}
+				.view-document {
+					--theme-product-tile-heading-margin-left: 16px;
+					--theme-product-tile-detail-top: 20px;
+					--theme-product-tile-detail-right: 16px;
+				}
+				capitec-label[type="strong"] {
+					line-height: 20px;
+					cursor: pointer;
+
+					--theme-label-font-color: #009DE0;
+					--theme-label-strong-font-size: 16px;
+					--theme-label-strong-font-weight: 600
+				}
+
+				.plain-body{
+					height: 930px;
+					width: 976px;
+					margin-right:0px;
+					background-color: #FFFFFF;
+				}
+				.seperator {
+					width: 944px;
+					border: 1px solid #E1E1E1;
+					margin-bottom: 30px;
+					margin-top: 30px;
+				}
 			`
 		]
 	};
@@ -743,29 +571,7 @@ export class StatementsDialog extends Component {
 					</div>
 
 					<div slot="footer">
-						<capitec-group 
-							layout="horizontal"
-							gap="clear"
-							halign="left"
-							valign="center">
-								<capitec-button 
-									type="clear"
-									label="Back"
-									@click="${(e) => this._back()}"
-									?hidden="${this.currentStep === 1}">
-								</capitec-button>
-								<capitec-spacer></capitec-spacer>
-								<capitec-button
-									type="clear"
-									label="Cancel"
-									@click="${() => this._cancel()}">
-								</capitec-button>
-								<capitec-button
-									type="primary"
-									label="Next"
-									@click="${() => this._next()}">
-								</capitec-button>
-						</capitec-group>
+						${this._renderFooter()}
 					</div>
 			</capitec-modal>`;
 	}
@@ -783,32 +589,38 @@ export class StatementsDialog extends Component {
 	_renderContent() {
 		return html`
 			<capitec-content-box
+				class="main-cb"
 				layout="vertical"
 				gap="clear">
 					${this._renderAlertBanner()}
 					${this._renderAccountSelection()}
 					${this._renderChoosePeriod()}
-					${this._renderSpecifyEmail()}
+					${this._renderEmailClient()}
 					${this._renderPDFViewer()}
 			</capitec-content-box>
 		`;
 	}
 
 	_renderAlertBanner() {
-		return this.infoOrError === `error`
-			? html`
+		if (this.errorMessage) {
+			return html`
 				<capitec-alert-banner
-					class="alert error"
 					type="unsuccessful-red">
-						<p><b>Notify:</b> ${this.errorBannerMessage}</p>
-				</capitec-alert-banner>`
-			: html`
-				<capitec-alert-banner
-					class="alert info"
-					type="info"
-					closable>
-						<p><b>Notify client:</b> ${this.infoBannerMessage}</p>
+						<p><b>Notify:</b> ${this.errorMessage}</p>
 				</capitec-alert-banner>`;
+		}
+
+		if (this.notifyClient && isNullorEmpty(this.errorMessage)) {
+			return html`
+				<capitec-alert-banner
+					type="info"
+					@click="${() => this.notifyClient = false}"
+					closable>
+						<p><b>Notify client:</b> A fee will be charged for email statements</p>
+				</capitec-alert-banner>
+			`;
+		}
+		return html``
 	}
 
 	_renderAccountSelection() {
@@ -819,29 +631,35 @@ export class StatementsDialog extends Component {
 					label="Choose an Account">
 				</capitec-label>
 
-				<horizon-product-tile 
+				<horizon-product-tile
+					class="product-transact"
 					type="default"
 					label="Savings Account"
 					subtitle="Available balance R5 670.40"
 					detail=""
 					icon="product/transact"
-					@click="${(e) => this._accountSelectionChanged(`SavingsAccount`)}">
+					@click="${(e) => this._selectAccount(`SavingsAccount`)}"
+					?selected="${this.accType === `SavingsAccount`}">
 				</horizon-product-tile>
-				<horizon-product-tile 
+				<horizon-product-tile
+					class="product-save"
 					type="default"
 					label="Savings Plans"
 					subtitle="Available balance R16 800.00"
 					detail=""
 					icon="product/save"
-					@click="${(e) => this._accountSelectionChanged(`SavingsPlans`)}">
+					@click="${(e) => this._selectAccount(`SavingsPlans`)}"
+					?selected="${this.accType === `SavingsPlans`}">
 				</horizon-product-tile>
-				<horizon-product-tile 
+				<horizon-product-tile
+					class="product-credit"
 					type="default"
 					label="Credit Card"
 					subtitle="Available balance R22 400.00"
 					detail=""
 					icon="product/credit"
-					@click="${(e) => this._accountSelectionChanged(`Credit`)}">
+					@click="${(e) => this._selectAccount(`Credit`)}"
+					?selected="${this.accType === `Credit`}">
 				</horizon-product-tile>
 
 				${this._renderSavingsPlanSelection()}
@@ -866,8 +684,8 @@ export class StatementsDialog extends Component {
 							subtitle="Available balance: ${item.amount}"
 							detail=""
 							icon="product/transact"
-							@click="${(e) => this._savingsPlanChanged(item.name)}"
-							?selected="${this.savingsPlanSelected === item.name}">
+							@click="${(e) => this._selectPlan(item.name)}"
+							?selected="${this.savingsPlanAccType === item.name}">
 						</horizon-product-tile>
 					`)}
 				</capitec-radio-group>
@@ -892,32 +710,32 @@ export class StatementsDialog extends Component {
 							label="1 month"
 							subtitle="Last 30 days"
 							detail=""
-							@click="${(e) => this.periodSelected = TIME_PERIOD.ONE_MONTH}"
-							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH}">
+							@click="${(e) => this._choosePeriod(`ONE_MONTH`)}"
+							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
 							type="radio-button"
 							label="3 months"
 							subtitle="Last 90 days"
 							detail=""
-							@click="${(e) => this.periodSelected = TIME_PERIOD.THREE_MONHTS}"
-							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS}">
+							@click="${(e) => this._choosePeriod(`THREE_MONHTS`)}"
+							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
 							type="radio-button"
 							label="6 months"
 							subtitle="Last 180 days"
 							detail=""
-							@click="${(e) => this.periodSelected = TIME_PERIOD.SIX_MONTHS}"
-							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS}">
+							@click="${(e) => this._choosePeriod(`SIX_MONTHS`)}"
+							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
 							type="radio-button"
 							label="9 months"
 							subtitle="Last 270 days"
 							detail=""
-							@click="${(e) => this.periodSelected = TIME_PERIOD.NINE_MONTHS}"
-							?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS}">
+							@click="${(e) => this._choosePeriod(`NINE_MONTHS`)}"
+							?selected="${this.periodSelected === TIME_PERIOD.NINE_MONTHS.value}">
 						</horizon-product-tile>
 				</capitec-group>
 				${this._renderPeriodSelected()}
@@ -934,92 +752,211 @@ export class StatementsDialog extends Component {
 			</capitec-label>
 
 			<horizon-product-tile
+				class="choose-date-range"
 				type="radio-button"
 				label="Choose date range"
 				subtitle="Up to 270 days"
 				detail=""
-				?selected="${false}">
+				?selected="${this._customDateRange}"
+				@click="${() => this._customDateRangeSelected()}">
 			</horizon-product-tile>
+			${this._renderCustomDateRange()}
+		`;
+	}
+
+	_renderCustomDateRange() {
+		if (this._customDateRange) {
+			return html`
+				<capitec-card
+					class="custom-date-card">
+						<capitec-content-box>
+							<capitec-group
+								layout="horizontal">
+									${this._renderFromDate()}
+									${this._renderToDate()}
+							</capitec-group>
+
+							<capitec-group
+								layout="horizontal">
+									${this._renderCalendar()}
+							</capitec-group>
+						</capitec-content-box>
+				</capitec-card>
+			`;
+		}
+		return html``;
+	}
+
+	_renderFromDate(){
+		return html`
+			<capitec-group
+				class="date-selector"
+				layout="vertical">
+					<capitec-label
+						type="default"
+						label="From date">
+					</capitec-label>
+
+					${this._renderCalendarPicker(`fromDate`)}
+			</capitec-group>
+		`;
+	}
+
+	_renderToDate(){
+		return html`
+			<capitec-group
+				class="date-selector"
+				layout="vertical">
+					<capitec-label
+						type="default"
+						label="To date">
+					</capitec-label>
+
+					${this._renderCalendarPicker(`toDate`)}
+			</capitec-group>
+		`;
+	}
+
+	_renderCalendarPicker(context) {
+		return html`
+			<capitec-button
+				class="datePicker-btn"
+				type="white"
+				@click="${() => this._showCalendar()}">
+					<capitec-label
+						class="calendar-label"
+						label="${this[context]}"
+						type="default">
+					</capitec-label>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon
+						size="small"
+						icon="system/calendar-action">
+					</capitec-icon>
+			</capitec-button>
 		`;
 	}
 
 	_renderCalendar() {
-		if(this.showCalendar) {
+		if (this.showCalendar) {
 			return html`
-							<capitec-date-time-picker
-									class="calendar"
-									type="range"
-									mode="date"
-									startDate = "${this.startDate == `` ? `` : this.startDate}"
-									endDate = "${this.endDate == `` ? `` : this.endDate}"
-									maxDate= "${this.today}"
-									label="Choose from and to date"
-									inputType="calendar"
-									outputType="string"
-									@value-change="${(e) => this._calendarSelectionChange(e)}">
-							</capitec-date-time-picker>
-				`;
+				<capitec-calendar
+					class="calendar"
+					startDate="${this.fromDate}"
+					endDate="${this.toDate}"
+					maxDate="${this.toDate}"
+					@value-change="${(e) => this._startDateChanged(e)}"
+					range>
+				</capitec-calendar>
+				<capitec-calendar
+					class="calendar"
+					startDate="${this.fromDate}"
+					endDate="${this.toDate}"
+					minDate="${this.fromDate}"
+					@value-change="${(e) => this._endDateChanged(e)}"
+					range>
+				</capitec-calendar>
+			`;
+		}
+		return html``;
+	}
+
+	_renderEmailClient() {
+		if (this.currentStep === 3 && this.renderMode === RENDER_MODE.EMAIL) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Enter email address">
+				</capitec-label>
+
+				<capitec-text-field
+					id="email"
+					label="Email address"
+					value="${this.email}"
+					error="${this.mailClientError.email}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@key-input="${() => this.errorMessage = ``}">
+				</capitec-text-field>
+		
+				<capitec-label
+					class="chooseText"
+					type="subtitle"
+					label="Confirm email address">
+				</capitec-label>
+
+				<capitec-text-field
+					id="confirmEmail"
+					label="Email address"
+					value="${this.confirmEmail}"
+					error="${this.mailClientError.confirmEmail}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@key-input="${() => this.errorMessage = ``}">
+				</capitec-text-field>
+
+				<hr class="seperator">
+
+				<capitec-label
+					class="chooseText"
+					type="subtitle"
+					label="View document">
+				</capitec-label>
+
+				<horizon-product-tile
+					class="view-document"
+					type="default"
+					label="${this._summary.dateRangeLabel}"
+					subtitle="${this._summary.detail}">
+						${this._renderViewDocumnetLink()}
+				</horizon-product-tile>
+			`;
 		}
 	}
 
-	_renderSpecifyEmail() {
-		if (this.currentStep === 3) {
-			if (this.renderMode === RENDER_MODE.EMAIL) {
-				return html`
-					<capitec-label
-						class="chooseText"
-						type="subtitle"
-						label="Enter email address">
-					</capitec-label>
-					<capitec-text-field
-						class="email"
-						label="Email address"
-						value="${this.email}"
-						error="${this.emailError}"
-						@value-changed="${(e) => this._emailInput(e)}"
-						@value-change="${(e) => this._emailFormatCheck(e)}"
-						@key-input="${() => this._clearErrors()}">
-					</capitec-text-field>
-			
-					<capitec-label
-						class="chooseText"
-						type="subtitle"
-						label="Confirm email address">
-					</capitec-label>
-					<capitec-text-field
-						class="email"
-						label="Email address"
-						value="${this.confirmEmail}"
-						error="${this.confirmError}"
-						@value-changed="${(e) => this._emailInput(e)}"
-						@value-change="${(e) => this._confirmEmailMatch(e)}"
-						@key-input="${() => this._clearErrors()}">
-					</capitec-text-field>
+	_renderViewDocumnetLink() {
+		return html`
+			<capitec-label
+				slot="detail"
+				type="strong"
+				label="View Document"
+				@click="${() => this._viewPDF()}">
+			</capitec-label>
+		`;
+	}
 
-					<hr class="seperator">
-
-					<capitec-label
-						class="chooseText"
-						type="subtitle"
-						label="View document">
-					</capitec-label>
-					<div class="viewDocument">
-						<div class="labelSpace">
-							<capitec-label class="docLabel" label="${this.statementPeriod}" type="subtitle"></capitec-label>
-							<capitec-label class="docLabel" label="${this.statmentDays}"></capitec-label>
-						</div>
-						<capitec-button class="viewPDFbtn" type="clear" label="View Document" @click="${() => this._viewPDF()}"></capitec-button>
-					</div>
-				`; 
-			}
-			return html`
-				<capitec-button
-					class="viewPDFbtn"
-					type="clear"
-					label="View Document"
-					@click="${() => this._viewPDF()}">
-				</capitec-button>`;
-		}
+	_renderFooter() {
+		return html`
+			<capitec-content-box
+				class="footer"
+				layout="horizontal"
+				gap="clear"
+				halign="left"
+				valign="center">
+					<capitec-button
+						type="clear"
+						label="Back"
+						@click="${(e) => this._back()}"
+						?hidden="${this.currentStep === 1}">
+					</capitec-button>
+					<capitec-spacer></capitec-spacer>
+					<capitec-button
+						type="clear"
+						label="Cancel"
+						@click="${() => this._cancel()}">
+					</capitec-button>
+					<capitec-button
+						type="primary"
+						label="Next"
+						@click="${() => this._next()}"
+						?hidden="${this.currentStep === 3}">
+					</capitec-button>
+					<capitec-button
+						type="primary"
+						label="Send"
+						@click="${() => this._send()}"
+						?hidden="${this.currentStep !== 3}">
+					</capitec-button>
+			</capitec-group>
+		`;
 	}
 
 	_renderPDFViewer() {

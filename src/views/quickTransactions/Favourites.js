@@ -454,6 +454,7 @@ export class Favourites extends View {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.STATEMENTS:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:

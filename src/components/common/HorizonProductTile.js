@@ -39,7 +39,6 @@ export class HorizonProductTile extends Component {
 		this.type = `transact`;
 		this.navigational = false;
 		this.detailIcon = false;
-		this.tileIcon = ``;
 		this.icon = ``;
 		this.selected = false;
 	}
@@ -65,7 +64,6 @@ export class HorizonProductTile extends Component {
 			type: { type: String },
 			navigational: { type: Boolean },
 			detailIcon: { type: Boolean },
-			tileIcon: { type: String },
 			icon: { type: String },
 			selected: { type: Boolean }
 		};
@@ -391,6 +389,7 @@ export class HorizonProductTile extends Component {
 							${this.detail}
 							${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
 							${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
+							<slot name="detail"></slot>
 						</div>
 					</div>
 			</button>
@@ -412,14 +411,14 @@ export class HorizonProductTile extends Component {
 		}
 
 		return html`
-			${this.tileIcon 
-				? html`<img src = "${this.tileIcon}" class="fav-icon" />` 
-				: html`<div class="product ${this.type ? this.type : `transact`} ${this.icon ? `` : `hide-icon`}">
+			${this.icon 
+				? html`<div class="product ${this.type ? this.type : `transact`}">
 							<capitec-icon
 								class="icon"
 								icon="${this.icon ? this.icon : `product/${this.type}-white`}">
 							</capitec-icon>
 						</div>`
+				: html``
 			}
 		`;
 	}
