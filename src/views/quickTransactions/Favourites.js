@@ -16,6 +16,7 @@ import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
+import 'app/components/quickTransactions/TapToPayLanding';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -29,7 +30,8 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
     UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11
+    PROOF_OF_ACCOUNT: 11,
+	TAP_TO_PAY: 12
 });
 
 /**
@@ -71,7 +73,6 @@ export class Favourites extends View {
 		this.curOptionEvent = {};
 		this.cards = [];
         this.debiCheckDetails = {};
-
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -376,8 +377,15 @@ export class Favourites extends View {
 		}
 	}
 
-	_tapToPay() {
+	async _tapToPay() {
 		// TODO: Functionality to toggle tap to pay comes here
+
+		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.TAP_TO_PAY;
+		}
 	}
 
 	_getStatements() {
@@ -413,6 +421,11 @@ export class Favourites extends View {
 			css`
 			.favourites{
 				width: 100%;
+				height: 100%;
+			}
+
+			capitec-content-box {
+				width: 100%;
 				height: 888px;
 			}
 			`
@@ -437,6 +450,7 @@ export class Favourites extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
             ${this._renderProofOfAccount()}
+			${this._renderTapToPay()}
 		`;
 	}
 
@@ -561,6 +575,16 @@ export class Favourites extends View {
                 </horizon-proof-of-account>`
             : html``; 
     }
+
+	_renderTapToPay() {
+		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
+		? html` 
+			<horizon-tap-to-pay-landing
+				.cards="${this.cards}"
+				@back="${() => this._mainPage()}"
+			></horizon-tap-to-pay-landing>
+		` : html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);

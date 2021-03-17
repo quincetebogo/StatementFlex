@@ -39,7 +39,7 @@
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
@@ -53,7 +53,7 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -62,7 +62,7 @@
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
@@ -74,11 +74,15 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"tapToPayLanding": {
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

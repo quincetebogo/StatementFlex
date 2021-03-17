@@ -32,7 +32,6 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-
 		this._initialise();
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
 		this.addEventListener(`mouseleave`, this._mouseLeaveCardArt.bind(this));
@@ -54,7 +53,8 @@ export class CardArt extends Component {
 		return {
 			card: { type: Object },
 			disableHover: { type: Boolean },
-			cardArtSVG: { type: String }
+			cardArtSVG: { type: String },
+			context: { type: String }
 		};
 	}
 
@@ -249,6 +249,7 @@ export class CardArt extends Component {
 					z-index: 100;
 					background-color: #FFFFFF;
 				}
+
 			`
 		];
 	}
@@ -287,8 +288,9 @@ export class CardArt extends Component {
 	}
 
 	_renderCheckBox() {
-		return this.disableHover ? html`<capitec-check label=""></capitec-check>`
-				: html``;
+		if (this.context === `stop-card`) {
+		return html`<capitec-check label=""></capitec-check>`;
+		}
 	}
 
 	_renderCardArt() {

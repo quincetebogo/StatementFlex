@@ -536,5 +536,19 @@ export class HorizonChannelService extends Service {
 		`GetGenericData=${getGenericData}`;
 
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
-	}  
+	} 
+ 
+	// ------------------
+	// tap - to - pay
+	// ------------------
+
+	async tapToPayLanding(cifNumber) {
+		if (await this._mockEnabled(`tapToPayLanding`)) {
+			return this._mock.tapToPay(cifNumber);
+		}
+		const url = `/clientcare/card/${this._version}/tap-to-pay-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `tapToPay`);
+	}
+
+
 }
