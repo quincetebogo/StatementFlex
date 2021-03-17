@@ -153,10 +153,10 @@ export class ConfirmCallerDetails extends Component {
 			if (returnValue.succeeded) {
 				this._navigateToLandingPage();
 			} else {
-				this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
 			}
 		} else {
-			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
 		}
 	}
 
