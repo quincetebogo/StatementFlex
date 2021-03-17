@@ -243,7 +243,7 @@ export class DesktopAgentService {
 			const vdn = await this._configuration.getSetting(`VDN`);
 
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
-			newCallEvent.voiceReferenceNumber = `${this._securityContext.getUserName}-${currentdate}`; // voicedReferenceNumber
+			newCallEvent.voiceReferenceNumber = `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber
 			newCallEvent.agentTelephoneNumber = `000000`;
 			newCallEvent.VDN = vdn;
 			newCallEvent.ivrOptionCode = `Transact`;
