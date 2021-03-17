@@ -82,8 +82,10 @@ export class StatementsDialog extends Component {
         this.cancelButton = "Cancel";
         this.backButton = "";
         this.today = new Date();
+        this.accountName = ``;
 
         this._accountSelectionChanged();
+        //this._getAccountInfo();
         this._updateStep(this.currentStep);
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
 
@@ -139,6 +141,30 @@ export class StatementsDialog extends Component {
         this.emailError = "";
         this.confirmError = "";
     }
+
+    //_getAccountInfo() {
+
+    //    const clientInfo = {
+    //        "cifNum": this.callerInformation.cifNum,
+    //        " " : ``
+    //    };
+    //    const returnValue = await this.quickTransactionService.getAccountInfo(clientInfo);
+
+    //    if (returnValue.succeeded) {
+    //        this.accountName = returnValue.result.accountName;
+    //        this.availableSavings = "R" + this.accountInformation.savingsAccount;
+    //        this.availableSavingsPlans = "R" + this.accountInformation.savingsPlan;
+    //        this.availableCredit = "R" + this.accountInformation.credit;
+
+/*
+*this.savingPlans = [
+*  value :
+*  name: ""
+*  amount: ""
+* ]
+*/
+    //    }
+    //}
 
     _updateStep(e) {
         this.currentStep = e;
@@ -816,7 +842,8 @@ export class StatementsDialog extends Component {
 				<capitec-label class="accountSelectLabel" label="Savings Plans" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableSavingsPlans}</b></p>
 			</div>
-			<!-- <div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
+			<!-- UNCOMMENT ONCE CREDIT IS IMPLEMENTED!
+            <div class="accountSelect credit ${this.focusCredit}" type="credit" subtitle="Available balance " @click="${(e) => this._accountSelectionChanged(e, `credit`)}">
 				<img src="src/images/statement/credit@1x.png" class="accountSelectIcon"/>
 				<capitec-label class="accountSelectLabel" label="Credit Card" type="subtitle"></capitec-label>
 				<p class="accountSelectSub">Available balance<b> ${ this.availableCredit}</b></p>
