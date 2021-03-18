@@ -1,9 +1,9 @@
+import { calculateDays, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { isNullorEmpty, getMonthName, calculateDays } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
 import 'app/components/Common/StepperModal';
@@ -18,10 +18,10 @@ const STATEMENTS_STEPS = [
 		title: `Choose Account`
 	},
 	{
-		title: "Choose Period" 
+		title: `Choose Period` 
 	},
 	{
-		title: "Specify Email and View Documents" 
+		title: `Specify Email and View Documents`
 	}
 ];
 
@@ -109,13 +109,13 @@ export class StatementsDialog extends Component {
 		this.savingsPlans = [
 			{
 				value: 1,
-				name: "Future savings",
-				amount: "R " + "546844.25"
+				name: `Future savings`,
+				amount: `R 546844.25`
 			},
 			{
 				value: 2,
-				name: "Education",
-				amount: "R " + "504.25"
+				name: `Education`,
+				amount: `R 504.25`
 			}
 		];
 
@@ -124,7 +124,7 @@ export class StatementsDialog extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -216,78 +216,6 @@ export class StatementsDialog extends Component {
 		this._customDateRange = !this._customDateRange;
 	}
 
-	async _sendStatement() {
-		const state = {
-			//still to fill these in
-		};
-
-		this.horizonStore.saveState(state);
-
-		const statement = {
-			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.account_number,
-			"accountType": this.accountSelected,
-			"statementDateRange": {
-				"dateRange": {
-					"startDate": this._formatDate(this.startDate),
-					"endDate": this._formatDate(this.endDate)
-				},
-				"presetInterval": ""
-			}
-		};
-
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		if (returnValue.succeeded) {
-			//TODO: Ramesh to add navigation to successfull page
-			this.horizonRouter.navigateToStatementSuccessful();
-		} else {
-			//TODO: Unsuccessful page nav
-			this.horizonRouter.navigateToStatementUnsuccessful();
-		}
-	}
-
-	_emailFormatCheck(e) {
-		this[e.currentTarget.id] = e.detail.new;
-
-		if (e.detail.new.length > 0) {
-			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
-				return false;
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-			}
-		}
-		if (!this._confirmEmailMatch()) {
-			this.errorMessage = `Emails don't match`;
-			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
-		};
-	}
-
-	_confirmEmailMatch() {
-		
-		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			return this.email === this.confirmEmail;
-		}
-		return true;
-	}
-
-	async _viewPDF() {
-		this.renderMode = RENDER_MODE.PDF;
-	
-		const returnValue = await this.quickTransactionService.viewStatement();
-		if (returnValue.succeeded) {
-			//render the PDF
-			this.viewStatementPDF = returnValue.result.statementData;
-		} else {
-			console.log("can't view cs call failed " );
-			//render an error
-		}
-	}
-
 	_showCalendar() {
 		this.showCalendar = !this.showCalendar;
 	}
@@ -306,6 +234,88 @@ export class StatementsDialog extends Component {
 			this.showCalendar = this.fromDate === `dd mm yyyy`;
 			this._summary.dateRangeLabel = `Choose date range`;
 			this.errorMessage = ``;
+		}
+	}
+
+	_emailFormatCheck(e) {
+		this[e.currentTarget.id] = e.detail.new;
+
+		if (e.detail.new.length > 0) {
+			if (!EMAIL_REGEX.test(e.detail.new)) {
+				this.errorMessage = `Invalid email format`;
+				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
+			} else {
+				this.errorMessage = ``;
+				this.mailClientError[e.currentTarget.id] = ``;
+			}
+		}
+		if (!this._confirmEmailMatch()) {
+			this.errorMessage = `Emails don't match`;
+			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
+		}
+		this.requestUpdate();
+	}
+
+	_confirmEmailMatch() {
+		
+		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
+			return this.email === this.confirmEmail;
+		}
+		return true;
+	}
+
+	_inputEmail(e) {
+		this.mailClientError[e.currentTarget.id] = ``;
+		this.errorMessage = ``;
+	}
+
+	async _viewPDF() {
+		this.renderMode = RENDER_MODE.PDF;
+	
+		const returnValue = await this.quickTransactionService.viewStatement();
+		if (returnValue.succeeded) {
+			// render the PDF
+			this.viewStatementPDF = returnValue.result.statementData;
+		} else {
+			console.log(`can't view cs call failed`);
+			// render an error
+		}
+	}
+
+	async _sendStatement() {
+
+		if (!this._validateEmailAddress()) {
+			return false;
+		}
+
+		const state = {
+			// still to fill these in
+		};
+
+		this.horizonStore.saveState(state);
+
+		const statement = {
+			"emailAddress": this.email,
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": this.landingPageInfo.account_number,
+			"accountType": this.accountSelected,
+			"statementDateRange": {
+				"dateRange": {
+					"startDate": this._formatDate(this.startDate),
+					"endDate": this._formatDate(this.endDate)
+				},
+				"presetInterval": ``
+			}
+		};
+
+		const returnValue = await this.quickTransactionService.sendStatement(statement);
+
+		if (returnValue.succeeded) {
+			// TODO: Ramesh to add navigation to successfull page
+			this.horizonRouter.navigateToStatementSuccessful();
+		} else {
+			// TODO: Unsuccessful page nav
+			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
@@ -341,6 +351,14 @@ export class StatementsDialog extends Component {
 		return true;
 	}
 
+	_validateEmailAddress() {
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+
+		this.errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return this.errorMessage === ``;
+	}
+
 	_getSummary() {
 
 		if (this._customDateRange) {
@@ -362,10 +380,10 @@ export class StatementsDialog extends Component {
 
 	_getFullMonthName(date) {
 		const parsedDate = new Date(date);
-		return parsedDate.toLocaleString('default', { month: 'long' });
+		return parsedDate.toLocaleString(`default`, { month: `long` });
 	}
 
-	_sendingError(exception) {
+	_errorHandler(exception) {
 		return true;
 	}
 
@@ -402,8 +420,6 @@ export class StatementsDialog extends Component {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
 				capitec-modal {
-					width: 975px;
-
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-padding-top: 20px;
@@ -531,7 +547,7 @@ export class StatementsDialog extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.footer {
-					width: 975px;
+					width: var(--horizon-statements-modal-footer-width, 975px);
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;
@@ -555,12 +571,13 @@ export class StatementsDialog extends Component {
 					--theme-label-strong-font-weight: 600;
 
 				}
-
-				.plain-body{
-					height: 930px;
-					width: 976px;
-					margin-right:0px;
+				.pdf-viewer {
+					height: 786px;
+					width: 832px;
 					background-color: #FFFFFF;
+				}
+				.pdf-viewer-footer {
+					width: 832px;
 				}
 				.seperator {
 					width: 944px;
@@ -569,7 +586,7 @@ export class StatementsDialog extends Component {
 					margin-top: 30px;
 				}
 			`
-		]
+		];
 	};
 
     _webTemplate() {
@@ -594,7 +611,6 @@ export class StatementsDialog extends Component {
 				type="free"
 				header="${this.header}">
 					<div slot="body">
-						${this._renderStepper()}
 						${this._renderContent()}
 					</div>
 
@@ -615,18 +631,24 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderContent() {
-		return html`
-			<capitec-content-box
-				class="main-cb"
-				layout="vertical"
-				gap="clear">
-					${this._renderAlertBanner()}
-					${this._renderAccountSelection()}
-					${this._renderChoosePeriod()}
-					${this._renderEmailClient()}
-					${this._renderPDFViewer()}
-			</capitec-content-box>
-		`;
+		switch (this.renderMode) {
+			case RENDER_MODE.PDF:
+				return html`${this._renderPDFViewer()}`;
+			case RENDER_MODE.EMAIL:
+			default:
+				return html`
+					${this._renderStepper()}
+					<capitec-content-box
+						class="main-cb"
+						layout="vertical"
+						gap="clear">
+							${this._renderAlertBanner()}
+							${this._renderAccountSelection()}
+							${this._renderChoosePeriod()}
+							${this._renderEmailClient()}
+					</capitec-content-box>
+				`;
+		}
 	}
 
 	_renderAlertBanner() {
@@ -648,7 +670,7 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>
 			`;
 		}
-		return html``
+		return html``;
 	}
 
 	_renderAccountSelection() {
@@ -815,7 +837,7 @@ export class StatementsDialog extends Component {
 		return html``;
 	}
 
-	_renderFromDate(){
+	_renderFromDate() {
 		return html`
 			<capitec-group
 				class="date-selector"
@@ -830,7 +852,7 @@ export class StatementsDialog extends Component {
 		`;
 	}
 
-	_renderToDate(){
+	_renderToDate() {
 		return html`
 			<capitec-group
 				class="date-selector"
@@ -902,7 +924,8 @@ export class StatementsDialog extends Component {
 					label="Email address"
 					value="${this.email}"
 					error="${this.mailClientError.email}"
-					@value-changed="${(e) => this._emailFormatCheck(e)}">
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 		
 				<capitec-label
@@ -916,7 +939,8 @@ export class StatementsDialog extends Component {
 					label="Email address"
 					value="${this.confirmEmail}"
 					error="${this.mailClientError.confirmEmail}"
-					@value-changed="${(e) => this._emailFormatCheck(e)}">
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 
 				<hr class="seperator">
@@ -952,7 +976,7 @@ export class StatementsDialog extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-content-box
-				class="footer"
+				class="footer ${this.renderMode === RENDER_MODE.PDF ? `pdf-viewer-footer` : ``}"
 				layout="horizontal"
 				gap="clear"
 				halign="left"
@@ -979,7 +1003,7 @@ export class StatementsDialog extends Component {
 					<capitec-button
 						type="primary"
 						label="Send"
-						@click="${() => this._send()}"
+						@click="${() => this._sendStatement()}"
 						?hidden="${this.currentStep !== 3 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
@@ -1002,13 +1026,13 @@ export class StatementsDialog extends Component {
 
 		if (this.renderMode === RENDER_MODE.PDF) {
 			return html`
-				<div slot="body" class="plain-body">
-					<object class="plain-body" data="data:application/pdf;base64,${pdfText}" type="application/pdf">
-					</object>
-				</div>
+				<embed
+					class="pdf-viewer"
+					src="data:application/pdf;base64,${pdfText}#toolbar=0"
+					type="application/pdf" />
 			`;
 		}
-		return html ``;
+		return html``;
 	}
 }
 
