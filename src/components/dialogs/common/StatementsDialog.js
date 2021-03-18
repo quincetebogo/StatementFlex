@@ -105,7 +105,7 @@ export class StatementsDialog extends Component {
 			confirmEmail: ``
 		};
 
-		// Static list, has to be pulled from service
+		 //Static list, has to be pulled from service
 		this.savingsPlans = [
 			{
 				value: 1,
@@ -118,11 +118,12 @@ export class StatementsDialog extends Component {
 				amount: `R 504.25`
 			}
 		];
-
+        //this._populateAccountInfo();
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.landingPageInfo = {};
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -132,7 +133,8 @@ export class StatementsDialog extends Component {
 	// ----------
 
 	static get properties() {
-		return {
+        return {
+            landingPageInfo: {type: Object},
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: {attribute: false },
@@ -156,7 +158,7 @@ export class StatementsDialog extends Component {
 
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
-		this.landingPageInfo = this.state.landingPageInfo;
+		//this.landingPageInfo = this.state.landingPageInfo;
 		this.accountInformation = this.state.leftBarButtonConfig.detail;
 	}
 
@@ -192,7 +194,7 @@ export class StatementsDialog extends Component {
 	_selectAccount(type) {
 		this.accType = type;
 		this.savingsPlanAccType = ``;
-		this.errorMessage = ``;
+        this.errorMessage = ``;
 	};
 
 	_selectPlan(savingsPlan) {
@@ -205,7 +207,7 @@ export class StatementsDialog extends Component {
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range})`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range}`;
 
-		this._customDateRange = false;
+        this._customDateRange = false;
 		this.errorMessage = ``;
 	}
 
@@ -269,10 +271,24 @@ export class StatementsDialog extends Component {
 		this.errorMessage = ``;
 	}
 
-	async _viewPDF() {
+    async _viewPDF() {
+        console.log("landingpageinfo  " + this.landingPageInfo);
 		this.renderMode = RENDER_MODE.PDF;
-	
-		const returnValue = await this.quickTransactionService.viewStatement();
+
+        const statement = {
+            "cifNumber": this.callerInformation.cifNumber,
+            "accountNumber": this.landingPageInfo.accountNumber,
+            "accountType": `PRIMARY_SAVINGS`,
+            "statementDateRange": {
+                "dateRange": {
+                    "startDate": this._formatDate(this.fromDate),
+                    "endDate": this._formatDate(this.toDate)
+                },
+                "presetInterval": ""
+            }
+        };
+
+		const returnValue = await this.quickTransactionService.viewStatement(statement);
 		if (returnValue.succeeded) {
 			// render the PDF
 			this.viewStatementPDF = returnValue.result.statementData;
@@ -297,12 +313,12 @@ export class StatementsDialog extends Component {
 		const statement = {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.account_number,
+			"accountNumber": this.landingPageInfo.accountNumber,
 			"accountType": this.accountSelected,
 			"statementDateRange": {
 				"dateRange": {
-					"startDate": this._formatDate(this.startDate),
-					"endDate": this._formatDate(this.endDate)
+					"startDate": this._formatDate(this.fromDate),
+					"endDate": this._formatDate(this.toDate)
 				},
 				"presetInterval": ``
 			}
@@ -325,7 +341,22 @@ export class StatementsDialog extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
+    }
+
+   //async _populateAccountInfo() {
+   //     const accountInfo = {            
+   //         "cifNumber": this.callerInformation.cifNumber,
+   //         "accountNumber": this.landingPageInfo.account_number,
+   //         "accountType": this.accountSelected,
+            
+   //     };
+
+   //     const returnValue = await this.quickTransactionService.getAccountInfo(accountInfo);
+
+   //     if (returnValue.succeeded) {
+   //         this.savingsPlans = returnValue.result;
+   //     }               
+   // }
 
 	_validateAccountSelection() {
 		if (isNullorEmpty(this.accType)) {
@@ -374,8 +405,9 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-	_formatDate(date) {
-		return `${date.getDate()} ${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+    _formatDate(date) {
+        var myDate = new Date(date);
+		return `${myDate.getDate()} ${getMonthName(myDate.getMonth())} ${myDate.getFullYear()}`;
 	}
 
 	_getFullMonthName(date) {
@@ -1028,7 +1060,7 @@ export class StatementsDialog extends Component {
 			return html`
 				<embed
 					class="pdf-viewer"
-					src="data:application/pdf;base64,${pdfText}#toolbar=0"
+					src="data:application/pdf;base64,${this.viewStatementPDF}#toolbar=0"
 					type="application/pdf" />
 			`;
 		}
