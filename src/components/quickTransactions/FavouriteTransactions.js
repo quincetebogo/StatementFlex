@@ -317,8 +317,8 @@ export class FavouriteTransactions extends Component {
 
 	_renderDocumentsSections() {
 		return html`
-				<capitec-title-bar type="default" label="Document"></capitec-title-bar>
-				<capitec-button-bar>
+				<capitec-title-bar type="default" label="Document" style="visibility: hidden;"></capitec-title-bar>
+				<capitec-button-bar  style="visibility: hidden;">
 					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`statements`)}"
 						?disabled="${this.verificationStatus === `non-client`}">

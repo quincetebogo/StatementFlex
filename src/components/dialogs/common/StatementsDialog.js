@@ -35,22 +35,22 @@ const TIME_PERIOD = {
 	ONE_MONTH: {
 		value: 1,
 		label: `1 month`,
-		range: `30 days`
+		range: 30
 	},
 	THREE_MONHTS: {
 		value: 3,
 		label: `3 months`,
-		range: `90 days`
+		range: 90
 	},
 	SIX_MONTHS: {
 		value: 6,
 		label: `6 months`,
-		range: `180 days`
+		range: 180
 	},
 	NINE_MONTHS: {
 		value: 9,
 		label: `9 months`,
-		range: `270 days`
+		range: 270
 	}
 };
 
@@ -83,7 +83,7 @@ export class StatementsDialog extends Component {
 
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.header = this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
-		this.currentStep = 1;
+		this.currentStep = 0;
 		this.notifyClient = true;
 		this.accType = ``;
 		this.savingsPlanAccType = ``;
@@ -174,9 +174,9 @@ export class StatementsDialog extends Component {
 		const emailClient = () => this._validateEmailAddress();
 
 		const validations = {
-			1: selectAccount,
-			2: selectPeriod,
-			3: emailClient
+			0: selectAccount,
+			1: selectPeriod,
+			2: emailClient
 		};
 		const result = validations[this.currentStep]();
 		if (result) {
@@ -202,8 +202,12 @@ export class StatementsDialog extends Component {
 
 	_choosePeriod(range) {
 		this.periodSelected = TIME_PERIOD[range].value;
-		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range})`;
-		this._summary.detail = `Last ${TIME_PERIOD[range].range}`;
+		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
+		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
+
+		this.toDate = new Date();
+		this.fromDate = new Date();
+		this.fromDate.setDate(this.toDate.getDate() - TIME_PERIOD[range].range);
 
 		this._customDateRange = false;
 		this.errorMessage = ``;
@@ -212,6 +216,8 @@ export class StatementsDialog extends Component {
 	_customDateRangeSelected() {
 		this.periodSelected = -1;
 		this._customDateRange = !this._customDateRange;
+		this.fromDate = `dd mm yyyy`;
+		this.toDate = `dd mm yyyy`;
 	}
 
 	_showCalendar() {
@@ -296,11 +302,11 @@ export class StatementsDialog extends Component {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": this.landingPageInfo.account_number,
-			"accountType": this.accountSelected,
+			"accountType": this.accType || this.savingsPlanAccType,
 			"statementDateRange": {
 				"dateRange": {
-					"startDate": this._formatDate(this.startDate),
-					"endDate": this._formatDate(this.endDate)
+					"startDate": new Date(this.fromDate).toISOString().slice(0, 10),
+					"endDate": new Date(this.toDate).toISOString().slice(0, 10)
 				},
 				"presetInterval": ``
 			}
@@ -396,6 +402,31 @@ export class StatementsDialog extends Component {
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
+				bb-stepper-modal {
+					--theme-modal-header-height: 64px;
+					--theme-modal-header-font-size: 18px;
+					--theme-modal-header-padding-left: 16px;
+					--theme-modal-header-color: #3A3A3A;
+					--theme-modal-header-background-color: #F7F7F7;
+					--theme-stepper-inner-step-container-height: 56px;
+					--theme-stepper-inner-step-container-width: 328px;
+					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
+					--theme-stepper-step-title-font-size: 15px;
+					--theme-stepper-step-title-max-width: 328px;
+					--theme-stepper-step-content-container-padding-left: 16px;
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-right: 0px;
+					--theme-container-padding-top: 0px;
+					--theme-container-padding-bottom: 0px;
+					--theme-wizard-modal-max-width: 975px;
+					--theme-wizard-modal-max-height: 930px;
+					--theme-wizard-modal-lg-max-width:976px;
+					--theme-modal-footer-padding: 0px;
+					--theme-wizard-modal-header-padding: 18.5px 16px;
+				}
+				div[slot="step"] {
+					--theme-layout-gap-spacing: 0px;
+				}
 				capitec-modal {
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -403,15 +434,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-header-padding-bottom: 20px;
 					--theme-modal-footer-padding: 0px;
 				}
-				capitec-stepper {
-					width: 975px;
-
-					--theme-stepper-inner-step-container-width: 323px;
-					--theme-stepper-step-content-container-padding-left: 16px;
-					--theme-stepper-step-title-max-width: 100%;
-				}
 				.main-cb {
-					width: 975px;
 					height: 730px;
 
 					--theme-container-padding-left: 16px;
@@ -548,12 +571,9 @@ export class StatementsDialog extends Component {
 					--theme-label-strong-font-weight: 600
 				}
 				.pdf-viewer {
-					height: 786px;
-					width: 832px;
+					height: 693px;
+					width: 975px;
 					background-color: #FFFFFF;
-				}
-				.pdf-viewer-footer {
-					width: 832px;
 				}
 				.seperator {
 					width: 944px;
@@ -567,27 +587,18 @@ export class StatementsDialog extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal
-				type="free"
+			<bb-stepper-modal 
+				.steps="${STATEMENTS_STEPS}"
+				current-active-step="${this.currentStep}"
 				header="${this.header}">
-					<div slot="body">
+					<div slot="step">
 						${this._renderContent()}
 					</div>
 
 					<div slot="footer">
 						${this._renderFooter()}
 					</div>
-			</capitec-modal>`;
-	}
-
-	_renderStepper() {
-		return html`
-			<capitec-stepper
-				layout="horizontal"
-				.steps="${STATEMENTS_STEPS}"
-				active-step-number="${this.currentStep}">
-	 		</capitec-stepper>
-		`;
+			</bb-stepper-modal>`;
 	}
 
 	_renderContent() {
@@ -597,11 +608,11 @@ export class StatementsDialog extends Component {
 			case RENDER_MODE.EMAIL:
 			default:
 				return html`
-					${this._renderStepper()}
 					<capitec-content-box
 						class="main-cb"
 						layout="vertical"
-						gap="clear">
+						gap="clear"
+						@scroll="${false}">
 							${this._renderAlertBanner()}
 							${this._renderAccountSelection()}
 							${this._renderChoosePeriod()}
@@ -634,7 +645,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderAccountSelection() {
-		if (this.currentStep === 1) {
+		if (this.currentStep === 0) {
 			return html`
 				<capitec-label
 					type="subtitle"
@@ -705,7 +716,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderChoosePeriod() {
-		if (this.currentStep === 2) {
+		if (this.currentStep === 1) {
 			return html`
 				<capitec-label
 					type="subtitle"
@@ -872,7 +883,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderEmailClient() {
-		if (this.currentStep === 3 && this.renderMode === RENDER_MODE.EMAIL) {
+		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<capitec-label
 					type="subtitle"
@@ -936,7 +947,7 @@ export class StatementsDialog extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-content-box
-				class="footer ${this.renderMode === RENDER_MODE.PDF ? `pdf-viewer-footer` : ``}"
+				class="footer"
 				layout="horizontal"
 				gap="clear"
 				halign="left"
@@ -945,7 +956,7 @@ export class StatementsDialog extends Component {
 						type="clear"
 						label="Back"
 						@click="${(e) => this._back()}"
-						?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${this.currentStep === 0 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
@@ -958,13 +969,13 @@ export class StatementsDialog extends Component {
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
-						?hidden="${this.currentStep === 3 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${this.currentStep === 2 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
-						?hidden="${this.currentStep !== 3 || this.renderMode === RENDER_MODE.PDF}">
+						?hidden="${this.currentStep !== 2 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
 						type="primary"
@@ -986,10 +997,16 @@ export class StatementsDialog extends Component {
 
 		if (this.renderMode === RENDER_MODE.PDF) {
 			return html`
-				<embed
-					class="pdf-viewer"
-					src="data:application/pdf;base64,${pdfText}#toolbar=0"
-					type="application/pdf" />
+				<capitec-content-box
+						class="main-cb"
+						layout="vertical"
+						gap="clear"
+						@scroll="${false}">
+							<embed
+								class="pdf-viewer"
+								src="data:application/pdf;base64,${pdfText}#toolbar=0"
+								type="application/pdf" />
+				</capitec-content-box>
 			`;
 		}
 		return html``;

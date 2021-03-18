@@ -17,30 +17,30 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
  */
 export class WizardStepperModal extends Component {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	/**
 	 * Initialises the component.
 	 *
 	 * @hideconstructor
 	 */
-    constructor() {
-        super();
-        this.header = ``;
-        this.currentActiveStep = 0;
-        this.steps = [];
-        this.noPadding = false;
-        this.hideStepper = false;
-        this.stepElement = null;
-        this.showScrollIndicator = false;
-        this.showEditButton = false;
-    }
+	constructor() {
+		super();
+		this.header = ``;
+		this.currentActiveStep = 0;
+		this.steps = [];
+		this.noPadding = false;
+		this.hideStepper = false;
+		this.stepElement = null;
+		this.showScrollIndicator = false;
+		this.showEditButton = false;
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
 	 * Registry of all properties defined by the component.
@@ -50,96 +50,96 @@ export class WizardStepperModal extends Component {
 	 * 
 	 * @property {Array<Step>} steps - the steps of the view
 	 */
-    static get properties() {
+	static get properties() {
 
-        return {
-            header: { type: String },
-            steps: { type: Array },
-            currentActiveStep: { type: Number, attribute: `current-active-step` },
-            noPadding: { type: Boolean, attribute: `no-padding` },
-            hideStepper: { type: Boolean, attribute: `hide-stepper` },
-            showEditButton: { type: Boolean, attribute: `show-edit-button` },
-            showScrollIndicator: { type: Boolean }
-        };
-    }
+		return {
+			header: { type: String },
+			steps: { type: Array },
+			currentActiveStep: { type: Number, attribute: `current-active-step` },
+			noPadding: { type: Boolean, attribute: `no-padding` },
+			hideStepper: { type: Boolean, attribute: `hide-stepper` },
+			showEditButton: { type: Boolean, attribute: `show-edit-button` },
+			showScrollIndicator: { type: Boolean }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
-        this.addEventListener(`keydown`, this._onKeydownEvent);
-    }
+	connectedCallback() {
+		super.connectedCallback();
+		this.addEventListener(`keydown`, this._onKeydownEvent);
+	}
 
-    disconnectedCallback() {
-        this.removeEventListener(`keydown`, this._onKeydownEvent);
-        super.disconnectedCallback();
-    }
+	disconnectedCallback() {
+		this.removeEventListener(`keydown`, this._onKeydownEvent);
+		super.disconnectedCallback();
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-    _onKeydownEvent(e) {
+	_onKeydownEvent(e) {
 
-        // tab key
-        if (e.keyCode === 9) {
-            if (e.shiftKey) {
-                if (e.srcElement === this.firstInput) {
+		// tab key
+		if (e.keyCode === 9) {
+			if (e.shiftKey) {
+				if (e.srcElement === this.firstInput) {
 
-                    // Stop at first input element.
-                    e.preventDefault();
-                }
-            } else if (e.srcElement === this.lastInput) {
+					// Stop at first input element.
+					e.preventDefault();
+				}
+			} else if (e.srcElement === this.lastInput) {
 
-                // Stop at last input element.
-                e.preventDefault();
-            }
-        }
-    }
+				// Stop at last input element.
+				e.preventDefault();
+			}
+		}
+	}
 
-    // --------------
-    // PUBLIC METHODS
-    // --------------
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
-    async updated() {
+	async updated() {
 
-        // Select all known input components.
-        const inputs = this.querySelectorAll(`capitec-text-field, capitec-select, capitec-check, capitec-text-box, capitec-rich-text-box, capitec-button, capitec-hyperlink, capitec-radio, capitec-toggle, capitec-date-time-picker`);
+		// Select all known input components.
+		const inputs = this.querySelectorAll(`capitec-text-field, capitec-select, capitec-check, capitec-text-box, capitec-rich-text-box, capitec-button, capitec-hyperlink, capitec-radio, capitec-toggle, capitec-date-time-picker`);
 
-        if (inputs && inputs.length > 0) {
-            this.firstInput = inputs[0];
-            await this.updateComplete;
+		if (inputs && inputs.length > 0) {
+			this.firstInput = inputs[0];
+			await this.updateComplete;
 
-            // Attempt to focus first element.
-            this.firstInput.focus();
-            this.lastInput = inputs[inputs.length - 1];
+			// Attempt to focus first element.
+			this.firstInput.focus();
+			this.lastInput = inputs[inputs.length - 1];
 
-        }
-        // TODO: fix scroll indicator on wizard stepper modal (screen freezes when scollbar reaches the bottom, suspect there's an infinite loop forming)
-        // this._updateScrollIndicator(); 
-    }
+		}
+		// TODO: fix scroll indicator on wizard stepper modal (screen freezes when scollbar reaches the bottom, suspect there's an infinite loop forming)
+		// this._updateScrollIndicator(); 
+	}
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
-    _updateScrollIndicator() {
-        const stepElement = this.shadowRoot.getElementById(`step`);
+	_updateScrollIndicator() {
+		const stepElement = this.shadowRoot.getElementById(`step`);
 
-        if (stepElement) {
-            if (stepElement.scrollHeight > stepElement.offsetHeight) {
-                this.showScrollIndicator = stepElement.scrollHeight - stepElement.offsetHeight !== Math.ceil(stepElement.scrollTop);
-            } else {
-                this.showScrollIndicator = false;
-            }
-        }
-    }
+		if (stepElement) {
+			if (stepElement.scrollHeight > stepElement.offsetHeight) {
+				this.showScrollIndicator = stepElement.scrollHeight - stepElement.offsetHeight !== Math.ceil(stepElement.scrollTop);
+			} else {
+				this.showScrollIndicator = false;
+			}
+		}
+	}
 
-    // ---------
-    // RENDERING
-    // ---------
+	// ---------
+	// RENDERING
+	// ---------
 
 	/**
 	 * Generates the component stylesheet.
@@ -147,11 +147,11 @@ export class WizardStepperModal extends Component {
 	 * @ignore
 	 * @returns {css} The css content of the component.
 	 */
-    static get styles() {
+	static get styles() {
 
-        return [
-            super.styles,
-            css`
+		return [
+			super.styles,
+			css`
 				:host([showScrollIndicator]) .footer {
 					border-top: 2px solid #E1E1E1;
 				}
@@ -194,8 +194,8 @@ export class WizardStepperModal extends Component {
 					border-radius: var(--theme-modal-border-radius, 4px);
 					width: var(--theme-wizard-modal-xl-width, 80%);
 					height: var(--theme-wizard-modal-xl-height, 80%);
-max-width: var(--theme-wizard-modal-max-width, 80%);
-max-height: var(--theme-wizard-modal-max-height, 80%);
+					max-width: var(--theme-wizard-modal-max-width, 80%);
+					max-height: var(--theme-wizard-modal-max-height, 80%);
 				}
 
 				.header {
@@ -238,7 +238,7 @@ max-height: var(--theme-wizard-modal-max-height, 80%);
 				}
 
 			`,
-            unsafeCSS(`
+			unsafeCSS(`
 				@media screen and (max-width: ${window.breakpoints.xl}px) {
 					.container {
 						width: var(--theme-wizard-modal-xl-width, 80%);
@@ -274,46 +274,57 @@ max-height: var(--theme-wizard-modal-max-height, 80%);
 					}
 				}
 			`)
-        ];
-
-
-    }
+		];
+	}
 
 	/**
 	 * Generates the component template for mobile mode.
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-    _mobileTemplate() {
+	_mobileTemplate() {
 
-        return this._webTemplate();
-    }
+		return this._webTemplate();
+	}
 
 	/**
 	 * Generates the component template for web mode.
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-    _webTemplate() {
+	_webTemplate() {
 
-        return html`
+		return html`
 			<div class="modal" role="dialog" aria-modal="true">
 				<div class="container">
-					<slot name="header"><div class="header">
-					${this.header}
-					${this.showEditButton
-                ? html`
-							<capitec-spacer></capitec-spacer>
-							<capitec-hyperlink label="Edit" @click="${() => this.dispatchEvent(new CustomEvent(`edit-button-click`))}" class="default-size"></capitec-hyperlink>
-						` : html``
-            }
-					</div></slot>
+					<slot name="header">
+						<div class="header">
+							${this.header}
+							${this.showEditButton 
+								? html`
+									<capitec-spacer></capitec-spacer>
+									<capitec-hyperlink
+										label="Edit"
+										@click="${() => this.dispatchEvent(new CustomEvent(`edit-button-click`))}"
+										class="default-size">
+									</capitec-hyperlink>`
+								: html``
+							}
+						</div>
+					</slot>
 					<div class="body">
 						<slot name="override">
 							<div class="stepper-container">
-								<capitec-stepper layout="horizontal" .steps=${this.steps} active-step-number=${this.currentActiveStep + 1}></capitec-stepper>
+								<capitec-stepper
+									layout="horizontal"
+									.steps=${this.steps}
+									active-step-number=${this.currentActiveStep + 1}>
+								</capitec-stepper>
 							</div>
-							<capitec-content-box id="step" ?noPadding="${this.noPadding}" @scroll=${() => this._updateScrollIndicator()}>
+							<capitec-content-box
+								id="step"
+								?noPadding="${this.noPadding}"
+								@scroll=${() => this._updateScrollIndicator()}>
 								<slot name="step"></slot>
 							</capitec-content-box>
 						</slot>
@@ -324,17 +335,17 @@ max-height: var(--theme-wizard-modal-max-height, 80%);
 				</div>
 			</div>
 		`;
-    }
+	}
 
 	/**
 	 * Generates the component template for kiosk mode.
 	 * 
 	 * @returns {html} The html content of the component.
 	 */
-    _kioskTemplate() {
+	_kioskTemplate() {
 
-        return this._webTemplate();
-    }
+		return this._webTemplate();
+	}
 }
 
 window.customElements.define(`bb-stepper-modal`, WizardStepperModal);

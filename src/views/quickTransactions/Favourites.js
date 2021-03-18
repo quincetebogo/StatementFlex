@@ -564,17 +564,17 @@ export class Favourites extends View {
 			: html``;
     }
 
-    _renderProofOfAccount() {
-        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
-            ? html`
-                <horizon-proof-of-account
-                    @cancel="${() => this._mainPage()}"
-                    .incomingCallDetails="${this.incomingCallDetails}"
+	_renderProofOfAccount() {
+		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+			? html`
+				<horizon-proof-of-account
+					@cancel="${() => this._mainPage()}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}">
-                </horizon-proof-of-account>`
-            : html``; 
-    }
+					.landingPageInfo="${this.landingPageInfo}">
+				</horizon-proof-of-account>`
+			: html``; 
+	}
 
 	_renderStatementsModal() {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
@@ -583,11 +583,9 @@ export class Favourites extends View {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
 				.landingPageInfo="${this.landingPageInfo}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-			>
-			</horizon-statements-dialog>
-		` :
-		html ``;
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-statements-dialog>`
+		: html ``;
 	}
 }
 
