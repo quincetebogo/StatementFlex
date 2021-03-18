@@ -37,11 +37,6 @@
 			"enabled": true,
 			"positiveCase": true
 		},
-		"stopCard": {
-			"enabled": true,
-			"failStopCard": true,
-			"positiveCase": true
-		},
 		"favouritesLanding": {
 			"enabled": true,
 			"positiveCase": true
@@ -77,6 +72,11 @@
 		},
 		"hasInsuranceProducts": {
 			"enabled": false,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
 			"positiveCase": true
 		},
 		"viewStatements": {

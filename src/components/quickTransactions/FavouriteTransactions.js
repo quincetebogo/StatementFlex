@@ -225,7 +225,7 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-card class="card">
 					<capitec-title-bar type="clear">
-						<img src="/src/images/transactions/fav_icon.svg">
+						<img src="/images/transactions/fav_icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
