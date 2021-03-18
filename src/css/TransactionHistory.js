@@ -45,7 +45,7 @@ const expanderCell = `height: 57px;
 					--horizon-label-value-font-size: 15px;
 					--horizon-label-value-line-height: 20px;`;
 
-export const EXPANDER_LABEL = `margin:2px 0px 12px 0px; 
+export const EXPANDER_LABEL = `margin:4px 0px 12px 0px; 
 					height: 20px;
 					width: 443px;
 					color: #3A3A3A;
