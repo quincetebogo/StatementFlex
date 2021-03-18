@@ -86,6 +86,7 @@ export class Favourites extends View {
 		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.eventAggregator.subscribe(`horizon-send-another-statement`,(option)=>this._performAction(option));
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -413,7 +414,7 @@ export class Favourites extends View {
 	}
 
 	_getStatements() {
-		// TODO: Functionality to generate statements comes here
+		// TODO: Functionality to generate statements comes here	
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 

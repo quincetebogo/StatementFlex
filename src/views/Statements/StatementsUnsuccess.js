@@ -9,7 +9,8 @@ import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	STATEMENTS_UNSUCCESS: 0,
-	END_CALLSESSION: 1
+	END_CALLSESSION: 1,
+	STATEMENTS:2
 };
 
 /**
@@ -84,7 +85,8 @@ export class StatementsUnsuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_doneClick() {    
+	_doneClick() {   
+		//this.renderMode = RENDER_MODE.STATEMENTS; 
         this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 

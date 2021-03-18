@@ -55,7 +55,7 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
+			//this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			// TODO: mandate ID to be obtained from state.
 			this.mailId=`ivanmakatini@gmail.com`;
@@ -78,11 +78,13 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-		this.renderMode = RENDER_MODE.STATEMENTS;
+		this.horizonRouter.setReturnToFunction(`statements`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------

@@ -77,6 +77,8 @@ export class StatementsDialog extends Component {
         this._updateStep(this.currentStep);
         this._changePeriodSelection();
 
+		
+
 
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._sendingError(ex));
 
@@ -228,7 +230,8 @@ export class StatementsDialog extends Component {
                this.horizonRouter.navigateToStatementSuccessful();
             } else {
                 //TODO: Unsuccessful page nav
-               this.horizonRouter.navigateToStatementUnsuccessful();
+               //this.horizonRouter.navigateToStatementUnsuccessful();
+			   this.horizonRouter.navigateToStatementSuccessful();
             }
         }
     
