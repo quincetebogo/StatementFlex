@@ -210,7 +210,9 @@ export class StatementsDialog extends Component {
 	}
 
 	_customDateRangeSelected() {
-		this.periodSelected = -1;
+        this.periodSelected = -1;
+        this.fromDate = `dd mm yyyy`;
+        this.toDate = `dd mm yyyy`;
 		this._customDateRange = !this._customDateRange;
 	}
 
@@ -327,13 +329,13 @@ export class StatementsDialog extends Component {
 	}
 
 	_validatePeriodSelection() {
-		if (this.periodSelected === -1 && !this._customDateRange) {
-			this.errorMessage = `Please choose a from and to date`;
-			return false;
-		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `Please choose a from and to date`;
-			return false;
-		} else {
+        if (this.periodSelected === -1 && !this._customDateRange) {
+            this.errorMessage = `Please choose a from and to date`;
+            return false;
+        } else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
+            this.errorMessage = `Please choose a from and to date`;
+            return false;
+        } else  {
 			this._getSummary();
 		}
 		return true;
@@ -374,7 +376,28 @@ export class StatementsDialog extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css`
+            css`
+
+			bb-stepper-modal  {              
+				--theme-modal-header-height: 64px;
+				--theme-modal-header-font-size: 18px;
+				--theme-modal-header-padding-left: 16px;
+				--theme-modal-header-color: #3A3A3A;
+				--theme-modal-header-background-color: #F7F7F7;
+                //--theme-stepper-inner-step-container-height: 56px;
+                //--theme-stepper-inner-step-container-width: 328px;
+                --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
+                --theme-stepper-step-title-font-size: 15px;
+                --theme-stepper-step-title-max-width: 328px;
+                --theme-stepper-step-content-container-padding-left: 16px;
+                --theme-container-padding-left: 0px;
+                --theme-container-padding-right: 0px;
+                --theme-container-padding-top: 0px;
+                --theme-container-padding-bottom: 0px;
+                --theme-wizard-modal-max-width: 976px;
+                --theme-wizard-modal-max-height: 930px;
+                --theme-wizard-modal-lg-max-width:976px;
+			} 
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
@@ -529,7 +552,8 @@ export class StatementsDialog extends Component {
 
 					--theme-label-font-color: #009DE0;
 					--theme-label-strong-font-size: 16px;
-					--theme-label-strong-font-weight: 600
+					--theme-label-strong-font-weight: 600;
+
 				}
 
 				.plain-body{
@@ -548,7 +572,23 @@ export class StatementsDialog extends Component {
 		]
 	};
 
-	_webTemplate() {
+    _webTemplate() {
+   //     return html`
+   //         	<bb-stepper-modal
+			//	.steps="${[{ title: 'Choose Account' }, { title: "Choose Period" }, { title: "Specify Email and View Documents" }]}"
+			//	current-active-step="${this.currentStep - 1}" header="${this.header}">
+			
+			//    <div slot="step" class="">
+			//		${this._renderContent()}
+            		
+   //             </div>
+   //             <div slot="footer">
+			//		${this._renderFooter()}
+			//	</div>
+
+			//</bb-stepper-modal>
+   //     `;
+
 		return html`
 			<capitec-modal
 				type="free"
@@ -639,7 +679,7 @@ export class StatementsDialog extends Component {
 					@click="${(e) => this._selectAccount(`SavingsPlans`)}"
 					?selected="${this.accType === `SavingsPlans`}">
 				</horizon-product-tile>
-				<horizon-product-tile
+				<!--<horizon-product-tile
 					class="product-credit"
 					type="default"
 					label="Credit Card"
@@ -648,7 +688,7 @@ export class StatementsDialog extends Component {
 					icon="product/credit"
 					@click="${(e) => this._selectAccount(`Credit`)}"
 					?selected="${this.accType === `Credit`}">
-				</horizon-product-tile>
+				</horizon-product-tile>-->
 
 				${this._renderSavingsPlanSelection()}
 			`;
@@ -743,7 +783,7 @@ export class StatementsDialog extends Component {
 				class="choose-date-range"
 				type="radio-button"
 				label="Choose date range"
-				subtitle="Up to 270 days"
+				subtitle="Up to 90 days"
 				detail=""
 				?selected="${this._customDateRange}"
 				@click="${() => this._customDateRangeSelected()}">
