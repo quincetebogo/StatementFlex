@@ -102,29 +102,32 @@ export class EndCallSession extends Component {
 	}
 
 	async _endCallClick() {
-
-		if (this._stopPropagation()) {
-			// Updating state as call ended and redirecting it to call waiting page
+		if(this.endCallReason.key == 2) {
 			this._returnToCallWaitingPage();
-			return;
+		} else {
+			if (this._stopPropagation()) {
+				// Updating state as call ended and redirecting it to call waiting page
+				this._returnToCallWaitingPage();
+				return;
+			}
+	
+			const callToEnd = {
+				incidentRecId: this.incomingCallDetails.incidentRecId,
+				endReason: this.endCallReason.key,
+				resolution: this.endCallReason.value,
+				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			};
+	
+			const returnValue = await this.callHandleService.endCall(callToEnd);
+	
+			// Log any error
+			if (!returnValue.succeeded) {
+				this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+			}
+	
+			// Return the the call waiting landing page even if an error occured
+			this._returnToCallWaitingPage();
 		}
-
-		const callToEnd = {
-			incidentRecId: this.incomingCallDetails.incidentRecId,
-			endReason: this.endCallReason.key,
-			resolution: this.endCallReason.value,
-			causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
-		};
-
-		const returnValue = await this.callHandleService.endCall(callToEnd);
-
-		// Log any error
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
-		}
-
-		// Return the the call waiting landing page even if an error occured
-		this._returnToCallWaitingPage();
 	}
 
 	_valueChanged(e) {
@@ -143,11 +146,10 @@ export class EndCallSession extends Component {
 
 	async _loadCallOptions(endCallDetails) {
 		const returnValue = await this.callHandleService.loadEndCallOptions(endCallDetails);
-
 		if (returnValue.succeeded) {
 			this.endCallReasons = returnValue.result.endCallReasons;
 		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+			this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
 			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
 			this._returnToCallWaitingPage();
@@ -177,14 +179,14 @@ export class EndCallSession extends Component {
 	 * 
 	 * @returns {Boolean} True / False
 	 */
-	_stopPropagation() {
-		const state = this.horizonStore.recoverState();
+    _stopPropagation() {
+        const state = this.horizonStore.recoverState();
 
-		const preventIncidentClose = (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
-			(this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
+        const preventIncidentClose = (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
+            (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
 
-		return preventIncidentClose;
-	}
+        return preventIncidentClose;
+    }
 
 	// ---------
 	// RENDERING
