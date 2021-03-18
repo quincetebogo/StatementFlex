@@ -7,11 +7,12 @@ import { Router } from 'platform/Router';
  */
 const HORIZON_ROUTES = Object.freeze({
 	LANDING_PAGE: `/landingPage`,
+	PRODUCT_INFO: `/product/info`,
 	SAVINGS_ACCOUNT_PRODUCT_PAGE: `/product/savings-account`,
 	SAVINGS_PLAN_PRODUCT_PAGE: `/product/savings-plan`,
-	SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE: `/product/savings-plan/flexible`,
-	SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
-	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
+	// SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE: `/product/savings-plan/flexible`,
+	// SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
+	// SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
 	CARD_STOP_PAGE: `/card-stop`,
@@ -32,8 +33,7 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
-	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
-	PRODUCT_INFO: `/product-info`
+	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
 });
 
 /**
@@ -107,17 +107,23 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE);
 	}
 
+	/*
 	navigateToFlexibleSavingsPlanProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE);
 	}
+	*/
 
+	/*
 	navigateToFixedTermSavingsProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE);
 	}
+	*/
 
+	/*
 	navigateToTaxFreeSavingsProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE);
 	}
+	*/
 
 	navigateToInsureProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_INSURE);
@@ -364,6 +370,8 @@ export default horizonRoutes = [
 		guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+
+	/*
 	{
 		name: `horizon-flexible-savings-plan-product`,
 		title: `FlexibleSavingsPlanProductView`,
@@ -373,6 +381,9 @@ export default horizonRoutes = [
 		guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+
+	/*
 	{
 		name: `horizon-fixed-term-savings-product`,
 		title: `FixedTermSavingsPlanProductView`,
@@ -382,6 +393,9 @@ export default horizonRoutes = [
 		guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+	
+	/*
 	{
 		name: `horizon-tax-free-savings-product`,
 		title: `TaxFreeSavingsPlanProductView`,
@@ -391,6 +405,8 @@ export default horizonRoutes = [
 		guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+	
 	{
 		name: `horizon-insure-product`,
 		title: `InsureProductView`,

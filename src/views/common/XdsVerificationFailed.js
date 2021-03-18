@@ -43,8 +43,8 @@ export class XdsVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 
 		// Subscribe to shell events
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyViaAppClick());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyViaAppClick());
 	}
 
 	// ----------
@@ -64,6 +64,13 @@ export class XdsVerificationFailed extends View {
 	connectedCallback() {
 		super.connectedCallback();
 		this._updateMiniProfile();
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+
+		super.disconnectedCallback();
 	}
 
 	// --------------

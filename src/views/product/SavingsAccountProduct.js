@@ -1,7 +1,17 @@
-import { View, css, html } from 'platform/elements';
-import 'app/components/product/SavingsAccountproductDetails';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
+// import 'app/components/product/SavingsAccountproductDetails';
+import 'app/components/product/CnetProductInfo';
 
-export class SavingsAccountProduct extends View {
+/**
+ * This page allows an agent to view Savings Account information while waiting for an incoming call
+ * The page is temporarily directed top opening product information on CNET
+ *
+ * @export
+ * @class SavingsAccountProduct
+ * @extends {View}
+ */
+export class SavingsAccountProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -19,11 +29,11 @@ export class SavingsAccountProduct extends View {
 		super.connectedCallback();
 	}
 
-
 	// ---------
 	// RENDERING
 	// ---------
 
+	/*
 	static get styles() {
 		return [
 			super.styles,
@@ -34,12 +44,19 @@ export class SavingsAccountProduct extends View {
 			}`
 		];
 	}
+	*/
 
 	_mobileTemplate() {
 	}
 
 	_webTemplate() {
-		return html`<horizon-savings-account-product-details class="savings-details"></horizon-savings-account-product-details>`;
+		return html`
+			<horizon-cnet-product-info 
+				viewType="transact" 
+				viewHeader="Savings Account"
+				@view-benefits="${() => this._viewBenefits(`transact`)}">
+			</horizon-cnet-product-info>`;
+		// return html`<horizon-savings-account-product-details class="savings-details"></horizon-savings-account-product-details>`;
 	}
 }
 

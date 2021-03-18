@@ -1,8 +1,9 @@
-import { View, css, html } from 'platform/elements';
 import { EventAggregator, NavigationContext } from 'platform/core';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { View, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
+import 'app/components/product/CnetProductInfo';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = Object.freeze({
@@ -14,27 +15,28 @@ const CONFIG = {
 	SavingsAccount: {
 		type: `transact`,
 		header: `Savings Account`,
-		prodcut: `SavingsAccount`
+		product: `SavingsAccount`
 	},
 	SavingsPlan: {
 		type: `save`,
 		header: `Savings Plans`,
-		prodcut: `SavingsPlan`
+		product: `SavingsPlan`
 	},
 	Insure: {
 		type: `insure`,
 		header: `Insure`,
-		prodcut: `Insure`
+		product: `Insure`
 	},
 	Credit: {
 		type: `credit`,
 		header: `Credit`,
-		prodcut: `Credit`
+		product: `Credit`
 	}
 };
 
 /**
- * Implements the dynamic view for Product Information screen.
+ * Implements the dynamic view for Product Information screen. This opens the appropriate
+ * page on CNET to allow the agent to provide the client with product information
  * 
  * @export
  * @class ProductInformation
@@ -64,7 +66,7 @@ export class ProductInformation extends View {
 
 	static get properties() {
 		return {
-			renderMode: { type: Number }
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -87,15 +89,23 @@ export class ProductInformation extends View {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
 		);
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
+
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.navSub.dispose();
+				
+		super.disconnectedCallback();
 	}
 
 	// ---------
 	// EVENTS
 	// ---------
 
-	_viewBenefits(){
+	_viewBenefits() {
 		window.open(`https://www.capitecbank.co.za/global-one/${this._config.type}/`);
 	}
 	
@@ -121,46 +131,6 @@ export class ProductInformation extends View {
 	// RENDERING
 	// ---------
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
-				.product-info{
-					width: 100%;
-					height: 888px;
-				}
-				.content{
-					width: 100%;
-					height: 788px;
-				}
-				capitec-title-bar {
-					--theme-titlebar-shadow: 0px;
-					--theme-titlebar-padding: 12px 16px;
-				}
-				#id-more-info {
-					margin: 43px auto 8px auto;
-					color: #3A3A3A;
-					font-size: 24px;
-					font-weight: 600;	
-				}
-				.insights-subtitle{
-					color: #3A3A3A;
-					font-size: 15px;
-					line-height: 20px;
-					margin-bottom: 32px;
-				}
-				.benefits-button {
-					height: 48px;
-					width: 146px;
-					--theme-button-primary-border-width: 0px;
-					--theme-button-line-height: 20px;
-					--theme-button-padding-top: 14px;
-					--theme-button-padding-bottom: 14px;
-				}
-			`
-		];
-	}
-
 	_mobileTemplate() {
 		this._webTemplate();
 	}
@@ -174,55 +144,24 @@ export class ProductInformation extends View {
 
 	_renderProductInfo() {
 		return html`
-			<capitec-card class="product-info">
-			<capitec-title-bar
-				type="${this._config.type}">
-					<capitec-icon
-						size="medium"
-						icon="product/${this._config.type}-white">
-					</capitec-icon>
-					<capitec-label
-						label="${this._config.header}"
-						type="title">
-					</capitec-label>
-			</capitec-title-bar>
-				
-			<capitec-group class= "content" layout="grid" gap="none" columns="auto" rows="auto">
-				<capitec-content-box
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="none">
-						<img src="images/landingPageImages/marketing.svg"/>
-						<capitec-label
-							id="id-more-info"
-							label="More info to come">
-						</capitec-label>
-						<capitec-label
-							class="insights-subtitle"
-							label="Want to know the benefits and fees visit the Capitec website for all info and more">
-						</capitec-label>
-						<capitec-button
-							class="benefits-button"
-							type="primary"
-							label="View Benefits"
-							@click="${() => this._viewBenefits()}">
-						</capitec-button>
-				</capitec-content-box>
-			</capitec-group>
-		</capitec-card>`;
+			<horizon-cnet-product-info 
+				viewType="${this._config.type}" 
+				viewHeader=${this._config.header}
+				@view-benefits="${() => this._viewBenefits()}"
+				>
+			</horizon-cnet-product-info>`;
 	}
 
 	_renderEndCallSessionModal() {
 
-		return this.renderMode === RENDER_MODE.END_CALL ? 
-			html`
+		return this.renderMode === RENDER_MODE.END_CALL 
+			? html`
 				<horizon-end-call-session 
 					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage">
 				</horizon-end-call-session>`
-			: html ``;
+			: html``;
 	}
 }
 

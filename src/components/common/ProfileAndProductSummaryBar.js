@@ -50,8 +50,8 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
-		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
-		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
+		this.leftBarSub = this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
+		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
 	// ----------
@@ -82,16 +82,36 @@ export class ProfileAndProductSummaryBar extends Component {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		this.leftBarSub.dispose();
+		this.favouritesBarSub.dispose();
+		this.stateChangeSub.unsubscribe();
+		
+		super.disconnectedCallback();
+	}
+
 	// ---------
 	// EVENTS
 	// ---------
 
 	_stateChanged(state) {
 		if (state && state.callerInformation) {
+
+			let contactNumber = ``;
+			const isNonClient = state.callerInformation.verificationStatus === `non-client`;
+
+			if (isNonClient && state.callerInformation.nonClientCellPhone && state.callerInformation.nonClientCellPhone !== ``) {
+				contactNumber = state.callerInformation.nonClientCellPhone;
+			} else if (state.callerInformation.verifiedTelephoneNumber && state.callerInformation.verifiedTelephoneNumber !== ``) {
+				contactNumber = state.callerInformation.verifiedTelephoneNumber;
+			} else {
+				contactNumber = state.callerInformation.incomingTelephoneNumber;
+			}
+	
 			this.miniProfile = {
 				name: state.callerInformation.isNonClient ? state.callerInformation.nonClientFullName : state.callerInformation.name,
 				idNumber: state.callerInformation.southAfricanIDNumber,
-				phoneNumber: state.callerInformation.verificationStatus !== `non-client` ? state.callerInformation.verifiedTelephoneNumber : state.incomingCallDetails.incomingTelephoneNumber,
+				phoneNumber: contactNumber,
 				livesIn: state.callerInformation.livesIn,
 				languagePreference: state.callerInformation.languagePreference,
 				birthday: state.callerInformation.birthdate,
@@ -99,7 +119,7 @@ export class ProfileAndProductSummaryBar extends Component {
 				isVerified: state.callerInformation.verificationStatus === `verified`,
 				verificationFailed: state.callerInformation.verificationStatus === `failed`,
 				isConfirmed: state.callerInformation.verificationStatus !== `non-client`,
-				isNonClient: state.callerInformation.verificationStatus === `non-client`,
+				isNonClient: isNonClient,
 				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
 				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
 				verificationAttempts: state.callerInformation.verificationAttempts

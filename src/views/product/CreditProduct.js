@@ -1,7 +1,17 @@
-import { View, css, html } from 'platform/elements';
-import 'app/components/product/CreditProductDetails';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
+// import 'app/components/product/CreditProductDetails';
+import 'app/components/product/CnetProductInfo';
 
-export class CreditProduct extends View {
+/**
+ * This page allows an agent to view Credit Product information while waiting for an incoming call
+ * The page is temporarily directed top opening product information on CNET
+ * 
+ * @export
+ * @class CreditProduct
+ * @extends {View}
+ */
+export class CreditProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -23,6 +33,7 @@ export class CreditProduct extends View {
 	// RENDERING
 	// ---------
 
+	/*
 	static get styles() {
 		return [
 			super.styles,
@@ -33,12 +44,20 @@ export class CreditProduct extends View {
 				}`
 		];
 	}
+	*/
 
 	_mobileTemplate() {
 	}
 
 	_webTemplate() {
-		return html`<horizon-credit-product-details class="credit-details"></horizon-credit-product-details>`;
+		return html`
+			<horizon-cnet-product-info 
+				viewType="credit" 
+				viewHeader="Credit"
+				@view-benefits="${() => this._viewBenefits(`credit`)}">
+			</horizon-cnet-product-info>`;
+
+		// return html`<horizon-credit-product-details class="credit-details"></horizon-credit-product-details>`;
 	}
 }
 
