@@ -76,17 +76,63 @@ export class TapToPayLanding extends Component {
 				width: 1032px;
 				background-color: #DAF2F4;
 			}
+			
+			.alert-banner {
+				height: 48px;
+				width: 1032px;
+				--theme-alert-banner-font-weight: 600;
+				--theme-alert-banner-info-background-color: #DAF2F4;
+				--theme-layout-gap-spacing: 10px;
+
+			}
 
 			capitec-alert-banner > label {
 				height: 20px;
 				width: 81px;
 				color: #08A6B5;
 				font-family: "Hind Vadodara";
-				font-size: 14px;
-				font-weight: 600;
+				--theme-alert-banner-font-size: 14px;
+				--theme-alert-banner-font-weight: 600;
 				letter-spacing: 0;
 				line-height: 20px;
 			  
+			}
+
+			.title-label{
+				padding-left: 8px;
+				height: 32px;
+				margin: 0px;
+				--theme-label-height: 32px;
+				--theme-label-width: 200px;
+				--theme-label-font-family: "Hind Vadodara";
+				--theme-label-font-color: #3E4547;
+				--theme-label-font-size: 24px;
+				--theme-label-font-weight: 600;
+				--theme-label-letter-spacing: 0;
+				--theme-label-line-height: 32px;
+				
+			}
+
+			.alert-banner-paragraph{
+				display: inline-block;
+				font-weight: 500;
+			}
+
+			.card-type-label{
+				height: fit-content;
+				width: 300px;
+				--theme-label-font-color: #3E4547;
+				--theme-label-font-family: "Hind Vadodara";
+				--theme-label-font-size: 18px;
+				--theme-label-font-weight: 600;
+				--theme-label-letter-spacing: 0;
+				--theme-label-line-height: 24px;
+				--theme-layout-gap-spacing: 5px;
+				padding-left: 8px;
+			}
+
+			horizon-card-art {
+				--horizon-card-art-box-shadow:none!important;
 			}
 			`
 		];
@@ -111,7 +157,7 @@ export class TapToPayLanding extends Component {
 						icon="system/arrow-left-action"
 						@click="${() => this._back()}">
 					</capitec-icon>
-					<capitec-label label="Tap To Pay" type="title"></capitec-label>
+					<capitec-label class="title-label" label="Tap to Pay" type="title"></capitec-label>
 				</capitec-title-bar>
 
 				<capitec-content-box class="content-body">
@@ -125,7 +171,7 @@ export class TapToPayLanding extends Component {
 	_renderTapToPayBody() {
 		return html`
 			<capitec-alert-banner class="alert-banner" type="info" label="Notify Client:">
-				After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.
+				<p class="alert-banner-paragraph">After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.</p>
 			</capitec-alert-banner>
 
 			${this._renderPrimaryCards()}
@@ -136,7 +182,7 @@ export class TapToPayLanding extends Component {
 
 	_renderPrimaryCards() {
 		return html`
-			<capitec-label type="title" label="Primary Cards"></capitec-label>
+			<capitec-label class="card-type-label" type="title" label="Primary Cards"></capitec-label>
 
 			<capitec-group class="primary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
 				${this._renderPrimaryCardArt()}
@@ -150,13 +196,14 @@ export class TapToPayLanding extends Component {
 			id="primaryCard-widget-${index}"
 			.card="${card}"
 			.disableHover="${true}"
+			context="tap-to-pay"
 		></horizon-card-art>
 		`);
 	}
 
 	_renderSupplementaryCards() {
 		return html`
-			<capitec-label type="title" label="Supplementary Cards"></capitec-label>
+			<capitec-label class="card-type-label" type="title" label="Supplementary Cards"></capitec-label>
 
 			<capitec-group class="supplementary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
 				${this._renderSupplementaryCardsArt()}

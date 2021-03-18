@@ -32,6 +32,7 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
+		this.selectedItem = ``;
 		this._initialise();
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
 		this.addEventListener(`mouseleave`, this._mouseLeaveCardArt.bind(this));
@@ -54,7 +55,8 @@ export class CardArt extends Component {
 			card: { type: Object },
 			disableHover: { type: Boolean },
 			cardArtSVG: { type: String },
-			context: { type: String }
+			context: { type: String },
+			selectedItem: { type: String }
 		};
 	}
 
@@ -152,6 +154,20 @@ export class CardArt extends Component {
 		};
 	}
 
+	_toggleChecked(event) {
+		this.selectedItem = event.detail.new;
+
+		this.card.isContactlessActivated = this.selectedItem;
+		if (this.selectedItem) {
+			// Navigate to tap to pay aggreement 
+			console.log(`Tap to pay activated`);
+		} else {
+			console.log(`Tap to pay deactivated`);
+		}
+
+		event.stopPropagation();
+
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -319,13 +335,26 @@ export class CardArt extends Component {
 							   halign="right"
 							   valign="top"
 							   class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
-					<capitec-label label="Tap to Pay"
-								   type="default">
-					</capitec-label>
-					<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
-								   type="strong">
-					</capitec-label>
+
+							   ${this._renderLabelOrToggle()}
 				</capitec-group>
+		`;
+	}
+
+	_renderLabelOrToggle() {
+		if (this.context === `tap-to-pay`) {
+			return html`
+			<capitec-toggle label="${this.card.isContactlessActivated ? `On` : `Off`}" 
+							@value-changed=${(event) => this._toggleChecked(event)}
+							?checked="${this.card.isContactlessActivated}"></capitec-toggle>`;
+		}
+		return html`
+			<capitec-label label="Tap to Pay"
+								type="default">
+			</capitec-label>
+			<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
+							   type="strong">
+			</capitec-label>
 		`;
 	}
 }
