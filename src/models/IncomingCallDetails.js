@@ -10,6 +10,8 @@ export class IncomingCallDetails {
 	 * @param {string} [incomingTelephoneNumber=``] The CLI (number of the incoming call)
 	 * @param {string} [incidentReferenceNumber=``] The STrack Incident Reference Number
 	 * @param {string} [incidentRecId=``] The STrack Incident Reference ID
+	 * @param {string} [isAssigned] If true, the incident must be assigned. (isHandedOff must be false)
+	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
@@ -20,6 +22,8 @@ export class IncomingCallDetails {
 		incomingTelephoneNumber = ``, 
 		incidentReferenceNumber = ``, 
 		incidentRecId = ``, 
+		isAssigned = false,
+		isHandedOff = false,
 		voiceReferenceNumber = ``,
 		agentTelephoneNumber = ``, 
 		ivrOptionCode = ``, 
@@ -38,6 +42,8 @@ export class IncomingCallDetails {
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
+		this.isAssigned = isAssigned;
+		this.isHandedOff = isHandedOff;
 		this.agentTelephoneNumber = agentTelephoneNumber;
 		this.voiceReferenceNumber = voiceReferenceNumber;
 

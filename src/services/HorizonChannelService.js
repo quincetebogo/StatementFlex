@@ -269,7 +269,7 @@ export class HorizonChannelService extends Service {
 				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
 					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
 		*/
-	/*
+/*	
 						const cardStopResponse = { 
 							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
 								result: {
@@ -279,13 +279,15 @@ export class HorizonChannelService extends Service {
 		
 						// throw new Error(`Mock Stop Card Error`);
 						return cardStopResponse;
-	*/
+		*/
+	
 /*
 					 }
 				}
 			}
 		}
 */
+
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -297,6 +299,7 @@ export class HorizonChannelService extends Service {
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
+
 	}
 
 	// loadAssignRequest
