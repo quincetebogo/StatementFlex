@@ -476,12 +476,13 @@ export class TransactionHistory extends Component {
 				}
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
-					--theme-input-padding-bottom: 12px;
-					--theme-select-options-max-height: 304px;
+					--theme-input-padding-bottom: 13px;
+					--theme-select-options-max-height: 308px;
 					--theme-input-font-size: 16px;
 					--theme-input-label-font-color: #3A3A3A;
 					--theme-input-font-weight: 400;
-					line-height: 20px;
+					--theme-input-icon-top: 8px;
+					line-height: 30px;
 					width: 224px;
 				}
 			`
@@ -681,7 +682,7 @@ export class TransactionHistory extends Component {
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
-				label="${item.description}">
+				label="Statement description: ${item.description}">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">

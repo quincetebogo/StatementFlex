@@ -47,7 +47,7 @@ const expanderCell = `height: 57px;
 
 export const EXPANDER_LABEL = `margin:5px 0px 15px 0px; 
 					height: 20px;
-					width: 443px;
+					width: auto;
 					color: #3A3A3A;
 					font-family: 'Hind Vadodara';
 					font-size: 15px;
