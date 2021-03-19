@@ -22,8 +22,8 @@ export class StatementsSuccess extends View {
 	constructor() {
 		super();
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
-		this.mailId = `ivanmakatini@gmail.com`;
-		this.encryptedCardId = `5284 **** **** 1322`;
+		this.mailId = ``;
+		this.encryptedCardId = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -41,7 +41,7 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
 		};
 	}
 
@@ -57,9 +57,8 @@ export class StatementsSuccess extends View {
 		if (state) {
 			//this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.mailId=state.email;
 			// TODO: mandate ID to be obtained from state.
-			this.mailId=`ivanmakatini@gmail.com`;
-			this.encryptedCardId=`5284 **** **** 1322`;
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
@@ -135,7 +134,7 @@ export class StatementsSuccess extends View {
 									>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>5284 **** **** 1322</b> was emailed to <b>ivanmakatini@gmail.com</b>
+					slot="detail">The statement for savings account <b>${this.encryptedCardId}</b> was emailed to <b>${this.mailId}</b>
 				</section>
 				<section 
 						id="id-option-button" 
