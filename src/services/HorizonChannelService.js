@@ -586,7 +586,7 @@ export class HorizonChannelService extends Service {
 	async viewStatement(statement) {
 
 		if (await this._mockEnabled(`viewStatements`)) {
-			return this._mock.viewStatementsMocks();
+			return this._mock.viewStatements();
 		}
 
 		const url = `/clientcare/documents/${this._version}/statements/view-statement`;

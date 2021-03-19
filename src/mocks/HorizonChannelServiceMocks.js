@@ -48,7 +48,7 @@ export class HorizonChannelServiceMocks {
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardMocks = await this._loadMockModule(this.stopCardMocks, `stopCard`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
-		this.viewStatementsMock = {};
+		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -152,9 +152,9 @@ export class HorizonChannelServiceMocks {
 		return null;
 	}
 
-	viewStatementsMocks() {
+	viewStatements() {
 		if (this._mocking.viewStatements.positiveCase) {
-			return this.viewStatementsMock;
+			return this.viewStatementsMock.PDF;
 		}
 		return null;
 	}
