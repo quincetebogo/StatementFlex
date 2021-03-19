@@ -93,25 +93,6 @@ export const mockCards = [
 		"isSupplementaryCard": true,
 		"isContactlessCard": false,
 		"isContactlessActivated": true
-	},
-	{
-		"cardId": `5238146537118907`,
-		"primaryAccountId": `6601254634`,
-		"cardExpiryYear": `22`,
-		"cardExpiryMonth": `12`,
-		"cardSequenceNumber": ``,
-		"maskedCardNumber": `5238 **** **** 8907`,
-		"cardDisplayName": `Credit card`,
-		"cardArt": `MASTERCARD_CREDIT_20181101`,
-		"cardStatus": `ACTIVE`,
-		"cardHoldName": `Mrs AR Naidoo`,
-		"linkedCardId": ``,
-		"linkedCardExpiryYear": ``,
-		"linkedCardExpiryMonth": ``,
-		"linkedCardSequenceNumber": ``,
-		"isSupplementaryCard": false,
-		"isContactlessCard": false,
-		"isContactlessActivated": true
 	}
 ];
 
