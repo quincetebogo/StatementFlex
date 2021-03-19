@@ -12,6 +12,12 @@
 		"csp": {
 			"connect-src": [
 				"http://localhost:8888"
+			],
+			"default-src":[
+				"data:"
+			],
+			"child-src":[
+				"data:"
 			]
 		}
 	}

@@ -278,24 +278,26 @@ export class StatementsDialog extends Component {
 	}
 
     async _viewPDF() {
-        console.log("landingpageinfo  " + this.landingPageInfo);
-		this.renderMode = RENDER_MODE.PDF;
+        console.log("landingpageinfo  " + this.landingPageInfo.accountNumber + "  from and to date " + this.fromDate + "  " + this.toDate);
+        this.renderMode = RENDER_MODE.PDF;
+        var test = `PRIMARY_SAVINGS`;
 
         const statement = {
             "cifNumber": this.callerInformation.cifNumber,
             "accountNumber": this.landingPageInfo.accountNumber,
-            "accountType": `PRIMARY_SAVINGS`,
+            "accountType": test,
             "statementDateRange": {
                 "dateRange": {
-                    "startDate": this._formatDate(this.fromDate),
-                    "endDate": this._formatDate(this.toDate)
+                    "startDate": new Date(this.fromDate).toISOString().slice(0, 10),
+                    "endDate": new Date(this.toDate).toISOString().slice(0, 10)
                 },
                 "presetInterval": ""
             }
         };
 
 		const returnValue = await this.quickTransactionService.viewStatement(statement);
-		if (returnValue.succeeded) {
+        if (returnValue.succeeded) {
+            console.log("result  " + returnValue.result.statementData);
 			// render the PDF
 			this.viewStatementPDF = returnValue.result.statementData;
 		} else {
@@ -642,22 +644,6 @@ export class StatementsDialog extends Component {
 	};
 
     _webTemplate() {
-   //     return html`
-   //         	<bb-stepper-modal
-			//	.steps="${[{ title: 'Choose Account' }, { title: "Choose Period" }, { title: "Specify Email and View Documents" }]}"
-			//	current-active-step="${this.currentStep - 1}" header="${this.header}">
-			
-			//    <div slot="step" class="">
-			//		${this._renderContent()}
-            		
-   //             </div>
-   //             <div slot="footer">
-			//		${this._renderFooter()}
-			//	</div>
-
-			//</bb-stepper-modal>
-   //     `;
-
 		return html`
 			<bb-stepper-modal 
 				.steps="${STATEMENTS_STEPS}"
@@ -684,7 +670,7 @@ export class StatementsDialog extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						@scroll="${false}">
+						noScroll>
 							${this._renderAlertBanner()}
 							${this._renderAccountSelection()}
 							${this._renderChoosePeriod()}
@@ -1055,7 +1041,7 @@ export class StatementsDialog extends Component {
 						@click="${() => this.renderMode = RENDER_MODE.EMAIL}"
 						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
-			</capitec-group>
+			</capitec-content-box>
 		`;
 	}
 
@@ -1073,7 +1059,7 @@ export class StatementsDialog extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						@scroll="${false}">
+						noScroll>
 							<embed
 								class="pdf-viewer"
 								src="data:application/pdf;base64,${pdfText}#toolbar=0"
