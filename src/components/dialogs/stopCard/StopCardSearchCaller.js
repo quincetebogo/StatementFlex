@@ -3,6 +3,7 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
@@ -101,6 +102,7 @@ export class StopCardSearchCaller extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 		RegExp();
 
@@ -110,6 +112,7 @@ export class StopCardSearchCaller extends Component {
 		};
 
 		this.incomingCallDetails = null;
+		this.callerInformation = null;
 		this.renderMode = -1;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
@@ -132,6 +135,7 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			callerInformation: { type: Object },
 
 			isBusy: { attribute: false },
 			errMessage: { attribute: false },
@@ -223,7 +227,15 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		if (this.ivrOption.value !== `StopCard`) {
+		this.horizonStore.saveState({
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		});
+
+		if (this.ivrOption.value === `ProductEnquiry`) {
+			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+		}
+		else if (this.ivrOption.value !== `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails

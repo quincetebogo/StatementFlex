@@ -224,6 +224,15 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller.ivrOptionCode = event.detail.new;
 		this.incomingCallDetails.ivrOption.value = event.detail.new;
 		this.incomingCallDetails.ivrOptionCode = event.detail.new;
+
+		this.horizonStore.saveState({
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		});
+
+		if (this.incomingCallDetails.ivrOptionCode === `ProductEnquiry`) {
+			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
+		}
 	}
 
 	_searchClick() {
@@ -655,6 +664,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-stop-card-search-caller
                 .incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}"
                 >
@@ -665,6 +675,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-caller
                 .incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
