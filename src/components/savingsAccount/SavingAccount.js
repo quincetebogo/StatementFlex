@@ -281,12 +281,14 @@ export class SavingsAccount extends Component {
 					<horizon-option-button 
 						class="button-margin" 
 						label="Statements" 
-						icon="system/documents-action">
+						icon="system/documents-action"
+						@click="${() => this._optionSelectedClick(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin" 
 						label="More" 
-						icon="system/more-action">
+						icon="system/more-action"
+						@click="${() => this._optionSelectedClick(`more`)}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>

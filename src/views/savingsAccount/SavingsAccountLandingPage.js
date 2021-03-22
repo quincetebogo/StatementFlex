@@ -15,6 +15,15 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_PAGE: 3
 });
 
+const TRANSACTION_HISTORY = {
+	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
+	END_DATE : new Date().toISOString().substr(0,10),
+	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
+	START_AT_INDEX : 0,
+	MAX_RESULTS : 20,
+	MONEY_TYPE : 'BOTH'
+}
+
 /**
  * Savings Account View
  *
@@ -64,6 +73,23 @@ export class SavingsAccountLandingPage extends View {
 		super.connectedCallback();
 
 		this._initialise();
+
+		this._optionClick = (option) => {
+
+			const transactionHistory = () => this._transactionHistory();
+			const debiCheck = () => this._debiCheck();
+			const statements = () => this._getStatements();
+			const more = () => this._more();
+
+			const actions = {
+				'transaction-history': transactionHistory,
+				'debi-check': debiCheck,
+				'statements': statements,
+				'more': more
+			};
+			return actions[option];
+		}
+	
 	}
 
 	// --------------
@@ -82,39 +108,6 @@ export class SavingsAccountLandingPage extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	async _optionClick(event) {
-		if (event.detail.option === `transaction-history`) {
-
-			const transactionHistoryRequest = {
-				cifNumber: this.callerInformation.cifNumber,
-				accountNumber: this.landingPageInfo.accountNumber,
-				accountType: `PRIMARY_SAVINGS`,
-				startDate: `2020-01-01`,
-				endDate: `2020-12-26`,
-				startAtIndex: 0,
-				maxResults: 8,
-				moneyType: `BOTH`
-			};
-
-			const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
-			if (returnValue.succeeded && returnValue.result) {
-                this.transactionHistory = returnValue.result.transactions;
-                this.accountDetails = {
-                    "accountNumber": this.landingPageInfo.accountNumber,
-                    "balance": this.landingPageInfo.accountBalance,
-                    "availableBalance": this.landingPageInfo.accountAvailableBalance,
-                    "pendingAmount": this.landingPageInfo.accountPendingAmount,
-                    "interest": this.landingPageInfo.interestRatePercentage,
-                    "status": this.landingPageInfo.accountStatus
-                };
-				this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
-			}
-		} else if (event.detail.option === `debi-check`) {
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		}
-	}
-	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -189,6 +182,47 @@ export class SavingsAccountLandingPage extends View {
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 	}
+
+	async _transactionHistory(){
+		const transactionHistoryRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			accountNumber: this.landingPageInfo.accountNumber,
+			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+			startDate: TRANSACTION_HISTORY.START_DATE,
+			endDate: TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
+			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+		};
+
+		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.transactionHistory = returnValue.result.transactions;
+			this.accountDetails = {
+				"accountNumber": this.landingPageInfo.accountNumber,
+				"balance": this.landingPageInfo.accountBalance,
+				"availableBalance": this.landingPageInfo.accountAvailableBalance,
+				"pendingAmount": this.landingPageInfo.accountPendingAmount,
+				"interest": this.landingPageInfo.interestRatePercentage,
+				"status": this.landingPageInfo.accountStatus
+			};
+
+			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
+		}
+	}
+
+	_debiCheck(){
+		// TODO: Functionality to Debi check comes here
+	}
+
+	_getStatements(){
+		// TODO: Functionality to generate statements comes here
+	}
+
+	_more(){
+		// TODO: Functionality to option 'more' comes here
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -236,7 +270,7 @@ export class SavingsAccountLandingPage extends View {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					@option-click="${(event) => this._optionClick(event)}">
+					@option-click="${(event) => this._optionClick(event.detail.option)()}">
 				</horizon-savings-account>`
 			: html``;
 	}
