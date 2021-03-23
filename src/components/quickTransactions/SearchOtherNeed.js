@@ -208,6 +208,7 @@ const RENDER_MODE = Object.freeze({
 					--theme-label-title-font-size: 14px;
 					--theme-label-title-font-weight: 600;
 					--theme-layout-gap-spacing: 0px;
+					--theme-layout-gap-line-color: none;
 				}
 				capitec-content-box {
 					height: 655px;
