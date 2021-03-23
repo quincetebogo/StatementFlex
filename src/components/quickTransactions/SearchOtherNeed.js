@@ -51,10 +51,6 @@ const RENDER_MODE = Object.freeze({
 		this.solutionObjects = null;
 
 		this._configuration = Configuration.getInstance();
-
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 	// --------------
 	// PROPERTIES
@@ -95,8 +91,6 @@ const RENDER_MODE = Object.freeze({
 		if (returnValue.succeeded && returnValue.result) {
 			this.searchObject = returnValue.result.categories;
 		}
-	}
-
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
 		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
@@ -118,34 +112,35 @@ const RENDER_MODE = Object.freeze({
 	 
 	async _searchOtherNeed(e) {
 			
-		this.specificNeedObjects = null;
-		this.issueTypeObjects = null;
-		this.category = e.currentTarget.value;
-		if (this[e.currentTarget.value] = e.detail.new){
-			this.chooseNeed = false;
+		this.category = e.detail.new.category;
+		//if new
+		this.chooseNeed = false;
 			
 			const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(this.orgUnit, this.category);
 			
-			if (returnValue.succeeded && returnValue.result) {
-				this.specificNeedObjects = returnValue.result.needs;
+			if (e.detail.old != null) {
+				if (e.detail.old.category !== e.detail.new.category){
+				this.chooseIssue = true;
+				this.solutionDisplay = false;
 			}
 		}
-		else {
-			this.chooseNeed = true;
-			this.chooseIssue = true;
-			this.solutionDisplay = false;
-		}
+			if (returnValue.succeeded && returnValue.result) {
+				this.specificNeedObjects = returnValue.result.needs.map(item=>{
+					return item.need;
+				});
+			}
+		
 	 }
 
 	async _searchSpecificNeed(e) {
 
 		this.solutionDisplay = false;
-		this.need = e.currentTarget.value.need;
+		this.need = e.currentTarget.value;
 		
-		if (this[e.currentTarget.value.need] = e.detail.new) {
+		if (this[e.currentTarget.value] = e.detail.new) {
 			this.chooseIssue = false;
 		
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
+			const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
 		
 				if (returnValue.succeeded && returnValue.result) {
 				this.issueTypeObjects = returnValue.result.issues.map(item=>{
@@ -154,7 +149,6 @@ const RENDER_MODE = Object.freeze({
 			}
 		}
 		else {
-			this.chooseIssue = true;
 			this.solutionDisplay = false;
 		}
 	 }
@@ -215,14 +209,14 @@ const RENDER_MODE = Object.freeze({
 					--theme-label-title-font-weight: 600;
 					--theme-layout-gap-spacing: 0px;
 				}
-				capitec-content-box{
+				capitec-content-box {
 					height: 655px;
 				}
 				.otherneed-action-bar {
 					height: 56px;
 					--theme-actionbar-padding: 8px 16px 8px 16px;
 					--theme-actionbar-min-height: 64px;
-					--theme-actionbar-item-gap: 8px;
+					--theme-actionbar-item-gap: 15px;
 				}
 				.otherneed-action-bar > capitec-text-field {
 					height: 49px;
@@ -339,16 +333,16 @@ const RENDER_MODE = Object.freeze({
 	_renderActionBar() {
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
-				<capitec-text-field 
+				<capitec-select 
 					label="Search client need"
 					.items="${this.searchObject}"
-					data= "${this.searchObject}"
 					display-field="category"
 					id-field="category"
-					type="search"
-					keyboardMode="alpha-numeric"
-					@value-changed="${(e) => this._searchOtherNeed(e)}">
-				</capitec-text-field>
+					.value = "Search client need"
+					?hidden = false
+					@value-changed="${(e) => this._searchOtherNeed(e)}"
+					searchable>
+				</capitec-select>
 				<capitec-select 
 					label="Choose specific need" 
 					.items="${this.specificNeedObjects}"
@@ -380,145 +374,9 @@ const RENDER_MODE = Object.freeze({
 					<capitec-content-box>
 						<capitec-label
 							class="solution-heading"
-							type="subtitle"
+							type="default"
 							label="${this.solutionObjects}">
 						</capitec-label>
-			
-						<!-- <capitec-group layout="vertical" gap="none" halign="left" valign="top">
-							<capitec-label
-								class="solution-content"
-								type="default" 
-								label="Client ID number">
-							</capitec-label> 
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left"
-								label="Savings account number">
-							</capitec-label>
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left"
-								label="Amount of Disputed transaction/s">
-							</capitec-label>
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left"
-								label="Transaction Date range">
-							</capitec-label>
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left"
-								label="Transaction time">
-							</capitec-label>
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left"
-								label="Client preferred method of contact along with contact information">
-							</capitec-label>
-							<capitec-label
-								class="solution-content"
-								type="default"
-								halign="left" 
-								label="Masked Card number">
-							</capitec-label>
-						</capitec-group>
-						
-						<capitec-label
-							class="solution-heading"
-							type="subtitle"
-							label="Background">
-						</capitec-label>
-						
-						<capitec-group layout="vertical" gap="none" halign="left" valign="top">
-							<capitec-label
-								class="solution-content"
-								type="default"
-								label="This is when a Capitec Bank client/cardholder does a withdrawal at a foreign MasterCard (overseas) ATM and the cash either does not dispense at all or only part of the requested amount dispensed.">
-							</capitec-label> 
-						</capitec-group>
-
-						<capitec-label
-							class="solution-heading"
-							type="subtitle"
-							label="Steps">
-						</capitec-label>
-			
-						<capitec-label
-							class="solution-heading"
-							type="subtitle"
-							label="1.	STrack-info">
-						</capitec-label>
-						
-						<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									label="Complete client savings account number in Client ID field.">
-								</capitec-label>
-							</li>
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Complete the details in the Incident Detail Tab">
-								</capitec-label></li>
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Capture the minimum information and the reason for the cardholders dispute in the description box">
-								</capitec-label>
-							</li>
-						</capitec-group>
-
-						<capitec-label
-							class="solution-heading"
-							type="subtitle"
-							label="2.	Hand Off">
-						</capitec-label>
-						
-						<capitec-group class="bullet-group" layout="vertical" gap="none" halign="left" valign="top">
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Hand off the incident to Card disputes.">
-								</capitec-label>
-							</li>
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Inform the client that this enquiry can take up to 5 days to investigate.">
-								</capitec-label>
-							</li>
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Inform client that Card Disputes will contact client with feedback.">
-								</capitec-label>
-							</li>
-							<li>
-								<capitec-label
-									class="strack-solution-content"
-									type="default"
-									halign="left"
-									label="Provide the client with the Incident Number and end the call.">
-								</capitec-label>
-							</li>
-						</capitec-group> -->
 					</capitec-content-box>
 					
 					<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
