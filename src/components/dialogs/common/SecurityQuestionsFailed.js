@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
@@ -41,6 +42,7 @@ export class SecurityQuestionsFailed extends Component {
 		this.incomingCallDetails = null;
 		this.callerInformation = {};
 		this.xdsMessage = ERROR_MESSAGE.DEFAULT_NOTIFICATION;
+		this.logger = Logger.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
@@ -65,9 +67,9 @@ export class SecurityQuestionsFailed extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-			renderMode: { type: Number },
-			xdsMessage: { type: String },
-			isBusy: { type: Boolean }
+			renderMode: { attribute: false },
+			xdsMessage: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -77,15 +79,6 @@ export class SecurityQuestionsFailed extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
-		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
-		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 	}
 
 	// --------------
@@ -98,17 +91,19 @@ export class SecurityQuestionsFailed extends Component {
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
-			this.securityQuestions = returnValue.result;
+			const securityQuestions = returnValue.result;
 
-			if (!this.securityQuestions.authenticationPermitted) {
+			if (!securityQuestions.authenticationPermitted) {
+				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
+				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				// common code - imported from VerifyCaller
 				navigateToFailedScreen(this);
-			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (securityQuestions.questions && securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
-					detail: { 'securityQuestions': this.securityQuestions }
+					detail: { 'securityQuestions': securityQuestions }
 				}));
 			} else {
-				this.xdsMessage = this.securityQuestions.errorMessage;
+				this.xdsMessage = securityQuestions.errorMessage;
 			}
 		}
 	}
@@ -116,6 +111,12 @@ export class SecurityQuestionsFailed extends Component {
 
 	_skip() {
 		this.dispatchEvent(new CustomEvent(`skip`, {
+			detail: {}
+		}));
+	}
+
+	_verifyUsingMobileApp() {
+		this.dispatchEvent(new CustomEvent(`verify-via-app`, {
 			detail: {}
 		}));
 	}
@@ -145,10 +146,6 @@ export class SecurityQuestionsFailed extends Component {
 		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
-
-	// ---------
-	// RENDERING
-	// ---------
 
 	static get styles() {
 		return [
@@ -230,6 +227,7 @@ export class SecurityQuestionsFailed extends Component {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -254,7 +252,7 @@ export class SecurityQuestionsFailed extends Component {
 				return html`Incorrect Render mode specified`;
 		}
 	}
-
+	
 	_renderNotificationStatus() {
 		return html`
 			<capitec-content-box id="notification-status-box">
@@ -285,20 +283,24 @@ export class SecurityQuestionsFailed extends Component {
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button label="Security Questions"
-                                            icon="system/knowledge-action"
-                                            iconSize="default"
-						                    @click="${() => this._retrySecurityQuestions()}">
+					<horizon-option-button 
+						label="Security Questions"
+						icon="system/knowledge-action"
+						iconSize="default"
+						@click="${() => this._retrySecurityQuestions()}">
 					</horizon-option-button>
-					<horizon-option-button label="Skip Verification" 
-                                            icon="system/arrow-right-action"
-                                            iconSize="default"
-						                    @click="${() => this._skip()}">
+					<horizon-option-button 
+						label="Skip Verification" 
+						icon="system/arrow-right-action"
+						iconSize="default"
+						@click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button label="Verify via Banking App" 
-                                            icon="system/cellphone-action"
-                                            iconSize="default"
-						                    @click="${() => this._verifyUsingMobileApp()}">
+					<horizon-option-button 
+						label="Verify via Banking App" 
+						icon="system/cellphone-action"
+						iconSize="default"
+						@click="${() => this._verifyUsingMobileApp()}"
+						?hidden="${!this.callerInformation.hasDigitalChannels}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-content-box>
@@ -321,7 +323,7 @@ export class SecurityQuestionsFailed extends Component {
 				endCallContext = "VerifyClient"
                 @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
-	}
+    }
 }
 
 window.customElements.define(`horizon-security-questions-failed`, SecurityQuestionsFailed);

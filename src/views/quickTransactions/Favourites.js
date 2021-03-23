@@ -68,7 +68,7 @@ export class Favourites extends View {
 		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
-		this.curOptionEvent = {};
+		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
 
@@ -81,9 +81,9 @@ export class Favourites extends View {
 		}
 
 		// Subscribe to shell events
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -143,6 +143,14 @@ export class Favourites extends View {
 		};
 	}
 
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.assignSub.dispose();
+		this.verifySub.dispose();
+
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -189,14 +197,14 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
-			this.curOptionEvent = {};
+			this.curOptionEvent = null;
 			this._performAction(optionSelected)();
 		}
 	}
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -555,6 +563,7 @@ export class Favourites extends View {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
                 <horizon-proof-of-account
+                    @cancel="${() => this._mainPage()}"
                     .incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}">

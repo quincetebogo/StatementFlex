@@ -66,8 +66,16 @@ export class StatementsUnsuccess extends View {
 			// TODO: mandate ID to be obtained from state.
 			this.mailId = `ivanmakatini@gmail.com`;
 			this.encryptedCardId = `5284 **** **** 1322`;
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------

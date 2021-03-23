@@ -34,7 +34,7 @@ const statusColumnLabel =
 const expanderCell = `height: 57px;
 					font-weight: 300;
 					justify-content: left;
-
+					margin-bottom: 2px;
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-color: #3A3A3A;
 					--horizon-label-text-font-size: 14px;
@@ -45,9 +45,9 @@ const expanderCell = `height: 57px;
 					--horizon-label-value-font-size: 15px;
 					--horizon-label-value-line-height: 20px;`;
 
-export const EXPANDER_LABEL = `margin:4px 0px 12px 0px; 
+export const EXPANDER_LABEL = `margin:5px 0px 15px 0px; 
 					height: 20px;
-					width: 443px;
+					width: auto;
 					color: #3A3A3A;
 					font-family: 'Hind Vadodara';
 					font-size: 15px;

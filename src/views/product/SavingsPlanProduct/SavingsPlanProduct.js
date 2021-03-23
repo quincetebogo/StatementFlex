@@ -1,8 +1,16 @@
-import { View, css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import 'app/components/common/HorizonProductTile';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
+import 'app/components/product/CnetProductInfo';
 
-export class SavingsPlanProduct extends View {
+/**
+ * This page allows an agent to view Savings Plan Product information while waiting for an incoming call
+ * The page is temporarily directed top opening product information on CNET
+ *
+ * @export
+ * @class SavingsPlanProduct
+ * @extends {ProductPageBase}
+ */
+export class SavingsPlanProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -10,7 +18,6 @@ export class SavingsPlanProduct extends View {
 
 	constructor() {
 		super();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// -------------------
@@ -21,10 +28,15 @@ export class SavingsPlanProduct extends View {
 		super.connectedCallback();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
 
+/*
 	static get styles() {
 		return [
 			super.styles,
@@ -49,11 +61,20 @@ export class SavingsPlanProduct extends View {
 				}`
 		];
 	}
-
+*/
 	_mobileTemplate() {
 	}
 
 	_webTemplate() {
+
+		return html`
+			<horizon-cnet-product-info 
+				viewType="save" 
+				viewHeader="Savings Plans"
+				@view-benefits="${() => this._viewBenefits(`save`)}">
+			</horizon-cnet-product-info>`;
+
+		/*
 		return html`
 			<capitec-card class="savingsproduct-info">
 			<capitec-title-bar type="save" label="Savings Plan"></capitec-title-bar>
@@ -79,6 +100,7 @@ export class SavingsPlanProduct extends View {
 					</div>
 			</capitec-card>
 		`;
+		*/
 	}
 }
 

@@ -36,4 +36,8 @@ export class HorizonSignalRClient extends SignalRClient {
 		await super.on(`ita-verification-status`, (verificationStatus) => callback(verificationStatus));
 	}
 
+	async deRegisterHandler() {
+		await super.off(`ita-verification-status`);
+	}
+
 }

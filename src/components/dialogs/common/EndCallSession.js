@@ -120,7 +120,7 @@ export class EndCallSession extends Component {
 
 		// Log any error
 		if (!returnValue.succeeded) {
-			this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
 		}
 
 		// Return the the call waiting landing page even if an error occured
@@ -147,7 +147,7 @@ export class EndCallSession extends Component {
 		if (returnValue.succeeded) {
 			this.endCallReasons = returnValue.result.endCallReasons;
 		} else {
-			this.logger.log(`ERROR`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
 			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
 			this._returnToCallWaitingPage();
@@ -180,8 +180,10 @@ export class EndCallSession extends Component {
 	_stopPropagation() {
 		const state = this.horizonStore.recoverState();
 
-		return (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
-			   (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
+		const preventIncidentClose = (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
+			(this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
+
+		return preventIncidentClose;
 	}
 
 	// ---------

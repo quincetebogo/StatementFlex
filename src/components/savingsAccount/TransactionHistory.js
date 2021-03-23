@@ -24,6 +24,15 @@ const RENDER_CHIPS = {
 	STATUS: ``
 };
 
+const TRANSACTION_STATUS_LIST = [
+	`Financial`,
+	`Non Financial`,
+	`Processing`,
+	`Reversed`,
+	`Partial reversal`,
+	`Partial reversal processed`
+];
+
 /**
  * Transaction History screen is to display the list of transactions of a client.
  *
@@ -64,6 +73,8 @@ export class TransactionHistory extends Component {
 		this.filteredData = [];
 		this.rawData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
+		this.statuslabel = `Transaction Status`;
+
 		this.statuslabel = `Transaction Status`;
 		this.transactionStatusList = [
 			`Financial`,
@@ -125,7 +136,7 @@ export class TransactionHistory extends Component {
 		this.rawData = this.transactionHistory;
 		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
-		
+
 	}
 
 	// --------------
@@ -141,6 +152,7 @@ export class TransactionHistory extends Component {
 		this._refineSearch();
 	}
 
+	//To hide or show the label for the search text field according to the design requirement.
 	_searchTextFocussed(e) {
 		this.searchTextLabel = ``;
 	}
@@ -151,7 +163,8 @@ export class TransactionHistory extends Component {
 		}
 	}
 
-	_statusFocussed() {
+	//To hide or show the label for the select field according to the design requirement.
+	_statusFocussed(e) {
 		this.statuslabel = '';
 	}
 
@@ -197,7 +210,8 @@ export class TransactionHistory extends Component {
 			TEXT: this.searchTextLabel = `Search for amount or transaction name`,
 			DATE: ``,
 			STATUS: this.statuslabel = `Transaction Status`,
-		}[type];
+		};
+		closeChip[type];
 		this._refineSearch();
 	}
 
@@ -219,6 +233,28 @@ export class TransactionHistory extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_initialize(tableData) {
+		tableData.map((item) => {
+			const date = new Date(Date.parse(item.transactionDate));
+
+			item.tranDate = date;
+			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
+			item.amount = this._formatAmount(item.amount)
+			item.balance = this._formatAmount(item.balance)
+
+			return item;
+		});
+		
+		return tableData.filter(item => item.transactionStatus !== ``);
+	}
+
+	//To format the raw amount as per the design
+	_formatAmount(amount){
+		const currencyString = (amount >= 0) ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		return currencyString.includes('.') ? currencyString : (currencyString + '.00');
+
+	}
 
 	_initialize(tableData) {
 		tableData.length < 40 ? this.showLoadMore = false : this.showLoadMore = true
@@ -392,8 +428,8 @@ export class TransactionHistory extends Component {
 					height: 47px;
 					width: 388px;
 					padding-left: 8px;
-
-					--theme-label-font-color: #3a3a3a;
+				
+					--theme-label-font-color: #3A3A3A;
 					--theme-input-label-font-size: 16px;
 					--theme-layout-gap-spacing: 8px;
 				}
@@ -409,8 +445,9 @@ export class TransactionHistory extends Component {
 					width: 143px;
 					cursor: pointer;
 					margin-left: 16.5px;
+				
 					margin-bottom: 2px;
-					--theme-label-font-color: #5f5e5e;;
+					--theme-label-font-color: #3A3A3A;
 					--theme-label-default-font-size: 16px;
 				}
 				.cb-datepicker > capitec-icon {
@@ -559,6 +596,17 @@ export class TransactionHistory extends Component {
 				.hide-load-more{
 					display: none;
 				}
+				.transaction-status-select{
+					--theme-input-label-font-size: 16px;
+					--theme-input-padding-bottom: 13px;
+					--theme-select-options-max-height: 308px;
+					--theme-input-font-size: 16px;
+					--theme-input-label-font-color: #3A3A3A;
+					--theme-input-font-weight: 400;
+					--theme-input-icon-top: 8px;
+					line-height: 30px;
+					width: 224px;
+				}
 			`
 		];
 	}
@@ -670,80 +718,16 @@ export class TransactionHistory extends Component {
 						</capitec-icon>
 				</capitec-content-box>
 
-				<capitec-select 
-					label="${RENDER_CHIPS[FILTER_BY.STATUS] ==='' ? this.statuslabel : ''}" 
+				<capitec-select
+					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== '' ? '' : this.statuslabel}" 
 					class="transaction-status-select"
-					.items="${this.transactionStatusList}"
+					.items="${TRANSACTION_STATUS_LIST}"
 					@focus="${(e) => this._statusFocussed(e)}"
 					@value-change = "${(e) => this._filterByStatus(e)}"
-					value="${RENDER_CHIPS[FILTER_BY.STATUS]}"
+					value = ${RENDER_CHIPS[FILTER_BY.STATUS]}
 					hint="">
 				</capitec-select>
-
-				<!-- <capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-status">
-					<capitec-label
-						label="Transaction Status"
-						type="default">
-					</capitec-label>
-					${this._renderStatusOptions()}
-				</capitec-group> -->
 			</capitec-group>
-		`;
-	}
-
-	//TOBE removed
-	_renderStatusOptions() {
-		return html`
-			<capitec-overflow-menu label="Transaction Status">
-				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-					<div class="status-icon processed">
-					</div>
-					<capitec-overflow-menu-item label="Processed" @click="${(e) => this._filterByStatus(e)}">
-					</capitec-overflow-menu-item>
-				</capitec-group>
-
-				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-					<div class="status-icon pending">
-					</div>
-					<capitec-overflow-menu-item label="Pending" @click="${(e) => this._filterByStatus(e)}">
-					</capitec-overflow-menu-item>
-				</capitec-group>
-
-				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-					<div class="status-icon expired">
-					</div>
-					<capitec-overflow-menu-item label="Expired" @click="${(e) => this._filterByStatus(e)}">
-					</capitec-overflow-menu-item>
-				</capitec-group>
-
-				<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-					<div class="status-icon reversed">
-					</div>
-					<capitec-overflow-menu-item label="Reversed">
-						
-						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-							<div class="status-icon reversed">
-							</div>
-							<capitec-overflow-menu-item label="Reversed" @click="${(e) => this._filterByStatus(e)}">
-							</capitec-overflow-menu-item>
-						</capitec-group>
-
-						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-							<div class="status-icon reversed">
-							</div>
-							<capitec-overflow-menu-item label="Partial reversal" @click="${(e) => this._filterByStatus(e)}">
-							</capitec-overflow-menu-item>
-						</capitec-group>
-
-						<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-							<div class="status-icon reversed">
-							</div>
-							<capitec-overflow-menu-item label="Partial reversal processed" @click="${(e) => this._filterByStatus(e)}">
-							</capitec-overflow-menu-item>
-						</capitec-group>
-					</capitec-overflow-menu-item>
-				</capitec-group>
-			</capitec-overflow-menu>
 		`;
 	}
 
@@ -836,14 +820,14 @@ export class TransactionHistory extends Component {
 		return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
-				label="${item.description}">
+				label="Statement description: ${item.description}">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType}">
+					value = "${item.transactionType ? item.transactionType : '-'}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
@@ -866,7 +850,7 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.transactionCode}">
+					value = "${item.transactionCode  ? item.transactionCode : '-'}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 

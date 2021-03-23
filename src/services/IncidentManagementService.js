@@ -51,4 +51,32 @@ export class IncidentManagementService extends ServiceBase {
 
 		return this.wrapCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
 	}
+
+	/**
+	 * Record the details of a client against an incident
+	 *
+	 * @param {String} cifNumber The client's CIF number
+	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateIncidentClientDetails(cifNumber, incidentRecId), `updateIncidentClientDetails`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Record the details of a non client against an incident
+	 *
+	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {String} nonClientDetails Non client details
+	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 updateIncidentNonClientDetails(incidentRecId, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails), `updateIncidentNonClientDetails`, errorHandler, autoRetries);
+	}
 }

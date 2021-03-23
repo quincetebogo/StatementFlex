@@ -257,17 +257,35 @@ export class HorizonChannelService extends Service {
 	}
 	
 	// stopCardRequest
-	async stopCard(stopCardRequest) {
+	stopCard(stopCardRequest) {
+
+		/*
 		// Force loading of mocking settings
 		await this._mockEnabled(`stopCard`);
 
 		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking.stopCard.enabled && this._mocking.stopCard.failCard && this._configuration.config.runtime.environment === `DEV`) {
-			if (this._mocking.stopCard.failedCard !== ``) {
-				throw new Error(`Mock Stop Card Error`);
+		if (this._mocking !== null && Object.prototype.hasOwnProperty.call(this._mocking, `stopCard`)) {
+			if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `enabled`) && this._mocking.stopCard.enabled) {
+				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
+					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
+		*/
+	/*
+						const cardStopResponse = { 
+							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+								result: {
+									statusCode: 400
+								  } }))
+						};
+		
+						// throw new Error(`Mock Stop Card Error`);
+						return cardStopResponse;
+	*/
+/*
+					 }
+				}
 			}
 		}
-
+*/
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -312,7 +330,7 @@ export class HorizonChannelService extends Service {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`identifyCaller`)) {
+		if (await this._mockEnabled(`stopCard`)) {
 			return this._mock.stopCard();
 		}
 
@@ -381,6 +399,21 @@ export class HorizonChannelService extends Service {
 		return this._post(url, model, this._setToken(), `createIncident`);
 	}
 
+	updateIncidentClientDetails(cifNumber, incidentRecId) {
+		const request = {
+			incidentRecId: incidentRecId,
+			cif: cifNumber
+		};
+
+		return this._post(`/clientcare/incident/${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+	}
+
+	updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
+		nonClientDetails.incidentRecId = incidentRecId;
+
+		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+	}
+
 	// --------------
 	// INSURE METHODS
 	// --------------
@@ -433,7 +466,14 @@ export class HorizonChannelService extends Service {
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
     }
 
-	digitalVerificationChannelsAvailable(cifNumber) {
+	async digitalVerificationChannelsAvailable(cifNumber) {
+		if (await this._mockEnabled(`digitalVerificationChannelsAvailable`)) {
+			if (this._mocking.digitalVerificationChannelsAvailable.positiveCase) {
+				return this._mocking.digitalVerificationChannelsAvailable.positiveCase;
+			}
+			return false;
+		}
+
 		return this._get(`/clientcare/call/${this._version}/has-digital-verification-capability?Cif=${cifNumber}`, this._setToken(), `digitalVerificationChannelsAvailable`);
 	}
 
@@ -529,14 +569,18 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
   
-	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+		if (await this._mockEnabled(`savingsAccountLanding`)) {
+			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
+		}
+
 		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
 
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
-	}  
+	}
 
 	async transactionHistory (transactionHistoryRequest) {
 		if (await this._mockEnabled(`transactionHistory`)) {
@@ -554,5 +598,5 @@ export class HorizonChannelService extends Service {
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
-	}  
+	}
 }
