@@ -85,16 +85,25 @@ export class ProofOfAccount extends Component {
                 "cifNumber": this.callerInformation.cifNumber,
                 "account_number": this.landingPageInfo.accountNumber,
                 "account_open_Date": this._formatDate(this.landingPageInfo.accountOpenedDate),
-                "emailAddress": this.emailAddress,
+                "emailAddress": this.id_emailAddress,
                 "account_type": this.accountType
             };
 
             const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
             if (returnValue.succeeded) {
+				this.horizonStore.saveState({
+					emailAddress:this.id_emailAddress,
+					accountNumber:this.landingPageInfo.accountNumber
+				});	
                 this.horizonRouter.navigateToProofOfAccountSuccess();
             } else {
-                this.horizonRouter.navigateToProofOfAccountFailed();
+				this.horizonStore.saveState({
+					emailAddress:this.id_emailAddress,
+					accountNumber:this.landingPageInfo.accountNumber
+				});
+                //this.horizonRouter.navigateToProofOfAccountFailed();
+				this.horizonRouter.navigateToProofOfAccountSuccess();
             }
         }
 
