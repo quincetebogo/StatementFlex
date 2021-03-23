@@ -104,6 +104,10 @@ export class EndCallCauseCode {
 		const state = this.horizonStore.recoverState();
 		const callerInformation = state.callerInformation;
 
-		return callerInformation.verificationAttempts.itaAttempts + callerInformation.verificationAttempts.xdsAttempts;
+		// If ending a call very early (system error on invoking search dialog for example), we do not yet have
+		// caller information
+		return callerInformation 
+			? callerInformation.verificationAttempts.itaAttempts + callerInformation.verificationAttempts.xdsAttempts
+			: 0;
 	}
 }

@@ -60,8 +60,14 @@ export class ItaVerificationFailed extends View {
 
 		this._updateLeftBar();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.subscribe(`horizon-verify-via-security-questions`, () => this._verifyUsingSecurityQuestions());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyUsingSecurityQuestions());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+		super.disconnectedCallback();
 	}
 
 	// -------------

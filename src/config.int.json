@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs-v1.platform-int.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -17,7 +17,7 @@
 		"strack": "http://strackintnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false"
 	},
 	"VDN":"211377",
-	"LogRequestResponseModels" : true,
+	"LogRequestResponseModels" : false,
 	"ivrMapping": [
 		{
 			"option": "1",

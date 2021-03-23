@@ -2,6 +2,14 @@ import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'platform/components';
 
+/**
+ * Fixed Term Savings Product View: This view is no longer in use but may be revived at some point in a modified form
+ * 
+ * @deprecated The Fixed Term Savings View is no longer in use
+ * @export
+ * @class FixedTermSavingsProduct
+ * @extends {View}
+ */
 export class FixedTermSavingsProduct extends View {
 
 	// --------------

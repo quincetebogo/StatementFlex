@@ -58,11 +58,23 @@ export class StopCardSuccess extends View {
 			this.callerInformation = state.callerInformation;
 			this.stoppedCards = state.stoppedCards;
 
-			this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+	}
+
+	disconnectedCallback() {
+		if (this.verifySub) {
+			this.verifySub.dispose();
+		}
+		
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+
+		super.disconnectedCallback();
 	}
 
 	// --------------
