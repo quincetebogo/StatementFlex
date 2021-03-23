@@ -100,15 +100,23 @@ export class InsureInformation extends Component {
 
 		this._updateMiniProfile();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClientClick());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClientClick());
 
 		this.displayNotification = true;
 		this.displayCoverNotification = true;
 		this.displayClaimNotification = true;
 
 		window.setTimeout(() => this._toggleToast(), 3000);
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.assignSub.dispose();
+		this.verifySub.dispose();
+
+		super.disconnectedCallback();
 	}
 
 
@@ -935,7 +943,7 @@ export class InsureInformation extends Component {
 	}
 
 	_renderVerifyNowModal() {
-		return this.renderMode !== RENDER_MODE.VERIFY_NOW 
+		return this.renderMode !== RENDER_MODE.VERIFY_NOW
 			? html``
 			: html`
 				<horizon-verify-caller 

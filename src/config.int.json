@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs-v1.platform-int.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -12,10 +12,11 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
+		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
-	"LogRequestResponseModels" : true,
+	"VDN":"211377",
+	"LogRequestResponseModels" : false,
 	"ivrMapping": [
 		{
 			"option": "1",
@@ -24,21 +25,14 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
-	"mock" : {
-		"enabled": false
+	"mock": {
+		"enabled": false,
+		"stopCard": {
+			"enabled": false,
+			"failStopCard": false,
+			"positiveCase": true
+		}
 	}
 }

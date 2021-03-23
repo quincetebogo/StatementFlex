@@ -5,6 +5,7 @@ import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
 
 import 'platform/components/popups/Modal';
@@ -56,21 +57,21 @@ export class ConfirmCallerDetails extends Component {
 	constructor() {
 		super();
 
-		// Property initialization
-		this.confirmedCaller = null;
-		this.incomingCallDetails = null;
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-		this.isBusy = false;
+		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.callService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		
+		// Property initialization
+		this.confirmedCaller = null;
+		this.incomingCallDetails = null;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 		this.isBusy = false;
 		this.errorMessage = ``;
 		this.errorCount = 0;
@@ -135,10 +136,28 @@ export class ConfirmCallerDetails extends Component {
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
-	_addCallerDetailsConfirmed(event) {
+	async _addCallerDetailsConfirmed(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
-		this._navigateToLandingPage();
+		
+		if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
+
+			if (returnValue.succeeded) {
+				this._navigateToLandingPage();
+			} else {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+		}
 	}
 
 	_confirmClick() {
@@ -151,7 +170,18 @@ export class ConfirmCallerDetails extends Component {
 
 	async _verifyCaller() {
 		if (await this._setAvailabilityFlags()) {
-			this.renderMode = RENDER_MODE.VERIFY_CALLER;
+
+			if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
+				const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
+
+				if (returnValue.succeeded) {
+					this.renderMode = RENDER_MODE.VERIFY_CALLER;
+				} else {
+					this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_verifyCaller`, returnValue.correlationId);
+				}
+			} else {
+				this.logger.log(`error`, `There is no incident available against which to record the client details`, `_verifyCaller`);
+			}
 		}
 	}
 
@@ -249,6 +279,8 @@ export class ConfirmCallerDetails extends Component {
 			``,
 			``,
 			``,
+			``,
+			``,
 			true,
 			`unverified`,
 			false,
@@ -335,7 +367,7 @@ export class ConfirmCallerDetails extends Component {
 			// When we do other calls to set other flags (hasInsuranceProducts we may prefer to show a system error and return false)
 			flagsSet = true; 
 			this.callerInformation.hasDigitalChannels = true;
-			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`);
+			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
 
 		// Save above flags to state
@@ -367,7 +399,7 @@ export class ConfirmCallerDetails extends Component {
 	_getLanguagePreference() {
 		let languagePreference = this.confirmedCaller.languagePreference;
 
-		if (languagePreference === null) {
+		if (!languagePreference || languagePreference === `NOT_DEFINED`) {
 			languagePreference = `-`;
 		}
 		return languagePreference;
@@ -389,7 +421,7 @@ export class ConfirmCallerDetails extends Component {
 		if (birthdate instanceof Date) {
 			dob = birthdate;
 		} else if (birthdate) {
-			dob = new Date(birthdate);
+			dob = new Date(birthdate) || Date.parse(birthdate);
 		} else {
 			dob = null;
 		}

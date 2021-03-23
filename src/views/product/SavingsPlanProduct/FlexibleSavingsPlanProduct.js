@@ -2,6 +2,12 @@ import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import 'platform/components';
 
+/**
+ * @deprecated The Flexible Savings Product Plan view is no longer in use
+ * @export
+ * @class FlexibleSavingsPlanProduct
+ * @extends {View}
+ */
 export class FlexibleSavingsPlanProduct extends View {
 
 	// --------------

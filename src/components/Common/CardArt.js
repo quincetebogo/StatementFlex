@@ -269,7 +269,7 @@ export class CardArt extends Component {
 				.toggle-label {
 					height: 20px;
 					width: 21px;
-					color: #3A3A3A;
+					--theme-label-color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
 					font-weight: 500;

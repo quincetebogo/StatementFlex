@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 import 'platform/components';
@@ -55,10 +56,9 @@ export class StopCard extends Component {
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.eventAggregator.subscribe(`toggle-endcall-session`, () => this.toggleEndCall());
-		this.eventAggregator.subscribe(`confirmed-stop`, () => this.renderStopCardModal(rowData));
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
@@ -123,10 +123,18 @@ export class StopCard extends Component {
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber
 		};
 
-		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 
         this._updateLeftBar();
+	}
+
+	disconnectedCallback() {
+		this.verifySub.dispose();
+		this.assignSub.dispose();
+		this.endCallSub.dispose();
+
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -229,7 +237,8 @@ export class StopCard extends Component {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_verifyClick() {

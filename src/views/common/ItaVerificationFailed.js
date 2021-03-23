@@ -60,8 +60,14 @@ export class ItaVerificationFailed extends View {
 
 		this._updateLeftBar();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.subscribe(`horizon-verify-via-security-questions`, () => this._verifyUsingSecurityQuestions());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyUsingSecurityQuestions());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+		super.disconnectedCallback();
 	}
 
 	// -------------
@@ -164,7 +170,7 @@ export class ItaVerificationFailed extends View {
 		return html`
 				${this._renderLoadingIndicator()}
 				<horizon--error-screen 
-					header="Verification was unsuccessful" 
+					header="Verification was unsuccessful"
 					left="Continue Unverified"
 					right="Verify Via Security Questions" 
 					toast="Your Verification has failed." 

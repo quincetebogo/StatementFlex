@@ -1,3 +1,33 @@
 {
-    "myKey": "MyValue"
+	"serviceURIs": {
+		"channelServiceUrl": "https://horizoncs-v1.platform-qa.int.capinet"
+	},
+	"signalRUrl": "https://horizoncs-ita-v1.platform-qa.int.capinet",
+	"bancsUser": {
+		"branchCode": "2000",
+		"tellerNumber": "22312"
+	},
+	"DesktopAgent": {
+		"registrationUrl": "http://localhost:8888/subscribe"
+	},
+	"StatusBar": {
+		"sblUrl": "http://standardbancslinkv3qa.int.capinet:8080/",
+		"cdsUrl": "https://clientdocsearchqa.int.capinet:51443/",
+		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	},
+	"VDN":"200012",
+	"LogRequestResponseModels" : false,
+	"ivrMapping": [
+		{
+			"option": "1",
+			"primaryNeed": "StopCard"
+		},
+		{
+			"option": "3",
+			"primaryNeed": "Transact"
+		}
+	],
+	"mock": {
+		"enabled": false
+	}
 }

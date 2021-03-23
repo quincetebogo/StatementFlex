@@ -40,10 +40,12 @@ export class LandingPageWelcome extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-welcome-bar`, (event) => this._onUpdateWelcome(event));
+		this.welcomeSub = this.eventAggregator.subscribe(`horizon-update-welcome-bar`, (event) => this._onUpdateWelcome(event));
 	}
 
 	disconnectedCallback() {
+		this.welcomeSub.dispose();
+		
 		super.disconnectedCallback();
 	}
 
