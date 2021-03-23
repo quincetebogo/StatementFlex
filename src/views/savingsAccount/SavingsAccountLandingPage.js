@@ -89,10 +89,10 @@ async _optionClick(event) {
 				cifNumber: this.callerInformation.cifNumber,
 				accountNumber: this.landingPageInfo.accountNumber,
 				accountType: `PRIMARY_SAVINGS`,
-				startDate: `2020-01-01`,
-				endDate: `2020-12-26`,
+				startDate: "2020-12-22",
+				endDate: `2021-03-22`,
 				startAtIndex: 0,
-				maxResults: 8,
+				maxResults: 40,
 				moneyType: `BOTH`
 			};
 

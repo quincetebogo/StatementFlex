@@ -54,12 +54,15 @@ export class TransactionHistory extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showLoadMore = true;
 		this.startDate = ``;
-		this.startDateMonth = ``;
+		this.minDate = ``;
+		this.maxDate =``;
+		this.startDateMonth = getMonthName(new Date().getMonth() - 1);
 		this.startDateYear = ``;
 		this.endDate = ``;
 		this.endDateMonth = ``;
 		this.endDateYear = ``;
 		this.filteredData = [];
+		this.rawData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
 		this.transactionStatusList = [
@@ -100,6 +103,8 @@ export class TransactionHistory extends Component {
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			startDate: { attribute: false },
+			minDate: { attribute: false },
+			maxDate: { attribute: false },
 			startDateMonth: { attribute: false },
 			startDateYear: { attribute: false },
 			endDate: { attribute: false },
@@ -117,6 +122,7 @@ export class TransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
+		this.rawData = this.transactionHistory;
 		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
 		
@@ -152,7 +158,8 @@ export class TransactionHistory extends Component {
 	_startDateChanged(e) {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
-			this.startDateMonth = e.detail.new.date.getMonth();
+			this.maxDate = new Date(e.detail.new.date);
+			this.maxDate.setDate(this.maxDate.getDate() + 90);
 			this.startDateYear = e.detail.new.date.getFullYear();
 		}
 	}
@@ -160,7 +167,8 @@ export class TransactionHistory extends Component {
 	_endDateChanged(e) {
 		if (e.detail.new.date) {
 			this.endDate = this._formatDate(e.detail.new.date);
-			this.endDateMonth = e.detail.new.date.getMonth();
+			this.minDate = new Date(e.detail.new.date);
+			this.minDate.setDate(this.minDate.getDate() - 90);
 			this.endDateYear = e.detail.new.date.getFullYear();
 		}
 	}
@@ -191,7 +199,6 @@ export class TransactionHistory extends Component {
 			STATUS: this.statuslabel = `Transaction Status`,
 		}[type];
 		this._refineSearch();
-		(RENDER_CHIPS[FILTER_BY.TEXT] === `` && RENDER_CHIPS[FILTER_BY.DATE] === `` && RENDER_CHIPS[FILTER_BY.STATUS] === ``) ? this.showLoadMore = true : this.showLoadMore = false;
 	}
 
 	_clearFilters() {
@@ -202,7 +209,6 @@ export class TransactionHistory extends Component {
 		this.statuslabel = `Transaction Status`
 		
 		this.filteredData = this.transactionHistory;
-		this.showLoadMore = true;
 		this.requestUpdate();
 	}
 
@@ -215,6 +221,7 @@ export class TransactionHistory extends Component {
 	// ---------------
 
 	_initialize(tableData) {
+		tableData.length < 40 ? this.showLoadMore = false : this.showLoadMore = true
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
@@ -233,6 +240,7 @@ export class TransactionHistory extends Component {
 
 		const loadMoreData = (this.transactionHistory.length > 0) ? await this.dummyServiceCall() : [];
 		if(loadMoreData.length > 0){
+			this.rawData = [...this.rawData,...loadMoreData];
 			const tableData = this._initialize(loadMoreData);
 			this.transactionHistory = [...this.transactionHistory,...tableData];
 		}
@@ -240,7 +248,7 @@ export class TransactionHistory extends Component {
 			this.showLoadMore = false
 		}
 		this.filteredData = this.transactionHistory;
-		this._clearFilters();
+		this._refineSearch();
 	}
 
 	async dummyServiceCall(){
@@ -248,10 +256,10 @@ export class TransactionHistory extends Component {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.accountDetails.accountNumber,
 			accountType: `PRIMARY_SAVINGS`,
-			startDate: `2020-01-01`,
-			endDate: `2020-12-26`,
-			startAtIndex: this.transactionHistory.length,
-			maxResults: 8,
+			startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
+			endDate: new Date().toISOString().substr(0,10),
+			startAtIndex: this.rawData.length,
+			maxResults: 40,
 			moneyType: `BOTH`
 		}
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
@@ -264,7 +272,6 @@ export class TransactionHistory extends Component {
 	_refineSearch() {
 
 		this.filteredData = this.transactionHistory;
-		this.showLoadMore = false
 		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
 			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
@@ -326,7 +333,7 @@ export class TransactionHistory extends Component {
 			css`
 			
 				.transaction-card {
-					height: 924px;
+					height: auto;
 					width: 1066px;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
@@ -486,7 +493,8 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					height: 733px;
+					--theme-layout-gap-line-color: 0px;
+					height: 679px;
 					width: auto;
 				}
 				capitec-table{
@@ -501,6 +509,7 @@ export class TransactionHistory extends Component {
 					--theme-data-table-padding-top: 9px;
 					--theme-data-table-padding-bottom: 9px;
 					--theme-data-table-expander-size: 12px;
+					--theme-data-table-footer-border: 0px;
 				}
 
 				/* Modal Calendar Styles */
@@ -527,11 +536,6 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-padding: 0px 18px;
 					--theme-calendar-calendar-border-radius: 0px;
 				}
-				.load-more-bar{
-					--theme-actionbar-min-height: 48px;
-					padding-top: 0px;
-					padding-bottom: 0px;
-				}
 
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
@@ -545,7 +549,8 @@ export class TransactionHistory extends Component {
 				}
 				.load-more-bar{
 					--theme-actionbar-min-height: 48px;
-					--theme-actionbar-padding: 12px;
+					padding-top : 0px;
+					padding-bottom: 0px; 
 					--theme-actionbar-background: #f4f4f4;
 				}
 				.show-load-more{
@@ -572,12 +577,12 @@ export class TransactionHistory extends Component {
 					${this._renderFilterBar()}
 				<capitec-content-box class="main-view">
 					${this._renderTransactionHistory()}
-					<capitec-action-bar class="load-more-bar ${this.showLoadMore ? "show-load-more" : "hide-load-more"}">
+				</capitec-content-box>
+				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? "show-load-more" : "hide-load-more"}">
 						<capitec-spacer></capitec-spacer>
 						<capitec-button type="clear" label="Load More" @click = ${() => this._renderCollection()}></capitec-button>
 						<capitec-spacer></capitec-spacer>
-					</capitec-action-bar>
-				</capitec-content-box>
+				</capitec-action-bar>
 				</capitec-group>
 			</capitec-card>
 			${this._renderCalendar()}
@@ -817,9 +822,13 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionStatus(value) {
+		if (value === 'Processed'){
+			return html ``;
+		}else {
 		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
 						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
 					</div>`;
+		}
 
 	}
 
@@ -915,20 +924,21 @@ export class TransactionHistory extends Component {
 				<capitec-modal type="free" header-align="center" header="${this._getDateRange()} (up to 90 days)">
 					<div slot="body">
 						<capitec-calendar 
+							month=${this.startDateMonth}
+ 							year="2021"
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
-							maxDate="${this.endDate}"
-							month = "${this.startDateMonth}"
- 							year="${this.startDateYear}"
+
+							minDate="${this.minDate}"
+
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
 						</capitec-calendar>
-						<capitec-calendar
+						<capitec-calendar 
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
-							minDate="${this.startDate}"
-							month = "${this.endDateMonth}"
-							year="${this.endDateYear}"
+
+							maxDate="${this.maxDate}"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>
