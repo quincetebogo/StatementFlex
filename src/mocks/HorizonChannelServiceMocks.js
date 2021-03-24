@@ -170,4 +170,13 @@ export class HorizonChannelServiceMocks {
 		// Code for a negative case could come here
 		return null;
 	}
+
+	// Tap to pay function
+
+	tapToPay() {
+
+		if (this._mocking.tapToPayLanding.positiveCase) {
+			return this.cardLimitsMocks.mockCards;
+		}
+	}
 }
