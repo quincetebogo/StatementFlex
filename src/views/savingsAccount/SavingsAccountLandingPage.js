@@ -16,13 +16,14 @@ const RENDER_MODE = Object.freeze({
 });
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
-	END_DATE : new Date().toISOString().substr(0,10),
-	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
-	START_AT_INDEX : 0,
-	MAX_RESULTS : 20,
-	MONEY_TYPE : 'BOTH'
-}
+	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+	END_DATE: new Date().toISOString().substr(0, 10),
+	// eslint-disable-next-line no-extra-parens
+	START_DATE: new Date(Date.now() - (90 * 24 * 60 * 60 * 1000)).toISOString().substr(0, 10),
+	START_AT_INDEX: 0,
+	MAX_RESULTS: 20,
+	MONEY_TYPE: `BOTH`
+};
 
 /**
  * Savings Account View
@@ -88,8 +89,7 @@ export class SavingsAccountLandingPage extends View {
 				'more': more
 			};
 			return actions[option];
-		}
-	
+		};
 	}
 
 	// --------------
@@ -126,7 +126,7 @@ export class SavingsAccountLandingPage extends View {
 				getGenericData: true
 			};
 
-			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber,landingRequest.getGenericData);
+			const returnValue = await this.savingsAccountService.savingsAccountLanding(landingRequest.cifNumber, landingRequest.nationalIDNumber, landingRequest.getGenericData);
 			 
 			if (returnValue.succeeded) {
                 this.landingPageInfo = returnValue.result;
@@ -183,7 +183,7 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory(){
+	async _transactionHistory() {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
@@ -212,15 +212,15 @@ export class SavingsAccountLandingPage extends View {
 		}
 	}
 
-	_debiCheck(){
+	_debiCheck() {
 		// TODO: Functionality to Debi check comes here
 	}
 
-	_getStatements(){
+	_getStatements() {
 		// TODO: Functionality to generate statements comes here
 	}
 
-	_more(){
+	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
 	// ---------
