@@ -200,6 +200,8 @@ export class LandingPage extends View {
 			newCallInfo.incomingTelephoneNumber,
 			newCallInfo.incidentReferenceNumber,
 			newCallInfo.incidentRecId,
+			false, 
+			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
