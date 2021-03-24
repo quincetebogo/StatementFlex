@@ -66,13 +66,16 @@ export class ProofOfAccountSuccess extends View {
 			// TODO: accountNumber and email address received from API.
 			this.accountNumber = `5238 **** **** 8907`;
 			this.emailAddress = `ivanmakatini@gmail.com`;
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
+		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------

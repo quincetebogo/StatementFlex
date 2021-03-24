@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components/layouts/Group';
@@ -53,7 +54,13 @@ export class HorizonActionBar extends Component {
         super.connectedCallback();
         this.eventAggregator = EventAggregator.getInstance();
         this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
-		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
+		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
+	}
+
+	disconnectedCallback() {
+		this.assignSub.dispose();
+		this.stateChangeSub.unsubscribe();
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -65,7 +72,7 @@ export class HorizonActionBar extends Component {
             this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
             this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
             this.clientNeed = this.incomingCallDetails.ivrOptionCode;
-            this.isUnverifiedNumber = this.isUnverifiedNumber;
+            this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
 
         }
     }
@@ -176,7 +183,7 @@ export class HorizonActionBar extends Component {
 					<img class="end-call-icon" src="/images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
-						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
+						value="${this.isUnverifiedNumber ? `Private Number` : formatPhoneNumber(this.phoneNumber)}">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>

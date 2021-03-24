@@ -1,4 +1,5 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService';
 
 /**
  * CallHandleService is used to start the tracking of a call against an incident. It is also
@@ -15,6 +16,8 @@ export class CallHandleService extends ServiceBase {
 	// --------------
 	constructor(toggleBusyFunc, errorHandler = null) {
 		super(toggleBusyFunc, errorHandler);
+
+		this.itaService = HorizonITAChannelService.getInstance();
 	}
 
 	// ------------------------------------------
@@ -147,6 +150,10 @@ export class CallHandleService extends ServiceBase {
 	}
 
 	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
+		return this.wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
+	}
+
+	digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
 	}
 }

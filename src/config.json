@@ -12,9 +12,10 @@
 	},
 	"StatusBar": {
 		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
+		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
@@ -24,27 +25,15 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "5",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "51",
-			"primaryNeed": "Insure"
-		},
-		{
-			"option": "52",
-			"primaryNeed": "Insure"
 		}
 	],
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
 		},
-		"stopCard": {
+		"identifyCaller": {
 			"enabled": true,
 			"positiveCase": true
 		},
@@ -58,18 +47,23 @@
 		},
 		"xdsQuestions": {
 			"enabled": true,
+			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
 			"enabled": true,
 			"positiveCase": true
 		},
+		"digitalVerificationChannelsAvailable": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimits": {
@@ -77,6 +71,15 @@
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": true,
+			"failStopCard": true,
+			"positiveCase": true
+		},
+		"tapToPayLanding": {
 			"enabled": true,
 			"positiveCase": true
 		}

@@ -25,22 +25,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	constructor() {
 		super();
 
-		console.log(`ProfileAndProductSummaryBar - constructor`);
-
-		this.miniProfile = {
-			name: ``,
-			idNumber: ``,
-			phoneNumber: ``,
-			livesIn: ``,
-			languagePreference: ``,
-			birthday: ``,
-			showButtons: false,
-			isConfirmed: false,
-			isVerified: false,
-			verificationFailed: false,
-			is3rdParty: false,
-			isNonClient: false
-		};
+		this.miniProfile = null;
 
 		this.disableNavigation = true;
 		this.hasFavourites = false;
@@ -65,9 +50,8 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
-		this.eventAggregator.subscribe(`horizon-update-mini-profile`, (miniProfile) => this._updateMiniProfile(miniProfile));
-		this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._onUpdatePageDetails(buttonConfig));
-		this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
+		this.leftBarSub = this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
+		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
 	}
 
 	// ----------
@@ -96,7 +80,14 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		console.log(`ProfileAndProductSummaryBar - connectedCallBack`);
+	}
+
+	disconnectedCallback() {
+		this.leftBarSub.dispose();
+		this.favouritesBarSub.dispose();
+		this.stateChangeSub.unsubscribe();
+		
+		super.disconnectedCallback();
 	}
 
 	// ---------
@@ -104,8 +95,35 @@ export class ProfileAndProductSummaryBar extends Component {
 	// ---------
 
 	_stateChanged(state) {
-		if (state && state.miniProfile) {
-			this.miniProfile = state.miniProfile;
+		if (state && state.callerInformation) {
+
+			let contactNumber = ``;
+			const isNonClient = state.callerInformation.verificationStatus === `non-client`;
+
+			if (isNonClient && state.callerInformation.nonClientCellPhone && state.callerInformation.nonClientCellPhone !== ``) {
+				contactNumber = state.callerInformation.nonClientCellPhone;
+			} else if (state.callerInformation.verifiedTelephoneNumber && state.callerInformation.verifiedTelephoneNumber !== ``) {
+				contactNumber = state.callerInformation.verifiedTelephoneNumber;
+			} else {
+				contactNumber = state.callerInformation.incomingTelephoneNumber;
+			}
+	
+			this.miniProfile = {
+				name: state.callerInformation.isNonClient ? state.callerInformation.nonClientFullName : state.callerInformation.name,
+				idNumber: state.callerInformation.southAfricanIDNumber,
+				phoneNumber: contactNumber,
+				livesIn: state.callerInformation.livesIn,
+				languagePreference: state.callerInformation.languagePreference,
+				birthday: state.callerInformation.birthdate,
+				showButtons: state.callerInformation.verificationStatus === `verified`,
+				isVerified: state.callerInformation.verificationStatus === `verified`,
+				verificationFailed: state.callerInformation.verificationStatus === `failed`,
+				isConfirmed: state.callerInformation.verificationStatus !== `non-client`,
+				isNonClient: isNonClient,
+				is3rdParty: state.callerInformation.verificationStatus === `3rdparty`,
+				hasDigitalChannels: state.callerInformation.hasDigitalChannels,
+				verificationAttempts: state.callerInformation.verificationAttempts
+			};
 		}
 
 		if (state && state.leftBarButtonConfig) {
@@ -115,13 +133,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 	}
 
-	_updateMiniProfile(miniProfile) {
-		if (miniProfile) {
-			this.miniProfile = miniProfile;
-		}
-	}
-
-	_onUpdatePageDetails(buttonConfig) {
+	_updateButtons(buttonConfig) {
 		this.hasFavourites = buttonConfig.hasFavourites;
 		this.subtitle = buttonConfig.subtitle;
 		this.detail = buttonConfig.detail;
@@ -170,7 +182,7 @@ export class ProfileAndProductSummaryBar extends Component {
 			<horizon-product-button-panel
 				.subtitle="${this.subtitle}"
 				.detail="${this.detail}"
-				?disablenavigation=${true}>
+				?disablenavigation= ${true}>
 			</horizon-product-button-panel>
 		</section>`;
 	}

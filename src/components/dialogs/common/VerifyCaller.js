@@ -65,20 +65,22 @@ export class VerifyCaller extends Component {
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
-
+		this.isBusy = false;
 		this.connectionID = ``;
+		this.itaFailedCount = 0;
+		this.itaTimer = null;
+		this.loading = true;
+		this.xdsMessage = ``;
+		this.itaMessage = ``;
+		this.noOfXdsVerificationAttempted = 0;
+		this.itaVerificationFailed = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
-
-		this.itaFailedCount = 0;
-
-		this.itaTimer = null;
 	}
 
 	// ----------
@@ -94,19 +96,24 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
+			noOfXdsVerificationAttempted: { type: Number },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
-			xdsMessage: { attribute: false },
+			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
+			itaMessage: { attribute: false }, // Set when there has been a system error with ITA
 			itaFailedCount: { attribute: false },
-			connectionID: { attribute: false }
+			connectionID: { attribute: false },
+			isBusy: { attribute: false },
+			loading: { attribute: false },
+			itaVerificationFailed: { attribute: false }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
 
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
@@ -132,14 +139,36 @@ export class VerifyCaller extends Component {
 		this.itaFailedCount = this.callerInformation.verificationAttempts.itaAttempts;
 		this.appTimedOut = this.itaFailedCount >= MAX_ITA_ATTEMPTS;
 
-		// Declaring stop timer
+		// function for stopping the ITA timer
 		this._stopTimer = () => {
-			clearInterval(this.itaTimer);
-			this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
+			if (this.itaTimer) {
+				clearInterval(this.itaTimer);
+				this.itaTimer = null;
+				this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
+			}
 		};
 
-		// Initialising ITA verification
-		this._initiateItaVerification();
+
+		// If we have digital channels (XDS/USSD)
+		if (this.callerInformation.hasDigitalChannels) {
+			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+			this._initiateItaVerification();
+		} else {
+			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
+			await this._securityQuestionsClick();
+		}
+
+		// The Verify Caller UI will not display until this.loading is false. This keeps it hidden
+		// should we be transitioning directly to security questions because APP/USSD is unavailable
+		this.loading = false;
+	}
+
+	disconnectedCallback() {
+		// Cleanup before we leave the dialog
+		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
+		this._stopTimer();
+		this._stopSignalRConnection();
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -147,24 +176,55 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	async _securityQuestionsClick() {
-		const clientID = this.callerInformation.southAfricanIDNumber;
 
+		if (this.itaTimer) {
+			this._stopTimer();
+			this.horizonSignalRClient.deRegisterHandler();
+		}
+
+		this.xdsMessage = ``;
+		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
+
+			const authHistory = this.securityQuestions.authenticationHistory;
+			if (authHistory) {
+				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
+			}
+
 			if (!this.securityQuestions.authenticationPermitted) {
+				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				this._updateApplicationState(`failed`);
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
-				this._stopTimer(this.itaTimer);
-				this.itaTimer = null;
+				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
+				this._stopSignalRConnection();
+				this._stopTimer();
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
+				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
+		} else {
+			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
 		}
+	}
+
+	_calculateXDSAttempts(authHistory) {
+		const yesterday = new Date();
+		yesterday.setDate(yesterday.getDate() - 1);
+ 
+		const usedAttempts = authHistory.filter(item => {
+			const bureauDate = new Date(item.bureauDate);
+			if (bureauDate > yesterday && item.authenticationStatus === `Not Authenticated`) {
+				return true;
+			}
+			return false;
+		}).length;
+		return usedAttempts;
 	}
 
 	_skipClick() {
@@ -190,20 +250,30 @@ export class VerifyCaller extends Component {
 		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
+	_verifyViaApp(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
+		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+		this._initiateItaVerification();
+	}
+
 	_tryAgain() {
-		// TODO: Channel service comes here, on success of it need to do the below reset
+		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
+		this.itaMessage = ``;
+		this.xdsMessage = ``;
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 
 		if (this.itaTimer) {
-			this._stopTimer(this.itaTimer);
-			this.itaTimer = null;
+			this._stopTimer();
 			this.itaFailedCount += 1;
 		}
 
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			// Re-initialting the ITA verification
+			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
 			this._itaServiceCall();
 		} else {
 			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
@@ -241,11 +311,19 @@ export class VerifyCaller extends Component {
 			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToSystemError();
+		this.xdsMessage = `System error. Please try again later`;
+
 		return true;
 	}
 
 	_itaErrorHandler(exception) {
+		const state = {
+			incomingCallDetails: this.incomingCallDetails,
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+		this.itaMessage = `System error. Please try again later`;
+
 		return true;
 	}
 
@@ -263,10 +341,10 @@ export class VerifyCaller extends Component {
 				this._stopTimer();
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
-				this.notVerified = true;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
+					this._stopSignalRConnection();
 					this._navigateToItaVerificationFailed();
 				} else {
 					this._updateApplicationState(`unverified`);
@@ -277,11 +355,6 @@ export class VerifyCaller extends Component {
 		}, 1000);
 
 		return startTimer;
-	}
-
-	_stopTimer(timer) { 
-		clearInterval(timer);
-		return null;
 	}
 
 	_navigateToItaVerificationFailed() {
@@ -297,6 +370,7 @@ export class VerifyCaller extends Component {
 
 	async _initialiseSignalR() {
 		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
+		this.itaVerificationFailed = false;
 		// Starting signalR connection
 		this.horizonSignalRClient.startConnection();
 		// Fetching connection id from signalR client
@@ -316,7 +390,7 @@ export class VerifyCaller extends Component {
 			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 			if (returnValue.succeeded) {
-				
+
 				this.logger.log(`INFO`, `ITA verification request initiated`, `_itaServiceCall`);
 
 				// Registering handler to perform post event action
@@ -329,21 +403,22 @@ export class VerifyCaller extends Component {
 					this.itaTimer = this._startTimer();
 				}
 			} else {
-				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`);
+				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
 			}
 		}
 	}
 
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
-		
-		alert(`${verificationStatus}`);
 
+		this._stopTimer();
 
 		if (verificationStatus) {
-			this._stopTimer();
-			this.horizonSignalRClient.stopConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
+
+			this._stopSignalRConnection();
+
+			this.callerInformation.verificationStatus = `verified`;
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
@@ -352,7 +427,25 @@ export class VerifyCaller extends Component {
 				}
 			}));
 		} else {
-			this.logger.log(`error`, `No verication status received from ITA SignalR event`, `_signalRPostEventAction`);
+			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+
+			this.itaVerificationFailed = true;
+			this.itaFailedCount++;
+
+			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
+				this._stopSignalRConnection();
+				this._navigateToItaVerificationFailed();
+			}
+			this._updateApplicationState(`failed`);
+		}
+	}
+
+	_stopSignalRConnection() {
+		if (this.horizonSignalRClient) {
+			this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_stopSignalRConnection`);
+			this.horizonSignalRClient.deRegisterHandler();
+			this.horizonSignalRClient.stopConnection();
+			this.horizonSignalRClient = null;
 		}
 	}
 
@@ -471,6 +564,10 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
+		if (this.loading) {
+			return html`${this._renderLoadingIndicator()}`;
+		}
+
 		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
@@ -480,7 +577,7 @@ export class VerifyCaller extends Component {
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
 					<div slot="body">
-						${this._renderNotificationStatus()}
+						${this._renderPushNotificationStatus()}
 						${this._renderXdsError()}
 						${this._renderPushNotificationError()}
 						${this._renderOtherOptions()}
@@ -497,9 +594,11 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
+					.noOfXdsVerificationAttempted="${this.noOfXdsVerificationAttempted}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
-					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}">
+					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
+					@verify-via-app="${(event) => this._verifyViaApp(event)}">
 				</horizon-security-question>`;
 	}
 
@@ -514,22 +613,22 @@ export class VerifyCaller extends Component {
 				</horizon-end-call-session>`;
 	}
 
-	_renderNotificationStatus() {
-		if (!this.appTimedOut && !this.xdsMessage) {
+	_renderPushNotificationStatus() {
+		if (this.callerInformation.hasDigitalChannels && !this.appTimedOut && !this.itaVerificationFailed && !this.itaMessage && !this.xdsMessage) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
-                                    halign="stretch" 
-                                    valign="top"
-                                    gap="clear">
+									halign="stretch" 
+									valign="top"
+									gap="clear">
 						<capitec-alert-banner type="info">
 							Notify client that a push notification has been sent and they need to accept to continue.
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                    halign="center"
-                                    valign="top"
-                                    gap="clear"
-                                    id="notification-status-group">
+									halign="center"
+									valign="top"
+									gap="clear"
+									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
 								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
@@ -545,27 +644,37 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.appTimedOut && !this.xdsMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage && !this.xdsMessage) {
+
+			let message = ``;
+			if (this.appTimedOut) {
+				message = `The client did not accept the notification in time`;
+			} else if (this.itaVerificationFailed) {
+				message = `The client rejected the notification`;
+			} else {
+				message = `The notification didn't send due to a system error.`;
+			}
+
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" 
-                                    halign="stretch" 
-                                    valign="top" 
-                                    gap="clear">
+									halign="stretch" 
+									valign="top" 
+									gap="clear">
 						<capitec-alert-banner type="error">
-							Notification didn't send due to a system error.
+							${message} 
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
-                                        halign="center"
-                                        valign="top"
-                                        gap="clear" 
-                                        id="notification-status-error-group">
+										halign="center"
+										valign="top"
+										gap="clear" 
+										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification through security questions.">
+								label="Notify the client and either try again or complete through security questions.">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -577,6 +686,10 @@ export class VerifyCaller extends Component {
 
 	_renderXdsError() {
 		if (this.xdsMessage) {
+			const message = this.callerInformation.hasDigitalChannels
+				? `Notify the client and either try again or complete verification verification via the App.`
+				: `Notify the client and try again`;
+
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
@@ -593,7 +706,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again or complete verification via the App.">
+								label="${message}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -610,8 +723,8 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-                        icon="system/apply-now-action"
-                        iconSize="default"
+						icon="system/apply-now-action"
+						iconSize="default"
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -624,8 +737,8 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
-						?hidden=${this.itaFailedCount >= MAX_ITA_ATTEMPTS - 1}
+						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
@@ -634,11 +747,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
+		if (this.isBusy || this.loading) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html``;
 	}
 }
 

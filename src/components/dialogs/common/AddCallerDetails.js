@@ -21,13 +21,26 @@ const HEADER_LABEL = `Add Caller Details`;
 
 const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: `Please enter all required fields before you continue`,
-	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`
+	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`,
+	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
+	INVALID_SURNAME: `Only alpha characters and hyphen allowed`
 };
-
+ 
 const REGEX_CELLPHONE = {
 	PATTERN: /^[0-9]{10}$/,
 	ERR_MESSAGE: `Incorrect cellphone number`
 };
+
+const REGEX_NAME = {
+	PATTERN: /^[A-Za-z\s-]+$/,
+	ERR_MESSAGE: `Name and surname must be completed`
+};
+
+const REGEX_SURNAME = {
+	PATTERN: /^[A-Za-z\s-]+$/,
+	ERR_MESSAGE: `Name and surname must be completed`
+};
+
 
 /**
 /**
@@ -157,7 +170,9 @@ export class AddCallerDetails extends Component {
 						this.confirmedCaller.livesIn,
 						this.confirmedCaller.name,
 						this.confirmedCaller.southAfricanIDNumber,
-						this.confirmedCaller.verifiedTelephoneNumber, 
+						this.confirmedCaller.verifiedTelephoneNumber,
+						this.firstNameTextField.value,
+						this.surnameTextField.value,
 						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
 						this.cellPhoneTextField.value,
 						``,
@@ -167,7 +182,8 @@ export class AddCallerDetails extends Component {
 						false,
 						true,
 						false,
-						false // not yet determined. 
+						false, // presence of insurance products not yet determined
+						false // availability of digital channels not yet determined
 					)
 				}
 			}));
@@ -227,6 +243,19 @@ export class AddCallerDetails extends Component {
 			this.alertBannerMessage = REGEX_CELLPHONE.ERR_MESSAGE;
 
 		}
+
+		if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField.value)) {
+			this.firstNameTextField.errorMessage = ERROR_MESSAGE.INVALID_FIRSTNAME;
+			this.validationFailed = true;
+			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
+		};
+
+		if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField.value)) {
+			this.surnameTextField.errorMessage = ERROR_MESSAGE.INVALID_SURNAME;
+			this.validationFailed = true;
+			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
+		};
+
 		return this.validationFailed;
 	}
 

@@ -62,17 +62,16 @@ export class SystemError extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
-
-			if (this.incomingCallDetails) {
-				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-				});
-			}
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------

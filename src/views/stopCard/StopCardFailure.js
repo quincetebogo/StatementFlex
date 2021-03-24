@@ -86,17 +86,23 @@ export class StopCardFailure extends View {
 			this.stoppedCards = state.stoppedCards;
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
-			this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-			});
+			this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+	}
+
+	disconnectedCallback() {
+		if (this.assignSub) {
+			this.assignSub.dispose();
+		}
+
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -150,8 +156,8 @@ export class StopCardFailure extends View {
 
 	_onHandOff(e) {
         this.isReassigned = true;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
-		this.renderDialog = RENDER_DIALOG.ENDCALL;
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	_toggleBusyFlag() {

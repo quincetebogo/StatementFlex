@@ -1,4 +1,4 @@
-import { EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -54,6 +54,7 @@ export class LandingPage extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();
+		this._configuration = Configuration.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -61,9 +62,10 @@ export class LandingPage extends View {
 
 		this.incomingCallDetails = new IncomingCallDetails();
 
-		this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
-		this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
-		this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
+		this.newCallSub = this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
+		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
+		this.agentUpSub = this.eventAggregator.subscribe(`desktop-agent-up`, () => this._desktopAgentup());
+		this.eventSub = this.eventAggregator.subscribe(`prompt-start-desktopagent`, () => this._promptStartDesktopAgent());
 
 		// Subscribe to state changes. Erase state once the call status indicates that the
 		// call has ended.
@@ -77,6 +79,8 @@ export class LandingPage extends View {
 				this.renderMode = RENDER_MODE.PAGE_ONLY;
 			}
 		});
+
+		this.employeeId = ``;
 	}
 
 	// ----------
@@ -104,8 +108,14 @@ export class LandingPage extends View {
 	}
 
 	disconnectedCallback() {
-		super.disconnectedCallback();
+		// Cleanup all event aggregator and state management subscriptons;
+		this.newCallSub.dispose();
+		this.searchCallSub.dispose(); 
+		this.agentUpSub.dispose(); 
+		this.eventSub.dispose();
 		this.callStatusSubscription.unsubscribe();
+
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -125,31 +135,53 @@ export class LandingPage extends View {
 		}
 	}
 
+	async _onSearchCaller() {
+		await this.desktopAgentService.manualCreateCall();
+	}
+
 	async _onNewCall(newCallInfo) {
 		// Create an incident in STrack for the new incoming call. This was intially planned to happen
 		// in the desktop agent but has moved here. 
+		const incident = await this._createIncident(newCallInfo);
+
+		this._acceptCall(newCallInfo, incident);
+	}
+
+	async _createIncident(newCallInfo) {
 		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
 		const incident = returnValue.result;
 
 		if (!returnValue.succeeded || !incident) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_onNewCall`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		}
-
-		await this._acceptCall(newCallInfo, incident);
+		return incident;
 	}
 
 	async _acceptCall(newCallInfo, incident) {
+		const incomingNumber = newCallInfo.incomingTelephoneNumber;
+		let callerDetails = null;
+		let forceSearchDialog = true;
+
 		newCallInfo.incidentReferenceNumber = incident ? incident.incidentNumber : `0`;
 		newCallInfo.incidentRecId = incident ? incident.incidentRecId : `0`;
 
-		// Check the incoming call to see if it is a verified or unverified number
-		const returnValue = await this.callHandleService.acceptCall(newCallInfo);
+		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
+		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
+		// telephone number. For a manually created call, we don't know the incoming telephone number.
+		if (incomingNumber !== `0` && incomingNumber !== `0000000000` && incomingNumber !== ``) {
+			// Check the incoming call to see if it is a verified or unverified number
+			const returnValue = await this.callHandleService.acceptCall(newCallInfo);
+			callerDetails = returnValue.result;
+			forceSearchDialog = !returnValue.succeeded;
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to lookup incoming caller`, `_acceptCall`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
 		}
 
-		this._dispatchCall(returnValue.result, newCallInfo, !returnValue.succeeded);
+		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);
 	}
 
 	/**
@@ -168,12 +200,15 @@ export class LandingPage extends View {
 			newCallInfo.incomingTelephoneNumber,
 			newCallInfo.incidentReferenceNumber,
 			newCallInfo.incidentRecId,
+			false, 
+			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
+		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: true };
+
 		this.horizonStore.saveState(state);
 
 		// Display the Confirmed Caller Details Dialog, Stop Card Search Dialog or General Search Dialog based on 
@@ -200,28 +235,35 @@ export class LandingPage extends View {
 		// If a non-client is calling in (determined on the general search dialog), 
 		// navigate to the appopriate landing page
 		const callerInformation = new CallerInformation(
-			``,
-			``,
-			``,
-			``,
-			``,
-			``,
-			``,
+			``, // CIF Number
+			``, // Birth Date
+			``, // Language Preference
+			``, // Lives In
+			``, // Name 
+			``, // South African ID  Number
+			``, // Verified Number
+			event.detail.nonClient.firstName,
+			event.detail.nonClient.surname,
 			`${event.detail.nonClient.firstName} ${event.detail.nonClient.surname}`,
-			event.detail.incomingCallDetails.incomingTelephoneNumber,
-			``,
-			``,
-			false,
-			`non-client`,
+			event.detail.nonClient.cellphone,
+			``, // Non client ID Number
+			``, // Non client relationship
+			false, // is Confirmed Client
+			`non-client`, // Verification Status
 			false,
 			false,
 			true,
+			false,
 			false
 		);
 
 		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
 
+		if(callerInformation.verificationStatus === `non-client`) {
+			this.horizonRouter.navigateToProductInfo('SavingsAccount');
+		} else {
 		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
+		}
 	}
 
 	_otherNeedSelected(event) {
@@ -249,6 +291,7 @@ export class LandingPage extends View {
 	async _GetLandingPageData() {
 		const returnValue = await this.initialiseService.initialise();
 		const landingPageData = returnValue.result;
+		this.employeeId = landingPageData.loggedInAgent.employeeId;
 
 		if (returnValue.succeeded) {
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });

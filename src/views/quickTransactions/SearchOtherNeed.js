@@ -4,11 +4,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/Feedback';
 
-const RENDER_MODE = Object.freeze({
-    FEEDBACK = 0;
-});
 /**
  * Search Other Need component
  *
@@ -87,10 +83,7 @@ this.dataObjects = [
 	 */
 	static get properties() {
         return {
-            incomingCallDetails: {type: Object},
-			searchOtherNeed: { type: Object },
-			chooseNeed: {type: Boolean},
-			chooseIssue: {type: Boolean}
+			searchOtherNeed: { type: Object }
 		};
 	}
 
@@ -248,9 +241,8 @@ this.dataObjects = [
 					label="Search client need"
 					type="search"
 					keyboardMode="alpha-numeric"
-					
-					.items="${this.searchObject}"
-					@value-changed="${(e) => this._searchOtherNeed(e)}">
+					@input="${(e) => this._filterByText(e)}"
+					@value-changed="${(e) => this._filterByText(e)}">
 				</capitec-text-field>
 				<capitec-select 
 					label="Choose specific need" 
@@ -276,12 +268,17 @@ this.dataObjects = [
 		`;
 	}
 
-	_renderSolution() {
-		return html`
-		<capitec-group layout="vertical" halign="left" valign="top" gap ="none">
-			<capitec-label 
-				class="solution"
-				label="Solution"
+	_renderNoResults() {
+		/* if (this._hasIncidentToDisplay()) {
+			return html ``;
+		} */
+		if (this.solutionDisplay){
+			return html`
+			<capitec-group layout="vertical" halign="center" valign="top" gap ="none">
+				<img src="/images/common/search.svg" class="search-icon"/>
+				<capitec-label 
+					class="find-need"
+					label="Find other need"
 				type="strong"></capitec-label>
 		</capitec-group>
 		<capitec-group id= "id-button-group" layout="horizontal" halign="right" valign="bottom" gap ="none">
@@ -290,8 +287,7 @@ this.dataObjects = [
 		</capitec-group>
 		`;
 	}
-
-	_renderNoResults() {
+		else {
 		/* if (this._hasIncidentToDisplay()) {
 			return html ``;
 		} */
@@ -301,8 +297,7 @@ this.dataObjects = [
 				<capitec-label 
 					class="find-need"
 					label="Find other need"
-					type="strong"
-					?hidden = ${this.solutionDisplay}></capitec-label>
+					type="strong"></capitec-label>
 				</capitec-group>
 				`;
      }

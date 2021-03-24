@@ -58,11 +58,16 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 
-		this._updateTopBar();
 		this._updateLeftBar();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.subscribe(`horizon-verify-via-security-questions`, () => this._verifyUsingSecurityQuestions());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyUsingSecurityQuestions());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+		super.disconnectedCallback();
 	}
 
 	// -------------
@@ -73,33 +78,8 @@ export class ItaVerificationFailed extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
-	}
-
 	_updateLeftBar() {
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: false,
-				isConfirmed: false,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: false
-			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -190,7 +170,7 @@ export class ItaVerificationFailed extends View {
 		return html`
 				${this._renderLoadingIndicator()}
 				<horizon--error-screen 
-					header="Verification was unsuccessful" 
+					header="Verification was unsuccessful"
 					left="Continue Unverified"
 					right="Verify Via Security Questions" 
 					toast="Your Verification has failed." 

@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { InsureService } from 'app/services/InsureService';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
@@ -30,23 +30,23 @@ const ERROR_MESSAGES = {
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
 			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
 			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
 			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
 			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
@@ -56,20 +56,27 @@ const NONCLIENT_REGEX_PATTERN = {
 	CHARACTER_ERROR: `Invalid Special Character(s)`,
 	ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
 	nameValue: {
-		PATTERN: /^[A-Za-z]+$/,
+        PATTERN: /^[A-Za-z\s-]+$/,
 		FIELD_ERROR: `Enter a name`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
 	surNameValue: {
-		PATTERN: /^[A-Za-z]+$/,
+        PATTERN: /^[A-Za-z\s-]+$/,
 		FIELD_ERROR: `Enter a surname`,
 		ALERT_BANNER: `Name and surname must be completed`
 	},
-	cellPhoneNumberValue: {
-		PATTERN: /^[0-9]{10}$/,
-		FIELD_ERROR: `Must be 10 digits`,
-		ALERT_BANNER: `Incorrect cellphone number`
-	}
+	cellPhoneNumberValue: [
+		{
+			PATTERN: /^[0-9]{10}$/,
+			FIELD_ERROR: `Must be 10 digits`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		},
+		{
+			PATTERN: /^0[0-9].*$/,
+			FIELD_ERROR: `Incorrect cellphone number`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		}
+	]
 };
 
 const REGEX_PATTERNS = {
@@ -88,8 +95,8 @@ const REGEX_PATTERNS = {
 		ALERT_BANNER: `Incorrect Account number`
 	},
 	3: {
-		PATTERN: /^[0-9]{6}$/,
-		FIELD_ERROR: `Reference number must be 6 characters long`,
+		PATTERN: /^[0-9]{8}$/,
+		FIELD_ERROR: `Reference number must be 8 characters long`,
 		ALERT_BANNER: `Incorrect Reference number`
 	},
 	4: {
@@ -146,11 +153,13 @@ export class SearchCaller extends Component {
 		this.surNameValue = ``;
 		this.cellPhoneNumberValue = ``;
 
+		this.logger = Logger.getInstance();
+
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 	}
 
 	// ----------
@@ -223,9 +232,9 @@ export class SearchCaller extends Component {
 			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
-			if (returnValue.succeeded && identifiedClient) {
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
@@ -267,27 +276,31 @@ export class SearchCaller extends Component {
 			callerDetails.nonClientIDNumber = ``;
 			callerDetails.nonClientRelationship = ``;
 
-			const nonClientData = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				firstName: this.nameValue,
 				surname: this.surNameValue,
-				cellphone: this.cellPhoneNumberValue
+				cellPhone: this.cellPhoneNumberValue
 			};
 
-			await this.insureService.addNonClientDetails(nonClientData);
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
 
-			this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-				detail: {
-					incomingCallDetails: this.incomingCallDetails,
-					nonClient: {
-						firstName: this.nameValue,
-						surname: this.surNameValue,
-						cellphone: this.cellPhoneNumberValue
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+					detail: {
+						incomingCallDetails: this.incomingCallDetails,
+						nonClient: {
+							firstName: this.nameValue,
+							surname: this.surNameValue,
+							cellphone: this.cellPhoneNumberValue
+						}
 					}
-				}
-			}));
+				}));
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+			} 
 		}
 	}
 
@@ -316,6 +329,8 @@ export class SearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
+		} else {
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -331,6 +346,10 @@ export class SearchCaller extends Component {
 	}
 
 	_validateNonClientFields() {
+		// Trimming/ removing empty spaces around non client details
+		this.nameValue = this.nameValue.trim();
+		this.surNameValue = this.surNameValue.trim();
+
 		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
 		if (isRequiredFieldsEmpty) {
 			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
@@ -351,21 +370,22 @@ export class SearchCaller extends Component {
 				this.errMessage.surNameValue = ``;
 			}
 
-			if (!this.errMessage.nameValue === `` || !this.errMessage.surNameValue === ``) {
+			if (!isNullorEmpty(this.errMessage.nameValue) || !isNullorEmpty(this.errMessage.surNameValue)) {
 				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
 				return false;
 			}
 		}
 
 		if (this.cellPhoneNumberValue) {
-
-			if (!RegExp(NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
-				this.errMessage.cellPhoneNumberValue = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.FIELD_ERROR;
-				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue.ALERT_BANNER;
-				return false;
+			// Handled value length and should start with 0
+			for (const item of NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue) {
+				if (!RegExp(item.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
+					this.errMessage.cellPhoneNumberValue = item.FIELD_ERROR;
+					this.alertBannerMessage = item.ALERT_BANNER;
+					return false;
+				}
 			}
 		}
-
 		return true;
 	}
 
@@ -404,8 +424,10 @@ export class SearchCaller extends Component {
 	}
 
 	_clearErrors(e) {
-		this.errMessage[e.currentTarget.id] = ``;
-		this.alertBannerMessage = ``;
+        this.errMessage[e.currentTarget.id] = ``;
+        this.errMessage.nameValue = ``;
+        this.errMessage.surNameValue = ``;
+        this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
@@ -413,6 +435,7 @@ export class SearchCaller extends Component {
 	}
 
 	_handleAddNonClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
 		return true;
 	}
 
@@ -630,23 +653,42 @@ export class SearchCaller extends Component {
 		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
 			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
-					<capitec-label id="id-label-enter-details" type="title" label="Enter details below:"></capitec-label>
+					<capitec-label
+						id="id-label-enter-details"
+						type="title"
+						label="Enter details below:">
+					</capitec-label>
 					<div class="search-field-row">
-						<capitec-text-field id="nameValue" label="Name" hint="Required Field" .value="${this.nameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field
+							id="nameValue"
+							label="Name"
+							hint="Required Field"
+							.value="${this.nameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.nameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="surNameValue" label="Surname" hint="Required Field" .value="${this.surNameValue}"
-							@value-changed="${(e) => this._valueChanged(e)}" @key-input="${(e) => this._onKeyPress(e)}"
+						<capitec-text-field
+							id="surNameValue"
+							label="Surname"
+							hint="Required Field"
+							.value="${this.surNameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
 							error="${this.errMessage.surNameValue}">
 						</capitec-text-field>
 					</div>
 					<div class="search-field-row">
-						<capitec-text-field id="cellPhoneNumberValue" label="Cellphone number (optional)" type="numeric"
-							.value="${this.cellPhoneNumberValue}" @value-changed="${(e) => this._valueChanged(e)}"
-							@key-input="${(e) => this._onKeyPress(e)}" error="${this.errMessage.cellPhoneNumberValue}">
+						<capitec-text-field
+							id="cellPhoneNumberValue"
+							label="Cellphone number (optional)"
+							type="numeric"
+							.value="${this.cellPhoneNumberValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.cellPhoneNumberValue}">
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
