@@ -339,8 +339,8 @@ const RENDER_MODE = Object.freeze({
 					.items="${this.searchObject}"
 					display-field="category"
 					id-field="category"
-					.value = "Search client need"
-					?hidden = false
+					value = "Search client need"
+					?hidden = "${false}"
 					@value-changed="${(e) => this._searchOtherNeed(e)}"
 					searchable>
 				</capitec-select>
@@ -349,8 +349,8 @@ const RENDER_MODE = Object.freeze({
 					.items="${this.specificNeedObjects}"
 					display-field="need"
 					id-field="need"
-					.value="Search specific need"
-					?hidden = ${this.chooseNeed}
+					value="Search specific need"
+					?hidden = "${this.chooseNeed}"
 					@value-changed="${(e) => this._searchSpecificNeed(e)}"
 					searchable>
 				</capitec-select>
@@ -359,8 +359,8 @@ const RENDER_MODE = Object.freeze({
 					.items="${this.issueTypeObjects}"
 					display-field="issue"
 					id-field="issues"
-					.value="Search specific need"
-					?hidden = ${this.chooseIssue}
+					value="Search specific need"
+					?hidden = "${this.chooseIssue}"
 					@value-changed="${(e) => this._chooseIssueType(e)}"
 					searchable>
 				</capitec-select>
