@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-int.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs-v1.platform-int.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -16,7 +16,7 @@
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},
 	"VDN":"211377",
-	"LogRequestResponseModels" : true,
+	"LogRequestResponseModels" : false,
 	"ivrMapping": [
 		{
 			"option": "1",
