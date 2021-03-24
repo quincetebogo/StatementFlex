@@ -75,15 +75,6 @@ export class TransactionHistory extends Component {
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
 
-		this.statuslabel = `Transaction Status`;
-		this.transactionStatusList = [
-			`Financial`,
-			`Non Financial`,
-			`Processing`,
-			`Reversed`,
-			`Partial reversal`,
-			`Partial reversal processed`
-		];
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 	
@@ -226,6 +217,14 @@ export class TransactionHistory extends Component {
 		this.requestUpdate();
 	}
 
+	_scrollToTop(e){
+		const element = this.shadowRoot.getElementById(`dataTable`);
+		const rect = element.getBoundingClientRect();
+		const offsetLeft = element.offsetLeft;
+		const offsetTop = element.offsetTop;
+		window.scrollTo(offsetLeft, offsetTop);
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -235,6 +234,7 @@ export class TransactionHistory extends Component {
 	// ---------------
 
 	_initialize(tableData) {
+		tableData.length < 20 ? this.showLoadMore = false : this.showLoadMore = true
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
@@ -254,22 +254,6 @@ export class TransactionHistory extends Component {
 		const currencyString = (amount >= 0) ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 		return currencyString.includes('.') ? currencyString : (currencyString + '.00');
 
-	}
-
-	_initialize(tableData) {
-		tableData.length < 40 ? this.showLoadMore = false : this.showLoadMore = true
-		tableData.map((item) => {
-			const date = new Date(Date.parse(item.transactionDate));
-
-			item.tranDate = date;
-			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = item.amount > 0 ? `R${item.amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00` : `- R${item.amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-			item.balance = `R${item.balance.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}.00`;
-
-			return item;
-		});
-		
-		return tableData.filter(item => item.transactionStatus !== ``);
 	}
 
 	async _renderCollection(){
@@ -607,6 +591,10 @@ export class TransactionHistory extends Component {
 					line-height: 30px;
 					width: 224px;
 				}
+				.scroll-top {
+					--theme-icon-size-medium: 26px;
+    				padding-top: 12px;
+				}
 			`
 		];
 	}
@@ -630,6 +618,7 @@ export class TransactionHistory extends Component {
 						<capitec-spacer></capitec-spacer>
 						<capitec-button type="clear" label="Load More" @click = ${() => this._renderCollection()}></capitec-button>
 						<capitec-spacer></capitec-spacer>
+						<capitec-icon class='scroll-top' size="medium" icon="system/arrow-up-action" @click = ${(e) => this._scrollToTop(e)}></capitec-icon>
 				</capitec-action-bar>
 				</capitec-group>
 			</capitec-card>
@@ -784,6 +773,7 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
+				id = "dataTable"
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
