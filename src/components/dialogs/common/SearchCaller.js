@@ -264,8 +264,7 @@ export class SearchCaller extends Component {
 					incomingCallDetails: this.incomingCallDetails
 				}
 			}));
-		}
-		else if (this.incomingCallDetails.ivrOption.value ===`ProductEnquiry`) {
+		} else if (this.incomingCallDetails.ivrOption.value === `ProductEnquiry`) {
 			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
 		}
 	}
