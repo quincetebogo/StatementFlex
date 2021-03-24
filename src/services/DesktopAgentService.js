@@ -5,6 +5,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { validate } from 'app/utils/channelServiceUtilities';
 
+import { TelemetryService, TelemetryScreen } from 'app/services/TelemetryService';
+
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
  *  workstation. Server Side Events are used to notify the Horizon UI of the details of an incoming 
@@ -137,7 +139,15 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
+			// Log Telemetry
+			new TelemetryService().incomingCall({
+				screen: TelemetryScreen.WAIT_FOR_CALL,
+				ivr: eventData.IVROptionCode,
+				ucid: newCallEvent.voiceReferenceNumber
+			});
+			
 			this._handleIncomingCall();
+
 		} catch (err) {
 			this._logger.log(`fatal`, err.message, `_onNewCall`);
 		}

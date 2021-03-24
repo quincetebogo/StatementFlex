@@ -28,7 +28,7 @@
 		}
 	],
 	"mock": {
-		"false": true,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
