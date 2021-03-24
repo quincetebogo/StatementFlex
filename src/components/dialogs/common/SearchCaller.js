@@ -168,6 +168,7 @@ export class SearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
+	 * @property {object} incidentDetails Incident details
 	 *
 	 * @readonly
 	 * @static
@@ -176,6 +177,7 @@ export class SearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -222,7 +224,7 @@ export class SearchCaller extends Component {
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				incidentNo: this.incomingCallDetails.incidentReferenceNumber,
+				incidentNo: this.incidentDetails.incidentReferenceNumber,
 				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
@@ -268,8 +270,8 @@ export class SearchCaller extends Component {
 			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-			callerDetails.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-			callerDetails.incidentRecId = this.incomingCallDetails.incidentRecId;
+			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
 			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
 			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
@@ -284,7 +286,7 @@ export class SearchCaller extends Component {
 				cellPhone: this.cellPhoneNumberValue
 			};
 
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
@@ -317,7 +319,7 @@ export class SearchCaller extends Component {
 			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
 			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
-			"incidentReferenceNumber": this.incomingCallDetails.incidentReferenceNumber,
+			"incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
 			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
 		};
 
@@ -424,10 +426,10 @@ export class SearchCaller extends Component {
 	}
 
 	_clearErrors(e) {
-        this.errMessage[e.currentTarget.id] = ``;
-        this.errMessage.nameValue = ``;
-        this.errMessage.surNameValue = ``;
-        this.alertBannerMessage = ``;
+		this.errMessage[e.currentTarget.id] = ``;
+		this.errMessage.nameValue = ``;
+		this.errMessage.surNameValue = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
@@ -554,8 +556,12 @@ export class SearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
-						.headerLabel="${this.headerLabel}" @on-end-call="${() => this._onEndCall()}"
+					<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${this.headerLabel}"
+						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
@@ -710,15 +716,16 @@ export class SearchCaller extends Component {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
-                    type="primary"
-                    @click="${(e) => this._onSearchClient(e)}" label="Search Client"
+					type="primary"
+					@click="${(e) => this._onSearchClient(e)}"
+					label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}
 					tabindex="5">
 				</capitec-button>
 				<capitec-button
-                    type="primary"
-                    @click="${(e) => this._onContinue(e)}"
-                    label="Continue"
+					type="primary"
+					@click="${(e) => this._onContinue(e)}"
+					label="Continue"
 					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
 					tabindex="6">
 				</capitec-button>
@@ -729,6 +736,7 @@ export class SearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;

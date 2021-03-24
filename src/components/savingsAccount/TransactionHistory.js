@@ -2,6 +2,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 
 import { EXPANDER_LABEL, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import { transactionHistoryMockData } from 'app/mocks/TransactionHistoryMockData';
 
@@ -53,6 +54,8 @@ export class TransactionHistory extends Component {
 		this.endDate = ``;
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
+
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -84,6 +87,7 @@ export class TransactionHistory extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super._inicidentManager_(`TransactionHistory`);
 		
 		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
 		this.accountDetails = transactionHistoryMockData.accountDetails;
@@ -104,6 +108,11 @@ export class TransactionHistory extends Component {
 	// --------------
 
 	_back() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
+		
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 

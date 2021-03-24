@@ -21,9 +21,11 @@ export class StatementsSuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
 		this.mailId = `ivanmakatini@gmail.com`;
 		this.encryptedCardId = `5284 **** **** 1322`;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -57,11 +59,14 @@ export class StatementsSuccess extends View {
 		if (state) {
 			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;
+			
 			// TODO: mandate ID to be obtained from state.
 			this.mailId = `ivanmakatini@gmail.com`;
 			this.encryptedCardId = `5284 **** **** 1322`;
 		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -86,6 +91,17 @@ export class StatementsSuccess extends View {
 
 	_sendAnotherClick() {
 		this.horizonRouter.navigateToReturnPage(`statement`);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------
@@ -163,7 +179,8 @@ export class StatementsSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

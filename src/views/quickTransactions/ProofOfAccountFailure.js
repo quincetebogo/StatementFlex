@@ -28,8 +28,10 @@ const RENDER_MODE = {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.PROOFOFACCOUNT_FAILURE;
 		this.emailAddress = `ivanmakatini@gmail.com`;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -61,6 +63,8 @@ const RENDER_MODE = {
 		if (state) {
 			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;
+
 			// TODO: email address received from API or using restore function.
 			this.emailAddress = `ivanmakatini@gmail.com`;
 		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
@@ -206,7 +210,8 @@ const RENDER_MODE = {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 				// TODO: edit the card stop success render mode 
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

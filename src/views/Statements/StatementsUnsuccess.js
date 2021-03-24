@@ -27,9 +27,11 @@ export class StatementsUnsuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS;
 		this.mailId = `ivanmakatini@gmail.com`;
 		this.encryptedCardId = `5284 **** **** 1322`;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -63,6 +65,8 @@ export class StatementsUnsuccess extends View {
 		if (state) {
 			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;
+			
 			// TODO: mandate ID to be obtained from state.
 			this.mailId = `ivanmakatini@gmail.com`;
 			this.encryptedCardId = `5284 **** **** 1322`;
@@ -210,7 +214,8 @@ export class StatementsUnsuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

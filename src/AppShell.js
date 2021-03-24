@@ -3,6 +3,7 @@ import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManag
 import { Shell, css, html } from 'platform/elements';
 
 import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 // Import Horizon Routes
@@ -77,6 +78,7 @@ export class AppShell extends Shell {
 		this.currentMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 	}
 
@@ -107,6 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._restoreState(state));
 

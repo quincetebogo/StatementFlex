@@ -93,6 +93,7 @@ export class AddCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
+	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
 	 *
 	 * @readonly
@@ -103,6 +104,7 @@ export class AddCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 			addCallerDialog: { type: Object },
 
 			isBusy: { attribute: false },
@@ -335,18 +337,19 @@ export class AddCallerDetails extends Component {
 			case RENDER_MODE.ADD_CALLER:
 				return html`
 					<horizon-caller-dialog
-                            .incomingCallDetails="${this.incomingCallDetails}" 
-                            .isNeedSelectable=${false}
-						    .headerLabel="${HEADER_LABEL}" 
-                            @on-end-call="${() => this._endCall()}">
-						<div slot="body" class="main">
-							${this._renderErrorMessage()}
-							${this._renderAddCallerDetails()}
-							${this._renderLoadingIndicator()}
-						</div>
-						<div slot="footer">
-							${this._renderFooter()}
-						</div>
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${false}
+						.headerLabel="${HEADER_LABEL}" 
+						@on-end-call="${() => this._endCall()}">
+							<div slot="body" class="main">
+								${this._renderErrorMessage()}
+								${this._renderAddCallerDetails()}
+								${this._renderLoadingIndicator()}
+							</div>
+							<div slot="footer">
+								${this._renderFooter()}
+							</div>
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
@@ -366,8 +369,8 @@ export class AddCallerDetails extends Component {
 		if (this.validationFailed) {
 			return html`
 				<capitec-alert-banner
-                                type="error"
-                                label="${this.alertBannerMessage}">
+								type="error"
+								label="${this.alertBannerMessage}">
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -443,6 +446,7 @@ export class AddCallerDetails extends Component {
 	_renderEndCallModal() {
 		return html`<horizon-end-call-session 
 						.incomingCallDetails = "${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
 						endCallContext="ConfirmClient"
 						@cancel="${() => this.renderMode = RENDER_MODE.ADD_CALLER}">
 					</horizon-end-call-session>`;

@@ -14,6 +14,10 @@ const RENDER_MODE = {
 
 /**
  * Display an confirmation/success screen indicating which cards have been successfully stopped.
+ * 
+ * @export
+ * @class StopCardSuccess
+ * @extends View
  */
 export class StopCardSuccess extends View {
 
@@ -54,6 +58,7 @@ export class StopCardSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
+			this.incidentDetails = state.incidentDetails;
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.callerInformation = state.callerInformation;
 			this.stoppedCards = state.stoppedCards;
@@ -63,6 +68,7 @@ export class StopCardSuccess extends View {
 		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -80,6 +86,7 @@ export class StopCardSuccess extends View {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
 	_onToastDisplayTimeout() {
 		this.displayNotification = true;
 	}
@@ -87,7 +94,6 @@ export class StopCardSuccess extends View {
 	_onEndCallSession() {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
-
 
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
@@ -141,6 +147,17 @@ export class StopCardSuccess extends View {
 				}
 			}
 		);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------
@@ -392,9 +409,10 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails ="${this.incomingCallDetails}"
-				endCallContext="LandingPage">
+				endCallContext="LandingPage"
+				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
 
@@ -405,6 +423,7 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

@@ -32,6 +32,7 @@ export class CardLimitsLanding extends Component {
 		super();
 
 		// private properites
+		this.isBusy = false;
 		this._cardLimits = {};
 		this._updateType = ``;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -59,7 +60,8 @@ export class CardLimitsLanding extends Component {
 		return {
 			cards: { type: Object },
 
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -67,8 +69,9 @@ export class CardLimitsLanding extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		await super._inicidentManager_(`UpdateCardLimits`, () => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.primaryCards = this.cards.filter(card => card.isSupplementaryCard === false);
 		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && card.isContactlessCard === false);
@@ -113,6 +116,7 @@ export class CardLimitsLanding extends Component {
 
 	_toggleBusyFlag() {
 		// TODO: Toggle busy indicator comes here
+		this.isBusy = !this.isBusy;
 	}
 
 
@@ -255,6 +259,7 @@ export class CardLimitsLanding extends Component {
 
 	_webTemplate() {
 		return html`
+			${this._renderLoadingIndicator()}
 			${this._renderContent()}
 			${this._renderUpdateLimits()}
 			${this._renderDiscard()}
@@ -479,6 +484,14 @@ export class CardLimitsLanding extends Component {
 				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
 			></horizon-discard-changes>`;
 		}
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 }

@@ -53,9 +53,10 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-        this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
+		this.state = this.horizonStore.recoverState();
+		this.callerInformation = this.state.callerInformation;
+		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.incidentDetails = this.state.incidentDetails;
 
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -317,7 +318,7 @@ export class Favourites extends View {
 		} 
 
 		this.callerInformation.verificationToastDisplayed = true;
-		this.horizonStore.saveState(this.callerInformation);
+		this.horizonStore.saveState({ callerInformation: this.callerInformation });
 
 		this.verificationToastDisplayed = true;
 		return true;
@@ -337,8 +338,8 @@ export class Favourites extends View {
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+			incidentRecId: this.incidentDetails.incidentRecId,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			nonClientFullName: this.callerInformation.nonClientFullName,
 			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
@@ -481,6 +482,7 @@ export class Favourites extends View {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -495,6 +497,7 @@ export class Favourites extends View {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"
@@ -557,18 +560,18 @@ export class Favourites extends View {
 					@back="${() => this._mainPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
-    }
+	}
 
-    _renderProofOfAccount() {
-        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
-            ? html`
-                <horizon-proof-of-account
-                    @cancel="${() => this._mainPage()}"
-                    .incomingCallDetails="${this.incomingCallDetails}"
+	_renderProofOfAccount() {
+		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+			? html`
+				<horizon-proof-of-account
+					@cancel="${() => this._mainPage()}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}">
-                </horizon-proof-of-account>`
-            : html``; 
+					.landingPageInfo="${this.landingPageInfo}">
+				</horizon-proof-of-account>`
+			: html``;
     }
 }
 

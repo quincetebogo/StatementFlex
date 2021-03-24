@@ -55,6 +55,7 @@ export class SecurityQuestionsFailed extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
+	 * @property {Object} incidentDetails - Incident details
 	 * @property {Object} incomingCallDetails - Incoming Caller Information
 	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * 
@@ -65,6 +66,7 @@ export class SecurityQuestionsFailed extends Component {
 
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			renderMode: { attribute: false },
@@ -235,10 +237,11 @@ export class SecurityQuestionsFailed extends Component {
 			case RENDER_MODE.VERIFY_CALLER_FAILED:
 				return html`
 					<horizon-caller-dialog
-                            .incomingCallDetails="${this.incomingCallDetails}"
-                            .isNeedSelectable=${false}
-						    .headerLabel="${HEADER_LABEL}"
-                            @on-end-call="${() => this._onEndCall()}">
+							.incidentDetails="${this.incidentDetails}"
+							.incomingCallDetails="${this.incomingCallDetails}"
+							.isNeedSelectable=${false}
+							.headerLabel="${HEADER_LABEL}"
+							@on-end-call="${() => this._onEndCall()}">
 						<div slot="body">
 							${this._renderNotificationStatus()}
 							${this._renderOtherOptions()}
@@ -320,8 +323,9 @@ export class SecurityQuestionsFailed extends Component {
 		return html`
 			<horizon-end-call-session
 				.incomingCallDetails = "${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext = "VerifyClient"
-                @cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
+				@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER_FAILED}">
 			</horizon-end-call-session>`;
     }
 }

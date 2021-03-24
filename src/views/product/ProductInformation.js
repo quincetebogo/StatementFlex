@@ -80,15 +80,7 @@ export class ProductInformation extends View {
 
 		const state = this.horizonStore.recoverState();
 		this.incomingCallDetails = state.incomingCallDetails;
-
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
+		this.incidentDetails = state.incidentDetails;
 
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
@@ -156,10 +148,11 @@ export class ProductInformation extends View {
 
 		return this.renderMode === RENDER_MODE.END_CALL 
 			? html`
-				<horizon-end-call-session 
-					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}"
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					endCallContext="LandingPage">
+					endCallContext="LandingPage"
+					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}">
 				</horizon-end-call-session>`
 			: html``;
 	}

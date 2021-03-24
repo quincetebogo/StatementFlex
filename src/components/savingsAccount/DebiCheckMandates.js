@@ -1,6 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
 import { getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 const FILTER_BY = {
 	ALL: 0,
@@ -41,6 +42,8 @@ export class DebiCheckMandates extends Component {
 		this.activeMandates = [];
 		this.inActiveMandates = [];
 		this.filterBy = 0;
+
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -69,6 +72,8 @@ export class DebiCheckMandates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super._inicidentManager_(`DebiCheck`);
+
 		this._initialise();
 	}
 
@@ -77,6 +82,11 @@ export class DebiCheckMandates extends Component {
 	// --------------
 
 	_back() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
+
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 		
 	}
