@@ -73,320 +73,345 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z
 
 export class StatementsDialog extends Component {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	constructor() {
+    constructor() {
 
-		super();
+        super();
 
-		this.renderMode = RENDER_MODE.EMAIL;
-		this.header = this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
-		this.currentStep = 0;
-		this.notifyClient = true;
-		this.accType = ``;
-		this.savingsPlanAccType = ``;
-		this.savingsPlans = [];
-		this.periodSelected = -1;
-		this.showCalendar = false;
-		this._customDateRange = false;
-		this.fromDate = `dd mm yyyy`;
-		this.toDate = `dd mm yyyy`;
-		this.errorMessage = ``;
-		this.email = ``;
-		this.confirmEmail = ``;
-		this._summary = {
-			dateRangeLabel: ``,
-			detail: ``
-		};
-		this.mailClientError = {
-			email: ``,
-			confirmEmail: ``
-		};
-		this.encodedPDF = ``;
+        this.renderMode = RENDER_MODE.EMAIL;
+        this.header = this.renderMode === RENDER_MODE.PDF ? `View Document` : `Statements`;
+        this.currentStep = 0;
+        this.notifyClient = true;
+        this.accType = ``;
+        this.savingsPlanAccType = ``;
+        this.savingsPlans = [];
+        this.periodSelected = -1;
+        this.showCalendar = false;
+        this._customDateRange = false;
+        this.fromDate = `dd mm yyyy`;
+        this.toDate = `dd mm yyyy`;
+        this.errorMessage = ``;
+        this.email = ``;
+        this.confirmEmail = ``;
+        this._summary = {
+            dateRangeLabel: ``,
+            detail: ``
+        };
+        this.calendarErrorMessage = ``;
+        this.mailClientError = {
+            email: ``,
+            confirmEmail: ``
+        };
+        this.encodedPDF = ``;
+        this.today = new Date();
 
-		 //Static list, has to be pulled from service
-		this.savingsPlans = [
-			{
-				value: 1,
-				name: `Future savings`,
-				amount: `R 546844.25`
-			},
-			{
-				value: 2,
-				name: `Education`,
-				amount: `R 504.25`
-			}
-		];
+        //Static list, has to be pulled from service
+        this.savingsPlans = [
+            {
+                value: 1,
+                name: `Future savings`,
+                amount: `R 546844.25`
+            },
+            {
+                value: 2,
+                name: `Education`,
+                amount: `R 504.25`
+            }
+        ];
         //this._populateAccountInfo();
-		this.horizonStore = HorizonStore.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+        this.navigationContext = NavigationContext.getInstance();
+        this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
         this.landingPageInfo = {};
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-	}
-
-	// ----------
-	// PROPERTIES
-	// ----------
-
-	static get properties() {
-        return {
-            landingPageInfo: {type: Object},
-
-			currentStep: { attribute: false },
-			renderMode: { attribute: false },
-			notifyClient: {attribute: false },
-			accType: { attribute: false },
-			savingsPlanAccType: { attribute: false },
-			periodSelected: { attribute: false },
-			showCalendar: { attribute: false },
-			fromDate: { attribute: false },
-			toDate: { attribute: false },
-			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false }
-		};
-	}
-
-	// ----------------
-	// LIFECYLCE EVENTS
-	// ----------------
-
-	connectedCallback() {
-		super.connectedCallback();
-
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		//this.landingPageInfo = this.state.landingPageInfo;
-		this.accountInformation = this.state.leftBarButtonConfig.detail;
-	}
-
-	// --------------
-	// EVENT HANDLERS
-	// --------------
-
-	_cancel() {
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
-	}
-
-	_next() {
-		const selectAccount = () => this._validateAccountSelection();
-		const selectPeriod = () => this._validatePeriodSelection();
-		const emailClient = () => this._validateEmailAddress();
-
-		const validations = {
-			0: selectAccount,
-			1: selectPeriod,
-			2: emailClient
-		};
-		const result = validations[this.currentStep]();
-		if (result) {
-			this.currentStep++;
-		}
-	}
-
-	_back() {
-		this.errorMessage = ``;
-		this.currentStep--;
-	}
-
-	_selectAccount(type) {
-		this.accType = type;
-		this.savingsPlanAccType = ``;
-        this.errorMessage = ``;
-	};
-
-	_selectPlan(savingsPlan) {
-		this.savingsPlanAccType = savingsPlan;
-		this.errorMessage = ``;
-	}
-
-	_choosePeriod(range) {
-		this.periodSelected = TIME_PERIOD[range].value;
-		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
-		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
-
-		this.toDate = new Date();
-		this.fromDate = new Date();
-		this.fromDate.setDate(this.toDate.getDate() - TIME_PERIOD[range].range);
-
-		this._customDateRange = false;
-		this.errorMessage = ``;
-	}
-
-	_customDateRangeSelected() {
-        this.periodSelected = -1;
-        this.fromDate = `dd mm yyyy`;
-        this.toDate = `dd mm yyyy`;
-		this._customDateRange = !this._customDateRange;
-		this.fromDate = `dd mm yyyy`;
-		this.toDate = `dd mm yyyy`;
-	}
-
-	_showCalendar() {
-		this.showCalendar = !this.showCalendar;
-	}
-
-	_startDateChanged(e) {
-		if (e.detail.new.date) {
-			this.fromDate = this._formatDate(e.detail.new.date);
-			this.showCalendar = this.toDate === `dd mm yyyy`;
-			this.errorMessage = ``;
-		}
-	}
-
-	_endDateChanged(e) {
-		if (e.detail.new.date) {
-			this.toDate = this._formatDate(e.detail.new.date);
-			this.showCalendar = this.fromDate === `dd mm yyyy`;
-			this._summary.dateRangeLabel = `Choose date range`;
-			this.errorMessage = ``;
-		}
-	}
-
-	_emailFormatCheck(e) {
-		this[e.currentTarget.id] = e.detail.new;
-
-		if (e.detail.new.length > 0) {
-			if (!EMAIL_REGEX.test(e.detail.new)) {
-				this.errorMessage = `Invalid email format`;
-				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-			}
-		}
-		if (!this._confirmEmailMatch()) {
-			this.errorMessage = `Emails don't match`;
-			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
-		}
-		this.requestUpdate();
-	}
-
-	_confirmEmailMatch() {
-		
-		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			return this.email === this.confirmEmail;
-		}
-		return true;
-	}
-
-	_inputEmail(e) {
-		this.mailClientError[e.currentTarget.id] = ``;
-		this.errorMessage = ``;
-	}
-
-	async _viewPDF() {
-		console.log("landingpageinfo  " + this.landingPageInfo.accountNumber + "  from and to date " + this.fromDate + "  " + this.toDate);
-		this.renderMode = RENDER_MODE.PDF;
-		var test = `PRIMARY_SAVINGS`;
-
-		const statement = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.accountNumber,
-			"accountType": test,
-			"statementDateRange": {
-				"dateRange": {
-					"startDate": new Date(this.fromDate).toISOString().slice(0, 10),
-					"endDate": new Date(this.toDate).toISOString().slice(0, 10)
-				},
-				"presetInterval": ""
-			}
-		};
-
-		const returnValue = await this.quickTransactionService.viewStatement(statement);
-		if (returnValue.succeeded) {
-			console.log("result  " + returnValue.result.statementData);
-			// render the PDF
-			this.encodedPDF = returnValue.result.statementData;
-		} else {
-			console.log(`can't view cs call failed`);
-			// render an error
-		}
-	}
-
-	async _sendStatement() {
-
-		if (!this._validateEmailAddress()) {
-			return false;
-		}
-
-		const state = {
-			// still to fill these in
-		};
-
-		this.horizonStore.saveState(state);
-
-		const statement = {
-			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.accountNumber,
-			"accountType": this.accountSelected,
-			"statementDateRange": {
-				"dateRange": {
-					"startDate": new Date(this.fromDate).toISOString().slice(0, 10),
-					"endDate": new Date(this.toDate).toISOString().slice(0, 10)
-				},
-				"presetInterval": ``
-			}
-		};
-
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		if (returnValue.succeeded) {
-			// TODO: Ramesh to add navigation to successfull page
-			this.horizonRouter.navigateToStatementSuccessful();
-		} else {
-			// TODO: Unsuccessful page nav
-			this.horizonRouter.navigateToStatementUnsuccessful();
-		}
-	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
+        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
     }
 
-   //async _populateAccountInfo() {
-   //     const accountInfo = {            
-   //         "cifNumber": this.callerInformation.cifNumber,
-   //         "accountNumber": this.landingPageInfo.account_number,
-   //         "accountType": this.accountSelected,
-            
-   //     };
+    // ----------
+    // PROPERTIES
+    // ----------
 
-   //     const returnValue = await this.quickTransactionService.getAccountInfo(accountInfo);
+    static get properties() {
+        return {
+            landingPageInfo: { type: Object },
 
-   //     if (returnValue.succeeded) {
-   //         this.savingsPlans = returnValue.result;
-   //     }               
-   // }
+            currentStep: { attribute: false },
+            renderMode: { attribute: false },
+            notifyClient: { attribute: false },
+            accType: { attribute: false },
+            savingsPlanAccType: { attribute: false },
+            periodSelected: { attribute: false },
+            showCalendar: { attribute: false },
+            fromDate: { attribute: false },
+            toDate: { attribute: false },
+            _customDateRange: { attribute: false },
+            errorMessage: { attribute: false }
+        };
+    }
 
-	_validateAccountSelection() {
-		if (isNullorEmpty(this.accType)) {
-			this.errorMessage = `Select an account`;
-			return false;
-		} else if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN && isNullorEmpty(this.savingsPlanAccType)) {
-			this.errorMessage = `Select an account`;
-			return false;
-		}
-		return true;
-	}
+    // ----------------
+    // LIFECYLCE EVENTS
+    // ----------------
 
-	_validatePeriodSelection() {
+    connectedCallback() {
+        super.connectedCallback();
+
+        this.state = this.horizonStore.recoverState();
+        this.callerInformation = this.state.callerInformation;
+        //this.landingPageInfo = this.state.landingPageInfo;
+        this.accountInformation = this.state.leftBarButtonConfig.detail;
+    }
+
+    // --------------
+    // EVENT HANDLERS
+    // --------------
+
+    _cancel() {
+        this.dispatchEvent(new CustomEvent(`cancel`, {}));
+    }
+
+    _next() {
+        const selectAccount = () => this._validateAccountSelection();
+        const selectPeriod = () => this._validatePeriodSelection();
+        const emailClient = () => this._validateEmailAddress();
+
+        const validations = {
+            0: selectAccount,
+            1: selectPeriod,
+            2: emailClient
+        };
+        const result = validations[this.currentStep]();
+        if (result && this.errorMessage===``) {
+            this.currentStep++;
+        }
+    }
+
+    _back() {
+        this.errorMessage = ``;
+        this.currentStep--;
+    }
+
+    _selectAccount(type) {
+        this.accType = type;
+        this.savingsPlanAccType = ``;
+        this.errorMessage = ``;
+    };
+
+    _selectPlan(savingsPlan) {
+        this.savingsPlanAccType = savingsPlan;
+        this.errorMessage = ``;
+    }
+
+    _choosePeriod(range) {
+        this.periodSelected = TIME_PERIOD[range].value;
+        this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
+        this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
+
+        this.toDate = new Date();
+        this.fromDate = new Date();
+        this.fromDate.setDate(this.toDate.getDate() - TIME_PERIOD[range].range);
+
+        this._customDateRange = false;
+        this.errorMessage = ``;
+    }
+
+    _customDateRangeSelected() {
+        this.showCalendar = true;
+        this.periodSelected = -1;
+        this.calendarErrorMessage = ``;
+        this.fromDate = `dd mm yyyy`;
+        this.toDate = `dd mm yyyy`;
+        this._customDateRange = !this._customDateRange;
+    }
+
+    _showCalendar() {
+        this.showCalendar = !this.showCalendar;
+    }
+
+    _startDateChanged(e) {
+        if (e.detail.new.date) {
+            this.fromDate = this._formatDate(e.detail.new.date);
+            if (this._validateRangeSelected()) {
+                this.showCalendar = this.toDate === `dd mm yyyy`;
+                this.errorMessage = ``;
+            }
+        }
+    }
+
+    _endDateChanged(e) {
+        if (e.detail.new.date) {
+            this.toDate = this._formatDate(e.detail.new.date);
+            if (this._validateRangeSelected()) {
+                this.showCalendar = this.fromDate === `dd mm yyyy`;
+                this._summary.dateRangeLabel = `Choose date range`;
+                this.errorMessage = ``;
+            }
+
+        }
+    }
+    
+    _calendarSelectionChange(e) {
+        this.fromDate = new Date(e.detail.new.startDate);
+        this.toDate = new Date(e.detail.new.endDate);
+        var rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
+
+        if (rangeDiff > 90) {
+            this.errorMessage = `Out of range, please select the correct range up to 90 days`;
+            this.calendarErrorMessage = `Date range up to 90 days only`;
+        } else {
+            console.log("in range");
+            this.errorMessage = ``;
+            this.calendarErrorMessage = ``;
+        }
+    }
+
+    _emailFormatCheck(e) {
+        
+        this[e.currentTarget.id] = e.detail.new;
+
+        if (e.detail.new.length > 0) {
+            if (!EMAIL_REGEX.test(e.detail.new)) {
+                this.errorMessage = `Invalid email format`;
+                this.mailClientError[e.currentTarget.id] = `Invalid email format`;
+            } else {
+                this.errorMessage = ``;
+                this.mailClientError[e.currentTarget.id] = ``;
+            }
+        }
+        if (!this._confirmEmailMatch()) {
+            this.errorMessage = `Emails don't match`;
+            this.mailClientError[e.currentTarget.id] = `Emails don't match`;
+        }
+        this.requestUpdate();
+    }
+
+    _confirmEmailMatch() {
+
+        if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
+            return this.email === this.confirmEmail;
+        }
+        return true;
+    }
+
+    _inputEmail(e) {
+        this.mailClientError[e.currentTarget.id] = ``;
+        this.errorMessage = ``;
+    }
+
+    async _viewPDF() {
+        console.log("landingpageinfo  " + this.landingPageInfo.accountNumber + "  from and to date " + this.fromDate + "  " + this.toDate);
+        this.renderMode = RENDER_MODE.PDF;
+        var test = `PRIMARY_SAVINGS`;
+
+        const statement = {
+            "cifNumber": this.callerInformation.cifNumber,
+            "accountNumber": this.landingPageInfo.accountNumber,
+            "accountType": accountType,
+            "statementDateRange": {
+                "dateRange": {
+                    "startDate": new Date(this.fromDate).toISOString().slice(0, 10),
+                    "endDate": new Date(this.toDate).toISOString().slice(0, 10)
+                },
+                "presetInterval": ""
+            }
+        };
+
+        const returnValue = await this.quickTransactionService.viewStatement(statement);
+        if (returnValue.succeeded) {
+            console.log("result  " + returnValue.result.statementData);
+            // render the PDF
+            this.encodedPDF = returnValue.result.statementData;
+        } else {
+            console.log(`can't view cs call failed`);
+            // render an error
+        }
+    }
+
+    async _sendStatement() {
+
+        if (!this._validateEmailAddress()) {
+            return false;
+        }
+
+        const state = {
+            // still to fill these in
+        };
+
+        this.horizonStore.saveState(state);
+
+        const statement = {
+            "emailAddress": this.email,
+            "cifNumber": this.callerInformation.cifNumber,
+            "accountNumber": this.landingPageInfo.accountNumber,
+            "accountType": this.accountSelected,
+            "statementDateRange": {
+                "dateRange": {
+                    "startDate": new Date(this.fromDate).toISOString().slice(0, 10),
+                    "endDate": new Date(this.toDate).toISOString().slice(0, 10)
+                },
+                "presetInterval": ``
+            }
+        };
+
+        const returnValue = await this.quickTransactionService.sendStatement(statement);
+
+        if (returnValue.succeeded) {
+            // TODO: Ramesh to add navigation to successfull page
+            this.horizonRouter.navigateToStatementSuccessful();
+        } else {
+            // TODO: Unsuccessful page nav
+            this.horizonRouter.navigateToStatementUnsuccessful();
+        }
+    }
+
+    // ---------------
+    // PRIVATE METHODS
+    // ---------------
+
+    _toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
+    }
+
+    //async _populateAccountInfo() {
+    //     const accountInfo = {            
+    //         "cifNumber": this.callerInformation.cifNumber,
+    //         "accountNumber": this.landingPageInfo.account_number,
+    //         "accountType": this.accountSelected,
+
+    //     };
+
+    //     const returnValue = await this.quickTransactionService.getAccountInfo(accountInfo);
+
+    //     if (returnValue.succeeded) {
+    //         this.savingsPlans = returnValue.result;
+    //     }               
+    // }
+
+    _validateAccountSelection() {
+        if (isNullorEmpty(this.accType)) {
+            this.errorMessage = `Select an account`;
+            return false;
+        } else if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN && isNullorEmpty(this.savingsPlanAccType)) {
+            this.errorMessage = `Select an account`;
+            return false;
+        }
+        return true;
+    }
+
+    _validatePeriodSelection() {
         if (this.periodSelected === -1 && !this._customDateRange) {
             this.errorMessage = `Please choose a from and to date`;
+            this.calendarErrorMessage = `Required`;
             return false;
         } else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
             this.errorMessage = `Please choose a from and to date`;
+            this.calendarErrorMessage = `Required`;
             return false;
-        } else  {
+        }else{
 			this._getSummary();
 		}
 		return true;
@@ -398,7 +423,19 @@ export class StatementsDialog extends Component {
 
 		this.errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
 		return this.errorMessage === ``;
-	}
+    }
+
+    _validateRangeSelected() {
+        console.log("validating");
+        if (this._customDateRange) {
+            var rangeDiff = Math.floor((new Date(this.toDate).getTime() - new Date(this.fromDate).getTime()) / (1000 * 3600 * 24));
+            if (rangeDiff > 90) {
+                this.errorMessage = `Out of range, please select the correct range up to 90 days`;
+                return false;
+            }
+        }
+        return true;
+    }
 
 	_getSummary() {
 
@@ -445,11 +482,11 @@ export class StatementsDialog extends Component {
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-background-color: #F7F7F7;
                 //--theme-stepper-inner-step-container-height: 56px;
-                //--theme-stepper-inner-step-container-width: 328px;
+                --theme-stepper-inner-step-container-width: 324px;
                 --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
                 --theme-stepper-step-title-font-size: 15px;
                 --theme-stepper-step-title-max-width: 328px;
-                --theme-stepper-step-content-container-padding-left: 16px;
+              //  --theme-stepper-step-content-container-padding-left: 16px;
                 --theme-container-padding-left: 0px;
                 --theme-container-padding-right: 0px;
                 --theme-container-padding-top: 0px;
@@ -461,31 +498,10 @@ export class StatementsDialog extends Component {
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
-				bb-stepper-modal {
-					--theme-modal-header-height: 64px;
-					--theme-modal-header-font-size: 18px;
-					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-stepper-inner-step-container-height: 56px;
-					--theme-stepper-inner-step-container-width: 328px;
-					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
-					--theme-stepper-step-title-font-size: 15px;
-					--theme-stepper-step-title-max-width: 328px;
-					--theme-stepper-step-content-container-padding-left: 16px;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 975px;
-					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:976px;
-					--theme-modal-footer-padding: 0px;
-					--theme-wizard-modal-header-padding: 18.5px 16px;
-				}
-				div[slot="step"] {
-					--theme-layout-gap-spacing: 0px;
-				}
+				
+				//div[slot="step"] {
+				//	--theme-layout-gap-spacing: 0px;
+				//}
 				capitec-modal {
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -539,14 +555,16 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-focus-default-border: 1px solid #C83B37;
 				}
 				.choose-period > horizon-product-tile {
-					width: 224px;
+					width: 220px;
 
 					--theme-layout-gap-spacing: 16px;
 				}
-				.choose-date-range {
+				.main-cb > .choose-date-range {
 					margin-bottom: 0px;
-
+                    --theme-product-tile-focus-shadow: 0px 0px 0px 0px;
+                    --theme-product-tile-focus-transact-border: 1px solid #E1E1E1;
 					--theme-product-tile-border-radius: 4px 4px 0px 0px;
+
 				}
 				.date-selector {
 					--theme-layout-gap-spacing: 16px;
@@ -595,13 +613,6 @@ export class StatementsDialog extends Component {
 
 					--theme-icon-size-small: 26px;
 				}
-				.calendar {
-					--theme-calendar-calendar-width: 385px;
-					--theme-calendar-days-width: 385px;
-					--theme-date-time-picker-host-max-width: 769px;
-					--theme-calendar-days-padding: 0px 16px 2px 16px;
-					--theme-calendar-days-grid-template-columns: 49px 49px 49px 49px 49px 49px 49px;
-				}
 				capitec-group > .calendar:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
@@ -636,11 +647,22 @@ export class StatementsDialog extends Component {
 					background-color: #FFFFFF;
 				}
 				.seperator {
-					width: 944px;
+					width: 928px;
 					border: 1px solid #E1E1E1;
 					margin-bottom: 30px;
 					margin-top: 30px;
 				}
+            capitec-date-time-picker.calendar{
+				height: auto;
+				margin-left: 16px;
+				margin-bottom: 16px;
+                margin-top:16px;
+                --theme-date-time-picker-host-min-width:696px;
+            }
+
+.chooseText{
+padding-top:8px;
+}
 			`
 		];
 	};
@@ -672,7 +694,7 @@ export class StatementsDialog extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						noScroll>
+						noScroll =  ${false}>
 							${this._renderAlertBanner()}
 							${this._renderAccountSelection()}
 							${this._renderChoosePeriod()}
@@ -841,102 +863,44 @@ export class StatementsDialog extends Component {
 				?selected="${this._customDateRange}"
 				@click="${() => this._customDateRangeSelected()}">
 			</horizon-product-tile>
-			${this._renderCustomDateRange()}
+								${this._renderCustomDateRange()}
 		`;
 	}
 
 	_renderCustomDateRange() {
-		if (this._customDateRange) {
+        if (this._customDateRange) {
 			return html`
 				<capitec-card
 					class="custom-date-card">
-						<capitec-content-box>
-							<capitec-group
-								layout="horizontal">
-									${this._renderFromDate()}
-									${this._renderToDate()}
-							</capitec-group>
-
-							<capitec-group
-								layout="horizontal">
-									${this._renderCalendar()}
-							</capitec-group>
-						</capitec-content-box>
+						<capitec-group
+							layout="horizontal">
+							    ${this._renderCalendar()}
+						</capitec-group>
 				</capitec-card>
 			`;
 		}
 		return html``;
 	}
 
-	_renderFromDate() {
-		return html`
-			<capitec-group
-				class="date-selector"
-				layout="vertical">
-					<capitec-label
-						type="default"
-						label="From date">
-					</capitec-label>
 
-					${this._renderCalendarPicker(`fromDate`)}
-			</capitec-group>
-		`;
-	}
 
-	_renderToDate() {
-		return html`
-			<capitec-group
-				class="date-selector"
-				layout="vertical">
-					<capitec-label
-						type="default"
-						label="To date">
-					</capitec-label>
-
-					${this._renderCalendarPicker(`toDate`)}
-			</capitec-group>
-		`;
-	}
-
-	_renderCalendarPicker(context) {
-		return html`
-			<capitec-button
-				class="datePicker-btn"
-				type="white"
-				@click="${() => this._showCalendar()}">
-					<capitec-label
-						class="calendar-label"
-						label="${this[context]}"
-						type="default">
-					</capitec-label>
-					<capitec-spacer></capitec-spacer>
-					<capitec-icon
-						size="small"
-						icon="system/calendar-action">
-					</capitec-icon>
-			</capitec-button>
-		`;
-	}
 
 	_renderCalendar() {
 		if (this.showCalendar) {
-			return html`
-				<capitec-calendar
-					class="calendar"
-					startDate="${this.fromDate}"
-					endDate="${this.toDate}"
-					maxDate="${this.toDate}"
-					@value-change="${(e) => this._startDateChanged(e)}"
-					range>
-				</capitec-calendar>
-				<capitec-calendar
-					class="calendar"
-					startDate="${this.fromDate}"
-					endDate="${this.toDate}"
-					minDate="${this.fromDate}"
-					@value-change="${(e) => this._endDateChanged(e)}"
-					range>
-				</capitec-calendar>
+            return html`
+							<capitec-date-time-picker
+									class="calendar"
+									type="range"
+									mode="date"
+                                    label="Choose from and to date"
+                                    startDate = "${this.fromDate == `dd mm yyyy` ? `` : this.fromDate}"
+                                    endDate = "${this.toDate == `dd mm yyyy` ? `` : this.toDate}"
+                                    maxDate = "${this.today}"									
+                                    error = "${this.calendarErrorMessage}"
+									inputType="calendar"
+									outputType="string"
+									@value-changed="${(e) => this._calendarSelectionChange(e)}">
+							</capitec-date-time-picker>
 			`;
 		}
 		return html``;
@@ -977,7 +941,6 @@ export class StatementsDialog extends Component {
 				<hr class="seperator">
 
 				<capitec-label
-					class="chooseText"
 					type="subtitle"
 					label="View document">
 				</capitec-label>
@@ -1049,16 +1012,14 @@ export class StatementsDialog extends Component {
 
 	_renderPDFViewer() {
 		if (this.renderMode === RENDER_MODE.PDF) {
-			return html`
+            return html`
 				<capitec-content-box
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						noScroll>
-							<embed
-								class="pdf-viewer"
-								src="data:application/pdf;base64,${this.encodedPDF}#toolbar=0"
-								type="application/pdf" />
+						noScroll = ${false}>
+				<object class="pdf-viewer" data="data:application/pdf;base64,${this.encodedPDF}" type="application/pdf">
+				</object>
 				</capitec-content-box>
 			`;
 		}
