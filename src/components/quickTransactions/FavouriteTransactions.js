@@ -299,10 +299,6 @@ export class FavouriteTransactions extends Component {
 						@click="${() => this._optionSelectedClick(`stop-card`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
-					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
-					</horizon-option-button>
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"

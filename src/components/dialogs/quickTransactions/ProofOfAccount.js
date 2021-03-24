@@ -102,8 +102,7 @@ export class ProofOfAccount extends Component {
 					emailAddress:this.id_emailAddress,
 					accountNumber:this.landingPageInfo.accountNumber
 				});
-                //this.horizonRouter.navigateToProofOfAccountFailed();
-				this.horizonRouter.navigateToProofOfAccountSuccess();
+                this.horizonRouter.navigateToProofOfAccountFailed();
             }
         }
 
