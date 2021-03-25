@@ -32,7 +32,7 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-
+		this.selectedItem = ``;
 		this._initialise();
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
 		this.addEventListener(`mouseleave`, this._mouseLeaveCardArt.bind(this));
@@ -54,7 +54,9 @@ export class CardArt extends Component {
 		return {
 			card: { type: Object },
 			disableHover: { type: Boolean },
-			cardArtSVG: { type: String }
+			cardArtSVG: { type: String },
+			context: { type: String },
+			selectedItem: { type: String }
 		};
 	}
 
@@ -152,6 +154,20 @@ export class CardArt extends Component {
 		};
 	}
 
+	_toggleChecked(event) {
+		this.selectedItem = event.detail.new;
+
+		this.card.isContactlessActivated = this.selectedItem;
+		if (this.selectedItem) {
+			// Navigate to tap to pay aggreement 
+			console.log(`Tap to pay activated`);
+		} else {
+			console.log(`Tap to pay deactivated`);
+		}
+
+		event.stopPropagation();
+
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -172,7 +188,7 @@ export class CardArt extends Component {
 					width: var(--horizon-card-art-width, 328px);
 					height: var(--horizon-card-art-height, 304px);
 					box-sizing: border-box;
-
+					--theme-card-box-shadow: none;
 					--theme-card-border: 1px solid #E1E1E1;
 					--theme-card-border-radius: 4px;
 				}
@@ -249,6 +265,49 @@ export class CardArt extends Component {
 					z-index: 100;
 					background-color: #FFFFFF;
 				}
+
+				.toggle-label {
+					height: 20px;
+					width: 21px;
+					--theme-label-color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 500;
+					letter-spacing: 0;
+					line-height: 20px;
+					text-align: right;
+					padding-right: 12px;
+				}
+
+				.toggle-group {
+					display: -webkit-inline-box;
+				}
+
+				.Off {
+					margin-right: 10px;
+					height: 20px;
+					width: 21px;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 500;
+					letter-spacing: 0;
+					line-height: 20px;
+					text-align: right;
+				}
+
+				.On {
+					margin-right: 6px;
+					height: 20px;
+					width: 21px;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 15px;
+					font-weight: 500;
+					letter-spacing: 0;
+					line-height: 20px;
+					text-align: right;
+				}
 			`
 		];
 	}
@@ -287,8 +346,9 @@ export class CardArt extends Component {
 	}
 
 	_renderCheckBox() {
-		return this.disableHover ? html`<capitec-check label=""></capitec-check>`
-				: html``;
+		if (this.context === `stop-card`) {
+		return html`<capitec-check label=""></capitec-check>`;
+		}
 	}
 
 	_renderCardArt() {
@@ -317,14 +377,38 @@ export class CardArt extends Component {
 							   halign="right"
 							   valign="top"
 							   class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
-					<capitec-label label="Tap to Pay"
-								   type="default">
-					</capitec-label>
-					<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
-								   type="strong">
-					</capitec-label>
+
+							   ${this._renderLabelOrToggle()}
 				</capitec-group>
 		`;
+	}
+
+	_renderLabelOrToggle() {
+		if (this.context === `tap-to-pay`) {
+			return html`
+				
+				<capitec-group layout="vertical"
+								gap="clear"
+								halign="right"
+								valign="top"
+								class="toggle-group">
+					<capitec-label class="toggle-lable ${this.card.isContactlessActivated ? `On` : `Off`}" 
+									label=${this.card.isContactlessActivated ? `On` : `Off`}
+							type="default"></capitec-label>
+					<capitec-toggle
+							class="${this.card.isContactlessActivated ? `On` : `Off`}"
+							 label="" 
+							@value-changed=${(event) => this._toggleChecked(event)}
+							?checked="${this.card.isContactlessActivated}"></capitec-toggle>
+				</capitec-group>`;
+		}
+			return html`
+				<capitec-label label="Tap to Pay"
+									type="default">
+				</capitec-label>
+				<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
+								   type="strong">
+				</capitec-label>`;
 	}
 }
 

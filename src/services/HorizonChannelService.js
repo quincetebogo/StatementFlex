@@ -537,6 +537,20 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
+
+	// ------------------
+	// tap - to - pay
+	// ------------------
+
+	async tapToPayLanding(cifNumber) {
+		if (await this._mockEnabled(`tapToPayLanding`)) {
+			return this._mock.tapToPay(cifNumber);
+		}
+
+		const url = `/clientcare/card/${this._version}/tap-to-pay-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `tapToPay`);
+	}	
+
 	// --------------------------
 	// card - debi-check mandates
 	// --------------------------
@@ -571,8 +585,15 @@ export class HorizonChannelService extends Service {
         const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
-  
-	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+
+	// ------------------
+	// Savings Account
+	// ------------------
+	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+		if (await this._mockEnabled(`savingsAccountLanding`)) {
+			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
+		}
+
 		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
@@ -580,4 +601,22 @@ export class HorizonChannelService extends Service {
 
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
 	}  
+
+	async transactionHistory (transactionHistoryRequest) {
+		if (await this._mockEnabled(`transactionHistory`)) {
+			return this._mock.transactionHistory(transactionHistoryRequest);
+		}
+
+		const url = `/clientcare/savingsaccount/${this._version}/client/transactions?` + 
+		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
+		`AccountType=${transactionHistoryRequest.accountType}&` +
+		`StartDate=${transactionHistoryRequest.startDate}&` +
+		`EndDate=${transactionHistoryRequest.endDate}&` +
+		`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
+		`MaxResults=${transactionHistoryRequest.maxResults}&`+
+		`MoneyType=${transactionHistoryRequest.moneyType}`;
+
+		return this._get(url, this._setToken(), `transactionHistory`);
+	}
 }

@@ -280,8 +280,8 @@ export class FavouriteTransactions extends Component {
 
 	_renderTransactSection() {
 		return html`
-				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: hidden;" ?hidden="${true}"></capitec-title-bar>
-				<capitec-button-bar  style="visibility: hidden;" ?hidden="${true}">
+				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: visible;" ?hidden="${false}"></capitec-title-bar>
+				<capitec-button-bar  style="visibility: visible;" ?hidden="${false}">
 					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
@@ -302,13 +302,13 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;"
+						style="visibility: visible;"
 						>
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;"
+						style="visibility: visible;"
 						>
 					</horizon-option-button>
 				</capitec-button-bar>
@@ -317,8 +317,8 @@ export class FavouriteTransactions extends Component {
 
 	_renderDocumentsSections() {
 		return html`
-				<capitec-title-bar type="default" label="Document" style="visibility: hidden;"></capitec-title-bar>
-				<capitec-button-bar  style="visibility: hidden;">
+				<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
+				<capitec-button-bar  style="visibility: visible;">
 					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`statements`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
