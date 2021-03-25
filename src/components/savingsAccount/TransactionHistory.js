@@ -163,12 +163,7 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
-		const closeChip = {
-			TEXT: this.searchTextLabel = `Search for amount or transaction name`,
-			DATE: ``,
-			STATUS: this.statuslabel = `Transaction Status`
-		};
-		closeChip[type];
+		this._loadLabels();
 		this._refineSearch();
 	}
 
@@ -176,8 +171,7 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this.searchTextLabel = `Search for amount or transaction name`;
-		this.statuslabel = `Transaction Status`;
+		this._loadLabels();
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
@@ -207,6 +201,11 @@ export class TransactionHistory extends Component {
 		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
 
+	}
+
+	_loadLabels(){
+		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
+		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
 	}
 
 	_refineSearch() {
