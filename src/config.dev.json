@@ -24,6 +24,10 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
+		},
+		{
+			"option": "7",
+			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"mock": {
