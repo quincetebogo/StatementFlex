@@ -30,7 +30,7 @@ export class StatementsUnsuccess extends View {
 		super();
 		this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS;
 		this.mailId = ``;
-		this.encryptedCardId = ``;
+		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -65,7 +65,8 @@ export class StatementsUnsuccess extends View {
 			// this.returnRoute = state.returnTo.route;
 			//Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
-			this.mailId=state.email;
+			this.mailId = state.emailAddress;
+            this.acNumber = state.accountNumber;
 			// TODO: mandate ID to be obtained from state.
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
@@ -179,7 +180,7 @@ export class StatementsUnsuccess extends View {
 									@right-click=${() => this._handoffClick()}>
 									<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account ${this.encryptedCardId} was not emailed to ${this.mailId}
+					slot="detail">The statement for savings account ${this.acNumber} was not emailed to ${this.mailId}
 				</section>
 			</horizon--error-screen>
 		`;

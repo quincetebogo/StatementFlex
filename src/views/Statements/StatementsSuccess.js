@@ -25,7 +25,7 @@ export class StatementsSuccess extends View {
 		super();
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
 		this.mailId = ``;
-		this.encryptedCardId = ``;
+		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
@@ -63,8 +63,8 @@ export class StatementsSuccess extends View {
 		if (state) {
 			//this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
-            this.mailId = state.email;
-            this.encryptedCardId = state.account_number;
+            this.mailId = state.emailAddress;
+            this.acNumber = state.accountNumber;
 			// TODO: mandate ID to be obtained from state.
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
@@ -91,9 +91,9 @@ export class StatementsSuccess extends View {
 	}
 
     _sendAnotherClick() {
-        this.renderMode = RENDER_MODE.STATEMENTS;
-        //this.horizonRouter.setReturnToFunction(`statements`);
-		//this.horizonRouter.navigateToQuickTransactionFavourites();
+        //this.renderMode = RENDER_MODE.STATEMENTS;
+        this.horizonRouter.setReturnToFunction(`statements`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------
@@ -158,7 +158,7 @@ export class StatementsSuccess extends View {
 									>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.encryptedCardId}</b> was emailed to <b>${this.mailId}</b>
+					slot="detail">The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 				</section>
 				<section 
 						id="id-option-button" 
