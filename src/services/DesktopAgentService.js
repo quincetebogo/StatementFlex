@@ -5,7 +5,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { validate } from 'app/utils/channelServiceUtilities';
 
-import { TelemetryService, TelemetryScreen } from 'app/services/TelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -139,8 +139,9 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
-			// Log Telemetry
-			new TelemetryService().incomingCall({
+			// Telemetry
+			HorizonTelemetry.instance.newTrace();
+			HorizonTelemetry.instance.incomingCall({
 				screen: TelemetryScreen.WAIT_FOR_CALL,
 				ivr: eventData.IVROptionCode,
 				ucid: newCallEvent.voiceReferenceNumber
