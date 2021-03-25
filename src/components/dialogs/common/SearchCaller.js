@@ -4,7 +4,6 @@ import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -158,7 +157,6 @@ export class SearchCaller extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
@@ -250,11 +248,6 @@ export class SearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		});
-
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
 		// Switching to the dialog is not handled in this component.
@@ -264,8 +257,6 @@ export class SearchCaller extends Component {
 					incomingCallDetails: this.incomingCallDetails
 				}
 			}));
-		} else if (this.incomingCallDetails.ivrOption.value === `ProductEnquiry`) {
-			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
 		}
 	}
 

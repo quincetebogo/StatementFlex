@@ -161,11 +161,17 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._navigateToLandingPage();
-		} else {
-			this._verifyCaller();
-		}
+		const stopCard = () => this._navigateToLandingPage();
+		const productEnquiry = () => this._navigateToLandingPage();
+		const transact = () => this._verifyCaller();
+
+		const clientNeed = {
+			StopCard: stopCard,
+			ProductEnquiry: productEnquiry,
+			Transact: transact
+		};
+
+		clientNeed[this.incomingCallDetails.ivrOptionCode]();
 	}
 
 	async _verifyCaller() {
@@ -224,15 +230,6 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller.ivrOptionCode = event.detail.new;
 		this.incomingCallDetails.ivrOption.value = event.detail.new;
 		this.incomingCallDetails.ivrOptionCode = event.detail.new;
-
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		});
-
-		if (this.incomingCallDetails.ivrOptionCode === `ProductEnquiry`) {
-			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-		}
 	}
 
 	_searchClick() {
@@ -664,7 +661,6 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-stop-card-search-caller
                 .incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
 				@other-need-selected="${(event) => this._otherNeedSelected(event)}"
                 >
@@ -675,7 +671,6 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-search-caller
                 .incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">

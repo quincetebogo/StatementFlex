@@ -197,6 +197,7 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => {};
 		const savingsPlan = () => {};
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -204,7 +205,8 @@ export class HorizonRouter {
 			Insure: insure,
 			SavingsAccount: savings,
 			Credit: credit,
-			SavingsPlan: savingsPlan
+			SavingsPlan: savingsPlan,
+			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
 
