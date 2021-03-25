@@ -13,7 +13,8 @@ import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 const RENDER_MODE = Object.freeze({
 	VERIFY_CALLER: 1,
 	SECURITY_QUESTIONS: 2,
-	END_CALL: 3
+	END_CALL: 3,
+	FOREIGN_CLIENT_ERR: 4
 });
 
 const HEADER_LABEL = `Verify Caller`;
@@ -71,6 +72,7 @@ export class VerifyCaller extends Component {
 		this.itaTimer = null;
 		this.loading = true;
 		this.xdsMessage = ``;
+		this.foreignClientErr = ``;
 		this.itaMessage = ``;
 		this.noOfXdsVerificationAttempted = 0;
 		this.itaVerificationFailed = false;
@@ -106,13 +108,26 @@ export class VerifyCaller extends Component {
 			connectionID: { attribute: false },
 			isBusy: { attribute: false },
 			loading: { attribute: false },
-			itaVerificationFailed: { attribute: false }
+			itaVerificationFailed: { attribute: false },
+			foreignClientErr: { attribute: false }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
+	luhnCheck(SAidNumber) {
+		this.num = (SAidNumber + '')
+		.split(``)
+		.reverse()
+		.map(x => parseInt(x, 10));
+
+		this.lastDigit = this.num.splice(0, 1)[0];
+		this.sum = this.num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+		this.sum += this.lastDigit;
+		return sum % 10 === 0;
+	}
+
 	async connectedCallback() {
 		super.connectedCallback();
 
@@ -148,14 +163,20 @@ export class VerifyCaller extends Component {
 			}
 		};
 
+		this.hasSouthAfricanID = this.callerInformation.southAfricanIDNumber.length === 13 && this.luhnCheck(this.callerInformation.southAfricanIDNumber);
 
 		// If we have digital channels (XDS/USSD)
 		if (this.callerInformation.hasDigitalChannels) {
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
-		} else {
+		} else if (this.hasSouthAfricanID) {
 			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
 			await this._securityQuestionsClick();
+		} 
+		
+		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
+			this.isForeignClient = true;
+			this.foreignClientErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
 		}
 
 		// The Verify Caller UI will not display until this.loading is false. This keeps it hidden
@@ -547,6 +568,12 @@ export class VerifyCaller extends Component {
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
+				.warning-svg, .connection-error-svg {
+					margin-top: 45px;
+				}
+				.foreign-client, .notification-info {
+					margin-bottom: 25px;
+				}
 			`
 		];
 	}
@@ -580,8 +607,9 @@ export class VerifyCaller extends Component {
 						${this._renderPushNotificationStatus()}
 						${this._renderXdsError()}
 						${this._renderPushNotificationError()}
-						${this._renderOtherOptions()}
 						${this._renderLoadingIndicator()}
+						${this._renderForeignClientCannotBeVerified()}
+						${this._renderOtherOptions()}
 					</div>
 				</horizon-caller-dialog>`;
 	}
@@ -725,6 +753,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/apply-now-action"
 						iconSize="default"
+						?hidden=${this.isForeignClient}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -751,6 +780,30 @@ export class VerifyCaller extends Component {
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
+		return html``;
+	}
+
+	_renderForeignClientCannotBeVerified() {
+		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
+			return html`
+				<capitec-content-box id="notification-status-box">
+					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+						<capitec-alert-banner type="error">
+							<b>Notify: </b>${this.foreignClientErr}
+						</capitec-alert-banner>
+						<capitec-group layout="vertical" 
+							halign="center"
+							valign="top" 
+							gap="clear"
+							id="notification-status-error-group">
+							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+							<div class="foreign-client notification-info">
+								Unable to be verified, you can assist with with stopping cards and product enquiries.
+							</div>
+						</capitec-group>
+					</capitec-group>
+				</capitec-content-box>`;
+		}
 		return html``;
 	}
 }
