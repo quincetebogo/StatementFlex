@@ -608,24 +608,5 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
 		load: () => import(`../views/Statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	}
-=========
-    },
-    {
-        name: `horizon-proof-of-account-success`,
-        title: `ProofOfAccountSuccess`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
-        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
-    {
-        name: `horizon-proof-of-account-failure`,
-        title: `ProofOfAccountFailed`,
-        icon: null,
-        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
-        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
     }
->>>>>>>>> Temporary merge branch 2
 ];

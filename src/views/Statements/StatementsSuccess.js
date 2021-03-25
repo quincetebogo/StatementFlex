@@ -6,10 +6,12 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/StatementsDialog';
 
 const RENDER_MODE = {
 	STATEMENTS_SUCCESS: 0,
-	END_CALLSESSION: 1
+    END_CALLSESSION: 1,
+    STATEMENTS: 2
 };
 
 
@@ -26,7 +28,8 @@ export class StatementsSuccess extends View {
 		this.encryptedCardId = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.landingPageInfo = {};
 	}
 
 
@@ -41,7 +44,10 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
+            renderMode: { attribute: false },
+            callerInformation: { type: Object },
+            incomingCallDetails: { type: Object },
+            landingPageInfo: { type: Object },
 		};
 	}
 
@@ -57,7 +63,8 @@ export class StatementsSuccess extends View {
 		if (state) {
 			//this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
-			this.mailId=state.email;
+            this.mailId = state.email;
+            this.encryptedCardId = state.account_number;
 			// TODO: mandate ID to be obtained from state.
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
@@ -83,9 +90,10 @@ export class StatementsSuccess extends View {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_sendAnotherClick() {
-		this.horizonRouter.setReturnToFunction(`statements`);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+    _sendAnotherClick() {
+        this.renderMode = RENDER_MODE.STATEMENTS;
+        //this.horizonRouter.setReturnToFunction(`statements`);
+		//this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------
@@ -121,9 +129,23 @@ export class StatementsSuccess extends View {
 		return html`
 			${this._renderSuccessScreen()}
 			${this._renderEndCallModal()}
+            ${this._renderStatementsModal()}
 		`;
 	}
 
+    _renderStatementsModal() {
+        if (this.renderMode === RENDER_MODE.STATEMENTS) {
+            return html`
+            <horizon-statements-dialog
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
+				.landingPageInfo="${this.landingPageInfo}"
+				@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
+			</horizon-statements-dialog>
+			`
+        }
+        return html``;
+    }
 	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen header="Statement sent" 

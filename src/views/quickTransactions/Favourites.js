@@ -309,7 +309,8 @@ export class Favourites extends View {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
 				detail: detail ? detail : ``
-			}
+            },
+            landingPageInfo: this.landingPageInfo
 		};
 
 		this.horizonStore.saveState(state);

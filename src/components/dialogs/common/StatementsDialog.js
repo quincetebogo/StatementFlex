@@ -106,6 +106,7 @@ export class StatementsDialog extends Component {
             confirmEmail: ``
         };
         this.encodedPDF = ``;
+        this.accountSelected = `PRIMARY_SAVINGS`;
         this.today = new Date();
 
         //Static list, has to be pulled from service
@@ -162,7 +163,7 @@ export class StatementsDialog extends Component {
 
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
-        //this.landingPageInfo = this.state.landingPageInfo;
+        this.landingPageInfo = this.state.landingPageInfo;
         this.accountInformation = this.state.leftBarButtonConfig.detail;
     }
 
@@ -361,8 +362,8 @@ export class StatementsDialog extends Component {
 
             if (returnValue.succeeded) {
 			this.horizonStore.saveState({
-				email: this.email,
-				account_number: this.landingPageInfo.account_number
+                emailAddress: this.email,
+                accountNumber: this.landingPageInfo.accountNumber
 			});
                 //TODO: Ramesh to add navigation to successfull page
                this.horizonRouter.navigateToStatementSuccessful();
@@ -370,8 +371,8 @@ export class StatementsDialog extends Component {
             } else {
                 //TODO: Unsuccessful page nav
 				this.horizonStore.saveState({
-					email: this.email,
-					account_number: this.landingPageInfo.account_number
+                    emailAddress: this.email,
+                    accountNumber: this.landingPageInfo.accountNumber
 				});
                //this.horizonRouter.navigateToStatementUnsuccessful();
 			   this.horizonRouter.navigateToStatementSuccessful();
