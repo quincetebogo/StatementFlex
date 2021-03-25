@@ -3,21 +3,65 @@ import { v4 } from 'uuid';
 import { SecurityContext } from 'platform/core';
 
 
-/**
+/*
+ * Horizon Telemetry
+ *
+ * Please see the Data Spec at https://confluence.capitecbank.co.za:8443/display/HOR/Horizon+Telemetry 
+ */
+
+
+
+/** The screens on which telemetry events are logged.
+ * This correspond to the "Screen" column in the Data Spec.
  * @typedef {Object} TelemetryScreen
  */
 export const TelemetryScreen = {
-	WAIT_FOR_CALL : "Waiting For Call"
+	WAIT_FOR_CALL 	: "Waiting For Call",
+	CONFIRM_CALLER	: "Confirm Caller",
+	SEARCH_CLIENT	: "Search Client",
+	ADD_CALLER_DETAILS : "Add Caller Details"
 }
 
 
+/** The event names to use when logging telemetry events.
+ * This correspond to the "Action" and "eventName" columns in the Data Spec.
+ * @typedef {Object} TelemetryEvent
+ */
 const TelemetryEvent = {
-	INCOMING_CALL : "horizon.call.start-span",
-	INCIDENT_CREATED : "horizon.call.incident-created",
-	WORKFLOW_COMPLETED : "horizon.call.end-span"
+	// Accept Call
+	INCOMING_CALL 		: "horizon.call.start-span",
+	INCIDENT_CREATED 	: "horizon.call.incident-created",
+	WORKFLOW_COMPLETED 	: "horizon.call.end-span",
+
+
+	// Confirm Caller
+	IDENTIFY_CALLER_STARTS		: "horizon.call.id-caller.start-span",
+	CALLER_IDENTIFIED			: "horizon.call.id-caller.end-span",
+
+	SCRN_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
+	CNF_CLR_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
+	CNF_CLR_NAVIGATE_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
+	CNF_CLR_NAVIGATE_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
+	CNF_CLR_NAVIGATE_END_CALL	: "horizon.call.id-caller.confirm-caller.end-call",
+	SCR_UNLD_CONFIRM_CALLER 	: "horizon.call.id-caller.confirm-caller.end-span",
+	
+	SCR_LD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.start-span",
+	SRCH_CLNT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
+	SRCH_CLNT_NAVIGATE_END_CALL	: "horizon.call.id-caller.search-client.end-call",
+	SCR_UNLD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.end-span",
+	
+	SCR_LD_ADD_CALLER_DETAILS 			: "horizon.call.id-caller.add-caller.start-span",
+	ADD_DTL_ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
+	ADD_DTL_ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
+	ADD_DTL_NAVIGATE_END_CALL			: "horizon.call.id-caller.add-caller.end-call",
+	SCR_UNLD_ADD_CALLER_DETAILS 		: "horizon.call.id-caller.add-caller.end-span",
 }
 
 
+/** The type of telemetry event triggered.
+ * This correspond to the eventType column in the Data Spec.
+ * @typedef {Object} TelemetryEventType
+ */
 const TelemetryEventType = {
 	SYSTEM : "system",
 	PERSON : "person"
@@ -81,12 +125,12 @@ export class HorizonTelemetry {
 	 * @param {IncomingCallModel} baggage
 	 */
 	incomingCall(baggage) {	
-		var telemetryCallSpanId = this.telemetry.spanStart({
-			traceId : this.traceId,
-			parentSpan : null,
-			eventName : TelemetryEvent.INCOMING_CALL,
-			tags : this._extractTags(TelemetryEvent.INCOMING_CALL),
-			eventType : TelemetryEventType.SYSTEM,
+		let telemetryCallSpanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.INCOMING_CALL,
+			tags 		: this._extractTags(TelemetryEvent.INCOMING_CALL),
+			eventType 	: TelemetryEventType.SYSTEM,
 			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
 
 			baggage : [	{"screen" 		: baggage.screen},
@@ -113,12 +157,12 @@ export class HorizonTelemetry {
 	 */
 	incidentCreated(baggage) {	
 		this.telemetry.event({
-			traceId : this.traceId,
-			spanId : this.currentActiveSpans["horizon.call"],
-			parentSpan : null,
-			eventName : TelemetryEvent.INCIDENT_CREATED,
-			tags : this._extractTags(TelemetryEvent.INCIDENT_CREATED),
-			eventType : TelemetryEventType.SYSTEM,
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["horizon.call"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.INCIDENT_CREATED,
+			tags 		: this._extractTags(TelemetryEvent.INCIDENT_CREATED),
+			eventType 	: TelemetryEventType.SYSTEM,
 			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
 
 			baggage : [	{"incident-reference"	: baggage.incident_reference},
@@ -135,17 +179,50 @@ export class HorizonTelemetry {
 	 */
 	workflowCompleted() {	
 		this.telemetry.event({
-			traceId : this.traceId,
-			spanId : this.currentActiveSpans["horizon.call"],
-			parentSpan : null,
-			eventName : TelemetryEvent.WORKFLOW_COMPLETED,
-			tags : this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-			eventType : TelemetryEventType.SYSTEM,
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["horizon.call"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.WORKFLOW_COMPLETED,
+			tags 		: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
+			eventType 	: TelemetryEventType.SYSTEM,
 			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM)
 		});
 
 		// clear span reference
 		this.currentActiveSpans["horizon.call"] = null;
+	}
+
+
+	/** Identify Caller telemetry event
+	 * @screen N/A
+	 * @event Identify Caller Starts
+	 */
+	identifyCallerStarts() {
+		let idCallerSpanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: this.currentActiveSpans["horizon.call"],
+			eventName 	: TelemetryEvent.IDENTIFY_CALLER_STARTS,
+			tags 		: this._extractTags(TelemetryEvent.IDENTIFY_CALLER_STARTS),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM)
+		});
+
+		if (idCallerSpanId) this.currentActiveSpans["id-caller"] = idCallerSpanId;
+	}
+
+
+	callerIdentified() {
+		this.telemetry.spanEnd({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["id-caller"],
+			parentSpan	: null,
+			eventName 	: TelemetryEvent.CALLER_IDENTIFIED,
+			tags 		: this._extractTags(TelemetryEvent.CALLER_IDENTIFIED),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM)
+		});
+
+		this.currentActiveSpans["id-caller"] = null;
 	}
 
 
