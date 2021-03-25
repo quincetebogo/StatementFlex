@@ -588,7 +588,7 @@ export class HorizonChannelService extends Service {
 
 	sendStatement(statement) {
 		const url = `/clientcare/documents/${this._version}/statements/send-statement`;
-		return this._post(url, statement, this._setToken(), `sendSatement`);
+		return this._post(url, statement, this._setToken(), `sendStatement`);
 	}
 
 	async viewStatement(statement) {
@@ -598,6 +598,6 @@ export class HorizonChannelService extends Service {
 		}
 
 		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
-		return this._post(url, statement, this._setToken(), `viewSatement`);
+		return this._post(url, statement, this._setToken(), `viewStatement`);
 	}
 }

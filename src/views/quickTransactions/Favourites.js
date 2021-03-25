@@ -83,9 +83,9 @@ export class Favourites extends View {
 		}
 
 		// Subscribe to shell events
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+        this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+        this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
+        this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.eventAggregator.subscribe(`horizon-send-another-statement`,()=>this._getStatements());
 
 

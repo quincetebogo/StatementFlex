@@ -264,7 +264,6 @@ export class StatementsDialog extends Component {
             this.errorMessage = `Out of range, please select the correct range up to 90 days`;
             this.calendarErrorMessage = `Date range up to 90 days only`;
         } else {
-            console.log("in range");
             this.errorMessage = ``;
             this.calendarErrorMessage = ``;
         }
@@ -304,14 +303,13 @@ export class StatementsDialog extends Component {
     }
 
     async _viewPDF() {
-        console.log("landingpageinfo  " + this.landingPageInfo.accountNumber + "  from and to date " + this.fromDate + "  " + this.toDate);
         this.renderMode = RENDER_MODE.PDF;
         var test = `PRIMARY_SAVINGS`;
 
         const statement = {
             "cifNumber": this.callerInformation.cifNumber,
             "accountNumber": this.landingPageInfo.accountNumber,
-            "accountType": accountType,
+            "accountType": this.accountSelected,
             "statementDateRange": {
                 "dateRange": {
                     "startDate": new Date(this.fromDate).toISOString().slice(0, 10),
@@ -323,7 +321,6 @@ export class StatementsDialog extends Component {
 
         const returnValue = await this.quickTransactionService.viewStatement(statement);
         if (returnValue.succeeded) {
-            console.log("result  " + returnValue.result.statementData);
             // render the PDF
             this.encodedPDF = returnValue.result.statementData;
         } else {
@@ -369,6 +366,7 @@ export class StatementsDialog extends Component {
                this.horizonRouter.navigateToStatementSuccessful();
 
             } else {
+                console.log("failed");
                 //TODO: Unsuccessful page nav
 				this.horizonStore.saveState({
                     emailAddress: this.email,
@@ -434,7 +432,6 @@ export class StatementsDialog extends Component {
     }
 
     _validateRangeSelected() {
-        console.log("validating");
         if (this._customDateRange) {
             var rangeDiff = Math.floor((new Date(this.toDate).getTime() - new Date(this.fromDate).getTime()) / (1000 * 3600 * 24));
             if (rangeDiff > 90) {
