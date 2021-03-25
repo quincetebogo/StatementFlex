@@ -3,6 +3,7 @@ import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
@@ -32,6 +33,14 @@ const TRANSACTION_STATUS_LIST = [
 	`Partial reversal`,
 	`Partial reversal processed`
 ];
+
+const TRANSACTION_HISTORY = {
+	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
+	END_DATE : new Date().toISOString().substr(0,10),
+	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
+	MAX_RESULTS : 20,
+	MONEY_TYPE : 'BOTH'
+}
 
 /**
  * Transaction History screen is to display the list of transactions of a client.
@@ -66,18 +75,15 @@ export class TransactionHistory extends Component {
 		this.minDate = ``;
 		this.maxDate =``;
 		this.startDateMonth = getMonthName(new Date().getMonth() - 1);
-		this.startDateYear = ``;
 		this.endDate = ``;
-		this.endDateMonth = ``;
-		this.endDateYear = ``;
 		this.filteredData = [];
-		this.rawData = [];
+		this.rawTableData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
 
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-	
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 	
 		this.state = this.horizonStore.recoverState();
@@ -100,18 +106,15 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			filteredData: { attribute: false },
 
+			filteredData: { attribute: false },
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			startDate: { attribute: false },
 			minDate: { attribute: false },
 			maxDate: { attribute: false },
 			startDateMonth: { attribute: false },
-			startDateYear: { attribute: false },
 			endDate: { attribute: false },
-			endDateMonth: { attribute: false },
-			endDateYear: { attribute: false },
 			searchTextLabel: { attribute: false },
 			statuslabel: { attribute: false }
 		};
@@ -124,7 +127,7 @@ export class TransactionHistory extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this.rawData = this.transactionHistory;
+		this.rawTableData = this.transactionHistory;
 		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
 
@@ -164,7 +167,6 @@ export class TransactionHistory extends Component {
 			this.startDate = this._formatDate(e.detail.new.date);
 			this.maxDate = new Date(e.detail.new.date);
 			this.maxDate.setDate(this.maxDate.getDate() + 90);
-			this.startDateYear = e.detail.new.date.getFullYear();
 		}
 	}
 
@@ -173,7 +175,6 @@ export class TransactionHistory extends Component {
 			this.endDate = this._formatDate(e.detail.new.date);
 			this.minDate = new Date(e.detail.new.date);
 			this.minDate.setDate(this.minDate.getDate() - 90);
-			this.endDateYear = e.detail.new.date.getFullYear();
 		}
 	}
 
@@ -197,12 +198,7 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
-		const closeChip = {
-			TEXT: this.searchTextLabel = `Search for amount or transaction name`,
-			DATE: ``,
-			STATUS: this.statuslabel = `Transaction Status`,
-		};
-		closeChip[type];
+		this._loadLabels()
 		this._refineSearch();
 	}
 
@@ -210,25 +206,25 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this.searchTextLabel = `Search for amount or transaction name`;
-		this.statuslabel = `Transaction Status`
+		this._loadLabels()
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
 	}
 
+	//To scroll the content of the Table to the Top when scroll to Top button is clicked
 	_scrollToTop(e){
-		const element = this.shadowRoot.getElementById(`dataTable`);
-		const rect = element.getBoundingClientRect();
-		const offsetLeft = element.offsetLeft;
-		const offsetTop = element.offsetTop;
-		window.scrollTo(offsetLeft, offsetTop);
+		const element = this.shadowRoot.getElementById(`transactions-table`);
+		element.scrollTop = 0;
 	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -255,12 +251,17 @@ export class TransactionHistory extends Component {
 		return currencyString.includes('.') ? currencyString : (currencyString + '.00');
 
 	}
+	
+	_loadLabels(){
+		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
+		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
+	}
 
-	async _renderCollection(){
+	async _loadMoreTransactions(){
 
-		const loadMoreData = (this.transactionHistory.length > 0) ? await this.dummyServiceCall() : [];
+		const loadMoreData = (this.transactionHistory.length > 0) ? await this.getMoreTransactions() : [];
 		if(loadMoreData.length > 0){
-			this.rawData = [...this.rawData,...loadMoreData];
+			this.rawTableData = [...this.rawTableData,...loadMoreData];
 			const tableData = this._initialize(loadMoreData);
 			this.transactionHistory = [...this.transactionHistory,...tableData];
 		}
@@ -271,16 +272,16 @@ export class TransactionHistory extends Component {
 		this._refineSearch();
 	}
 
-	async dummyServiceCall(){
+	async getMoreTransactions(){
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.accountDetails.accountNumber,
-			accountType: `PRIMARY_SAVINGS`,
-			startDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
-			endDate: new Date().toISOString().substr(0,10),
-			startAtIndex: this.rawData.length,
-			maxResults: 40,
-			moneyType: `BOTH`
+			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+			startDate: TRANSACTION_HISTORY.START_DATE,
+			endDate: TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: this.rawTableData.length,
+			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
 		}
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
@@ -358,7 +359,6 @@ export class TransactionHistory extends Component {
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
-
 				.transaction-card > capitec-group:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
@@ -437,53 +437,6 @@ export class TransactionHistory extends Component {
 				.cb-datepicker > capitec-icon {
 					--theme-icon-size-small: 26px;
 				}
-				.transaction-status {
-					position: relative;
-				}
-				.transaction-status > capitec-label {
-					z-index: 10;
-					margin-left: 35px;
-				}
-				capitec-overflow-menu {
-					width: 225px;
-					height: 48px;
-					border-radius: 5px;
-					box-sizing: border-box;
-					border: 1px solid rgb(225, 225, 225);
-					background-color: rgb(255, 255, 255);
-					position: absolute;
-
-					--theme-overflow-menu-width: 225px;
-				}
-				capitec-overflow-menu-item {
-					width: 200px;
-
-					--theme-overflow-menu-item-hover-background-color: none;
-				}
-				capitec-overflow-menu > capitec-group:hover {
-					background-color: #E5F5FB;
-				}
-				capitec-overflow-menu-item > capitec-group:hover {
-					background-color: #E5F5FB;
-				}
-				.status-icon {
-					width: 10px;
-					height: 10px;
-					border-radius: 12px;
-					margin-left: 13px;
-				}
-				.status-icon.processed {
-					background-color: #70AF00;
-				}
-				.status-icon.pending {
-					background-color: #D4781C;
-				}
-				.status-icon.expired {
-					background-color: #B71C1A;
-				}
-				.status-icon.reversed {
-					background-color: #009DE0;
-				}
 
 				/* Chip Bar Styles */
 				.filter-bar {
@@ -557,17 +510,6 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-padding: 0px 18px;
 					--theme-calendar-calendar-border-radius: 0px;
 				}
-
-				.transaction-status-select{
-					--theme-input-label-font-size: 16px;
-					--theme-input-padding-bottom: 12px;
-					--theme-select-options-max-height: 304px;
-					--theme-input-font-size: 16px;
-					--theme-input-label-font-color: #3A3A3A;
-					--theme-input-font-weight: 400;
-					line-height: 20px;
-					width: 224px;
-				}
 				.load-more-bar{
 					--theme-actionbar-min-height: 48px;
 					padding-top : 0px;
@@ -611,14 +553,14 @@ export class TransactionHistory extends Component {
 					${this._renderAccountDetailsBar()}
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
-				<capitec-content-box class="main-view">
+				<capitec-content-box class="main-view" id = "transactions-table">
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
 				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? "show-load-more" : "hide-load-more"}">
-						<capitec-spacer></capitec-spacer>
-						<capitec-button type="clear" label="Load More" @click = ${() => this._renderCollection()}></capitec-button>
-						<capitec-spacer></capitec-spacer>
-						<capitec-icon class='scroll-top' size="medium" icon="system/arrow-up-action" @click = ${(e) => this._scrollToTop(e)}></capitec-icon>
+					<capitec-spacer></capitec-spacer>
+					<capitec-button type="clear" label="Load More" @click = ${() => this._loadMoreTransactions()}></capitec-button>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class='scroll-top' size="medium" icon="system/arrow-up-action" @click = ${(e) => this._scrollToTop(e)}></capitec-icon>
 				</capitec-action-bar>
 				</capitec-group>
 			</capitec-card>
@@ -773,7 +715,6 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				id = "dataTable"
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
