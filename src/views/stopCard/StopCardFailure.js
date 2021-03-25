@@ -52,7 +52,6 @@ export class StopCardFailure extends View {
 
         this.incomingCallDetails = this.state.incomingCallDetails;
         this.incidentRecId = this.incomingCallDetails.incidentRecId;
-
 	}
 
 	// --------------
@@ -175,7 +174,8 @@ export class StopCardFailure extends View {
 
 	_onAssignIncident() {
 		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
-		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------

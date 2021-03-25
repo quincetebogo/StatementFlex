@@ -238,7 +238,7 @@ export class StopCard extends Component {
 	_onHandOff(e) {
         this.isReassigned = true;
         this.horizonRouter.navigateToStrack(this.incidentRecId);
-		// this.renderMode = RENDER_MODE.END_CALLSESSION;
+         //this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_verifyClick() {
@@ -283,7 +283,7 @@ export class StopCard extends Component {
 
 	_onAssignIncident() {
 		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
-		this.renderMode = RENDER_MODE.ASSIGN;
+        this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_updateApplicationState() {

@@ -1,6 +1,7 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
+import { Configuration } from 'platform/core';
 
 /**
  * The Horizon URL Schema. 
@@ -48,8 +49,16 @@ export class HorizonRouter {
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
         this.router = Router.getInstance();
-        this.strackURL = `http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false`;
+        this._configuration = Configuration.getInstance();
+        this._initialiseSTrackConfig();
+
+        
 	}
+
+
+    async   _initialiseSTrackConfig() {
+        this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+    }
 
 	static getInstance() {
 		return this.instance || (this.instance = new HorizonRouter());
@@ -224,7 +233,8 @@ export class HorizonRouter {
 
     navigateToStrack(incidentRecId) {
         //get the rec id and replace the keyword in the constant url
-        this.strackURL = this.strackURL.replace("$incidentRecId", incidentRecId);
+        var newUrl = this.strackURL.toString();
+        this.strackURL = newUrl.replace("$incidentRecId", incidentRecId);
         window.open(this.strackURL);
     }
 

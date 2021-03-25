@@ -93,7 +93,6 @@ export class HorizonActionBar extends Component {
 	}
 
     _onAssign() {
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
 	}
 

@@ -61,6 +61,8 @@ export class Favourites extends View {
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
 
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -169,7 +171,8 @@ export class Favourites extends View {
 	}
 
 	_assignIncidentClick() {
-		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	_verifyClick() {
