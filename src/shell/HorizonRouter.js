@@ -1,6 +1,7 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
+import { EventAggregator} from 'platform/core';
 
 /**
  * The Horizon URL Schema. 
@@ -49,8 +50,10 @@ export class HorizonRouter {
 	constructor() {
 		this.verificationStatus = ``;
 		this.callStatus = ``;
+		this.returnToFunction=``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	static getInstance() {
@@ -84,7 +87,8 @@ export class HorizonRouter {
 	getRoutingInfo() {
 		return {
 			verificationStatus: this.verificationStatus,
-			callStatus: this.callStatus
+			callStatus: this.callStatus,
+			returnToFunction:this.returnToFunction
 		};
 	}
 
@@ -92,9 +96,15 @@ export class HorizonRouter {
 		return this.router.currentRoute;
 	}
 
+	setReturnToFunction(func) {
+		this.returnToFunction = func;
+	}
+
 	// --------------------
 	// Navigation functions  
 	// --------------------
+
+
 	navigateToWaitingForCall() {
 		this.router.navigateByPath(HORIZON_ROUTES.LANDING_PAGE);
 	}
@@ -332,6 +342,15 @@ export class HorizonRouter {
 			layoutByVerifictionMode: setShellLayoutByVerificationMode
 		}[prenavFunc]();
 	}
+
+	static _postNavigate() {
+		const horizonRouter = HorizonRouter.getInstance();
+		const routingInfo=horizonRouter.getRoutingInfo();
+		if(routingInfo.returnToFunction !== ``){
+			horizonRouter.eventAggregator.publish(`horizon-send-another-statement`, horizonRouter.returnToFunction);
+			horizonRouter.setReturnToFunction(``);
+		}
+	}
 }
 
 // -------------------------
@@ -483,7 +502,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES),
+		onPostNavigate:() => HorizonRouter._postNavigate()
 	},
 	{
 		name: `horizon-xds-verification-failed`,
@@ -589,4 +609,23 @@ export default horizonRoutes = [
 		load: () => import(`../views/Statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
+=========
+    },
+    {
+        name: `horizon-proof-of-account-success`,
+        title: `ProofOfAccountSuccess`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+        load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    },
+    {
+        name: `horizon-proof-of-account-failure`,
+        title: `ProofOfAccountFailed`,
+        icon: null,
+        path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+        load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+        onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    }
+>>>>>>>>> Temporary merge branch 2
 ];

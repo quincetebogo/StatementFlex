@@ -561,6 +561,11 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, this._setToken(), `debiCheckDecline`);
 	}
+	
+	itaVerification(request) {
+		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`);
+    }
 
     sendProofOfAccount(clientInfo) {
         const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;

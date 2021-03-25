@@ -56,11 +56,9 @@ export class ProofOfAccount extends Component {
      */
     connectedCallback() {
         super.connectedCallback();
-        // holding values in your page
+        //holding values in your page
         this.emailAddress = null;
-        this.account_open_Date = null;
-        this.account_number = null;
-        this.account_type = null;
+        //TODO: add values used in screen such as acc number and open date
     }
 
     /*
@@ -183,14 +181,11 @@ export class ProofOfAccount extends Component {
         return fieldValue === `` || fieldValue === null || fieldValue === undefined;
     }
 
-    _errorHandler(ex) {
-
-        return true;
-    }
-
     /*
      * PUBLIC METHODS
      */
+
+
 
     /*
      * RENDERING

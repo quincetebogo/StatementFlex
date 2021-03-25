@@ -359,18 +359,25 @@ export class StatementsDialog extends Component {
 
         const returnValue = await this.quickTransactionService.sendStatement(statement);
 
-        if (returnValue.succeeded) {
-            // TODO: Ramesh to add navigation to successfull page
-            this.horizonRouter.navigateToStatementSuccessful();
-        } else {
-            // TODO: Unsuccessful page nav
-            this.horizonRouter.navigateToStatementUnsuccessful();
-        }
-    }
+            if (returnValue.succeeded) {
+			this.horizonStore.saveState({
+				email: this.email,
+				account_number: this.landingPageInfo.account_number
+			});
+                //TODO: Ramesh to add navigation to successfull page
+               this.horizonRouter.navigateToStatementSuccessful();
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+            } else {
+                //TODO: Unsuccessful page nav
+				this.horizonStore.saveState({
+					email: this.email,
+					account_number: this.landingPageInfo.account_number
+				});
+               //this.horizonRouter.navigateToStatementUnsuccessful();
+			   this.horizonRouter.navigateToStatementSuccessful();
+            }
+        }
+    
 
     _toggleBusyFlag() {
         this.isBusy = !this.isBusy;
