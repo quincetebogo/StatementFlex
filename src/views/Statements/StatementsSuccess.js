@@ -63,8 +63,8 @@ export class StatementsSuccess extends View {
 		if (state) {
 			//this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
-            this.mailId = state.email;
-            this.encryptedCardId = state.account_number;
+            this.mailId = state.emailAddress;
+            this.encryptedCardId = state.accountNumber;
 			// TODO: mandate ID to be obtained from state.
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
