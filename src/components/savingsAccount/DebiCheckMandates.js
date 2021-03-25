@@ -42,6 +42,7 @@ export class DebiCheckMandates extends Component {
 		this.activeMandates = [];
 		this.inActiveMandates = [];
 		this.filterBy = 0;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 	}
@@ -62,7 +63,8 @@ export class DebiCheckMandates extends Component {
 		return {
 			debiCheckMandates: { type: Object },
 			
-			filterBy: { attribute: false }
+			filterBy: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -72,7 +74,7 @@ export class DebiCheckMandates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`DebiCheck`);
+		super._inicidentManager_(`DebiCheck`, () => this._toggleBusyFlag());
 
 		this._initialise();
 	}
@@ -171,6 +173,11 @@ export class DebiCheckMandates extends Component {
 		}
 
 		return flag;
+	}
+
+	_toggleBusyFlag() {
+		// TODO: Toggle busy indicator comes here
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -336,6 +343,7 @@ export class DebiCheckMandates extends Component {
 					</capitec-content-box>
 				</capitec-group>
 			</capitec-card>
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -560,6 +568,14 @@ export class DebiCheckMandates extends Component {
 				</capitec-label>
 			</capitec-group>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

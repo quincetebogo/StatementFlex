@@ -54,6 +54,7 @@ export class TransactionHistory extends Component {
 		this.endDate = ``;
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 	}
@@ -77,7 +78,8 @@ export class TransactionHistory extends Component {
 			renderMode: { attribute: false },
 			startDate: { attribute: false },
 			endDate: { attribute: false },
-			searchTextLabel: { attribute: false }
+			searchTextLabel: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -87,7 +89,7 @@ export class TransactionHistory extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`TransactionHistory`);
+		super._inicidentManager_(`TransactionHistory`, () => this._toggleBusyFlag());
 		
 		this.transactionHistory = transactionHistoryMockData.transactionHistoryList;
 		this.accountDetails = transactionHistoryMockData.accountDetails;
@@ -219,6 +221,11 @@ export class TransactionHistory extends Component {
 		const endDate = !this.endDate ? `dd mm yyy` : this.endDate;
 		
 		return `${startDate} - ${endDate}`;
+	}
+
+	_toggleBusyFlag() {
+		// TODO: Toggle busy indicator comes here
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -461,6 +468,7 @@ export class TransactionHistory extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this._renderCalendar()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -820,6 +828,14 @@ export class TransactionHistory extends Component {
 				</capitec-modal>
 			`;
 		}
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

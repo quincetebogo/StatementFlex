@@ -124,7 +124,7 @@ export class StatementsDialog extends Component {
     connectedCallback() {
         //Holding values
         super.connectedCallback();
-		super._inicidentManager_(`Statements`);
+		super._inicidentManager_(`Statements`, () => this._toggleBusyFlag());
     }
 
     _toggleBusyFlag() {

@@ -69,9 +69,9 @@ export class CardLimitsLanding extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-		await super._inicidentManager_(`UpdateCardLimits`, () => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		super._inicidentManager_(`UpdateCardLimits`, () => this._toggleBusyFlag());
 
 		this.primaryCards = this.cards.filter(card => card.isSupplementaryCard === false);
 		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && card.isContactlessCard === false);
