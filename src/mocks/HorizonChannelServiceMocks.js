@@ -48,6 +48,8 @@ export class HorizonChannelServiceMocks {
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
 		this.stopCardMocks = await this._loadMockModule(this.stopCardMocks, `stopCard`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
+		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
+		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -119,6 +121,24 @@ export class HorizonChannelServiceMocks {
 			}
 		}
 
+		return null;
+	}
+	savingsAccountLanding(cifNumber, mandateId, registerId){
+		if (this._mocking.savingsAccountLanding.positiveCase) {
+			return this.savingsAccountDetails.savingsAccountDetails;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	transactionHistory(transactionHistoryRequest) {
+		if (this._mocking.transactionHistory.positiveCase) {
+			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex+transactionHistoryRequest.maxResults);
+			return{transactions}
+		}
+
+		// Code for a negative case could come here
 		return null;
 	}
 
