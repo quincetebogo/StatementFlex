@@ -107,7 +107,7 @@ export class StatementsDialog extends Component {
         };
         this.encodedPDF = ``;
         this.accountSelected = `PRIMARY_SAVINGS`;
-        this.today = new Date();
+        this.today = new Date()+``;
 
         //Static list, has to be pulled from service
         this.savingsPlans = [
@@ -788,7 +788,7 @@ padding-top:8px;
 					${this.savingsPlans.map(item => html`
 						<horizon-product-tile 
 							type="radio-button"
-							label="${item.name}""
+							label="${item.name}"
 							subtitle="Available balance: ${item.amount}"
 							detail=""
 							icon="product/transact"
@@ -900,7 +900,7 @@ padding-top:8px;
                                     label="Choose from and to date"
                                     startDate = "${this.fromDate == `dd mm yyyy` ? `` : this.fromDate}"
                                     endDate = "${this.toDate == `dd mm yyyy` ? `` : this.toDate}"
-                                    maxDate = "${this.today}"									
+									maxDate = "${this.today}"					
                                     error = "${this.calendarErrorMessage}"
 									inputType="calendar"
 									outputType="string"
@@ -922,6 +922,9 @@ padding-top:8px;
 				<capitec-text-field
 					id="email"
 					label="Email address"
+					oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
 					value="${this.email}"
 					error="${this.mailClientError.email}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
@@ -937,6 +940,9 @@ padding-top:8px;
 				<capitec-text-field
 					id="confirmEmail"
 					label="Email address"
+					oncopy="return false" 
+					onpaste="return false"
+					oncut="return false"
 					value="${this.confirmEmail}"
 					error="${this.mailClientError.confirmEmail}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
