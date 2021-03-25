@@ -1,9 +1,9 @@
 {
-    "recommendations": [
-        "dbaeumer.vscode-eslint",
-        "eamodio.gitlens",
-        "runem.lit-plugin",
-        "msjsdiag.debugger-for-chrome",
-        "bashmish.es6-string-css"
-    ]
+	"recommendations": [
+		"dbaeumer.vscode-eslint",
+		"eamodio.gitlens",
+		"runem.lit-plugin",
+		"msjsdiag.debugger-for-chrome",
+		"bashmish.es6-string-css"
+	]
 }

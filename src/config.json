@@ -79,6 +79,14 @@
 			"failStopCard": true,
 			"positiveCase": true
 		},
+		"transactionHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"savingsAccountLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"tapToPayLanding": {
 			"enabled": true,
 			"positiveCase": true
