@@ -33,7 +33,10 @@ export class StatementsUnsuccess extends View {
 		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 
@@ -92,7 +95,8 @@ export class StatementsUnsuccess extends View {
         this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_handoffClick() {
+    _handoffClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.horizonRouter.navigateToReturnPage(`handoff`);
 	}
 

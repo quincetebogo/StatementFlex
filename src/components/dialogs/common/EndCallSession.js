@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
@@ -155,6 +156,9 @@ export class EndCallSession extends Component {
 	}
 
 	_returnToCallWaitingPage() {
+		// Telemetry
+		HorizonTelemetry.instance.workflowCompleted();
+
 		const state = { callStatus: `CALL-ENDED` };
 		this.horizonStore.setState(state);
 		this.horizonRouter.navigateToWaitingForCall();

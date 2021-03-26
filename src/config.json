@@ -10,10 +10,11 @@
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
-	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	"otherSystemsURL": {
+		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false"
 	},
 	"VDN":"211377",
 	"LogRequestResponseModels" : true,
@@ -25,6 +26,10 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
+		},
+		{
+			"option": "7",
+			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"mock": {
@@ -77,6 +82,18 @@
 		"stopCard": {
 			"enabled": true,
 			"failStopCard": true,
+			"positiveCase": true
+		},
+		"transactionHistory": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"savingsAccountLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"tapToPayLanding": {
+			"enabled": true,
 			"positiveCase": true
 		},
 		"viewStatements": {

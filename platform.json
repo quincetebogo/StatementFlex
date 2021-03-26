@@ -1,11 +1,11 @@
 {
-	"version": "1.0.0",
-	"framework": "WebComponents",
+	"version": "1.1.2",
+	"framework": "web-components",
 	"type": "desktop",
 	"application": {
 		"name": "horizon",
 		"title": "horizon",
-		"version": "1.0.2",
+		"version": "1.1.4",
 		"idp": {
 			"client": "Horizon"
 		},
@@ -20,5 +20,6 @@
 				"data:"
 			]
 		}
-	}
+	},
+	"app": "standalone"
 }

@@ -54,7 +54,7 @@ export class LandingPageWaitForCall extends Component {
 				letter-spacing: 0;
 				line-height: 24px;
 				text-align: center;
-				}
+			}
 			`
 		];
 	}

@@ -47,4 +47,8 @@ export class QuickTransactionsService extends ServiceBase {
     viewProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.viewProofOfAccount(clientInfo), `viewProofOfAccount`, errorHandler, autoRetries);
     }
+	
+	tapToPayLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.tapToPayLanding(clientInfo), `tapToPayLanding`, errorHandler, autoRetries);
+	}
 }
