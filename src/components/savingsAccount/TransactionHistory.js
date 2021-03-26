@@ -38,7 +38,7 @@ const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
 	END_DATE : new Date().toISOString().substr(0,10),
 	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
-	MAX_RESULTS : 20,
+	MAX_RESULTS : 100,
 	MONEY_TYPE : 'BOTH'
 }
 
@@ -71,11 +71,10 @@ export class TransactionHistory extends Component {
 		// private properites
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showLoadMore = true;
-		this.startDate = ``;
-		this.minDate = ``;
-		this.maxDate =``;
-		this.startDateMonth = getMonthName(new Date().getMonth() - 1);
+		
+		this.startDate =``;
 		this.endDate = ``;
+		
 		this.filteredData = [];
 		this.rawTableData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
@@ -111,9 +110,6 @@ export class TransactionHistory extends Component {
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			startDate: { attribute: false },
-			minDate: { attribute: false },
-			maxDate: { attribute: false },
-			startDateMonth: { attribute: false },
 			endDate: { attribute: false },
 			searchTextLabel: { attribute: false },
 			statuslabel: { attribute: false }
@@ -165,17 +161,40 @@ export class TransactionHistory extends Component {
 	_startDateChanged(e) {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
-			this.maxDate = new Date(e.detail.new.date);
-			this.maxDate.setDate(this.maxDate.getDate() + 90);
+		}
+		//Start date and End date are same untill the End date is selected different
+		if (e.detail.old.date ===`` && this.endDate === ``){
+			this.endDate= this.startDate;
 		}
 	}
 
 	_endDateChanged(e) {
 		if (e.detail.new.date) {
 			this.endDate = this._formatDate(e.detail.new.date);
-			this.minDate = new Date(e.detail.new.date);
-			this.minDate.setDate(this.minDate.getDate() - 90);
 		}
+		// Start date and End date are same untill the Start date is selected different 
+		if (e.detail.old.date ===`` && this.startDate === ``){
+			this.startDate= this.endDate;
+		}
+	}
+
+	//This method is to get the Maximum date upto which one can select on the End/To Date calendar
+	_getEndMaxDate(){
+		const fromDate = new Date(this.startDate);
+		const todaysDate = new Date();
+		const maxDate = new Date();
+		maxDate.setDate(fromDate.getDate() + 90);
+
+		return maxDate > todaysDate ? todaysDate : maxDate;
+	}
+
+	//This method is to get the Minimum date untill which one can select on the Start/From Date calendar
+	_getStartMinDate(){
+		const endDate = new Date(this.endDate);
+		const minDate = new Date();
+		minDate.setDate(endDate.getDate() - 90);
+
+		return minDate;
 	}
 
 	_apply() {
@@ -188,6 +207,10 @@ export class TransactionHistory extends Component {
 	}
 
 	_cancel() {
+		if(RENDER_CHIPS[FILTER_BY.DATE]===``){
+			this.startDate = ``;
+			this.endDate = ``;
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -198,7 +221,7 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
-		this._loadLabels()
+		this._reset()
 		this._refineSearch();
 	}
 
@@ -206,7 +229,7 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this._loadLabels()
+		this._reset()
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
@@ -225,6 +248,7 @@ export class TransactionHistory extends Component {
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -247,14 +271,19 @@ export class TransactionHistory extends Component {
 
 	//To format the raw amount as per the design
 	_formatAmount(amount){
-		const currencyString = (amount >= 0) ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-		return currencyString.includes('.') ? currencyString : (currencyString + '.00');
+		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
 
 	}
 	
-	_loadLabels(){
+	//To set the values to default on closing the chip or clearing all the filters
+	_reset(){
 		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
 		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
+		if(RENDER_CHIPS[FILTER_BY.DATE]===``){
+			this.startDate = ``;
+			this.endDate = ``;
+		}
 	}
 
 	async _loadMoreTransactions(){
@@ -310,7 +339,7 @@ export class TransactionHistory extends Component {
 			const startDate = new Date(Date.parse(this.startDate));
 			const endDate = new Date(Date.parse(this.endDate));
 
-            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
 		}
 
 		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -595,19 +624,19 @@ export class TransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${this.accountDetails.balance}">
+					value="${this._formatAmount(this.accountDetails.balance)}">
 				</horizon-label>
 				<horizon-label
 					label="Available Balance"
-					value="${this.accountDetails.availableBalance}">
+					value="${this._formatAmount(this.accountDetails.availableBalance)}">
 				</horizon-label>
 				<horizon-label
 					label="Pending Amount"
-					value="${this.accountDetails.pendingAmount}">
+					value="${this._formatAmount(this.accountDetails.pendingAmount)}">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
-					value="${this.accountDetails.interest}">
+					value="${this.accountDetails.interest}%">
 				</horizon-label>
 				<horizon-label
 					label="Status"
@@ -839,21 +868,20 @@ export class TransactionHistory extends Component {
 				<capitec-modal type="free" header-align="center" header="${this._getDateRange()} (up to 90 days)">
 					<div slot="body">
 						<capitec-calendar 
-							month=${this.startDateMonth}
- 							year="2021"
+							month = "${getMonthName(new Date().getMonth() - 1)}"
+							year = "${new Date().getFullYear()}"
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
-
-							minDate="${this.minDate}"
-
+							minDate="${this._getStartMinDate()}"
+							maxDate="${this.endDate}"
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
 						</capitec-calendar>
 						<capitec-calendar 
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
-
-							maxDate="${this.maxDate}"
+							minDate="${this.startDate}"
+							maxDate="${this._getEndMaxDate()}"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>

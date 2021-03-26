@@ -19,7 +19,7 @@ const TRANSACTION_HISTORY = {
 	END_DATE : new Date().toISOString().substr(0,10),
 	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
 	START_AT_INDEX : 0,
-	MAX_RESULTS : 20,
+	MAX_RESULTS : 100,
 	MONEY_TYPE : 'BOTH'
 }
 
