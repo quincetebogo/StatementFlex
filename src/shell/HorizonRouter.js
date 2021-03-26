@@ -47,7 +47,6 @@ export class HorizonRouter {
 	constructor() {
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunctio=``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -84,17 +83,12 @@ export class HorizonRouter {
 	getRoutingInfo() {
 		return {
 			verificationStatus: this.verificationStatus,
-			callStatus: this.callStatus,
-			returnToFunction:this.returnToFunction
+			callStatus: this.callStatus
 		};
 	}
 
 	_getCurrentRoute() {
 		return this.router.currentRoute;
-	}
-
-	setReturnToFunction(func) {
-		this.returnToFunction = func;
 	}
 
 	// --------------------
@@ -332,10 +326,14 @@ export class HorizonRouter {
 
 	static _postNavigate() {
 		const horizonRouter = HorizonRouter.getInstance();
-		const routingInfo=horizonRouter.getRoutingInfo();
-		if(routingInfo.returnToFunction !== ``){
-			horizonRouter.eventAggregator.publish(`horizon-send-another-proof-of-account`, horizonRouter.returnToFunction);
-			horizonRouter.setReturnToFunction(``);
+		const horizonStore = HorizonStore.getInstance();
+		
+		const state = horizonStore.recoverState();
+		const option = state && state.returnToScreen && state.returnToScreen.option;
+		
+		if (option) {
+			horizonRouter.eventAggregator.publish(`horizon-returnTo-screen`, option);
+			horizonStore.saveState({ returnToScreen: null });
 		}
 	}
 }
@@ -490,7 +488,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
         onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`),
-		onPostNavigate:() => HorizonRouter._postNavigate()
+		onPostNavigate: () => HorizonRouter._postNavigate()
 	},
 	{
 		name: `horizon-xds-verification-failed`,

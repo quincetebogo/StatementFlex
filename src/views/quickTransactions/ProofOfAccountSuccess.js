@@ -89,7 +89,12 @@ export class ProofOfAccountSuccess extends View {
 	}
 
 	_sendAnotherClick() {
-		this.horizonRouter.setReturnToFunction(`proofOfAccount`);
+		
+		const returnToScreen = {
+			option: `proof-of-account`
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
