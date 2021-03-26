@@ -34,10 +34,8 @@ const RENDER_MODE = Object.freeze({
 	UPDATE_CARD_LIMITS: 10,
 	PROOF_OF_ACCOUNT: 11,
 	TAP_TO_PAY: 12,
-	SEARCH_OTHER_NEED: 13
-    UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11,
-	STATEMENTS: 12
+	SEARCH_OTHER_NEED: 13,
+	STATEMENTS: 14
 });
 
 /**
@@ -477,8 +475,7 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
-      ${this._renderProofOfAccount()}
-      ${this._renderTapToPay()}
+            ${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
 			${this._renderStatementsModal()}
@@ -628,10 +625,6 @@ export class Favourites extends View {
 					.landingPageInfo="${this.landingPageInfo}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</search-other-need>`
-			: html``;
-	}  
-					.landingPageInfo="${this.landingPageInfo}">
-				</horizon-proof-of-account>`
 			: html``; 
 	}
 
