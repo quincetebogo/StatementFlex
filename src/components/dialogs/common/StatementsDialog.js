@@ -1,6 +1,6 @@
-import { calculateDays, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, NavigationContext } from 'platform/core';
+import { calculateDays, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -107,9 +107,9 @@ export class StatementsDialog extends Component {
         };
         this.encodedPDF = ``;
         this.accountSelected = `PRIMARY_SAVINGS`;
-        this.today = new Date()+"";
+        this.today = new Date() + ``;
 
-        //Static list, has to be pulled from service
+        // Static list, has to be pulled from service
         this.savingsPlans = [
             {
                 value: 1,
@@ -122,7 +122,8 @@ export class StatementsDialog extends Component {
                 amount: `R 504.25`
             }
         ];
-        //this._populateAccountInfo();
+
+        // this._populateAccountInfo();
         this.horizonStore = HorizonStore.getInstance();
         this.navigationContext = NavigationContext.getInstance();
         this.eventAggregator = EventAggregator.getInstance();
@@ -186,7 +187,7 @@ export class StatementsDialog extends Component {
             2: emailClient
         };
         const result = validations[this.currentStep]();
-        if (result && this.errorMessage===``) {
+        if (result && this.errorMessage === ``) {
             this.currentStep++;
         }
     }
@@ -258,7 +259,7 @@ export class StatementsDialog extends Component {
     _calendarSelectionChange(e) {
         this.fromDate = new Date(e.detail.new.startDate);
         this.toDate = new Date(e.detail.new.endDate);
-        var rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
+        const rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
 
         if (rangeDiff > 90) {
             this.errorMessage = `Out of range, please select the correct range up to 90 days`;
@@ -304,7 +305,7 @@ export class StatementsDialog extends Component {
 
     async _viewPDF() {
         this.renderMode = RENDER_MODE.PDF;
-        var test = `PRIMARY_SAVINGS`;
+        const test = `PRIMARY_SAVINGS`;
 
         const statement = {
             "cifNumber": this.callerInformation.cifNumber,
@@ -315,7 +316,7 @@ export class StatementsDialog extends Component {
                     "startDate": new Date(this.fromDate).toISOString().slice(0, 10),
                     "endDate": new Date(this.toDate).toISOString().slice(0, 10)
                 },
-                "presetInterval": ""
+                "presetInterval": ``
             }
         };
 
@@ -378,21 +379,6 @@ export class StatementsDialog extends Component {
         this.isBusy = !this.isBusy;
     }
 
-    //async _populateAccountInfo() {
-    //     const accountInfo = {            
-    //         "cifNumber": this.callerInformation.cifNumber,
-    //         "accountNumber": this.landingPageInfo.account_number,
-    //         "accountType": this.accountSelected,
-
-    //     };
-
-    //     const returnValue = await this.quickTransactionService.getAccountInfo(accountInfo);
-
-    //     if (returnValue.succeeded) {
-    //         this.savingsPlans = returnValue.result;
-    //     }               
-    // }
-
     _validateAccountSelection() {
         if (isNullorEmpty(this.accType)) {
             this.errorMessage = `Select an account`;
@@ -413,9 +399,10 @@ export class StatementsDialog extends Component {
             this.errorMessage = `Please choose a from and to date`;
             this.calendarErrorMessage = `Required`;
             return false;
-        }else{
-			this._getSummary();
-		}
+        } 
+
+		this._getSummary();
+
 		return true;
 	}
 
@@ -429,7 +416,7 @@ export class StatementsDialog extends Component {
 
     _validateRangeSelected() {
         if (this._customDateRange) {
-            var rangeDiff = Math.floor((new Date(this.toDate).getTime() - new Date(this.fromDate).getTime()) / (1000 * 3600 * 24));
+            const rangeDiff = Math.floor((new Date(this.toDate).getTime() - new Date(this.fromDate).getTime()) / (1000 * 3600 * 24));
             if (rangeDiff > 90) {
                 this.errorMessage = `Out of range, please select the correct range up to 90 days`;
                 return false;
@@ -454,7 +441,7 @@ export class StatementsDialog extends Component {
 	}
 
     _formatDate(date) {
-        var myDate = new Date(date);
+        const myDate = new Date(date);
 		return `${myDate.getDate()} ${getMonthName(myDate.getMonth())} ${myDate.getFullYear()}`;
 	}
 
@@ -482,12 +469,10 @@ export class StatementsDialog extends Component {
 				--theme-modal-header-padding-left: 16px;
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-background-color: #F7F7F7;
-                //--theme-stepper-inner-step-container-height: 56px;
                 --theme-stepper-inner-step-container-width: 324px;
                 --theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
                 --theme-stepper-step-title-font-size: 15px;
                 --theme-stepper-step-title-max-width: 328px;
-              //  --theme-stepper-step-content-container-padding-left: 16px;
                 --theme-container-padding-left: 0px;
                 --theme-container-padding-right: 0px;
                 --theme-container-padding-top: 0px;
@@ -499,10 +484,7 @@ export class StatementsDialog extends Component {
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
 				}
-				
-				//div[slot="step"] {
-				//	--theme-layout-gap-spacing: 0px;
-				//}
+
 				capitec-modal {
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -883,9 +865,6 @@ padding-top:8px;
 		return html``;
 	}
 
-
-
-
 	_renderCalendar() {
 		if (this.showCalendar) {
             return html`
@@ -894,9 +873,9 @@ padding-top:8px;
 									type="range"
 									mode="date"
                                     label="Choose from and to date"
-                                    startDate = "${this.fromDate == `dd mm yyyy` ? `` : this.fromDate}"
-                                    endDate = "${this.toDate == `dd mm yyyy` ? `` : this.toDate}"
-									maxDate = "${this.today}"					
+                                    startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
+                                    endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
+									maxDate = "${this.today}"
                                     error = "${this.calendarErrorMessage}"
 									inputType="calendar"
 									outputType="string"

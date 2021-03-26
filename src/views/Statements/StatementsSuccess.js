@@ -47,7 +47,7 @@ export class StatementsSuccess extends View {
             renderMode: { attribute: false },
             callerInformation: { type: Object },
             incomingCallDetails: { type: Object },
-            landingPageInfo: { type: Object },
+            landingPageInfo: { type: Object }
 		};
 	}
 
@@ -61,7 +61,7 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			//this.returnRoute = state.returnTo.route;
+			// this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
             this.mailId = state.emailAddress;
             this.acNumber = state.accountNumber;
@@ -91,7 +91,7 @@ export class StatementsSuccess extends View {
 	}
 
     _sendAnotherClick() {
-        //this.renderMode = RENDER_MODE.STATEMENTS;
+        // this.renderMode = RENDER_MODE.STATEMENTS;
         const returnToScreen = {
 			option: `statements`
 		};
@@ -146,10 +146,11 @@ export class StatementsSuccess extends View {
 				.landingPageInfo="${this.landingPageInfo}"
 				@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
 			</horizon-statements-dialog>
-			`
+			`;
         }
         return html``;
     }
+
 	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen header="Statement sent" 

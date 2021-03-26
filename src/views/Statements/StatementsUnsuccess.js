@@ -10,7 +10,7 @@ import 'app/components/dialogs/common/EndCallSession';
 const RENDER_MODE = {
 	STATEMENTS_UNSUCCESS: 0,
 	END_CALLSESSION: 1,
-	STATEMENTS:2
+	STATEMENTS: 2
 };
 
 /**
@@ -51,7 +51,7 @@ export class StatementsUnsuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -66,7 +66,7 @@ export class StatementsUnsuccess extends View {
 
 		if (state) {
 			// this.returnRoute = state.returnTo.route;
-			//Return to favourites screen from here
+			// Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.mailId = state.emailAddress;
             this.acNumber = state.accountNumber;
@@ -91,7 +91,7 @@ export class StatementsUnsuccess extends View {
 	}
 
 	_doneClick() {   
-		//this.renderMode = RENDER_MODE.STATEMENTS; 
+		// this.renderMode = RENDER_MODE.STATEMENTS; 
         this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
