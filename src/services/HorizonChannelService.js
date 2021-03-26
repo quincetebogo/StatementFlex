@@ -269,7 +269,7 @@ export class HorizonChannelService extends Service {
 				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
 					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
 		*/
-/*	
+/*
 						const cardStopResponse = { 
 							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
 								result: {
@@ -549,7 +549,7 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare/card/${this._version}/tap-to-pay-landing?${cifNumber}`;
 		return this._get(url, this._setToken(), `tapToPay`);
-	}	
+	}
 
 	// --------------------------
 	// card - debi-check mandates
@@ -619,28 +619,28 @@ export class HorizonChannelService extends Service {
 		`StartDate=${transactionHistoryRequest.startDate}&` +
 		`EndDate=${transactionHistoryRequest.endDate}&` +
 		`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
-		`MaxResults=${transactionHistoryRequest.maxResults}&`+
+		`MaxResults=${transactionHistoryRequest.maxResults}&` +
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
 	}
+
 	// --------------------------
 	// Other Needs methods
 	// --------------------------
 	otherNeedCategories(orgUnit) {
-		const url = `/clientcare/Incident/${this._version}/orgunit/${orgUnit}/categories`
+		const url = `/clientcare/Incident/${this._version}/orgunit/${orgUnit}/categories`;
 		return this._get(url, this._setToken(), `otherNeedCategories`);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need`
+		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need`;
 		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
 	}
 
 	otherNeedIssueType(orgUnit, categoryName, need) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need/${need}/issue`
+		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need/${need}/issue`;
 		return this._get(url, this._setToken(), `otherNeedIssueType`);
-	}
 	}
 
 	sendStatement(statement) {
