@@ -1,4 +1,5 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { Configuration } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 import { EventAggregator} from 'platform/core';
@@ -48,9 +49,14 @@ export class HorizonRouter {
 		this.verificationStatus = ``;
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
-		this.router = Router.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
+        this.router = Router.getInstance();
+        this._initialiseSTrackConfig();
 	}
+
+
+    async _initialiseSTrackConfig() {
+        this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+    }
 
 	static getInstance() {
 		return this.instance || (this.instance = new HorizonRouter());
@@ -199,6 +205,7 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => {};
 		const savingsPlan = () => {};
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -206,7 +213,8 @@ export class HorizonRouter {
 			Insure: insure,
 			SavingsAccount: savings,
 			Credit: credit,
-			SavingsPlan: savingsPlan
+			SavingsPlan: savingsPlan,
+			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
 
@@ -222,6 +230,13 @@ export class HorizonRouter {
 	navigateToSavingsAccount() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
+
+    navigateToStrack(incidentRecId) {
+        // get the rec id and replace the keyword in the constant url
+        const newUrl = this.strackURL.toString();
+        this.strackURL = newUrl.replace(`$incidentRecId`, incidentRecId);
+        window.open(this.strackURL);
+    }
 
 	navigateToProofOfAccountSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);

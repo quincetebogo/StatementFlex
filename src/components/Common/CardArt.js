@@ -238,7 +238,7 @@ export class CardArt extends Component {
 					--theme-layout-gap-spacing: 4px;
 					--theme-label-default-font-size: 12px;
 					--theme-label-default-font-weight: 500;
-					--theme-label-font-color: #545D60;
+					--theme-label-font-color: #3A3A3A;
 				}
 				capitec-label[type="strong"] {
 					line-height: 20px;
@@ -267,47 +267,26 @@ export class CardArt extends Component {
 				}
 
 				.toggle-label {
-					height: 20px;
+					margin-right: 10px;
+					height: 100%;
 					width: 21px;
-					--theme-label-color: #3A3A3A;
-					font-family: "Hind Vadodara";
 					font-size: 15px;
-					font-weight: 500;
-					letter-spacing: 0;
-					line-height: 20px;
-					text-align: right;
-					padding-right: 12px;
+					color: #3A3A3A;
+					font-weight: 501;
+					--theme-label-line-height: 20px;
+					--theme-label-default-font-family: "Hind Vadodara";
+					--theme-layout-gap-spacing: 10px;
 				}
 
 				.toggle-group {
 					display: -webkit-inline-box;
+					margin-top: 18px;
 				}
 
-				.Off {
-					margin-right: 10px;
-					height: 20px;
-					width: 21px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 500;
-					letter-spacing: 0;
-					line-height: 20px;
-					text-align: right;
+				capitec-toggle {
+					width: 31px;
 				}
-
-				.On {
-					margin-right: 6px;
-					height: 20px;
-					width: 21px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 500;
-					letter-spacing: 0;
-					line-height: 20px;
-					text-align: right;
-				}
+		
 			`
 		];
 	}
@@ -392,9 +371,9 @@ export class CardArt extends Component {
 								halign="right"
 								valign="top"
 								class="toggle-group">
-					<capitec-label class="toggle-lable ${this.card.isContactlessActivated ? `On` : `Off`}" 
+					<capitec-label class="toggle-label ${this.card.isContactlessActivated ? `On` : `Off`}" 
 									label=${this.card.isContactlessActivated ? `On` : `Off`}
-							type="default"></capitec-label>
+									type="default"></capitec-label>
 					<capitec-toggle
 							class="${this.card.isContactlessActivated ? `On` : `Off`}"
 							 label="" 
