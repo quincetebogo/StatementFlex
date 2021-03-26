@@ -362,18 +362,14 @@ export class StatementsDialog extends Component {
                 emailAddress: this.email,
                 accountNumber: this.landingPageInfo.accountNumber
 			});
-                //TODO: Ramesh to add navigation to successfull page
                this.horizonRouter.navigateToStatementSuccessful();
 
             } else {
-                console.log("failed");
-                //TODO: Unsuccessful page nav
 				this.horizonStore.saveState({
                     emailAddress: this.email,
                     accountNumber: this.landingPageInfo.accountNumber
 				});
-               //this.horizonRouter.navigateToStatementUnsuccessful();
-			   this.horizonRouter.navigateToStatementSuccessful();
+               this.horizonRouter.navigateToStatementUnsuccessful();
             }
         }
     

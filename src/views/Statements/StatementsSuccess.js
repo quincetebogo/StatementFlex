@@ -92,7 +92,11 @@ export class StatementsSuccess extends View {
 
     _sendAnotherClick() {
         //this.renderMode = RENDER_MODE.STATEMENTS;
-        this.horizonRouter.setReturnToFunction(`statements`);
+        const returnToScreen = {
+			option: `statements`
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
