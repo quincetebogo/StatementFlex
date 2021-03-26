@@ -1,8 +1,7 @@
+import { Configuration, EventAggregator } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
-import { Configuration } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
-import { EventAggregator} from 'platform/core';
 
 /**
  * The Horizon URL Schema. 
@@ -49,14 +48,17 @@ const HORIZON_ROUTES = Object.freeze({
 export class HorizonRouter {
 
 	constructor() {
+		this.router = Router.getInstance();
+		this._configuration = Configuration.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
+
+		this._initialiseSTrackConfig();
+
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction=``;
-		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
-        this.router = Router.getInstance();
-        this._initialiseSTrackConfig();
-		this.router = Router.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
+		this.returnToFunction=``;    
 	}
 
 
