@@ -65,9 +65,10 @@ export class ProductButtonPanel extends Component {
 	 */
 	static get properties() {
 		return {
-			disableNavigation: { type: Boolean },
 			subtitle: { type: Object },
-			detail: { type: Object }
+			detail: { type: Object },
+
+			disableNavigation: { attribute: false }
 		};
 	}
 

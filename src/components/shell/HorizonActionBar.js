@@ -27,6 +27,7 @@ export class HorizonActionBar extends Component {
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -68,7 +69,7 @@ export class HorizonActionBar extends Component {
         if (state) {
             this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
             this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-            this.clientNeed = this.incomingCallDetails.ivrOptionCode;
+            this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
             this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
 
         }
@@ -91,6 +92,15 @@ export class HorizonActionBar extends Component {
 
 	_onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
+	}
+
+	// ---------
+	// PRIVATE METHODS
+	// ---------
+
+	_getNeedDisplayValue(need) {
+		const result = this.ivrOptions.find((entry) => entry.key === need);
+		return result ? result.value : ``;
 	}
 
 	// ---------
