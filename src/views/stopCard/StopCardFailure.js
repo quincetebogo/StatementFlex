@@ -173,7 +173,6 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	_onAssignIncident() {
-		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
         this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
         this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}

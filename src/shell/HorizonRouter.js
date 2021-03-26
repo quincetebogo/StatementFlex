@@ -1,7 +1,7 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { Configuration } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
-import { Configuration } from 'platform/core';
 
 /**
  * The Horizon URL Schema. 
@@ -51,12 +51,10 @@ export class HorizonRouter {
         this.router = Router.getInstance();
         this._configuration = Configuration.getInstance();
         this._initialiseSTrackConfig();
-
-        
 	}
 
 
-    async   _initialiseSTrackConfig() {
+    async _initialiseSTrackConfig() {
         this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
     }
 
@@ -207,6 +205,7 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => {};
 		const savingsPlan = () => {};
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
@@ -214,7 +213,8 @@ export class HorizonRouter {
 			Insure: insure,
 			SavingsAccount: savings,
 			Credit: credit,
-			SavingsPlan: savingsPlan
+			SavingsPlan: savingsPlan,
+			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
 
@@ -232,9 +232,9 @@ export class HorizonRouter {
 	}
 
     navigateToStrack(incidentRecId) {
-        //get the rec id and replace the keyword in the constant url
-        var newUrl = this.strackURL.toString();
-        this.strackURL = newUrl.replace("$incidentRecId", incidentRecId);
+        // get the rec id and replace the keyword in the constant url
+        const newUrl = this.strackURL.toString();
+        this.strackURL = newUrl.replace(`$incidentRecId`, incidentRecId);
         window.open(this.strackURL);
     }
 
