@@ -142,7 +142,7 @@ export class TransactionHistory extends Component {
 		this._refineSearch();
 	}
 
-	//To hide or show the label for the search text field according to the design requirement.
+	// To hide or show the label for the search text field according to the design requirement.
 	_searchTextFocussed(e) {
 		this.searchTextLabel = ``;
 	}
@@ -153,9 +153,9 @@ export class TransactionHistory extends Component {
 		}
 	}
 
-	//To hide or show the label for the select field according to the design requirement.
+	// To hide or show the label for the select field according to the design requirement.
 	_statusFocussed(e) {
-		this.statuslabel = '';
+		this.statuslabel = ``;
 	}
 
 	_startDateChanged(e) {
@@ -260,8 +260,8 @@ export class TransactionHistory extends Component {
 
 			item.tranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = this._formatAmount(item.amount)
-			item.balance = this._formatAmount(item.balance)
+			item.amount = this._formatAmount(item.amount);
+			item.balance = this._formatAmount(item.balance);
 
 			return item;
 		});
@@ -679,7 +679,7 @@ export class TransactionHistory extends Component {
 				</capitec-content-box>
 
 				<capitec-select
-					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== '' ? '' : this.statuslabel}" 
+					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
 					.items="${TRANSACTION_STATUS_LIST}"
 					@focus="${(e) => this._statusFocussed(e)}"
@@ -787,12 +787,12 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : '-'}">
+					value = "${item.transactionType ? item.transactionType : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : '-'}">
+					value = "${item.transferAccount ? item.transferAccount : `-`}">
 				</horizon-label>
 				<horizon-label 
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
@@ -810,22 +810,22 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.transactionCode  ? item.transactionCode : '-'}">
+					value = "${item.transactionCode ? item.transactionCode : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : '-'}">
+					value = "${item.cardNumber ? item.cardNumber : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : '-'}">
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : '-'}">
+					value = "${item.journalNumber ? item.journalNumber : `-`}">
 				</horizon-label>
 			</capitec-group>
 
@@ -833,22 +833,22 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Includes Vat"
-					value = "${item.includesVat ? 'Yes' : 'No'}">
+					value = "${item.includesVat ? `Yes` : `No`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : '-'}">
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Cash back"
-					value = "${item.cashback ? item.cashback : '-'}">
+					value = "${item.cashback ? item.cashback : `-`}">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Branch" 
-					value = "${item.branch ? item.branch : '-'}">
+					value = "${item.branch ? item.branch : `-`}">
 				</horizon-label>
 			</capitec-group>
 
@@ -856,7 +856,7 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Teller"
-					value = "${item.teller ? item.teller : '-'}">
+					value = "${item.teller ? item.teller : `-`}">
 				</horizon-label>
 			</capitec-group>
 		`;

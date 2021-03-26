@@ -9,6 +9,7 @@ import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/buttons/Button';
 
@@ -154,6 +155,15 @@ export class LandingPage extends View {
 		if (!returnValue.succeeded || !incident) {
 			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		}
+
+		// Telemetry
+		if (incident) {
+			HorizonTelemetry.instance.incidentCreated({
+				incident_rec_id 	:	incident.incidentRecId,
+				incident_reference 	:	incident.incidentNumber
+			});
+		}
+
 		return incident;
 	}
 
@@ -200,6 +210,8 @@ export class LandingPage extends View {
 			newCallInfo.incomingTelephoneNumber,
 			newCallInfo.incidentReferenceNumber,
 			newCallInfo.incidentRecId,
+			false, 
+			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode

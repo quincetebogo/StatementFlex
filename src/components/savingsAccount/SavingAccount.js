@@ -49,7 +49,7 @@ export class SavingsAccount extends Component {
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
+			landingPageInfo: { type: Object }
 		};
 	}
 	

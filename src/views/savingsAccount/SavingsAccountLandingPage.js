@@ -88,8 +88,7 @@ export class SavingsAccountLandingPage extends View {
 				'more': more
 			};
 			return actions[option];
-		}
-	
+		};
 	}
 
 	// --------------
@@ -183,7 +182,7 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _transactionHistory(){
+	async _transactionHistory() {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.landingPageInfo.accountNumber,
@@ -212,15 +211,15 @@ export class SavingsAccountLandingPage extends View {
 		}
 	}
 
-	_debiCheck(){
+	_debiCheck() {
 		// TODO: Functionality to Debi check comes here
 	}
 
-	_getStatements(){
+	_getStatements() {
 		// TODO: Functionality to generate statements comes here
 	}
 
-	_more(){
+	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
 	// ---------

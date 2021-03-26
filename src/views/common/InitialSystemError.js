@@ -1,4 +1,5 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/common/ErrorScreen';
 
@@ -16,7 +17,10 @@ export class InitialSystemError extends View {
 	// --------------
 
 	constructor() {
-		super();
+        super();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -36,7 +40,8 @@ export class InitialSystemError extends View {
 	// --------------
 
 	_assignClick() {
-		console.log(`Assign is still to be developed`);
+        console.log(`Assign is still to be developed`);
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------

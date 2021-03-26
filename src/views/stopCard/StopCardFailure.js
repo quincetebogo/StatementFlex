@@ -48,8 +48,10 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 		this.isReassigned = false;
 
-		this.failedCards = [];
+        this.failedCards = [];
 
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -152,7 +154,7 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
-		this.isReassigned = true;
+        this.isReassigned = true;
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
@@ -171,8 +173,8 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	_onAssignIncident() {
-		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
-		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------

@@ -269,7 +269,7 @@ export class HorizonChannelService extends Service {
 				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
 					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
 		*/
-	/*
+/*
 						const cardStopResponse = { 
 							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
 								result: {
@@ -279,13 +279,15 @@ export class HorizonChannelService extends Service {
 		
 						// throw new Error(`Mock Stop Card Error`);
 						return cardStopResponse;
-	*/
+		*/
+	
 /*
 					 }
 				}
 			}
 		}
 */
+
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -297,6 +299,7 @@ export class HorizonChannelService extends Service {
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
+
 	}
 
 	// loadAssignRequest
@@ -534,6 +537,20 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
+
+	// ------------------
+	// tap - to - pay
+	// ------------------
+
+	async tapToPayLanding(cifNumber) {
+		if (await this._mockEnabled(`tapToPayLanding`)) {
+			return this._mock.tapToPay(cifNumber);
+		}
+
+		const url = `/clientcare/card/${this._version}/tap-to-pay-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `tapToPay`);
+	}
+
 	// --------------------------
 	// card - debi-check mandates
 	// --------------------------
@@ -558,6 +575,11 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, this._setToken(), `debiCheckDecline`);
 	}
+	
+	itaVerification(request) {
+		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`);
+    }
 
     sendProofOfAccount(clientInfo) {
         const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;
@@ -568,7 +590,10 @@ export class HorizonChannelService extends Service {
         const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
-  
+
+	// ------------------
+	// Savings Account
+	// ------------------
 	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
 		if (await this._mockEnabled(`savingsAccountLanding`)) {
 			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
@@ -578,9 +603,9 @@ export class HorizonChannelService extends Service {
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
-
+		
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
-	}
+	}  
 
 	async transactionHistory (transactionHistoryRequest) {
 		if (await this._mockEnabled(`transactionHistory`)) {
@@ -594,9 +619,42 @@ export class HorizonChannelService extends Service {
 		`StartDate=${transactionHistoryRequest.startDate}&` +
 		`EndDate=${transactionHistoryRequest.endDate}&` +
 		`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
-		`MaxResults=${transactionHistoryRequest.maxResults}&`+
+		`MaxResults=${transactionHistoryRequest.maxResults}&` +
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
+	}
+
+	// --------------------------
+	// Other Needs methods
+	// --------------------------
+	otherNeedCategories(orgUnit) {
+		const url = `/clientcare/Incident/${this._version}/orgunit/${orgUnit}/categories`;
+		return this._get(url, this._setToken(), `otherNeedCategories`);
+	}
+
+	otherNeedSpecificNeed(orgUnit, categoryName) {
+		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need`;
+		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
+	}
+
+	otherNeedIssueType(orgUnit, categoryName, need) {
+		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need/${need}/issue`;
+		return this._get(url, this._setToken(), `otherNeedIssueType`);
+	}
+
+	sendStatement(statement) {
+		const url = `/clientcare/documents/${this._version}/statements/send-statement`;
+		return this._post(url, statement, this._setToken(), `sendStatement`);
+	}
+
+	async viewStatement(statement) {
+
+		if (await this._mockEnabled(`viewStatements`)) {
+			return this._mock.viewStatements();
+		}
+
+		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+		return this._post(url, statement, this._setToken(), `viewStatement`);
 	}
 }

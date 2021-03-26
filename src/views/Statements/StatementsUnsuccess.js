@@ -9,7 +9,8 @@ import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	STATEMENTS_UNSUCCESS: 0,
-	END_CALLSESSION: 1
+	END_CALLSESSION: 1,
+	STATEMENTS: 2
 };
 
 /**
@@ -28,11 +29,14 @@ export class StatementsUnsuccess extends View {
 	constructor() {
 		super();
 		this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS;
-		this.mailId = `ivanmakatini@gmail.com`;
-		this.encryptedCardId = `5284 **** **** 1322`;
+		this.mailId = ``;
+		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 
@@ -61,18 +65,18 @@ export class StatementsUnsuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
+			// this.returnRoute = state.returnTo.route;
+			// Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.mailId = state.emailAddress;
+            this.acNumber = state.accountNumber;
 			// TODO: mandate ID to be obtained from state.
-			this.mailId = `ivanmakatini@gmail.com`;
-			this.encryptedCardId = `5284 **** **** 1322`;
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-		}
-	}
-
-	disconnectedCallback() {
-		if (this.endCallSub) {
-			this.endCallSub.dispose();
+		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			});
 		}
 		
 		super.disconnectedCallback();
@@ -86,11 +90,13 @@ export class StatementsUnsuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+	_doneClick() {   
+		// this.renderMode = RENDER_MODE.STATEMENTS; 
+        this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_handoffClick() {
+    _handoffClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.horizonRouter.navigateToReturnPage(`handoff`);
 	}
 
@@ -110,7 +116,6 @@ export class StatementsUnsuccess extends View {
 					font-weight:500;
 					color:#3A3A3A;
 					margin-bottom:35px;
-					
 				}
 
 				.card-related-options {
@@ -170,7 +175,8 @@ export class StatementsUnsuccess extends View {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen header="Statement not emailed" 
+			<horizon--error-screen header="Statement not emailed"
+			                        image="/images/insure/assign-pay-arrears.svg"
 									left="Done"
 									right="Assign"
 									toast="Statement not emailed"
@@ -178,7 +184,7 @@ export class StatementsUnsuccess extends View {
 									@right-click=${() => this._handoffClick()}>
 									<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account ${this.encryptedCardId} was not emailed to ${this.mailId}
+					slot="detail">The statement for savings account ${this.acNumber} was not emailed to ${this.mailId}
 				</section>
 			</horizon--error-screen>
 		`;
