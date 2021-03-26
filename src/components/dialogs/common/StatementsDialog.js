@@ -107,7 +107,7 @@ export class StatementsDialog extends Component {
         };
         this.encodedPDF = ``;
         this.accountSelected = `PRIMARY_SAVINGS`;
-        this.today = new Date()+``;
+        this.today = new Date()+"";
 
         //Static list, has to be pulled from service
         this.savingsPlans = [
