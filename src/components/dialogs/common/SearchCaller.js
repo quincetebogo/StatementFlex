@@ -240,7 +240,7 @@ export class SearchCaller extends Component {
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			} else {
-				if (this.incomingCallDetails.incidentReferenceNumber == null) {
+				if (this.incomingCallDetails.incidentReferenceNumber === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} 
 				else {
@@ -304,7 +304,7 @@ export class SearchCaller extends Component {
 					}
 				}));
 			} else {
-				if (this.incomingCallDetails.incidentRecId == null) {
+				if (this.incomingCallDetails.incidentRecId === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				}
 				else {
