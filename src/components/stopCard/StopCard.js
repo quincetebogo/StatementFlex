@@ -64,11 +64,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.isReassigned = false;
-
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
+        this.isReassigned = false;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -236,9 +236,9 @@ export class StopCard extends Component {
 	}
 
 	_onHandOff(e) {
-		this.isReassigned = true;
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-		// this.renderMode = RENDER_MODE.END_CALLSESSION;
+        this.isReassigned = true;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
+         //this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_verifyClick() {
@@ -283,7 +283,7 @@ export class StopCard extends Component {
 
 	_onAssignIncident() {
 		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
-		this.renderMode = RENDER_MODE.ASSIGN;
+        this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_updateApplicationState() {

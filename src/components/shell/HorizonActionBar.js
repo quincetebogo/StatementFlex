@@ -27,7 +27,7 @@ export class HorizonActionBar extends Component {
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
         this.incomingCallDetails = this.state.incomingCallDetails;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
+        this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -90,7 +90,7 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-	_onAssign() {
+    _onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
 	}
 
