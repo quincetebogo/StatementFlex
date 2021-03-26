@@ -1,6 +1,8 @@
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { Configuration } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
+import { EventAggregator} from 'platform/core';
 
 /**
  * The Horizon URL Schema. 
@@ -47,8 +49,14 @@ export class HorizonRouter {
 		this.verificationStatus = ``;
 		this.callStatus = ``;
 		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
-		this.router = Router.getInstance();
+        this.router = Router.getInstance();
+        this._initialiseSTrackConfig();
 	}
+
+
+    async _initialiseSTrackConfig() {
+        this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+    }
 
 	static getInstance() {
 		return this.instance || (this.instance = new HorizonRouter());
@@ -223,6 +231,13 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
 	}
 
+    navigateToStrack(incidentRecId) {
+        // get the rec id and replace the keyword in the constant url
+        const newUrl = this.strackURL.toString();
+        this.strackURL = newUrl.replace(`$incidentRecId`, incidentRecId);
+        window.open(this.strackURL);
+    }
+
 	navigateToProofOfAccountSuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
 	}
@@ -322,6 +337,19 @@ export class HorizonRouter {
 			layout: setShellLayout,
 			layoutByVerifictionMode: setShellLayoutByVerificationMode
 		}[prenavFunc]();
+	}
+
+	static _postNavigate() {
+		const horizonRouter = HorizonRouter.getInstance();
+		const horizonStore = HorizonStore.getInstance();
+		
+		const state = horizonStore.recoverState();
+		const option = state && state.returnToScreen && state.returnToScreen.option;
+		
+		if (option) {
+			horizonRouter.eventAggregator.publish(`horizon-returnTo-screen`, option);
+			horizonStore.saveState({ returnToScreen: null });
+		}
 	}
 }
 
@@ -474,7 +502,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`),
+		onPostNavigate: () => HorizonRouter._postNavigate()
 	},
 	{
 		name: `horizon-xds-verification-failed`,

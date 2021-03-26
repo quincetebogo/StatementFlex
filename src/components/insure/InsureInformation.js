@@ -1,6 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Router } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+
 
 import 'platform/components/layouts/Layout';
 import 'platform/components/containers/Expander';
@@ -43,7 +45,11 @@ export class InsureInformation extends Component {
 		super();
 		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
 		
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
@@ -173,7 +179,8 @@ export class InsureInformation extends Component {
 	}
 
 	_onAssignIncident() {
-		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	_onCancelSelectAssignReason() {
