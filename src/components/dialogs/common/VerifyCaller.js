@@ -116,18 +116,6 @@ export class VerifyCaller extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	luhnCheck(SAidNumber) {
-		this.num = (SAidNumber + '')
-		.split(``)
-		.reverse()
-		.map(x => parseInt(x, 10));
-
-		this.lastDigit = this.num.splice(0, 1)[0];
-		this.sum = this.num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
-		this.sum += this.lastDigit;
-		return sum % 10 === 0;
-	}
-
 	async connectedCallback() {
 		super.connectedCallback();
 
@@ -163,18 +151,16 @@ export class VerifyCaller extends Component {
 			}
 		};
 
-		this.hasSouthAfricanID = this.callerInformation.southAfricanIDNumber.length === 13 && this.luhnCheck(this.callerInformation.southAfricanIDNumber);
-
-		// If we have digital channels (XDS/USSD)
 		if (this.callerInformation.hasDigitalChannels) {
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
-		} else if (this.hasSouthAfricanID) {
-			this.logger.log(`info`, `Digital channels are unavailable`, `VerifyCaller`);
+		} else if (this.isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
 			await this._securityQuestionsClick();
-		} 
-		
-		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
+		} else {
+			// Technically this may not be a foreign client. We don't have a valid ID number available for the
+			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
+			this.logger.log(`info`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
 			this.isForeignClient = true;
 			this.foreignClientErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
 		}
@@ -313,6 +299,29 @@ export class VerifyCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	luhnCheck(SAidNumber) {
+		const num = (SAidNumber + ``)
+		.split(``)
+		.reverse()
+		.map(x => parseInt(x, 10));
+
+		const lastDigit = num.splice(0, 1)[0];
+		let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+		sum += lastDigit;
+
+		const result = sum % 10 === 0;
+
+		if (!result) {
+			this.logger.log(`info`, `Luhn check on ${SAidNumber} failed. This does not appear to be a valid SA ID Number`);
+		}
+
+		return result;
+	}
+
+	isWellFormedSouthAfricanID(southAfricanIDNumber) {
+		return southAfricanIDNumber.length === 13 && this.luhnCheck(southAfricanIDNumber);
+	}
 
 	_updateApplicationState(verificationStatus) {
 		this.callerInformation.verificationStatus = verificationStatus;
