@@ -71,7 +71,18 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
+					height: var(--horizon-error-screen-height, 876px);
 					width: 1064px;
+				}
+				#id-unsuccessful-img {
+					margin-top: 174px;
+				}
+				#id-verify-unsuccessful {
+					height: 32px;
+					width: 312px;
+					margin: 0px auto 0px auto;
+					margin-top:51px;
+					width: 100%;
 				}
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-error-screen-size, 768px);
@@ -131,7 +142,6 @@ export class ErrorScreen extends Component {
 					--theme-button-padding-bottom: 12.5px;
 					--theme-button-padding-right: 22px;
 				}
-
 				#id-error-toast {
 						position: absolute;
 						top : var(--toast-top, 56px);

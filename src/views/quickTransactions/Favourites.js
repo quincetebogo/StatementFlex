@@ -10,6 +10,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
@@ -33,7 +34,8 @@ const RENDER_MODE = Object.freeze({
 	UPDATE_CARD_LIMITS: 10,
 	PROOF_OF_ACCOUNT: 11,
 	TAP_TO_PAY: 12,
-	SEARCH_OTHER_NEED: 13
+	SEARCH_OTHER_NEED: 13,
+	STATEMENTS: 14
 });
 
 /**
@@ -315,7 +317,8 @@ export class Favourites extends View {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
 				detail: detail ? detail : ``
-			}
+            },
+            landingPageInfo: this.landingPageInfo
 		};
 
 		this.horizonStore.saveState(state);
@@ -406,7 +409,8 @@ export class Favourites extends View {
 	}
 
 	_getStatements() {
-		// TODO: Functionality to generate statements comes here
+		// TODO: Functionality to generate statements comes here	
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_taxCertificates() {
@@ -471,9 +475,10 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
-      ${this._renderProofOfAccount()}
-      ${this._renderTapToPay()}
+            ${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
+            ${this._renderProofOfAccount()}
+			${this._renderStatementsModal()}
 		`;
 	}
 
@@ -487,6 +492,7 @@ export class Favourites extends View {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.STATEMENTS:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
@@ -588,12 +594,12 @@ export class Favourites extends View {
 			: html``;
     }
 
-    _renderProofOfAccount() {
-        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
-            ? html`
-                <horizon-proof-of-account
-                    @cancel="${() => this._mainPage()}"
-                    .incomingCallDetails="${this.incomingCallDetails}"
+	_renderProofOfAccount() {
+		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+			? html`
+				<horizon-proof-of-account
+					@cancel="${() => this._mainPage()}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"
                     ></horizon-proof-of-account>`
@@ -619,8 +625,20 @@ export class Favourites extends View {
 					.landingPageInfo="${this.landingPageInfo}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</search-other-need>`
-			: html``;
-	}  
+			: html``; 
+	}
+
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS 
+		? html `
+			<horizon-statements-dialog
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
+				.landingPageInfo="${this.landingPageInfo}"
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-statements-dialog>`
+		: html ``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
