@@ -1,4 +1,5 @@
 import { Configuration, EventAggregator, Logger } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
@@ -6,8 +7,8 @@ import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncidentDetails } from 'app/models/IncidentDetails';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 
@@ -163,6 +164,15 @@ export class LandingPage extends View {
 		if (!returnValue.succeeded || !incident) {
 			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		}
+
+		// Telemetry
+		if (incident) {
+			HorizonTelemetry.instance.incidentCreated({
+				incident_rec_id: incident.incidentRecId,
+				incident_reference: incident.incidentNumber
+			});
+		}
+
 		return incident;
 	}
 

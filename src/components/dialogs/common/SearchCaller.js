@@ -26,6 +26,7 @@ const CLIENT_TYPE = Object.freeze({
 // These error messages has to come from service
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
@@ -240,9 +241,11 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+			} else if (this.incomingCallDetails.incidentReferenceNumber === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
+					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				}
 		}
 	}
 
@@ -284,10 +287,10 @@ export class SearchCaller extends Component {
 				firstName: this.nameValue,
 				surname: this.surNameValue,
 				cellPhone: this.cellPhoneNumberValue
-			};
+            };
 
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-
+			
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 					detail: {
@@ -299,10 +302,12 @@ export class SearchCaller extends Component {
 						}
 					}
 				}));
-			} else {
+			} else if (this.incomingCallDetails.incidentRecId === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-			} 
+				} 
 		}
 	}
 

@@ -1,9 +1,11 @@
 import { Configuration, EventAggregator, Logger, NavigationContext, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { validate } from 'app/utils/channelServiceUtilities';
+
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -137,7 +139,16 @@ export class DesktopAgentService {
 
 			this.nextCall = newCallEvent;
 
+			// Telemetry
+			HorizonTelemetry.instance.newTrace();
+			HorizonTelemetry.instance.incomingCall({
+				screen: TelemetryScreen.WAIT_FOR_CALL,
+				ivr: eventData.IVROptionCode,
+				ucid: newCallEvent.voiceReferenceNumber
+			});
+			
 			this._handleIncomingCall();
+
 		} catch (err) {
 			this._logger.log(`fatal`, err.message, `_onNewCall`);
 		}

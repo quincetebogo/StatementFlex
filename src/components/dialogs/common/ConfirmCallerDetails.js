@@ -163,11 +163,17 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._navigateToLandingPage();
-		} else {
-			this._verifyCaller();
-		}
+		const stopCard = () => this._navigateToLandingPage();
+		const productEnquiry = () => this._navigateToLandingPage();
+		const transact = () => this._verifyCaller();
+
+		const clientNeed = {
+			StopCard: stopCard,
+			ProductEnquiry: productEnquiry,
+			Transact: transact
+		};
+
+		clientNeed[this.incomingCallDetails.ivrOptionCode]();
 	}
 
 	async _verifyCaller() {

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
@@ -166,6 +167,9 @@ export class EndCallSession extends Component {
 	}
 
 	_returnToCallWaitingPage() {
+		// Telemetry
+		HorizonTelemetry.instance.workflowCompleted();
+
 		const state = { callStatus: `CALL-ENDED` };
 		this.horizonStore.setState(state);
 		this.horizonRouter.navigateToWaitingForCall();

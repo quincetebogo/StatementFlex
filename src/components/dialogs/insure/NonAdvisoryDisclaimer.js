@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 import 'platform/components/popups/Modal';
 
@@ -139,9 +139,8 @@ export class NonAdvisoryDisclaimer extends Component {
 					--theme-button-padding-left: 22px;
 					--theme-button-primary-border-width: 0px;
 					
-				}
-		
-			`];
+				}`
+		];
 
 	}
 
@@ -191,4 +190,4 @@ export class NonAdvisoryDisclaimer extends Component {
 
 }
 
-window.customElements.define(`horizon-non-advisory-disclaimer`, NonAdvisoryDisclaimer)
+window.customElements.define(`horizon-non-advisory-disclaimer`, NonAdvisoryDisclaimer);

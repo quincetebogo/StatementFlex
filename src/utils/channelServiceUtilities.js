@@ -85,3 +85,17 @@ export function formatCurrency(value) {
 export function formatPhoneNumber(value) {
 	return !value ? `-` : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, `$1 $2 $3`);
 }
+
+/**
+ * Determine number of days between two dates
+ *
+ * @export
+ * @param {*} fromDate From date (Parsed Date)
+ * @param {*} toDate To Date (Parsed Date)
+ * @returns {*} Number of days between from date & to date
+ */
+ export function calculateDays(fromDate, toDate) {
+	const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+
+	return Math.round(Math.abs((fromDate - toDate) / oneDay));
+}

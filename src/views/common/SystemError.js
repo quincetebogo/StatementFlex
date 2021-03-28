@@ -36,6 +36,8 @@ export class SystemError extends View {
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
 
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -83,7 +85,8 @@ export class SystemError extends View {
 		}
 	}
 
-	_assignClick() {
+    _assignClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.horizonRouter.navigateToWaitingForCall();
 	}
 

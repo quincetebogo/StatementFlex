@@ -5,10 +5,12 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/product/CnetProductInfo';
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/VerifyCaller';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
-	END_CALL: 1
+	END_CALL: 1,
+	VERIFY_NOW: 2
 });
 
 const CONFIG = {
@@ -82,14 +84,27 @@ export class ProductInformation extends View {
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.incidentDetails = state.incidentDetails;
 
+		this.callerInformation = state.callerInformation;
+
+		this.eventAggregator.publish(
+			`horizon-update-call_actionbar`,
+			{
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			}
+		);
+
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 	}
 
 	disconnectedCallback() {
 		this.endCallSub.dispose();
 		this.navSub.dispose();
-				
+		this.verifySub.dispose();
+
 		super.disconnectedCallback();
 	}
 
@@ -106,7 +121,30 @@ export class ProductInformation extends View {
 			this.renderMode = RENDER_MODE.END_CALL;
 		}
 	}
-	
+
+	_verifyClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this._updateLeftBar();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -115,8 +153,34 @@ export class ProductInformation extends View {
 		const currRoute = this.navigationContext.current;
 		const type = currRoute.queryParams && currRoute.queryParams.type;
 		
-		this._config = CONFIG[type] || CONFIG[`SavingsAccount`];
+		this._config = CONFIG[type] || CONFIG.SavingsAccount;
 		this.requestUpdate();
+	}
+
+	_updateLeftBar() {
+		const state = {
+			callerInformation: this.callerInformation
+		};
+		this.horizonStore.saveState(state);
+
+		this.eventAggregator.publish(
+			`horizon-update-left-hand-bar`,
+			{
+				hasFavourites: true,
+				subtitle: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				},
+				detail: {
+					savingsAccount: ``,
+					savingsPlan: ``,
+					insure: ``,
+					credit: ``
+				}
+			}
+		);
 	}
 
 	// ---------
@@ -131,6 +195,7 @@ export class ProductInformation extends View {
 		return html`
 			${this._renderProductInfo()}
 			${this._renderEndCallSessionModal()}
+			${this._renderVerifyNowModal()}
 		`;
 	}
 
@@ -155,6 +220,20 @@ export class ProductInformation extends View {
 					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}">
 				</horizon-end-call-session>`
 			: html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
+		}
+		return html``;
 	}
 }
 

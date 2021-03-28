@@ -51,7 +51,7 @@ export class TitleBar extends Component {
 	// --------------
 
 	_searchCaller() {
-		this.eventAggregator.publish(`search-caller`,{});
+		this.eventAggregator.publish(`search-caller`, {});
 	}
 
 	// --------------

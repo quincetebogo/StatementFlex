@@ -10,10 +10,12 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
@@ -29,9 +31,11 @@ const RENDER_MODE = Object.freeze({
 	DEBI_CHECK_APPROVE: 7,
 	DEBI_CHECK_DECLINE: 8,
 	DEBI_CHECK_VIEW_INFO: 9,
-    UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11,
-	TAP_TO_PAY: 12
+	UPDATE_CARD_LIMITS: 10,
+	PROOF_OF_ACCOUNT: 11,
+	TAP_TO_PAY: 12,
+	SEARCH_OTHER_NEED: 13,
+	STATEMENTS: 14
 });
 
 /**
@@ -58,6 +62,7 @@ export class Favourites extends View {
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
+
 		this.incidentDetails = this.state.incidentDetails;
 
 		// private properites
@@ -86,6 +91,7 @@ export class Favourites extends View {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -122,6 +128,7 @@ export class Favourites extends View {
 			const statements = () => this._getStatements();
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
+			const searchOtherNeed = () => this._searchOtherNeed();
 
 			const actions = {
 				'stop-card': stopCard,
@@ -130,7 +137,8 @@ export class Favourites extends View {
 				'tap-to-pay': tapToPay,
 				'statements': statements,
 				'tax-certificate': taxCertificates,
-				'proof-of-account': proofOfAccount
+				'proof-of-account': proofOfAccount,
+				'search-other-need': searchOtherNeed
 			};
 
 			if (actions[option]) {
@@ -149,6 +157,7 @@ export class Favourites extends View {
 		this.endCallSub.dispose();
 		this.assignSub.dispose();
 		this.verifySub.dispose();
+		this.returnToSub.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -166,7 +175,8 @@ export class Favourites extends View {
 	}
 
 	_assignIncidentClick() {
-		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 	}
 
 	_verifyClick() {
@@ -307,7 +317,8 @@ export class Favourites extends View {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
 				detail: detail ? detail : ``
-			}
+            },
+            landingPageInfo: this.landingPageInfo
 		};
 
 		this.horizonStore.saveState(state);
@@ -387,8 +398,6 @@ export class Favourites extends View {
 	}
 
 	async _tapToPay() {
-		// TODO: Functionality to toggle tap to pay comes here
-
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
@@ -398,7 +407,7 @@ export class Favourites extends View {
 	}
 
 	_getStatements() {
-		// TODO: Functionality to generate statements comes here
+		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
 	_taxCertificates() {
@@ -411,6 +420,11 @@ export class Favourites extends View {
 
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
+	}
+
+	_searchOtherNeed() {
+		// TODO: Navigation to search other needs page 
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------
@@ -458,8 +472,10 @@ export class Favourites extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+            ${this._renderTapToPay()}
+			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
-			${this._renderTapToPay()}
+			${this._renderStatementsModal()}
 		`;
 	}
 
@@ -473,6 +489,7 @@ export class Favourites extends View {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.STATEMENTS:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
@@ -583,8 +600,8 @@ export class Favourites extends View {
 					@cancel="${() => this._mainPage()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-					.landingPageInfo="${this.landingPageInfo}">
-				</horizon-proof-of-account>`
+                    .landingPageInfo="${this.landingPageInfo}"
+                    ></horizon-proof-of-account>`
 			: html``;
     }
 
@@ -596,6 +613,30 @@ export class Favourites extends View {
 				@back="${() => this._mainPage()}"
 			></horizon-tap-to-pay-landing>
 		` : html``;
+	}
+  
+	_renderSearchOtherNeed() {
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+			? html`
+				<search-other-need
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					.landingPageInfo="${this.landingPageInfo}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</search-other-need>`
+			: html``; 
+	}
+
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS 
+		? html`
+			<horizon-statements-dialog
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
+				.landingPageInfo="${this.landingPageInfo}"
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-statements-dialog>`
+		: html``;
 	}
 }
 

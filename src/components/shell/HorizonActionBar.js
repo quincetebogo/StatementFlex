@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
@@ -31,6 +31,7 @@ export class HorizonActionBar extends Component {
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
 		this.incidentDetails = this.state.incidentDetails;
+    this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -74,9 +75,8 @@ export class HorizonActionBar extends Component {
 		if (state) {
 			this.referenceNo = state && state.incidentDetails && state.incidentDetails.incidentReferenceNumber;
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-			this.clientNeed = this.incomingCallDetails.ivrOptionCode;
+      this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
-
 		}
 	}
 
@@ -95,8 +95,17 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-	_onAssign() {
+    _onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
+	}
+
+	// ---------
+	// PRIVATE METHODS
+	// ---------
+
+	_getNeedDisplayValue(need) {
+		const result = this.ivrOptions.find((entry) => entry.key === need);
+		return result ? result.value : ``;
 	}
 
 	// ---------

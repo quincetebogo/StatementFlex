@@ -20,6 +20,7 @@ const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	REQUIRED_FIELDS_EMPTY: {
 		ALERT_BANNER: `All fields are required`,
 		SEARCH_TEXT: `This is a Required field`,
@@ -215,9 +216,11 @@ export class StopCardSearchCaller extends Component {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
 				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
-			} else {
+			} else if (this.incidentReferenceNumber === null) {
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+				}
 		}
 	}
 

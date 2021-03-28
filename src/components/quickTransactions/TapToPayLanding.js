@@ -60,7 +60,7 @@ export class TapToPayLanding extends Component {
 			super.styles,
 			css`
 			capitec-card {
-				height: 888px;
+				height: 100%;
 				width: 1064px;
 				--theme-card-border-radius: 5px;
 				--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
@@ -72,17 +72,11 @@ export class TapToPayLanding extends Component {
 			}
 
 			.alert-banner {
-				height: 48px;
-				width: 1032px;
-				background-color: #DAF2F4;
-			}
-			
-			.alert-banner {
-				height: 48px;
+				--theme-alert-banner-height: 48px;
 				width: 1032px;
 				--theme-alert-banner-font-weight: 600;
 				--theme-alert-banner-info-background-color: #DAF2F4;
-				--theme-layout-gap-spacing: 10px;
+				--theme-layout-gap-spacing: 18px;
 
 			}
 
@@ -99,15 +93,15 @@ export class TapToPayLanding extends Component {
 			}
 
 			.title-label{
-				padding-left: 8px;
+				margin: 0px 0px 8px 8px;
 				height: 32px;
-				margin: 0px;
+				--theme-layout-gap-spacing: 8px;
+				--theme-label-title-font-size: 24px;
+				--theme-label-title-font-family: "Hind Vadodara";
 				--theme-label-height: 32px;
 				--theme-label-width: 200px;
-				--theme-label-font-family: "Hind Vadodara";
 				--theme-label-font-color: #3E4547;
-				--theme-label-font-size: 24px;
-				--theme-label-font-weight: 600;
+				--theme-label-title-font-weight: 600;
 				--theme-label-letter-spacing: 0;
 				--theme-label-line-height: 32px;
 				
@@ -118,21 +112,42 @@ export class TapToPayLanding extends Component {
 				font-weight: 500;
 			}
 
-			.card-type-label{
+			.primary-card-label{
 				height: fit-content;
 				width: 300px;
+				--theme-label-title-font-size: 18px;
 				--theme-label-font-color: #3E4547;
-				--theme-label-font-family: "Hind Vadodara";
-				--theme-label-font-size: 18px;
-				--theme-label-font-weight: 600;
+				--theme-label-title-font-family: "Hind Vadodara";
+				--theme-label-title-font-weight: 600;
+				--theme-label-letter-spacing: 40;
+				--theme-label-line-height: 24px;
+				--theme-layout-gap-spacing: 18px;
+				padding-left: 8px;
+			}
+
+			.supplementary-card-label{
+				height: fit-content;
+				font-size: 18px;
+				width: 300px;
+				--theme-label-font-color: #3E4547;
+				--theme-label-title-font-family: "Hind Vadodara";
+				--theme-label-title-font-weight: 600;
 				--theme-label-letter-spacing: 0;
 				--theme-label-line-height: 24px;
-				--theme-layout-gap-spacing: 5px;
+				--theme-layout-gap-spacing: 18px;
 				padding-left: 8px;
+			}
+
+			capitec-title-bar {
+				display: -webkit-inline-box;
 			}
 
 			horizon-card-art {
 				--horizon-card-art-box-shadow:none!important;
+			}
+
+			.primary-cards {
+				--theme-layout-gap-spacing: 24px;
 			}
 			`
 		];
@@ -154,7 +169,7 @@ export class TapToPayLanding extends Component {
 				<capitec-title-bar>
 					<capitec-icon 
 						size="small"
-						icon="system/arrow-left-action"
+						icon="system/back-action"
 						@click="${() => this._back()}">
 					</capitec-icon>
 					<capitec-label class="title-label" label="Tap to Pay" type="title"></capitec-label>
@@ -182,7 +197,7 @@ export class TapToPayLanding extends Component {
 
 	_renderPrimaryCards() {
 		return html`
-			<capitec-label class="card-type-label" type="title" label="Primary Cards"></capitec-label>
+			<capitec-label class="primary-card-label" type="title" label="Primary cards"></capitec-label>
 
 			<capitec-group class="primary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
 				${this._renderPrimaryCardArt()}
@@ -203,7 +218,7 @@ export class TapToPayLanding extends Component {
 
 	_renderSupplementaryCards() {
 		return html`
-			<capitec-label class="card-type-label" type="title" label="Supplementary Cards"></capitec-label>
+			<capitec-label class="supplementary-card-label" type="title" label="Supplementary cards"></capitec-label>
 
 			<capitec-group class="supplementary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
 				${this._renderSupplementaryCardsArt()}

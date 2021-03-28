@@ -32,6 +32,9 @@ export class IncomingCallDetails {
 							},
 							{
 								key: `Transact`, value: `Transact`
+							},
+							{
+								key: `ProductEnquiry`, value: `Product Enquiry`
 							}
 						], 
 						'value': ivrOptionCode

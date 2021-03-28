@@ -142,9 +142,9 @@ export class AppShell extends Shell {
 		this.applicationVersion = await this._executionContext.applicationVersion;
 		this.clientIp = this._executionContext.clientIp;
 
-		this.sblUrl = await this._configuration.getSetting(`StatusBar.sblUrl`);
-		this.cdsUrl = await this._configuration.getSetting(`StatusBar.cdsUrl`);
-		this.cnetUrl = await this._configuration.getSetting(`StatusBar.cnetUrl`);
+		this.sblUrl = await this._configuration.getSetting(`otherSystemsURL.sbl`);
+		this.cdsUrl = await this._configuration.getSetting(`otherSystemsURL.cds`);
+		this.cnetUrl = await this._configuration.getSetting(`otherSystemsURL.cnet`);
 
 		// Start the Desktop Agent service to subscribe to incoming call events from the Desktop Agent Application
 		this.agentService = DesktopAgentService.getInstance();

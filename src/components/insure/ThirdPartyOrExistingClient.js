@@ -94,7 +94,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		const state = this.horizonStore.recoverState();
 
-		this.incidentDetails = state.incidentDetailsl
+		this.incidentDetails = state.incidentDetails;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 		this.verificationStatus = state.callerInformation.verificationStatus;

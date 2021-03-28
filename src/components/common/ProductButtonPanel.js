@@ -65,9 +65,10 @@ export class ProductButtonPanel extends Component {
 	 */
 	static get properties() {
 		return {
-			disableNavigation: { type: Boolean },
 			subtitle: { type: Object },
-			detail: { type: Object }
+			detail: { type: Object },
+
+			disableNavigation: { attribute: false }
 		};
 	}
 
@@ -127,9 +128,9 @@ export class ProductButtonPanel extends Component {
 		
 		/**
 		 * Scenario 1: When a 3rd party or non-client is dialing for any need, clicking on the products buttons
-		 * 			   should display product info coming soon screen
+		 *             should display product info coming soon screen
 		 * Scenario 2: We are going production only with stop card, apart from dev / int regions product buttons
-		 * 			   are set to do nothing
+		 *             are set to do nothing
 		 * TODO: Remove this environment check when product screens are ready/ when we want to map it to other needs
 		 */
 
