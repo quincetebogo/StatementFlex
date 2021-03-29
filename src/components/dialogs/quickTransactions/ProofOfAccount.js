@@ -15,7 +15,7 @@ export class ProofOfAccount extends Component {
         this.horizonStore = HorizonStore.getInstance();
 
         this.idEmailAddress = ``;
-        this.idConfirmEmail = ``;
+        this.idConfirmEmailAddress = ``;
         this.isBusy = false;
         this.alertBannerMessage = ``;
         this.emailText = `Email address`;
@@ -66,6 +66,10 @@ export class ProofOfAccount extends Component {
      * EVENT HANDLERS
      */
 
+    _errorHandler(ex) {
+        return true;
+    }
+
     _toggleBusyFlag() {
         this.isBusy = !this.isBusy;
     }
@@ -115,18 +119,15 @@ export class ProofOfAccount extends Component {
      */
 
     _validateEmail(e) {
-        const emailAddress = this.idEmailAddress;
-        const confirmEmailAddress = this.idConfirmEmail;
-
         const regCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
         // CORRECT
-        if (!this._isNullorEmpty(emailAddress) && emailAddress === confirmEmailAddress) {
-            if (regCheck.test(emailAddress)) {
+        if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
+            if (regCheck.test(this.idEmailAddress)) {
                 this.alertBannerMessage = ``;
                 this.errMessage.idEmailAddress = ``;
                 this.errMessage.idConfirmEmail = ``;
                 return true;
-            } else if (!emailAddress.includes(`@`)) {
+            } else if (!this.idEmailAddress.includes(`@`)) {
                 this.alertBannerMessage = `Email address is invalid`;
                 this.errMessage.idEmailAddress = `An email must contain a single @`;
                 return false;
@@ -136,9 +137,9 @@ export class ProofOfAccount extends Component {
 			this.errMessage.idEmailAddress = `Invalid email address`;
             this.errMessage.idConfirmEmail = `Invalid email address`;
             return false;
-        } else if (this._isNullorEmpty(emailAddress)) {
+        } else if (this._isNullorEmpty(this.idEmailAddress)) {
 			// EMAIL EMPTY
-            if (this._isNullorEmpty(confirmEmailAddress)) {
+            if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
                 this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
                 this.emailText = `email@gmail.com`;
             }
@@ -146,12 +147,12 @@ export class ProofOfAccount extends Component {
             this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
             this.emailText = `email@gmail.com`;
             return false;
-        } else if (this._isNullorEmpty(confirmEmailAddress)) {
+        } else if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
             this.alertBannerMessage = `Complete all fields to continue`;
             this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
             this.emailText = `email@gmail.com`;
             return false;
-        } else if (emailAddress !== confirmEmailAddress) {
+        } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
 			// EMAILS DON'T MATCH 
             this.alertBannerMessage = `Email and Confirm email don't match`;
             this.errMessage.idEmailAddress = `Invalid email`;
@@ -306,8 +307,11 @@ export class ProofOfAccount extends Component {
 				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
 				<capitec-text-field 
 					class="email-text" 
-					id="id_emailAddress" 
-					focussed value="${this.idEmailAddress}"
+					id="idEmailAddress" 
+                    oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
+				    .value="${this.idEmailAddress}"
 					name="mailAddress" 
 					@value-changed="${(e) => this._valueChanged(e)}"
 					@key-input="${(e) => this._onKeyPress(e)}" 
@@ -319,8 +323,11 @@ export class ProofOfAccount extends Component {
 			<div class="email-div">
 				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
 				<capitec-text-field 
-					class="email-text" id="id_confirmEmail" 
-					.value="${this.idConfirmEmail}"
+					class="email-text" id="idConfirmEmailAddress" 
+                    oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
+					.value="${this.idConfirmEmailAddress}"
 					@value-changed="${(e) => this._valueChanged(e)}" 
 					@key-input="${(e) => this._onKeyPress(e)}"
 					name="confirmMailAddress" label="${this.emailText}" 
