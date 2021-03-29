@@ -4,7 +4,7 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
-
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
@@ -154,7 +154,7 @@ export class VerifyCaller extends Component {
 		if (this.callerInformation.hasDigitalChannels) {
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
-		} else if (this.isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		} else if (isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
 			await this._securityQuestionsClick();
 		} else {
@@ -299,29 +299,6 @@ export class VerifyCaller extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	luhnCheck(SAidNumber) {
-		const num = (SAidNumber + ``)
-		.split(``)
-		.reverse()
-		.map(x => parseInt(x, 10));
-
-		const lastDigit = num.splice(0, 1)[0];
-		let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
-		sum += lastDigit;
-
-		const result = sum % 10 === 0;
-
-		if (!result) {
-			this.logger.log(`info`, `Luhn check on ${SAidNumber} failed. This does not appear to be a valid SA ID Number`);
-		}
-
-		return result;
-	}
-
-	isWellFormedSouthAfricanID(southAfricanIDNumber) {
-		return southAfricanIDNumber.length === 13 && this.luhnCheck(southAfricanIDNumber);
-	}
 
 	_updateApplicationState(verificationStatus) {
 		this.callerInformation.verificationStatus = verificationStatus;
