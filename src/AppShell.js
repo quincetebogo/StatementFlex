@@ -218,19 +218,19 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
-				/* TRY TO MAINLY CONTROL THE SCREEN SIZE FROM HERE. LIMIT FIXED SIZES FURTHER WHERE POSSIBLE */
-				.screen-size{
-					width : 1920px; 
-					height : 1080px;
-					display: flex;
-					flex-direction: column;
+				:host {
+					--horizon-screen-width: 1920px;
+					--horizon-screen-height: 1080px;
+					--horizon-center-panel-width: 1064px;
+					--horizon-left-panel-width: 440px;
+					--horizon-right-panel-width: 320px;
 				}
 
-				.additional-bar{
-					width: 100%;
-					height: 56px;
-					margin: 0px 0px 0px 0px;
-					background: #f4f4f4; 
+				.screen-size {
+					width : var(--horizon-screen-width);
+					height : var(--horizon-screen-height);
+					display: flex;
+					flex-direction: column;
 				}
 
 				.screen-content {
@@ -241,7 +241,7 @@ export class AppShell extends Shell {
 
 				.grid-container {
 					display: grid;
-					grid-template-columns: 440px 1064px 320px;
+					grid-template-columns: var(--horizon-left-panel-width) var(--horizon-center-panel-width) var(--horizon-right-panel-width);
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
@@ -254,11 +254,11 @@ export class AppShell extends Shell {
 				}
 
 				.left{
-					width:440px; 
+					width: var(--horizon-left-panel-width);
 				}
 
 				.right{
-					width:320px; 
+					width: var(--horizon-right-panel-width);
 				}
 
 				* {
@@ -340,7 +340,7 @@ export class AppShell extends Shell {
 
                 	<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
-						<div class="left">
+							<div class="left">
 							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">

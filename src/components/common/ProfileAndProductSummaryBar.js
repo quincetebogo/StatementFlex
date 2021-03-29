@@ -157,13 +157,13 @@ export class ProfileAndProductSummaryBar extends Component {
 			super.styles,
 			css`
 			.left-card {
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 			}
 			.favourites-button{
                 padding: 0px 0px 0px 0px;
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}
 			`

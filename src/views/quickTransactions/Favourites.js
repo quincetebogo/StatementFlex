@@ -1,13 +1,12 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
-import { View, css, html } from 'platform/elements';
-
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { css } from 'platform/elements';
 
-import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -20,32 +19,14 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	SELECT_ASSIGN_REASON: 2,
-	ASSIGN: 3,
-	VERIFY_NOW: 4,
-	ALERT_MODAL: 5,
-	DEBI_CHECK_PAGE: 6,
-	DEBI_CHECK_APPROVE: 7,
-	DEBI_CHECK_DECLINE: 8,
-	DEBI_CHECK_VIEW_INFO: 9,
-	UPDATE_CARD_LIMITS: 10,
-	PROOF_OF_ACCOUNT: 11,
-	TAP_TO_PAY: 12,
-	SEARCH_OTHER_NEED: 13,
-	STATEMENTS: 14
-});
-
 /**
  * The Quick Transactions Favourites Landing Page View
  *
  * @export
  * @class Favourites
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class Favourites extends View {
+export class Favourites extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -54,7 +35,6 @@ export class Favourites extends View {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
@@ -69,7 +49,6 @@ export class Favourites extends View {
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.isBusy = false;
 		this.isLoading = true;
 
 		// private variables
@@ -88,7 +67,6 @@ export class Favourites extends View {
 		}
 
 		// Subscribe to shell events
-		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
@@ -103,9 +81,7 @@ export class Favourites extends View {
 	// --------------
 	static get properties() {
 		return {
-			isBusy: { attribute: false },
 			isLoading: { attribute: false },
-			renderMode: { attribute: false },
 			verificationStatus: { attribute: false },
 			verificationToastDisplayed: { attribute: false }
 		};
@@ -154,7 +130,6 @@ export class Favourites extends View {
 	}
 
 	disconnectedCallback() {
-		this.endCallSub.dispose();
 		this.assignSub.dispose();
 		this.verifySub.dispose();
 		this.returnToSub.dispose();
@@ -165,14 +140,6 @@ export class Favourites extends View {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_endCallClick() {
-		this.renderMode = RENDER_MODE.END_CALL;
-	}
-
-	_cancelEndCallClick() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
 
 	_assignIncidentClick() {
         this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
@@ -340,10 +307,6 @@ export class Favourites extends View {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	async _stopCard() {
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
@@ -409,7 +372,7 @@ export class Favourites extends View {
 	}
 
 	_getStatements() {
-		// TODO: Functionality to generate statements comes here	
+		// TODO: Functionality to generate statements comes here
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
@@ -458,10 +421,6 @@ export class Favourites extends View {
 		];
 	}
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
-
 	_webTemplate() {
 		return html`
 			${this._renderFavouritesLandingPage()}
@@ -473,19 +432,14 @@ export class Favourites extends View {
 
 			${this._renderAlertModal()}
 			${this._renderVerifyNowModal()}
-			${this._renderEndCallSessionModal()}
-			${this._renderLoadingIndicator()}
             ${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
 			${this._renderStatementsModal()}
-		`;
-	}
 
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
+			${this._renderEndCallSessionModal(this.incomingCallDetails, this.isReassigned, `LandingPage`)}
+			${super._webTemplate()}
+		`;
 	}
 
 	_renderFavouritesLandingPage() {
@@ -522,19 +476,6 @@ export class Favourites extends View {
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
 				</horizon-verify-caller>`;
-		}
-		return html``;
-	}
-
-	_renderEndCallSessionModal() {
-		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`
-				<horizon-end-call-session
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.isReassigned="${this.isReassigned}"
-					endCallContext="LandingPage"
-					@cancel="${() => this._cancelEndCallClick()}">
-				</horizon-end-call-session>`;
 		}
 		return html``;
 	}
@@ -630,14 +571,14 @@ export class Favourites extends View {
 
 	_renderStatementsModal() {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html `
+		? html`
 			<horizon-statements-dialog
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
 				.landingPageInfo="${this.landingPageInfo}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
-		: html ``;
+		: html``;
 	}
 }
 
