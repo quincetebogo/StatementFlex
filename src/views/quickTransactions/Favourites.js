@@ -7,7 +7,6 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -43,7 +42,6 @@ export class Favourites extends ViewBase {
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
-		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.isLoading = true;
 
 		// private variables
@@ -64,7 +62,6 @@ export class Favourites extends ViewBase {
 
 		// Subscribe to shell events
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
-		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -78,7 +75,6 @@ export class Favourites extends ViewBase {
 	static get properties() {
 		return {
 			isLoading: { attribute: false },
-			verificationStatus: { attribute: false },
 			verificationToastDisplayed: { attribute: false }
 		};
 	}
@@ -127,7 +123,6 @@ export class Favourites extends ViewBase {
 
 	disconnectedCallback() {
 		this.assignSub.dispose();
-		this.verifySub.dispose();
 		this.returnToSub.dispose();
 
 		super.disconnectedCallback();
@@ -142,28 +137,8 @@ export class Favourites extends ViewBase {
         this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
-	_verifyClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
-	}
-
-	_skipVerification(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	_verificationCancelled(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this.verificationStatus = this.callerInformation.verificationStatus;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
 	async _clientVerified(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
+		super._clientVerified(event);
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
@@ -229,8 +204,6 @@ export class Favourites extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
-
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -427,7 +400,6 @@ export class Favourites extends ViewBase {
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${this._renderAlertModal()}
-			${this._renderVerifyNowModal()}
             ${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
@@ -454,7 +426,7 @@ export class Favourites extends ViewBase {
 					.callerInformation="${this.callerInformation}"
 					.verificationStatus="${this.verificationStatus}"
 					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-					@verify-click="${() => this._verifyClick()}"
+					@verify-click="${() => super._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourite-transactions>`;
 			default:
@@ -462,31 +434,16 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	_renderVerifyNowModal() {
-		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`
-				<horizon-verify-caller
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					@skip="${(e) => this._skipVerification(e)}"
-					@cancel="${(e) => this._verificationCancelled(e)}"
-					@verified="${(e) => this._clientVerified(e)}">
-				</horizon-verify-caller>`;
-		}
-		return html``;
-	}
-
 	_renderAlertModal() {
 		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
 			return html`
 				<horizon-client-not-verified
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-					@verify-now="${() => this._verifyClick()}">
+					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>
 			`;
 		}
 	}
-
 
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
