@@ -140,6 +140,8 @@ export class DesktopAgentService {
 			this.nextCall = newCallEvent;
 
 			// Telemetry
+			// If the call was initiated through desktop agent, we log telemetry here
+			// since we have the IVR selection before it gets mapped to a need.
 			HorizonTelemetry.instance.newTrace();
 			HorizonTelemetry.instance.incomingCall({
 				screen: TelemetryScreen.WAIT_FOR_CALL,

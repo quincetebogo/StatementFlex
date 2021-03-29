@@ -35,5 +35,19 @@
 		"configFile": "./.eslintrc.json"
 	},
 	"eslint.enable": true,
-	"eslint.alwaysShowStatus": true
+	"eslint.alwaysShowStatus": true,
+	"cSpell.words": [
+		"Agentup",
+		"Bloggs",
+		"CLNT",
+		"PABX",
+		"SRCH",
+		"UNLD",
+		"UUIDs",
+		"desktopagent",
+		"recognised",
+		"ucid",
+		"uuidv",
+		"yxxx"
+	]
 }
