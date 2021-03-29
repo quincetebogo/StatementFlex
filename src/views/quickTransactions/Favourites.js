@@ -1,11 +1,11 @@
+import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { css } from 'platform/elements';
 
 import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -35,13 +35,8 @@ export class Favourites extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
-
-        this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
 
         this.incidentRecId = this.incomingCallDetails.incidentRecId;
 
@@ -58,6 +53,7 @@ export class Favourites extends ViewBase {
 		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
+
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -437,7 +433,7 @@ export class Favourites extends ViewBase {
             ${this._renderProofOfAccount()}
 			${this._renderStatementsModal()}
 
-			${this._renderEndCallSessionModal(this.incomingCallDetails, this.isReassigned, `LandingPage`)}
+			${this._renderEndCallSessionModal(this.isReassigned, `LandingPage`)}
 			${super._webTemplate()}
 		`;
 	}

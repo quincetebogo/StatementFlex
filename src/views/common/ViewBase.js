@@ -1,5 +1,6 @@
 import { View, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -31,6 +32,12 @@ export class ViewBase extends View {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+        this.state = this.horizonStore.recoverState();
+
+		this.callerInformation = this.state.callerInformation;
+        this.incomingCallDetails = this.state.incomingCallDetails;
 
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -41,6 +48,9 @@ export class ViewBase extends View {
 	// --------------
 	static get properties() {
 		return {
+			callerInformation: { attribute: false },
+		    incomingCallDetails: { attribute: false },
+
 			renderMode: { attribute: false },
 			isBusy: { attribute: false }
 		};
@@ -61,6 +71,10 @@ export class ViewBase extends View {
 		
 		super.disconnectedCallback();
 	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_endCallClick() {
 		this.renderMode = RENDER_MODE.END_CALL;
@@ -90,11 +104,11 @@ export class ViewBase extends View {
 		return html`${this._renderLoadingIndicator()}`;
 	}
 
-	_renderEndCallSessionModal(incomingCallDetails, isReassigned, endCallContext) {
+	_renderEndCallSessionModal(isReassigned, endCallContext) {
 		return this.renderMode === RENDER_MODE.END_CALL
 			? html`
 				<horizon-end-call-session
-					.incomingCallDetails="${incomingCallDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${isReassigned}"
 					endCallContext=${endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
