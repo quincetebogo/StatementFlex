@@ -99,3 +99,35 @@ export function formatPhoneNumber(value) {
 
 	return Math.round(Math.abs((fromDate - toDate) / oneDay));
 }
+
+/**
+ *  
+ *
+ * @param {*} SAidNumber A South African ID Number
+ * @returns {Boolean} Indicates if the check digit on the South African ID Number computes correctly
+ */
+function _luhnCheck(SAidNumber) {
+	const num = SAidNumber.toString()
+	.split(``)
+	.reverse()
+	.map(x => parseInt(x, 10));
+
+	const lastDigit = num.splice(0, 1)[0];
+	let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+	sum += lastDigit;
+
+	return sum % 10 === 0;
+}
+
+/**
+ * Tests to see if the check digit on a South African ID number is correct 
+ * and that the ID number is of the correct length. 
+ *
+ * @export
+ * @param {String} southAfricanIDNumber A South African ID Number to be checked
+ * @returns {String} Check if a South African ID number is well formed
+ */
+export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
+	return southAfricanIDNumber.length === 13 && _luhnCheck(southAfricanIDNumber);
+}
+
