@@ -61,11 +61,9 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			// this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
             this.mailId = state.emailAddress;
             this.acNumber = state.accountNumber;
-			// TODO: mandate ID to be obtained from state.
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
