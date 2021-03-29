@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -256,7 +257,7 @@ export class Favourites extends View {
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
