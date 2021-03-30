@@ -109,7 +109,7 @@ export class LandingPage extends View {
 	}
 
 	disconnectedCallback() {
-		// Cleanup all event aggregator and state management subscriptons;
+		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
 		this.searchCallSub.dispose(); 
 		this.agentUpSub.dispose(); 
@@ -141,7 +141,7 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// Create an incident in STrack for the new incoming call. This was intially planned to happen
+		// Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
 
@@ -159,8 +159,8 @@ export class LandingPage extends View {
 		// Telemetry
 		if (incident) {
 			HorizonTelemetry.instance.incidentCreated({
-				incident_rec_id 	:	incident.incidentRecId,
-				incident_reference 	:	incident.incidentNumber
+				incidentRecId 	:	incident.incidentRecId,
+				incidentReference 	:	incident.incidentNumber
 			});
 		}
 
@@ -189,6 +189,16 @@ export class LandingPage extends View {
 			}
 		} else {
 			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
+
+			// Telemetry
+			// If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			HorizonTelemetry.instance.newTrace();
+			HorizonTelemetry.instance.incomingCall({
+				screen: TelemetryScreen.WAIT_FOR_CALL,
+				ivr: '',
+				ucid: ''
+			});
 		}
 
 		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);
@@ -243,7 +253,7 @@ export class LandingPage extends View {
 
 	_nonClientCaptured(event) {
 		// If a non-client is calling in (determined on the general search dialog), 
-		// navigate to the appopriate landing page
+		// navigate to the appropriate landing page
 		const callerInformation = new CallerInformation(
 			``, // CIF Number
 			``, // Birth Date

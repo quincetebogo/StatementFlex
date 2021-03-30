@@ -4,3 +4,4 @@ jsconfig.json
 ocwp
 **.log
 .vs
+.vscode/settings.json

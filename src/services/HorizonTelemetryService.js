@@ -38,22 +38,19 @@ const TelemetryEvent = {
 	IDENTIFY_CALLER_STARTS		: "horizon.call.id-caller.start-span",
 	CALLER_IDENTIFIED			: "horizon.call.id-caller.end-span",
 
-	SCRN_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
-	CNF_CLR_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
-	CNF_CLR_NAVIGATE_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
-	CNF_CLR_NAVIGATE_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
-	CNF_CLR_NAVIGATE_END_CALL	: "horizon.call.id-caller.confirm-caller.end-call",
+	SCR_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
+	SELECT_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
+	SELECT_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
+	SELECT_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
 	SCR_UNLD_CONFIRM_CALLER 	: "horizon.call.id-caller.confirm-caller.end-span",
 	
 	SCR_LD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.start-span",
-	SRCH_CLNT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
-	SRCH_CLNT_NAVIGATE_END_CALL	: "horizon.call.id-caller.search-client.end-call",
+	SELECT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
 	SCR_UNLD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.end-span",
 	
 	SCR_LD_ADD_CALLER_DETAILS 			: "horizon.call.id-caller.add-caller.start-span",
-	ADD_DTL_ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
-	ADD_DTL_ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
-	ADD_DTL_NAVIGATE_END_CALL			: "horizon.call.id-caller.add-caller.end-call",
+	ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
+	ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
 	SCR_UNLD_ADD_CALLER_DETAILS 		: "horizon.call.id-caller.add-caller.end-span",
 }
 
@@ -76,7 +73,9 @@ const TelemetryEventType = {
  * @class TelemetryService
  */
 export class HorizonTelemetry {
+	//TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
+	//#region INITIALISATION
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -94,10 +93,18 @@ export class HorizonTelemetry {
 
 		this.currentActiveSpans = {
 			"horizon.call" 	: "",
-			"id-caller"		: ""
+			"id-caller"		: "",
+			"confirm-caller": "",
+			"search-client"	: "",
+			"add-caller"	: ""
 		}
+
 	}
 
+	//#endregion INITIALISATION
+
+
+	//#region PUBLIC METHODS
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -110,6 +117,9 @@ export class HorizonTelemetry {
 	newTrace(traceId = null) {
 		this.traceId = traceId || v4();
 	}
+
+
+	//#region ACCEPT CALL
 
 	/**
 	 * @typedef {Object} IncomingCallModel
@@ -145,8 +155,8 @@ export class HorizonTelemetry {
 
 	/**
 	 * @typedef {Object} IncidentCreatedModel
-	 * @property {String} incident_reference 
-	 * @property {String} incident_rec_id 
+	 * @property {String} incidentReference 
+	 * @property {String} incidentRecId 
 	 */
 
 	/** Incident created telemetry event
@@ -165,8 +175,8 @@ export class HorizonTelemetry {
 			eventType 	: TelemetryEventType.SYSTEM,
 			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
 
-			baggage : [	{"incident-reference"	: baggage.incident_reference},
-						{"incident-rec-id"		: baggage.incident_rec_id} ]
+			baggage : [	{"incident-reference"	: baggage.incidentReference},
+						{"incident-rec-id"		: baggage.incidentRecId} ]
 		});
 
 		// event, thus no new span reference to update
@@ -178,7 +188,7 @@ export class HorizonTelemetry {
 	 * @event Workflow Completed
 	 */
 	workflowCompleted() {	
-		this.telemetry.event({
+		this.telemetry.spanEnd({
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["horizon.call"],
 			parentSpan 	: null,
@@ -192,6 +202,10 @@ export class HorizonTelemetry {
 		this.currentActiveSpans["horizon.call"] = null;
 	}
 
+	//#endregion ACCEPT CALL
+
+
+	//#region CONFIRM CALLER
 
 	/** Identify Caller telemetry event
 	 * @screen N/A
@@ -211,6 +225,10 @@ export class HorizonTelemetry {
 	}
 
 
+	/** Ending Identify Caller span telemetry event
+	 * @screen N/A
+	 * @event Caller Identified
+	 */
 	callerIdentified() {
 		this.telemetry.spanEnd({
 			traceId 	: this.traceId,
@@ -226,7 +244,173 @@ export class HorizonTelemetry {
 	}
 
 
+	/**
+	 * @typedef {Object} ScrLdConfirmCallerModel
+	 * @property {String} screen 
+	 * @property {String} initialPrimaryNeed
+	 * @property {String} initialSpecificNeed 
+	 * @property {String} initialClientCif 
+	 */
 
+	/** Confirm Caller screen loaded telemetry event
+	 * @screen Confirm Caller
+	 * @event Screen Load: Confirm Caller
+	 * 
+	 * @param {ScrLdConfirmCallerModel} baggage
+	 */
+	screenLoadConfirmCaller(baggage) {
+		let spanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SCR_LD_CONFIRM_CALLER,
+			tags 		: this._extractTags(TelemetryEvent.SCR_LD_CONFIRM_CALLER),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage		: [
+				{ "screen"					: baggage.screen				},
+				{ "initial-primary-need"	: baggage.initialPrimaryNeed	},
+				{ "initial-specific-need"	: baggage.initialSpecificNeed	},
+				{ "initial-client-cif"		: baggage.initialClientCif	}
+			]
+		});
+
+		if (spanId) this.currentActiveSpans["confirm-caller"] = spanId;
+	}
+
+
+	/**
+	 * @typedef {Object} ConfirmCallerModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 * @property {String} confirmedPrimaryNeed
+	 * @property {String} confirmedSpecificNeed 
+	 * @property {String} confirmedClientCif 
+	 */
+
+	/** Caller confirmed telemetry event
+	 * @screen Confirm Caller
+	 * @event Confirm Caller
+	 * 
+	 * @param {ConfirmCallerModel} baggage
+	 */
+	confirmCaller(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["confirm-caller"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.SELECT_CONFIRM_CALLER,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_CONFIRM_CALLER),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{"screen"					: baggage.screen		},
+						{"next-screen"				: baggage.nextScreen	},
+						{"confirmed-primary-need"	: baggage.confirmedPrimaryNeed 	},
+						{"confirmed-specific-need"	: baggage.confirmedSpecificNeed	},
+						{"confirmed-client-cif"		: baggage.confirmedClientCif 	} ]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} NavigateSearchClientModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to Search Client Screen
+	 * @screen Confirm Caller
+	 * @event Navigate to Search Client
+	 * 
+	 * @param {NavigateSearchClientModel} baggage
+	 */
+	navigateSearchClient(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["confirm-caller"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.SELECT_SEARCH_CLIENT,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{"screen"		: baggage.screen		},
+						{"next-screen"	: baggage.nextScreen	} ]
+		})
+	}
+
+
+	/**
+	 * @typedef  {Object} NavigateAddCallerDetailsModel 
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to Add Caller Details Screen
+	 * @screen Confirm Caller
+	 * @event Navigate to Add Caller Details
+	 * 
+	 * @param {NavigateAddCallerDetailsModel} baggage
+	 */
+	navigateAddCallerDetails(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["confirm-caller"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.SELECT_ADD_CALLER_DETAILS,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_ADD_CALLER_DETAILS),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{ "screen"		: baggage.screen		},
+						{ "next-screen"	: baggage.nextScreen	} ]
+		})
+	}
+
+
+	/**
+	 * @typedef  {Object} ScrUnldConfirmCallerModel 
+	 * @property {String} screen 
+	 */
+
+	/** Confirm Caller Screen Unload
+	 * @screen Confirm Caller
+	 * @event Screen Unload: Confirm Caller
+	 * 
+	 * @param {ScrUnldConfirmCallerModel} baggage
+	 */
+	screenUnloadConfirmCaller(baggage) {
+		this.telemetry.spanEnd({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["confirm-caller"],
+			parentSpan 	: null,
+			eventName 	: TelemetryEvent.SCR_UNLD_CONFIRM_CALLER,
+			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_CONFIRM_CALLER),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage : [	{ "screen"		: baggage.screen		} ]
+		})
+	}
+
+	//#endregion CONFIRM CALLER
+	
+
+	//#region ADD CALLER DETAILS
+	//#endregion ADD CALLER DETAILS
+
+
+
+	//#region SEARCH CALLER
+	//#endregion SEARCH CALLER
+
+
+
+	//#endregion PUBLIC METHODS
+
+
+	//#region PRIVATE METHODS
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -243,5 +427,7 @@ export class HorizonTelemetry {
 				return SecurityContext.getInstance().username;
 		}
 	}
+
+	//#endregion PRIVATE METHODS
 	
 }
