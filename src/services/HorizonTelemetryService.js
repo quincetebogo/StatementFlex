@@ -38,7 +38,7 @@ const TelemetryEvent = {
 
 	SCR_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
 	SELECT_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
-	SELECT_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
+	SELECT_SEARCH_CLIENT 		: "horizon.call.id-caller.confirm-caller.search-client",
 	SELECT_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
 	SCR_UNLD_CONFIRM_CALLER 	: "horizon.call.id-caller.confirm-caller.end-span",
 	
@@ -46,10 +46,10 @@ const TelemetryEvent = {
 	SELECT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
 	SCR_UNLD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.end-span",
 	
-	SCR_LD_ADD_CALLER_DETAILS 			: "horizon.call.id-caller.add-caller.start-span",
+	SCR_LD_ADD_CALLER_DETAILS 	: "horizon.call.id-caller.add-caller.start-span",
 	ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
 	ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
-	SCR_UNLD_ADD_CALLER_DETAILS 		: "horizon.call.id-caller.add-caller.end-span",
+	SCR_UNLD_ADD_CALLER_DETAILS : "horizon.call.id-caller.add-caller.end-span",
 }
 
 
@@ -407,6 +407,117 @@ export class HorizonTelemetry {
 	
 
 	//#region ADD CALLER DETAILS
+
+	/**
+	 * @typedef {Object} ScrLdAddCallerDetailsModel
+	 * @property {String} screen
+	 */
+
+	/** Add caller details
+	 * @screen Add Caller Details
+	 * @event Screen Load: Add Caller Details
+	 * 
+	 * @param {ScrLdAddCallerDetailsModel} baggage
+	 */	
+	screenLoadAddCallerDetails(baggage) {
+		let spanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS,
+			tags 		: this._extractTags(TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage		: [
+				{ "screen"	: baggage.screen }
+			]
+		});
+
+		if (spanId) this.currentActiveSpans["add-caller"] = spanId;
+	}
+
+
+	/**
+	 * @typedef {Object} AddCallerDetailsConfirmModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Add Caller Details Confirmation button clicked
+	 * @screen Add Caller Details
+	 * @event Add Caller Details Confirm
+	 * 
+	 * @param {AddCallerDetailsConfirmModel} baggage
+	 */
+	addCallerDetailsConfirm(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["add-caller"],
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.ADD_CALLER_DETAILS_CONFIRM,
+			tags 		: this._extractTags(TelemetryEvent.ADD_CALLER_DETAILS_CONFIRM),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{"screen"		: baggage.screen		},
+						{"next-screen"	: baggage.nextScreen	} ]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} AddCallerDetailsCancelModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Add Caller Details Cancel button clicked
+	 * @screen Add Caller Details
+	 * @event Add Caller Details Cancel
+	 * 
+	 * @param {AddCallerDetailsCancelModel} baggage
+	 */
+	addCallerDetailsCancel(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["add-caller"],
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.ADD_CALLER_DETAILS_CANCEL,
+			tags 		: this._extractTags(TelemetryEvent.ADD_CALLER_DETAILS_CANCEL),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{"screen"		: baggage.screen		},
+						{"next-screen"	: baggage.nextScreen	} ]
+		})
+	}
+
+
+	/**
+	 * @typedef  {Object} ScrUnldAddCallerDetailsModel 
+	 * @property {String} screen 
+	 */
+
+	/** Screen Unload: Add Caller Details
+	 * @screen Add Caller Details
+	 * @event Screen Unload: Add Caller Details
+	 * 
+	 * @param {ScrUnldAddCallerDetailsModel} baggage
+	 */
+	screenUnloadAddCallerDetails(baggage) {
+		this.telemetry.spanEnd({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["add-caller"],
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS,
+			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage : [	{ "screen"	: baggage.screen } ]
+		})
+	}
+
 	//#endregion ADD CALLER DETAILS
 
 
@@ -436,7 +547,7 @@ export class HorizonTelemetry {
 				return SecurityContext.getInstance().username;
 
 			default:
-				throw new Error(`unnrecognised event type`);
+				throw new Error(`unrecognized event type`);
 		}
 	}
 

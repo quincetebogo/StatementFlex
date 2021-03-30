@@ -184,6 +184,9 @@ export class LandingPage extends View {
 		newCallInfo.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
+		// Telemetry
+		HorizonTelemetry.instance.identifyCallerStarts();
+
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
 		// telephone number. For a manually created call, we don't know the incoming telephone number.

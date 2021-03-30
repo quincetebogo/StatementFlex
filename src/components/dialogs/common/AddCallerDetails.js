@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/CallerInfoBar';
@@ -137,6 +138,17 @@ export class AddCallerDetails extends Component {
 		this.backButton = this.addCallerDialog.backButton;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadAddCallerDetails({
+			screen	: TelemetryScreen.ADD_CALLER_DETAILS
+		});
+	}
+
+	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadAddCallerDetails({ 
+			screen : TelemetryScreen.ADD_CALLER_DETAILS 
+		});
 	}
 
 	// --------------
@@ -161,6 +173,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
+		HorizonTelemetry.instance.addCallerDetailsConfirm({
+			screen 		: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen 	: null
+		});
+
 		if (!this._validateData()) {
 			this.dispatchEvent(new CustomEvent(`confirm`, {
 				detail: {
@@ -193,6 +210,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	_backClick() {
+		HorizonTelemetry.instance.addCallerDetailsCancel({
+			screen 		: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen 	: null
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {
 				ivrOptionValue: this.ivrOption.value
