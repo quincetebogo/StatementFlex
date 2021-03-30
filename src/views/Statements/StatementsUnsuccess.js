@@ -36,9 +36,7 @@ export class StatementsUnsuccess extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
-
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.landingPageInfo = {};
 	}
 
 
@@ -67,8 +65,6 @@ export class StatementsUnsuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			// this.returnRoute = state.returnTo.route;
-			// Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.incidentDetails = state.incidentDetails;      
 			this.mailId = state.emailAddress;
@@ -192,7 +188,7 @@ export class StatementsUnsuccess extends View {
 									@right-click=${() => this._handoffClick()}>
 									<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account ${this.acNumber} was not emailed to ${this.mailId}
+					slot="detail">The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 				</section>
 			</horizon--error-screen>
 		`;

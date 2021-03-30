@@ -63,7 +63,6 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			// this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.incidentDetails = state.incidentDetails;
       		this.mailId = state.emailAddress;
