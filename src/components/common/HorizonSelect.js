@@ -301,7 +301,7 @@ export class HorizonSelect extends Component {
 					</capitec-label>
 				</div>
 				<capitec-icon
-                    class=${this.disabled ? "hide-icon" : "kebab-icon" } 
+                    class=${this.disabled ? `hide-icon` : `kebab-icon`}
                     icon="system/more-action"
 					@click="${(e) => this._togglePopup(e)}">
 				</capitec-icon>
@@ -338,7 +338,7 @@ export class HorizonSelect extends Component {
 		}
 
 		// Display hint that item-field attribute cannot be found on the item.
-		if (!item.hasOwnProperty(this.displayField)) {
+		if (!Object.prototype.hasOwnProperty.call(item, this.displayField)) {
 			return html`<div class="option">"display-field" is invalid</div>`;
 		}
 

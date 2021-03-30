@@ -36,6 +36,7 @@ export class StopCardFailure extends View {
 
 	constructor() {
 		super();
+
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.cardsToStop = [];
@@ -48,8 +49,10 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 		this.isReassigned = false;
 
-		this.failedCards = [];
+        this.failedCards = [];
 
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -79,6 +82,7 @@ export class StopCardFailure extends View {
 		if (state) {
 			this.callerInformation = state.callerInformation;
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;
 
 			this.stoppedCards = state.stoppedCards;
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
@@ -133,7 +137,7 @@ export class StopCardFailure extends View {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, (ex) => this._stopCardErrorHandler(ex));
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler(ex));
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
@@ -152,7 +156,7 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
-		this.isReassigned = true;
+        this.isReassigned = true;
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
@@ -171,8 +175,8 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	_onAssignIncident() {
-		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
-		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------
@@ -440,10 +444,11 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.ENDCALL) {
 			return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderDialog = -1}"
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
+				.isReassigned = "${this.isReassigned}"
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}">
+				@cancel="${() => this.renderDialog = -1}">
 			</horizon-end-call-session>`;
 		}
 
@@ -454,6 +459,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.HANDOFF) {
 			return html`
 				<horizon-assign-stop-card
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.renderDialog = -1}"

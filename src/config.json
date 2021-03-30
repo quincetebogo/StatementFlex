@@ -1,8 +1,8 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs.platform-dev.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-dev.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -10,10 +10,11 @@
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
-	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	"otherSystemsURL": {
+		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false"
 	},
 	"VDN":"211377",
 	"LogRequestResponseModels" : true,
@@ -92,6 +93,10 @@
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"viewStatements": {
 			"enabled": true,
 			"positiveCase": true
 		}

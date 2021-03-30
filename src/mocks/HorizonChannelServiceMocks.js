@@ -50,6 +50,7 @@ export class HorizonChannelServiceMocks {
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
 		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
+		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -178,5 +179,12 @@ export class HorizonChannelServiceMocks {
 		if (this._mocking.tapToPayLanding.positiveCase) {
 			return this.cardLimitsMocks.mockCards;
 		}
+	}
+
+	viewStatements() {
+		if (this._mocking.viewStatements.positiveCase) {
+			return this.viewStatementsMock.PDF;
+		}
+		return null;
 	}
 }

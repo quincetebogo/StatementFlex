@@ -6,10 +6,12 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 import 'app/components/dialogs/common/EndCallSession';
+import 'app/components/dialogs/common/StatementsDialog';
 
 const RENDER_MODE = {
 	STATEMENTS_SUCCESS: 0,
-	END_CALLSESSION: 1
+    END_CALLSESSION: 1,
+    STATEMENTS: 2
 };
 
 
@@ -21,12 +23,15 @@ export class StatementsSuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
-		this.mailId = `ivanmakatini@gmail.com`;
-		this.encryptedCardId = `5284 **** **** 1322`;
+		this.mailId = ``;
+		this.acNumber = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.landingPageInfo = {};
 	}
 
 
@@ -41,7 +46,10 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+            renderMode: { attribute: false },
+            callerInformation: { type: Object },
+            incomingCallDetails: { type: Object },
+            landingPageInfo: { type: Object }
 		};
 	}
 
@@ -55,13 +63,20 @@ export class StatementsSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
-			// TODO: mandate ID to be obtained from state.
-			this.mailId = `ivanmakatini@gmail.com`;
-			this.encryptedCardId = `5284 **** **** 1322`;
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-		}
+			this.incidentDetails = state.incidentDetails;
+      		this.mailId = state.emailAddress;
+      		this.acNumber = state.accountNumber;
+
+		  	this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			});
+
+			this._updateIncidentState();
+  		};
 	}
 
 	disconnectedCallback() {
@@ -71,7 +86,7 @@ export class StatementsSuccess extends View {
 
 		super.disconnectedCallback();
 	}
-
+  
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -81,11 +96,29 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_sendAnotherClick() {
-		this.horizonRouter.navigateToReturnPage(`statement`);
+    _sendAnotherClick() {
+        // this.renderMode = RENDER_MODE.STATEMENTS;
+        const returnToScreen = {
+			option: `statements`
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------
@@ -121,8 +154,23 @@ export class StatementsSuccess extends View {
 		return html`
 			${this._renderSuccessScreen()}
 			${this._renderEndCallModal()}
+            ${this._renderStatementsModal()}
 		`;
 	}
+
+    _renderStatementsModal() {
+        if (this.renderMode === RENDER_MODE.STATEMENTS) {
+            return html`
+            <horizon-statements-dialog
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}"
+				.landingPageInfo="${this.landingPageInfo}"
+				@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
+			</horizon-statements-dialog>
+			`;
+        }
+        return html``;
+    }
 
 	_renderSuccessScreen() {
 		return html`
@@ -136,7 +184,7 @@ export class StatementsSuccess extends View {
 									>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>5284 **** **** 1322</b> was emailed to <b>ivanmakatini@gmail.com</b>
+					slot="detail">The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 				</section>
 				<section 
 						id="id-option-button" 
@@ -163,7 +211,8 @@ export class StatementsSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

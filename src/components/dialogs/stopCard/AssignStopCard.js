@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
@@ -34,6 +35,7 @@ export class AssignStopCard extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
 		
@@ -47,6 +49,7 @@ export class AssignStopCard extends Component {
 
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			teamsResponse: { type: Object },
@@ -66,7 +69,7 @@ export class AssignStopCard extends Component {
 
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
-			incidentRecId: this.incomingCallDetails.incidentRecId
+			incidentRecId: this.incidentDetails.incidentRecId
 		};
 
 		this.cardService.assignTeams(cardsAndIncident)
@@ -91,13 +94,18 @@ export class AssignStopCard extends Component {
 			const assignRequest =
 			{
 				"cardIds": this.cards.map(card => card.cardNumber),
-				"incidentRecId": this.incomingCallDetails.incidentRecId,
+				"incidentRecId": this.incidentDetails.incidentRecId,
 				"team": this.team.value
 			};
 
 			const returnValue = await this.cardService.assign(assignRequest);
 
 			if (returnValue.succeeded) {
+				const state = this.horizonStore.recoverState();
+				state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+
+				this.horizonStore.saveState(state);
+				
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));

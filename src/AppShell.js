@@ -3,6 +3,7 @@ import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManag
 import { Shell, css, html } from 'platform/elements';
 
 import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 // Import Horizon Routes
@@ -77,6 +78,7 @@ export class AppShell extends Shell {
 		this.currentMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 	}
 
@@ -107,6 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._restoreState(state));
 
@@ -139,9 +142,9 @@ export class AppShell extends Shell {
 		this.applicationVersion = await this._executionContext.applicationVersion;
 		this.clientIp = this._executionContext.clientIp;
 
-		this.sblUrl = await this._configuration.getSetting(`StatusBar.sblUrl`);
-		this.cdsUrl = await this._configuration.getSetting(`StatusBar.cdsUrl`);
-		this.cnetUrl = await this._configuration.getSetting(`StatusBar.cnetUrl`);
+		this.sblUrl = await this._configuration.getSetting(`otherSystemsURL.sbl`);
+		this.cdsUrl = await this._configuration.getSetting(`otherSystemsURL.cds`);
+		this.cnetUrl = await this._configuration.getSetting(`otherSystemsURL.cnet`);
 
 		// Start the Desktop Agent service to subscribe to incoming call events from the Desktop Agent Application
 		this.agentService = DesktopAgentService.getInstance();

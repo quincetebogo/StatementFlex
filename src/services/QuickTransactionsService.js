@@ -24,6 +24,14 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
 
+	sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.sendStatement(statement), `sendStatement`, errorHandler, autoRetries);
+	}
+
+	viewStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.viewStatement(statement), `viewStatement`, errorHandler, autoRetries);
+	}
+
 	cardLimitsLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.cardLimitsLanding(cifNumber), `cardLimitsLanding`, errorHandler, autoRetries);
 	}

@@ -85,3 +85,49 @@ export function formatCurrency(value) {
 export function formatPhoneNumber(value) {
 	return !value ? `-` : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, `$1 $2 $3`);
 }
+
+/**
+ * Determine number of days between two dates
+ *
+ * @export
+ * @param {*} fromDate From date (Parsed Date)
+ * @param {*} toDate To Date (Parsed Date)
+ * @returns {*} Number of days between from date & to date
+ */
+ export function calculateDays(fromDate, toDate) {
+	const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+
+	return Math.round(Math.abs((fromDate - toDate) / oneDay));
+}
+
+/**
+ *  
+ *
+ * @param {*} SAidNumber A South African ID Number
+ * @returns {Boolean} Indicates if the check digit on the South African ID Number computes correctly
+ */
+function _luhnCheck(SAidNumber) {
+	const num = SAidNumber.toString()
+	.split(``)
+	.reverse()
+	.map(x => parseInt(x, 10));
+
+	const lastDigit = num.splice(0, 1)[0];
+	let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+	sum += lastDigit;
+
+	return sum % 10 === 0;
+}
+
+/**
+ * Tests to see if the check digit on a South African ID number is correct 
+ * and that the ID number is of the correct length. 
+ *
+ * @export
+ * @param {String} southAfricanIDNumber A South African ID Number to be checked
+ * @returns {String} Check if a South African ID number is well formed
+ */
+export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
+	return southAfricanIDNumber.length === 13 && _luhnCheck(southAfricanIDNumber);
+}
+
