@@ -83,7 +83,7 @@ export class CalculatePremium extends Component {
 			this.alertBannerMessage = ALTER_BANNER_MESSAGE;
 		} else {
 			const feedbackDetails = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+				incidentRecId: this.incidentDetails.incidentRecId,
 				feedback: this.selectedFeedback === `0` ? `SUCCESS` : `ASSIGN`,
 				updateIncident: true
 			};

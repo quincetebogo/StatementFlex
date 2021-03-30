@@ -23,9 +23,11 @@ export class StatementsSuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
 		this.mailId = ``;
 		this.acNumber = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
@@ -62,19 +64,29 @@ export class StatementsSuccess extends View {
 
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
-            this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.incidentDetails = state.incidentDetails;
+      		this.mailId = state.emailAddress;
+      		this.acNumber = state.accountNumber;
+
+		  	this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});
+
+			this._updateIncidentState();
+  		};
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
 		}
 
 		super.disconnectedCallback();
 	}
-
+  
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -96,6 +108,17 @@ export class StatementsSuccess extends View {
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
 	}
 
 	// ---------
@@ -188,7 +211,8 @@ export class StatementsSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

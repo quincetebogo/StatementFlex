@@ -107,7 +107,7 @@ export class StatementsDialog extends Component {
         };
         this.encodedPDF = ``;
         this.accountSelected = `PRIMARY_SAVINGS`;
-        this.today = new Date() + ``;
+        this.today = new Date().toISOString();
 
         // Static list, has to be pulled from service
         this.savingsPlans = [
@@ -167,7 +167,7 @@ export class StatementsDialog extends Component {
         this.landingPageInfo = this.state.landingPageInfo;
         this.accountInformation = this.state.leftBarButtonConfig.detail;
     }
-
+    
     // --------------
     // EVENT HANDLERS
     // --------------

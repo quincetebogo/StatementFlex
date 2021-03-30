@@ -82,6 +82,8 @@ export class ProductInformation extends View {
 
 		const state = this.horizonStore.recoverState();
 		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+
 		this.callerInformation = state.callerInformation;
 
 		this.eventAggregator.publish(
@@ -151,7 +153,7 @@ export class ProductInformation extends View {
 		const currRoute = this.navigationContext.current;
 		const type = currRoute.queryParams && currRoute.queryParams.type;
 		
-		this._config = CONFIG[type] || CONFIG[`SavingsAccount`];
+		this._config = CONFIG[type] || CONFIG.SavingsAccount;
 		this.requestUpdate();
 	}
 
@@ -211,10 +213,11 @@ export class ProductInformation extends View {
 
 		return this.renderMode === RENDER_MODE.END_CALL 
 			? html`
-				<horizon-end-call-session 
-					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}"
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					endCallContext="LandingPage">
+					endCallContext="LandingPage"
+					@cancel="{${() => this.renderMode = RENDER_MODE.CREDIT_INFO}}">
 				</horizon-end-call-session>`
 			: html``;
 	}

@@ -58,7 +58,7 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction=``;    
+		this.returnToFunction = ``;    
 	}
 
 
@@ -98,7 +98,7 @@ export class HorizonRouter {
 		return {
 			verificationStatus: this.verificationStatus,
 			callStatus: this.callStatus,
-			returnToFunction:this.returnToFunction
+			returnToFunction: this.returnToFunction
 		};
 	}
 
