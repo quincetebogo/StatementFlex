@@ -68,6 +68,7 @@ export class StopCard extends Component {
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.incidentDetails = this.state.incidentDetails;
 		this.isReassigned = false;
 	}
 

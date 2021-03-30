@@ -88,7 +88,11 @@ export class SavingsAccountLandingPage extends View {
 				'statements': statements,
 				'more': more
 			};
-			return actions[option];
+
+			if (actions[option]) {
+				super._inicidentManager_(option, () => this._toggleBusyFlag());
+				return actions[option];
+			}
 		};
 	}
 

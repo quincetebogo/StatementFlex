@@ -28,6 +28,8 @@ export class SystemError extends View {
 		super();
 
 		this.renderMode = RENDER_MODE.SYSTEM_ERROR;
+		this.incomingCallDetails = {};
+		this.incidentRecId = ``;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -35,9 +37,6 @@ export class SystemError extends View {
 
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
-
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -62,6 +61,7 @@ export class SystemError extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.incidentDetails = state.incidentDetails;
+			this.incidentRecId = this.incidentDetails.incidentRecId;
 
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}

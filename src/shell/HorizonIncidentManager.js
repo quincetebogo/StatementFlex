@@ -10,7 +10,10 @@ const HORIZON_NEED_STATUS = {
 };
 
 /**
- * 
+ * This manager class is responsible to handle the current need and subsequent needs.
+ * On initialise of this class, a function is injected into View class to serve its purspose.
+ * Injected function will be triggered whenever switching between needs, to check whether current need
+ * is fullfilled or in-progress and act upon different checkpoint conditions.
  *
  * @export
  * @class HorizonIncidentManager

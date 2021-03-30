@@ -53,6 +53,7 @@ export class StopCardLandingPage extends View {
 	// ------------------
 
 	connectedCallback() {
+		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
 	}
 
