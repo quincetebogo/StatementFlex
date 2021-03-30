@@ -161,7 +161,6 @@ export class StatementsDialog extends Component {
 
     connectedCallback() {
         super.connectedCallback();
-        super._inicidentManager_(`Statements`, () => this._toggleBusyFlag());
 
         this.state = this.horizonStore.recoverState();
         this.callerInformation = this.state.callerInformation;
@@ -169,9 +168,6 @@ export class StatementsDialog extends Component {
         this.accountInformation = this.state.leftBarButtonConfig.detail;
     }
     
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
     // --------------
     // EVENT HANDLERS
     // --------------

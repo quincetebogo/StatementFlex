@@ -1,6 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
 const FILTER_BY = {
@@ -42,9 +41,6 @@ export class DebiCheckMandates extends Component {
 		this.activeMandates = [];
 		this.inActiveMandates = [];
 		this.filterBy = 0;
-		this.isBusy = false;
-
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -63,8 +59,7 @@ export class DebiCheckMandates extends Component {
 		return {
 			debiCheckMandates: { type: Object },
 			
-			filterBy: { attribute: false },
-			isBusy: { attribute: false }
+			filterBy: { attribute: false }
 		};
 	}
 
@@ -74,7 +69,6 @@ export class DebiCheckMandates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`DebiCheck`, () => this._toggleBusyFlag());
 
 		this._initialise();
 	}
@@ -84,13 +78,7 @@ export class DebiCheckMandates extends Component {
 	// --------------
 
 	_back() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.saveState(state);
-
 		this.dispatchEvent(new CustomEvent(`back`, {}));
-		
 	}
 
 	_performFilter(type) {
@@ -173,11 +161,6 @@ export class DebiCheckMandates extends Component {
 		}
 
 		return flag;
-	}
-
-	_toggleBusyFlag() {
-		// TODO: Toggle busy indicator comes here
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -343,7 +326,6 @@ export class DebiCheckMandates extends Component {
 					</capitec-content-box>
 				</capitec-group>
 			</capitec-card>
-			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -568,14 +550,6 @@ export class DebiCheckMandates extends Component {
 				</capitec-label>
 			</capitec-group>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

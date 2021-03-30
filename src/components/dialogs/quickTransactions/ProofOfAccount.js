@@ -61,7 +61,6 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`ProofOfAccount`, () => this._toggleBusyFlag());
 
 		// holding values in your page
 		this.emailAddress = null;

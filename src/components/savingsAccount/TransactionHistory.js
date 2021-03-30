@@ -1,6 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
 const RENDER_MODE = {
@@ -61,9 +60,6 @@ export class TransactionHistory extends Component {
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
-		this.isBusy = false;
-    
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -88,8 +84,7 @@ export class TransactionHistory extends Component {
 			startDate: { attribute: false },
 			endDate: { attribute: false },
 			searchTextLabel: { attribute: false },
-			statuslabel: { attribute: false },
-			isBusy: { attribute: false }      
+			statuslabel: { attribute: false }
 		};
 	}
 
@@ -99,7 +94,6 @@ export class TransactionHistory extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`TransactionHistory`, () => this._toggleBusyFlag());
 				
 		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
@@ -111,11 +105,6 @@ export class TransactionHistory extends Component {
 	// --------------
 
 	_back() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.saveState(state);
-		
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
@@ -262,11 +251,6 @@ export class TransactionHistory extends Component {
 		const endDate = !this.endDate ? `dd mm yyy` : this.endDate;
 		
 		return `${startDate} - ${endDate}`;
-	}
-
-	_toggleBusyFlag() {
-		// TODO: Toggle busy indicator comes here
-		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -523,7 +507,6 @@ export class TransactionHistory extends Component {
 				</capitec-group>
 			</capitec-card>
 			${this._renderCalendar()}
-			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -818,14 +801,6 @@ export class TransactionHistory extends Component {
 				</capitec-modal>
 			`;
 		}
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 }
 

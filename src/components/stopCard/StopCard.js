@@ -64,11 +64,11 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.isBusy = false;
+
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
 		this.incomingCallDetails = this.state.incomingCallDetails;
-    this.isReassigned = false;
+		this.isReassigned = false;
 	}
 
 	// ----------
@@ -89,8 +89,7 @@ export class StopCard extends Component {
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			cardsToStop: { type: Array },
-			isBusy: { attribute: false }
+			cardsToStop: { type: Array }
 		};
 	}
 
@@ -101,7 +100,6 @@ export class StopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super._inicidentManager_(`StopCard`, () => this._toggleBusyFlag());
 
 		this.instruction = this.clientProfileDetails.instruction;
 		this.cards = this.clientProfileDetails.cards;
@@ -235,7 +233,6 @@ export class StopCard extends Component {
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
 		// May be implemented later to render progress on endCall method
-		this.isBusy = !this.isBusy;
 	}
 
 	_onHandOff(e) {
@@ -406,7 +403,6 @@ export class StopCard extends Component {
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
 			${this._renderVerifyNowModal()}
-			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -598,12 +594,6 @@ export class StopCard extends Component {
 				</horizon-verify-caller>`;
 		}
 		return html``;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 }
 

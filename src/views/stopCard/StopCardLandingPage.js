@@ -19,8 +19,15 @@ import 'app/components/common/ProfileAndProductSummaryBar';
  */
 export class StopCardLandingPage extends View {
 
+	// --------------
+	// INITIALISATION
+	// --------------
+
 	constructor() {
 		super();
+
+		this.isBusy = false;
+
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
@@ -30,6 +37,28 @@ export class StopCardLandingPage extends View {
 		this.callerInformation = state.callerInformation; 
 		this.incomingCallDetails = state.incomingCallDetails;
 	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { attribute: false }
+		};
+	}
+
+	// ------------------
+	// LIFCYCLE OVERRIDES
+	// ------------------
+
+	connectedCallback() {
+		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
 	_stoppedCards(event) {
 		this.horizonStore.saveState(event.detail);
@@ -42,13 +71,37 @@ export class StopCardLandingPage extends View {
 		}
 	}
 
-	render() {
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
+
+	_webTemplate() {
 		return html`
-		<horizon-stop-card
-			.clientProfileDetails="${this.clientProfileDetails}"
-			.incomingCallDetails="${this.incomingCallDetails}"
-			@cards-stopped="${(event) => this._stoppedCards(event)}">
-		</horizon-stop-card>`;
+			<horizon-stop-card
+				.clientProfileDetails="${this.clientProfileDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				@cards-stopped="${(event) => this._stoppedCards(event)}">
+			</horizon-stop-card>
+			${this._renderLoadingIndicator()}
+		`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

@@ -142,6 +142,7 @@ export class Favourites extends View {
 			};
 
 			if (actions[option]) {
+				super._inicidentManager_(option, () => this._toggleBusyFlag());
 				return actions[option];
 			}
 
@@ -259,6 +260,19 @@ export class Favourites extends View {
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	}
+
+	_debiCheckToMainPage() {
+
+		/**
+		 * This is supposed to happen in debicheck success screen
+		 * TODO: This should be to success screen when decline or approve is ready
+		 */
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------------
@@ -557,7 +571,7 @@ export class Favourites extends View {
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._debiCheckToMainPage()}">
 				</debi-check-mandates>`
 			: html``;
 	}

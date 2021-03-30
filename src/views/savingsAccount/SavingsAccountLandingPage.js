@@ -108,6 +108,14 @@ export class SavingsAccountLandingPage extends View {
 	// EVENT HANDLERS
 	// --------------
 
+	_transactionHistoryToMainPage() {
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -281,7 +289,7 @@ export class SavingsAccountLandingPage extends View {
 				<horizon-transaction-history
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._transactionHistoryToMainPage()}">
 				</horizon-transaction-history>`
 			: html``;
 	}

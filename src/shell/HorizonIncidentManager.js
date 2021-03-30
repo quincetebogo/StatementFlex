@@ -1,7 +1,13 @@
-import { Component } from 'platform/elements';
+import { Component, View } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger } from 'platform/core';
+
+const HORIZON_NEED_STATUS = {
+	INPROGRESS: `InProgress`,
+	COMPLETED: `Completed`,
+	ASSIGNED: `Assigned`
+};
 
 /**
  * 
@@ -36,13 +42,11 @@ export class HorizonIncidentManager {
 
 	initialise() {
 
-		Component.prototype.HORIZON_NEED_STATUS = {
-			INPROGRESS: `InProgress`,
-			COMPLETED: `Completed`,
-			ASSIGNED: `Assigned`
-		};
+		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
+
+		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
-		Component.prototype._inicidentManager_ = async function (clientNeed, toggleBusyFlag) {
+		View.prototype._inicidentManager_ = async function (clientNeed, toggleBusyFlag) {
 
 			const _horizonStore = HorizonStore.getInstance();
 			const state = _horizonStore.recoverState();
