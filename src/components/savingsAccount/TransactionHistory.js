@@ -1,5 +1,4 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
@@ -61,7 +60,6 @@ export class TransactionHistory extends Component {
 		this.filteredData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
-
 	}
 
 	// --------------
@@ -203,7 +201,7 @@ export class TransactionHistory extends Component {
 
 	}
 
-	_loadLabels(){
+	_loadLabels() {
 		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
 		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
 	}

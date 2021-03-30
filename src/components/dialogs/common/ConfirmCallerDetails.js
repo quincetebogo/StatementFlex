@@ -84,6 +84,7 @@ export class ConfirmCallerDetails extends Component {
 	/**
 	 * @property {Object} confirmedCaller Information on confirmed client.
 	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {Object} incidentDetails Incident details
 	 *
 	 * @readonly
 	 * @static
@@ -93,6 +94,7 @@ export class ConfirmCallerDetails extends Component {
 		return {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -117,7 +119,7 @@ export class ConfirmCallerDetails extends Component {
 			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOption: this.incomingCallDetails.ivrOption.value,
-			incidentNo: this.incomingCallDetails.incidentReferenceNumber,
+			incidentNo: this.incidentDetails.incidentReferenceNumber,
 			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
 		};
 
@@ -140,7 +142,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 		
-		if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
 			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -148,7 +150,7 @@ export class ConfirmCallerDetails extends Component {
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (returnValue.succeeded) {
 				this._navigateToLandingPage();
@@ -177,8 +179,8 @@ export class ConfirmCallerDetails extends Component {
 	async _verifyCaller() {
 		if (await this._setAvailabilityFlags()) {
 
-			if (this.incomingCallDetails.incidentRecId && this.incomingCallDetails.incidentRecId !== ``) {
-				const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incomingCallDetails.incidentRecId);
+			if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+				const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 
 				if (returnValue.succeeded) {
 					this.renderMode = RENDER_MODE.VERIFY_CALLER;
@@ -310,8 +312,8 @@ export class ConfirmCallerDetails extends Component {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-				incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+				incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+				incidentRecId: this.incidentDetails.incidentRecId,
 				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 				nonClientFullName: this.callerInformation.nonClientFullName,
 				nonClientCellPhone: this.callerInformation.nonClientCellPhone,
@@ -378,6 +380,7 @@ export class ConfirmCallerDetails extends Component {
 
 		// Save above flags to state
 		const state = {
+			incidentDetails: this.incidentDetails,
 			incomingCallDetails: this.incomingCallDetails,
 			callerInformation: this.callerInformation,
 			canCloseIncident: false
@@ -394,6 +397,7 @@ export class ConfirmCallerDetails extends Component {
 
 		if (this.errorCount > 2) {
 			this.horizonStore.saveState({
+				incidentDetails: this.incidentDetails,
 				incomingCallDetails: this.incomingCallDetails,
 				callerInformation: this.callerInformation
 			});
@@ -514,22 +518,23 @@ export class ConfirmCallerDetails extends Component {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
 					<horizon-caller-dialog 
-							.incomingCallDetails="${this.incomingCallDetails}" 
-							.isNeedSelectable=${true}
-							.headerLabel="${HEADER_LABEL}" 
-							@on-end-call="${() => this._onEndCall()}"
-							@on-need-changed="${(e) => this._needChanged(e)}">
-						<div slot="body">
-							<capitec-content-box>
-								${this._renderError()}
-								${this._renderAddCallerDetails()}
-								${this._renderConfirmedCaller()}
-								${this._renderLoadingIndicator()}
-							</capitec-content-box>
-						</div>
-						<div slot="footer">
-							${this.renderFooter()}
-						</div>
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}" 
+						@on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(e) => this._needChanged(e)}">
+							<div slot="body">
+								<capitec-content-box>
+									${this._renderError()}
+									${this._renderAddCallerDetails()}
+									${this._renderConfirmedCaller()}
+									${this._renderLoadingIndicator()}
+								</capitec-content-box>
+							</div>
+							<div slot="footer">
+								${this.renderFooter()}
+							</div>
 					</horizon-caller-dialog>`;
 
 			case RENDER_MODE.ADD_CALLER_DETAILS:
@@ -640,11 +645,13 @@ export class ConfirmCallerDetails extends Component {
 
 	renderAddCallerDetailsModal() {
 		return html`
-			<horizon-add-caller-details .confirmedCaller="${this.confirmedCaller}"
+			<horizon-add-caller-details
+				.confirmedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
-                .addCallerDialog="${this.addCallerDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.addCallerDialog="${this.addCallerDetails}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
-                @confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
+				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
 	}
 
@@ -652,6 +659,7 @@ export class ConfirmCallerDetails extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
@@ -660,17 +668,18 @@ export class ConfirmCallerDetails extends Component {
 	renderStopCardSearchModal() {
 		return html`
 			<horizon-stop-card-search-caller
-                .incomingCallDetails="${this.incomingCallDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(event) => this._identifiedClient(event)}"
-				@other-need-selected="${(event) => this._otherNeedSelected(event)}"
-                >
+				@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 			</horizon-stop-card-search-caller>`;
 	}
 
 	renderSearchModal() {
 		return html`
 			<horizon-search-caller
-                .incomingCallDetails="${this.incomingCallDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				@client-identified="${(data) => this._identifiedClient(data)}"
 				@non-client-captured="${data => this._nonClientCaptured(data)}"
 				@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
@@ -680,10 +689,11 @@ export class ConfirmCallerDetails extends Component {
 	renderVerifyCallerModal() {
 		return html`
 			<horizon-verify-caller
-                .incomingCallDetails="${this.incomingCallDetails}"
-                .callerInformation="${this.callerInformation}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.callerInformation="${this.callerInformation}"
 				@cancel="${(event) => this._verificationCancelled(event)}" 
-                @skip="${(event) => this._verificationSkipped(event)}"
+				@skip="${(event) => this._verificationSkipped(event)}"
 				@verified="${(event) => this._clientVerified(event)}">
 			</horizon-verify-caller>
 		`;

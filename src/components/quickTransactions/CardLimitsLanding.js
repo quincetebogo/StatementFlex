@@ -469,7 +469,6 @@ export class CardLimitsLanding extends Component {
 
 		return html``;
 	}
-
 	
 	_renderDiscard() {
 		if (this.renderMode === RENDER_MODE.DISCARD) {
@@ -480,7 +479,6 @@ export class CardLimitsLanding extends Component {
 			></horizon-discard-changes>`;
 		}
 	}
-
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);

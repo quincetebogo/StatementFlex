@@ -58,7 +58,7 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction=``;    
+		this.returnToFunction = ``;    
 	}
 
 
@@ -98,7 +98,7 @@ export class HorizonRouter {
 		return {
 			verificationStatus: this.verificationStatus,
 			callStatus: this.callStatus,
-			returnToFunction:this.returnToFunction
+			returnToFunction: this.returnToFunction
 		};
 	}
 
@@ -267,6 +267,13 @@ export class HorizonRouter {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
+	/**
+	 * Navigates to the indicated Product Info Page
+	 *
+	 * @param {String} type SavingsAccount | SavingsPlan | Insure | Credit
+	 * @memberof HorizonRouter
+	 * @returns { undefined }
+	 */
 	navigateToProductInfo(type) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
 	}

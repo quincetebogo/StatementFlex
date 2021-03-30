@@ -94,6 +94,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		const state = this.horizonStore.recoverState();
 
+		this.incidentDetails = state.incidentDetails;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 		this.verificationStatus = state.callerInformation.verificationStatus;
@@ -447,7 +448,8 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage"
 					@cancel="{${() => this._onCancelEndCall()}}">
@@ -483,6 +485,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

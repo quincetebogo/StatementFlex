@@ -1,8 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Router } from 'platform/core';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/layouts/Layout';
 import 'platform/components/containers/Expander';
@@ -100,6 +99,7 @@ export class InsureInformation extends Component {
 
 		const state = this.horizonStore.recoverState();
 
+		this.incidentDetails = state.incidentDetails;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 		this.verificationStatus = state.callerInformation.verificationStatus;
@@ -918,7 +918,8 @@ export class InsureInformation extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 
-					.incomingCallDetails="${this.incomingCallDetails}" 
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage"
 					.isReassigned="${this.isReassigned}"
 					@cancel="${() => this._endCallCancelled()}">
@@ -954,6 +955,7 @@ export class InsureInformation extends Component {
 			? html``
 			: html`
 				<horizon-verify-caller 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@cancel="${(e) => this._verificationCancelled(e)}"

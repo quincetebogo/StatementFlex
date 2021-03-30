@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
@@ -6,7 +7,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/HorizonLabel';
@@ -43,7 +43,9 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
-		this.alertBannerMessage = ``;
+		this.alertBannerMessage = ``;    
+		this.incidentRefNumber = ``;
+		this.incidentRecId = ``;
 
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -59,6 +61,7 @@ export class EndCallSession extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {Object} incidentDetails Incident details
 	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @readonly
 	 * @static
@@ -67,6 +70,7 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
@@ -85,12 +89,19 @@ export class EndCallSession extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
+		const state = this.horizonStore.recoverState();
+		const incidentDetails = state && state.incidentDetails;
+
+		// Subsequent incident might be created, so retrieving refNo & recID always from state
+		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
+
 		const endCallDetails = {
 			isReassigned: this.incomingCallDetails.isReassigned,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentReferenceNumber: this.incidentRefNumber,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			endCallContext: this.endCallContext
 		};
@@ -116,7 +127,7 @@ export class EndCallSession extends Component {
 			}
 
 			const callToEnd = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentRecId: this.incidentRecId,
 				endReason: this.endCallReason.key,
 				resolution: this.endCallReason.value,
 				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
@@ -126,7 +137,7 @@ export class EndCallSession extends Component {
 
 			// Log any error
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
 			}
 
 			// Return the the call waiting landing page even if an error occured
@@ -157,7 +168,7 @@ export class EndCallSession extends Component {
 		if (returnValue.succeeded) {
 			this.endCallReasons = returnValue.result.endCallReasons;
 		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
 			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
 			this._returnToCallWaitingPage();
@@ -308,10 +319,11 @@ export class EndCallSession extends Component {
 	_webTemplate() {
 		return html`
 			<horizon-caller-dialog
-                        .incomingCallDetails="${this.incomingCallDetails}"
-                        .isNeedSelectable=${false}
-				        .headerLabel="${HEADER_LABEL}" 
-                        .displayButton="${false}">
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${false}
+						.headerLabel="${HEADER_LABEL}" 
+						.displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
