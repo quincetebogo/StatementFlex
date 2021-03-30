@@ -14,6 +14,7 @@ import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
+const ERROR_MESSAGE = `Choose an option to end call`;
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -41,6 +42,7 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
+		this.alertBannerMessage = ``;
 
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -67,7 +69,9 @@ export class EndCallSession extends Component {
 			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
-			endCallReasons: { attribute: false }
+			isBusy: { attribute: false },
+			endCallReasons: { attribute: false },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
@@ -103,6 +107,7 @@ export class EndCallSession extends Component {
 
 	async _endCallClick() {
 
+		if (this.endCallReason) {
 		if (this._stopPropagation()) {
 			// Updating state as call ended and redirecting it to call waiting page
 			this._returnToCallWaitingPage();
@@ -125,10 +130,14 @@ export class EndCallSession extends Component {
 
 		// Return the the call waiting landing page even if an error occured
 		this._returnToCallWaitingPage();
+		} else {
+			this.alertBannerMessage = ERROR_MESSAGE;
+		}
 	}
 
 	_valueChanged(e) {
 		if (e.detail.new) {
+			this.alertBannerMessage = ``;
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
 		}
 	}
@@ -229,17 +238,13 @@ export class EndCallSession extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: 312px;
+				height: 322px;
 				border-radius: 5px;
 			}
 
 			.body-box {
-				height: 256px;
-				--theme-container-padding-top: 35px;
+				height: 322px;
 				--theme-container-padding-bottom: 0px;
-				--theme-container-padding-left: 72px;
-				--theme-container-padding-right: 73px;
-				padding: 16px;
 			}
 
 			.end-reason-label {
@@ -282,6 +287,12 @@ export class EndCallSession extends Component {
 			.radio-button {
 				margin-top: 0px;
 				padding-bottom: 8px;
+			}
+			capitec-alert-banner {
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-icon-size-default: 26px;
+				--theme-alert-banner-height: 48px;
 			}`
 		];
 	}
@@ -298,14 +309,15 @@ export class EndCallSession extends Component {
                         .displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
+						${this._renderAlertBanner()}
 						${this._renderChooseEndCallReason()}
+						${this._renderLoadingIndicator()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</horizon-caller-dialog>
-			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -340,6 +352,15 @@ export class EndCallSession extends Component {
 				</capitec-button>
 			</capitec-group>
 		`;
+	}
+
+	_renderAlertBanner() {
+		if (this.alertBannerMessage) {
+			return html`
+				<capitec-alert-banner type="unsuccessful-red">
+					<b>Notify: </b>${this.alertBannerMessage}
+				</capitec-alert-banner>`;
+		}
 	}
 
 	_renderLoadingIndicator() {
