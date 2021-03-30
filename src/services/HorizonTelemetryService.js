@@ -39,21 +39,18 @@ const TelemetryEvent = {
 	CALLER_IDENTIFIED			: "horizon.call.id-caller.end-span",
 
 	SCR_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
-	CNF_CLR_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
-	CNF_CLR_NAVIGATE_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
-	CNF_CLR_NAVIGATE_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
-	CNF_CLR_NAVIGATE_END_CALL	: "horizon.call.id-caller.confirm-caller.end-call",
+	SELECT_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
+	SELECT_SEARCH_CLIENT : "horizon.call.id-caller.confirm-caller.search-client",
+	SELECT_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
 	SCR_UNLD_CONFIRM_CALLER 	: "horizon.call.id-caller.confirm-caller.end-span",
 	
 	SCR_LD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.start-span",
-	SRCH_CLNT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
-	SRCH_CLNT_NAVIGATE_END_CALL	: "horizon.call.id-caller.search-client.end-call",
+	SELECT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
 	SCR_UNLD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.end-span",
 	
 	SCR_LD_ADD_CALLER_DETAILS 			: "horizon.call.id-caller.add-caller.start-span",
-	ADD_DTL_ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
-	ADD_DTL_ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
-	ADD_DTL_NAVIGATE_END_CALL			: "horizon.call.id-caller.add-caller.end-call",
+	ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
+	ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
 	SCR_UNLD_ADD_CALLER_DETAILS 		: "horizon.call.id-caller.add-caller.end-span",
 }
 
@@ -302,8 +299,8 @@ export class HorizonTelemetry {
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
 			parentSpan 	: null,
-			eventName 	: TelemetryEvent.CNF_CLR_CONFIRM_CALLER,
-			tags 		: this._extractTags(TelemetryEvent.CNF_CLR_CONFIRM_CALLER),
+			eventName 	: TelemetryEvent.SELECT_CONFIRM_CALLER,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_CONFIRM_CALLER),
 			eventType 	: TelemetryEventType.PERSON,
 			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
 
@@ -333,8 +330,8 @@ export class HorizonTelemetry {
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
 			parentSpan 	: null,
-			eventName 	: TelemetryEvent.CNF_CLR_NAVIGATE_SEARCH_CLIENT,
-			tags 		: this._extractTags(TelemetryEvent.CNF_CLR_NAVIGATE_SEARCH_CLIENT),
+			eventName 	: TelemetryEvent.SELECT_SEARCH_CLIENT,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
 			eventType 	: TelemetryEventType.PERSON,
 			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
 
@@ -361,8 +358,8 @@ export class HorizonTelemetry {
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
 			parentSpan 	: null,
-			eventName 	: TelemetryEvent.CNF_CLR_NAVIGATE_ADD_CALLER_DETAILS,
-			tags 		: this._extractTags(TelemetryEvent.CNF_CLR_NAVIGATE_ADD_CALLER_DETAILS),
+			eventName 	: TelemetryEvent.SELECT_ADD_CALLER_DETAILS,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_ADD_CALLER_DETAILS),
 			eventType 	: TelemetryEventType.PERSON,
 			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
 

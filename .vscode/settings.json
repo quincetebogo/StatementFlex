@@ -8,7 +8,7 @@
 	// Controls how the editor should render whitespace characters, possibilities are 'none', 'boundary', and 'all'. The 'boundary' option does not render single spaces between words.
 	"editor.renderWhitespace": "boundary",
 	// Number of editors shown in the Open Editors pane.
-	"explorer.openEditors.visible": 0,
+	"explorer.openEditors.visible": 10,
 	// List of tags, comma separated, that should have an extra newline before them. 'null' defaults to "head, body, /html".
 	"html.format.extraLiners": "html, body",
 	// Indent <head> and <body> sections.
