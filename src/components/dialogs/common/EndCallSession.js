@@ -376,8 +376,7 @@ export class EndCallSession extends Component {
 				return html`
 					<capitec-alert-banner type="unsuccessful-red">
 						<b>Notify: </b>${this.alertBannerMessage}
-					</capitec-alert-banner>
-				`;
+				</capitec-alert-banner>`;
 			}
 		}
 
