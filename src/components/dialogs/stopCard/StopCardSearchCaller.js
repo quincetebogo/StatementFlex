@@ -53,7 +53,7 @@ const ERROR_MESSAGES = {
 const REGEX_PATTERNS = {
 	0: {
         PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
-        ERR_MESSAGE: `ID Number must be 13 characters long`,
+		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {

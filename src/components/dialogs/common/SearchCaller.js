@@ -82,7 +82,7 @@ const NONCLIENT_REGEX_PATTERN = {
 const REGEX_PATTERNS = {
 	0: {
         PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
-		FIELD_ERROR: `ID Number must be 13 characters long`,
+		FIELD_ERROR: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
