@@ -303,7 +303,7 @@ export class HorizonTelemetry {
 	 * 
 	 * @param {ConfirmCallerModel} baggage
 	 */
-	confirmCaller(baggage) {
+	selectConfirmCaller(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
@@ -334,7 +334,7 @@ export class HorizonTelemetry {
 	 * 
 	 * @param {NavigateSearchClientModel} baggage
 	 */
-	navigateSearchClient(baggage) {
+	selectSearchClient(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
@@ -362,7 +362,7 @@ export class HorizonTelemetry {
 	 * 
 	 * @param {NavigateAddCallerDetailsModel} baggage
 	 */
-	navigateAddCallerDetails(baggage) {
+	selectAddCallerDetails(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],

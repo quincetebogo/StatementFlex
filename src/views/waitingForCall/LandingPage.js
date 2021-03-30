@@ -111,6 +111,8 @@ export class LandingPage extends View {
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.callerIdentified();
+
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
 		this.searchCallSub.dispose(); 
