@@ -260,8 +260,7 @@ export class StatementsDialog extends Component {
         this.fromDate = new Date(e.detail.new.startDate);
         this.toDate = new Date(e.detail.new.endDate);
         const rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
-
-        if (rangeDiff > 90) {
+        if ((rangeDiff > 90) || (this.fromDate > this.toDate)) {
             this.errorMessage = `Out of range, please select the correct range up to 90 days`;
             this.calendarErrorMessage = `Date range up to 90 days only`;
         } else {
