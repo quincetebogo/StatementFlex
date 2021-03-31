@@ -3,6 +3,7 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
@@ -127,10 +128,14 @@ export class StopCard extends Component {
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 
-        this._updateLeftBar();
+		this._updateLeftBar();
+		
+		HorizonTelemetry.instance.screenLoadStopCard({screen : TelemetryScreen.STOP_CARD});
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadStopCard();
+
 		this.verifySub.dispose();
 		this.assignSub.dispose();
 		this.endCallSub.dispose();
@@ -208,9 +213,23 @@ export class StopCard extends Component {
 		)).filter(card => card.cardStopReason !== ``);
 
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+
+		// Telemetry
+		HorizonTelemetry.instance.stopCard({
+			screen : TelemetryScreen.STOP_CARD,
+			cards : this.cardsToStop.map(card => (
+				{
+					cardId : card.cardNumber,
+					maskedCardNr : card.maskedCardNumber,
+					reason : card.cardStopReason
+				}
+			))
+		});
 	}
 
 	_confirmedStoppingCardsClick(event) {
+		HorizonTelemetry.instance.confirmStopCard({ screen: TelemetryScreen.STOP_CARD });
+
 		this.dispatchEvent(new CustomEvent(
 			`cards-stopped`,
 			{
@@ -534,7 +553,10 @@ export class StopCard extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
-					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@on-cancel="${() => { 
+						this.renderMode = RENDER_MODE.MAIN_PAGE; 
+						HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
+					} }">
 				</horizon-stop-card-confirm>
 			`;
 		}

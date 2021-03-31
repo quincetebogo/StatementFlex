@@ -10,19 +10,22 @@ import { v4 } from 'uuid';
 
 
 /** The screens on which telemetry events are logged.
- * This correspond to the "Screen" column in the Data Spec.
+ * This correspond to the "screen" column in the Data Spec.
  * @typedef {Object} TelemetryScreen
  */
 export const TelemetryScreen = {
 	WAIT_FOR_CALL: `Waiting For Call`,
 	CONFIRM_CALLER: `Confirm Caller`,
 	SEARCH_CLIENT: `Search Client`,
-	ADD_CALLER_DETAILS: `Add Caller Details`
+	ADD_CALLER_DETAILS: `Add Caller Details`,
+
+	STOP_CARD: `Stop Card`,
+	STOP_CARD_OUTCOME: `Stop Card Outcome`,	//TODO: generalize
 };
 
 
 /** The event names to use when logging telemetry events.
- * This correspond to the "Action" and "eventName" columns in the Data Spec.
+ * This correspond to the `Action` and `eventName` columns in the Data Spec.
  * @typedef {Object} TelemetryEvent
  */
 const TelemetryEvent = {
@@ -33,23 +36,34 @@ const TelemetryEvent = {
 
 
 	// Confirm Caller
-	IDENTIFY_CALLER_STARTS		: "horizon.call.id-caller.start-span",
-	CALLER_IDENTIFIED			: "horizon.call.id-caller.end-span",
+	IDENTIFY_CALLER_STARTS		: `horizon.call.id-caller.start-span`,
+	CALLER_IDENTIFIED			: `horizon.call.id-caller.end-span`,
 
-	SCR_LD_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.start-span",
-	SELECT_CONFIRM_CALLER		: "horizon.call.id-caller.confirm-caller.confirm",
-	SELECT_SEARCH_CLIENT 		: "horizon.call.id-caller.confirm-caller.search-client",
-	SELECT_ADD_CALLER_DETAILS	: "horizon.call.id-caller.confirm-caller.add-caller-details",
-	SCR_UNLD_CONFIRM_CALLER 	: "horizon.call.id-caller.confirm-caller.end-span",
+	SCR_LD_CONFIRM_CALLER		: `horizon.call.id-caller.confirm-caller.start-span`,
+	SELECT_CONFIRM_CALLER		: `horizon.call.id-caller.confirm-caller.confirm`,
+	SELECT_SEARCH_CLIENT 		: `horizon.call.id-caller.confirm-caller.search-client`,
+	SELECT_ADD_CALLER_DETAILS	: `horizon.call.id-caller.confirm-caller.add-caller-details`,
+	SCR_UNLD_CONFIRM_CALLER 	: `horizon.call.id-caller.confirm-caller.end-span`,
 	
-	SCR_LD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.start-span",
-	SELECT_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.search",
-	SCR_UNLD_SEARCH_CLIENT		: "horizon.call.id-caller.search-client.end-span",
+	SCR_LD_SEARCH_CLIENT		: `horizon.call.id-caller.search-client.start-span`,
+	SELECT_SEARCH_CLIENT		: `horizon.call.id-caller.search-client.search`,
+	SCR_UNLD_SEARCH_CLIENT		: `horizon.call.id-caller.search-client.end-span`,
 	
-	SCR_LD_ADD_CALLER_DETAILS 	: "horizon.call.id-caller.add-caller.start-span",
-	ADD_CALLER_DETAILS_CANCEL	: "horizon.call.id-caller.add-caller.cancel",
-	ADD_CALLER_DETAILS_CONFIRM	: "horizon.call.id-caller.add-caller.confirm",
-	SCR_UNLD_ADD_CALLER_DETAILS : "horizon.call.id-caller.add-caller.end-span",
+	SCR_LD_ADD_CALLER_DETAILS 	: `horizon.call.id-caller.add-caller.start-span`,
+	ADD_CALLER_DETAILS_CANCEL	: `horizon.call.id-caller.add-caller.cancel`,
+	ADD_CALLER_DETAILS_CONFIRM	: `horizon.call.id-caller.add-caller.confirm`,
+	SCR_UNLD_ADD_CALLER_DETAILS : `horizon.call.id-caller.add-caller.end-span`,
+
+
+	// Stop Card
+	SCR_LD_STOP_CARD		: `horizon.call.fulfill-need.stop-card.start-span`,
+	STOP_CARD				: `horizon.call.fulfill-need.stop-card.stop`,
+	CONFIRM_STOP_CARD		: `horizon.call.fulfill-need.stop-card.confirm`,
+	CANCEL_STOP_CARD		: `horizon.call.fulfill-need.stop-card.cancel`,
+	EXIT_STOP_CARD			: `horizon.call.fulfill-need.stop-card.exit`,
+	SCR_UNLD_STOP_CARD		: `horizon.call.fulfill-need.stop-card.end-span`,
+
+	//TODO: generalize the outcome screen
 }
 
 
@@ -90,11 +104,13 @@ export class HorizonTelemetry {
 		this.telemetry = new Telemetry();
 
 		this.currentActiveSpans = {
-			"horizon.call" 	: "",
-			"id-caller"		: "",
-			"confirm-caller": "",
-			"search-client"	: "",
-			"add-caller"	: ""
+			"horizon.call" 	: null,
+			"id-caller"		: null,
+			"confirm-caller": null,
+			"search-client"	: null,
+			"add-caller"	: null,
+			"fulfill-need"	: null,
+			"stop-card"		: null
 		}
 
 	}
@@ -173,7 +189,7 @@ export class HorizonTelemetry {
 	incidentCreated(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["horizon.call"],
+			spanId 		: this.currentActiveSpans[`horizon.call`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.INCIDENT_CREATED,
 			tags 		: this._extractTags(TelemetryEvent.INCIDENT_CREATED),
@@ -196,7 +212,7 @@ export class HorizonTelemetry {
 	workflowCompleted() {	
 		this.telemetry.spanEnd({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["horizon.call"],
+			spanId 		: this.currentActiveSpans[`horizon.call`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.WORKFLOW_COMPLETED,
 			tags 		: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
@@ -209,6 +225,7 @@ export class HorizonTelemetry {
 	}
 
 	//#endregion ACCEPT CALL
+
 
 
 	//#region CONFIRM CALLER
@@ -270,7 +287,7 @@ export class HorizonTelemetry {
 	screenLoadConfirmCaller(baggage) {
 		let spanId = this.telemetry.spanStart({
 			traceId 	: this.traceId,
-			parentSpan 	: this.currentActiveSpans["id-caller"],
+			parentSpan 	: this.currentActiveSpans[`id-caller`],
 			eventName 	: TelemetryEvent.SCR_LD_CONFIRM_CALLER,
 			tags 		: this._extractTags(TelemetryEvent.SCR_LD_CONFIRM_CALLER),
 			eventType 	: TelemetryEventType.SYSTEM,
@@ -284,7 +301,7 @@ export class HorizonTelemetry {
 			]
 		});
 
-		if (spanId) this.currentActiveSpans["confirm-caller"] = spanId;
+		if (spanId) this.currentActiveSpans[`confirm-caller`] = spanId;
 	}
 
 
@@ -306,7 +323,7 @@ export class HorizonTelemetry {
 	selectConfirmCaller(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["confirm-caller"],
+			spanId 		: this.currentActiveSpans[`confirm-caller`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.SELECT_CONFIRM_CALLER,
 			tags 		: this._extractTags(TelemetryEvent.SELECT_CONFIRM_CALLER),
@@ -337,7 +354,7 @@ export class HorizonTelemetry {
 	selectSearchClient(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["confirm-caller"],
+			spanId 		: this.currentActiveSpans[`confirm-caller`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.SELECT_SEARCH_CLIENT,
 			tags 		: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
@@ -365,7 +382,7 @@ export class HorizonTelemetry {
 	selectAddCallerDetails(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["confirm-caller"],
+			spanId 		: this.currentActiveSpans[`confirm-caller`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.SELECT_ADD_CALLER_DETAILS,
 			tags 		: this._extractTags(TelemetryEvent.SELECT_ADD_CALLER_DETAILS),
@@ -392,7 +409,7 @@ export class HorizonTelemetry {
 	screenUnloadConfirmCaller(baggage) {
 		this.telemetry.spanEnd({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["confirm-caller"],
+			spanId 		: this.currentActiveSpans[`confirm-caller`],
 			parentSpan 	: null,
 			eventName 	: TelemetryEvent.SCR_UNLD_CONFIRM_CALLER,
 			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_CONFIRM_CALLER),
@@ -401,10 +418,13 @@ export class HorizonTelemetry {
 
 			baggage : [	{ "screen"		: baggage.screen		} ]
 		})
+
+		this.currentActiveSpans[`confirm-caller`] = null;
 	}
 
 	//#endregion CONFIRM CALLER
 	
+
 
 	//#region ADD CALLER DETAILS
 
@@ -422,7 +442,7 @@ export class HorizonTelemetry {
 	screenLoadAddCallerDetails(baggage) {
 		let spanId = this.telemetry.spanStart({
 			traceId 	: this.traceId,
-			parentSpan 	: this.currentActiveSpans["id-caller"],
+			parentSpan 	: this.currentActiveSpans[`id-caller`],
 			eventName 	: TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS,
 			tags 		: this._extractTags(TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS),
 			eventType 	: TelemetryEventType.SYSTEM,
@@ -433,7 +453,7 @@ export class HorizonTelemetry {
 			]
 		});
 
-		if (spanId) this.currentActiveSpans["add-caller"] = spanId;
+		if (spanId) this.currentActiveSpans[`add-caller`] = spanId;
 	}
 
 
@@ -452,8 +472,8 @@ export class HorizonTelemetry {
 	addCallerDetailsConfirm(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["add-caller"],
-			parentSpan 	: this.currentActiveSpans["id-caller"],
+			spanId 		: this.currentActiveSpans[`add-caller`],
+			parentSpan 	: this.currentActiveSpans[`id-caller`],
 			eventName 	: TelemetryEvent.ADD_CALLER_DETAILS_CONFIRM,
 			tags 		: this._extractTags(TelemetryEvent.ADD_CALLER_DETAILS_CONFIRM),
 			eventType 	: TelemetryEventType.PERSON,
@@ -480,8 +500,8 @@ export class HorizonTelemetry {
 	addCallerDetailsCancel(baggage) {
 		this.telemetry.event({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["add-caller"],
-			parentSpan 	: this.currentActiveSpans["id-caller"],
+			spanId 		: this.currentActiveSpans[`add-caller`],
+			parentSpan 	: this.currentActiveSpans[`id-caller`],
 			eventName 	: TelemetryEvent.ADD_CALLER_DETAILS_CANCEL,
 			tags 		: this._extractTags(TelemetryEvent.ADD_CALLER_DETAILS_CANCEL),
 			eventType 	: TelemetryEventType.PERSON,
@@ -507,8 +527,8 @@ export class HorizonTelemetry {
 	screenUnloadAddCallerDetails(baggage) {
 		this.telemetry.spanEnd({
 			traceId 	: this.traceId,
-			spanId 		: this.currentActiveSpans["add-caller"],
-			parentSpan 	: this.currentActiveSpans["id-caller"],
+			spanId 		: this.currentActiveSpans[`add-caller`],
+			parentSpan 	: this.currentActiveSpans[`id-caller`],
 			eventName 	: TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS,
 			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS),
 			eventType 	: TelemetryEventType.SYSTEM,
@@ -516,6 +536,8 @@ export class HorizonTelemetry {
 
 			baggage : [	{ "screen"	: baggage.screen } ]
 		})
+
+		this.currentActiveSpans[`add-caller`] = null;
 	}
 
 	//#endregion ADD CALLER DETAILS
@@ -524,6 +546,182 @@ export class HorizonTelemetry {
 
 	//#region SEARCH CALLER
 	//#endregion SEARCH CALLER
+
+
+
+	//#region STOP CARD
+
+	/**
+	 * @typedef {Object} ScrLdStopCardModel
+	 * @property {String} screen 
+	 */
+
+	/** Stop Card screen loaded telemetry event
+	 * @screen Stop Card
+	 * @event Screen Load: Stop Card
+	 * 
+	 * @param {ScrLdStopCardModel} baggage
+	 */
+	screenLoadStopCard(baggage) {
+		let spanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.SCR_LD_STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.SCR_LD_STOP_CARD),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage		: [
+				{ "screen"	: baggage.screen }
+			]
+		});
+
+		if (spanId) this.currentActiveSpans[`stop-card`] = spanId;
+	}
+
+
+	/** 
+	 * @typedef {Object} Card
+	 * @property {String} cardId
+	 * @property {String} maskedCardNr
+	 * @property {String} reason
+	 */
+
+	/**
+	 * @typedef {Object} StopCardModel
+	 * @property {String} screen
+	 * @property {Array<Card>} cards
+	 */
+
+	/** Stop Card button clicked telemetry event
+	 * @screen Stop Card
+	 * @event Stop Card
+	 * 
+	 * @param {StopCardModel} baggage
+	 */
+	stopCard(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen },
+				{"cards"	: baggage.cards }
+			]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} ConfirmCardStopModel
+	 * @property {String} screen
+	 */
+
+	/** Stop Card confirmation button clicked telemetry event
+	 * @screen Stop Card
+	 * @event Confirm cards to stop
+	 * 
+	 * @param {ConfirmCardStopModel} baggage
+	 */
+	confirmStopCard(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.CONFIRM_STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.CONFIRM_STOP_CARD),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+
+	/**
+	 * @typedef {Object} CancelCardStopModel
+	 * @property {String} screen
+	 */
+
+	/** Cancel button on Stop Card confirmation dialog clicked
+	 * @screen Stop Card
+	 * @event Cancel Stop Card Confirmation
+	 * 
+	 * @param {CancelCardStopModel} baggage
+	 */
+	cancelStopCard(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.CANCEL_STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.CANCEL_STOP_CARD),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} ExitCardStopModel
+	 * @property {String} screen
+	 */
+
+	/** Back/Exit (Arrow) button on Stop Card screen clicked
+	 * @screen Stop Card
+	 * @event Exit Stop Card
+	 * 
+	 * @param {ExitCardStopModel} baggage
+	 */
+	exitStopCard(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.EXIT_STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.EXIT_STOP_CARD),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+
+	/** Screen Unload: Stop Card
+	 * @screen Stop Card
+	 * @event Screen Unload: Stop Card
+	 */
+	screenUnloadStopCard() {
+		this.telemetry.spanEnd({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.SCR_UNLD_STOP_CARD,
+			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_STOP_CARD),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM)
+		})
+
+		this.currentActiveSpans[`stop-card`] = null;
+	}
+
+	//#endregion STOP CARD
 
 
 
