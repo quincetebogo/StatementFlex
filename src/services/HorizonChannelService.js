@@ -308,33 +308,15 @@ export class HorizonChannelService extends Service {
 	stopCard(stopCardRequest) {
 
 		/*
-		// Force loading of mocking settings
-		await this._mockEnabled(`stopCard`);
-
-		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking !== null && Object.prototype.hasOwnProperty.call(this._mocking, `stopCard`)) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `enabled`) && this._mocking.stopCard.enabled) {
-				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
-					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
-		*/
-/*
-						const cardStopResponse = { 
-							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-								result: {
-									statusCode: 400
-								  } }))
-						};
+		const cardStopResponse = { 
+		cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+			result: {
+						statusCode: 400
+				  } }))
+		};
 		
-						// throw new Error(`Mock Stop Card Error`);
-						return cardStopResponse;
+		return cardStopResponse;
 		*/
-	
-/*
-					 }
-				}
-			}
-		}
-*/
 
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
@@ -347,7 +329,6 @@ export class HorizonChannelService extends Service {
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
-
 	}
 
 	// loadAssignRequest
@@ -687,23 +668,23 @@ export class HorizonChannelService extends Service {
 	// Other Needs 
 	// ----------------
 	otherNeedCategories(orgUnit) {
-		const url = `/clientcare/incident/${this._version}/categories?`+
-		`OrgUnit=${orgUnit}`;
+		const url = `/clientcare/incident/${this._version}/categories?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}`;
 		return this._get(url, this._setToken(), `otherNeedCategories`);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
-		const url = `/clientcare/incident/v1/need?`+
-		`OrgUnit=${orgUnit}&` +
-		`CategoryName=${categoryName}`;
+		const url = `/clientcare/incident/${this._version}/need?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}`;
 		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
 	}
 
 	otherNeedIssueType(orgUnit, categoryName, need) {
-		const url = `/clientcare/incident/v1/issue?`+
-		`OrgUnit=${orgUnit}&` +
-		`CategoryName=${categoryName}&` +
-		`Need=${need}`;
+		const url = `/clientcare/incident/${this._version}/issue?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}&` +
+		`Need=${encodeURIComponent(need)}`;
 		return this._get(url, this._setToken(), `otherNeedIssueType`);
 	}
 
