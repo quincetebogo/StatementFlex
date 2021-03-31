@@ -61,6 +61,10 @@ export class SavingsAccount extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
 	}
 
+	_accountSavingsEnquiry(productEnquiry) {
+		this.dispatchEvent(new CustomEvent(`savings-enquiry`, { detail: { enquiry: productEnquiry } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -308,7 +312,8 @@ export class SavingsAccount extends Component {
 					<horizon-option-button 
 							class="button-margin"
 							label="Product enquiry"
-							icon="system/info-action">
+							icon="system/info-action"
+							@click="${() => this._accountSavingsEnquiry(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin"

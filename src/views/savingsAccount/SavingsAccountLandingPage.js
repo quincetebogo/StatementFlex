@@ -235,6 +235,13 @@ export class SavingsAccountLandingPage extends View {
 	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
+
+	_productEnquiry(event, type) {
+		
+		if (event.detail.enquiry === `product-enquiry`) {
+			window.open(`https://www.capitecbank.co.za/global-one/${type}`);
+		}
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -282,7 +289,8 @@ export class SavingsAccountLandingPage extends View {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					@option-click="${(event) => this._optionClick(event.detail.option)()}">
+					@option-click="${(event) => this._optionClick(event.detail.option)()}"
+					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
 				</horizon-savings-account>`
 			: html``;
 	}
