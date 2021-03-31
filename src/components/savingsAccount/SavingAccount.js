@@ -126,6 +126,8 @@ export class SavingsAccount extends Component {
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
 					--theme-expander-height: 210px;
+					--theme-expander-indicator-width: 11.5px;
+                    --theme-expander-indicator-height: 6.5px;
 				}
 				.account-details-bar > capitec-group {
 					width: 984px;
@@ -184,16 +186,19 @@ export class SavingsAccount extends Component {
 				}
 				.button-margin {
 					height: 80px;
-					width: 182px;
-					margin-right: 16px;
+					width: 186px;
 					margin-left: 16px;
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
+				.button-more{
+                   margin-left:223px;
+				}
 				.label-text {
 					--horizon-option-btn-text-margin-top: 10px;
 				}
+				
 			`
 		];
 	}
@@ -285,7 +290,7 @@ export class SavingsAccount extends Component {
 						@click="${() => this._optionSelectedClick(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
-						class="button-margin" 
+						class="button-margin button-more"
 						label="More" 
 						icon="system/more-action"
 						@click="${() => this._optionSelectedClick(`more`)}">
