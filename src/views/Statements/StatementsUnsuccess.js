@@ -28,15 +28,15 @@ export class StatementsUnsuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS;
 		this.mailId = ``;
 		this.acNumber = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
-
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.landingPageInfo = {};
 	}
 
 
@@ -65,12 +65,11 @@ export class StatementsUnsuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			// this.returnRoute = state.returnTo.route;
-			// Return to favourites screen from here
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;      
 			this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
-			// TODO: mandate ID to be obtained from state.
+      		this.acNumber = state.accountNumber;
+
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
@@ -78,7 +77,12 @@ export class StatementsUnsuccess extends View {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});
 		}
+	}
 		
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
 		super.disconnectedCallback();
 	}
 
@@ -184,7 +188,7 @@ export class StatementsUnsuccess extends View {
 									@right-click=${() => this._handoffClick()}>
 									<section 
 					id="id-error-msg" 
-					slot="detail">The statement for savings account ${this.acNumber} was not emailed to ${this.mailId}
+					slot="detail">The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 				</section>
 			</horizon--error-screen>
 		`;
@@ -216,7 +220,8 @@ export class StatementsUnsuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

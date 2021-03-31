@@ -39,6 +39,7 @@ export class XdsVerificationFailed extends View {
 
 		const state = this.horizonStore.recoverState();
 
+		this.incidentDetails = state.incidentDetails;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 
@@ -174,7 +175,8 @@ export class XdsVerificationFailed extends View {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller 
+				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation ="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -188,7 +190,8 @@ export class XdsVerificationFailed extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"

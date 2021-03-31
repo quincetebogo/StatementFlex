@@ -53,8 +53,8 @@ const ERROR_MESSAGES = {
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
-		PATTERN: /^[0-9]{13}$/,
-		ERR_MESSAGE: `ID Number must be 13 characters long`,
+        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
@@ -125,6 +125,7 @@ export class StopCardSearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails - Incoming call information
+	 * @property {Object} incidentDetails - Incident details
 	 * 
 	 * @readonly
 	 * @static
@@ -133,6 +134,7 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 
 			isBusy: { attribute: false },
 			errMessage: { attribute: false },
@@ -160,8 +162,8 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption = this.incomingCallDetails.ivrOption;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this._loadSearchOptions();
@@ -214,13 +216,11 @@ export class StopCardSearchCaller extends Component {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
 				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
-			} else {
-				if (this.incidentReferenceNumber === null) {
+			} else if (this.incidentReferenceNumber === null) {
 				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				}
-			}
 		}
 	}
 
@@ -404,8 +404,12 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+					<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}"
+						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
@@ -503,6 +507,7 @@ export class StopCardSearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}">
 			</horizon-end-call-session>`;

@@ -122,15 +122,14 @@ export class ProductButtonPanel extends Component {
 
 	_performNavigation(type, hasInsuranceProducts) {
 
-		const env = this._configuration.config.runtime.environment;
 		const state = this.horizonStore.recoverState();
 		const callerInfo = state && state.callerInformation;
 		
 		/**
 		 * Scenario 1: When a 3rd party or non-client is dialing for any need, clicking on the products buttons
-		 * 			   should display product info coming soon screen
+		 *             should display product info coming soon screen
 		 * Scenario 2: We are going production only with stop card, apart from dev / int regions product buttons
-		 * 			   are set to do nothing
+		 *             are set to do nothing
 		 * TODO: Remove this environment check when product screens are ready/ when we want to map it to other needs
 		 */
 
@@ -138,9 +137,6 @@ export class ProductButtonPanel extends Component {
 		// not have caller information
 		if (callerInfo && (callerInfo.is3rdParty || callerInfo.isNonClient)) {
 			this.horizonRouter.navigateToProductInfo(type);
-		} else if (env === `LOCAL`) {
-			// For now, the product buttons only route to the proper landing pages when a developer is running on their local machine
-			this.horizonRouter.navigateToLandingPage(type, hasInsuranceProducts);
 		} else {
 			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
 			this.horizonRouter.navigateToProductInfo(type);

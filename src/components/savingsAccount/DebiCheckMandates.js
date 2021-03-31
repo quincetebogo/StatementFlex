@@ -69,6 +69,7 @@ export class DebiCheckMandates extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this._initialise();
 	}
 
@@ -78,7 +79,6 @@ export class DebiCheckMandates extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
-		
 	}
 
 	_performFilter(type) {

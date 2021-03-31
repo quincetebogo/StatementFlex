@@ -1,5 +1,4 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';

@@ -1,11 +1,11 @@
 import { Configuration, EventAggregator, Logger, NavigationContext, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { validate } from 'app/utils/channelServiceUtilities';
 
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
