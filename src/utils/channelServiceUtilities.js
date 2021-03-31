@@ -89,11 +89,11 @@ export function formatPhoneNumber(value) {
 /**
  *  
  *
- * @param {*} SAidNumber A South African ID Number
- * @returns {Boolean} Indicates if the check digit on the South African ID Number computes correctly
+ * @param {*} idNumber An ID Number
+ * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
  */
-function _luhnCheck(SAidNumber) {
-	const num = SAidNumber.toString()
+function _luhnCheck(idNumber) {
+	const num = idNumber.toString()
 	.split(``)
 	.reverse()
 	.map(x => parseInt(x, 10));
@@ -114,5 +114,11 @@ function _luhnCheck(SAidNumber) {
  * @returns {String} Check if a South African ID number is well formed
  */
 export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
-	return southAfricanIDNumber.length === 13 && _luhnCheck(southAfricanIDNumber);
+	return southAfricanIDNumber.length === 13 && 
+			RegExp(/^[0-9]{13}$/, `g`).test(southAfricanIDNumber);
+
+		// Luhn check removed. Apparently there are valid numbers in the wild that 
+		// fail this test????
+
+		// && _luhnCheck(southAfricanIDNumber); 
 }
