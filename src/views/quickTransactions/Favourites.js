@@ -270,14 +270,25 @@ export class Favourites extends View {
                  this.isLoading = false;
                  this.landingPageInfo = returnValue.result;
 
-			 	// Now we can update the information on the product buttons
-			 	this._updateLeftBar();
 			 }
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
-			this.landingPageInfo = { pendingMandateCount: 0 };
+			this.landingPageInfo = { 
+				savingsAccountProductDescription: ``,
+				savingsPlanProductDescription: ``,
+				insureProductDescription: ``,
+				creditProductDescription: ``,
+				savingsAccountProductAmount: ``,
+				savingsPlanProductAmount: ``,
+				insureProductAmount: ``,
+				creditProductAmount: ``,
+				pendingMandateCount: 0 
+			};
 		}
+
+		// Now we can update the information on the product buttons
+		this._updateLeftBar();
 	}
 
 	_updateLeftBar() {

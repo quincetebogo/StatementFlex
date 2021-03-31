@@ -121,7 +121,6 @@ export class ProductButtonPanel extends Component {
 
 	_performNavigation(type, hasInsuranceProducts) {
 
-		const env = this._configuration.config.runtime.environment;
 		const state = this.horizonStore.recoverState();
 		const callerInfo = state && state.callerInformation;
 		
@@ -137,9 +136,6 @@ export class ProductButtonPanel extends Component {
 		// not have caller information
 		if (callerInfo && (callerInfo.is3rdParty || callerInfo.isNonClient)) {
 			this.horizonRouter.navigateToProductInfo(type);
-		} else if (env === `LOCAL`) {
-			// For now, the product buttons only route to the proper landing pages when a developer is running on their local machine
-			this.horizonRouter.navigateToLandingPage(type, hasInsuranceProducts);
 		} else {
 			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
 			this.horizonRouter.navigateToProductInfo(type);
