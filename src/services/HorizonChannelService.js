@@ -683,21 +683,27 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `transactionHistory`);
 	}
 
-	// --------------------------
-	// Other Needs methods
-	// --------------------------
+	// ----------------
+	// Other Needs 
+	// ----------------
 	otherNeedCategories(orgUnit) {
-		const url = `/clientcare/Incident/${this._version}/orgunit/${orgUnit}/categories`;
+		const url = `/clientcare/incident/${this._version}/categories?`+
+		`OrgUnit=${orgUnit}`;
 		return this._get(url, this._setToken(), `otherNeedCategories`);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need`;
+		const url = `/clientcare/incident/v1/need?`+
+		`OrgUnit=${orgUnit}&` +
+		`CategoryName=${categoryName}`;
 		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
 	}
 
 	otherNeedIssueType(orgUnit, categoryName, need) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need/${need}/issue`;
+		const url = `/clientcare/incident/v1/issue?`+
+		`OrgUnit=${orgUnit}&` +
+		`CategoryName=${categoryName}&` +
+		`Need=${need}`;
 		return this._get(url, this._setToken(), `otherNeedIssueType`);
 	}
 
