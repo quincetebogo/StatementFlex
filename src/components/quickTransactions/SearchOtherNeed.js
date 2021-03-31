@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
-import { EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
@@ -91,8 +90,7 @@ const RENDER_MODE = Object.freeze({
 		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
 		if (returnValue.succeeded && returnValue.result) {
 			this.searchObject = returnValue.result.categories;
-		}
-		else {
+		} else {
 			this.logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
 		
 		}
@@ -132,9 +130,8 @@ const RENDER_MODE = Object.freeze({
 		}
 			if (returnValue.succeeded && returnValue.result) {
 				this.specificNeedObjects = returnValue.result.needs.map(item => item.need);
-			}
-			else {
-				this.logger.log("error", `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+			} else {
+				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchOtherNeed`, returnValue.result);
 			}
 		
 	 }
@@ -151,9 +148,8 @@ const RENDER_MODE = Object.freeze({
 		
 				if (returnValue.succeeded && returnValue.result) {
 				this.issueTypeObjects = returnValue.result.issues.map(item => item.issue);
-			}
-			else {
-				this.logger.log("error", `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+			} else {
+				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
 		} else {
 			this.solutionDisplay = false;
@@ -167,8 +163,7 @@ const RENDER_MODE = Object.freeze({
 		
 		if (returnValue.succeeded && returnValue.result) {
 			this.solutionObjects = returnValue.result.issues.map(item => item.solution);
-		}
-		else {
+		} else {
 			
 			this.logger.log(`error`, `Failed to retrieve Other Needs Solution`, `_chooseIssueType`, returnValue.result);
 		}
