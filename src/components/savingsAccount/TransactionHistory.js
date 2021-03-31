@@ -38,7 +38,7 @@ const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
 	END_DATE : new Date().toISOString().substr(0,10),
 	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
-	MAX_RESULTS : 100,
+	MAX_RESULTS : 50,
 	MONEY_TYPE : 'BOTH'
 }
 
@@ -163,36 +163,34 @@ export class TransactionHistory extends Component {
 			this.startDate = this._formatDate(e.detail.new.date);
 		}
 		//Start date and End date are same untill the End date is selected different
-		if (e.detail.old.date ===`` && this.endDate === ``){
+		if (!e.detail.old.date && this.endDate === ``){
 			this.endDate= this.startDate;
 		}
 	}
 
 	_endDateChanged(e) {
-		if (e.detail.new.date) {
-			this.endDate = this._formatDate(e.detail.new.date);
-		}
+        if (e.detail.new.date) {
+            this.endDate = this._formatDate(e.detail.new.date);
+        }
 		// Start date and End date are same untill the Start date is selected different 
-		if (e.detail.old.date ===`` && this.startDate === ``){
+		if (!e.detail.old.date && this.startDate === ``){
 			this.startDate= this.endDate;
 		}
 	}
 
 	//This method is to get the Maximum date upto which one can select on the End/To Date calendar
 	_getEndMaxDate(){
-		const fromDate = new Date(this.startDate);
 		const todaysDate = new Date();
-		const maxDate = new Date();
-		maxDate.setDate(fromDate.getDate() + 90);
+		const maxDate = new Date(this.startDate);
+		maxDate.setDate(maxDate.getDate() + 90);
 
 		return maxDate > todaysDate ? todaysDate : maxDate;
 	}
 
 	//This method is to get the Minimum date untill which one can select on the Start/From Date calendar
 	_getStartMinDate(){
-		const endDate = new Date(this.endDate);
-		const minDate = new Date();
-		minDate.setDate(endDate.getDate() - 90);
+		const minDate = new Date(this.endDate);
+		minDate.setDate(minDate.getDate() - 90);
 
 		return minDate;
 	}
@@ -260,8 +258,8 @@ export class TransactionHistory extends Component {
 
 			item.tranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = this._formatAmount(item.amount);
-			item.balance = this._formatAmount(item.balance);
+			item.formatedAmount = this._formatAmount(item.amount);
+			item.formatedBalance = this._formatAmount(item.balance);
 
 			return item;
 		});
@@ -536,7 +534,7 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-color: #3A3A3A;
 					--theme-calendar-not-selectable-color: #969B9D;
 					--theme-calendar-calendar-width: 347px;
-					--theme-calendar-days-padding: 0px 18px;
+					--theme-calendar-days-padding: 16px 18px;
 					--theme-calendar-calendar-border-radius: 0px;
 				}
 				.load-more-bar{
@@ -758,8 +756,8 @@ export class TransactionHistory extends Component {
 						size="144px;" 
 						.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
-					<capitec-table-column label="Amount" field="amount" size="158px;" type="currency"></capitec-table-column>
-					<capitec-table-column label="Balance" field="balance" size="130px;" type="currency" align ="right"></capitec-table-column>
+					<capitec-table-column label="Amount" field="formatedAmount" size="158px;" type="currency"></capitec-table-column>
+					<capitec-table-column label="Balance" field="formatedBalance" size="130px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
 
 		`;
