@@ -1,4 +1,4 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
+import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { View, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -60,6 +60,7 @@ export class ProductInformation extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.configuration = Configuration.getInstance();
 	}
 
 	// ----------
@@ -112,8 +113,9 @@ export class ProductInformation extends View {
 	// EVENTS
 	// ---------
 
-	_viewBenefits() {
-		window.open(`https://www.capitecbank.co.za/global-one/${this._config.type}/`);
+	async _viewBenefits() {
+		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}${this._config.type}/`);
 	}
 	
 	_endCallClick() {

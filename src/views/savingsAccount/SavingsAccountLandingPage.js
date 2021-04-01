@@ -1,4 +1,4 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
+import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -18,8 +18,9 @@ const RENDER_MODE = Object.freeze({
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
 	END_DATE: new Date().toISOString().substr(0, 10),
-	// eslint-disable-next-line no-extra-parens
-	START_DATE: new Date(Date.now() - (90 * 24 * 60 * 60 * 1000)).toISOString().substr(0, 10),
+
+	// 7776000000 is 90 days in milliseconds
+	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
 	START_AT_INDEX: 0,
 	MAX_RESULTS: 20,
 	MONEY_TYPE: `BOTH`
@@ -49,6 +50,7 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
+		this.configuration = Configuration.getInstance();
 	
 		this.state = this.horizonStore.recoverState();
 		this.callerInformation = this.state.callerInformation;
@@ -63,7 +65,6 @@ export class SavingsAccountLandingPage extends View {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		
 	}
 
 	// -------------------
@@ -236,10 +237,10 @@ export class SavingsAccountLandingPage extends View {
 		// TODO: Functionality to option 'more' comes here
 	}
 
-	_productEnquiry(event, type) {
-		
+	async _productEnquiry(event, type) {
 		if (event.detail.enquiry === `product-enquiry`) {
-			window.open(`https://www.capitecbank.co.za/global-one/${type}`);
+			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+			window.open(`${globalOneUrl}${type}`);
 		}
 	}
 	// ---------

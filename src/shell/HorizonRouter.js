@@ -291,12 +291,14 @@ export class HorizonRouter {
 		const horizonRouter = HorizonRouter.getInstance();
 		const horizonStore = HorizonStore.getInstance();
 
+		const isCallended = (routingInfo) => routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
+		const callerIsverified = (routingInfo) => routingInfo.callStatus === `CALL-IN-PROGRESS` && routingInfo.verificationStatus === `verified`;
 
-		const guardInitalLandingPages = () => {
+		const guardInitialLandingPages = (isProductPage) => {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
 
-			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS`) {
+			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS` && !isProductPage) {
 				// If the user browsers to the initial landing page, trigger ending the call/clearing state
 				// Manually browsing to the landing page is not supported and failing to clear state can leave
 				// information from a previous client behind that can get mixed up with information from the next call
@@ -307,12 +309,16 @@ export class HorizonRouter {
 			}
 
 			// Don't allow browsing back to the landing page from another page unless the call has been ended
-			return routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
+			// or this is an unverified caller (in which case we may go to a product page)
+			return isProductPage ? isCallended(routingInfo) || !callerIsverified(routingInfo) : isCallended(routingInfo);
 		};
 
+		const guardCallWaitingPage = () => guardInitialLandingPages(false);
+		const guardProductPages = () => guardInitialLandingPages(true);
+
 		return {
-			callWaitingPage: guardInitalLandingPages,
-			productPage: guardInitalLandingPages
+			callWaitingPage: guardCallWaitingPage,
+			productPage: guardProductPages
 		}[funcName]();
 	};
 

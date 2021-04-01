@@ -92,32 +92,35 @@ export class ProductButtonPanel extends Component {
 	_savingsAccountClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsAccountProduct();
+		} else {
+			this._performNavigation(`SavingsAccount`, false);
 		}
-		this._performNavigation(`SavingsAccount`, false);
 	}
 
 	_savingsPlanClick() {
-				if (!this.disableNavigation) {
+		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToSavingsPlanProduct();
+		} else {
+			this._performNavigation(`SavingsPlan`, false);
 		}
-		this._performNavigation(`SavingsPlan`, false);
 	}
 
 	_insureClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToInsureProduct();
+		} else {
+			// Note we will not have callerInformation when being invoked from the Agent's waiting for call landing page
+			const state = this.horizonStore.recoverState();
+			this._performNavigation(`Insure`, state && state.callerInformation ? state.callerInformation.hasInsuranceProducts : false);
 		}
-
-		// Note we will not have callerInformation when being invoked from the Agent's waiting for call landing page
-		const state = this.horizonStore.recoverState();
-		this._performNavigation(`Insure`, state && state.callerInformation ? state.callerInformation.hasInsuranceProducts : false);
 	}
 
 	_creditClick() {
 		if (!this.disableNavigation) {
 			this.horizonRouter.navigateToCreditProduct();
+		} else {
+			this._performNavigation(`Credit`, false);
 		}
-		this._performNavigation(`Credit`, false);
 	}
 
 	_performNavigation(type, hasInsuranceProducts) {
@@ -138,8 +141,7 @@ export class ProductButtonPanel extends Component {
 		if (callerInfo && (callerInfo.is3rdParty || callerInfo.isNonClient)) {
 			this.horizonRouter.navigateToProductInfo(type);
 		} else {
-			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
-			this.horizonRouter.navigateToProductInfo(type);
+			this.horizonRouter.navigateToLandingPage(type);
 		}
 	}
 
