@@ -4,6 +4,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -196,6 +197,20 @@ export class SearchCaller extends Component {
 		super.connectedCallback();
 		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadSearchClient({
+			screen: TelemetryScreen.SEARCH_CLIENT
+		}); 
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+			
+		// Telemetry
+			HorizonTelemetry.instance.screenUnloadAddCallerDetails({
+				screen: TelemetryScreen.SEARCH_CLIENT
+			}); 
 	}
 
 	// --------------
@@ -220,6 +235,13 @@ export class SearchCaller extends Component {
 	}
 
 	async _onSearchClient() {
+
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
 
 		if (this._validateFields()) {
 			const searchClient = {
@@ -266,6 +288,14 @@ export class SearchCaller extends Component {
 	}
 
 	async _onContinue() {
+
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen		: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen	: TelemetryScreen.CONFIRM_CALLER
+		});
+
 		if (this._validateNonClientFields()) {
 			const callerDetails = new CallerDetails();
 

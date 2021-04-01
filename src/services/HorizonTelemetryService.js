@@ -338,7 +338,7 @@ export class HorizonTelemetry {
 		this.telemetry.event({
 			traceId 	: this.traceId,
 			spanId 		: this.currentActiveSpans["confirm-caller"],
-			parentSpan 	: null,
+			parentSpan 	: this.currentActiveSpans["id-caller"],
 			eventName 	: TelemetryEvent.SELECT_SEARCH_CLIENT,
 			tags 		: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
 			eventType 	: TelemetryEventType.PERSON,
@@ -523,9 +523,95 @@ export class HorizonTelemetry {
 
 
 	//#region SEARCH CALLER
+
+	/**
+	 * @typedef {Object} ScrLdSearchClientModel
+	 * @property {String} screen 
+	 */
+
+	/** Search Caller
+	 * @screen Search Client
+	 * @event Screen Load: Search Client
+	 * @param {ScrLdSearchClientModel} baggage 
+	 */
+	
+	screenLoadSearchClient(baggage) {
+		let spanId = this.telemetry.spanStart({
+			traceId 	: this.traceId,
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SCR_LD_SEARCH_CLIENT,
+			tags 		: this._extractTags(TelemetryEvent.SCR_LD_SEARCH_CLIENT),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage		: [
+				{ "screen"	: baggage.screen }
+			]
+		});
+
+		if (spanId) this.currentActiveSpans["search-client"] = spanId;
+	}
+
+	/**
+	 * @typedef {Object} SearchClientModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+		/**
+	 * @typedef {Object} NavigateSearchClientModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to Confirm Client Screen
+	 * Search Client button clicked
+	 * @screen Search Client
+	 * @event Navigate to Confirm Client
+	 * 
+	 * @param {NavigateConfirmClientModel} baggage
+	 */
+	 selectSearchCapitecClient(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["search-client"],
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SELECT_SEARCH_CLIENT,
+			tags 		: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	{"screen"		: baggage.screen		},
+						{"next-screen"	: baggage.nextScreen	} ]
+		});
+	}
+
+		/**
+	 * @typedef  {Object} ScrUnldSearchClientModel 
+	 * @property {String} screen 
+	 */
+
+	/** Screen Unload: Search Client
+	 * @screen Search Client
+	 * @event Screen Unload: Search Client
+	 * 
+	 * @param {ScrUnldSearchClientModel} baggage
+	 */
+	 screenUnloadSearchClient(baggage) {
+		this.telemetry.spanEnd({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans["search-client"],
+			parentSpan 	: this.currentActiveSpans["id-caller"],
+			eventName 	: TelemetryEvent.SCR_UNLD_SEARCH_CLIENT,
+			tags 		: this._extractTags(TelemetryEvent.SCR_UNLD_SEARCH_CLIENT),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage : [ { "screen" : baggage.screen } ]
+		});
+	}
+
 	//#endregion SEARCH CALLER
-
-
 
 	//#endregion PUBLIC METHODS
 
