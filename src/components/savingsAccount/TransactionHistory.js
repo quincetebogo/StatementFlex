@@ -1,8 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
 
-import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -32,12 +32,12 @@ const TRANSACTION_STATUS_LIST = [
 ];
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
-	END_DATE : new Date().toISOString().substr(0,10),
-	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
-	MAX_RESULTS : 50,
-	MONEY_TYPE : 'BOTH'
-}
+	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0, 10),
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
+};
 
 /**
  * Transaction History screen is to display the list of transactions of a client.
@@ -70,7 +70,7 @@ export class TransactionHistory extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showLoadMore = true;
 		
-		this.startDate =``;
+		this.startDate = ``;
 		this.endDate = ``;
 		
 		this.filteredData = [];
@@ -98,7 +98,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			callerInformation: {type: Object},
+			callerInformation: { type: Object },
 
 			filteredData: { attribute: false },
 			renderMode: { attribute: false },
@@ -156,9 +156,9 @@ export class TransactionHistory extends Component {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
 		}
-		//Start date and End date are same untill the End date is selected different
-		if (!e.detail.old.date && this.endDate === ``){
-			this.endDate= this.startDate;
+		if (!e.detail.old.date && this.endDate === ``) {
+		// Start date and End date are same untill the End date is selected different
+		this.endDate = this.startDate;
 		}
 	}
 
@@ -167,13 +167,13 @@ export class TransactionHistory extends Component {
             this.endDate = this._formatDate(e.detail.new.date);
         }
 		// Start date and End date are same untill the Start date is selected different 
-		if (!e.detail.old.date && this.startDate === ``){
-			this.startDate= this.endDate;
+		if (!e.detail.old.date && this.startDate === ``) {
+			this.startDate = this.endDate;
 		}
 	}
 
-	//This method is to get the Maximum date upto which one can select on the End/To Date calendar
-	_getEndMaxDate(){
+	// This method is to get the Maximum date upto which one can select on the End/To Date calendar
+	_getEndMaxDate() {
 		const todaysDate = new Date();
 		const maxDate = this.startDate ? new Date(this.startDate) : new Date();
 		maxDate.setDate(maxDate.getDate() + 90);
@@ -181,8 +181,8 @@ export class TransactionHistory extends Component {
 		return maxDate > todaysDate ? todaysDate : maxDate;
 	}
 
-	//This method is to get the Minimum date untill which one can select on the Start/From Date calendar
-	_getStartMinDate(){
+	// This method is to get the Minimum date untill which one can select on the Start/From Date calendar
+	_getStartMinDate() {
 		const minDate = new Date(this.endDate);
 		minDate.setDate(minDate.getDate() - 90);
 
@@ -199,7 +199,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_cancel() {
-		if(RENDER_CHIPS[FILTER_BY.DATE]===``){
+		if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
 			this.startDate = ``;
 			this.endDate = ``;
 		}
@@ -213,7 +213,7 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
-		this._reset()
+		this._reset();
 		this._refineSearch();
 	}
 
@@ -221,14 +221,14 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this._reset()
+		this._reset();
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
 	}
 
-	//To scroll the content of the Table to the Top when scroll to Top button is clicked
-	_scrollToTop(e){
+	// To scroll the content of the Table to the Top when scroll to Top button is clicked
+	_scrollToTop(e) {
 		const element = this.shadowRoot.getElementById(`transactions-table`);
 		element.scrollTop = 0;
 	}
@@ -246,7 +246,8 @@ export class TransactionHistory extends Component {
 	// ---------------
 
 	_initialize(tableData) {
-		tableData.length < TRANSACTION_HISTORY.MAX_RESULTS ? this.showLoadMore = false : this.showLoadMore = true
+		this.showLoadMore = !(tableData.length < TRANSACTION_HISTORY.MAX_RESULTS);
+
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
@@ -261,39 +262,39 @@ export class TransactionHistory extends Component {
 		return tableData.filter(item => item.transactionStatus !== ``);
 	}
 
-	//To format the raw amount as per the design
-	_formatAmount(amount){
-		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	// To format the raw amount as per the design
+	_formatAmount(amount) {
+		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
 
 	}
 	
-	//To set the values to default on closing the chip or clearing all the filters
-	_reset(){
+	// To set the values to default on closing the chip or clearing all the filters
+	_reset() {
 		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
 		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
-		if(RENDER_CHIPS[FILTER_BY.DATE]===``){
+		if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
 			this.startDate = ``;
 			this.endDate = ``;
 		}
 	}
 
-	async _loadMoreTransactions(){
+	async _loadMoreTransactions() {
 
-		const loadMoreData = (this.transactionHistory.length > 0) ? await this.getMoreTransactions() : [];
-		if(loadMoreData.length > 0){
-			this.rawTableData = [...this.rawTableData,...loadMoreData];
+		const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
+		if (loadMoreData.length > 0) {
+			this.rawTableData = [...this.rawTableData, ...loadMoreData];
 			const tableData = this._initialize(loadMoreData);
-			this.transactionHistory = [...this.transactionHistory,...tableData];
+			this.transactionHistory = [...this.transactionHistory, ...tableData];
 		}
-		if((!loadMoreData.length > 0) && this.transactionHistory.length>0){
-			this.showLoadMore = false
+		if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+			this.showLoadMore = false;
 		}
 		this.filteredData = this.transactionHistory;
 		this._refineSearch();
 	}
 
-	async getMoreTransactions(){
+	async getMoreTransactions() {
 		const transactionHistoryRequest = {
 			cifNumber: this.callerInformation.cifNumber,
 			accountNumber: this.accountDetails.accountNumber,
@@ -303,10 +304,11 @@ export class TransactionHistory extends Component {
 			startAtIndex: this.rawTableData.length,
 			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
 			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
-		}
+		};
+
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
-		if(returnValue.succeeded && returnValue.result){
+		if (returnValue.succeeded && returnValue.result) {
 			return returnValue.result.transactions;
 		}
 	}
@@ -577,7 +579,7 @@ export class TransactionHistory extends Component {
 				<capitec-content-box class="main-view" id = "transactions-table">
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
-				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? "show-load-more" : "hide-load-more"}">
+				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
 					<capitec-spacer></capitec-spacer>
 					<capitec-button type="clear" label="Load More" @click = ${() => this._loadMoreTransactions()}></capitec-button>
 					<capitec-spacer></capitec-spacer>
@@ -589,6 +591,7 @@ export class TransactionHistory extends Component {
 			${this._renderLoadingIndicator()}
 		`;
 	}
+
 	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
@@ -758,14 +761,13 @@ export class TransactionHistory extends Component {
 	}
 
 	_renderTransactionStatus(value) {
-		if (value === 'Processed'){
-			return html ``;
-		}else {
-		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
-						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
-					</div>`;
+		if (value === `Processed`) {
+			return html``;
 		}
 
+		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
+						<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
+					</div>`;
 	}
 
 	_renderExpander (item) {
@@ -864,7 +866,7 @@ export class TransactionHistory extends Component {
 							year = "${new Date().getFullYear()}"
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
-							minDate="${this._getStartMinDate()}"
+							minDate="${this._getStartMinDate().toISOString()}"
 							maxDate="${this.endDate}"
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
@@ -873,7 +875,7 @@ export class TransactionHistory extends Component {
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							minDate="${this.startDate}"
-							maxDate="${this._getEndMaxDate()}"
+							maxDate="${this._getEndMaxDate().toISOString()}"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>
