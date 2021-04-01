@@ -386,7 +386,7 @@ export class HorizonProductTile extends Component {
 							<div class="subtitle">${this.subtitle}</div>
 						</div>
 						<div class="detail${this.navigational ? ` nav` : ``}">
-							${this.detail.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}
+							${this.detail}
 							${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
 							${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
 							<slot name="detail"></slot>
