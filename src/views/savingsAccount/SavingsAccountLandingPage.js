@@ -292,6 +292,8 @@ export class SavingsAccountLandingPage extends View {
 				<horizon-transaction-history
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
+					.callerInformation = "${this.callerInformation}"
+					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._transactionHistoryToMainPage()}">
 				</horizon-transaction-history>`
 			: html``;

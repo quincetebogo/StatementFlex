@@ -72,18 +72,6 @@ export class SavingsAccountService extends ServiceBase {
 	}
 
 	/**
-	 * Transaction History - list of Transactions
-	 *
-	 * @param {object} transactionHistoryRequest details required to get list of transactions
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	 transactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.transactionHistory(transactionHistoryRequest), `transactionHistory`, errorHandler, autoRetries);
-	}
-
-	/**
 	 * Get savings account landing page information
 	 *
 	 * @param {string} cifNumber The Client's CIF number

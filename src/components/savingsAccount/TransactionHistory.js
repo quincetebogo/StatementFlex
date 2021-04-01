@@ -1,8 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import { SavingsAccountService} from 'app/services/SavingsAccountService';
 
@@ -64,6 +62,7 @@ export class TransactionHistory extends Component {
 		
 		this.transactionHistory = null;
 		this.accountDetails = null;
+		this.callerInformation = null;
 		
 		this.isBusy = false;
 		
@@ -81,11 +80,6 @@ export class TransactionHistory extends Component {
 
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-	
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
 	}
 
 	// --------------
@@ -104,6 +98,7 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
+			callerInformation: {type: Object},
 
 			filteredData: { attribute: false },
 			renderMode: { attribute: false },
@@ -180,7 +175,7 @@ export class TransactionHistory extends Component {
 	//This method is to get the Maximum date upto which one can select on the End/To Date calendar
 	_getEndMaxDate(){
 		const todaysDate = new Date();
-		const maxDate = new Date(this.startDate);
+		const maxDate = this.startDate ? new Date(this.startDate) : new Date();
 		maxDate.setDate(maxDate.getDate() + 90);
 
 		return maxDate > todaysDate ? todaysDate : maxDate;
@@ -243,7 +238,7 @@ export class TransactionHistory extends Component {
 	}
 
 	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
+		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
 	}
 
 	// ---------------
@@ -251,7 +246,7 @@ export class TransactionHistory extends Component {
 	// ---------------
 
 	_initialize(tableData) {
-		tableData.length < 20 ? this.showLoadMore = false : this.showLoadMore = true
+		tableData.length < TRANSACTION_HISTORY.MAX_RESULTS ? this.showLoadMore = false : this.showLoadMore = true
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
