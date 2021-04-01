@@ -11,7 +11,8 @@ import { v4 } from 'uuid';
 
 /** The screens on which telemetry events are logged.
  * This correspond to the "screen" column in the Data Spec.
- * @typedef {Object} TelemetryScreen
+ * @readonly
+ * @enum {String} TelemetryScreen
  */
 export const TelemetryScreen = {
 	WAIT_FOR_CALL: `Waiting For Call`,
@@ -26,7 +27,8 @@ export const TelemetryScreen = {
 
 /** The event names to use when logging telemetry events.
  * This correspond to the `Action` and `eventName` columns in the Data Spec.
- * @typedef {Object} TelemetryEvent
+ * @readonly
+ * @enum {String} TelemetryEvent
  */
 const TelemetryEvent = {
 	// Accept Call
@@ -64,17 +66,34 @@ const TelemetryEvent = {
 	SCR_UNLD_STOP_CARD		: `horizon.call.fulfill-need.stop-card.end-span`,
 
 	//TODO: generalize the outcome screen
+	STOP_CARD_OUTCOME		: `horizon.call.fulfill-need.stop-card.outcome`,
+	STOP_CARD_TRY_AGAIN		: `horizon.call.fulfill-need.stop-card.outcome.try-again`,
+	STOP_CARD_ASSIGN		: `horizon.call.fulfill-need.stop-card.outcome.assign`,
+	STOP_CARD_DONE			: `horizon.call.fulfill-need.stop-card.outcome.done`,
+	STOP_CARD_ANOTHER		: `horizon.call.fulfill-need.stop-card.outcome.another`,
+
 }
 
 
 /** The type of telemetry event triggered.
  * This correspond to the eventType column in the Data Spec.
- * @typedef {Object} TelemetryEventType
+ * @readonly
+ * @enum {String} TelemetryEventType
  */
 const TelemetryEventType = {
 	SYSTEM: `system`,
 	PERSON: `person`
 };
+
+
+/** Workflow outcome text
+ * @readonly
+ * @enum {String} TelemetryOutcome
+ */
+const TelemetryOutcome = {
+	SUCCESS: `success`,
+	FAIL: `fail`
+}
 
 
 /**
@@ -110,7 +129,7 @@ export class HorizonTelemetry {
 			"search-client"	: null,
 			"add-caller"	: null,
 			"fulfill-need"	: null,
-			"stop-card"		: null
+			"stop-card"		: null,
 		}
 
 	}
@@ -581,7 +600,7 @@ export class HorizonTelemetry {
 
 
 	/** 
-	 * @typedef {Object} Card
+	 * @typedef {Object} CardToStop
 	 * @property {String} cardId
 	 * @property {String} maskedCardNr
 	 * @property {String} reason
@@ -590,7 +609,7 @@ export class HorizonTelemetry {
 	/**
 	 * @typedef {Object} StopCardModel
 	 * @property {String} screen
-	 * @property {Array<Card>} cards
+	 * @property {Array<CardToStop>} cards
 	 */
 
 	/** Stop Card button clicked telemetry event
@@ -719,6 +738,154 @@ export class HorizonTelemetry {
 		})
 
 		this.currentActiveSpans[`stop-card`] = null;
+	}
+
+
+	/** 
+	 * @typedef {Object} CardOutcome
+	 * @property {String} cardId
+	 * @property {TelemetryOutcome} outcome
+	 */
+
+	/**
+	 * @typedef {Object} StopCardOutcomeModel
+	 * @property {String} screen
+	 * @property {Array<CardOutcome>} cards
+	 */
+
+	/** Stop Card outcome to be recorded to telemetry
+	 * @screen Stop Card Outcome
+	 * @event Stop Card Outcome
+	 * 
+	 * @param {StopCardOutcomeModel} baggage
+	 */
+	stopCardOutcome(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD_OUTCOME,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD_OUTCOME),
+			eventType 	: TelemetryEventType.SYSTEM,
+			eventOriginator : this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage : [	
+				{"screen"	: baggage.screen },
+				{"cards"	: baggage.cards }
+			]
+		});
+	}
+
+
+	/**
+	 * @typedef {Object} StopCardTryAgainModel
+	 * @property {String} screen
+	 */
+
+	/** Stop Card try again clicked
+	 * @screen Stop Card Outcome
+	 * @event Stop Card Try Again
+	 * 
+	 * @param {StopCardTryAgainModel} baggage
+	 */
+	stopCardTryAgain(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD_TRY_AGAIN,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD_TRY_AGAIN),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} StopCardAssignModel
+	 * @property {String} screen
+	 */
+
+	/** Stop Card Assign button clicked
+	 * @screen Stop Card Outcome
+	 * @event Stop Card Assign
+	 * 
+	 * @param {StopCardAssignModel} baggage
+	 */
+	stopCardAssign(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD_ASSIGN,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD_ASSIGN),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} StopCardDoneModel
+	 * @property {String} screen
+	 */
+
+	/** Stop Card Outcome Done button clicked
+	 * @screen Stop Card Outcome
+	 * @event Stop Card Done
+	 * 
+	 * @param {StopCardDoneModel} baggage
+	 */
+	stopCardDone(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD_DONE,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD_DONE),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
+	}
+
+
+	/**
+	 * @typedef {Object} StopCardAnotherModel
+	 * @property {String} screen
+	 */
+
+	/** Stop Card Outcome: Stop Another button clicked
+	 * @screen Stop Card Outcome
+	 * @event Stop Card Another
+	 * 
+	 * @param {StopCardAnotherModel} baggage
+	 */
+	stopCardAnother(baggage) {
+		this.telemetry.event({
+			traceId 	: this.traceId,
+			spanId 		: this.currentActiveSpans[`stop-card`],
+			parentSpan 	: this.currentActiveSpans[`fulfill-need`],
+			eventName 	: TelemetryEvent.STOP_CARD_ANOTHER,
+			tags 		: this._extractTags(TelemetryEvent.STOP_CARD_ANOTHER),
+			eventType 	: TelemetryEventType.PERSON,
+			eventOriginator : this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage : [	
+				{"screen"	: baggage.screen }
+			]
+		})
 	}
 
 	//#endregion STOP CARD

@@ -3,6 +3,7 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
 // import 'app/components/dialogs/insure/AssignReasonDialog';
@@ -95,6 +96,8 @@ export class StopCardFailure extends View {
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadStopCard();
+
 		if (this.assignSub) {
 			this.assignSub.dispose();
 		}
@@ -127,6 +130,8 @@ export class StopCardFailure extends View {
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
 
+		HorizonTelemetry.instance.stopCardTryAgain({screen: TelemetryScreen.STOP_CARD_OUTCOME});
+
 		this.retry++;
 		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
 		if (this.retry > MAX_ATTEMPT) {
@@ -156,6 +161,7 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
+		HorizonTelemetry.instance.stopCardAssign({screen: TelemetryScreen.STOP_CARD_OUTCOME});
         this.isReassigned = true;
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 		// this.renderDialog = RENDER_DIALOG.ENDCALL;

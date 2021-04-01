@@ -134,8 +134,6 @@ export class StopCard extends Component {
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadStopCard();
-
 		this.verifySub.dispose();
 		this.assignSub.dispose();
 		this.endCallSub.dispose();
