@@ -139,6 +139,7 @@ export class StatementsDialog extends Component {
 	static get properties() {
 		return {
 			landingPageInfo: { type: Object },
+			clientProducts: { type: Object },
 
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },

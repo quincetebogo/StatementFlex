@@ -702,4 +702,9 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
 		return this._post(url, statement, this._setToken(), `viewStatement`);
 	}
+
+	getClientProducts(cifNumber) {
+		const url = `/clientcare/documents/${this._version}/statements/client/${cifNumber}`;
+		return this._get(url, this._setToken(), `getClientProducts`);
+	}
 }
