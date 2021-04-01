@@ -36,9 +36,12 @@
 	},
 	"eslint.alwaysShowStatus": true,
 	"cSpell.words": [
+		"Agentup",
 		"Auditer",
 		"PABX",
 		"UNLD",
+		"desktopagent",
+		"recognised",
 		"repos",
 		"ucid"
 	]

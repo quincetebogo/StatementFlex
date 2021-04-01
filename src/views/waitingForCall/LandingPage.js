@@ -173,8 +173,8 @@ export class LandingPage extends View {
 		// Telemetry
 		if (incident) {
 			HorizonTelemetry.instance.incidentCreated({
-				incidentRecId 	:	incident.incidentRecId,
-				incidentReference 	:	incident.incidentNumber
+				incidentRecId: incident.incidentRecId,
+				incidentReference: incident.incidentNumber
 			});
 		}
 
@@ -213,8 +213,8 @@ export class LandingPage extends View {
 			HorizonTelemetry.instance.newTrace();
 			HorizonTelemetry.instance.incomingCall({
 				screen: TelemetryScreen.WAIT_FOR_CALL,
-				ivr: '',
-				ucid: ''
+				ivr: ``,
+				ucid: ``
 			});
 		}
 
