@@ -207,7 +207,8 @@ export class HorizonActionBar extends Component {
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
-									?hidden="${this.isHidden}">
+									?hidden="${this.isHidden}"
+                                    @click = "${()=> this._onAssign()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">
