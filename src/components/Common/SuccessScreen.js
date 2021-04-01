@@ -23,6 +23,8 @@ export class SuccessScreen extends Component {
 		this.image = null;
 		this.secondaryImage = ``;
 		this.subDetail = ``;
+
+		this.list = ["TAX_CERTIFICATE", "PROOF_OF_ACCOUNT"];
 	}
 
 	// -------------------
@@ -61,7 +63,6 @@ export class SuccessScreen extends Component {
 			subDetail: { type: String }
 		};
 	}
-
 
 	// ---------
 	// RENDERING
@@ -210,12 +211,12 @@ export class SuccessScreen extends Component {
                                 @click="${() => this.displayToast = false}">
 				</capitec-toast>
 				<capitec-group
-				layout="vertical"
+					layout="vertical"
 					gap="none"
 					halign="center"
 					valign="center">
 					<img id="id-successful-img" src="${this.image}" />
-				<img id="id-secondary-img" src="${this.secondaryImage}" />
+					<img id="id-secondary-img" src="${this.secondaryImage}" />
 
 					<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
 					<capitec-group id="id-msg-group" layout="horizontal">
@@ -245,13 +246,16 @@ export class SuccessScreen extends Component {
 						}
 					</capitec-group>
 				</capitec-group>
-				<div class="related-options">
-					<p class="related-options-text">Related Options</p>
-				</div>
-				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-					<slot name="option-button"></slot>
-				</capitec-group>
 			</capitec-card>
+			${this._renderRelatedOptions()}
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				.options= "${this.list}">
+			</horizon-related-options>
 		`;
 	}
 }

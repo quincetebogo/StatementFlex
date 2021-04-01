@@ -3,8 +3,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/StatementsDialog';
 
@@ -13,7 +13,6 @@ const RENDER_MODE = {
     END_CALLSESSION: 1,
     STATEMENTS: 2
 };
-
 
 export class StatementsSuccess extends View {
 
@@ -32,8 +31,9 @@ export class StatementsSuccess extends View {
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
         this.landingPageInfo = {};
-	}
 
+		this.list = ["TAX_CERTIFICATE", "PROOF_OF_ACCOUNT"];
+	}
 
 	// ----------
 	// PROPERTIES
@@ -47,6 +47,8 @@ export class StatementsSuccess extends View {
 	static get properties() {
 		return {
             renderMode: { attribute: false },
+
+			list: { type: Array },
             callerInformation: { type: Object },
             incomingCallDetails: { type: Object },
             landingPageInfo: { type: Object }
@@ -96,7 +98,6 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -129,19 +130,9 @@ export class StatementsSuccess extends View {
 		return [
 			super.styles,
 			css`
-
 				#id-error-msg{
 					width: auto;
 				}
-
-				.button-margin{
-					height: 80px;
-					width: 182px;
-					margin-right:16px;
-					--horizon-option-btn-icon-height: 26px;
-					--horizon-option-btn-icon-width: 26px;          
-				}
-
 			`
 		];
 	}
@@ -161,12 +152,12 @@ export class StatementsSuccess extends View {
     _renderStatementsModal() {
         if (this.renderMode === RENDER_MODE.STATEMENTS) {
             return html`
-            <horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
-				@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
-			</horizon-statements-dialog>
+				<horizon-statements-dialog
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					.landingPageInfo="${this.landingPageInfo}"
+					@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
+				</horizon-statements-dialog>
 			`;
         }
         return html``;
@@ -186,25 +177,16 @@ export class StatementsSuccess extends View {
 					id="id-error-msg" 
 					slot="detail">The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
 				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Tax Certificate" 
-						icon="system/sars-action">
-					</horizon-option-button>
-				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Proof of Account" 
-						icon="system/documents-action">
-					</horizon-option-button>
-				</section>
+				${this._renderRelatedOptions()}
 			</horizon-success-screen>
+		`;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				.options= "${this.list}">
+			</horizon-related-options>
 		`;
 	}
 
@@ -218,7 +200,6 @@ export class StatementsSuccess extends View {
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
-
 		return html``;
 	}
 

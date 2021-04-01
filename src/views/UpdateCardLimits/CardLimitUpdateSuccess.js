@@ -1,7 +1,7 @@
 import { View, css, html } from 'platform/elements';
 
-import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
+import 'app/components/common/RelatedOptions';
 
 export class SuccessfulCardLimitUpdate extends View {
 
@@ -14,6 +14,8 @@ export class SuccessfulCardLimitUpdate extends View {
 
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
+
+		this.list = ["STATEMENTS", "TAP_TO_PAY"];
 	}
 
 	// --------------
@@ -22,7 +24,7 @@ export class SuccessfulCardLimitUpdate extends View {
 
 	static get properties() {
 		return {
-
+			list: { type: Array }
 		};
 	}
 
@@ -71,17 +73,8 @@ export class SuccessfulCardLimitUpdate extends View {
 		return [
 			super.styles,
 			css`
-
 				.id-update-msg{
 					width: auto;
-				}
-
-				.button-margin{
-					height: 80px;
-					width: 182px;
-					margin-right:16px;
-					--horizon-option-btn-icon-height: 26px;
-					--horizon-option-btn-icon-width: 26px;
 				}
 
 				horizon-success-screen {
@@ -116,27 +109,18 @@ export class SuccessfulCardLimitUpdate extends View {
 					slot="sub-detail">The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
 				</section>
 
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin"
-						label="Statements"
-						icon="system/documents-action">
-					</horizon-option-button>
-				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Tap To Pay" 
-						icon="system/contactless-action">
-					</horizon-option-button>
-				</section>
+				${this._renderRelatedOptions()}
 			</horizon-success-screen>
 		`;
 	}
+
+	_renderRelatedOptions() {
+        return html`
+            <horizon-related-options
+				.options= "${this.list}">
+            </horizon-related-options>
+        `;
+    }
 }
 
 customElements.define(`permanent-card-limit-update-success`, SuccessfulCardLimitUpdate);

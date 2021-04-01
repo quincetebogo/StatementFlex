@@ -2,7 +2,7 @@ import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/OptionButton';
+import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 
@@ -32,6 +32,8 @@ export class StopCardSuccess extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+
+		this.list = ["UPDATE_LIMITS", "TRANSACTION_HISTORY"];
 	}
 
 
@@ -42,7 +44,9 @@ export class StopCardSuccess extends View {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+
+			list: { type: Array }
 		};
 	}
 
@@ -235,26 +239,6 @@ export class StopCardSuccess extends View {
 					line-height: 24px;
 					text-align: center;
 				}
-  
-				.related-options {
-					margin-top:152px;
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
-				}
-
-				.related-options-text{
-					margin: 0px 0px 0px 24px;
-					padding: 0px 0px 0px 0px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
 
 				.options-group{
 					margin:24px 0px 62px 24px;
@@ -372,9 +356,10 @@ export class StopCardSuccess extends View {
 
 	_renderRelatedOptions() {
 		return html`
-		<div class="related-options">
-			<p class="related-options-text">Related Options</p> 
-		</div>`;
+			<horizon-related-options
+				.options= "${this.list}">
+			</horizon-related-options>
+		`;
 	}
 
 	_renderOptionsButtons() {
@@ -385,7 +370,7 @@ export class StopCardSuccess extends View {
 				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="/images/atm.svg"></horizon-option-button>
 				<horizon-option-button class="button-margin" label="Find A Branch" img-src="/images/atm.svg"></horizon-option-button>
 			</capitec-group>
-			`;
+		`;
 	}
 
 	_renderSuccessToast() {
