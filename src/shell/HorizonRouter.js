@@ -292,10 +292,8 @@ export class HorizonRouter {
 		const horizonRouter = HorizonRouter.getInstance();
 		const horizonStore = HorizonStore.getInstance();
 
-		const isCallended = (routingInfo) => routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
-		const callerIsverified = (routingInfo) => routingInfo.callStatus === `CALL-IN-PROGRESS` && routingInfo.verificationStatus === `verified`;
 
-		const guardInitialLandingPages = (isProductPage) => {
+		const guardInitalLandingPages = () => {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
 
@@ -310,16 +308,12 @@ export class HorizonRouter {
 			}
 
 			// Don't allow browsing back to the landing page from another page unless the call has been ended
-			// or this is an unverified caller (in which case we may go to a product page)
-			return isProductPage ? isCallended(routingInfo) || !callerIsverified(routingInfo) : isCallended(routingInfo);
+			return routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
 		};
 
-		const guardCallWaitingPage = () => guardInitialLandingPages(false);
-		const guardProductPages = () => guardInitialLandingPages(true);
-
 		return {
-			callWaitingPage: guardCallWaitingPage,
-			productPage: guardProductPages
+			callWaitingPage: guardInitalLandingPages,
+			productPage: guardInitalLandingPages
 		}[funcName]();
 	};
 

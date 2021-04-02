@@ -78,19 +78,10 @@ export class ProductButtonPanel extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-		}
-		}
-		}
-		}
-		}
-		// Note we will not have callerInformation when being invoked from the Agent's waiting for call landing page
-		}
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
-		}
-		}
 	}
-			this.horizonRouter.navigateToProductInfo(type);
+
 	// ---------
 	// RENDERING
 	// ---------
