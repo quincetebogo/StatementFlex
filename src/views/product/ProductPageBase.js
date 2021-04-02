@@ -1,5 +1,5 @@
+import { Configuration, EventAggregator } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { EventAggregator } from 'platform/core';
 import { View } from 'platform/elements';
 
 /**
@@ -22,6 +22,7 @@ export class ProductPageBase extends View {
 		this._eventAggregator = EventAggregator.getInstance();
 
 		this._desktopAgentService = DesktopAgentService.getInstance();
+		this._configuration = Configuration.getInstance();
 	}
 
 	// -------------------
@@ -51,8 +52,9 @@ export class ProductPageBase extends View {
 	 * @returns {undefined}
 	 * @memberof ProductPageBase
 	 */
-	_viewBenefits(viewType) {
-		window.open(`https://www.capitecbank.co.za/global-one/${viewType}/`);
+	async _viewBenefits(viewType) {
+		const globalOneUrl = await this._configuration.getSetting(`otherSystemsURL.global-one`);
+		window.open(`${globalOneUrl}${viewType}/`);
 	}
 
 	/**

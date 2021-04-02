@@ -24,7 +24,7 @@ const statusTagType =
 const statusColumnLabel = 
 					`font-size: 12px;
 					font-weight: 600;
-					line-height: 14px;
+					line-height: 12px;
 					text-align: center;
 					margin-left: 16px;
 					margin-right: 16px;

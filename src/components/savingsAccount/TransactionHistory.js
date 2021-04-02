@@ -1,6 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { getMonthName } from 'app/utils/channelServiceUtilities';
+
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
@@ -29,6 +31,14 @@ const TRANSACTION_STATUS_LIST = [
 	`Partial reversal processed`
 ];
 
+const TRANSACTION_HISTORY = {
+	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+	END_DATE: new Date().toISOString().substr(0, 10),
+	START_DATE: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0, 10),
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
+};
+
 /**
  * Transaction History screen is to display the list of transactions of a client.
  *
@@ -52,14 +62,24 @@ export class TransactionHistory extends Component {
 		
 		this.transactionHistory = null;
 		this.accountDetails = null;
+		this.callerInformation = null;
+		
+		this.isBusy = false;
 		
 		// private properites
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showLoadMore = true;
+		
 		this.startDate = ``;
 		this.endDate = ``;
+		
 		this.filteredData = [];
+		this.rawTableData = [];
 		this.searchTextLabel = `Search for amount or transaction name`;
 		this.statuslabel = `Transaction Status`;
+
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+
 	}
 
 	// --------------
@@ -78,9 +98,11 @@ export class TransactionHistory extends Component {
 		return {
 			transactionHistory: { type: Object },
 			accountDetails: { type: Object },
-			filteredData: { attribute: false },
+			callerInformation: { type: Object },
 
+			filteredData: { attribute: false },
 			renderMode: { attribute: false },
+			isBusy: { attribute: false },
 			startDate: { attribute: false },
 			endDate: { attribute: false },
 			searchTextLabel: { attribute: false },
@@ -94,7 +116,8 @@ export class TransactionHistory extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-				
+		
+		this.rawTableData = this.transactionHistory;
 		this.transactionHistory = this._initialize(this.transactionHistory);
 		this.filteredData = this.transactionHistory;
 
@@ -133,12 +156,37 @@ export class TransactionHistory extends Component {
 		if (e.detail.new.date) {
 			this.startDate = this._formatDate(e.detail.new.date);
 		}
+		if (!e.detail.old.date && this.endDate === ``) {
+		// Start date and End date are same untill the End date is selected different
+		this.endDate = this.startDate;
+		}
 	}
 
 	_endDateChanged(e) {
-		if (e.detail.new.date) {
-			this.endDate = this._formatDate(e.detail.new.date);
+        if (e.detail.new.date) {
+            this.endDate = this._formatDate(e.detail.new.date);
+        }
+		// Start date and End date are same untill the Start date is selected different 
+		if (!e.detail.old.date && this.startDate === ``) {
+			this.startDate = this.endDate;
 		}
+	}
+
+	// This method is to get the Maximum date upto which one can select on the End/To Date calendar
+	_getEndMaxDate() {
+		const todaysDate = new Date();
+		const maxDate = this.startDate ? new Date(this.startDate) : new Date();
+		maxDate.setDate(maxDate.getDate() + 90);
+
+		return maxDate > todaysDate ? todaysDate : maxDate;
+	}
+
+	// This method is to get the Minimum date untill which one can select on the Start/From Date calendar
+	_getStartMinDate() {
+		const minDate = new Date(this.endDate);
+		minDate.setDate(minDate.getDate() - 90);
+
+		return minDate;
 	}
 
 	_apply() {
@@ -151,6 +199,10 @@ export class TransactionHistory extends Component {
 	}
 
 	_cancel() {
+		if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
+			this.startDate = ``;
+			this.endDate = ``;
+		}
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -161,7 +213,7 @@ export class TransactionHistory extends Component {
 
 	_closeChip(type) {
 		RENDER_CHIPS[type] = ``;
-		this._loadLabels();
+		this._reset();
 		this._refineSearch();
 	}
 
@@ -169,10 +221,24 @@ export class TransactionHistory extends Component {
 		RENDER_CHIPS[FILTER_BY.TEXT] = ``;
 		RENDER_CHIPS[FILTER_BY.DATE] = ``;
 		RENDER_CHIPS[FILTER_BY.STATUS] = ``;
-		this._loadLabels();
+		this._reset();
 		
 		this.filteredData = this.transactionHistory;
 		this.requestUpdate();
+	}
+
+	// To scroll the content of the Table to the Top when scroll to Top button is clicked
+	_scrollToTop(e) {
+		const element = this.shadowRoot.getElementById(`transactions-table`);
+		element.scrollTop = 0;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_errorHandler(exception) {
+		this.dispatchEvent(new CustomEvent(`error-handler`, {}));
 	}
 
 	// ---------------
@@ -180,13 +246,15 @@ export class TransactionHistory extends Component {
 	// ---------------
 
 	_initialize(tableData) {
+		this.showLoadMore = !(tableData.length < TRANSACTION_HISTORY.MAX_RESULTS);
+
 		tableData.map((item) => {
 			const date = new Date(Date.parse(item.transactionDate));
 
 			item.tranDate = date;
 			item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-			item.amount = this._formatAmount(item.amount);
-			item.balance = this._formatAmount(item.balance);
+			item.formatedAmount = this._formatAmount(item.amount);
+			item.formatedBalance = this._formatAmount(item.balance);
 
 			return item;
 		});
@@ -200,10 +268,49 @@ export class TransactionHistory extends Component {
 		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
 
 	}
-
-	_loadLabels() {
+	
+	// To set the values to default on closing the chip or clearing all the filters
+	_reset() {
 		this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
 		this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
+		if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
+			this.startDate = ``;
+			this.endDate = ``;
+		}
+	}
+
+	async _loadMoreTransactions() {
+
+		const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
+		if (loadMoreData.length > 0) {
+			this.rawTableData = [...this.rawTableData, ...loadMoreData];
+			const tableData = this._initialize(loadMoreData);
+			this.transactionHistory = [...this.transactionHistory, ...tableData];
+		}
+		if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+			this.showLoadMore = false;
+		}
+		this.filteredData = this.transactionHistory;
+		this._refineSearch();
+	}
+
+	async getMoreTransactions() {
+		const transactionHistoryRequest = {
+			cifNumber: this.callerInformation.cifNumber,
+			accountNumber: this.accountDetails.accountNumber,
+			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+			startDate: TRANSACTION_HISTORY.START_DATE,
+			endDate: TRANSACTION_HISTORY.END_DATE,
+			startAtIndex: this.rawTableData.length,
+			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+		};
+
+		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+
+		if (returnValue.succeeded && returnValue.result) {
+			return returnValue.result.transactions;
+		}
 	}
 
 	_refineSearch() {
@@ -268,8 +375,9 @@ export class TransactionHistory extends Component {
 		return [
 			super.styles,
 			css`
+			
 				.transaction-card {
-					height: 924px;
+					height: auto;
 					width: 1066px;
 					background-color: #FFFFFF;
 					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
@@ -303,8 +411,6 @@ export class TransactionHistory extends Component {
 				.actionbar-header > horizon-label {
 					width: 156px;
 					height: 100%;
-					font-weight: 300;
-					justify-content: left;
 					padding: 0px 0px 0px 16px;
 				
 					--horizon-label-text-height: 20px;
@@ -339,7 +445,6 @@ export class TransactionHistory extends Component {
 					width: 201px;
 					margin-right: 8px;
 					border-radius: 5px;
-					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
 					cursor: pointer;
 				}
@@ -354,53 +459,6 @@ export class TransactionHistory extends Component {
 				}
 				.cb-datepicker > capitec-icon {
 					--theme-icon-size-small: 26px;
-				}
-				.transaction-status {
-					position: relative;
-				}
-				.transaction-status > capitec-label {
-					z-index: 10;
-					margin-left: 35px;
-				}
-				capitec-overflow-menu {
-					width: 225px;
-					height: 48px;
-					border-radius: 5px;
-					box-sizing: border-box;
-					border: 1px solid rgb(225, 225, 225);
-					background-color: rgb(255, 255, 255);
-					position: absolute;
-
-					--theme-overflow-menu-width: 225px;
-				}
-				capitec-overflow-menu-item {
-					width: 200px;
-
-					--theme-overflow-menu-item-hover-background-color: none;
-				}
-				capitec-overflow-menu > capitec-group:hover {
-					background-color: #E5F5FB;
-				}
-				capitec-overflow-menu-item > capitec-group:hover {
-					background-color: #E5F5FB;
-				}
-				.status-icon {
-					width: 10px;
-					height: 10px;
-					border-radius: 12px;
-					margin-left: 13px;
-				}
-				.status-icon.processed {
-					background-color: #70AF00;
-				}
-				.status-icon.pending {
-					background-color: #D4781C;
-				}
-				.status-icon.expired {
-					background-color: #B71C1A;
-				}
-				.status-icon.reversed {
-					background-color: #009DE0;
 				}
 
 				/* Chip Bar Styles */
@@ -432,7 +490,8 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					height: 733px;
+					--theme-layout-gap-line-color: 0px;
+					height: 679px;
 					width: auto;
 				}
 				capitec-table{
@@ -449,7 +508,7 @@ export class TransactionHistory extends Component {
 					--theme-data-table-expander-size: 12px;
 					--theme-data-table-footer-border: 0px;
 				}
-				
+
 				/* Modal Calendar Styles */
 				capitec-modal {
 					--theme-modal-header-background-color: #F7F7F7;
@@ -471,8 +530,20 @@ export class TransactionHistory extends Component {
 					--theme-calendar-days-color: #3A3A3A;
 					--theme-calendar-not-selectable-color: #969B9D;
 					--theme-calendar-calendar-width: 347px;
-					--theme-calendar-days-padding: 0px 18px;
+					--theme-calendar-days-padding: 16px 18px;
 					--theme-calendar-calendar-border-radius: 0px;
+				}
+				.load-more-bar{
+					--theme-actionbar-min-height: 48px;
+					padding-top : 0px;
+					padding-bottom: 0px; 
+					--theme-actionbar-background: #f4f4f4;
+				}
+				.show-load-more{
+					display: block;
+				}
+				.hide-load-more{
+					display: none;
 				}
 				.transaction-status-select{
 					--theme-input-label-font-size: 16px;
@@ -484,6 +555,10 @@ export class TransactionHistory extends Component {
 					--theme-input-icon-top: 8px;
 					line-height: 30px;
 					width: 224px;
+				}
+				.scroll-top {
+					--theme-icon-size-medium: 26px;
+    				padding-top: 12px;
 				}
 			`
 		];
@@ -501,13 +576,26 @@ export class TransactionHistory extends Component {
 					${this._renderAccountDetailsBar()}
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
-				<capitec-content-box class="main-view">
+				<capitec-content-box class="main-view" id = "transactions-table">
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
+				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
+					<capitec-spacer></capitec-spacer>
+					<capitec-button type="clear" label="Load More" @click = ${() => this._loadMoreTransactions()}></capitec-button>
+					<capitec-spacer></capitec-spacer>
+					<capitec-icon class='scroll-top' size="medium" icon="system/arrow-up-action" @click = ${(e) => this._scrollToTop(e)}></capitec-icon>
+				</capitec-action-bar>
 				</capitec-group>
 			</capitec-card>
 			${this._renderCalendar()}
+			${this._renderLoadingIndicator()}
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 
 	_renderTitleBar() {
@@ -531,19 +619,19 @@ export class TransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${this.accountDetails.balance}">
+					value="${this._formatAmount(this.accountDetails.balance)}">
 				</horizon-label>
 				<horizon-label
 					label="Available Balance"
-					value="${this.accountDetails.availableBalance}">
+					value="${this._formatAmount(this.accountDetails.availableBalance)}">
 				</horizon-label>
 				<horizon-label
-					label="Pending amount"
-					value="${this.accountDetails.pendingAmount}">
+					label="Pending Amount"
+					value="${this._formatAmount(this.accountDetails.pendingAmount)}">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
-					value="${this.accountDetails.interest}">
+					value="${this.accountDetails.interest}%">
 				</horizon-label>
 				<horizon-label
 					label="Status"
@@ -566,7 +654,7 @@ export class TransactionHistory extends Component {
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
 				</capitec-text-field>
-
+					
 				<capitec-content-box
 					class="cb-datepicker"
 					layout="horizontal"
@@ -651,7 +739,7 @@ export class TransactionHistory extends Component {
 	_renderTransactionHistory() {
 		return html`
 			<capitec-table
-				.items="${this.filteredData}"
+				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
 				expandable="right"
@@ -665,17 +753,21 @@ export class TransactionHistory extends Component {
 						size="144px;" 
 						.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
-					<capitec-table-column label="Amount" field="amount" size="158px;" type="currency"></capitec-table-column>
-					<capitec-table-column label="Balance" field="balance" size="130px;" type="currency" align ="right"></capitec-table-column>
+					<capitec-table-column label="Amount" field="formatedAmount" size="158px;" type="currency"></capitec-table-column>
+					<capitec-table-column label="Balance" field="formatedBalance" size="130px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
+
 		`;
 	}
 
 	_renderTransactionStatus(value) {
-		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
-						<div style="${unsafeCSS(STATUS_TAG.tagLabel)}">${value}</div>
-					</div>`;
+		if (value === `Processed`) {
+			return html``;
+		}
 
+		return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
+						<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
+					</div>`;
 	}
 
 	_renderExpander (item) {
@@ -770,16 +862,20 @@ export class TransactionHistory extends Component {
 				<capitec-modal type="free" header-align="center" header="${this._getDateRange()} (up to 90 days)">
 					<div slot="body">
 						<capitec-calendar 
+							month = "${getMonthName(new Date().getMonth() - 1)}"
+							year = "${new Date().getFullYear()}"
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
+							minDate="${this._getStartMinDate().toISOString()}"
 							maxDate="${this.endDate}"
 							@value-change="${(e) => this._startDateChanged(e)}"
 							range>
 						</capitec-calendar>
-						<capitec-calendar
+						<capitec-calendar 
 							startDate="${this.startDate}"
 							endDate="${this.endDate}"
 							minDate="${this.startDate}"
+							maxDate="${this._getEndMaxDate().toISOString()}"
 							@value-change="${(e) => this._endDateChanged(e)}"
 							range>
 						</capitec-calendar>
@@ -793,7 +889,7 @@ export class TransactionHistory extends Component {
 						</capitec-button>
 						<capitec-button
 							label="Apply"
-							type="clear"
+							type="primary"
 							@click=${() => this._apply()}>
 						</capitec-button>
 					</capitec-group>
