@@ -218,10 +218,11 @@ export class HorizonRouter {
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
-		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => {};
-		const savingsPlan = () => {};
+		const credit = () => this.navigateToProductInfo(`Credit`);
+		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {

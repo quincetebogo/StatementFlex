@@ -2,7 +2,6 @@ import { EventAggregator, NavigationContext } from 'platform/core';
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
@@ -16,14 +15,13 @@ const RENDER_MODE = Object.freeze({
 });
 
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-	END_DATE: new Date().toISOString().substr(0, 10),
-	// eslint-disable-next-line no-extra-parens
-	START_DATE: new Date(Date.now() - (90 * 24 * 60 * 60 * 1000)).toISOString().substr(0, 10),
-	START_AT_INDEX: 0,
-	MAX_RESULTS: 20,
-	MONEY_TYPE: `BOTH`
-};
+	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
+	END_DATE : new Date().toISOString().substr(0,10),
+	START_DATE : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0,10),
+	START_AT_INDEX : 0,
+	MAX_RESULTS : 50,
+	MONEY_TYPE : 'BOTH'
+}
 
 /**
  * Savings Account View
@@ -64,6 +62,7 @@ export class SavingsAccountLandingPage extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// -------------------
@@ -293,6 +292,8 @@ export class SavingsAccountLandingPage extends View {
 				<horizon-transaction-history
 					.transactionHistory = "${this.transactionHistory}"
 					.accountDetails = "${this.accountDetails}"
+					.callerInformation = "${this.callerInformation}"
+					@error-handler = "${() => this._errorHandler()}"
 					@back="${() => this._transactionHistoryToMainPage()}">
 				</horizon-transaction-history>`
 			: html``;
