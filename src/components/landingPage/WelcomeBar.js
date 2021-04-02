@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/common/ProductButtonPanel';
 
@@ -19,6 +20,8 @@ export class LandingPageWelcome extends Component {
 	// --------------
 	constructor() {
 		super();
+
+		this.router = HorizonRouter.getInstance();
 
 		this.fullname = ``;
 	}
@@ -55,6 +58,28 @@ export class LandingPageWelcome extends Component {
 
 	_onUpdateWelcome(event) {
 		this.fullname = event.fullname;
+	}
+
+	_productButtonClick(event) {
+		const product = event.detail.productButton;
+		
+		// Navigate to one of the "initial landing page" versions of the product info page.
+		// These pagea are the pages that the agent can visit while waiting for a call
+		switch (product) {
+			case `SavingsAccount`:
+				this.router.navigateToSavingsAccountProduct();
+				break;
+			case `SavingsPlan`:
+				this.router.navigateToSavingsPlanProduct();
+				break;
+			case `Insure`:
+				this.router.navigateToInsureProduct();
+				break;
+			case `Credit`:
+				this.router.navigateToCreditProduct();
+			default:
+				// do nothing
+		}
 	}
 
 	// --------------
@@ -127,7 +152,9 @@ export class LandingPageWelcome extends Component {
 								</capitec-group>
 						</capitec-card>
 					</div>
-					<horizon-product-button-panel></horizon-product-button-panel>
+					<horizon-product-button-panel
+						@click="${(e) => this._productButtonClick(e)}">>
+					</horizon-product-button-panel>
 				</div>
 			`;
 	}
