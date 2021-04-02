@@ -43,10 +43,30 @@ export class IncidentManagementService extends ServiceBase {
 	 */
 	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const createIncidentRequest = {
-			"networkUserName": SecurityContext.getInstance().username,
-			"cli": incidentData.incomingTelephoneNumber,
-			"vdn": incidentData.VDN,
 			"ucid": incidentData.voiceReferenceNumber,
+			"cli": incidentData.incomingTelephoneNumber,
+			"clientCIF": ``,
+			"orgUnitId": ``,
+			"category": ``,
+			"subCategory": ``,
+			"issue": ``,
+			"vdn": incidentData.VDN,
+			"networkUserName": SecurityContext.getInstance().username,
+			"source": ``,
+			"impact": ``,
+			"urgency": ``,
+			"branchID": ``,
+			"summary": ``,
+			"description": ``,
+			"incidentType": ``,
+			"nonClientDetails": {
+				"fullName": ``,
+				"southAfricanIDNumber": ``,
+				"celllPhone": ``,
+				"workPhone": ``,
+				"email": ``
+			},
+			"referenceNo": ``,
 			"primaryNeedIncidentRecId": incidentData.primaryIncidentRecID || ``
 		};
 

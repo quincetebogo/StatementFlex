@@ -74,7 +74,9 @@ export class SavingsAccount extends Component {
 	// ---------------
 	
 	_formatCollectionAmount(amount) {
-		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
+
 	}
 	
 	// ---------
