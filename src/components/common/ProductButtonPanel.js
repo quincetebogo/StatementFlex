@@ -81,6 +81,7 @@ export class ProductButtonPanel extends Component {
 	_productButtonClick(button) {
 		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
 	}
+
 	// ---------
 	// RENDERING
 	// ---------

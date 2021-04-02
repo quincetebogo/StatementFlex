@@ -297,7 +297,7 @@ export class HorizonRouter {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
 
-			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS`) {
+			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS` && !isProductPage) {
 				// If the user browsers to the initial landing page, trigger ending the call/clearing state
 				// Manually browsing to the landing page is not supported and failing to clear state can leave
 				// information from a previous client behind that can get mixed up with information from the next call
