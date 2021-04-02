@@ -433,7 +433,7 @@ export class Favourites extends View {
 		}
 	}
 
-	_getStatements() {
+	async _getStatements() {
 		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {

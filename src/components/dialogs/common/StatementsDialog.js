@@ -686,7 +686,7 @@ export class StatementsDialog extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						noScroll =  ${false}>
+						?noScroll="${false}">
 							${this._renderAlertBanner()}
 							${this._renderAccountSelection()}
 							${this._renderChoosePeriod()}
@@ -1011,7 +1011,7 @@ export class StatementsDialog extends Component {
 				class="main-cb pdf-cb"
 				layout="vertical"
 				gap="clear"
-				noScroll = ${false}>
+				?noScroll="${false}">
 					<object
 						class="pdf-viewer"
 						data="${this.encodedPDF}"

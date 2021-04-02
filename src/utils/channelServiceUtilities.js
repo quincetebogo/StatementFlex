@@ -149,17 +149,17 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
  export function base64ToBlobUrl(base64Data) {
 
 	// decode base64 string, remove space for IE compatibility
-	var binary = atob(base64Data.replace(/\s/g, ''));
-	var len = binary.length;
-	var buffer = new ArrayBuffer(len);
-	var view = new Uint8Array(buffer);
+	const binary = atob(base64Data.replace(/\s/g, ``));
+	const len = binary.length;
+	const buffer = new ArrayBuffer(len);
+	const view = new Uint8Array(buffer);
 
-	for (var i = 0; i < len; i++) {
+	for (let i = 0; i < len; i++) {
 		view[i] = binary.charCodeAt(i);
 	}
 
 	// create the blob object with content-type "application/pdf"
-	var blob = new Blob( [view], { type: "application/pdf" });
+	const blob = new Blob([view], { type: `application/pdf` });
 
-	return URL.createObjectURL(blob) + "#toolbar=0&scrollbar=0&navpanes=0&zoom=113.5";
+	return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=113.5`;
 }
