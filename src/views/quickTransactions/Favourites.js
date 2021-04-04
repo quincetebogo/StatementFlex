@@ -433,7 +433,7 @@ export class Favourites extends View {
 		}
 	}
 
-	_getStatements() {
+	async _getStatements() {
 		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
@@ -663,10 +663,8 @@ export class Favourites extends View {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 		? html`
 			<horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
 				.clientProducts="${this.clientProducts}"
-				.landingPageInfo="${this.landingPageInfo}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
 		: html``;

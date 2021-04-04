@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { EventAggregator, Logger } from 'platform/core';
+import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -26,9 +26,21 @@ const STATEMENTS_STEPS = [
 ];
 
 const ACCOUNT_TYPES = {
-	SAVINGS_ACCOUNT: `PRIMARY_SAVINGS`,
-	SAVINGS_PLAN: `FLEXIBLE_SAVINGS`,
-	CREDIT: `Credit`
+	PRIMARY_SAVINGS: {
+		id: [300],
+		type: `PRIMARY_SAVINGS`,
+		label: `Savings Account`,
+		showPlans: false
+	},
+	FLEXIBLE_SAVINGS: {
+		id: [200, 201],
+		type: `FLEXIBLE_SAVINGS`,
+		label: `Savings Plans`,
+		showPlans: true
+	},
+	CREDIT: {
+		// Configure when ready
+	}
 };
 
 const TIME_PERIOD = {
@@ -78,14 +90,13 @@ export class StatementsDialog extends Component {
 	// --------------
 
 	constructor() {
-
 		super();
 
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 0;
 		this.notifyClient = true;
 		this.accType = ``;
-		this.savingsPlanAccType = ``;
+		this.accPlanType = ``;
 		this.savingsPlans = [];
 		this.periodSelected = ``;
 		this.showCalendar = false;
@@ -105,29 +116,13 @@ export class StatementsDialog extends Component {
 			confirmEmail: ``
 		};
 		this.encodedPDF = ``;
-		this.accountSelected = `PRIMARY_SAVINGS`;
 		this.today = new Date().toISOString();
+		this.productSelected = {};
 
-		// Static list, has to be pulled from service
-		this.savingsPlans = [
-			{
-				value: 1,
-				name: `Future savings`,
-				amount: `R 546844.25`
-			},
-			{
-				value: 2,
-				name: `Education`,
-				amount: `R 504.25`
-			}
-		];
-
-		// this._populateAccountInfo();
-		this.horizonStore = HorizonStore.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.landingPageInfo = {};
+		this.horizonStore = HorizonStore.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
 	}
@@ -138,14 +133,14 @@ export class StatementsDialog extends Component {
 
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object },
-			clientProducts: { type: Object },
+			callerInformation: { type: Object },
+			clientProducts: { type: Array },
 
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
 			accType: { attribute: false },
-			savingsPlanAccType: { attribute: false },
+			accPlanType: { attribute: false },
 			periodSelected: { attribute: false },
 			showCalendar: { attribute: false },
 			fromDate: { attribute: false },
@@ -161,11 +156,7 @@ export class StatementsDialog extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.landingPageInfo = this.state.landingPageInfo;
-		this.accountInformation = this.state.leftBarButtonConfig.detail;
+		this._initialise();
 	}
 	
 	// --------------
@@ -199,12 +190,12 @@ export class StatementsDialog extends Component {
 
 	_selectAccount(type) {
 		this.accType = type;
-		this.savingsPlanAccType = ``;
+		this.accPlanType = ``;
 		this.errorMessage = ``;
 	};
 
 	_selectPlan(savingsPlan) {
-		this.savingsPlanAccType = savingsPlan;
+		this.accPlanType = savingsPlan;
 		this.errorMessage = ``;
 	}
 
@@ -303,18 +294,16 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
-		const fromDate = this.fromDate ? new Date(this.fromDate).toISOString().slice(0, 10) : ``;
-		const toDate = this.toDate ? new Date(this.toDate).toISOString().slice(0, 10) : ``;
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.accountNumber,
-			"accountType": this.accType,
+			"accountNumber": `${this.productSelected.accountNumber}`,
+			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
 				"dateRange": {
-					"startDate": fromDate,
-					"endDate": toDate
+					"startDate": this.fromDate,
+					"endDate": this.toDate
 				},
-				"presetInterval": this.periodSelected || null
+				"presetInterval": ``
 			}
 		};
 
@@ -324,28 +313,25 @@ export class StatementsDialog extends Component {
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
 		} else {
-			console.log(`can't view cs call failed`);
-			// render an error
+			this.errorMessage = `System error. Please try again`;
+			this.logger.log(`error`, `Unable to view statments due to a system error`, `_viewPDF`, returnValue.correlationId);
 		}
 	}
 
 	async _sendStatement() {
-
 		if (!this._validateEmailAddress()) {
 			return false;
 		}
 
-		const fromDate = this.fromDate ? new Date(this.fromDate).toISOString().slice(0, 10) : ``;
-		const toDate = this.toDate ? new Date(this.toDate).toISOString().slice(0, 10) : ``;
 		const statement = {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": this.landingPageInfo.accountNumber,
-			"accountType": this.accType,
+			"accountNumber": `${this.productSelected.accountNumber}`,
+			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
 				"dateRange": {
-					"startDate": fromDate,
-					"endDate": toDate
+					"startDate": this.fromDate,
+					"endDate": this.toDate
 				},
 				"presetInterval": this.periodSelected || null
 			}
@@ -353,19 +339,32 @@ export class StatementsDialog extends Component {
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 
+		this.horizonStore.saveState({
+			emailAddress: this.email,
+			accountNumber: this.productSelected.accountNumber
+		});
+
 		if (returnValue.succeeded) {
-			this.horizonStore.saveState({
-				emailAddress: this.email,
-				accountNumber: this.landingPageInfo.accountNumber
-			});
 			this.horizonRouter.navigateToStatementSuccessful();
 		} else {
-			this.horizonStore.saveState({
-				emailAddress: this.email,
-				accountNumber: this.landingPageInfo.accountNumber
-			});
 			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_initialise() {
+		this.clientProducts = this.clientProducts.map(item => {
+
+			if (ACCOUNT_TYPES.PRIMARY_SAVINGS.id.indexOf(item.accountType) !== -1) {
+				item.type = ACCOUNT_TYPES.PRIMARY_SAVINGS.type;
+			} else if (ACCOUNT_TYPES.FLEXIBLE_SAVINGS.id.indexOf(item.accountType) !== -1) {
+				item.type = ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type;
+			}
+			return item;
+		});
 	}
 
 	_toggleBusyFlag() {
@@ -376,10 +375,11 @@ export class StatementsDialog extends Component {
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Select an account`;
 			return false;
-		} else if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN && isNullorEmpty(this.savingsPlanAccType)) {
-			this.errorMessage = `Select an account`;
+		} else if (this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
+			this.errorMessage = `Select a plan`;
 			return false;
 		}
+		this.productSelected = this._getSelectedProductDetails();
 		return true;
 	}
 
@@ -453,6 +453,27 @@ export class StatementsDialog extends Component {
 	
 	_getStepperVisibility() {
 		return this.renderMode === RENDER_MODE.PDF;
+	}
+
+	_getSelectedProductDetails() {
+		let product = {};
+
+		if (!isNullorEmpty(this.accPlanType)) {
+			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.type === this.accType);
+		} else {
+			product = this.clientProducts.find(item => item.type === this.accType);
+		}
+		return {
+			accountNumber: product.accountNumber,
+			accountType: this.accType
+		};
+	}
+
+	_getAvailableBal(type) {
+		const products = this.clientProducts.filter(item => item.type === type);
+		const availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+
+		return formatCurrency(availableBalance);
 	}
 
 	// ---------
@@ -531,6 +552,7 @@ export class StatementsDialog extends Component {
 					--theme-product-tile-heading-margin-left: 16px;
 					--theme-product-tile-heading-margin-left: 6px;
 					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
 				}
 				.main-cb > .product-transact {
 					--theme-product-tile-hover-default-border: 1px solid #009DE0;
@@ -725,46 +747,55 @@ export class StatementsDialog extends Component {
 					type="subtitle"
 					label="Choose an Account">
 				</capitec-label>
-
-				<horizon-product-tile
-					class="product-transact"
-					type="default"
-					label="Savings Account"
-					subtitle="Available balance R5 670.40"
-					detail=""
-					icon="product/transact"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.SAVINGS_ACCOUNT)}"
-					?selected="${this.accType === ACCOUNT_TYPES.SAVINGS_ACCOUNT}">
-				</horizon-product-tile>
-				<horizon-product-tile
-					class="product-save"
-					type="default"
-					label="Savings Plans"
-					subtitle="Available balance R16 800.00"
-					detail=""
-					icon="product/save"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.SAVINGS_PLAN)}"
-					?selected="${this.accType === ACCOUNT_TYPES.SAVINGS_PLAN}">
-				</horizon-product-tile>
-				<!-- <horizon-product-tile
-					class="product-credit"
-					type="default"
-					label="Credit Card"
-					subtitle="Available balance R22 400.00"
-					detail=""
-					icon="product/credit"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.CREDIT)}"
-					?selected="${this.accType === ACCOUNT_TYPES.CREDIT}">
-				</horizon-product-tile> -->
-
-				${this._renderSavingsPlanSelection()}
+				${this._renderSavingsAccountProduct()}
+				${this._renderSavingsPlanProduct()}
+				${this._renderPlans()}
 			`;
 		}
 	}
 
-	_renderSavingsPlanSelection() {
-		if (this.accType === ACCOUNT_TYPES.SAVINGS_PLAN) {
-			return html`
+	_renderSavingsAccountProduct() {
+		const savingsAccountProduct = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.PRIMARY_SAVINGS.type);
+
+		return savingsAccountProduct
+			? html`
+				<horizon-product-tile
+					class="product-transact"
+					type="default"
+					label="Savings Account"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
+					detail=""
+					icon="product/transact"
+					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNT_TYPES.PRIMARY_SAVINGS.type}">
+				</horizon-product-tile>`
+			: html``;
+	}
+
+	_renderSavingsPlanProduct() {
+		const savingsPlanProducts = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type);
+
+		return savingsPlanProducts
+			? html`
+				<horizon-product-tile
+					class="product-save"
+					type="default"
+					label="Savings Plans"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
+					detail=""
+					icon="product/save"
+					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type}">
+				</horizon-product-tile>`
+			: html``;
+	}
+
+	_renderPlans() {
+		const plans = this.clientProducts.filter(item => item.type === this.accType);
+		const showPlans = ACCOUNT_TYPES[this.accType] && ACCOUNT_TYPES[this.accType].showPlans;
+
+		return showPlans && plans.length > 0
+			? html`
 				<capitec-label
 					class="margin-top"
 					type="subtitle"
@@ -772,21 +803,19 @@ export class StatementsDialog extends Component {
 				</capitec-label>
 
 				<capitec-radio-group>
-					${this.savingsPlans.map(item => html`
+					${plans.map(item => html`
 						<horizon-product-tile 
 							type="radio-button"
-							label="${item.name}"
-							subtitle="Available balance: ${item.amount}"
+							label="${item.accountName}"
+							subtitle="Available balance: ${item.availableBalance}"
 							detail=""
 							icon="product/transact"
-							@click="${(e) => this._selectPlan(item.name)}"
-							?selected="${this.savingsPlanAccType === item.name}">
+							@click="${(e) => this._selectPlan(item.accountName)}"
+							?selected="${this.accPlanType === item.accountName}">
 						</horizon-product-tile>
 					`)}
-				</capitec-radio-group>
-			`;
-		}
-		return html``;
+				</capitec-radio-group>`
+			: html``;
 	}
 
 	_renderChoosePeriod() {
