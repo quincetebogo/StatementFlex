@@ -158,6 +158,54 @@ export class HorizonChannelService extends Service {
 	}
 
 	/**
+	 * Wraps the platform's put method
+	 * 
+	 * - Debug logging is added over the platform's post capability
+	 * - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
+	 *
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} model The request model
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purposes
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+* 
+	 * @returns {Promise<*>} The response of the Channel Service Request
+	 * @memberof HorizonChannelService
+	 */
+	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+		const correlationId = v4();
+		
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+
+		try {
+			const response = await super.httpClient.request({
+				method: `PUT`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
+
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
+		}
+	}
+
+	/**
 	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
 	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
 	 *
@@ -260,33 +308,15 @@ export class HorizonChannelService extends Service {
 	stopCard(stopCardRequest) {
 
 		/*
-		// Force loading of mocking settings
-		await this._mockEnabled(`stopCard`);
-
-		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking !== null && Object.prototype.hasOwnProperty.call(this._mocking, `stopCard`)) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `enabled`) && this._mocking.stopCard.enabled) {
-				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
-					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
-		*/
-/*
-						const cardStopResponse = { 
-							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-								result: {
-									statusCode: 400
-								  } }))
-						};
+		const cardStopResponse = { 
+		cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+			result: {
+						statusCode: 400
+				  } }))
+		};
 		
-						// throw new Error(`Mock Stop Card Error`);
-						return cardStopResponse;
+		return cardStopResponse;
 		*/
-	
-/*
-					 }
-				}
-			}
-		}
-*/
 
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
@@ -299,7 +329,6 @@ export class HorizonChannelService extends Service {
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
-
 	}
 
 	// loadAssignRequest
@@ -396,7 +425,7 @@ export class HorizonChannelService extends Service {
 
 	// newIncidentRequest
 	createIncident(createIncidentRequest) {
-		const url = `/clientcare/initialise/${this._version}/CreateIncident`;
+		const url = `/clientcare/incident/${this._version}/create-incident`;
 		const model = createIncidentRequest;
 
 		return this._post(url, model, this._setToken(), `createIncident`);
@@ -415,6 +444,16 @@ export class HorizonChannelService extends Service {
 		nonClientDetails.incidentRecId = incidentRecId;
 
 		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+	}
+
+	closeIncident(closeIncidentRequest) {
+		const url = `/clientcare/incident/${this._version}/close-incident?` +
+						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
+						`Reason=${closeIncidentRequest.reason}&` +
+						`Resolution=${closeIncidentRequest.reason}&` +
+						`CauseCode=${closeIncidentRequest.causeCode}&`;
+
+		return this._put(url, null, this._setToken(), `closeIncident`);
 	}
 
 	// --------------
@@ -625,21 +664,27 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `transactionHistory`);
 	}
 
-	// --------------------------
-	// Other Needs methods
-	// --------------------------
+	// ----------------
+	// Other Needs 
+	// ----------------
 	otherNeedCategories(orgUnit) {
-		const url = `/clientcare/Incident/${this._version}/orgunit/${orgUnit}/categories`;
+		const url = `/clientcare/incident/${this._version}/categories?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}`;
 		return this._get(url, this._setToken(), `otherNeedCategories`);
 	}
 
 	otherNeedSpecificNeed(orgUnit, categoryName) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need`;
+		const url = `/clientcare/incident/${this._version}/need?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}`;
 		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
 	}
 
 	otherNeedIssueType(orgUnit, categoryName, need) {
-		const url = `/clientcare/Incident/v1/orgunit/${orgUnit}/category/${categoryName}/need/${need}/issue`;
+		const url = `/clientcare/incident/${this._version}/issue?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}&` +
+		`Need=${encodeURIComponent(need)}`;
 		return this._get(url, this._setToken(), `otherNeedIssueType`);
 	}
 

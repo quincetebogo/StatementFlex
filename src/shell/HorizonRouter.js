@@ -58,7 +58,7 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction=``;    
+		this.returnToFunction = ``;    
 	}
 
 
@@ -98,7 +98,7 @@ export class HorizonRouter {
 		return {
 			verificationStatus: this.verificationStatus,
 			callStatus: this.callStatus,
-			returnToFunction:this.returnToFunction
+			returnToFunction: this.returnToFunction
 		};
 	}
 
@@ -218,10 +218,11 @@ export class HorizonRouter {
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
-		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => {};
-		const savingsPlan = () => {};
+		const credit = () => this.navigateToProductInfo(`Credit`);
+		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -267,6 +268,13 @@ export class HorizonRouter {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
 
+	/**
+	 * Navigates to the indicated Product Info Page
+	 *
+	 * @param {String} type SavingsAccount | SavingsPlan | Insure | Credit
+	 * @memberof HorizonRouter
+	 * @returns { undefined }
+	 */
 	navigateToProductInfo(type) {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
 	}
@@ -289,7 +297,7 @@ export class HorizonRouter {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
 
-			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS`) {
+			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS` && !isProductPage) {
 				// If the user browsers to the initial landing page, trigger ending the call/clearing state
 				// Manually browsing to the landing page is not supported and failing to clear state can leave
 				// information from a previous client behind that can get mixed up with information from the next call

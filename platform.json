@@ -1,11 +1,11 @@
 {
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"framework": "web-components",
 	"type": "desktop",
 	"application": {
 		"name": "horizon",
 		"title": "horizon",
-		"version": "1.1.8",
+		"version": "1.1.22",
 		"idp": {
 			"client": "Horizon"
 		},
@@ -13,10 +13,10 @@
 			"connect-src": [
 				"http://localhost:8888"
 			],
-			"default-src":[
+			"default-src": [
 				"data:"
 			],
-			"child-src":[
+			"child-src": [
 				"data:"
 			]
 		}

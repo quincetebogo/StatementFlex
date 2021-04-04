@@ -51,7 +51,15 @@ export class ViewBase extends View {
 			this.incomingCallDetails = null;
 		}
 
+		if (Object.hasOwnProperty.call(this.state, `incidentDetails`)) { 
+        	this.incidentDetails = this.state.incidentDetails;
+		} else {
+			this.incidentDetails = null;
+		}
+
 		this.isBusy = false;
+		this.isReassigned = false;
+		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -76,6 +84,8 @@ export class ViewBase extends View {
 	connectedCallback() {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
+
 
 		super.connectedCallback();
 	}
@@ -83,6 +93,7 @@ export class ViewBase extends View {
 	disconnectedCallback() {
 		this.endCallSub.dispose();
 		this.verifySub.dispose();
+		this.assignSub.dispose();
 		
 		super.disconnectedCallback();
 	}
@@ -116,6 +127,10 @@ export class ViewBase extends View {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 	}
 
+	_assignIncidentClick() {
+        this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+	}
+
 	_endCallClick() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -143,6 +158,7 @@ export class ViewBase extends View {
 	_webTemplate() {
 		return html`
 			${this._renderVerifyNowModal()}
+			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}`;
 	}
 
@@ -150,6 +166,7 @@ export class ViewBase extends View {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -160,13 +177,14 @@ export class ViewBase extends View {
 		return html``;
 	}
 
-	_renderEndCallSessionModal(isReassigned, endCallContext) {
+	_renderEndCallSessionModal() {
 		return this.renderMode === RENDER_MODE.END_CALL
 			? html`
 				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.isReassigned="${isReassigned}"
-					endCallContext=${endCallContext}
+					.isReassigned="${this.isReassigned}"
+					endCallContext=${this.endCallContext}
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
 			: html``;

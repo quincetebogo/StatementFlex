@@ -28,9 +28,10 @@ const RENDER_MODE = {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.PROOFOFACCOUNT_FAILURE;
 		this.mailId = ``;
-		this.acNumber=``;
+		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -60,12 +61,14 @@ const RENDER_MODE = {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			//this.returnRoute = state.returnTo.route;
+			// this.returnRoute = state.returnTo.route;
 			this.incomingCallDetails = state.incomingCallDetails;
-			this.mailId=state.emailAddress;
-			this.acNumber=state.accountNumber;
-			// TODO: email address received from API or using restore function.
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.incidentDetails = state.incidentDetails;
+			this.mailId = state.emailAddress;      
+			this.acNumber = state.accountNumber;
+
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -118,7 +121,7 @@ const RENDER_MODE = {
 				}
 				.card-related-options {
                     height: 112px;
-                    width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
                     margin-bottom:60px;
                 }
 				.button-margin{
@@ -134,7 +137,7 @@ const RENDER_MODE = {
                 }
                 .related-options {
                     height: 32px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					margin-top: -4px;
 					margin-bottom: -2px;
                     background-color: #F7F7F7;
@@ -214,7 +217,8 @@ const RENDER_MODE = {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 				// TODO: edit the card stop success render mode 
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

@@ -132,8 +132,8 @@ export class CardLimitsLanding extends Component {
 			super.styles,
 			css`
 				.center-section {
-					height: 888px;
-					width: 1064px;
+					height: var(--horizon-panel-height, 888px);
+					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-border-radius: 5px;
 					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
@@ -469,7 +469,6 @@ export class CardLimitsLanding extends Component {
 
 		return html``;
 	}
-
 	
 	_renderDiscard() {
 		if (this.renderMode === RENDER_MODE.DISCARD) {
@@ -480,7 +479,6 @@ export class CardLimitsLanding extends Component {
 			></horizon-discard-changes>`;
 		}
 	}
-
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);

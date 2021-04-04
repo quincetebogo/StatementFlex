@@ -6,6 +6,7 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -37,7 +38,6 @@ export class Favourites extends ViewBase {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -45,7 +45,6 @@ export class Favourites extends ViewBase {
 		this.isLoading = true;
 
 		// private variables
-		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
@@ -61,7 +60,6 @@ export class Favourites extends ViewBase {
 		}
 
 		// Subscribe to shell events
-		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -110,6 +108,7 @@ export class Favourites extends ViewBase {
 			};
 
 			if (actions[option]) {
+				super._inicidentManager_(option, () => this._toggleBusyFlag());
 				return actions[option];
 			}
 
@@ -122,7 +121,6 @@ export class Favourites extends ViewBase {
 	}
 
 	disconnectedCallback() {
-		this.assignSub.dispose();
 		this.returnToSub.dispose();
 
 		super.disconnectedCallback();
@@ -132,10 +130,6 @@ export class Favourites extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_assignIncidentClick() {
-        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
-	}
 
 	async _clientVerified(event) {
 		super._clientVerified(event);
@@ -199,12 +193,25 @@ export class Favourites extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
+	_debiCheckToMainPage() {
+
+		/**
+		 * This is supposed to happen in debicheck success screen
+		 * TODO: This should be to success screen when decline or approve is ready
+		 */
+		const state = this.horizonStore.recoverState();
+		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.saveState(state);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	async _initialise() {
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -217,14 +224,25 @@ export class Favourites extends ViewBase {
                  this.isLoading = false;
                  this.landingPageInfo = returnValue.result;
 
-			 	// Now we can update the information on the product buttons
-			 	this._updateLeftBar();
 			 }
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
-			this.landingPageInfo = { pendingMandateCount: 0 };
+			this.landingPageInfo = { 
+				savingsAccountProductDescription: ``,
+				savingsPlanProductDescription: ``,
+				insureProductDescription: ``,
+				creditProductDescription: ``,
+				savingsAccountProductAmount: ``,
+				savingsPlanProductAmount: ``,
+				insureProductAmount: ``,
+				creditProductAmount: ``,
+				pendingMandateCount: 0 
+			};
 		}
+
+		// Now we can update the information on the product buttons
+		this._updateLeftBar();
 	}
 
 	_updateLeftBar() {
@@ -266,7 +284,7 @@ export class Favourites extends ViewBase {
 		} 
 
 		this.callerInformation.verificationToastDisplayed = true;
-		this.horizonStore.saveState(this.callerInformation);
+		this.horizonStore.saveState({ callerInformation: this.callerInformation });
 
 		this.verificationToastDisplayed = true;
 		return true;
@@ -282,8 +300,8 @@ export class Favourites extends ViewBase {
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+			incidentRecId: this.incidentDetails.incidentRecId,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			nonClientFullName: this.callerInformation.nonClientFullName,
 			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
@@ -330,8 +348,6 @@ export class Favourites extends ViewBase {
 	}
 
 	async _tapToPay() {
-		// TODO: Functionality to toggle tap to pay comes here
-
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
@@ -341,7 +357,7 @@ export class Favourites extends ViewBase {
 	}
 
 	_getStatements() {
-		// TODO: Functionality to generate statements comes here
+		// TODO: Functionality to generate statements comes here	
 		this.renderMode = RENDER_MODE.STATEMENTS;
 	}
 
@@ -384,7 +400,7 @@ export class Favourites extends ViewBase {
 
 			capitec-content-box {
 				width: 100%;
-				height: 888px;
+				height: var(--horizon-panel-height, 888px);
 			}
 			`
 		];
@@ -405,7 +421,6 @@ export class Favourites extends ViewBase {
             ${this._renderProofOfAccount()}
 			${this._renderStatementsModal()}
 
-			${this._renderEndCallSessionModal(this.isReassigned, `LandingPage`)}
 			${super._webTemplate()}
 		`;
 	}
@@ -452,7 +467,7 @@ export class Favourites extends ViewBase {
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._debiCheckToMainPage()}">
 				</debi-check-mandates>`
 			: html``;
 	}
@@ -486,7 +501,7 @@ export class Favourites extends ViewBase {
 					@back="${() => this._mainPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
-    }
+	}
 
 	_renderProofOfAccount() {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
@@ -497,7 +512,7 @@ export class Favourites extends ViewBase {
 					.callerInformation="${this.callerInformation}"
                     .landingPageInfo="${this.landingPageInfo}"
                     ></horizon-proof-of-account>`
-            : html``; 
+			: html``;
     }
 
 	_renderTapToPay() {

@@ -31,7 +31,7 @@ export class CnetProductInfo extends Component {
 			css`
 				.product-info{
 					width: 100%;
-					height: 888px;
+					height: var(--horizon-panel-height, 888px);
 				}
 				.content{
 					width: 100%;
@@ -45,7 +45,7 @@ export class CnetProductInfo extends Component {
 					margin: 43px auto 8px auto;
 					color: #3A3A3A;
 					font-size: 24px;
-					font-weight: 600;	
+					font-weight: 600;
 				}
 				.insights-subtitle{
 					color: #3A3A3A;

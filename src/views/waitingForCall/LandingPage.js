@@ -1,12 +1,13 @@
-import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { Configuration, Logger } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
+import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
@@ -53,6 +54,7 @@ export class LandingPage extends ViewBase {
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
+		this.incidentDetails = {};
 
 		this.newCallSub = this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
@@ -129,7 +131,14 @@ export class LandingPage extends ViewBase {
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
 
-		this._acceptCall(newCallInfo, incident);
+		this.incidentDetails = new IncidentDetails(
+			incident ? incident.incidentNumber : `0`,
+			incident ? incident.incidentRecId : `0`,
+			``,
+			newCallInfo.ivrOptionCode,
+			``
+		);
+		this._acceptCall(newCallInfo);
 	}
 
 	async _createIncident(newCallInfo) {
@@ -151,13 +160,13 @@ export class LandingPage extends ViewBase {
 		return incident;
 	}
 
-	async _acceptCall(newCallInfo, incident) {
+	async _acceptCall(newCallInfo) {
 		const incomingNumber = newCallInfo.incomingTelephoneNumber;
 		let callerDetails = null;
 		let forceSearchDialog = true;
 
-		newCallInfo.incidentReferenceNumber = incident ? incident.incidentNumber : `0`;
-		newCallInfo.incidentRecId = incident ? incident.incidentRecId : `0`;
+		newCallInfo.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -191,9 +200,8 @@ export class LandingPage extends ViewBase {
 		// Set up state for the incoming call
 		this.callStatus = `CALL-IN-PROGRESS`;
 		this.incomingCallDetails = new IncomingCallDetails(
+			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
-			newCallInfo.incidentReferenceNumber,
-			newCallInfo.incidentRecId,
 			false, 
 			false,
 			newCallInfo.voiceReferenceNumber,
@@ -201,7 +209,12 @@ export class LandingPage extends ViewBase {
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: true };
+		const state = {
+			callStatus: this.callStatus,
+			incomingCallDetails: this.incomingCallDetails,
+			incidentDetails: this.incidentDetails,
+			canCloseIncident: true
+		};
 
 		this.horizonStore.saveState(state);
 
@@ -341,8 +354,9 @@ export class LandingPage extends ViewBase {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller-details 
-					.confirmedCaller="${this.confirmedCaller}" 
+					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
@@ -353,6 +367,7 @@ export class LandingPage extends ViewBase {
 			return html`
 				<horizon-stop-card-search-caller 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 				</horizon-stop-card-search-caller>`;
@@ -360,6 +375,7 @@ export class LandingPage extends ViewBase {
 			return html`
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">

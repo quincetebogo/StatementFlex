@@ -1,4 +1,4 @@
-import { css, html, Component } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = {

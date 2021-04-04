@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 /**
  * A control that displays product info.
@@ -386,7 +387,7 @@ export class HorizonProductTile extends Component {
 							<div class="subtitle">${this.subtitle}</div>
 						</div>
 						<div class="detail${this.navigational ? ` nav` : ``}">
-							${this.detail}
+							${this.detail.substring(1) > 999 ? formatCurrency(this.detail) : this.detail}
 							${this.detailIcon ? html`<capitec-icon class="nav-icon-right" icon="system/add-action"></capitec-icon>` : ``}
 							${this.navigational ? html`<capitec-icon size="small" class="nav-icon" icon="system/chevron-right-action"></capitec-icon>` : ``}
 							<slot name="detail"></slot>
