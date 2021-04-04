@@ -378,11 +378,12 @@ export class ConfirmCallerDetails extends Component {
 			this.logger.log(`error`, `Could not determine if digital channels are available. Defaulting to available.`, `_setAvailabilityFlags`, returnValue.correlationId);
 		}
 
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		// Save above flags to state
 		const state = {
-			incidentDetails: this.incidentDetails,
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation,
 			canCloseIncident: false
 		};
 
@@ -396,11 +397,8 @@ export class ConfirmCallerDetails extends Component {
 		this.errorCount++;
 
 		if (this.errorCount > 2) {
-			this.horizonStore.saveState({
-				incidentDetails: this.incidentDetails,
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			});
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonRouter.navigateToSystemError();
 		}
 		return true;

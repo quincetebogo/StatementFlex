@@ -43,9 +43,9 @@ export class SavingsAccountLandingPage extends ViewBase {
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
 	
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+
 		this.transactionHistory = null;
 		this.accountDetails = null;
 	
@@ -102,10 +102,10 @@ export class SavingsAccountLandingPage extends ViewBase {
 	// --------------
 
 	_transactionHistoryToMainPage() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 
-		this.horizonStore.saveState(state);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

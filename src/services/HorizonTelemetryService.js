@@ -186,18 +186,20 @@ export class HorizonTelemetry {
 	 * @returns { void }
 	 */
 	workflowCompleted() {
-		this.telemetry.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`horizon.call`],
-			parentSpan: null,
-			eventName: TelemetryEvent.WORKFLOW_COMPLETED,
-			tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
-
-		// clear span reference
-		this.currentActiveSpans[`horizon.call`] = null;
+		if (this.traceId) {
+			this.telemetry.event({
+				traceId: this.traceId,
+				spanId: this.currentActiveSpans[`horizon.call`],
+				parentSpan: null,
+				eventName: TelemetryEvent.WORKFLOW_COMPLETED,
+				tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+	
+			// clear span reference
+			this.currentActiveSpans[`horizon.call`] = null;
+		}
 	}
 
 

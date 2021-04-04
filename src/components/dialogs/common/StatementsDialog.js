@@ -163,7 +163,7 @@ export class StatementsDialog extends Component {
         super.connectedCallback();
 
         this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
+        this.callerInformation = this.horizonStore.getCallerInformation();
         this.landingPageInfo = this.state.landingPageInfo;
         this.accountInformation = this.state.leftBarButtonConfig.detail;
     }
@@ -336,7 +336,7 @@ export class StatementsDialog extends Component {
         }
 
         const state = {
-            // still to fill these in
+            // TODO: still to fill these in
         };
 
         this.horizonStore.saveState(state);

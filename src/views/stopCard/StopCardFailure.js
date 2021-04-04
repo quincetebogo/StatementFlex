@@ -80,11 +80,12 @@ export class StopCardFailure extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.callerInformation = state.callerInformation;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			this.callerInformation = this.horizonStore.getCallerInformation();
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			this.stoppedCards = state.stoppedCards;
+			
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
 			this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());

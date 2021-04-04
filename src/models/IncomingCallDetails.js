@@ -24,20 +24,15 @@ export class IncomingCallDetails {
 	 */
 	constructor(
 		VDN = ``,
+
 		/**
 		 * The CLI (incoming call number). This may not be the verified number of the client
 		 */
 		incomingTelephoneNumber = ``, 
 		isAssigned = false,
 		isHandedOff = false,
-		 * The incident reference number for the current call/need being handled
-		 */
 		voiceReferenceNumber = ``,
 
-		/**
-		 * The incident record ID for the current call/need being handled
-		 */
-		
 		/**
 		 * The agent's extension. Note this is not a full telephone number
 		 */

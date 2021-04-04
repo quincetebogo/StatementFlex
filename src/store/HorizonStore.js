@@ -29,11 +29,54 @@ export class HorizonStore extends Store {
 			logStateChanges: false
 		});
 
+		// Internal subsciption ensures that this class always has the latest state
+		this._appStoreSub = this.stateChanged.subscribe(state => this._restoreState(state));
+	}
+
+	// Ensures that this class always has the latest copy of state
+	_restoreState(state) {
+		this.state = state;
 	}
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
+	getIncomingCallDetails() {
+		if (this.state && this.state.incomingCallDetails) {
+			return this.state.incomingCallDetails;
+		}
+
+		return null;
+	}
+
+	setIncomingCallDetails(incomingCallDetails) {
+		this.setState({ incomingCallDetails: incomingCallDetails });
+	}
+
+	getIncidentDetails() {
+		if (this.state && this.state.incidentDetails) {
+			return this.state.incidentDetails;
+		}
+
+		return null;
+	}
+
+	setIncidentDetails(incidentDetails) {
+		this.setState({ incidentDetails: incidentDetails });
+	}
+
+	getCallerInformation() {
+		if (this.state && this.state.callerInformation) {
+			return this.state.callerInformation;
+		}
+
+		return null;
+	}
+
+	setCallerInformation(callerInformation) {
+		this.setState({ callerInformation: callerInformation });
+	}
 
 	/**
 	 * Recover the application state from the store

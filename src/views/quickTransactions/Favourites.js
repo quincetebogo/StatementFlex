@@ -51,6 +51,7 @@ export class Favourites extends ViewBase {
 		this.cards = [];
         this.debiCheckDetails = {};
 
+		this.state = this.horizonStore.recoverState();
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -199,10 +200,10 @@ export class Favourites extends ViewBase {
 		 * This is supposed to happen in debicheck success screen
 		 * TODO: This should be to success screen when decline or approve is ready
 		 */
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 
-		this.horizonStore.saveState(state);
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -265,8 +266,9 @@ export class Favourites extends ViewBase {
 			};
 		}
 
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = {
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
@@ -284,7 +286,7 @@ export class Favourites extends ViewBase {
 		} 
 
 		this.callerInformation.verificationToastDisplayed = true;
-		this.horizonStore.saveState({ callerInformation: this.callerInformation });
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.verificationToastDisplayed = true;
 		return true;
@@ -315,11 +317,14 @@ export class Favourites extends ViewBase {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+
 			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
 				clientProfileDetails: returnValue.result
 			});
+
+
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();

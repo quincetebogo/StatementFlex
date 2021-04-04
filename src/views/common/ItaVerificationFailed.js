@@ -54,10 +54,9 @@ export class ItaVerificationFailed extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this._updateLeftBar();
 

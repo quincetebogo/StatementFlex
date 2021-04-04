@@ -26,14 +26,10 @@ const ITA_TIMEOUT_SECS = 60;
 
 // exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
-
 	objInstance.callerInformation.verificationStatus = `failed`;
-	const state = {
-		callerInformation: objInstance.callerInformation,
-		incomingCallDetails: objInstance.incomingCallDetails
-	};
-	objInstance.horizonStore.saveState(state);
-
+	objInstance.horizonStore.setCallerInformation(objInstance.callerInformation);
+	objInstance.horizonStore.setIncomingCallDetails(objInstance.incomingCallDetails);
+	
 	return objInstance.horizonRouter.navigateToXdsVerificationFailed();
 };
 
@@ -306,31 +302,23 @@ export class VerifyCaller extends Component {
 		this.callerInformation.verificationStatus = verificationStatus;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 
-		const state = {
-			callerInformation: this.callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		this.xdsMessage = `System error. Please try again later`;
 
 		return true;
 	}
 
 	_itaErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.itaMessage = `System error. Please try again later`;
 
 		return true;

@@ -58,9 +58,10 @@ export class StopCardSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incidentDetails = state.incidentDetails;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.callerInformation = state.callerInformation;
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.callerInformation = this.horizonStore.getCallerInformation();
+			
 			this.stoppedCards = state.stoppedCards;
 
 			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
@@ -124,10 +125,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
@@ -154,10 +152,9 @@ export class StopCardSuccess extends View {
 	// ---------------
 
 	_updateIncidentState() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.saveState(state);
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------

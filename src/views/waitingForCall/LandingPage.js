@@ -209,10 +209,11 @@ export class LandingPage extends ViewBase {
 			newCallInfo.ivrOptionCode
 		);
 
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 		const state = {
 			callStatus: this.callStatus,
-			incomingCallDetails: this.incomingCallDetails,
-			incidentDetails: this.incidentDetails,
 			canCloseIncident: true
 		};
 
@@ -264,7 +265,8 @@ export class LandingPage extends ViewBase {
 			false
 		);
 
-		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
+		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
+		this.horizonStore.setCallerInformation(callerInformation);
 
 		if (callerInformation.verificationStatus === `non-client`) {
 			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);

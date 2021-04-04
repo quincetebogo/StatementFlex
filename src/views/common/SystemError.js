@@ -56,13 +56,11 @@ export class SystemError extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
-		if (state) {
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+		if (this.incomingCallDetails) {
 			this.incidentRecId = this.incidentDetails.incidentRecId;
-
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}
 	}

@@ -219,9 +219,7 @@ export class AddCallerDetails extends Component {
 	}
 	
 	_errorHandler(ex) {
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails
-		});
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonRouter.navigateToSystemError();
 	}
 

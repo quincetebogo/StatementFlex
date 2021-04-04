@@ -65,10 +65,10 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
-		this.incidentDetails = this.state.incidentDetails;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+
 		this.isReassigned = false;
 	}
 
@@ -297,11 +297,8 @@ export class StopCard extends Component {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
-
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
