@@ -94,23 +94,22 @@ export class ThirdPartyOrExistingClient extends Component {
 
 		const state = this.horizonStore.recoverState();
 
+		this.incidentDetails = state.incidentDetails;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 		this.verificationStatus = state.callerInformation.verificationStatus;
 
 		this._updateMiniProfile();
 
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+	}
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+
+		super.disconnectedCallback();
 	}
 
 	// ---------------
@@ -123,20 +122,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 	_updateMiniProfile() {
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.callerInformation.verifiedTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: true,
-				isConfirmed: this.callerInformation.isConfirmed,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: this.callerInformation.verificationStatus === `3rdparty`,
-				isNonClient: false
-			},
+			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -217,7 +203,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
-	_callEnded() {
+	_onCancelEndCall() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -240,7 +226,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 				capitec-content-box {
 					height: auto;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.verified-existing-client-cb {
 					--theme-container-padding-left: 24px;
@@ -462,8 +448,11 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session @cancel="{${() => this._callEnded()}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage"
+					@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;
@@ -496,6 +485,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

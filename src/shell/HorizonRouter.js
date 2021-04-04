@@ -1,3 +1,4 @@
+import { Configuration, EventAggregator } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
@@ -5,17 +6,17 @@ import { Router } from 'platform/Router';
 /**
  * The Horizon URL Schema. 
  */
-const HORIZON_ROUTES = {
+const HORIZON_ROUTES = Object.freeze({
 	LANDING_PAGE: `/landingPage`,
+	PRODUCT_INFO: `/product/info`,
 	SAVINGS_ACCOUNT_PRODUCT_PAGE: `/product/savings-account`,
 	SAVINGS_PLAN_PRODUCT_PAGE: `/product/savings-plan`,
-	SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE: `/product/savings-plan/flexible`,
-	SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
-	SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
+	// SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE: `/product/savings-plan/flexible`,
+	// SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE: `/product/savings-plan/fixed-term`,
+	// SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
-	CARD_STOP_VERIFIED_PAGE: `/card-stop/verified`,
-	CARD_STOP_UNVERIFIED_PAGE: `/card-stop/unverified`,
+	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
@@ -24,9 +25,17 @@ const HORIZON_ROUTES = {
 	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
 	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
 	SYSTEM_ERROR: `/error/system-error`,
-	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`
-};
-
+	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
+	DEBICHECK_SUCCESS: `/success/debicheck`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
+	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
+    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
+    PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
+	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
+});
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -39,10 +48,23 @@ const HORIZON_ROUTES = {
 export class HorizonRouter {
 
 	constructor() {
-		this.verificationStatus = ``;
-		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
 		this.router = Router.getInstance();
+		this._configuration = Configuration.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
+		this.stateSub = HorizonStore.getInstance().stateChanged.subscribe(state => this._updateState(state));
+
+		this._initialiseSTrackConfig();
+
+		this.verificationStatus = ``;
+		this.callStatus = ``;
+		this.returnToFunction = ``;    
 	}
+
+
+    async _initialiseSTrackConfig() {
+        this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
+    }
 
 	static getInstance() {
 		return this.instance || (this.instance = new HorizonRouter());
@@ -62,6 +84,8 @@ export class HorizonRouter {
 			// of the incoming caller.
 			this.verificationStatus = state.callerInformation.verificationStatus;
 		}
+
+		this.callStatus = state && state.callStatus ? state.callStatus : ``;
 	}
 
 	/**
@@ -72,8 +96,14 @@ export class HorizonRouter {
 	 */
 	getRoutingInfo() {
 		return {
-			verificationStatus: this.verificationStatus
+			verificationStatus: this.verificationStatus,
+			callStatus: this.callStatus,
+			returnToFunction: this.returnToFunction
 		};
+	}
+
+	_getCurrentRoute() {
+		return this.router.currentRoute;
 	}
 
 	// --------------------
@@ -91,17 +121,23 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE);
 	}
 
+	/*
 	navigateToFlexibleSavingsPlanProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE);
 	}
+	*/
 
+	/*
 	navigateToFixedTermSavingsProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE);
 	}
+	*/
 
+	/*
 	navigateToTaxFreeSavingsProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE);
 	}
+	*/
 
 	navigateToInsureProduct() {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_INSURE);
@@ -112,7 +148,7 @@ export class HorizonRouter {
 	}
 
 	navigateToStopCard() {
-		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE);
+		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
 
 	navigateToStoppedCards() {
@@ -136,10 +172,18 @@ export class HorizonRouter {
 	}
 
 	navigateToXdsVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
+		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
 	}
 
 	navigateToItaVerificationFailed() {
+		// TODO: This doesn't work when verify dialog is called called from the ITA Verification failure screen
+		// if (this.router.currentRoute.title === `ItaVerificationFailed`) {
+		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
+		// }
 		this.router.navigateByPath(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`);
 	}
 
@@ -151,20 +195,187 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.INITIAL_SYSTEM_ERROR}`);
 	}
 
-	navigateToLandingPage (ivrOption, hasInsuranceProducts) {
+	navigateToDebiCheckSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.DEBICHECK_SUCCESS}`);
+	}
 
+	navigateToCardLimitUpdateSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS}`);
+	}
+
+	navigateToCardLimitUpdateFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED}`);
+	}
+
+	navigateToStatementSuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_SUCCESSFUL}`);
+	}
+
+	navigateToStatementUnsuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
+	}
+
+	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
 		const stopCard = () => this.navigateToStopCard();
 		const transact = () => this.navigateToQuickTransactionFavourites();
-		const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
+		const insure = () => this.navigateToProductInfo(`Insure`);
+		const savings = () => this.navigateToSavingsAccount();
+		const credit = () => this.navigateToProductInfo(`Credit`);
+		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
 			StopCard: stopCard,
 			Transact: transact,
-			Insure: insure
-		}[ivrOption];
-
-		landingPageFunc();
+			Insure: insure,
+			SavingsAccount: savings,
+			Credit: credit,
+			SavingsPlan: savingsPlan,
+			ProductEnquiry: productEnquiry
+		}[ivrOption]();
 	};
+
+	navigateToReturnPage(displayMode) {
+		const horizonStore = HorizonStore.getInstance();
+		const state = horizonStore.recoverState();
+		state.returnTo.mode = displayMode;
+		horizonStore.saveState(state);
+
+		this.router.navigateByPath(state.returnTo.route);
+	}
+
+	navigateToSavingsAccount() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.SAVINGS_ACCOUNT}`);
+	}
+
+    navigateToStrack(incidentRecId) {
+        // get the rec id and replace the keyword in the constant url
+        const newUrl = this.strackURL.toString();
+        this.strackURL = newUrl.replace(`$incidentRecId`, incidentRecId);
+        window.open(this.strackURL);
+    }
+
+	navigateToProofOfAccountSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS}`);
+	}
+
+	navigateToProofOfAccountFailed() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+	}
+
+	_productLandingPagesActive() {
+		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+	}
+
+	/**
+	 * Navigates to the indicated Product Info Page
+	 *
+	 * @param {String} type SavingsAccount | SavingsPlan | Insure | Credit
+	 * @memberof HorizonRouter
+	 * @returns { undefined }
+	 */
+	navigateToProductInfo(type) {
+		this.router.navigateByPath(`${HORIZON_ROUTES.PRODUCT_INFO}?type=${type}`);
+	}
+	
+	/**
+	 * Guard functions to prevent navigation to pages which the correct conditions are not met
+	 *
+	 * @static
+	 * @param {string} funcName The name of the guard function to invoke
+	 * @returns {Boolean} true if browsing to the requested page is allowed
+	 * @memberof HorizonRouter
+	 */
+	static _guard(funcName) {
+		const viewManager = HorizonViewManager.getInstance();
+		const horizonRouter = HorizonRouter.getInstance();
+		const horizonStore = HorizonStore.getInstance();
+
+
+		const guardInitalLandingPages = () => {
+			const routingInfo = horizonRouter.getRoutingInfo();
+			const isOnInitialPageSet = viewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES;
+
+			if (isOnInitialPageSet && routingInfo.callStatus === `CALL-IN-PROGRESS` && !isProductPage) {
+				// If the user browsers to the initial landing page, trigger ending the call/clearing state
+				// Manually browsing to the landing page is not supported and failing to clear state can leave
+				// information from a previous client behind that can get mixed up with information from the next call
+				// that arrives.
+				const state = { callStatus: `CALL-ENDED` };
+				routingInfo.callStatus = state.callStatus;
+				horizonStore.saveState(state);
+			}
+
+			// Don't allow browsing back to the landing page from another page unless the call has been ended
+			return routingInfo.callStatus === `` || routingInfo.callStatus === `WAITING-FOR-CALL` || routingInfo.callStatus === `CALL-ENDED`;
+		};
+
+		return {
+			callWaitingPage: guardInitalLandingPages,
+			productPage: guardInitalLandingPages
+		}[funcName]();
+	};
+
+
+	/**
+	 * Pre-Navigation functions used for setting the application frame/layout 
+	 *
+	 * @static
+	 * @param {string} prenavFunc Pre-navigation function used for setting the application layout
+	 * @param {Set} layout A set that indicates the application frame components to display
+	 * @returns {undefined}
+	 * @memberof HorizonRouter
+	 */
+	static _preNavigate(prenavFunc, layout) {
+		const viewManager = HorizonViewManager.getInstance();
+		const horizonRouter = HorizonRouter.getInstance();
+
+		// TEMPORARY SWITCH VERIFIED VIEWS TO UNVERIFIED LAYOUT
+		layout = layout === HORIZON_VIEW_SET.VERIFIED_PAGES ? HORIZON_VIEW_SET.UNVERIFIED_PAGES : layout;
+
+		let shellLayout = layout;
+
+		const setShellLayout = () => {
+			viewManager.transitionToView(shellLayout);
+		};
+
+		const setShellLayoutByVerificationMode = () => {
+			const routingInfo = horizonRouter.getRoutingInfo();
+			switch (routingInfo.verificationStatus) {
+
+				/* TEMPORARY LOCK TO MARKETING BAR
+				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
+					break;
+				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
+					break;
+				case `3rdparty`:
+				*/
+				default:
+					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
+					break;
+			}
+			setShellLayout(shellLayout);
+		};
+
+		return {
+			layout: setShellLayout,
+			layoutByVerifictionMode: setShellLayoutByVerificationMode
+		}[prenavFunc]();
+	}
+
+	static _postNavigate() {
+		const horizonRouter = HorizonRouter.getInstance();
+		const horizonStore = HorizonStore.getInstance();
+		
+		const state = horizonStore.recoverState();
+		const option = state && state.returnToScreen && state.returnToScreen.option;
+		
+		if (option) {
+			horizonRouter.eventAggregator.publish(`horizon-returnTo-screen`, option);
+			horizonStore.saveState({ returnToScreen: null });
+		}
+	}
 }
 
 // -------------------------
@@ -180,9 +391,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.LANDING_PAGE,
 		load: () => import(`../views/waitingForCall/LandingPage`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		},
+		guard: () => HorizonRouter._guard(`callWaitingPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES),
 		isDefault: true,
 		isFallback: true
 	},
@@ -192,9 +402,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsAccountProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-savings-plan-product`,
@@ -202,49 +411,54 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/SavingsPlanProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+
+	/*
 	{
 		name: `horizon-flexible-savings-plan-product`,
 		title: `FlexibleSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FLEXIBLE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FlexibleSavingsPlanProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+
+	/*
 	{
 		name: `horizon-fixed-term-savings-product`,
 		title: `FixedTermSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_FIXED_TERM_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/FixedTermSavingsProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+	
+	/*
 	{
 		name: `horizon-tax-free-savings-product`,
 		title: `TaxFreeSavingsPlanProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE,
 		load: () => import(`../views/product/SavingsPlanProduct/TaxFreeSavingsProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
+	*/
+	
 	{
 		name: `horizon-insure-product`,
 		title: `InsureProductView`,
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_INSURE,
 		load: () => import(`../views/product/InsureProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-credit-product`,
@@ -252,29 +466,24 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
-		}
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
 		name: `horizon-stop-card-landing-page`,
-		title: `ClientProfile`,
+		title: `Favourites`,
 		icon: null,
-		path: HORIZON_ROUTES.CARD_STOP_UNVERIFIED_PAGE,
+		path: HORIZON_ROUTES.CARD_STOP_PAGE,
 		load: () => import(`../views/stopCard/StopCardLandingPage`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-success`,
-		title: `StopCard`,
+		title: `StopCardSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-failure`,
@@ -282,66 +491,35 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
 		name: `horizon-existing-client`,
-		title: `InsureVerifiedExistingClientView`,
+		title: `Insure`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_EXISTING_CLIENT,
 		load: () => import(`../views/insure/ExistingClient`),
 		guard: () => true,
-
-			/*
-			 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			 switch (routingInfo.verificationStatus) {
-			 	case `verified`:
-			 	case `unverified`:
-			 	case `3rdparty`:
-			 		return true;
-			 	default:
-					 return false;
-			*/
 		
-		onPreNavigate: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-					break;
-				case `unverified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-				case `3rdparty`:
-				default:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-			}
-		}
+		/*
+		 const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
+		 switch (routingInfo.verificationStatus) {
+			  case `verified`:
+			  case `unverified`:
+			  case `3rdparty`:
+					return true;
+			  default:
+				 return false;
+		*/
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-prospective-client`,
-		title: `InsureProductVerifiedProspective`,
+		title: `Insure`,
 		icon: null,
 		path: HORIZON_ROUTES.INSURE_PROSPECTIVE_CLIENT,
 		load: () => import(`../views/insure/ProspectiveClient`),
-		onPreNavigate: () => {
-			const routingInfo = HorizonRouter.getInstance().getRoutingInfo();
-			switch (routingInfo.verificationStatus) {
-				case `verified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-					break;
-				case `unverified`:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-				case `non-client`:
-				default:
-					HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-					break;
-			}
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-favourites`,
@@ -349,9 +527,8 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-		}
+        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`),
+		onPostNavigate: () => HorizonRouter._postNavigate()
 	},
 	{
 		name: `horizon-xds-verification-failed`,
@@ -359,9 +536,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.XDS_VERIFICATION_FAILED,
 		load: () => import(`../views/common/XdsVerificationFailed`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-ita-verification-failed`,
@@ -369,9 +544,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.ITA_VERIFICATION_FAILED,
 		load: () => import(`../views/common/ItaVerificationFailed`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-system-error`,
@@ -379,9 +552,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SYSTEM_ERROR,
 		load: () => import(`../views/common/SystemError`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.UNVERIFIED_PAGES);
-		}
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-initial-system-error`,
@@ -389,9 +560,78 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.INITIAL_SYSTEM_ERROR,
 		load: () => import(`../views/common/InitialSystemError`),
-		onPreNavigate: () => {
-			HorizonViewManager.getInstance().transitionToView(HORIZON_VIEW_SET.ERROR_PAGES);
-		}
-	}
-
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.ERROR_PAGES)
+	},
+	{
+		name: `horizon-debi-check-success`,
+		title: `DebiCheck`,
+		icon: null,
+		path: HORIZON_ROUTES.DEBICHECK_SUCCESS,
+		load: () => import(`../views/quickTransactions/DebiCheckSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-savings-account-landing-page`,
+		title: `SavingsAccount`,
+		icon: null,
+		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
+		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `card-limit-update-success`,
+		title: `CardLimitUpdateSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS,
+		load: () => import(`../views/updateCardLimits/CardLimitUpdateSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `card-limit-update-failure`,
+		title: `CardLimitUpdateFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
+		load: () => import(`../views/updateCardLimits/CardLimitUpdateFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-proof-of-account-success`,
+		title: `ProofOfAccountSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_SUCCESS,
+		load: () => import(`../views/quickTransactions/ProofOfAccountSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-proof-of-account-failure`,
+		title: `ProofOfAccountFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED,
+		load: () => import(`../views/quickTransactions/ProofOfAccountFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-product-information`,
+		title: `ProductInfo`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_INFO,
+		load: () => import(`../views/product/ProductInformation`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
+	},
+	{
+		name: `horizon-statements-success`,
+		title: `StatementSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_SUCCESSFUL,
+		load: () => import(`../views/statements/StatementsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-statements-unsuccess`,
+		title: `StatementUnsuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
+		load: () => import(`../views/statements/StatementsUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+    }
 ];

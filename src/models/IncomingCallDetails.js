@@ -13,29 +13,30 @@ export class IncomingCallDetails {
 	/**
 	 * Creates an instance of IncomingCallDetails.
 	 * 
+	 * @param {string} [VDN=``] incoming call info VDN
 	 * @param {string} [incomingTelephoneNumber=``] The CLI (number of the incoming call). This no necessarilly the verified telephone number of the client
-	 * @param {string} [incidentReferenceNumber=``] The STrack Incident Reference Number
-	 * @param {string} [incidentRecId=``] The STrack Incident Reference ID
+	 * @param {string} [isAssigned] If true, the incident must be assigned. (isHandedOff must be false)
+	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
+	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
 	 * @param {string} [agentTelephoneNumber=``] The agent's extension
 	 * @param {string} [ivrOptionCode=``] The IVR Option/Need
 	 * @param {Object} [ivrOption={possibleValues:[], value: ``}] The list of IVR Options/Needs and the currently selected Need
 	 */
 	constructor(
-		
+		VDN = ``,
 		/**
 		 * The CLI (incoming call number). This may not be the verified number of the client
 		 */
 		incomingTelephoneNumber = ``, 
-
-		/**
+		isAssigned = false,
+		isHandedOff = false,
 		 * The incident reference number for the current call/need being handled
 		 */
-		incidentReferenceNumber = ``, 
+		voiceReferenceNumber = ``,
 
 		/**
 		 * The incident record ID for the current call/need being handled
 		 */
-		incidentRecId = ``, 
 		
 		/**
 		 * The agent's extension. Note this is not a full telephone number
@@ -44,13 +45,25 @@ export class IncomingCallDetails {
 
 		ivrOptionCode = ``, 
 		ivrOption = { 
-						'possibleValues': [], 
-						'value': ``
+						'possibleValues': [
+							{
+								key: `StopCard`, value: `Stop Card`
+							},
+							{
+								key: `Transact`, value: `Transact`
+							},
+							{
+								key: `ProductEnquiry`, value: `Product Enquiry`
+							}
+						], 
+						'value': ivrOptionCode
 				}
 	) {
+		this.VDN = VDN;
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
-		this.incidentReferenceNumber = incidentReferenceNumber;
-		this.incidentRecId = incidentRecId;
+		this.isAssigned = isAssigned;
+		this.isHandedOff = isHandedOff;
+		this.voiceReferenceNumber = voiceReferenceNumber;
 		this.agentTelephoneNumber = agentTelephoneNumber;
 
 		// The IVR Option selected in the telephony system

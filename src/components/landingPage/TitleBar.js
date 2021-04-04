@@ -12,7 +12,7 @@ export class TitleBar extends Component {
 		this.fullname = ``;
 		this.employeeId = ``;
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
+		this.titleBarSub = this.eventAggregator.subscribe(`horizon-update-title-bar`, (event) => this._onUpdateTitle(event));
 	}
 
 	// ----------
@@ -30,6 +30,12 @@ export class TitleBar extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
+	disconnectedCallback() {
+		this.titleBarSub.dispose();
+
+		super.disconnectedCallback();
+	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -38,6 +44,14 @@ export class TitleBar extends Component {
 	_onUpdateTitle(event) {
 		this.fullname = event.agentFullName;
 		this.employeeId = event.employeeId;
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_searchCaller() {
+		this.eventAggregator.publish(`search-caller`, {});
 	}
 
 	// --------------
@@ -86,10 +100,13 @@ export class TitleBar extends Component {
 			<capitec-title-bar class="title-bar" type="clear" row=1>
 				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 				<capitec-spacer></capitec-spacer>
+				<capitec-group layout="horizontal" gap="line" halign="right" valign="center">
+				<capitec-icon size="meadium" icon="system/search" @click="${() => this._searchCaller()}"></capitec-icon>
 				<div class="logged-in-user">
 					<capitec-label label="${this.fullname}"></capitec-label>
 					<capitec-label label="${this.employeeId}"></capitec-label>
 				</div>
+				</capitec-group>
 			</capitec-title-bar>
 		`;
 	}

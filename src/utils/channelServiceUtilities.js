@@ -1,123 +1,7 @@
 /*
-		Utility functions for extracting UI control flags and other fields from the channel service contract
-		
-		All these functions assume that field info follows the following basic structure
-
-		{
-			enabled 
-			visible
-			tabindex
-			...
-			other properties
-			...
-		}
+	Utility Functions
 */
 
-/**
- * Some channel service contracts have a enabled field as part of the information structure
- * for a field. This value is returned if it exists.
- *
- * @export
- * @param {Object} fieldInfo An object with information about a field
- * @returns {Boolean} True if the input structure indicates a vield is enabled. False otherwise.
- */
-export function isDisabled(fieldInfo) {
-	if (fieldInfo === undefined) {
-		// console.log("fieldInfo in isDisabled is undefined");
-		return false;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(fieldInfo, `enabled`)) {
-		return !fieldInfo.enabled;
-	}
-
-	// console.log("fieldInfo in isDisabled does not have an enabled property");
-	return false;
-}
-
-/**
- * Some channel service contracts have a visible field as part of the information structure
- * for a field. This value is returned if it exists.
- * @export
- * @param {Object} fieldInfo An object with information about a field
- * @returns {Boolean} True if the input structure indicates a vield is visible. False otherwise.
- */
-export function isHidden(fieldInfo) {
-	if (fieldInfo === undefined) {
-		// console.log("fieldInfo in isHidden is undefined");
-		return false;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(fieldInfo, `visible`)) {
-		return !fieldInfo.visible;
-	}
-
-	// console.log("fieldInfo in isHidden does not have a visible property");
-	return false;
-}
-
-/**
- * Some channel service contracts have a tabIndex field as part of the information structure
- * for a field. This value is returned if it exists.
- * @export
- * @param {Object} fieldInfo An object with information about a field
- * @returns {Number} The tab index for the vield (if it is specified), otherwise -1
- */
-export function getTabIndex(fieldInfo) {
-	if (fieldInfo === undefined) {
-		// console.log("fieldInfo in getTabIndex is undefined");
-		return -1;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(fieldInfo, `tabindex`)) {
-		return fieldInfo.tabIndex;
-	}
-
-	// console.log("fieldInfo in getTabIndex does not have a tabIndex property");
-	return -1;
-}
-
-/**
- * Some channel service contracts have a value field as part of the information structure
- * for a field. This value is returned if it exists.
- *
- * @export
- * @param {Object} fieldInfo An object with information about a field
- * @returns  {*} The value field of the input structure or an empty string if the value field does not exist
- */
-export function getValue(fieldInfo) {
-	if (fieldInfo === undefined) {
-		// console.log("fieldInfo in getValue is undefined");
-		return ``;
-	}
-	if (Object.prototype.hasOwnProperty.call(fieldInfo, `value`)) {
-		return !fieldInfo.value ? `` : fieldInfo.value;
-	}
-	// console.log("fieldInfo in getValue does not have a value property");
-	return ``;
-}
-
-/**
- * Some channel service contracts have a possibleValues array as part of the information structure
- * for a field. This array is returned if it exists.
- *
- * @export
- * @param {Object} fieldInfo An object with information about a field
- * @returns {Array} An array of possible values or an empty array
- */
-export function getPossibleValues(fieldInfo) {
-	if (fieldInfo === undefined) {
-		// console.log("fieldInfo in getPossibleValues is undefined");
-		return [];
-	}
-
-	if (Object.prototype.hasOwnProperty.call(fieldInfo, `possibleValues`)) {
-		return !fieldInfo.possibleValues ? [] : fieldInfo.possibleValues;
-	}
-
-	// console.log("fieldInfo in getPossibleValues does not have a possibleValues property");
-	return [];
-}
 
 /**
  * Indicates if a string value is null, undefined or empty
@@ -128,60 +12,6 @@ export function getPossibleValues(fieldInfo) {
  */
 export function isNullorEmpty(fieldValue) {
 	return fieldValue === `` || fieldValue === null || fieldValue === undefined;
-}
-
-/**
- * This function must be stripped out. It translates an IVR Option description to the key value
- *
- * @export
- * @param {*} ivrOptionDescription The full description of an IVR Option
- * @returns {undefined}
- */
-export function tempFixIVROptionValue(ivrOptionDescription) {
-	if (ivrOptionDescription === undefined) {
-		return;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(ivrOptionDescription, `value`)) {
-		if (ivrOptionDescription.value === `Stop Card`) {
-			ivrOptionDescription.value = `StopCard`;
-		}
-
-		if (ivrOptionDescription.value === `Insure`) {
-			ivrOptionDescription.value = `Insure`;
-		}
-
-		if (ivrOptionDescription.value === `Transact`) {
-			ivrOptionDescription.value = `Transact`;
-		}
-	}
-}
-
-/**
- * This function must be stripped out. It populates the provided ivrOption with a list of possible values.
- * This is only required until we have a channel service contract in place providing this functionality
- * @export
- * @param {*} ivrOption An ivrOptiun object containing an array of possible values
- * @returns {undefined}
- */
-export function tempFixIVROption(ivrOption) {
-	if (ivrOption === undefined) {
-		return;
-	}
-
-	if (Object.prototype.hasOwnProperty.call(ivrOption, `possibleValues`)) {
-		ivrOption.possibleValues = [
-			{
-				key: `StopCard`, value: `Stop Card`
-			},
-			{
-				key: `Insure`, value: `Insure`
-			},
-			{
-				key: `Transact`, value: `Transact`
-			}
-		];
-	}
 }
 
 /**
@@ -201,3 +31,109 @@ export function validate(field, criteria) {
 
 	return 0;
 }
+
+/**
+ * Determine ordinal(st/nd/rd/th) for input date
+ *
+ * @export
+ * @param {*} date date value
+ * @returns {*} Ordinal fot the given date (1st, 2nd..)
+ */
+export function getDateOrdinal(date) {
+	if (date > 3 && date < 21) {
+		return `th`;
+	}
+
+	switch (date % 10) {
+		case 1: return `st`;
+		case 2: return `nd`;
+		case 3: return `rd`;
+		default: return `th`;
+	}
+}
+
+/**
+ * Determine month name for input month
+ *
+ * @export
+ * @param {*} month month value
+ * @returns {*} Month name (Jan, Feb..)
+ */
+export function getMonthName(month) {
+	const monthNames = [`Jan`, `Feb`, `Mar`, `Apr`, `May`, `Jun`, `Jul`, `Aug`, `Sep`, `Oct`, `Nov`, `Dec`];
+	return monthNames[month];
+}
+
+/**
+ * Formatting currency
+ *
+ * @export
+ * @param {*} value currency value
+ * @returns {*} Formatted currency value (E.g R 250 000)
+ */
+export function formatCurrency(value) {
+	return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+}
+
+/**
+ * Formatting phone number
+ *
+ * @export
+ * @param {*} value phone number
+ * @returns {*} Formatted phone number with spaces (E.g 071 256 9875)
+ */
+export function formatPhoneNumber(value) {
+	return !value ? `-` : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, `$1 $2 $3`);
+}
+
+/**
+ * Determine number of days between two dates
+ *
+ * @export
+ * @param {*} fromDate From date (Parsed Date)
+ * @param {*} toDate To Date (Parsed Date)
+ * @returns {*} Number of days between from date & to date
+ */
+ export function calculateDays(fromDate, toDate) {
+	const oneDay = 24 * 60 * 60 * 1000; // hours*minutes*seconds*milliseconds
+
+	return Math.round(Math.abs((fromDate - toDate) / oneDay));
+}
+
+/**
+ *  
+ *
+ * @param {*} idNumber An ID Number
+ * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
+ */
+function _luhnCheck(idNumber) {
+	const num = idNumber.toString()
+	.split(``)
+	.reverse()
+	.map(x => parseInt(x, 10));
+
+	const lastDigit = num.splice(0, 1)[0];
+	let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+	sum += lastDigit;
+
+	return sum % 10 === 0;
+}
+
+/**
+ * Tests to see if the check digit on a South African ID number is correct 
+ * and that the ID number is of the correct length. 
+ *
+ * @export
+ * @param {String} southAfricanIDNumber A South African ID Number to be checked
+ * @returns {String} Check if a South African ID number is well formed
+ */
+export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
+	return southAfricanIDNumber.length === 13 && 
+			RegExp(/^[0-9]{13}$/, `g`).test(southAfricanIDNumber);
+
+		// Luhn check removed. Apparently there are valid numbers in the wild that 
+		// fail this test????
+
+		// && _luhnCheck(southAfricanIDNumber); 
+}
+

@@ -1,7 +1,18 @@
-import { View, css, html } from 'platform/elements';
-import 'app/components/product/InsureProductDetails';
+import { ProductPageBase } from 'app/views/product/ProductPageBase';
+import { html } from 'platform/elements';
+import 'app/components/product/CnetProductInfo';
 
-export class InsureProduct extends View {
+// import 'app/components/product/InsureProductDetails';
+
+/**
+ * This page allows an agent to view Insure Product information while waiting for an incoming call
+ * The page is temporarily directed top opening product information on CNET
+ *
+ * @export
+ * @class InsureProduct
+ * @extends {View}
+ */
+export class InsureProduct extends ProductPageBase {
 
 	// --------------
 	// INITIALISATION
@@ -22,6 +33,7 @@ export class InsureProduct extends View {
 	// ---------
 	// RENDERING
 	// ---------
+	/*
 
 	static get styles() {
 		return [
@@ -33,12 +45,19 @@ export class InsureProduct extends View {
 				}`
 		];
 	}
+	*/
 
 	_mobileTemplate() {
 	}
 
 	_webTemplate() {
-		return html`<horizon-insure-product-details class="insure-details"></horizon-insure-product-details>`;
+		return html`
+			<horizon-cnet-product-info 
+				viewType="insure" 
+				viewHeader="Insure"
+				@view-benefits="${() => this._viewBenefits(`insure`)}">
+			</horizon-cnet-product-info>`;
+		// return html`<horizon-insure-product-details class="insure-details"></horizon-insure-product-details>`;
 	}
 }
 

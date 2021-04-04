@@ -1,4 +1,5 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 
 import 'app/components/common/ErrorScreen';
 
@@ -16,7 +17,10 @@ export class InitialSystemError extends View {
 	// --------------
 
 	constructor() {
-		super();
+        super();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// ----------
@@ -36,7 +40,8 @@ export class InitialSystemError extends View {
 	// --------------
 
 	_assignClick() {
-		console.log(`Assign is still to be developed`);
+        console.log(`Assign is still to be developed`);
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------
@@ -53,6 +58,9 @@ export class InitialSystemError extends View {
 				}
 				#id-error-msg{
 					width: 329px;
+				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 912px;
 				}
 			`
 		];
@@ -74,6 +82,7 @@ export class InitialSystemError extends View {
 				left=""
 				right="Assign"
 				toast="Network error"
+				image="/images/insure/assign-pay-arrears.svg"
 				@right-click=${() => this._assignClick()}>
 				<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
 			</horizon--error-screen>`;

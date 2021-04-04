@@ -33,7 +33,7 @@ export class CardService extends ServiceBase {
 		return this.wrapCall(this.channelService.addCallerDetails(callerData), `addCallerDetails`, errorHandler, autoRetries);
 	}
 
-	async stopCards(cardsToStop, callerInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async stopCards(cardsToStop, callerInfo, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		let cardStopResults = [];
 
 		const stopCardRequest = {
@@ -48,7 +48,7 @@ export class CardService extends ServiceBase {
 			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
 			ivrOptionCode: callerInfo.ivrOptionCode,
-			incidentReferenceNumber: callerInfo.incidentReferenceNumber,
+			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
 			agentTelephoneNumber: callerInfo.agentTelephoneNumber
 		};
 

@@ -43,12 +43,116 @@ export class IncidentManagementService extends ServiceBase {
 	 */
 	createIncident(incidentData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		const createIncidentRequest = {
-			"networkUserName": SecurityContext.getInstance().username,
+			"ucid": incidentData.voiceReferenceNumber,
 			"cli": incidentData.incomingTelephoneNumber,
+			"clientCIF": ``,
+			"orgUnitId": ``,
+			"category": ``,
+			"subCategory": ``,
+			"issue": ``,
 			"vdn": incidentData.VDN,
-			"ucid": incidentData.voiceReferenceNumber
+			"networkUserName": SecurityContext.getInstance().username,
+			"source": ``,
+			"impact": ``,
+			"urgency": ``,
+			"branchID": ``,
+			"summary": ``,
+			"description": ``,
+			"incidentType": ``,
+			"nonClientDetails": {
+				"fullName": ``,
+				"southAfricanIDNumber": ``,
+				"celllPhone": ``,
+				"workPhone": ``,
+				"email": ``
+			},
+			"referenceNo": ``,
+			"primaryNeedIncidentRecId": incidentData.primaryIncidentRecID || ``
 		};
 
 		return this.wrapCall(this.channelService.createIncident(createIncidentRequest), `createIncident`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Record the details of a client against an incident
+	 *
+	 * @param {String} cifNumber The client's CIF number
+	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 updateIncidentClientDetails(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateIncidentClientDetails(cifNumber, incidentRecId), `updateIncidentClientDetails`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Record the details of a non client against an incident
+	 *
+	 * @param {String} incidentRecId STrack incident record ID against which the client details will get recorded
+	 * @param {String} nonClientDetails Non client details
+	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 updateIncidentNonClientDetails(incidentRecId, nonClientDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateIncidentNonClientDetails(incidentRecId, nonClientDetails), `updateIncidentNonClientDetails`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Brings back other needs categories. 
+	 *
+	 * @param {object} orgUnit It is a grouping of categories on STrack, defaulted to Client Care for now
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 otherNeedCategories(orgUnit, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.otherNeedCategories(orgUnit), `otherNeedCategories`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Brings back specific needs
+	 *
+	 * @param {object} orgUnit It is a grouping of categories on STrack, defaulted to Client Care for now
+	 * @param {object} category Broader categories for other Needs 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 otherNeedSpecificNeed(orgUnit, category, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	return this.wrapCall(this.channelService.otherNeedSpecificNeed(orgUnit, category), `otherNeedSpecificNeed`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Brings back other needs issue and solution
+	 *
+	 * @param {object} orgUnit It is a grouping of categories on STrack, defaulted to Client Care for now
+	 * @param {object} category Broader categories for other Needs 
+	 * @param {object} need Specific need categories for other Needs 
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 otherNeedIssueType(orgUnit, category, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.otherNeedIssueType(orgUnit, category, need), `otherNeedIssueType`, errorHandler, autoRetries);
+		}
+    
+	/**
+	 * Closing current incident.
+	 *
+	 * @param {object} closeIncidentRequest The incoming all information to record against the incident
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 closeIncident(closeIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.closeIncident(closeIncidentRequest), `closeIncident`, errorHandler, autoRetries);
 	}
 }

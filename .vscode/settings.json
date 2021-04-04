@@ -1,6 +1,6 @@
 {
 	// Format a file on save. A formatter must be available, the file must not be auto-saved, and editor must not be shutting down.
-	"editor.formatOnSave": true,
+	"editor.formatOnSave": false,
 	// Insert spaces when pressing Tab. This setting is overridden based on the file contents when `editor.detectIndentation` is on.
 	"editor.insertSpaces": false,
 	// When opening a file, `editor.tabSize` and `editor.insertSpaces` will be detected based on the file contents.
@@ -29,12 +29,11 @@
 		"src/types.d.ts": true,
 		"ocwp": true
 	},
-	"eslint.nodePath": "./ocwp/1.0.0/node_modules",
-	"eslint.runtime": "./ocwp/1.0.0/node/node.exe",
+	"eslint.nodePath": "./ocwp/1.2.0/node_modules",
+	"eslint.runtime": "./ocwp/1.2.0/node/node.exe",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},
 	"eslint.enable": true,
-	"eslint.alwaysShowStatus": true,
-	"cordova.cordovaExecutable": "ocwp\\1.0.0\\node_modules\\cordova\\bin\\cordova.cmd"
+	"eslint.alwaysShowStatus": true
 }

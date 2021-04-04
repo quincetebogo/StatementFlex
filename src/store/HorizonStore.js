@@ -26,7 +26,7 @@ export class HorizonStore extends Store {
 		super({
 			name: `horizon-store`,
 			persistence: `sessionStorage`,
-			logStateChanges: true
+			logStateChanges: false
 		});
 
 	}

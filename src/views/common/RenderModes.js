@@ -1,0 +1,26 @@
+/** 
+ * Centralised render mode flags used across Horizon Views
+*/
+
+export const RENDER_MODE = Object.freeze({
+	MAIN_PAGE: 0, // The main display of any landing page
+	END_CALL: 1, // Display the End Call Session Dialog
+	CONFIRM_CALLER: 2, // Display the Confirn Caller Dialog
+	STOP_CARD_SEARCH: 3, // Display the Stop Card Search Dialog
+	SEARCH_CALLER: 4, // Display the general Horizon Search Dialog
+	START_AGENT: 5, // Call Waiting Landing Page: Show dialog indicating the Desktop Agent is down
+	SELECT_ASSIGN_REASON: 6,
+	ASSIGN: 7,
+	VERIFY_NOW: 8,
+	ALERT_MODAL: 9,
+	DEBI_CHECK_PAGE: 10,
+	DEBI_CHECK_APPROVE: 11,
+	DEBI_CHECK_DECLINE: 12,
+	DEBI_CHECK_VIEW_INFO: 13,
+	UPDATE_CARD_LIMITS: 14,
+	PROOF_OF_ACCOUNT: 15,
+	TAP_TO_PAY: 16,
+	SEARCH_OTHER_NEED: 17,
+	STATEMENTS: 18,
+	TRANSACTION_HISTORY: 19
+});

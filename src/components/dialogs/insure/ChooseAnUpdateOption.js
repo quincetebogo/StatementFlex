@@ -1,7 +1,7 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 import 'app/components/common/RadioButtonGroup';
 
-const ERROR_MESSAGE = "Choose an update option to continue.";
+const ERROR_MESSAGE = `Choose an update option to continue.`;
 
 export class ChooseAnUpdateOption extends Component {
 
@@ -12,13 +12,13 @@ export class ChooseAnUpdateOption extends Component {
 	constructor() {
 		super();
 		this.radioButtonsAvailable = [
-			{ "key": "0", "value": "Add payout beneficiary" },
-			{ "key": "1", "value": "Update payout beneficiary" },
-			{ "key": "2", "value": "Update premium and cover amounts" },
-			{ "key": "3", "value": "Remove payout beneficiary" }
+			{ "key": `0`, "value": `Add payout beneficiary` },
+			{ "key": `1`, "value": `Update payout beneficiary` },
+			{ "key": `2`, "value": `Update premium and cover amounts` },
+			{ "key": `3`, "value": `Remove payout beneficiary` }
 		];
 		this.checked = false;
-		this.alertBannerMessage = '';
+		this.alertBannerMessage = ``;
 	}
 
 	// --------------
@@ -29,7 +29,7 @@ export class ChooseAnUpdateOption extends Component {
 		return {
 			checked: { type: Boolean },
 			alertBannerMessage: { type: String }
-		}
+		};
 	}
 
 	// -------------------
@@ -45,22 +45,21 @@ export class ChooseAnUpdateOption extends Component {
 	// --------------
 
 	_onCancelClick() {
-		this.dispatchEvent(new CustomEvent('close-solution', {}));
+		this.dispatchEvent(new CustomEvent(`close-solution`, {}));
 	}
 
 	_onContinueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-		else {
-			this.dispatchEvent(new CustomEvent('solution-provided', {}));
+		} else {
+			this.dispatchEvent(new CustomEvent(`solution-provided`, {}));
 		}
 	}
 
 	_onValueChanged() {
 		this.checked = !this.checked;
 		if (this.checked) {
-			this.alertBannerMessage = '';
+			this.alertBannerMessage = ``;
 		}
 	}
 
@@ -138,9 +137,8 @@ export class ChooseAnUpdateOption extends Component {
 					--theme-alert-banner-font-weight: 500;
 					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
-				}
-
-		`];
+				}`
+		];
 
 	}
 
@@ -190,8 +188,6 @@ export class ChooseAnUpdateOption extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
 					tabindex=""
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
@@ -200,8 +196,6 @@ export class ChooseAnUpdateOption extends Component {
 					id="id-continue-button"
 					type="primary"
 					label="Continue"
-					?hidden=""
-					.disabled=""
 					tabindex=""
 					@click="${() => this._onContinueClick()}">
 				</capitec-button>
@@ -210,4 +204,4 @@ export class ChooseAnUpdateOption extends Component {
 	}
 }
 
-window.customElements.define(`horizon-choose-update-option`, ChooseAnUpdateOption)
+window.customElements.define(`horizon-choose-update-option`, ChooseAnUpdateOption);

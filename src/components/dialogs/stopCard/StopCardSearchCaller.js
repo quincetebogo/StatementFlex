@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
-import { getTabIndex, isHidden, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -20,6 +20,7 @@ const HEADER_LABEL = `Search Caller Details`;
 
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	REQUIRED_FIELDS_EMPTY: {
 		ALERT_BANNER: `All fields are required`,
 		SEARCH_TEXT: `This is a Required field`,
@@ -27,23 +28,23 @@ const ERROR_MESSAGES = {
 	},
 	NOT_FOUND: {
 		0: {
-			ALERT_BANNER: `The ID/Passport number not found. This is not a valid ID/Passport number`,
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
 			FIELD_ERROR: `ID/Passport number not found`
 		},
 		1: {
-			ALERT_BANNER: `The foreign passport number not found. This is not a valid foreign passport number`,
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
 			FIELD_ERROR: `Foreign passport number not found`
 		},
 		2: {
-			ALERT_BANNER: `The account number not found. This is not a valid account number`,
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
 			FIELD_ERROR: `Account number not found`
 		},
 		3: {
-			ALERT_BANNER: `The reference number not found. This is not a valid reference number`,
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
 			FIELD_ERROR: `Reference number not found`
 		},
 		4: {
-			ALERT_BANNER: `The cellphone number not found. This is not a verified Capitec number`,
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
 			FIELD_ERROR: `Cellphone number not found`
 		}
 	}
@@ -52,8 +53,8 @@ const ERROR_MESSAGES = {
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 const REGEX_PATTERNS = {
 	0: {
-		PATTERN: /^[0-9]{13}$/,
-		ERR_MESSAGE: `ID Number must be 13 characters long`,
+        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		ERR_MESSAGE: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
 		ALERT_BANNER: `Incorrect ID/Passport number`
 	},
 	1: {
@@ -124,6 +125,7 @@ export class StopCardSearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails - Incoming call information
+	 * @property {Object} incidentDetails - Incident details
 	 * 
 	 * @readonly
 	 * @static
@@ -132,11 +134,13 @@ export class StopCardSearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			isBusy: { type: Boolean },
-			errMessage: { type: Object },
-			renderMode: { type: Number },
-			alertBannerMessage: { type: String },
-			identificationMethods: { type: Object }
+			incidentDetails: { type: Object },
+
+			isBusy: { attribute: false },
+			errMessage: { attribute: false },
+			renderMode: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
 		};
 	}
 
@@ -158,8 +162,8 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption = this.incomingCallDetails.ivrOption;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		this._loadSearchOptions();
@@ -206,15 +210,17 @@ export class StopCardSearchCaller extends Component {
 			const returnValue = await this.callHandleService.searchCaller(searchClient);
 			const identifiedClient = returnValue.result;
 
-			if (returnValue.succeeded && identifiedClient) {
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
 				this._raiseOnClientIdentified(identifiedClient);
-			} else if (returnValue.succeeded && !identifiedClient) {
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
 				this.errMessage.searchFieldText = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].FIELD_ERROR;
 				this.alertBannerMessage = ERROR_MESSAGES.NOT_FOUND[this.identificationMethods.value].ALERT_BANNER;
 				return true;
-			} else {
+			} else if (this.incidentReferenceNumber === null) {
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+				}
 		}
 	}
 
@@ -240,10 +246,20 @@ export class StopCardSearchCaller extends Component {
 	// ---------------
 
 	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
-			detail: {
-				identifiedClient: identifiedClient,
-				incomingCallDetails: this.incomingCallDetails
+			detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller 
 			}
 		}));
 	};
@@ -265,11 +281,12 @@ export class StopCardSearchCaller extends Component {
 			if (this.identificationMethodsList !== undefined) {
 				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
 			}
+		} else {
+			this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 		}
 	}
 
 	extractIdentificationMethods(identificationMethods) {
-
 		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
 			Object.assign(identificationMethod, identificationMethod.value);
@@ -300,7 +317,6 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	isRequiredFieldsEmpty() {
-
 		this.errMessage.searchFieldText = isNullorEmpty(this.searchFieldText) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_TEXT : ``;
 		this.errMessage.identificationMethods = isNullorEmpty(this.identificationMethods.value) ? ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY.SEARCH_OPTION : ``;
 
@@ -318,7 +334,7 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_handleSearchClientException(exception) {
-		this.horizonRouter.navigateToSystemError();
+		this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 		return true;
 	}
 
@@ -353,14 +369,16 @@ export class StopCardSearchCaller extends Component {
 				}
 				.id-options{
 					text-align: justify;
-					line-height: 12px
+					line-height: 12px;
 				}
 				.search-fields{
 					margin-top: 26px;
 				}
-				.search-field-row{
-					height: 72px;
+				#identificationMethods{
 					margin-top: 8px;
+				}
+				#searchFieldText{
+					margin-top: 32px;
 				}
 				capitec-alert-banner{
 					--theme-alert-banner-height: 48px;
@@ -386,8 +404,12 @@ export class StopCardSearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}" @on-end-call="${() => this._onEndCall()}"
+					<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${HEADER_LABEL}"
+						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._onNeedChanged(event)}">
 						<div slot="body" class="main">
 							${this.renderSearchClientDetails()}
@@ -414,25 +436,41 @@ export class StopCardSearchCaller extends Component {
 	renderSearchClientDetails() {
 		return html`
 		<capitec-content-box class="search-box">
-			<capitec-label class="search-label" label="Search existing client"></capitec-label>
+			<capitec-label 
+				class="search-label" 
+				label="Search existing client">
+			</capitec-label>
 			${this.renderAlertBanner()}
-			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top"
-				class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
-				<div class="search-field-row">
-					<capitec-select id="identificationMethods" error="${this.errMessage.identificationMethods}"
-						label="Choose identification method" class="id-options"
+			<capitec-group layout="vertical" 
+							gap="none" 
+							halign="stretch" 
+							valign="top"
+							class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
+					<capitec-select 
+						id="identificationMethods" 
+						error="${this.errMessage.identificationMethods}"
+						label="Choose identification method" 
+						class="id-options"
 						.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
-						id-field="key" display-field="displayText" @value-changed="${(e) => this._valueChanged(e)}"
-						tabindex="${getTabIndex(this.identificationMethods)}" ?hidden=${isHidden(this.identificationMethods)}>
+						id-field="key" 
+						display-field="displayText" 
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex="5"
+						autofocus>
 					</capitec-select>
-					</capitec-select>
-				</div>
-				<div class="search-field-row">
-					<capitec-text-field id="searchFieldText" type="search" keyboardMode="numeric" label="Search"
-						error="${this.errMessage.searchFieldText}" focussed hint="" @key-input="${(e) => this._onKeyPress(e)}"
-						@value-changed="${(e) => this._valueChanged(e)}" value="">
+					<capitec-text-field 
+						id="searchFieldText" 
+						type="search" 
+						keyboardMode="numeric" 
+						label="Search"
+						error="${this.errMessage.searchFieldText}" 
+						focussed 
+						hint="" 
+						@key-input="${(e) => this._onKeyPress(e)}"
+						@value-changed="${(e) => this._valueChanged(e)}" 
+						value=""
+						tabindex="6">
 					</capitec-text-field>
-				</div>
 			</capitec-group>
 		</capitec-content-box>`;
 	}
@@ -441,7 +479,12 @@ export class StopCardSearchCaller extends Component {
 
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="error" label="${this.alertBannerMessage}" closable></capitec-alert-banner>
+				<capitec-alert-banner 
+					type="error" 
+					label="${this.alertBannerMessage}" 
+					closable
+					@click="${() => this.alertBannerMessage = ``}">
+				</capitec-alert-banner>
 			`;
 		}
 		return html``;
@@ -450,16 +493,23 @@ export class StopCardSearchCaller extends Component {
 	renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button id="id-search-button" type="primary" @click="${(e) => this._onSearchClick(e)}"
-					label="Search Client">
+				<capitec-button 
+					id="id-search-button" 
+					type="primary" 
+					@click="${(e) => this._onSearchClick(e)}"
+					label="Search Client"
+					tabindex="7">
 				</capitec-button>
 			</capitec-group>`;
 	}
 
 	renderEndCallModal() {
 		return html`
-			<horizon-end-call-session @cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}"
-				.incomingCallDetails="${this.incomingCallDetails}">
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.STOP_CARD_SEARCH}">
 			</horizon-end-call-session>`;
 	}
 }

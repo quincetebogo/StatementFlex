@@ -1,4 +1,5 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { HorizonITAChannelService } from 'app/services/HorizonITAChannelService';
 
 /**
  * CallHandleService is used to start the tracking of a call against an incident. It is also
@@ -15,6 +16,8 @@ export class CallHandleService extends ServiceBase {
 	// --------------
 	constructor(toggleBusyFunc, errorHandler = null) {
 		super(toggleBusyFunc, errorHandler);
+
+		this.itaService = HorizonITAChannelService.getInstance();
 	}
 
 	// ------------------------------------------
@@ -60,23 +63,6 @@ export class CallHandleService extends ServiceBase {
 	 * @property {object} result - The result of the service call if succeeded is true
 	 */
 
-
-	/**
-	 * Determines if the caller is phoning from a verified number. The returned object is 
-	 * different depending on if the incoming call is from an unverified number or not.
-	 * 
-	 * @deprecated use the new acceptCall instead
-	 * 
-	 * @param {object} acceptCallData Information about the incoming call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	caller(acceptCallData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.caller(acceptCallData), `caller`, errorHandler, autoRetries);
-	}
-
 	/**
 	 * Determines if the caller is phoning from a verified number. 
 	 * 
@@ -117,21 +103,6 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 * Loads the list of end call reasons to display on the end call dialog
 	 * 
-	 * @deprecated
-	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	endCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.endCallOptions(endCallDetails), `endCallOptions`, errorHandler, autoRetries);
-	}
-
-	/**
-	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
-	 * THIS METHOD WILL REPLACE endCallOptions. THE CHANNEL SERVICE IMPLEMENTATION MUST BE DONE BEFORE WE CAN SWITCH
-	 * 
 	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
@@ -144,17 +115,14 @@ export class CallHandleService extends ServiceBase {
 	/**
 	 *  Closes the incident that was created to track the call.
 	 * 
-	 * @param { object } details An object containg the incident for the call and the reason for ending the call
+	 * @param { object } endCallRequest An object containg the incident for the call and the reason for ending the call
 	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 * @memberof CallHandleService
 	 */
-	endCall(details, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		const incidentRecId = details.incidentRecId;
-		const endCallReasonKey = details.endCallReason.key;
-
-		return this.wrapCall(this.channelService.endCall(incidentRecId, endCallReasonKey), `endCall`, errorHandler, autoRetries);
+	endCall(endCallRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.endCall(endCallRequest), `endCall`, errorHandler, autoRetries);
 	}
 
 	/**
@@ -179,5 +147,13 @@ export class CallHandleService extends ServiceBase {
 	 */
 	verifySecurityQuestions(response, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
+	}
+
+	itaVerification(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.itaService.itaVerification(request), `itaVerification`, errorHandler, autoRetries);
+	}
+
+	digitalVerificationChannelsAvailable(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.digitalVerificationChannelsAvailable(cifNumber), `digitalVerificationChannelsAvailable`, errorHandler, autoRetries);
 	}
 }

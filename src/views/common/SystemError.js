@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
@@ -27,13 +28,15 @@ export class SystemError extends View {
 		super();
 
 		this.renderMode = RENDER_MODE.SYSTEM_ERROR;
+		this.incomingCallDetails = {};
+		this.incidentRecId = ``;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
-
 	}
 
 	// ----------
@@ -57,18 +60,19 @@ export class SystemError extends View {
 
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;
+			this.incidentRecId = this.incidentDetails.incidentRecId;
 
-			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
-
-			if (this.incomingCallDetails) {
-				this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-					referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-					phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-					ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-					isUnverifiedNumber: this.incomingCallDetails.isUnverifiedNumber
-				});
-			}
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}
+	}
+
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
+		
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -81,8 +85,9 @@ export class SystemError extends View {
 		}
 	}
 
-	_assignClick() {
-		console.log(`Assign is still to be developed`);
+    _assignClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
+		this.horizonRouter.navigateToWaitingForCall();
 	}
 
 	// ---------
@@ -99,6 +104,9 @@ export class SystemError extends View {
 				}
 				#id-error-msg{
 					width: 329px;
+				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 912px;
 				}
 			`
 		];
@@ -122,6 +130,7 @@ export class SystemError extends View {
 					left=""
 					right="Assign"
 					toast="Network error"
+					image="/images/insure/assign-pay-arrears.svg"
 					@right-click=${() => this._assignClick()}>
 					<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
 				</horizon--error-screen>`;
@@ -131,9 +140,11 @@ export class SystemError extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					@cancel="{${() => this.renderMode = RENDER_MODE.SYSTEM_ERROR}}"
-					.incomingCallDetails="${this.incomingCallDetails}">
+					.incomingCallDetails="${this.incomingCallDetails}"
+					endCallContext="LandingPage">
 				</horizon-end-call-session>`;
 		}
 		return html``;

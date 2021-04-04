@@ -20,6 +20,9 @@ const RENDER_MODE = Object.freeze({
 const HEADER_LABEL = `Security Questions`;
 
 const ERROR_MESSAGE = `Please choose an option`;
+const SYSTEM_ERROR = `System error. Please try again later`;
+
+const MAX_XDS_ATTEMPTS = 2;
 
 /**
  * Verify by Security questions dialog is used to verify the client's identity via Questions to mitigate the risk of fraud.
@@ -50,7 +53,6 @@ export class VerifyBySecurityQuestions extends Component {
 		this.state = [];
 		this.questions = [];
 		this.checked = false;
-		this.retryCount = 0;
 		this.alertBannerMessage = ``;
 
 
@@ -67,9 +69,11 @@ export class VerifyBySecurityQuestions extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
+	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
+	 * @property {Object} noOfXdsVerificationAttempted Number of verification attempts so far
 	 * 
 	 * @readonly
 	 * @static
@@ -78,14 +82,16 @@ export class VerifyBySecurityQuestions extends Component {
 
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
-			renderMode: { type: Number },
-			questionNumber: { type: Number },
-			retryCount: { type: Number },
-			isBusy: { type: Boolean },
-			alertBannerMessage: { type: String }
+			noOfXdsVerificationAttempted: { type: Number },
+
+			renderMode: { attribute: false },
+			questionNumber: { attribute: false },
+			isBusy: { attribute: false },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
@@ -115,6 +121,10 @@ export class VerifyBySecurityQuestions extends Component {
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
+	_verifyViaApp() {
+		this.dispatchEvent(new CustomEvent(`verify-via-app`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
 	_continueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
@@ -139,11 +149,13 @@ export class VerifyBySecurityQuestions extends Component {
 			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
 				this.callerInformation.verificationStatus = `verified`;
 				this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.retryCount < 1) {
+			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.retryCount++;
+				this.noOfXdsVerificationAttempted++;
 			} else if (returnValue.succeeded) {
+				this.noOfXdsVerificationAttempted++;
 				this.callerInformation.verificationStatus = `failed`;
+				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
 				const state = {
 					callerInformation: this.callerInformation,
@@ -174,8 +186,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_retrySecurityQuestions(e) {
-		if (this.retryCount <= 1) {
+		if (this.noOfXdsVerificationAttempted < MAX_XDS_ATTEMPTS) {
 			this.questionNumber = 0;
+			this.securityQuestions = e.detail.securityQuestions;
 			this.questions = e.detail.securityQuestions.questions;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
@@ -186,7 +199,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelEndCall() {
-		this.renderMode = this.retryCount === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+		this.renderMode = this.noOfXdsVerificationAttempted === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	// --------------
@@ -203,7 +216,8 @@ export class VerifyBySecurityQuestions extends Component {
 			callerInformation: this.callerInformation
 		};
 		this.horizonStore.saveState(state);
-		this.horizonRouter.navigateToSystemError();
+		this.alertBannerMessage = SYSTEM_ERROR;
+
 		return true;
 	}
 
@@ -338,6 +352,7 @@ export class VerifyBySecurityQuestions extends Component {
 				return html`
 					<horizon-caller-dialog class="main-container" 
 							.incomingCallDetails="${this.incomingCallDetails}"
+							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 
 							.headerLabel="${HEADER_LABEL}" 
 							@on-end-call="${() => this._endCallClick()}">
@@ -414,17 +429,22 @@ export class VerifyBySecurityQuestions extends Component {
 	_renderFailureModal() {
 		return html`
 			<horizon-security-questions-failed
-                .incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}" @security-questions="${(e) => this._retrySecurityQuestions(e)}"
-				@skip="${() => this._skipClick()}">
+				.incidentDetails="${this.incidentDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.callerInformation="${this.callerInformation}" 
+				@security-questions="${(e) => this._retrySecurityQuestions(e)}"
+				@skip="${() => this._skipClick()}"
+				@verify-via-app="${() => this._verifyViaApp()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-                .incomingCallDetails="${this.incomingCallDetails}"
-				@cancel="${() => this._cancelEndCall()}">
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				endCallContext="VerifyClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;
 	}
 

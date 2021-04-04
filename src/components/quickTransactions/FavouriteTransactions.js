@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+
 import 'app/components/common/OptionButton';
 
 /**
@@ -23,7 +24,6 @@ export class FavouriteTransactions extends Component {
 		super();
 
 		this.landingPageInfo = null;
-
 		this.displayToast = false;
 		this.isBusy = false;
 	}
@@ -38,6 +38,7 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
 	 *
 	 * @readonly
 	 * @static
@@ -48,7 +49,8 @@ export class FavouriteTransactions extends Component {
 			callerInformation: { type: Object },
 			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
-			verificationStatus: { type: String }, 
+			verificationStatus: { type: String },
+			displayVerificationStatusToast: { type: Boolean },
 
 			isBusy: { attribute: false },
 			displayToast: { attribute: false }
@@ -62,10 +64,12 @@ export class FavouriteTransactions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (this.verificationStatus === `verified`) {
+		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
+			this.displayVerificationStatusToast = false;
 			this.displayToast = true;
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
 		}
+		
 	}
 
 	// ---------------
@@ -89,8 +93,14 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_optionSelectedClick(selectedOption) {
-		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
+		this.dispatchEvent(new CustomEvent(`option-click`, {
+			detail: {
+				option: selectedOption,
+				stopPropagation: selectedOption !== `stop-card` && this.verificationStatus !== `verified`
+			}
+		}));
 	};
+
 
 	// ---------
 	// RENDERING
@@ -122,8 +132,13 @@ export class FavouriteTransactions extends Component {
 				--theme-type-default-background: rgb(244, 244, 244);
 				--theme-label-title-font-size: 14px;
 				--theme-label-title-font-weight: 600;
-
+				width: 100%;
 				border-top: 1px solid #E1E1E1;
+				box-shadow: none!important;
+			}
+
+			.transact-title {
+				border-top: none!important;
 			}
 
 			capitec-button-bar {
@@ -211,7 +226,7 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-card class="card">
 					<capitec-title-bar type="clear">
-						<img src="/src/images/transactions/fav_icon.svg">
+						<img src="/images/transactions/fav_icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
@@ -220,6 +235,7 @@ export class FavouriteTransactions extends Component {
 						${this._renderTransactSection()}
 						${this._renderCardsSection()}
 						${this._renderDocumentsSections()}
+						${this._renderSearchOtherNeed()}
 					</capitec-group>
 				</capitec-card>
 			`;
@@ -266,8 +282,8 @@ export class FavouriteTransactions extends Component {
 
 	_renderTransactSection() {
 		return html`
-				<capitec-title-bar type="default" label="Transact"></capitec-title-bar>
-				<capitec-button-bar>
+				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: visible;" ?hidden="${false}"></capitec-title-bar>
+				<capitec-button-bar  style="visibility: visible;" ?hidden="${false}">
 					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
@@ -287,11 +303,15 @@ export class FavouriteTransactions extends Component {
 					</horizon-option-button>
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
+						?disabled="${this.verificationStatus === `non-client`}"
+						style="visibility: visible;"
+						>
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
+						?disabled="${this.verificationStatus === `non-client`}"
+						style="visibility: visible;"
+						>
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
@@ -299,8 +319,8 @@ export class FavouriteTransactions extends Component {
 
 	_renderDocumentsSections() {
 		return html`
-				<capitec-title-bar type="default" label="Document"></capitec-title-bar>
-				<capitec-button-bar>
+				<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
+				<capitec-button-bar  style="visibility: visible;">
 					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`statements`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
@@ -317,6 +337,18 @@ export class FavouriteTransactions extends Component {
 		`;
 	}
 
+	_renderSearchOtherNeed() {
+		return html`
+				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
+				<capitec-button-bar>
+					<horizon-option-button label="Search Other Need" icon="system/search-action" iconSize="default"
+						@click="${() => this._optionSelectedClick(`search-other-need`)}"
+						?disabled="${this.verificationStatus === `non-client`}">
+					</horizon-option-button>
+				</capitec-button-bar>
+		`;
+	}
+
 	_renderLoadingIndicator() {
 		if (this.isBusy) {
 			return html`
@@ -327,4 +359,4 @@ export class FavouriteTransactions extends Component {
 	}
 }
 
-customElements.define(`horizon-favourites-transactions`, FavouriteTransactions);
+customElements.define(`horizon-favourite-transactions`, FavouriteTransactions);

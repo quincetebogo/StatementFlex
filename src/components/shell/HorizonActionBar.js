@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
@@ -16,11 +18,20 @@ export class HorizonActionBar extends Component {
 
 	constructor() {
 		super();
+
 		this.referenceNo = ``;
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
 		this.isHidden = false;
+
+		this.horizonStore = HorizonStore.getInstance();
+		
+		this.state = this.horizonStore.recoverState();
+		this.callerInformation = this.state.callerInformation;
+		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.incidentDetails = this.state.incidentDetails;
+    this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -43,14 +54,31 @@ export class HorizonActionBar extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 		this.eventAggregator = EventAggregator.getInstance();
-		this.eventAggregator.subscribe(`horizon-update-call_actionbar`, (event) => this._onUpdateCallDetails(event));
-		this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
+		
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
+	}
+
+	disconnectedCallback() {
+		this.assignSub.dispose();
+		this.stateChangeSub.unsubscribe();
+		super.disconnectedCallback();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	_stateChanged(state) {
+		if (state) {
+			this.referenceNo = state && state.incidentDetails && state.incidentDetails.incidentReferenceNumber;
+			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+      this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
+			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
+		}
+	}
 
 	_onUpdateCallDetails(event) {
 		this.referenceNo = event.referenceNo;
@@ -67,8 +95,17 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-	_onAssign() {
+    _onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
+	}
+
+	// ---------
+	// PRIVATE METHODS
+	// ---------
+
+	_getNeedDisplayValue(need) {
+		const result = this.ivrOptions.find((entry) => entry.key === need);
+		return result ? result.value : ``;
 	}
 
 	// ---------
@@ -140,13 +177,13 @@ export class HorizonActionBar extends Component {
 	_mobileTemplate() {
 	}
 
-	_webTemplate() {
+    _webTemplate() {
 		return html`
 			<capitec-title-bar>
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<horizon-label
 						label="Reference Number" 
-						value="${this.referenceNo}">
+						value="${this.referenceNo && this.referenceNo > 0 ? this.referenceNo : ``}">
 					</horizon-label>
 					<div class="vertical-line"></div>
 					<horizon-label
@@ -157,7 +194,7 @@ export class HorizonActionBar extends Component {
 					<img class="end-call-icon" src="/images/incoming-call.svg"/>
 					<horizon-label
 						label="Incoming call" 
-						value="${this.isUnverifiedNumber ? `Private Number` : this.phoneNumber}">
+						value="${this.isUnverifiedNumber ? `Private Number` : formatPhoneNumber(this.phoneNumber)}">
 					</horizon-label>
 				</capitec-group>
 				<capitec-spacer></capitec-spacer>
@@ -170,7 +207,8 @@ export class HorizonActionBar extends Component {
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
-									?hidden="${this.isHidden}">
+									?hidden="${this.isHidden}"
+                                    @click = "${()=> this._onAssign()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">

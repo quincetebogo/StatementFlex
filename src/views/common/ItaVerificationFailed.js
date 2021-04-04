@@ -57,12 +57,18 @@ export class ItaVerificationFailed extends View {
 		const state = this.horizonStore.recoverState();
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
 
-		this._updateTopBar();
 		this._updateLeftBar();
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.eventAggregator.subscribe(`horizon-verify-via-security-questions`, () => this._verifyUsingSecurityQuestions());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyUsingSecurityQuestions());
+	}
+
+	disconnectedCallback() {
+		this.endCallSub.dispose();
+		this.verifySub.dispose();
+		super.disconnectedCallback();
 	}
 
 	// -------------
@@ -73,33 +79,8 @@ export class ItaVerificationFailed extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-	_updateTopBar() {
-		this.eventAggregator.publish(
-			`horizon-update-call_actionbar`,
-			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			}
-		);
-	}
-
 	_updateLeftBar() {
 		const state = {
-			miniProfile: {
-				name: this.callerInformation.name,
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				livesIn: this.callerInformation.livesIn,
-				languagePreference: this.callerInformation.languagePreference,
-				birthday: this.callerInformation.birthdate,
-				showButtons: false,
-				isConfirmed: false,
-				isVerified: this.callerInformation.verificationStatus === `verified`,
-				verificationFailed: this.callerInformation.verificationStatus === `failed`,
-				is3rdParty: false,
-				isNonClient: false
-			},
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -176,6 +157,9 @@ export class ItaVerificationFailed extends View {
 				#id-error-msg{
 					width: 550px;
 				}
+				horizon--error-screen {
+					--horizon-error-screen-size: 912px;
+				}
 			`
 		];
 	}
@@ -186,8 +170,13 @@ export class ItaVerificationFailed extends View {
 	_webTemplate() {
 		return html`
 				${this._renderLoadingIndicator()}
-				<horizon--error-screen header="Verification was unsuccessful" left="Continue Unverified"
-					right="Verify Via Security Questions" toast="Your Verification has failed." @left-click=${() => this._leftClick()}
+				<horizon--error-screen 
+					header="Verification was unsuccessful"
+					left="Continue Unverified"
+					right="Verify Via Security Questions" 
+					toast="Your Verification has failed." 
+					image="/images/insure/assign-pay-arrears.svg"
+					@left-click=${() => this._leftClick()}
 					@right-click=${() => this._rightClick()}>
 						<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24
 							hours.</section>
@@ -200,7 +189,9 @@ export class ItaVerificationFailed extends View {
 	_renderVerifySecurityQuestions() {
 		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
 			return html`
-					<horizon-security-question .incomingCallDetails="${this.incomingCallDetails}"
+					<horizon-security-question
+						.incidentDetails="${this.incidentDetails}"
+						.incomingCallDetails="${this.incomingCallDetails}"
 						.callerInformation="${this.callerInformation}" 
 						.securityQuestions="${this.securityQuestions}"
 						@cancel="${() => this._onCancelVerify()}" 
@@ -213,8 +204,12 @@ export class ItaVerificationFailed extends View {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session .incomingCallDetails="${this.incomingCallDetails}" .isReassigned="${this.isReassigned}"
-					@cancel="{${() => this._onCancelEndCall()}}">
+				<horizon-end-call-session
+						.incidentDetails="${this.incidentDetails}"
+						.incomingCallDetails="${this.incomingCallDetails}" 
+						.isReassigned="${this.isReassigned}"
+						endCallContext="LandingPage"
+						@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;
 		}
 		return html``;

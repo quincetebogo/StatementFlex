@@ -1,8 +1,11 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
+import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -12,9 +15,12 @@ import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
+const ERROR_MESSAGE = `Choose an option to end call`;
 
 /**
- *
+ * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
+ * The dialog then navigates back to the initial landing page in order to wait for the next call
+ * 
  * Events Raised 
  * -------------
  * cancel
@@ -37,8 +43,15 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
+		this.alertBannerMessage = ``;    
+		this.incidentRefNumber = ``;
+		this.incidentRecId = ``;
+
+		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.logger = Logger.getInstance();
+
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 	}
 
@@ -47,8 +60,9 @@ export class EndCallSession extends Component {
 	// --------------
 
 	/**
-	 *
-	 *
+	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {Object} incidentDetails Incident details
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @readonly
 	 * @static
 	 * @memberof EndCallSession
@@ -56,8 +70,13 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
-			endCallReasons: { type: Array },
-			isReassigned: { type: Boolean }
+			incidentDetails: { type: Object },
+			endCallContext: { type: String },
+			isReassigned: { type: Boolean },
+
+			isBusy: { attribute: false },
+			endCallReasons: { attribute: false },
+			alertBannerMessage: { attribute: false }
 		};
 	}
 
@@ -70,43 +89,67 @@ export class EndCallSession extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned;
 
-		this.callHandleService.endCallOptions(this.incomingCallDetails)
-			.then((returnValue) => {
-				const endCallDialog = returnValue.result;
+		const state = this.horizonStore.recoverState();
+		const incidentDetails = state && state.incidentDetails;
 
-				if (returnValue.succeeded) {
-					this.endCallReasons = endCallDialog.endCallReasons.possibleValues;
-				}
-			});
+		// Subsequent incident might be created, so retrieving refNo & recID always from state
+		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
+
+		const endCallDetails = {
+			isReassigned: this.incomingCallDetails.isReassigned,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			incidentReferenceNumber: this.incidentRefNumber,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			endCallContext: this.endCallContext
+		};
+
+		this._loadCallOptions(endCallDetails);
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_onCancel() {
+	_cancelClick() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _onReasonSelected() {
-		const callToEnd = {
-			incidentRecId: this.incomingCallDetails.incidentRecId,
-			endCallReason: {
-				key: this.endCallReason.key
+	async _endCallClick() {
+
+		if (this.endCallReason) {
+			if (this._stopPropagation()) {
+				// Updating state as call ended and redirecting it to call waiting page
+				this._returnToCallWaitingPage();
+				return;
 			}
-		};
 
-		const returnValue = await this.callHandleService.endCall(callToEnd);
+			const callToEnd = {
+			incidentRecId: this.incidentRecId,
+				endReason: this.endCallReason.key,
+				resolution: this.endCallReason.value,
+				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			};
 
-		if (returnValue.succeeded) {
-			const state = { callStatus: `CALL-ENDED` };
-			this.horizonStore.setState(state);
-			this.horizonRouter.navigateToWaitingForCall();
+			const returnValue = await this.callHandleService.endCall(callToEnd);
+
+			// Log any error
+			if (!returnValue.succeeded) {
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+			}
+
+			// Return the the call waiting landing page even if an error occured
+			this._returnToCallWaitingPage();
+		} else {
+			this.alertBannerMessage = ERROR_MESSAGE;
 		}
 	}
 
-	_onValueChanged(e) {
+	_valueChanged(e) {
 		if (e.detail.new) {
+			this.alertBannerMessage = ``;
 			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
 		}
 	}
@@ -118,13 +161,53 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _loadCallOptions(endCallDetails) {
+		const returnValue = await this.callHandleService.loadEndCallOptions(endCallDetails);
+
+		if (returnValue.succeeded) {
+			this.endCallReasons = returnValue.result.endCallReasons;
+		} else {
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+
+			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
+			this._returnToCallWaitingPage();
+		}
+	}
+
+	_returnToCallWaitingPage() {
+		// Telemetry
+		HorizonTelemetry.instance.workflowCompleted();
+
+		const state = { callStatus: `CALL-ENDED` };
+		this.horizonStore.setState(state);
+		this.horizonRouter.navigateToWaitingForCall();
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
 	_endCallErrorHandler(exception) {
-		this.horizonRouter.navigateToInitialSystemError();
+		// We must be able to end a call and return to the call waiting landing page
+		// Errors on this screen will be logged by the caller and a return the the call waiting landing page will be effected
+
 		return true;
+	}
+
+	/**
+	 * Specical case: When a client need is stop card and client identity is not confirmed
+	 * Assume call is dropped then incident should not be closed.
+	 * 
+	 * @returns {Boolean} True / False
+	 */
+	_stopPropagation() {
+		const state = this.horizonStore.recoverState();
+
+		const preventIncidentClose = (this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `ConfirmClient`) ||
+			(this.incomingCallDetails.ivrOptionCode === `StopCard` && this.endCallContext === `LandingPage` && !state.canCloseIncident);
+
+		return preventIncidentClose;
 	}
 
 	// ---------
@@ -170,34 +253,32 @@ export class EndCallSession extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: 312px;
+				height: 322px;
 				border-radius: 5px;
 			}
 
 			.body-box {
-				height: 256px;
-				--theme-container-padding-top: 35px;
+				height: 322px;
 				--theme-container-padding-bottom: 0px;
-				--theme-container-padding-left: 72px;
-				--theme-container-padding-right: 73px;
 			}
 
 			.end-reason-label {
 				height: 24px;
-				width: 546px;
-				color: #545D60;
+				width: 117px;
+				color: #3E4547;
 				font-family: "Hind Vadodara";
 				font-size: 18px;
 				font-weight: 600;
 				letter-spacing: 0;
 				line-height: 24px;
-				margin: 0px;
+				margin: 0px 0px 8px 0px;
 			  }
 
 			#id-cancel-button {
 				height: 48px;
 				width: 95px;
 				margin-right: 17px;
+				margin-bottom: 8px;
 				--theme-button-line-height: 20px;
 				--theme-button-clear-border-width: 0px;
 				--theme-button-padding-top: 13px;
@@ -209,6 +290,7 @@ export class EndCallSession extends Component {
 			#id-continue-button {
 				height: 48px;
 				width: 112px;
+				margin-bottom: 8px;
 				--theme-button-line-height: 20px;
 				--theme-button-primary-border-width: 0px;
 				--theme-button-padding-top: 14px;
@@ -218,7 +300,15 @@ export class EndCallSession extends Component {
 			}
 
 			.radio-button {
-				margin-top: 15px;
+				margin-top: 0px;
+				padding-bottom: 8px;
+			}
+			
+			capitec-alert-banner {
+				--theme-alert-banner-icon-margin-left: 15px;
+				--theme-alert-banner-icon-margin-right: 7px;
+				--theme-icon-size-default: 26px;
+				--theme-alert-banner-height: 48px;
 			}`
 		];
 	}
@@ -229,31 +319,33 @@ export class EndCallSession extends Component {
 	_webTemplate() {
 		return html`
 			<horizon-caller-dialog
-                        .incomingCallDetails="${this.incomingCallDetails}"
-                        .isNeedSelectable=${false}
-				        .headerLabel="${HEADER_LABEL}" 
-                        .displayButton="${false}">
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${false}
+						.headerLabel="${HEADER_LABEL}" 
+						.displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
+						${this._renderAlertBanner()}
 						${this._renderChooseEndCallReason()}
+						${this._renderLoadingIndicator()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</horizon-caller-dialog>
-			${this._renderLoadingIndicator()}
 		`;
 	}
 
 	_renderChooseEndCallReason() {
 		return html`
-			<capitec-label class="end-reason-label" label="Choose end call reason"></capitec-label>
+			<capitec-label class="end-reason-label" label="Choose reason"></capitec-label>
 			<horizon-radio-button-group
                 class="radio-button"
                 .radioButtonsAvailable="${this.endCallReasons}"
                 @value-change="${(e) => {
-				this._onValueChanged(e);
+				this._valueChanged(e);
 			}}">
 			</horizon-radio-button-group>
 		`;
@@ -266,18 +358,27 @@ export class EndCallSession extends Component {
                     id="id-cancel-button"
                     type="clear"
                     label="Cancel"
-                    @click="${() => this._onCancel()}">
+                    @click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-button
                     id="id-continue-button"
                     type="primary"
-                    label="Continue"
-                    @click="${() => this._onReasonSelected()}">
+                    label="End Call"
+                    @click="${() => this._endCallClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;
 	}
+
+	_renderAlertBanner() {
+			if (this.alertBannerMessage) {
+				return html`
+					<capitec-alert-banner type="unsuccessful-red">
+						<b>Notify: </b>${this.alertBannerMessage}
+				</capitec-alert-banner>`;
+			}
+		}
 
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {
