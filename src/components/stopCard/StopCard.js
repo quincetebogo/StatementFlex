@@ -70,7 +70,7 @@ export class StopCard extends Component {
         this.callerInformation = state.callerInformation;
         this.incomingCallDetails = state.incomingCallDetails;
 
-		if (state && Object.hasOwnProperty.call(state, `isReAssigned`)) {
+		if (state && Object.prototype.hasOwnProperty.call(state, `isReAssigned`)) {
 			this.isReassigned = state.isReassigned;
 		} else {
 			this.isReassigned = false;

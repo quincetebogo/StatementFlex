@@ -205,7 +205,7 @@ export class LandingPage extends View {
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: false };
+		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
 
 		this.horizonStore.saveState(state);
 
@@ -257,8 +257,8 @@ export class LandingPage extends View {
 
 		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
 
-		if(callerInformation.verificationStatus === `non-client`) {
-			this.horizonRouter.navigateToProductInfo('SavingsAccount');
+		if (callerInformation.verificationStatus === `non-client`) {
+			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
 		} else {
 		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 		}
