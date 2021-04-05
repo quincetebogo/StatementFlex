@@ -5,7 +5,7 @@
 	"application": {
 		"name": "horizon",
 		"title": "horizon",
-		"version": "1.1.22",
+		"version": "1.1.24",
 		"idp": {
 			"client": "Horizon"
 		},
@@ -14,10 +14,10 @@
 				"http://localhost:8888"
 			],
 			"default-src": [
-				"data:"
+				"blob:"
 			],
 			"child-src": [
-				"data:"
+				"blob:"
 			]
 		}
 	},

@@ -50,6 +50,7 @@ export class Favourites extends ViewBase {
 		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
+		this.clientProducts = {};
 
 		this.state = this.horizonStore.recoverState();
 		// When returning from the success screen, check which page we should display
@@ -57,7 +58,6 @@ export class Favourites extends ViewBase {
 			this._debiCheck();
 		} else {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
-
 		}
 
 		// Subscribe to shell events
@@ -361,9 +361,13 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	_getStatements() {
-		// TODO: Functionality to generate statements comes here	
-		this.renderMode = RENDER_MODE.STATEMENTS;
+	async _getStatements() {
+		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_taxCertificates() {
@@ -546,9 +550,8 @@ export class Favourites extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 		? html`
 			<horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
+				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
 		: html``;
