@@ -111,7 +111,7 @@ export class EndCallSession extends Component {
 	async _endCallClick() {
 		const state = this.horizonStore.recoverState();
 
-		if (Object.hasOwnPropery.call(state, `cardStopAttemptMade`)) {
+		if (Object.prototype.hasOwnProperty.call(state, `cardStopAttemptMade`)) {
 			this.cardStopAttemptMade = state.cardStopAttemptMade;
 		} else {
 			this.cardStopAttemptMade = false;
@@ -125,6 +125,9 @@ export class EndCallSession extends Component {
 		} else if (this._selectedNeedFulfilledAfterAssigningStoppedCards()) {
 			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT WAS ASSIGNED`;
 			this.logger.log(`info`, `Stop Card Incident assigned, blocking selection of need fulfilled`);
+		} else if (this._selectedNeedFulfilledOnFailureToStopCards()) {
+			this.alertBannerMessage = `INCORRECT OPTION: CARDS WERE NOT STOPPED`;
+			this.logger.log(`info`, `Stop Card Incident was not assigned, blocking selection of need fulfilled`);
 		} else if (this.endCallReason) {
 			if (this._preventCloseOfIncident()) {
 				// Updating state as call ended and redirecting it to call waiting page
@@ -159,11 +162,15 @@ export class EndCallSession extends Component {
 		//    assigned was selected as an end call reason
 		//   and The incident has not been flagged as assigned
 		// then we must disallow selecting assigned as an end call reason
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason === `2` && !this.isReassigned && this.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2 && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+	}
+
+	_selectedNeedFulfilledOnFailureToStopCards() {
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 	
 	_selectedNeedFulfilledAfterAssigningStoppedCards() {
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason === `0` && this.isReassigned && this.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	_valueChanged(e) {
@@ -228,7 +235,7 @@ export class EndCallSession extends Component {
 		//    - StopCard was the need and
 		//    - the call was probably dropped before attempting to stop cards and
 		//    - Need assigned/handed off was selected as the end-call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && !this.cardStopAttemptMade && this.endCallReason && this.endCallReason === `2`) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && !this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2) {
 			this.logger.log(`info`, `A Stop Card Call may have been dropped. Assigned was selected as the end call reason. The incident will not be closed.`);
 			return true;
 		}

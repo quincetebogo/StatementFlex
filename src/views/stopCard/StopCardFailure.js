@@ -80,7 +80,7 @@ export class StopCardFailure extends View {
 			this.callerInformation = state.callerInformation;
 			this.incomingCallDetails = state.incomingCallDetails;
 
-			if (state && Object.hasOwnProperty.call(state, `isReAssigned`)) {
+			if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
 				this.isReassigned = state.isReassigned;
 			} else {
 				this.isReassigned = false;
@@ -448,7 +448,7 @@ export class StopCardFailure extends View {
 				@cancel="${() => this.renderDialog = -1}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}">
+				?isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
 

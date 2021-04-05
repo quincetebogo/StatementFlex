@@ -40,7 +40,7 @@ export class XdsVerificationFailed extends View {
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.callerInformation = state.callerInformation;
 
-		if (state && Object.hasOwnProperty.call(state, `isReAssigned`)) {
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
 			this.isReassigned = state.isReassigned;
 		} else {
 			this.isReassigned = false;
@@ -194,7 +194,7 @@ export class XdsVerificationFailed extends View {
 			return html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}" 
-					.isReassigned="${this.isReassigned}"
+					?isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"
 					@cancel="{${() => this._cancelEndCallClick()}}">
 				</horizon-end-call-session>`;

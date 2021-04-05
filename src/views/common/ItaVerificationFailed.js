@@ -58,7 +58,7 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 
-		if (state && Object.hasOwnProperty.call(state, `isReAssigned`)) {
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
 			this.isReassigned = state.isReassigned;
 		} else {
 			this.isReassigned = false;
@@ -209,7 +209,7 @@ export class ItaVerificationFailed extends View {
 			return html`
 				<horizon-end-call-session 
 						.incomingCallDetails="${this.incomingCallDetails}" 
-						.isReassigned="${this.isReassigned}"
+						?isReassigned="${this.isReassigned}"
 						endCallContext="LandingPage"
 						@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;

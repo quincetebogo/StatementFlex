@@ -70,7 +70,7 @@ export class StopCard extends Component {
         this.callerInformation = state.callerInformation;
         this.incomingCallDetails = state.incomingCallDetails;
 
-		if (state && Object.prototype.hasOwnProperty.call(state, `isReAssigned`)) {
+		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
 			this.isReassigned = state.isReassigned;
 		} else {
 			this.isReassigned = false;
@@ -566,7 +566,7 @@ export class StopCard extends Component {
 			<horizon-end-call-session
 				.incomingCallDetails = "${this.incomingCallDetails}" 
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}"
+				?isReassigned = "${this.isReassigned}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-end-call-session>`;
 		}
