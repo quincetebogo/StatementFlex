@@ -205,7 +205,7 @@ export class LandingPage extends View {
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: true };
+		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails, canCloseIncident: false };
 
 		this.horizonStore.saveState(state);
 

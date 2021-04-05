@@ -58,6 +58,12 @@ export class ItaVerificationFailed extends View {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 
+		if (state && Object.hasOwnProperty.call(state, `isReAssigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
+
 		this._updateLeftBar();
 
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
