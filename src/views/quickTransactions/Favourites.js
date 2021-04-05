@@ -80,12 +80,13 @@ export class Favourites extends View {
 		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
+		this.clientProducts = {};
+
 		// When returning from the success screen, check which page we should display
 		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
 			this._debiCheck();
 		} else {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
-
 		}
 
 		// Subscribe to shell events
@@ -432,8 +433,13 @@ export class Favourites extends View {
 		}
 	}
 
-	_getStatements() {
-		this.renderMode = RENDER_MODE.STATEMENTS;
+	async _getStatements() {
+		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_taxCertificates() {
@@ -657,9 +663,8 @@ export class Favourites extends View {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 		? html`
 			<horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
+				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
 		: html``;
