@@ -117,6 +117,12 @@ export class EndCallSession extends Component {
 			this.cardStopAttemptMade = false;
 		}
 
+		if (Object.prototype.hasOwnProperty.call(state, `stoppedCardsFailed`)) {
+			this.stoppedCardsFailed = state.stoppedCardsFailed;
+		} else {
+			this.stoppedCardsFailed = false;
+		}
+
 		if (this._selectedAssignOnSuccessfulyStoppedCards()) {
 			// Don't allow the user to select Incident Assigned/Handed Off if this has not been done
 			// Should actually filter out of the options
@@ -166,7 +172,7 @@ export class EndCallSession extends Component {
 	}
 
 	_selectedNeedFulfilledOnFailureToStopCards() {
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 	
 	_selectedNeedFulfilledAfterAssigningStoppedCards() {

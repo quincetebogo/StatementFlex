@@ -150,7 +150,9 @@ export class StopCardFailure extends View {
 	
 			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
 			if (isAllSuccess) {
-				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
+				// The stop card incident can be closed if all cards were stopped successfully.
+				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
+				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop, stoppedCardsFailed: false });
 				this.horizonRouter.navigateToStoppedCards();
 			}
 		}
