@@ -233,10 +233,13 @@ export class EndCallSession extends Component {
 
 		// Don't close the incident the incident if
 		//    - StopCard was the need and
-		//    - the call was probably dropped before attempting to stop cards and
-		//    - Need assigned/handed off was selected as the end-call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && !this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2) {
-			this.logger.log(`info`, `A Stop Card Call may have been dropped. Assigned was selected as the end call reason. The incident will not be closed.`);
+		//    - the call was probably dropped before attempting to stop cards
+		// OR
+		//   - StopCard was the need and
+		//   - an attempt to stop cards was made
+		//   - and Need Incomplete was selected as the end call reason
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && this.endCallReason.key === 1))) {
+			this.logger.log(`info`, `A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
 
