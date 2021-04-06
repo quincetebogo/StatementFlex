@@ -111,7 +111,10 @@ export class LandingPage extends View {
 	}
 
 	disconnectedCallback() {
+		// Telemetry
+		// TODO: This should probably move since this point will also mark the end of the caller verification.
 		HorizonTelemetry.instance.callerIdentified();
+		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
@@ -170,8 +173,8 @@ export class LandingPage extends View {
 		// Telemetry
 		if (incident) {
 			HorizonTelemetry.instance.incidentCreated({
-				incidentRecId 	:	incident.incidentRecId,
-				incidentReference 	:	incident.incidentNumber
+				incidentRecId: incident.incidentRecId,
+				incidentReference: incident.incidentNumber
 			});
 		}
 
@@ -210,8 +213,8 @@ export class LandingPage extends View {
 			HorizonTelemetry.instance.newTrace();
 			HorizonTelemetry.instance.incomingCall({
 				screen: TelemetryScreen.WAIT_FOR_CALL,
-				ivr: '',
-				ucid: ''
+				ivr: ``,
+				ucid: ``
 			});
 		}
 
