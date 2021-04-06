@@ -208,8 +208,8 @@ export class SearchCaller extends Component {
 		super.disconnectedCallback();
 			
 		// Telemetry
-			HorizonTelemetry.instance.screenUnloadAddCallerDetails({
-				screen: TelemetryScreen.SEARCH_CLIENT
+			HorizonTelemetry.instance.screenUnloadSearchClient({
+				screen	: TelemetryScreen.SEARCH_CLIENT
 			}); 
 	}
 
