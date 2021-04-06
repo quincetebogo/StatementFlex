@@ -69,7 +69,10 @@ const TelemetryEvent = {
 	STOP_CARD_TRY_AGAIN: `horizon.call.fulfill-need.stop-card.outcome.try-again`,
 	STOP_CARD_ASSIGN: `horizon.call.fulfill-need.stop-card.outcome.assign`,
 	STOP_CARD_DONE: `horizon.call.fulfill-need.stop-card.outcome.done`,
-	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`
+	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`,
+
+	// End Call Selected
+	END_CALL_SELECTED: `horizon.call.end-call-selected`
 };
 
 
@@ -997,7 +1000,37 @@ export class HorizonTelemetry {
 
 	// #endregion STOP CARD
 
+	// #region END CALL SELECTED
+			/**
+	 * @typedef {Object} EndCallSelected
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
 
+	/** End Call Outcome: End Call button clicked
+	 * @screen End Call Outcome
+	 * @event End Call Selected
+	 * 
+	 * @param {EndCallSelectedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+
+	endCallSelected(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`horizon.call`],
+			parentSpan: null,
+			eventName: TelemetryEvent.END_CALL_SELECTED,
+			tags: this._extractTags(TelemetryEvent.END_CALL_SELECTED),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen,
+				 		"nextScreen": baggage.nextScreen }]
+		});
+	}
+	// #endregion END CALL SELECTED
+	
 	// #endregion PUBLIC METHODS
 
 
