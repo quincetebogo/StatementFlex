@@ -69,7 +69,10 @@ const TelemetryEvent = {
 	STOP_CARD_TRY_AGAIN: `horizon.call.fulfill-need.stop-card.outcome.try-again`,
 	STOP_CARD_ASSIGN: `horizon.call.fulfill-need.stop-card.outcome.assign`,
 	STOP_CARD_DONE: `horizon.call.fulfill-need.stop-card.outcome.done`,
-	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`
+	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`,
+
+	// End Call Selected
+	END_CALL_SELECTED: `horizon.call.end-call-selected`
 };
 
 
@@ -484,8 +487,8 @@ export class HorizonTelemetry {
 		});
 
 		if (spanId) {
- this.currentActiveSpans[`add-caller`] = spanId; 
-}
+	 		this.currentActiveSpans[`add-caller`] = spanId; 
+		}
 	}
 
 
@@ -583,9 +586,103 @@ export class HorizonTelemetry {
 
 
 	// #region SEARCH CALLER
+
+	/**
+	 * @typedef {Object} scrLdSearchClientModel
+	 * @property {String} screen 
+	 */
+
+	/** Search Caller
+	 * @screen Search Client
+	 * @event Screen Load: Search Client
+	 * @param {scrLdSearchClientModel} baggage Information to attach to the telemetry event
+	 */
+	
+	screenLoadSearchClient(baggage) {
+		const spanId = this.telemetry.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans[`id-caller`],
+			eventName: TelemetryEvent.SCR_LD_SEARCH_CLIENT,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_SEARCH_CLIENT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) { 
+			this.currentActiveSpans[`search-client`] = spanId; 
+		}
+	}
+
+	/**
+	 * @typedef {Object} NavigateSearchClientModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/**
+	 * @typedef {Object} SearchClientModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+		/** Navigate to Confirm Client Screen
+	 * Search Client button clicked
+	 * @screen Search Client
+	 * @event Navigate to Confirm Client
+	 * 
+	 * @param {NavigateConfirmClientModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	selectSearchCapitecClient(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`search-client`],
+			parentSpan: this.currentActiveSpans[`id-caller`],
+			eventName: TelemetryEvent.SELECT_SEARCH_CLIENT,
+			tags: this._extractTags(TelemetryEvent.SELECT_SEARCH_CLIENT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			// eslint-disable-next-line no-tabs
+			baggage: [ 
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+	
+	/**
+	 * @typedef  {Object} ScrUnldSearchClientModel 
+	 * @property {String} screen 
+	 */
+	
+	/** Screen Unload: Search Client
+	 * @screen Search Client
+	 * @event Screen Unload: Search Client
+	 * 
+	 * @param {ScrUnldSearchClientModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	screenUnloadSearchClient(baggage) {
+		this.telemetry.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`search-client`],
+			parentSpan: this.currentActiveSpans[`id-caller`],
+			eventName: TelemetryEvent.SCR_UNLD_SEARCH_CLIENT,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_SEARCH_CLIENT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+	
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		this.currentActiveSpans[`search-client`] = null;
+	}
+	
 	// #endregion SEARCH CALLER
 
-
+	
 	// #region STOP CARD
 
 	/**
@@ -600,7 +697,7 @@ export class HorizonTelemetry {
 	 * @param {ScrLdStopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenLoadStopCard(baggage) {
+	 screenLoadStopCard(baggage) {
 		const spanId = this.telemetry.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -613,8 +710,8 @@ export class HorizonTelemetry {
 		});
 
 		if (spanId) {
- this.currentActiveSpans[`stop-card`] = spanId; 
-}
+ 			this.currentActiveSpans[`stop-card`] = spanId; 
+		}
 	}
 
 
@@ -903,7 +1000,37 @@ export class HorizonTelemetry {
 
 	// #endregion STOP CARD
 
+	// #region END CALL SELECTED
+			/**
+	 * @typedef {Object} EndCallSelected
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
 
+	/** End Call Outcome: End Call button clicked
+	 * @screen End Call Outcome
+	 * @event End Call Selected
+	 * 
+	 * @param {EndCallSelectedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+
+	endCallSelected(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`horizon.call`],
+			parentSpan: null,
+			eventName: TelemetryEvent.END_CALL_SELECTED,
+			tags: this._extractTags(TelemetryEvent.END_CALL_SELECTED),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen,
+				 		"nextScreen": baggage.nextScreen }]
+		});
+	}
+	// #endregion END CALL SELECTED
+	
 	// #endregion PUBLIC METHODS
 
 
