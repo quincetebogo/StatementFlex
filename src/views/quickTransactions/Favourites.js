@@ -64,7 +64,7 @@ export class Favourites extends View {
 		const state = this.horizonStore.recoverState();
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = this.state.incidentDetails;
+		this.incidentDetails = state.incidentDetails;
     
 
 		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
@@ -590,7 +590,9 @@ export class Favourites extends View {
 
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
