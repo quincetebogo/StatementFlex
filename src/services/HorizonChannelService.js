@@ -317,7 +317,7 @@ export class HorizonChannelService extends Service {
 		
 		return cardStopResponse;
 		*/
-
+		
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
