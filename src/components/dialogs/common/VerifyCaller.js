@@ -151,17 +151,19 @@ export class VerifyCaller extends Component {
 			}
 		};
 
+		const hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
+		this.isForeignClient = !hasSouthAfricanID;
+
 		if (this.callerInformation.hasDigitalChannels) {
 			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
-		} else if (isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
+		} else if (hasSouthAfricanID) {
 			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
 			await this._securityQuestionsClick();
 		} else {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
 			this.logger.log(`info`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
-			this.isForeignClient = true;
 			this.foreignClientErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
 		}
 
