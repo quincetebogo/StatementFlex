@@ -107,7 +107,7 @@ export class SavingsAccount extends Component {
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
 					background-color: #FFFFFF;
-					box-shadow: 0 3px 6px 0.25px rgba(0,0,0,0.08);
+					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 
 					--theme-card-min-height: 64px;
 				}
@@ -119,7 +119,7 @@ export class SavingsAccount extends Component {
 				.account-details-bar > capitec-expander {
 					position: absolute;
 					border-bottom: 1px solid #E1E1E1;
-
+					border-radius:4px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
@@ -128,6 +128,7 @@ export class SavingsAccount extends Component {
 					--theme-expander-height: 210px;
 					--theme-expander-indicator-width: 11.5px;
                     --theme-expander-indicator-height: 6.5px;
+					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
 				}
 				.account-details-bar > capitec-group {
 					width: 984px;
@@ -158,6 +159,7 @@ export class SavingsAccount extends Component {
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color:#3A3A3A;
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -254,7 +256,7 @@ export class SavingsAccount extends Component {
 					</horizon-label>
 					<horizon-label
 						label="Interest"
-						value="${this.landingPageInfo.interestRatePercentage}%">
+						value="${this.landingPageInfo.interestRatePercentage}">
 					</horizon-label>
 					<horizon-label
 						label="Status"
