@@ -38,7 +38,25 @@ export class Favourites extends ViewBase {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
+		// Recover information from state
+		const state = this.horizonStore.recoverState();
+		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+    
 
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
+		// When returning from the success screen, check which page we should display
+		if (state.returnTo && state.returnTo.mode === `mandate`) {
+			this._debiCheck();
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
+		
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -49,15 +67,9 @@ export class Favourites extends ViewBase {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-        this.debiCheckDetails = {};
+    this.debiCheckDetails = {};
 
-		// When returning from the success screen, check which page we should display
-		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-
-		}
+		this.clientProducts = {};
 
 		// Subscribe to shell events
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
@@ -356,9 +368,13 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	_getStatements() {
-		// TODO: Functionality to generate statements comes here	
-		this.renderMode = RENDER_MODE.STATEMENTS;
+	async _getStatements() {
+		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_taxCertificates() {
@@ -462,7 +478,9 @@ export class Favourites extends ViewBase {
 
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
@@ -541,9 +559,8 @@ export class Favourites extends ViewBase {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 		? html`
 			<horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
+				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
 		: html``;

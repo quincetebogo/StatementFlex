@@ -309,15 +309,16 @@ export class HorizonChannelService extends Service {
 
 		/*
 		const cardStopResponse = { 
-		cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-			result: {
-						statusCode: 400
-				  } }))
+							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+								result: {
+									statusCode: 400
+								  } }))
 		};
-		
+
 		return cardStopResponse;
 		*/
-
+	
+		
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -701,5 +702,10 @@ export class HorizonChannelService extends Service {
 
 		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
 		return this._post(url, statement, this._setToken(), `viewStatement`);
+	}
+
+	getClientProducts(cifNumber) {
+		const url = `/clientcare/documents/${this._version}/statements/client/${cifNumber}`;
+		return this._get(url, this._setToken(), `getClientProducts`);
 	}
 }
