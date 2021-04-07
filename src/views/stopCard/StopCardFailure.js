@@ -51,8 +51,6 @@ export class StopCardFailure extends View {
 
         this.failedCards = [];
 
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -84,6 +82,12 @@ export class StopCardFailure extends View {
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.incidentDetails = state.incidentDetails;
 
+			if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+				this.isReassigned = state.isReassigned;
+			} else {
+				this.isReassigned = false;
+			}
+	
 			this.stoppedCards = state.stoppedCards;
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
@@ -115,7 +119,6 @@ export class StopCardFailure extends View {
 	}
 
 	_onEndCallSession() {
-		this.isReassigned = false;
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
@@ -156,9 +159,10 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
+		// On return from the Stop Card Assign dialog, mark the incident as assigned
         this.isReassigned = true;
+		this.horizonStore.saveState({ isReassigned: this.isReassigned });
 		this.horizonRouter.navigateToQuickTransactionFavourites();
-		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	_toggleBusyFlag() {
@@ -446,7 +450,7 @@ export class StopCardFailure extends View {
 			<horizon-end-call-session
 				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
-				.isReassigned = "${this.isReassigned}"
+				?isReassigned = "${this.isReassigned}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderDialog = -1}">
 			</horizon-end-call-session>`;
