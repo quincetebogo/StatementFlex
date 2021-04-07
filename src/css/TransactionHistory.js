@@ -15,20 +15,20 @@ const statusColumnContainer =
 					align-items: center;
 					border-radius: 16px;
 					padding-top: 8px;
-					padding-bottom: 8px;`
+					padding-bottom: 8px;`;
 					
 const statusTagType =
 					`background-color: rgb(239, 239, 239);
-					color: #3A3A3A;`
+					color: #3A3A3A;`;
 
 const statusColumnLabel = 
 					`font-size: 12px;
 					font-weight: 600;
-					line-height: 14px;
+					line-height: 12px;
 					text-align: center;
 					margin-left: 16px;
 					margin-right: 16px;
-					height: 13px;`
+					height: 13px;`;
 
 
 const expanderCell = `height: 57px;
@@ -62,7 +62,7 @@ export const TABLE_EXPANDER_CELL = {
 };
 
 export const STATUS_TAG = {
-	tagContainer : statusColumnContainer,
-	tagLabel : statusColumnLabel,
-	tagType :statusTagType
-}
+	tagContainer: statusColumnContainer,
+	tagLabel: statusColumnLabel,
+	tagType: statusTagType
+};

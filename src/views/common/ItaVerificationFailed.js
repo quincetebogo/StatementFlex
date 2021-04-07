@@ -57,6 +57,13 @@ export class ItaVerificationFailed extends View {
 		const state = this.horizonStore.recoverState();
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
 
 		this._updateLeftBar();
 
@@ -188,7 +195,9 @@ export class ItaVerificationFailed extends View {
 	_renderVerifySecurityQuestions() {
 		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
 			return html`
-					<horizon-security-question .incomingCallDetails="${this.incomingCallDetails}"
+					<horizon-security-question
+						.incidentDetails="${this.incidentDetails}"
+						.incomingCallDetails="${this.incomingCallDetails}"
 						.callerInformation="${this.callerInformation}" 
 						.securityQuestions="${this.securityQuestions}"
 						@cancel="${() => this._onCancelVerify()}" 
@@ -201,9 +210,10 @@ export class ItaVerificationFailed extends View {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+						.incidentDetails="${this.incidentDetails}"
 						.incomingCallDetails="${this.incomingCallDetails}" 
-						.isReassigned="${this.isReassigned}"
+						?isReassigned="${this.isReassigned}"
 						endCallContext="LandingPage"
 						@cancel="{${() => this._onCancelEndCall()}}">
 				</horizon-end-call-session>`;

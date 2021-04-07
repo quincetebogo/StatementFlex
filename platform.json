@@ -1,25 +1,25 @@
 {
-	"version": "1.1.2",
+	"version": "1.2.0",
 	"framework": "web-components",
-	"type": "desktop",
-	"application": {
-		"name": "horizon",
-		"title": "horizon",
-		"version": "1.1.10",
-		"idp": {
-			"client": "Horizon"
-		},
-		"csp": {
-			"connect-src": [
-				"http://localhost:8888"
+    "type": "desktop",
+    "application": {
+        "name": "horizon",
+        "title": "horizon",
+		"version": "1.1.26",
+        "idp": {
+            "client": "Horizon"
+        },
+        "csp": {
+            "connect-src": [
+                "http://localhost:8888"
 			],
-			"default-src":[
-				"data:"
+			"default-src": [
+				"blob:"
 			],
-			"child-src":[
-				"data:"
-			]
-		}
+			"child-src": [
+				"blob:"
+            ]
+        }
 	},
 	"app": "standalone"
 }

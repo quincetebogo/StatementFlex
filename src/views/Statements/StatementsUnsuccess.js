@@ -28,9 +28,11 @@ export class StatementsUnsuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS;
 		this.mailId = ``;
 		this.acNumber = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
@@ -64,8 +66,10 @@ export class StatementsUnsuccess extends View {
 
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
+			this.incidentDetails = state.incidentDetails;      
 			this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
+      		this.acNumber = state.accountNumber;
+
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
@@ -73,7 +77,12 @@ export class StatementsUnsuccess extends View {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});
 		}
+	}
 		
+	disconnectedCallback() {
+		if (this.endCallSub) {
+			this.endCallSub.dispose();
+		}
 		super.disconnectedCallback();
 	}
 
@@ -211,7 +220,8 @@ export class StatementsUnsuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

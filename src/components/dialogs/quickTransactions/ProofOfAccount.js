@@ -5,14 +5,16 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 
 export class ProofOfAccount extends Component {
 
-    /*
-     * INITIALIZATION
-     */
-    constructor() {
-        super();
-        // Variables
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.horizonStore = HorizonStore.getInstance();
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+		super();
+		// Variables
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
         this.idEmailAddress = ``;
         this.idConfirmEmailAddress = ``;
@@ -22,49 +24,52 @@ export class ProofOfAccount extends Component {
         this.errMessage = {
             idEmailAddress: ``,
             idConfirmEmail: ``
-        };
+		};
         this.labelErr = ``;
         this.accountType = `PRIMARY_SAVINGS`;
-        this.isBusy = false;
+		this.isBusy = false;
 
-        this.savingAccInfo = {};
-        this.landingPageInfo = {};
+		this.savingAccInfo = {};
+		this.landingPageInfo = {};
 
-        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-    }
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+	}
 
-    /*
-     * PROPERTIES
-     */
-    static get properties() {
-        return {
-            isBusy: { attribute: false },
-            callerInformation: { type: Object },
-            incomingCallDetails: { type: Object },
-            landingPageInfo: { type: Object },
-            isBusy: { attribute: false },
-            emailAddress: { attribute: false },
-            alertBannerMessage: { attribute: false },
-            emailText: { attribute: false },
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	static get properties() {
+		return {
+			isBusy: { attribute: false },
+			callerInformation: { type: Object },
+			incomingCallDetails: { type: Object },
+			landingPageInfo: { type: Object },
+			isBusy: { attribute: false },
+			emailAddress: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			emailText: { attribute: false },
             accountOpenDate: { attribute: false },
             accountNumber: { attribute: false },
             accountType: { attribute: false }
-        };
-    }
+		};
+	}
 
-    /*
-     * LIFECYCLE OVERRIDES
-     */
-    connectedCallback() {
-        super.connectedCallback();
-        // holding values in your page
-        this.emailAddress = null;
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+
+		// holding values in your page
+		this.emailAddress = null;
         // TODO: add values used in screen such as acc number and open date
-    }
+	}
 
-    /*
-     * EVENT HANDLERS
-     */
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
     _errorHandler(ex) {
         return true;
@@ -74,49 +79,50 @@ export class ProofOfAccount extends Component {
         this.isBusy = !this.isBusy;
     }
 
-    async _sendClick(e) {
-        if (this._validateEmail(e)) {
+	async _sendClick(e) {
+		if (this._validateEmail(e)) {
+            // get account open date and number and save to state
 
-            const clientInfo = {
-                "cifNumber": this.callerInformation.cifNumber,
+			const clientInfo = {
+				"cifNumber": this.callerInformation.cifNumber,
                 "accountNumber": this.landingPageInfo.accountNumber,
                 "accountOpenDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
                 "emailAddress": this.idEmailAddress,
                 "accountType": this.accountType
-            };
+			};
 
-            const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
-            if (returnValue.succeeded) {
+			if (returnValue.succeeded) {
 				this.horizonStore.saveState({
 					emailAddress: this.idEmailAddress,
 					accountNumber: this.landingPageInfo.accountNumber
 				});
-                this.horizonRouter.navigateToProofOfAccountSuccess();
-            } else {
+				this.horizonRouter.navigateToProofOfAccountSuccess();
+			} else {
 				this.horizonStore.saveState({
 					emailAddress: this.idEmailAddress,
 					accountNumber: this.landingPageInfo.accountNumber
 				});
-                this.horizonRouter.navigateToProofOfAccountFailed();
-            }
-        }
+				this.horizonRouter.navigateToProofOfAccountFailed();
+			}
+		}
 
-    }
+	}
 
-    _formatDate(dateToFormat) {
+	_formatDate(dateToFormat) {
         const stringToDate = new Date(dateToFormat);
         const tempdate = stringToDate.toISOString().slice(0, 10);
-        return tempdate;
-    }
+		return tempdate;
+	}
 
-    _cancelClick(e) {
-        this.dispatchEvent(new CustomEvent(`cancel`, {}));
-    }
+	_cancelClick(e) {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
 
-    /*
-     * PRIVATE METHODS
-     */
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
     _validateEmail(e) {
         const regCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -130,10 +136,10 @@ export class ProofOfAccount extends Component {
             } else if (!this.idEmailAddress.includes(`@`)) {
                 this.alertBannerMessage = `Email address is invalid`;
                 this.errMessage.idEmailAddress = `An email must contain a single @`;
-                return false;
+				return false;
             }
 
-            this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
+                this.alertBannerMessage = `Incorrect email address format ie. email@gmail.com`;
 			this.errMessage.idEmailAddress = `Invalid email address`;
             this.errMessage.idConfirmEmail = `Invalid email address`;
             return false;
@@ -141,9 +147,9 @@ export class ProofOfAccount extends Component {
 			// EMAIL EMPTY
             if (this._isNullorEmpty(this.idConfirmEmailAddress)) {
                 this.errMessage.idConfirmEmail = `Enter a valid email address i.e. email@gmail.com`;
-                this.emailText = `email@gmail.com`;
-            }
-            this.alertBannerMessage = `Complete all fields to continue`;
+				this.emailText = `email@gmail.com`;
+			}
+			this.alertBannerMessage = `Complete all fields to continue`;
             this.errMessage.idEmailAddress = `Enter a valid email address i.e. email@gmail.com`;
             this.emailText = `email@gmail.com`;
             return false;
@@ -154,56 +160,58 @@ export class ProofOfAccount extends Component {
             return false;
         } else if (this.idEmailAddress !== this.idConfirmEmailAddress) {
 			// EMAILS DON'T MATCH 
-            this.alertBannerMessage = `Email and Confirm email don't match`;
+			this.alertBannerMessage = `Email and Confirm email don't match`;
             this.errMessage.idEmailAddress = `Invalid email`;
             this.errMessage.idConfirmEmail = `Invalid email`;
-            return false;
-        }
-    }
+			return false;
+		}
+	}
 
-    _onKeyPress(e) {
-        this._clearErrors(e);
-    }
+	_onKeyPress(e) {
+		this._clearErrors(e);
+	}
 
 
-    _clearErrors(e) {
+	_clearErrors(e) {
         this.errMessage.idEmailAddress = ``;
         this.errMessage.idConfirmEmail = ``;
-        this.alertBannerMessage = ``;
-        this.emailText = `Email address`;
+		this.alertBannerMessage = ``;
+		this.emailText = `Email address`;
 
-    }
+	}
 
-    _valueChanged(e) {
-        this[e.currentTarget.id] = e.detail.new;
-        this._clearErrors(e);
-        this.emailText = `Email address`;
-    }
+	_valueChanged(e) {
+		this[e.currentTarget.id] = e.detail.new;
+		this._clearErrors(e);
+		this.emailText = `Email address`;
+	}
 
-    _isNullorEmpty(fieldValue) {
-        return fieldValue === `` || fieldValue === null || fieldValue === undefined;
-    }
+	_isNullorEmpty(fieldValue) {
+		return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+	}
 
-    /*
-     * PUBLIC METHODS
-     */
+	// ---------------
+	// PUBLIC METHODS
+	// ---------------
 
-    /*
-     * RENDERING
-     */
+	// N/A
 
-    static get styles() {
-        return [
-            super.styles,
-            css`
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles, 
+			css`
 			capitec-modal {
 				width: 531px;
 				height: 721px;
 				--theme-modal-header-padding-left: 16px;
-                --theme-modal-header-color: #3A3A3A;
-                --theme-modal-header-background-color: #F7F7F7;
---theme-modal-header-padding-top: 20px;
---theme-modal-header-padding-bottom: 20px;
+				--theme-modal-header-color: #3A3A3A;
+				--theme-modal-header-background-color: #F7F7F7;
+				--theme-modal-header-padding-top: 20px;
+				--theme-modal-header-padding-bottom: 20px;
 			}
 
 			capitec-alert-banner{
@@ -215,14 +223,14 @@ export class ProofOfAccount extends Component {
 				margin: 16px 0px 0px 0px;
 			
 			}
-           .label-err-message{
-                --theme-label-font-color:#C83C37;
-            }
+		.label-err-message{
+				--theme-label-font-color:#C83C37;
+			}
 
 			capitec-label{
 				margin: 16px 0px 16px 0px;
-                --theme-label-font-size: 18px;
-                --theme-label-font-family: Hind Vadodara;
+				--theme-label-font-size: 18px;
+				--theme-label-font-family: Hind Vadodara;
 			}
 
 			.body-class {
@@ -237,7 +245,7 @@ export class ProofOfAccount extends Component {
 				margin-left:16px;
 				margin-right: 16px;
 			}
-.search-label{
+			.search-label{
 				height: 24px;
 				width: 200px;
 				color: #3E4547;
@@ -262,16 +270,16 @@ export class ProofOfAccount extends Component {
 			}
 
 			`
-        ];
-    }
+		];
+	}
 
-    _mobileTemplate() {
-        return _webTemplate();
-    }
+	_mobileTemplate() {
+		return _webTemplate();
+	}
 
 
-    _webTemplate() {
-        return html`
+	_webTemplate() {
+		return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
 				${this._renderAlertBanner()}
@@ -283,11 +291,11 @@ export class ProofOfAccount extends Component {
 			</div>
 		</capitec-modal>
 		`;
-    }
+	}
 
-    _renderAlertBanner() {
-        if (!this._isNullorEmpty(this.alertBannerMessage)) {
-            return html`
+	_renderAlertBanner() {
+		if (!this._isNullorEmpty(this.alertBannerMessage)) {
+			return html`
 		<capitec-alert-banner type="unsuccessful-red">
 			<capitec-group layout="horizontal">
 				<capitec-label type="subtitle" label="Notify: " class="label-err-message"></capitec-label>
@@ -295,13 +303,13 @@ export class ProofOfAccount extends Component {
 			</capitec-group>
 		
 		</capitec-alert-banner>
-		 	`;
-        }
-        return html``;
-    }
+			`;
+		}
+		return html``;
+	}
 
-    _renderEmailFields() {
-        return html`
+	_renderEmailFields() {
+		return html`
 		<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 			<div class="email-div">
 				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
@@ -336,10 +344,10 @@ export class ProofOfAccount extends Component {
 			</div>
 		</capitec-group>
 		`;
-    }
+	}
 
-    _renderFooter() {
-        return html`
+	_renderFooter() {
+		return html`
 		<capitec-group layout="horizontal">
 			<capitec-button 
 				id="id-cancel-button" 
@@ -355,13 +363,13 @@ export class ProofOfAccount extends Component {
 			</capitec-button>
 		</capitec-group>
 		`;
-    }
+	}
 
-    _renderLoadingIndicator() {
-        return this.isBusy
-            ? html`<capitec-loading-indicator></capitec-loading-indicator>`
-            : html``;
-    }
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
 
 }
 customElements.define(`horizon-proof-of-account`, ProofOfAccount);

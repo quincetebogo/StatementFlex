@@ -45,7 +45,7 @@ export class CnetProductInfo extends Component {
 					margin: 43px auto 8px auto;
 					color: #3A3A3A;
 					font-size: 24px;
-					font-weight: 600;	
+					font-weight: 600;
 				}
 				.insights-subtitle{
 					color: #3A3A3A;

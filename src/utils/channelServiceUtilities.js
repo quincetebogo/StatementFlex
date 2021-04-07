@@ -103,11 +103,11 @@ export function formatPhoneNumber(value) {
 /**
  *  
  *
- * @param {*} SAidNumber A South African ID Number
- * @returns {Boolean} Indicates if the check digit on the South African ID Number computes correctly
+ * @param {*} idNumber An ID Number
+ * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
  */
-function _luhnCheck(SAidNumber) {
-	const num = SAidNumber.toString()
+function _luhnCheck(idNumber) {
+	const num = idNumber.toString()
 	.split(``)
 	.reverse()
 	.map(x => parseInt(x, 10));
@@ -128,6 +128,38 @@ function _luhnCheck(SAidNumber) {
  * @returns {String} Check if a South African ID number is well formed
  */
 export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
-	return southAfricanIDNumber.length === 13 && _luhnCheck(southAfricanIDNumber);
+	return southAfricanIDNumber.length === 13 && 
+			RegExp(/^[0-9]{13}$/, `g`).test(southAfricanIDNumber);
+
+		// Luhn check removed. Apparently there are valid numbers in the wild that 
+		// fail this test????
+
+		// && _luhnCheck(southAfricanIDNumber); 
 }
 
+/**
+ * Converts base64 encoded pdf string to blob url.
+ * Why specific blob url? By default pdf viewer comes with toolbar and navpanes
+ * To disable the toolbar and use other properties, base64 string is converted to blob url
+ *
+ * @export
+ * @param {String} base64Data Base64 encoded pdf string
+ * @returns {string} Blob URL
+ */
+ export function base64ToBlobUrl(base64Data) {
+
+	// decode base64 string, remove space for IE compatibility
+	const binary = atob(base64Data.replace(/\s/g, ``));
+	const len = binary.length;
+	const buffer = new ArrayBuffer(len);
+	const view = new Uint8Array(buffer);
+
+	for (let i = 0; i < len; i++) {
+		view[i] = binary.charCodeAt(i);
+	}
+
+	// create the blob object with content-type "application/pdf"
+	const blob = new Blob([view], { type: `application/pdf` });
+
+	return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=113.5`;
+}

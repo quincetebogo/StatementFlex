@@ -92,6 +92,7 @@ export class VerifyCaller extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
+	 * @property {object} incidentDetails Incident details
 	 * 
 	 */
 	static get properties() {
@@ -99,6 +100,7 @@ export class VerifyCaller extends Component {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			noOfXdsVerificationAttempted: { type: Number },
+			incidentDetails: { type: Object },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
@@ -127,8 +129,8 @@ export class VerifyCaller extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		// Resetting ITA & XDS attempts
@@ -585,7 +587,8 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-caller-dialog
-					.incomingCallDetails="${this.incomingCallDetails}" 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
@@ -605,6 +608,7 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-security-question 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
@@ -622,6 +626,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					endCallContext="VerifyClient"
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;

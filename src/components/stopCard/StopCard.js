@@ -55,7 +55,6 @@ export class StopCard extends Component {
 
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
@@ -64,11 +63,19 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-        this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.isReassigned = false;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
+		// Recover state information
+		const state = this.horizonStore.recoverState();
+
+		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+
+		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
 	}
 
 	// ----------
@@ -118,7 +125,7 @@ export class StopCard extends Component {
 			},
 			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber
 		};
@@ -152,7 +159,7 @@ export class StopCard extends Component {
 		const newRows = [];
 
 		for (const key in groupedValues) {
-			if (groupedValues.hasOwnProperty(key)) {
+			if (Object.prototype.hasOwnProperty.call(groupedValues, key)) {
 
 				let groupName = key;
 				if (renderSet.groupLabel && Utilities.isFunction(renderSet.groupLabel)) {
@@ -226,20 +233,13 @@ export class StopCard extends Component {
 	}
 
 	_onEndCallSession() {
-		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
 		// May be implemented later to render progress on endCall method
-	}
-
-	_onHandOff(e) {
-        this.isReassigned = true;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
-         //this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
+  }
 
 	_verifyClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
@@ -281,18 +281,27 @@ export class StopCard extends Component {
 		});
 	}
 
+	_onHandOff(e) {
+		this.isReassigned = true;
+		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonRouter.navigateToStrack(this.incidentRecId);
+	}
+
 	_onAssignIncident() {
-		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
         this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_updateApplicationState() {
+
+		/* The can close incident now gets set elsewhere once cards have been successfully stopped
+
 		if (this.cards.some(card => card.selected)) {
 			const state = this.horizonStore.recoverState();
 			state.canCloseIncident = true;
 			
 			this.horizonStore.saveState(state);
 		}
+		*/
 	}
 
 	_updateLeftBar() {
@@ -407,11 +416,11 @@ export class StopCard extends Component {
 	}
 
 	_renderTitleBar() {
-        return html`<capitec-title-bar type="clear" 
-                                        label="Stop Card" 
-                                        row="1" 
-                                        column="1">
-                    </capitec-title-bar>`;
+		return html`<capitec-title-bar type="clear" 
+										label="Stop Card" 
+										row="1" 
+										column="1">
+					</capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
@@ -529,6 +538,7 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
 			return html`
 				<horizon-stop-card-confirm
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
@@ -555,9 +565,10 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				.incomingCallDetails = "${this.incomingCallDetails}" 
+				.incidentDetails="${this.incidentDetails}"
+				.incomingCallDetails = "${this.incomingCallDetails}"
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}"
+				?isReassigned = "${this.isReassigned}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-end-call-session>`;
 		}
@@ -568,12 +579,11 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
 				<horizon-assign-stop-card
-                    .callerInfo=${this.callerInfo} 
-                    .cards=${this.cards} 
-                    @on-cancel="${() => {
-					this.renderMode = RENDER_MODE.MAIN_PAGE;
-                    }}" 
-                    @on-handoff="${(e) => this._onHandOff(e)}">
+					.callerInfo=${this.callerInfo}
+					.cards=${this.cards}
+					.incidentDetails="${this.incidentDetails}"
+					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@on-handoff="${(e) => this._onHandOff(e)}">
 				</horizon-assign-stop-card>
 			`;
 		}
@@ -584,6 +594,7 @@ export class StopCard extends Component {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

@@ -7,9 +7,8 @@ export class IncomingCallDetails {
 	/**
 	 * Creates an instance of IncomingCallDetails.
 	 * 
+	 * @param {string} [VDN=``] incoming call info VDN
 	 * @param {string} [incomingTelephoneNumber=``] The CLI (number of the incoming call)
-	 * @param {string} [incidentReferenceNumber=``] The STrack Incident Reference Number
-	 * @param {string} [incidentRecId=``] The STrack Incident Reference ID
 	 * @param {string} [isAssigned] If true, the incident must be assigned. (isHandedOff must be false)
 	 * @param {string} [isHandedOff] If true, the incident must be handed off (isAssigned  must be false)
 	 * @param {string} [voiceReferenceNumber=``] The reference number for the call recording
@@ -19,9 +18,8 @@ export class IncomingCallDetails {
 	 * @memberof IncomingCallDetails
 	 */
 	constructor(
+		VDN = ``,
 		incomingTelephoneNumber = ``, 
-		incidentReferenceNumber = ``, 
-		incidentRecId = ``, 
 		isAssigned = false,
 		isHandedOff = false,
 		voiceReferenceNumber = ``,
@@ -42,13 +40,12 @@ export class IncomingCallDetails {
 						'value': ivrOptionCode
 				}
 	) {
+		this.VDN = VDN;
 		this.incomingTelephoneNumber = incomingTelephoneNumber;
-		this.incidentReferenceNumber = incidentReferenceNumber;
-		this.incidentRecId = incidentRecId;
 		this.isAssigned = isAssigned;
 		this.isHandedOff = isHandedOff;
-		this.agentTelephoneNumber = agentTelephoneNumber;
 		this.voiceReferenceNumber = voiceReferenceNumber;
+		this.agentTelephoneNumber = agentTelephoneNumber;
 
 		// The IVR Option selected in the telephony system
 		this.ivrOptionCode = ivrOptionCode;
