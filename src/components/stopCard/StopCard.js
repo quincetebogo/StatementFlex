@@ -55,7 +55,6 @@ export class StopCard extends Component {
 
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
@@ -65,11 +64,18 @@ export class StopCard extends Component {
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 
+		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
-		this.isReassigned = false;
+		const state = this.horizonStore.recoverState();
+    
+		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
 	}
 
 	// ----------
@@ -227,20 +233,13 @@ export class StopCard extends Component {
 	}
 
 	_onEndCallSession() {
-		this.isReassigned = false;
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_toggleBusyFlag() {
 		// Only used for Call Completion at present.
 		// May be implemented later to render progress on endCall method
-	}
-
-	_onHandOff(e) {
-        this.isReassigned = true;
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
-         // this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
+  }
 
 	_verifyClick() {
 		this.renderMode = RENDER_MODE.VERIFY_NOW;
@@ -282,18 +281,27 @@ export class StopCard extends Component {
 		});
 	}
 
+	_onHandOff(e) {
+		this.isReassigned = true;
+		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonRouter.navigateToStrack(this.incidentRecId);
+	}
+
 	_onAssignIncident() {
-		// Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
         this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_updateApplicationState() {
+
+		/* The can close incident now gets set elsewhere once cards have been successfully stopped
+
 		if (this.cards.some(card => card.selected)) {
 			const state = this.horizonStore.recoverState();
 			state.canCloseIncident = true;
 			
 			this.horizonStore.saveState(state);
 		}
+		*/
 	}
 
 	_updateLeftBar() {
@@ -557,7 +565,7 @@ export class StopCard extends Component {
 				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}"
+				?isReassigned = "${this.isReassigned}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-end-call-session>`;
 		}

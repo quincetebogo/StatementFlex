@@ -382,12 +382,6 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
-		// Save above flags to state
-		const state = {
-			canCloseIncident: false
-		};
-
-		this.horizonStore.saveState(state);
 
 		return flagsSet;
 	}

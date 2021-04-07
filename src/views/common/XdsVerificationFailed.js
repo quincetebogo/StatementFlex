@@ -30,9 +30,7 @@ export class XdsVerificationFailed extends View {
 
 	constructor() {
 		super();
-
-		this.isReassigned = false;
-
+		
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -40,6 +38,13 @@ export class XdsVerificationFailed extends View {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
+
+		const state = this.horizonStore.recoverState();
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -192,7 +197,7 @@ export class XdsVerificationFailed extends View {
 				<horizon-end-call-session
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
-					.isReassigned="${this.isReassigned}"
+					?isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"
 					@cancel="{${() => this._cancelEndCallClick()}}">
 				</horizon-end-call-session>`;
