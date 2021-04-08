@@ -260,34 +260,17 @@ export class HorizonChannelService extends Service {
 	stopCard(stopCardRequest) {
 
 		/*
-		// Force loading of mocking settings
-		await this._mockEnabled(`stopCard`);
+		const cardStopResponse = { 
+			cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+				result: {
+					statusCode: 400
+					} }))
+		};
 
-		// Enable the stop card mock failure mock only in the DEV environment and only for a configured card
-		if (this._mocking !== null && Object.prototype.hasOwnProperty.call(this._mocking, `stopCard`)) {
-			if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `enabled`) && this._mocking.stopCard.enabled) {
-				if (Object.prototype.hasOwnProperty.call(this._mocking.stopCard, `failStopCard`) && this._mocking.stopCard.failStopCard) {
-					if (this._configuration.config.runtime.environment === `DEV` || this._configuration.config.runtime.environment === `LOCAL`) {
+		return cardStopResponse;
 		*/
-/*	
-						const cardStopResponse = { 
-							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-								result: {
-									statusCode: 400
-								  } }))
-						};
+
 		
-						// throw new Error(`Mock Stop Card Error`);
-						return cardStopResponse;
-		*/
-	
-/*
-					 }
-				}
-			}
-		}
-*/
-
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -299,7 +282,6 @@ export class HorizonChannelService extends Service {
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
-
 	}
 
 	// loadAssignRequest
