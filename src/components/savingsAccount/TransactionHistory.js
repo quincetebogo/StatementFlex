@@ -169,19 +169,22 @@ export class TransactionHistory extends Component {
         if (e.detail.new.startDate && e.detail.new.endDate) {
             this.startDate = new Date(e.detail.new.startDate);
             this.endDate = new Date(e.detail.new.endDate);
-            console.log("date changed  " + this.startDate + " \n " + this.endDate);
             const rangeDiff = Math.floor((this.startDate.getTime() - this.endDate.getTime()) / (1000 * 3600 * 24));
             if (rangeDiff > 90 || this.startDate > this.endDate) {
                 this.errorMessage = "Out of range, please select the correct range up to 90 days";
                 this.calendarError = `Date range up to 90 days only`;
+
+                //set the end date to 90 days after start date, if end date is more than 90 days after start date, or end date is before start date
+                const after90days = new Date();
+                after90days.setDate(this.startDate + 90);
+                this.endDate = after90days;
             } else {
                 this.errorMessage = ``;
                 this.calendarError = ``;
             }
         } else {
-            // this.startDate = e.detail.new. last ? days;
+            this.startDate = last90day;
             this.endDate = today;
-            console.log("else  30 " + this.last30day + " \n60 " + this.last60day + "  \n90 " + this.last90day);
         }
     }
 
@@ -633,6 +636,16 @@ capitec-date-time-picker{
 		`;
     }
 
+    _renderAlertBanner() {
+        if (this.errorMessage) {
+            return html`
+				<capitec-alert-banner
+					type="unsuccessful-red">
+						<p><b>Notify:</b> ${this.errorMessage}</p>
+				</capitec-alert-banner>`;
+        } 
+        return html ``;
+    }
     _renderLoadingIndicator() {
         return this.isBusy
             ? html`<capitec-loading-indicator></capitec-loading-indicator>`
