@@ -50,7 +50,7 @@ const TIME_PERIOD = {
 		range: 30
 	},
 	THREE_MONHTS: {
-		value: `THREE_MONHT`,
+		value: `THREE_MONTH`,
 		label: `3 months`,
 		range: 90
 	},
@@ -92,6 +92,7 @@ export class StatementsDialog extends Component {
 	constructor() {
 		super();
 
+		this.isBusy = false;
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 0;
 		this.notifyClient = true;
@@ -136,6 +137,7 @@ export class StatementsDialog extends Component {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
 
+			isBusy: { attribute: false },
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
@@ -204,10 +206,6 @@ export class StatementsDialog extends Component {
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
-		this.toDate = new Date();
-		this.fromDate = new Date();
-		this.fromDate.setDate(this.toDate.getDate() - TIME_PERIOD[range].range);
-
 		this._customDateRange = false;
 		this.errorMessage = ``;
 	}
@@ -224,39 +222,20 @@ export class StatementsDialog extends Component {
 	_showCalendar() {
 		this.showCalendar = !this.showCalendar;
 	}
-
-	_startDateChanged(e) {
-		if (e.detail.new.date) {
-			this.fromDate = this._formatDate(e.detail.new.date);
-			if (this._validateRangeSelected()) {
-				this.showCalendar = this.toDate === `dd mm yyyy`;
-				this.errorMessage = ``;
-			}
-		}
-	}
-
-	_endDateChanged(e) {
-		if (e.detail.new.date) {
-			this.toDate = this._formatDate(e.detail.new.date);
-			if (this._validateRangeSelected()) {
-				this.showCalendar = this.fromDate === `dd mm yyyy`;
-				this._summary.dateRangeLabel = `Choose date range`;
-				this.errorMessage = ``;
-			}
-
-		}
-	}
 	
 	_calendarSelectionChange(e) {
-		this.fromDate = new Date(e.detail.new.startDate);
-		this.toDate = new Date(e.detail.new.endDate);
-		const rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
-		if (rangeDiff > 90 || this.fromDate > this.toDate) {
+		const fromDate = new Date(e.detail.new.startDate);
+		const toDate = new Date(e.detail.new.endDate);
+		const rangeDiff = Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 3600 * 24));
+		
+		if (rangeDiff > 90 || fromDate > toDate) {
 			this.errorMessage = `Out of range, please select the correct range up to 90 days`;
 			this.calendarErrorMessage = `Date range up to 90 days only`;
 		} else {
 			this.errorMessage = ``;
 			this.calendarErrorMessage = ``;
+			this.fromDate = e.detail.new.startDate.slice(0, 10);
+			this.toDate = e.detail.new.endDate.slice(0, 10);
 		}
 	}
 
@@ -299,13 +278,17 @@ export class StatementsDialog extends Component {
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
-				"dateRange": {
-					"startDate": this.fromDate,
-					"endDate": this.toDate
-				},
-				"presetInterval": ``
+				"dateRange": {},
+				"presetInterval": `${this.periodSelected}`
 			}
 		};
+
+		if (this._customDateRange) {
+			statement.statementDateRange.dateRange = {
+				"startDate": this.fromDate,
+				"endDate": this.toDate
+			};
+		}
 
 		const returnValue = await this.quickTransactionService.viewStatement(statement);
 		if (returnValue.succeeded) {
@@ -329,13 +312,17 @@ export class StatementsDialog extends Component {
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
-				"dateRange": {
-					"startDate": this.fromDate,
-					"endDate": this.toDate
-				},
-				"presetInterval": this.periodSelected || null
+				"dateRange": {},
+				"presetInterval": `${this.periodSelected}`
 			}
 		};
+
+		if (this._customDateRange) {
+			statement.statementDateRange.dateRange = {
+				"startDate": this.fromDate,
+				"endDate": this.toDate
+			};
+		}
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 
@@ -419,7 +406,6 @@ export class StatementsDialog extends Component {
 	}
 
 	_getSummary() {
-
 		if (this._customDateRange) {
 			const fromDate = new Date(this.fromDate);
 			const toDate = new Date(this.toDate);
@@ -431,11 +417,6 @@ export class StatementsDialog extends Component {
 		} else {
 			// do nothing
 		}
-	}
-
-	_formatDate(date) {
-		const myDate = new Date(date);
-		return `${myDate.getDate()} ${getMonthName(myDate.getMonth())} ${myDate.getFullYear()}`;
 	}
 
 	_getFullMonthName(date) {
@@ -694,7 +675,8 @@ export class StatementsDialog extends Component {
 					<div slot="footer">
 						${this._renderFooter()}
 					</div>
-			</bb-stepper-modal>`;
+			</bb-stepper-modal>
+			${this._renderLoadingIndicator()}`;
 	}
 
 	_renderContent() {
@@ -905,20 +887,20 @@ export class StatementsDialog extends Component {
 
 	_renderCalendar() {
 		if (this.showCalendar) {
-            return html`
-							<capitec-date-time-picker
-									class="calendar"
-									type="range"
-									mode="date"
-                                    label="Choose from and to date"
-                                    startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
-                                    endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
-									maxDate = "${this.today}"
-                                    error = "${this.calendarErrorMessage}"
-									inputType="calendar"
-									outputType="string"
-									@value-changed="${(e) => this._calendarSelectionChange(e)}">
-							</capitec-date-time-picker>
+			return html`
+				<capitec-date-time-picker
+					class="calendar"
+					type="range"
+					mode="date"
+					label="Choose from and to date"
+					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
+					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
+					maxDate = "${this.today}"
+					error = "${this.calendarErrorMessage}"
+					inputType="calendar"
+					outputType="string"
+					@value-changed="${(e) => this._calendarSelectionChange(e)}">
+				</capitec-date-time-picker>
 			`;
 		}
 		return html``;
@@ -1048,6 +1030,12 @@ export class StatementsDialog extends Component {
 					</object>
 			</capitec-content-box>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 
