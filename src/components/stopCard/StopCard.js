@@ -304,6 +304,10 @@ export class StopCard extends Component {
 		*/
 	}
 
+	_back() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
 	_updateLeftBar() {
 		const state = {
 			callerInformation: this.callerInformation
@@ -416,11 +420,17 @@ export class StopCard extends Component {
 	}
 
 	_renderTitleBar() {
-        return html`<capitec-title-bar type="clear" 
-                                        label="Stop Card" 
-                                        row="1" 
-                                        column="1">
-                    </capitec-title-bar>`;
+        return html`
+			<capitec-title-bar 
+					type="clear" 
+					row="1" 
+					column="1">
+				<img src="/images/insure/blue-left-arrow.svg" @click="${() => this._back()}"/>
+				<capitec-label 
+					label="Stop Card"
+					type="title">
+				</capitec-label>
+			</capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
