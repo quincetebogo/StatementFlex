@@ -3,6 +3,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
+const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
+const EMAIL_REG_EXP = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 export class ProofOfAccount extends Component {
 
 
@@ -12,25 +14,21 @@ export class ProofOfAccount extends Component {
 
 	constructor() {
 		super();
-		// Variables
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
-        this.idEmailAddress = ``;
-        this.idConfirmEmailAddress = ``;
-        this.isBusy = false;
-        this.alertBannerMessage = ``;
-        this.emailText = `Email address`;
-        this.errMessage = {
-            idEmailAddress: ``,
-            idConfirmEmail: ``
-		};
-        this.labelErr = ``;
-        this.accountType = `PRIMARY_SAVINGS`;
+		// private properites
 		this.isBusy = false;
-
-		this.savingAccInfo = {};
-		this.landingPageInfo = {};
+		this.alertBannerMessage = ``;
+		this.emailText = `Email address`;
+		
+		// private variables
+		this.idEmailAddress = ``;
+		this.idConfirmEmailAddress = ``;
+		this.errMessage = {
+			idEmailAddress: ``,
+			idConfirmEmail: ``
+		};
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -41,17 +39,12 @@ export class ProofOfAccount extends Component {
 
 	static get properties() {
 		return {
-			isBusy: { attribute: false },
 			callerInformation: { type: Object },
-			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
+			
 			isBusy: { attribute: false },
-			emailAddress: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false },
-            accountOpenDate: { attribute: false },
-            accountNumber: { attribute: false },
-            accountType: { attribute: false }
 		};
 	}
 
@@ -61,10 +54,6 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		// holding values in your page
-		this.emailAddress = null;
-        // TODO: add values used in screen such as acc number and open date
 	}
 
 	// --------------
@@ -81,31 +70,27 @@ export class ProofOfAccount extends Component {
 
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
-            // get account open date and number and save to state
 
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
-                "accountNumber": this.landingPageInfo.accountNumber,
-                "accountOpenDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
-                "emailAddress": this.idEmailAddress,
-                "accountType": this.accountType
+				"accountNumber": this.landingPageInfo.accountNumber,
+				"accountOpenDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"emailAddress": this.idEmailAddress,
+				"accountType": ACCOUNT_TYPE
 			};
 
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
 			if (returnValue.succeeded) {
-				this.horizonStore.saveState({
-					emailAddress: this.idEmailAddress,
-					accountNumber: this.landingPageInfo.accountNumber
-				});
 				this.horizonRouter.navigateToProofOfAccountSuccess();
 			} else {
-				this.horizonStore.saveState({
-					emailAddress: this.idEmailAddress,
-					accountNumber: this.landingPageInfo.accountNumber
-				});
 				this.horizonRouter.navigateToProofOfAccountFailed();
 			}
+			// saving 'emailAddress' and 'accountNumber' in state.
+			this.horizonStore.saveState({
+				emailAddress: this.idEmailAddress,
+				accountNumber: this.landingPageInfo.accountNumber
+			});
 		}
 
 	}
@@ -125,10 +110,10 @@ export class ProofOfAccount extends Component {
 	// ---------------
 
     _validateEmail(e) {
-        const regCheck = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
         // CORRECT
         if (!this._isNullorEmpty(this.idEmailAddress) && this.idEmailAddress === this.idConfirmEmailAddress) {
-            if (regCheck.test(this.idEmailAddress)) {
+            if (EMAIL_REG_EXP.test(this.idEmailAddress)) {
                 this.alertBannerMessage = ``;
                 this.errMessage.idEmailAddress = ``;
                 this.errMessage.idConfirmEmail = ``;
