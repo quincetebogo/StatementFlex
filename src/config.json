@@ -28,7 +28,7 @@
 		}
 	],
 	"mock": {
-		"false": true,
+		"enabled": false,
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
@@ -76,7 +76,7 @@
 		},
 		"stopCard": {
 			"enabled": true,
-			"failStopCard": true,
+			"failStopCard": false,
 			"positiveCase": true
 		}
 	}
