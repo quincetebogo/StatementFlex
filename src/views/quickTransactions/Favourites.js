@@ -440,7 +440,11 @@ export class Favourites extends View {
 	}
 
 	async _getStatements() {
-		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
 			 
 		if (returnValue.succeeded) {
 			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
