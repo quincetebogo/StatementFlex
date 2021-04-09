@@ -92,7 +92,7 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-    this.debiCheckDetails = {};
+		this.debiCheckDetails = {};
 		this.clientProducts = {};
 
 		// Subscribe to shell events
@@ -377,6 +377,13 @@ export class Favourites extends View {
 		this.isBusy = !this.isBusy;
 	}
 
+	async _getClientProducts() {
+		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+		if (returnValue.succeeded) {
+			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+		}
+	}
+	
 	async _stopCard() {
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
@@ -440,10 +447,8 @@ export class Favourites extends View {
 	}
 
 	async _getStatements() {
-		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+		await this._getClientProducts();
+		if(this.clientProducts){
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
@@ -452,8 +457,15 @@ export class Favourites extends View {
 		// TODO: Functionality to generate tax certificate comes here
 	}
 
-	_proofOfAccount() {
-        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	async _proofOfAccount() {
+		// Temporary fix to get the account number using statements CS call as the account number field 
+		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
+		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
+		await this._getClientProducts();
+		if(this.clientProducts){
+			this.landingPageInfo.accountNumber = this.clientProducts.filter(item => item.accountType === 300 ).map(obj => obj.accountNumber).toString();
+			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+		}
 	}
 
 	_unavailableOption() {
@@ -640,8 +652,8 @@ export class Favourites extends View {
 					@cancel="${() => this._mainPage()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}"
-                    ></horizon-proof-of-account>`
+					.landingPageInfo="${this.landingPageInfo}"
+					></horizon-proof-of-account>`
 			: html``;
     }
 
