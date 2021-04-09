@@ -7,8 +7,7 @@ const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
 const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 
 /**
-/**
- * Proof of Account dialog is used to capture the client's email and validate it before sending.
+ * Proof of Account dialog is used to send POA for a primary savings account.
  * This component is invoked from the Favourites landing screen
  * 
  * Events Raised 
@@ -51,6 +50,10 @@ export class ProofOfAccount extends Component {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * @param {object} callerInformation Identified caller information
+	 * @param {Object} landingPageInfo Favourites landing page info
+	 */
 	static get properties() {
 		return {
 			callerInformation: { type: Object },
@@ -58,7 +61,7 @@ export class ProofOfAccount extends Component {
 			
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			emailText: { attribute: false },
+			emailText: { attribute: false }
 		};
 	}
 
@@ -84,6 +87,11 @@ export class ProofOfAccount extends Component {
 
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
+			// saving 'emailAddress' and 'accountNumber' in state.
+			this.horizonStore.saveState({
+				emailAddress: this.idEmailAddress,
+				accountNumber: this.landingPageInfo.accountNumber
+			});
 
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -100,13 +108,7 @@ export class ProofOfAccount extends Component {
 			} else {
 				this.horizonRouter.navigateToProofOfAccountFailed();
 			}
-			// saving 'emailAddress' and 'accountNumber' in state.
-			this.horizonStore.saveState({
-				emailAddress: this.idEmailAddress,
-				accountNumber: this.landingPageInfo.accountNumber
-			});
 		}
-
 	}
 
 	_formatDate(dateToFormat) {

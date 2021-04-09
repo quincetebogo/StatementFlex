@@ -380,12 +380,16 @@ export class Favourites extends View {
 	}
 
 	async _getClientProducts() {
-		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
 		if (returnValue.succeeded) {
 			return returnValue.result.savingsProducts;
-		} else {
-			return [];
 		}
+		return [];
 	}
 
 	async _stopCard() {
@@ -452,6 +456,7 @@ export class Favourites extends View {
 
 	async _getStatements() {
 		const clientProductDetails = await this._getClientProducts();
+
 		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails;
 			this.renderMode = RENDER_MODE.STATEMENTS;
@@ -467,8 +472,12 @@ export class Favourites extends View {
 		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
 		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
 		const clientProductDetails = await this._getClientProducts();
+		
 		if (clientProductDetails) {
-			this.landingPageInfo.accountNumber = clientProductDetails.filter(item => item.accountType === SAVINGS_ACCOUNT_TYPE ).map(obj => obj.accountNumber).toString();
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
 			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
 		}
 	}
