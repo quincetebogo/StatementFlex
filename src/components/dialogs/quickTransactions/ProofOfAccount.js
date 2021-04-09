@@ -5,6 +5,20 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
 const EMAIL_REG_EXP = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+/**
+/**
+ * Proof of Account dialog is used to capture the client's email and validate it before sending.
+ * This component is invoked from the Favourites landing screen
+ * 
+ * Events Raised 
+ * -------------
+ * cancel
+ *
+ * @export
+ * @class ProofOfAccount
+ * @extends {Component}
+ */
 export class ProofOfAccount extends Component {
 
 
