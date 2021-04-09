@@ -63,14 +63,17 @@ export class StopCardLandingPage extends View {
 	// --------------
 
 	_stoppedCards(event) {
-		this.horizonStore.saveState(event.detail);
-
 		HorizonTelemetry.instance.stopCardOutcome({ 
 			screen: TelemetryScreen.STOP_CARD_OUTCOME, 
 			cards: event.detail.stoppedCards
 		});
-
+		
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
+
+		// The stop card incident can be closed if all cards were stopped successfully.
+		// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
+		this.horizonStore.saveState({ stoppedCards: event.detail.stoppedCards, cardStopAttemptMade: true, stoppedCardsFailed: stoppedCardsFailed });
+
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
 		} else {

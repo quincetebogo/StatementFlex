@@ -61,6 +61,10 @@ export class SavingsAccount extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
 	}
 
+	_accountSavingsEnquiry(productEnquiry) {
+		this.dispatchEvent(new CustomEvent(`savings-enquiry`, { detail: { enquiry: productEnquiry } }));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -70,7 +74,9 @@ export class SavingsAccount extends Component {
 	// ---------------
 	
 	_formatCollectionAmount(amount) {
-		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1,).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
+
 	}
 	
 	// ---------
@@ -107,7 +113,7 @@ export class SavingsAccount extends Component {
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
 					background-color: #FFFFFF;
-					box-shadow: 0 3px 6px 0.25px rgba(0,0,0,0.08);
+					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 
 					--theme-card-min-height: 64px;
 				}
@@ -119,13 +125,16 @@ export class SavingsAccount extends Component {
 				.account-details-bar > capitec-expander {
 					position: absolute;
 					border-bottom: 1px solid #E1E1E1;
-
+					border-radius:4px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
 					--theme-expander-height: 210px;
+					--theme-expander-indicator-width: 11.5px;
+                    --theme-expander-indicator-height: 6.5px;
+					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
 				}
 				.account-details-bar > capitec-group {
 					width: 984px;
@@ -156,6 +165,7 @@ export class SavingsAccount extends Component {
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
+					--horizon-label-value-color:#3A3A3A;
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -184,16 +194,19 @@ export class SavingsAccount extends Component {
 				}
 				.button-margin {
 					height: 80px;
-					width: 182px;
-					margin-right: 16px;
+					width: 186px;
 					margin-left: 16px;
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
 				}
+				.button-more{
+                   margin-left:223px;
+				}
 				.label-text {
 					--horizon-option-btn-text-margin-top: 10px;
 				}
+				
 			`
 		];
 	}
@@ -249,7 +262,7 @@ export class SavingsAccount extends Component {
 					</horizon-label>
 					<horizon-label
 						label="Interest"
-						value="${this.landingPageInfo.interestRatePercentage}%">
+						value="${this.landingPageInfo.interestRatePercentage}">
 					</horizon-label>
 					<horizon-label
 						label="Status"
@@ -285,7 +298,7 @@ export class SavingsAccount extends Component {
 						@click="${() => this._optionSelectedClick(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
-						class="button-margin" 
+						class="button-margin button-more"
 						label="More" 
 						icon="system/more-action"
 						@click="${() => this._optionSelectedClick(`more`)}">
@@ -308,7 +321,8 @@ export class SavingsAccount extends Component {
 					<horizon-option-button 
 							class="button-margin"
 							label="Product enquiry"
-							icon="system/info-action">
+							icon="system/info-action"
+							@click="${() => this._accountSavingsEnquiry(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 						class="button-margin"

@@ -60,12 +60,26 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+		// Reconver information from state
+		const state = this.horizonStore.recoverState();
+		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+    
 
-		this.incidentDetails = this.state.incidentDetails;
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
 
+		// When returning from the success screen, check which page we should display
+		if (state.returnTo && state.returnTo.mode === `mandate`) {
+			this._debiCheck();
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
+		
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -74,19 +88,12 @@ export class Favourites extends View {
 		this.isLoading = true;
 
 		// private variables
-		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-        this.debiCheckDetails = {};
-		// When returning from the success screen, check which page we should display
-		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-
-		}
+    this.debiCheckDetails = {};
+		this.clientProducts = {};
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -432,8 +439,17 @@ export class Favourites extends View {
 		}
 	}
 
-	_getStatements() {
-		this.renderMode = RENDER_MODE.STATEMENTS;
+	async _getStatements() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+			 
+		if (returnValue.succeeded) {
+			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_taxCertificates() {
@@ -556,7 +572,7 @@ export class Favourites extends View {
 				<horizon-end-call-session
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.isReassigned="${this.isReassigned}"
+					?isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`;
@@ -578,7 +594,9 @@ export class Favourites extends View {
 
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
@@ -657,9 +675,8 @@ export class Favourites extends View {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
 		? html`
 			<horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
+				.clientProducts="${this.clientProducts}"
 				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-statements-dialog>`
 		: html``;
