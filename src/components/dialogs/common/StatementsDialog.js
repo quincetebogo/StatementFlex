@@ -809,7 +809,7 @@ export class StatementsDialog extends Component {
 						<horizon-product-tile 
 							type="radio-button"
 							label="${item.accountName}"
-							subtitle="Available balance: ${item.availableBalance}"
+							subtitle="Available balance: R${formatCurrency(item.availableBalance)}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item.accountName)}"
