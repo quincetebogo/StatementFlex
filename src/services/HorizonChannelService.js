@@ -309,14 +309,15 @@ export class HorizonChannelService extends Service {
 
 		/*
 		const cardStopResponse = { 
-		cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-			result: {
-						statusCode: 400
-				  } }))
+							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+								result: {
+									statusCode: 400
+								  } }))
 		};
-		
+
 		return cardStopResponse;
 		*/
+	
 		
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
