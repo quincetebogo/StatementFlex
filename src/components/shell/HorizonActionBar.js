@@ -186,13 +186,13 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<capitec-button type="clear" 
 									label="Assign"
-									?hidden="${this.isHidden}"
+									?hidden="${true}"
 									@click="${() => this._onAssign()}">
 					</capitec-button>
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
-									?hidden="${this.isHidden}">
+									?hidden="${true}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">

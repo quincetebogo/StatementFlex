@@ -393,7 +393,14 @@ export class StopCard extends Component {
 					letter-spacing: 0;
 					line-height: 24px;
 					margin: 20px 0px 0px 23px;
-				}`
+				}
+				
+				.bold-text {
+					font-family: "Hind Vadodara";
+					font-weight: 600;
+					letter-spacing: 0;
+				}
+				`
 		];
 	}
 
@@ -435,10 +442,9 @@ export class StopCard extends Component {
 
 	_renderNotifyClient() {
 		return html`
-			<div class="horizon-notify-client" row="2" column="1">
-				<img src="/images/info.svg" id="action-icon" />
-				<p id="action-display">&nbsp;${this.instruction}</p>
-			</div>`;
+		    <capitec-alert-banner type="info">
+				<span class="bold-text">Notify client:</span> Once card has been stopped you wil need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021
+			</capitec-alert-banner>`;
 	}
 
 	_renderCardDetails() {
