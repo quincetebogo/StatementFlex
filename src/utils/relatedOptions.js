@@ -3,24 +3,28 @@
  * Related options common component imports this const to determine the options at runtime
  * 
  * @exports
- * @constant RelatedOptions
+ * @constant relatedOptions
  */
-export const RelatedOptions = {
+export const relatedOptions = {
 	'debi-check': {
-		Success,
-		Failure: [
-			`TRANSACTION_HISOTRY`
-		]
+		Success: [`TRANSACTION_HISOTRY`],
+		Failure: [`TRANSACTION_HISOTRY`]
 	},
 	'stop-card': {
-		Success,
+		Success: [
+			`UPDATE_CARD_LIMITS`,
+			`TRANSACTION_HISOTRY`
+		],
 		Failure: [
 			`UPDATE_CARD_LIMITS`,
 			`TRANSACTION_HISOTRY`
 		]
 	},
 	'update-card-limits': {
-		Success,
+		Success: [
+			`STATEMENTS`,
+			`TAP_TO_PAY`
+		],
 		Failure: [
 			`STATEMENTS`,
 			`TAP_TO_PAY`
@@ -37,7 +41,10 @@ export const RelatedOptions = {
 		]
 	},
 	'statements': {
-		Success,
+		Success: [
+			`TAX_CERTIFICATE`,
+			`PROOF_OF_ACCOUNT`
+		],
 		Failure: [
 			`TAX_CERTIFICATE`,
 			`PROOF_OF_ACCOUNT`
@@ -63,15 +70,15 @@ export const RelatedOptions = {
 			`PROOF_OF_ACCOUNT`
 		]
 	}
-}
+};
 
 /**
  * Related options configuration: Holds label and icon src of each option
  * 
  * @exports
- * @constant OptionsConfig
+ * @constant optionsConfig
  */
-export const OptionsConfig = {
+export const optionsConfig = {
 	STOP_CARD: {
 		label: `Stop Card`,
 		src: `system/stop-card-action`
@@ -100,4 +107,4 @@ export const OptionsConfig = {
 		label: `Transaction History`,
 		src: `system/time-action`
 	}
-}
+};

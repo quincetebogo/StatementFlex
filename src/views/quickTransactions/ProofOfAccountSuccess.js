@@ -147,30 +147,23 @@ export class ProofOfAccountSuccess extends View {
 	_renderSuccessScreen() {
 		if (this.renderMode === RENDER_MODE.PROOFOFACCOUNT_SUCCESS) {
 			return html`
-				<horizon-success-screen header="Proof of account sent" 
-										image="/images/statements/senddocuments.svg"
-										left="Done"
-										right="Send Another"
-										toast="Proof of Account Sent"
-										@left-click=${() => this._doneClick()}
-										@right-click=${() => this._sendAnotherClick()}>
-					<section 
-						id="id-error-msg" 
-						slot="detail">Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
-					</section>
-					${this._renderRelatedOptions()}
+				<horizon-success-screen 
+					header="Proof of account sent" 
+					image="/images/statements/senddocuments.svg"
+					left="Done"
+					right="Send Another"
+					toast="Proof of Account Sent"
+					@left-click=${() => this._doneClick()}
+					@right-click=${() => this._sendAnotherClick()}>
+						<section 
+							id="id-error-msg" 
+							slot="detail">
+								Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
+						</section>
 				</horizon-success-screen>
 			`;
 		}
 		return html``;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				.options= "${this.list}">
-			</horizon-related-options>
-		`;
 	}
 
 	_renderEndCallModal() {

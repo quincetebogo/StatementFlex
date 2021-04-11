@@ -91,36 +91,29 @@ export class SuccessfulCardLimitUpdate extends View {
 
 	_webTemplate() {
 		return html`
-			<horizon-success-screen header="Permanent card limits updated" 
-									image="/images/cards-successful-limit-update.svg"
-									left="Done"
-									right="Update Card Limits"
-									toast="Permanent card limit updated."
-									sub_detail="true"
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._updateCardLimitsClick()}>
-				<section 
-					class="id-update-msg" 
-					slot="detail">The permanent card limits for dual card <b>${this.card1}</b> have been updated.
-				</section>
+			<horizon-success-screen 
+				header="Permanent card limits updated" 
+				image="/images/cards-successful-limit-update.svg"
+				left="Done"
+				right="Update Card Limits"
+				toast="Permanent card limit updated."
+				sub_detail="true"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._updateCardLimitsClick()}>
+					<section 
+						class="id-update-msg" 
+						slot="detail">
+							The permanent card limits for dual card <b>${this.card1}</b> have been updated.
+					</section>
 
-				<section 
-					class="id-update-msg" 
-					slot="sub-detail">The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
-				</section>
-
-				${this._renderRelatedOptions()}
+					<section 
+						class="id-update-msg" 
+						slot="sub-detail">
+							The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
+					</section>
 			</horizon-success-screen>
 		`;
 	}
-
-	_renderRelatedOptions() {
-        return html`
-            <horizon-related-options
-				.options= "${this.list}">
-            </horizon-related-options>
-        `;
-    }
 }
 
 customElements.define(`permanent-card-limit-update-success`, SuccessfulCardLimitUpdate);

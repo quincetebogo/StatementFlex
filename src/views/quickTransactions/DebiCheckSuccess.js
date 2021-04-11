@@ -147,15 +147,6 @@ export class DebiCheckSuccess extends View {
 						id="id-error-msg" 
 						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
 					</section>
-					<section 
-							id="id-option-button" 
-							slot="option-button">
-						<horizon-option-button 
-							class="button-margin" 
-							label="Transaction History" 
-							icon="system/time-action">
-						</horizon-option-button>
-					</section>
 			</horizon-success-screen>
 		`;
 	}

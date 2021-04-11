@@ -165,28 +165,20 @@ export class StatementsSuccess extends View {
 
 	_renderSuccessScreen() {
 		return html`
-			<horizon-success-screen header="Statement sent" 
-									image="/images/statements/senddocuments.svg"
-									left="Done"
-									right="Send Another"
-									toast="Statement sent"
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._sendAnotherClick()}
-									>
-				<section 
-					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
-				</section>
-				${this._renderRelatedOptions()}
+			<horizon-success-screen 
+				header="Statement sent" 
+				image="/images/statements/senddocuments.svg"
+				left="Done"
+				right="Send Another"
+				toast="Statement sent"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._sendAnotherClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">
+							The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+					</section>
 			</horizon-success-screen>
-		`;
-	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-				.options= "${this.list}">
-			</horizon-related-options>
 		`;
 	}
 
@@ -202,7 +194,6 @@ export class StatementsSuccess extends View {
 		}
 		return html``;
 	}
-
 }
 
 customElements.define(`horizon-statements-success`, StatementsSuccess);
