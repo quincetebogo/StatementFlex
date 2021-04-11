@@ -54,6 +54,8 @@ export class HorizonIncidentManager {
 			const _horizonStore = HorizonStore.getInstance();
 			const state = _horizonStore.recoverState();
 			const incidentDetails = state && state.incidentDetails;
+			
+			View.prototype.currentNeed = clientNeed;
 
 			/**
 			 * Checkpoint 1:

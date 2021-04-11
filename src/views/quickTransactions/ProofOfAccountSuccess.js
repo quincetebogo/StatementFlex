@@ -35,8 +35,6 @@ export class ProofOfAccountSuccess extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.list = ["TAX_CERTIFICATE", "STATEMENTS"];
 	}
 
 
@@ -98,9 +96,8 @@ export class ProofOfAccountSuccess extends View {
 	}
 
 	_sendAnotherClick() {
-		
 		const returnToScreen = {
-			option: `proof-of-account`
+			option: super.currentNeed
 		};
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		
@@ -176,10 +173,8 @@ export class ProofOfAccountSuccess extends View {
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
-
 		return html``;
 	}
-
 }
 
 customElements.define(`horizon-proof-of-account-success`, ProofOfAccountSuccess);

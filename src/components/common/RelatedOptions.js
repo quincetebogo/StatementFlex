@@ -309,8 +309,10 @@ export class RelatedOptions extends Component {
 			case RENDER_MODE.TRANSACTION_HISTORY:
 				return html`${this._renderTransactionHistory()}`;
 			default:
-				return html`${this._renderContent()}`;
-			
+				return html`
+					${this._renderContent()}
+					${this._renderLoadingIndicator()}
+				`;
 		}
 	}
 

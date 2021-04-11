@@ -4,14 +4,12 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/SuccessScreen';
-import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/StatementsDialog';
 
 const RENDER_MODE = {
 	STATEMENTS_SUCCESS: 0,
-    END_CALLSESSION: 1,
-    STATEMENTS: 2
+	END_CALLSESSION: 1,
+	STATEMENTS: 2
 };
 
 export class StatementsSuccess extends View {
@@ -29,10 +27,7 @@ export class StatementsSuccess extends View {
 		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.landingPageInfo = {};
-
-		this.list = ["TAX_CERTIFICATE", "PROOF_OF_ACCOUNT"];
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -46,12 +41,7 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-            renderMode: { attribute: false },
-
-			list: { type: Array },
-            callerInformation: { type: Object },
-            incomingCallDetails: { type: Object },
-            landingPageInfo: { type: Object }
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -67,10 +57,10 @@ export class StatementsSuccess extends View {
 		if (state) {
 			this.incomingCallDetails = state.incomingCallDetails;
 			this.incidentDetails = state.incidentDetails;
-      		this.mailId = state.emailAddress;
-      		this.acNumber = state.accountNumber;
+			this.mailId = state.emailAddress;
+			this.acNumber = state.accountNumber;
 
-		  	this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -78,7 +68,7 @@ export class StatementsSuccess extends View {
 			});
 
 			this._updateIncidentState();
-  		};
+		};
 	}
 
 	disconnectedCallback() {
@@ -101,10 +91,9 @@ export class StatementsSuccess extends View {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-    _sendAnotherClick() {
-        // this.renderMode = RENDER_MODE.STATEMENTS;
-        const returnToScreen = {
-			option: `statements`
+	_sendAnotherClick() {
+		const returnToScreen = {
+			option: super.currentNeed
 		};
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		
@@ -145,23 +134,8 @@ export class StatementsSuccess extends View {
 		return html`
 			${this._renderSuccessScreen()}
 			${this._renderEndCallModal()}
-            ${this._renderStatementsModal()}
 		`;
 	}
-
-    _renderStatementsModal() {
-        if (this.renderMode === RENDER_MODE.STATEMENTS) {
-            return html`
-				<horizon-statements-dialog
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.landingPageInfo="${this.landingPageInfo}"
-					@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
-				</horizon-statements-dialog>
-			`;
-        }
-        return html``;
-    }
 
 	_renderSuccessScreen() {
 		return html`
