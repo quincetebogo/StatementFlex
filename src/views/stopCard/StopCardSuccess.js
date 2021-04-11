@@ -1,4 +1,5 @@
 import { View, css, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -63,6 +64,11 @@ export class StopCardSuccess extends View {
 			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		}
+
+		this.cardService = new CardService(
+			() => this._toggleBusyFlag(),
+			(ex) => this._stopCardErrorHandler(ex)
+		);
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 	}
@@ -149,8 +155,40 @@ export class StopCardSuccess extends View {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	_rightClick() {
-		this.horizonRouter.navigateToStopCard();
+	async _rightClick() {
+		const confirmedCaller = {
+			idNumber: this.callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: `StopCard`,
+			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
+			incidentRecId: this.incomingCallDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: this.callerInformation.nonClientFullName,
+			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
+			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
+			nonClientRelationship: this.callerInformation.nonClientRelationship
+		};
+
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+
+		if (returnValue.succeeded) {
+			this.incomingCallDetails.ivrOptionCode = `StopCard`;
+			this.incomingCallDetails.ivrOption.value = `StopCard`;
+
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation,
+				clientProfileDetails: returnValue.result
+			});
+			this.horizonRouter.navigateToStopCard();
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
+
+	_stopCardErrorHandler(exception) {
+		return true;
 	}
 
 	// ---------

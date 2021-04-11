@@ -114,6 +114,9 @@ export class DesktopAgentService {
 			// have been injected into the event.
 
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+
+			newCallEvent.incomingTelephoneNumber = this._cleanupTelephoneNumber(newCallEvent.incomingTelephoneNumber);
+
 			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
@@ -141,6 +144,14 @@ export class DesktopAgentService {
 		} catch (err) {
 			this._logger.log(`fatal`, err.message, `_onNewCall`);
 		}
+	}
+
+	_cleanupTelephoneNumber(telephoneNumber) {
+		if (RegExp(/^27\d{9}$/, `g`).test(telephoneNumber)) {
+			return `0${telephoneNumber.substring(2)}`;
+		}
+
+		return telephoneNumber;
 	}
 
 	/**
