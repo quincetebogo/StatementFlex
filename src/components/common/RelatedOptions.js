@@ -1,41 +1,11 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { OptionsConfig, RelatedOptions } from 'app/utils/relatedOptions';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
-
-const INFO = {
-	STOP_CARD: {
-		label: `Stop Card`,
-		src: `system/stop-card-action`
-	},
-	UPDATE_LIMITS: {
-		label: `Update Limits`,
-		src: `system/cards-action`
-	},
-	TAP_TO_PAY: {
-		label: `Tap To Pay`,
-		src: `system/contactless-action`
-	},
-	STATEMENTS: {
-		label: `Statements`,
-		src: `system/documents-action`
-	},
-	PROOF_OF_ACCOUNT: {
-		label: `Proof Of Account`,
-		src: `system/documents-action`
-	},
-	TAX_CERTIFICATE: {
-		label: `Tax Certificate`,
-		src: `system/sars-action`
-	},
-	TRANSACTION_HISTORY: {
-		label: `Transaction History`,
-		src: `system/time-action`
-	}
-};
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -47,7 +17,15 @@ const RENDER_MODE = Object.freeze({
 	TAP_TO_PAY: 6
 });
 
-export class RelatedOptions extends Component{
+/**
+ * Common componet, renders related options based on the need and context of success/ failure.
+ * Invoked by different success and failure screens
+ * 
+ * @exports
+ * @class RelatedOptions
+ * @extends {Component}
+ */
+export class RelatedOptions extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -55,18 +33,18 @@ export class RelatedOptions extends Component{
 
 	constructor() {
 		super();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
+
 		this.isBusy = false;
-		this.renderMode = ``
-		this.options = {};
+		this.renderMode = ``;
+		this.options = [];
 		this.label = ``;
 		this.icon = ``;
 		this.landingPageInfo = {};
 		this.cards = [];
+
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
@@ -74,12 +52,15 @@ export class RelatedOptions extends Component{
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * @property {String} context Success or Failure screen
+	 */
 	static get properties() {
 		return {
+			context: { type: String },
+
 			renderMode: { attribute: false },
-			isBusy: { attribute: false },
-			options: { type: Object },
-			landingPageInfo: { type: Object}
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -90,6 +71,13 @@ export class RelatedOptions extends Component{
 	connectedCallback() {
 		super.connectedCallback();
 
+		const state = this.horizonStore.recoverState();
+		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = state.incomingCallDetails;
+		this.incidentDetails = state.incidentDetails;
+
+		const currNeed = this.incidentDetails.currentNeed;
+		this.options = RelatedOptions[currNeed][context];
 	}
 
 	// --------------
@@ -113,18 +101,35 @@ export class RelatedOptions extends Component{
 	}
 
 	_navigateToOption(item) {
-		this.dispatchEvent(new CustomEvent(`click`, {}));
-		switch (item) {
-			case `STOP_CARD`:
-				this.horizonStore.recoverState()
-				this.horizonRouter.navigateToStopCard();
-				break;
-			case `UPDATE_LIMITS`:
-				this._updateCardLimits();
-				break;
-			default:
-				this.renderMode = RENDER_MODE[item];
-		}
+	
+		const stopCard = () => this._stopCard();
+		const updateCardLimits = () => this._updateCardLimits();
+		const tapToPay = () => this._tapToPay();
+		const statements = () => this._Statements();
+		const taxCertificate = () => this._taxCertificate();
+		const proofOfAccount = () => this._proofOfAccount();
+		const transactionHistory = () => this._transactionHistory();
+
+		const actions = {
+			'STOP_CARD': stopCard,
+			'UPDATE_CARD_LIMITS': updateCardLimits,
+			'TAP_TO_PAY': tapToPay,
+			'STATEMENTS': statements,
+			'TAX_CERTIFICATE': taxCertificate,
+			'PROOF_OF_ACCOUNT': proofOfAccount,
+			'TRANSACTION_HISTORY': transactionHistory
+		};
+
+			if (actions[option]) {
+				super._inicidentManager_(option, () => this._toggleBusyFlag());
+				return actions[option];
+			}
+
+			/**
+			 * When verify now on mini profile is selected, we dont need to perform any action
+			 * Returning true for such case
+			 */
+			return true;
 	}
 
 	async _updateCardLimits() {
@@ -135,6 +140,76 @@ export class RelatedOptions extends Component{
 			this.cards = returnValue.result;
 			this.renderMode = RENDER_MODE.UPDATE_LIMITS;
 		}
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _stopCard() {
+		const confirmedCaller = {
+			idNumber: this.callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: `StopCard`,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+			incidentRecId: this.incidentDetails.incidentRecId,
+			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: this.callerInformation.nonClientFullName,
+			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
+			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
+			nonClientRelationship: this.callerInformation.nonClientRelationship
+		};
+
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+
+		if (returnValue.succeeded) {
+			this.incomingCallDetails.ivrOptionCode = `StopCard`;
+			this.incomingCallDetails.ivrOption.value = `StopCard`;
+
+			this.horizonStore.saveState({
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation,
+				clientProfileDetails: returnValue.result
+			});
+			this.horizonRouter.navigateToStopCard();
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
+
+	async _updateCardLimits() {
+		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
+		}
+	}
+
+	async _tapToPay() {
+		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.TAP_TO_PAY;
+		}
+	}
+
+	_Statements() {
+		this.renderMode = RENDER_MODE.STATEMENTS;
+	}
+
+	_taxCertificate() {
+		// TODO: Functionality to generate tax certificate comes here
+	}
+
+	_proofOfAccount() {
+        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	}
+
+	_transactionHistory() {
+		this.renderMode = 1;
 	}
 
 	// ---------
@@ -182,49 +257,61 @@ export class RelatedOptions extends Component{
 
 	_webTemplate() {
 		return html`
-		<capitec-label type="subtitle" label="Related options"> </capitec-label>
-		<capitec-card >
-			<capitec-group layout="horizontal" gap="none" H-Align="left">
-				${this.options.map((item) => this._renderOption(item))}
-			</capitec-group>
-		</capitec-card>
-
-		${this._renderProofOfAccount()}
-		${this._renderUpdateCardLimits()}
-		${this._renderTaxCertificate()}
-		${this._renderTransactionHistory()}
-		${this._renderStatements()}
-		${this._renderTapToPay()}
+			${this._renderContent()}
+			${this._renderProofOfAccount()}
+			${this._renderUpdateCardLimits()}
+			${this._renderTaxCertificate()}
+			${this._renderTransactionHistory()}
+			${this._renderStatements()}
+			${this._renderTapToPay()}
 		`;
 	}
 
 	_renderLoadingIndicator() {
-		this.isBusy = !this.isBusy;
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
+	_renderContent() {
+		return html`
+			<capitec-label
+				type="subtitle"
+				label="Related options">
+			</capitec-label>
+
+			<capitec-card>
+				<capitec-group
+					layout="horizontal"
+					gap="none"
+					halign="left">
+						${this.options.map(item => this._renderOption(item))}
+				</capitec-group>
+			</capitec-card>
+		`;
 	}
 
 	_renderOption(item) {
-		if (typeof item === `string`) {
-			this.label = INFO[item].label;
-			this.icon = INFO[item].src;
-			return html`
-				<horizon-option-button
-					label="${this.label}" 
-					icon="${this.icon}"
-					@click="${() => this._navigateToOption(item)}">
-				</horizon-option-button>
+		const option = OptionsConfig[item];
+
+		return html`
+			<horizon-option-button
+				label="${option.label}" 
+				icon="${option.icon}"
+				@click="${() => this._navigateToOption(item)}">
+			</horizon-option-button>
 		`;
-		}
 	}
 
 	_renderProofOfAccount() {
 		if (this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT) {
-		return html`
+			return html`
 				<horizon-proof-of-account
 					@cancel="${() => this._onCancel()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}">
-				</horizon-proof-of-account>`
+				</horizon-proof-of-account>`;
 		}
 		return html``;
 	}
@@ -236,16 +323,16 @@ export class RelatedOptions extends Component{
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
 					@back="${() => this._mainPage()}">
-				</horizon-card-limits-landing>`
+				</horizon-card-limits-landing>`;
 		}
 		return html``;
 	}
 
 	_renderTaxCertificate() {
 		if (this.renderMode === RENDER_MODE.TAX_CERTIFICATE) {
-			return html ``;
+			return html``;
 		}
-		return html ``;
+		return html``;
 	}
 
 	_renderTransactionHistory() {
@@ -274,4 +361,4 @@ export class RelatedOptions extends Component{
 
 }
 
-window.customElements.define(`horizon-related-options`, RelatedOptions);``
+window.customElements.define(`horizon-related-options`, RelatedOptions);
