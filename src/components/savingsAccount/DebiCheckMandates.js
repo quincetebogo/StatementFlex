@@ -99,9 +99,9 @@ export class DebiCheckMandates extends Component {
 		if (!searchText) {
 			this._initialise();
 		} else {
-			this.pendingMandates = this._lookForSearchTex(`Pending`, searchText);
-			this.activeMandates = this._lookForSearchTex(`Accepted`, searchText);
-			this.inActiveMandates = [...this._lookForSearchTex(`Expired`, searchText), ...this._lookForSearchTex(`Declined`, searchText)];
+			this.pendingMandates = this._lookForSearchText(MANDATE_STATUS.PENDING, searchText);
+			this.activeMandates = this._lookForSearchText(MANDATE_STATUS.ACTIVE, searchText);
+			this.inActiveMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText);
 		}
 		this.requestUpdate();
 	}
@@ -111,9 +111,9 @@ export class DebiCheckMandates extends Component {
 	// ---------------
 
 	_initialise() {
-		this.pendingMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `PENDING`);
-		this.activeMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `ACTIVE`);
-		this.inActiveMandates = this.debiCheckMandates.filter(item => item.mandateStatus.toUpperCase() === `INACTIVE` || item.mandateStatus.toUpperCase() === `SUSPENDED`);
+		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
+		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
+		this.inActiveMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.INACTIVE);
 	}
 	
 	_formatCollectionDate(collectionDate) {
@@ -124,8 +124,8 @@ export class DebiCheckMandates extends Component {
 		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
-	_lookForSearchTex(status, searchText) {
-		return this.debiCheckMandates.filter(item => item.mandateStatus === status &&
+	_lookForSearchText(status, searchText) {
+		return this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === status &&
 											  (item.mandateName.toLowerCase().indexOf(searchText) !== -1 ||
 											   parseInt(item.amount, 10) === parseInt(searchText, 10) ||
 											   parseInt(item.maxCollectionAmount, 10) === parseInt(searchText, 10)));
@@ -239,10 +239,11 @@ export class DebiCheckMandates extends Component {
 				}
 				capitec-content-box {
 					--theme-container-padding-left: 16px;
-					--theme-container-padding-right: 16px;
+					--theme-container-padding-right: 9px;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
-					height: 761px;
+					height: 759px;
+					width: auto;
 				}
 				capitec-content-box > .section-header {
 					height: 44px;
@@ -300,6 +301,9 @@ export class DebiCheckMandates extends Component {
 					width: 96px;
 					height: 24px;
 					margin-bottom: 33px;
+				}
+				.no-results-group {
+					width: 1032px;
 				}
 				.no-results {
 					--theme-label-strong-font-size: 24px;
@@ -540,14 +544,23 @@ export class DebiCheckMandates extends Component {
 		}
 
 		return html`
-			<capitec-group layout="vertical" halign="center" valign="top" gap="none">
-				<img src="/images/common/document.svg" class="document-icon"/>
-				<img src="/images/debi-check/debi-check-logo.svg" class="debi-check-logo"/>
-				<capitec-label
-					class="no-results"
-					label="No DebiCheck mandates on the account"
-					type="strong">
-				</capitec-label>
+			<capitec-group
+				layout="vertical"
+				halign="center"
+				valign="top"
+				gap="none"
+				class="no-results-group">
+					<img
+						src="/images/common/document.svg"
+						class="document-icon"/>
+					<img
+						src="/images/debi-check/debi-check-logo.svg"
+						class="debi-check-logo"/>
+					<capitec-label
+						class="no-results"
+						label="No DebiCheck mandates on the account"
+						type="strong">
+					</capitec-label>
 			</capitec-group>
 		`;
 	}

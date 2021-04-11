@@ -382,8 +382,7 @@ export class ConfirmCallerDetails extends Component {
 		const state = {
 			incidentDetails: this.incidentDetails,
 			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation,
-			canCloseIncident: false
+			callerInformation: this.callerInformation
 		};
 
 		this.horizonStore.saveState(state);

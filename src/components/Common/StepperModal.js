@@ -45,19 +45,19 @@ export class WizardStepperModal extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * @typedef {Object} Step
-	 * @property {String} title - the title of the step
-	 * @property {Function} render - the render function that will display the corresponding step html 
-	 * 
+	 * @property {String} header - Header title of stepper modal
 	 * @property {Array<Step>} steps - the steps of the view
+	 * @property {Number} [activeStepNumber="1"] The active step that the stepper is currently on. NB: The default and first step index is 1.
+	 * 
 	 */
-	static get properties() {
+	 static get properties() {
 
 		return {
 			header: { type: String },
 			steps: { type: Array },
 			currentActiveStep: { type: Number, attribute: `current-active-step` },
 			noPadding: { type: Boolean, attribute: `no-padding` },
-			hideStepper: { type: Boolean, attribute: `hide-stepper` },
+			hideStepper: { type: Boolean },
 			showEditButton: { type: Boolean, attribute: `show-edit-button` },
 			showScrollIndicator: { type: Boolean }
 		};
