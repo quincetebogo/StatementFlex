@@ -1,8 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
-
+import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { DateTime } from 'luxon';
 
 const RENDER_MODE = {
     MAIN_PAGE: 0,
@@ -40,7 +40,6 @@ const TRANSACTION_HISTORY = {
 };
 
 const today = new Date();
-const last90day = ``;
 
 /**
  * Transaction History screen is to display the list of transactions of a client.
@@ -85,6 +84,8 @@ export class TransactionHistory extends Component {
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
+        this.flag = true;
+
     }
 
     // --------------
@@ -108,10 +109,10 @@ export class TransactionHistory extends Component {
             filteredData: { attribute: false },
             renderMode: { attribute: false },
             isBusy: { attribute: false },
-            startDate: { attribute: false },
-            endDate: { attribute: false },
+            startDate: { type: String, attribute: false },
+            endDate: { type: String, attribute: false },
             searchTextLabel: { attribute: false },
-            statuslabel: { attribute: false }
+            statuslabel: { attribute: false },
         };
     }
 
@@ -154,9 +155,23 @@ export class TransactionHistory extends Component {
 
 
     getPredefinedDateRanges() {
-        this.last90day = new Date(today);
-        this.last90day.setDate(today.getDate() - 90);
-        return [{ text: "Last 90 days", value: { startDate: last90day, endDate: today } }];
+        const last7day = new Date(today);
+        const last30day = new Date(today);
+        const last60day = new Date(today);
+        const last90day = new Date(today);
+
+        last7day.setDate(today.getDate() - 7);
+        last30day.setDate(today.getDate() - 30);
+        last60day.setDate(today.getDate() - 60);
+        last90day.setDate(today.getDate() - 90);
+
+        return [
+            { text: "Today", value: { startDate: today.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 90 days", value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+        ];
     }
 
 
@@ -166,85 +181,54 @@ export class TransactionHistory extends Component {
     }
 
     _dateChanged(e) {
-        if (e.detail.new.startDate && e.detail.new.endDate) {
-            this.startDate = new Date(e.detail.new.startDate);
-            this.endDate = new Date(e.detail.new.endDate);
-            const rangeDiff = Math.floor((this.startDate.getTime() - this.endDate.getTime()) / (1000 * 3600 * 24));
-            if (rangeDiff > 90 || this.startDate > this.endDate) {
-                this.errorMessage = "Out of range, please select the correct range up to 90 days";
-                this.calendarError = `Date range up to 90 days only`;
 
-                //set the end date to 90 days after start date, if end date is more than 90 days after start date, or end date is before start date
-                const after90days = new Date();
-                after90days.setDate(this.startDate + 90);
-                this.endDate = after90days;
+
+        let fromDate = DateTime.fromISO(e.detail.new.startDate);
+        var toDate = DateTime.fromISO(e.detail.new.endDate);
+        let today = DateTime.local();
+
+
+        if (toDate.diff(fromDate, ['days']).days > 90) {
+            
+            toDate = fromDate.plus({ days: 90 });
+            if (toDate > today) {
+                this.startDate = fromDate;
+                this.endDate = today;
+
             } else {
-                this.errorMessage = ``;
-                this.calendarError = ``;
+                this.startDate = fromDate;
+                this.endDate = toDate;
+                const calendar = this.shadowRoot.querySelector('#calendarRange');
+                if (calendar) {
+                    calendar._placeholderEndDate = toDate;
+                }
             }
+
         } else {
-            this.startDate = last90day;
-            this.endDate = today;
-        }
-    }
+            if (e.detail.new.endDate == null && this.endDate == ``) {
+                this.startDate = fromDate;
+                toDate = fromDate.plus({ days: 90 });
+                if (toDate.diff(today, ['days']).days > 0) {
+                    this.endDate = today;
+                } else {
+                    this.endDate = toDate;
+                }
+            } else if (e.detail.new.startDate == null && this.startDate == ``) {
+                this.endDate = toDate;
+                fromDate = toDate.minus({ days: 90 });
+                this.startDate = fromDate;
+            }
+            else {
+                
+                this.startDate = fromDate;
+                this.endDate = toDate;
+            }
 
-    _startDateChanged(e) {
-        if (e.detail.new.date) {
-            this.startDate = this._formatDate(e.detail.new.date);
-        }
-        if (!e.detail.old.date && this.endDate === ``) {
-            // Start date and End date are same untill the End date is selected different
-            this.endDate = this.startDate;
-        }
-    }
-
-    _endDateChanged(e) {
-        if (e.detail.new.date) {
-            this.endDate = this._formatDate(e.detail.new.date);
-        }
-        // Start date and End date are same untill the Start date is selected different 
-        if (!e.detail.old.date && this.startDate === ``) {
-            this.startDate = this.endDate;
-        }
-    }
-
-    // This method is to get the Maximum date upto which one can select on the End/To Date calendar
-    _getEndMaxDate() {
-        const todaysDate = new Date();
-        const maxDate = new Date(this.startDate);
-        maxDate.setDate(maxDate.getDate() + 90);
-
-        return maxDate > todaysDate ? todaysDate : maxDate;
-    }
-
-    // This method is to get the Minimum date untill which one can select on the Start/From Date calendar
-    _getStartMinDate() {
-        if (this.endDate == ``) {
-            const minDate = new Date(0);
-            minDate.setFullYear(2000);
-            return minDate;
-        } else {
-            const minDate = new Date(this.endDate);
-            minDate.setDate(minDate.getDate() - 90);
-            return minDate;
         }
 
-    }
-    _apply() {
-        if (!this.startDate || !this.endDate) {
-            return;
-        }
+
         RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
         this._refineSearch();
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
-
-    _cancel() {
-        if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
-            this.startDate = ``;
-            this.endDate = ``;
-        }
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
     _filterByStatus(event) {
@@ -266,6 +250,7 @@ export class TransactionHistory extends Component {
 
         this.filteredData = this.transactionHistory;
         this.requestUpdate();
+        this.flag = true;
     }
 
     // To scroll the content of the Table to the Top when scroll to Top button is clicked
@@ -314,9 +299,15 @@ export class TransactionHistory extends Component {
     _reset() {
         this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
         this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
-        if (RENDER_CHIPS[FILTER_BY.DATE] === ``) {
+        if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
+
+            const calendar = this.shadowRoot.querySelector('#calendarRange');
+            if (calendar) {
+                calendar._placeholderEndDate = null;
+                calendar._placeholderStartDate = null;
+            }
         }
     }
 
@@ -385,9 +376,9 @@ export class TransactionHistory extends Component {
         this.requestUpdate();
     }
 
-    _showCalendar() {
-        this.renderMode = RENDER_MODE.CALENDAR;
-    }
+    //_showCalendar() {
+    //    this.renderMode = RENDER_MODE.CALENDAR;
+    //}
 
     _formatDate(date) {
         const newdate = new Date(Date.parse(date));
@@ -395,10 +386,9 @@ export class TransactionHistory extends Component {
     }
 
     _getDateRange() {
-        const startDate = !this.startDate ? `dd mm yyy` : this._formatDate(this.startDate);
-        const endDate = !this.endDate ? `dd mm yyy` : this._formatDate(this.endDate);
-
-        return `${startDate} - ${endDate}`;
+        const fromDate = !this.startDate ? `dd mm yyyy` : this._formatDate(this.startDate);
+        const toDate = !this.endDate ? `dd mm yyyy` : this._formatDate(this.endDate);
+        return `${fromDate} - ${toDate}`;
     }
 
     // ---------
@@ -489,18 +479,6 @@ export class TransactionHistory extends Component {
 					border: 1px solid #E1E1E1;
 					cursor: pointer;
 				}
-				//.cb-datepicker > capitec-label {
-				//	width: 143px;
-				//	cursor: pointer;
-				//	margin-left: 16.5px;
-				
-				//	margin-bottom: 2px;
-				//	--theme-label-font-color: #3A3A3A;
-				//	--theme-label-default-font-size: 16px;
-				//}
-				//.cb-datepicker > capitec-icon {
-				//	--theme-icon-size-small: 26px;
-				//}
 
 				/* Chip Bar Styles */
 				.filter-bar {
@@ -551,29 +529,11 @@ export class TransactionHistory extends Component {
 				}
 
 				/* Modal Calendar Styles */
-				capitec-modal {
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-modal-header-color: #4E6066;
-					--theme-modal-header-font-size: 16px;
-					--theme-modal-header-font-weight: 600;
-					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-padding-top: 12px;
-					--theme-modal-header-padding-bottom: 12px;
-					--theme-modal-footer-padding: 7.5px 12px 7.5px 0px;
-					--theme-modal-free-max-width: 695px;
-				}
+
 				div[slot="body"] {
 					display: flex;
 				}
-				capitec-calendar {
-					--theme-input-font-weight: 600;
-					--theme-calendar-days-font-size: 15px;
-					--theme-calendar-days-color: #3A3A3A;
-					--theme-calendar-not-selectable-color: #969B9D;
-					--theme-calendar-calendar-width: 347px;
-					--theme-calendar-days-padding: 16px 18px;
-					--theme-calendar-calendar-border-radius: 0px;
-				}
+
 				.load-more-bar{
 					--theme-actionbar-min-height: 48px;
 					padding-top : 0px;
@@ -601,10 +561,12 @@ export class TransactionHistory extends Component {
 					--theme-icon-size-medium: 26px;
     				padding-top: 12px;
 				}
-capitec-date-time-picker{
+                capitec-date-time-picker{
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
-}
+                    margin-right: 8px;
+                    width: 280px;
+                }
 			`
         ];
     }
@@ -643,8 +605,8 @@ capitec-date-time-picker{
 					type="unsuccessful-red">
 						<p><b>Notify:</b> ${this.errorMessage}</p>
 				</capitec-alert-banner>`;
-        } 
-        return html ``;
+        }
+        return html``;
     }
     _renderLoadingIndicator() {
         return this.isBusy
@@ -708,7 +670,9 @@ capitec-date-time-picker{
 					@blur="${(e) => this._searchTextBlur(e)}"
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
 				</capitec-text-field>
-                <capitec-date-time-picker
+                 <capitec-date-time-picker
+                    id="calendarRange"
+                    label = "${this.flag ? `Choose a date` : `Choose A Date`}"
                     startDate='${this.startDate}'
                     endDate='${this.endDate}'
                     maxDate="${new Date().toString()}"
@@ -716,12 +680,9 @@ capitec-date-time-picker{
 	                mode="date"
 	                inputType="calendar"
 	                outputType="string"
-                    error = "${this.calendarError}"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
-                    @apply-clicked="${() => this._apply()}"
-                    @cancel-clicked="${() => this._cancel()}"
-                    @value-changed="${(e) => this._dateChanged(e)}">
-                </capitec-date-time-picker>					
+                    @apply-clicked="${(e) => this._dateChanged(e)}">                  
+                </capitec-date-time-picker>	
 
 
 				<capitec-select
@@ -818,7 +779,7 @@ capitec-date-time-picker{
 					</div>`;
     }
 
-    _renderExpander (item) {
+    _renderExpander(item) {
         return html`
 			<capitec-label
 				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
