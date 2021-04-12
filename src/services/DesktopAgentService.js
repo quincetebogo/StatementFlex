@@ -147,9 +147,9 @@ export class DesktopAgentService {
 	}
 
 	_cleanupTelephoneNumber(telephoneNumber) {
-		if (RegExp(/^27\d{9}$/, `g`).test(telephoneNumber)) {
-			return `0${telephoneNumber.substring(2)}`;
-		}
+		if (telephoneNumber.length >= 9) {
+			return `0${telephoneNumber.substr(telephoneNumber.length - 9)}`;
+		} 
 
 		return telephoneNumber;
 	}
