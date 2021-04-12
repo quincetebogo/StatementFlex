@@ -83,9 +83,6 @@ export class TransactionHistory extends Component {
         this.statuslabel = `Transaction Status`;
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-
-        this.flag = true;
-
     }
 
     // --------------
@@ -250,7 +247,6 @@ export class TransactionHistory extends Component {
 
         this.filteredData = this.transactionHistory;
         this.requestUpdate();
-        this.flag = true;
     }
 
     // To scroll the content of the Table to the Top when scroll to Top button is clicked
@@ -672,7 +668,7 @@ export class TransactionHistory extends Component {
 				</capitec-text-field>
                  <capitec-date-time-picker
                     id="calendarRange"
-                    label = "${this.flag ? `Choose a date` : `Choose A Date`}"
+                    label = "Choose a date"
                     startDate='${this.startDate}'
                     endDate='${this.endDate}'
                     maxDate="${new Date().toString()}"
