@@ -289,6 +289,8 @@ export class DesktopAgentService {
 	// ---------------
 
 	_generateVoiceReference() {
+		const d = new Date();
+		const currentdate = d.toISOString();
 		return `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber;
 	}
 	
