@@ -291,13 +291,13 @@ export class DesktopAgentService {
 	_generateVoiceReference() {
 		const d = new Date();
 		const year = d.getFullYear();
-		const month = d.getMonth().toString().padStart(2, `0`);
-		const day = d.getDay().toString().padStart(2, `0`);
+		const month = (d.getMonth() + 1).toString().padStart(2, `0`);
+		const day = d.getDate().toString().padStart(2, `0`);
 		const hours = d.getHours().toString().padStart(2, `0`);
 		const minutes = d.getMinutes().toString().padStart(2, `0`);
 		const seconds = d.getSeconds().toString().padStart(2, `0`);
 
-		const currentdate = `${year}-${month}-${day}-${hours}:${minutes}:${seconds}`;
+		const currentdate = `${year}${month}${day}-${hours}${minutes}${seconds}`;
 		return `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber;
 	}
 	
