@@ -43,7 +43,6 @@ export class LandingPage extends ViewBase {
 		super();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();

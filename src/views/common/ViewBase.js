@@ -36,29 +36,34 @@ export class ViewBase extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 
-        this.state = this.horizonStore.recoverState();
+        const state = this.horizonStore.recoverState();
 
-		if (Object.hasOwnProperty.call(this.state, `callerInformation`)) {
-			this.callerInformation = this.state.callerInformation;
-			this.verificationStatus = this.callerInformation.verificationStatus;
+		if (Object.hasOwnProperty.call(state, `callerInformation`)) {
+			this.callerInformation = state.callerInformation;
+			this.verificationStatus = callerInformation.verificationStatus;
 		} else {
 			this.callerInformation = null;
 		}
 
-		if (Object.hasOwnProperty.call(this.state, `incomingCallDetails`)) { 
-        	this.incomingCallDetails = this.state.incomingCallDetails;
+		if (Object.hasOwnProperty.call(state, `incomingCallDetails`)) { 
+        	this.incomingCallDetails = state.incomingCallDetails;
 		} else {
 			this.incomingCallDetails = null;
 		}
 
-		if (Object.hasOwnProperty.call(this.state, `incidentDetails`)) { 
-        	this.incidentDetails = this.state.incidentDetails;
+		if (Object.hasOwnProperty.call(state, `incidentDetails`)) { 
+        	this.incidentDetails = state.incidentDetails;
 		} else {
 			this.incidentDetails = null;
 		}
 
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
+
 		this.isBusy = false;
-		this.isReassigned = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

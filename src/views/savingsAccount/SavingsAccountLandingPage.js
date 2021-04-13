@@ -37,21 +37,15 @@ export class SavingsAccountLandingPage extends ViewBase {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
 	
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
 		this.transactionHistory = null;
 		this.accountDetails = null;
 	
 		// private properites
 		this.loading = true;
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));

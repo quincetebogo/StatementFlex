@@ -52,7 +52,7 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.tapToPayLanding(clientInfo), `tapToPayLanding`, errorHandler, autoRetries);
 	}
 
-	getClientProducts(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.getClientProducts(cifNumber), `getClientProducts`, errorHandler, autoRetries);
+	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getClientProducts(request), `getClientProducts`, errorHandler, autoRetries);
 	}
 }

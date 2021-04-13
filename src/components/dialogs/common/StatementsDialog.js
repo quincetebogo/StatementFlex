@@ -25,21 +25,38 @@ const STATEMENTS_STEPS = [
 	}
 ];
 
-const ACCOUNT_TYPES = {
+const ACCOUNTS_ENUM = {
 	PRIMARY_SAVINGS: {
-		id: [300],
 		type: `PRIMARY_SAVINGS`,
-		label: `Savings Account`,
 		showPlans: false
 	},
 	FLEXIBLE_SAVINGS: {
-		id: [200, 201],
 		type: `FLEXIBLE_SAVINGS`,
-		label: `Savings Plans`,
 		showPlans: true
 	},
 	CREDIT: {
 		// Configure when ready
+	}
+};
+
+const ACCOUNT_INTCAT_ENUM = {
+	300: {
+		type: `PRIMARY_SAVINGS`,
+		category: `PRIMARY_SAVINGS`
+	},
+	200: {
+		type: `FLEXIBLE_SAVINGS`,
+		category: `FLEXIBLE_SAVINGS`
+	},
+	201: {
+		1: {
+			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
+			category: `FLEXIBLE_SAVINGS`
+		},
+		2: {
+			type: `FIXED_TERM_SINGLE_DEPOSIT`,
+			category: `FLEXIBLE_SAVINGS`
+		}
 	}
 };
 
@@ -344,11 +361,14 @@ export class StatementsDialog extends Component {
 
 	_initialise() {
 		this.clientProducts = this.clientProducts.map(item => {
+			const account = ACCOUNT_INTCAT_ENUM[item.accountType];
 
-			if (ACCOUNT_TYPES.PRIMARY_SAVINGS.id.indexOf(item.accountType) !== -1) {
-				item.type = ACCOUNT_TYPES.PRIMARY_SAVINGS.type;
-			} else if (ACCOUNT_TYPES.FLEXIBLE_SAVINGS.id.indexOf(item.accountType) !== -1) {
-				item.type = ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type;
+			if (account && account[item.interestCategory]) {
+				item.type = account[item.interestCategory].type;
+				item.category = account[item.interestCategory].category;
+			} else {
+				item.type = account && account.type;
+				item.category = account && account.category;
 			}
 			return item;
 		});
@@ -362,7 +382,7 @@ export class StatementsDialog extends Component {
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Select an account`;
 			return false;
-		} else if (this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
+		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
 			this.errorMessage = `Select a plan`;
 			return false;
 		}
@@ -440,20 +460,22 @@ export class StatementsDialog extends Component {
 		let product = {};
 
 		if (!isNullorEmpty(this.accPlanType)) {
-			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.type === this.accType);
+			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.category === this.accType);
 		} else {
-			product = this.clientProducts.find(item => item.type === this.accType);
+			product = this.clientProducts.find(item => item.category === this.accType);
 		}
 		return {
 			accountNumber: product.accountNumber,
-			accountType: this.accType
+			accountType: product.type
 		};
 	}
 
 	_getAvailableBal(type) {
-		const products = this.clientProducts.filter(item => item.type === type);
-		const availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
-
+		const products = this.clientProducts.filter(item => item.category === type);
+		let availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+		
+		//Rounding off the decimal value
+		availableBalance = Math.round(availableBalance * 100)/100;
 		return formatCurrency(availableBalance);
 	}
 
@@ -737,7 +759,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSavingsAccountProduct() {
-		const savingsAccountProduct = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.PRIMARY_SAVINGS.type);
+		const savingsAccountProduct = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type);
 
 		return savingsAccountProduct
 			? html`
@@ -745,17 +767,17 @@ export class StatementsDialog extends Component {
 					class="product-transact"
 					type="default"
 					label="Savings Account"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
 					detail=""
 					icon="product/transact"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNT_TYPES.PRIMARY_SAVINGS.type}">
+					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type}">
 				</horizon-product-tile>`
 			: html``;
 	}
 
 	_renderSavingsPlanProduct() {
-		const savingsPlanProducts = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type);
+		const savingsPlanProducts = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type);
 
 		return savingsPlanProducts
 			? html`
@@ -763,18 +785,18 @@ export class StatementsDialog extends Component {
 					class="product-save"
 					type="default"
 					label="Savings Plans"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
 					detail=""
 					icon="product/save"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type}">
+					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type}">
 				</horizon-product-tile>`
 			: html``;
 	}
 
 	_renderPlans() {
-		const plans = this.clientProducts.filter(item => item.type === this.accType);
-		const showPlans = ACCOUNT_TYPES[this.accType] && ACCOUNT_TYPES[this.accType].showPlans;
+		const plans = this.clientProducts.filter(item => item.category === this.accType);
+		const showPlans = ACCOUNTS_ENUM[this.accType] && ACCOUNTS_ENUM[this.accType].showPlans;
 
 		return showPlans && plans.length > 0
 			? html`
@@ -789,7 +811,7 @@ export class StatementsDialog extends Component {
 						<horizon-product-tile 
 							type="radio-button"
 							label="${item.accountName}"
-							subtitle="Available balance: ${item.availableBalance}"
+							subtitle="Available balance: R${formatCurrency(item.availableBalance)}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item.accountName)}"
