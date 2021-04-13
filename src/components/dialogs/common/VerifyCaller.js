@@ -560,7 +560,7 @@ export class VerifyCaller extends Component {
 					margin-top: 45px;
 				}
 				.foreign-client, .notification-info {
-					margin-bottom: 25px;
+					margin-bottom: 5px;
 				}
 			`
 		];
