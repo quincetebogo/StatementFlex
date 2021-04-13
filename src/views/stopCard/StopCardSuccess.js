@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/OptionButton';
@@ -27,6 +28,7 @@ export class StopCardSuccess extends View {
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 	}
 
@@ -143,6 +145,14 @@ export class StopCardSuccess extends View {
 		);
 	}
 
+	_leftClick() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_rightClick() {
+		this.horizonRouter.navigateToStopCard();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -213,6 +223,7 @@ export class StopCardSuccess extends View {
 					margin: 0px 0px 0px 0px;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
+					font-weight: 600;
 					font-size: 15px;
 					letter-spacing: 0;
 					line-height: 24px;
@@ -240,7 +251,7 @@ export class StopCardSuccess extends View {
 				}
 
 				.options-group{
-					margin:24px 0px 62px 24px;
+					margin:22px 0px 23px 22px;
 				}
 
 				.button-margin{
@@ -281,6 +292,11 @@ export class StopCardSuccess extends View {
 					text-align: start;
 					margin: 0px 0px 0px 7px;
 				}
+
+				#id-button-group {
+					justify-content: center;
+					margin-top: 16px;
+				}
 			`
 ];
 	}
@@ -294,11 +310,11 @@ export class StopCardSuccess extends View {
 			<capitec-group layout="vertical" gap="none" style="width:100%;">
 				${this._renderTitleBar()}
 				${this._renderSuccessToast()}
-				${this._renderNotifyClient()}
 				${this._renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
 				${this._renderStoppedCards()}
-				<p class="stop-card-text">Remind the client that they will need to visit a branch for a new card.</p>
+				<p class="stop-card-text">Please visit a branch to get a new card.</p>
+				${this._renderButtons()}
 				${this._renderRelatedOptions()}
 				${this._renderOptionsButtons()} 
 				${this._renderVerifyNowModal()}
@@ -331,7 +347,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" style="margin: auto auto auto auto;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
+		return html`<img class="card-image" style="margin: 100px auto auto auto;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
 	}
 
 	_renderStoppedCards() {
@@ -342,12 +358,20 @@ export class StopCardSuccess extends View {
 		`;
 	}
 
+	_renderButtons() {
+		return html`
+		<capitec-group id="id-button-group" layout="horizontal">
+			<capitec-button class="button" label="Done" @click="${() => this._leftClick()}"></capitec-button>
+			<capitec-button class="button" type="primary" label="Return to Stop Card" @click="${() => this._rightClick()}"></capitec-button>
+		</capitec-group>`;
+	}
+
 	_renderSuccessStatus(card) {
 		return html`
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardType} <b>${card.encryptedCardId}</b> was stopped successfully
+					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
 		`;

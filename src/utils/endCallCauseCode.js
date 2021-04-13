@@ -51,7 +51,7 @@ export class EndCallCauseCode {
 		const toDoActionByContext = {
 			VerifyClient: verifyClient,
 			LandingPage: landingPage
-		}
+		};
 
 		if (toDoActionByContext[context]) {
 			return toDoActionByContext[context]();

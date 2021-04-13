@@ -11,7 +11,7 @@
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
 	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
+		"sblUrl": "http://standardbancslinkv3int.int.capinet:8080/",
 		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
 		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
 	},

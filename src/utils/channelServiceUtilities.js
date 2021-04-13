@@ -85,3 +85,40 @@ export function formatCurrency(value) {
 export function formatPhoneNumber(value) {
 	return !value ? `-` : value.toString().replace(/(\d{3})(\d{3})(\d{4})/, `$1 $2 $3`);
 }
+
+/**
+ *  
+ *
+ * @param {*} idNumber An ID Number
+ * @returns {Boolean} Indicates if the check digit on the ID Number computes correctly
+ */
+function _luhnCheck(idNumber) {
+	const num = idNumber.toString()
+	.split(``)
+	.reverse()
+	.map(x => parseInt(x, 10));
+
+	const lastDigit = num.splice(0, 1)[0];
+	let sum = num.reduce((acc, val, i) => (i % 2 !== 0 ? acc + val : acc + ((val * 2) % 9) || 9), 0);
+	sum += lastDigit;
+
+	return sum % 10 === 0;
+}
+
+/**
+ * Tests to see if the check digit on a South African ID number is correct 
+ * and that the ID number is of the correct length. 
+ *
+ * @export
+ * @param {String} southAfricanIDNumber A South African ID Number to be checked
+ * @returns {String} Check if a South African ID number is well formed
+ */
+export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
+	return southAfricanIDNumber.length === 13 && 
+			RegExp(/^[0-9]{13}$/, `g`).test(southAfricanIDNumber);
+
+		// Luhn check removed. Apparently there are valid numbers in the wild that 
+		// fail this test????
+
+		// && _luhnCheck(southAfricanIDNumber); 
+}

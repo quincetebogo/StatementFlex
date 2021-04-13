@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -53,10 +54,24 @@ export class Favourites extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-        this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
+		// Reconver information from state
+        const state = this.horizonStore.recoverState();
+        this.callerInformation = state.callerInformation;
+        this.incomingCallDetails = state.incomingCallDetails;
 
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
+
+		// When returning from the success screen, check which page we should display
+		if (state.returnTo && state.returnTo.mode === `mandate`) {
+			this._debiCheck();
+		} else {
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
+		}
+		
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -65,20 +80,11 @@ export class Favourites extends View {
 		this.isLoading = true;
 
 		// private variables
-		this.isReassigned = false;
 		this.landingPageInfo = null;
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
         this.debiCheckDetails = {};
-
-		// When returning from the success screen, check which page we should display
-		if (this.state.returnTo && this.state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-
-		}
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -256,7 +262,7 @@ export class Favourites extends View {
 	async _initialise() {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 
-		if (this.callerInformation.verificationStatus !== `non-client`) {
+		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
 				nationalIDNumber: this.callerInformation.southAfricanIDNumber,
@@ -269,14 +275,25 @@ export class Favourites extends View {
                  this.isLoading = false;
                  this.landingPageInfo = returnValue.result;
 
-			 	// Now we can update the information on the product buttons
-			 	this._updateLeftBar();
 			 }
 		} else {
 			// minimal object for the Favourites landing page component
 			this.isLoading = false;
-			this.landingPageInfo = { pendingMandateCount: 0 };
+			this.landingPageInfo = { 
+				savingsAccountProductDescription: ``,
+				savingsPlanProductDescription: ``,
+				insureProductDescription: ``,
+				creditProductDescription: ``,
+				savingsAccountProductAmount: ``,
+				savingsPlanProductAmount: ``,
+				insureProductAmount: ``,
+				creditProductAmount: ``,
+				pendingMandateCount: 0 
+			};
 		}
+
+		// Now we can update the information on the product buttons
+		this._updateLeftBar();
 	}
 
 	_updateLeftBar() {
@@ -496,7 +513,7 @@ export class Favourites extends View {
 			return html`
 				<horizon-end-call-session
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.isReassigned="${this.isReassigned}"
+					?isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`;

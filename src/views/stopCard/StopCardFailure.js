@@ -80,6 +80,12 @@ export class StopCardFailure extends View {
 			this.callerInformation = state.callerInformation;
 			this.incomingCallDetails = state.incomingCallDetails;
 
+			if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+				this.isReassigned = state.isReassigned;
+			} else {
+				this.isReassigned = false;
+			}
+	
 			this.stoppedCards = state.stoppedCards;
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
@@ -111,7 +117,6 @@ export class StopCardFailure extends View {
 	}
 
 	_onEndCallSession() {
-		this.isReassigned = false;
 		this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
@@ -145,16 +150,19 @@ export class StopCardFailure extends View {
 	
 			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
 			if (isAllSuccess) {
-				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop });
+				// The stop card incident can be closed if all cards were stopped successfully.
+				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
+				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop, stoppedCardsFailed: false });
 				this.horizonRouter.navigateToStoppedCards();
 			}
 		}
 	}
 
 	_onHandOff(e) {
+		// On return from the Stop Card Assign dialog, mark the incident as assigned
 		this.isReassigned = true;
+		this.horizonStore.saveState({ isReassigned: this.isReassigned });
 		this.horizonRouter.navigateToQuickTransactionFavourites();
-		// this.renderDialog = RENDER_DIALOG.ENDCALL;
 	}
 
 	_toggleBusyFlag() {
@@ -171,7 +179,6 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	_onAssignIncident() {
-		// TODO: Assign reasons for stopcard flow needs to be updated--used Insure Assign reasons dialog for now.
 		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
 	}
 
@@ -443,7 +450,7 @@ export class StopCardFailure extends View {
 				@cancel="${() => this.renderDialog = -1}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
 				endCallContext="LandingPage"
-				.isReassigned = "${this.isReassigned}">
+				?isReassigned = "${this.isReassigned}">
 			</horizon-end-call-session>`;
 		}
 
