@@ -27,6 +27,7 @@ export class StopCardSuccess extends View {
 		super();
 		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
+		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -41,7 +42,8 @@ export class StopCardSuccess extends View {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			renderMode: { type: Number }
+			renderMode: { type: Number },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -98,8 +100,7 @@ export class StopCardSuccess extends View {
 
 
 	_toggleBusyFlag() {
-		// Only used for Call Completion at present.
-		// May be implemented later to render progress on endCall method
+		this.isBusy = !this.isBusy;
 	}
 
 	_verifyClick() {
@@ -151,11 +152,11 @@ export class StopCardSuccess extends View {
 		);
 	}
 
-	_leftClick() {
+	_doneClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-	async _rightClick() {
+	async _returnToStopCardClick() {
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -357,6 +358,7 @@ export class StopCardSuccess extends View {
 				${this._renderOptionsButtons()} 
 				${this._renderVerifyNowModal()}
 				${this._renderEndCallModal()}
+				${this._renderLoadingIndicator()}
 			</capitec-group>
 		</capitec-card>`;
 	}
@@ -399,8 +401,8 @@ export class StopCardSuccess extends View {
 	_renderButtons() {
 		return html`
 		<capitec-group id="id-button-group" layout="horizontal">
-			<capitec-button class="button" label="Done" @click="${() => this._leftClick()}"></capitec-button>
-			<capitec-button class="button" type="primary" label="Return to Stop Card" @click="${() => this._rightClick()}"></capitec-button>
+			<capitec-button class="button" label="Done" @click="${() => this._doneClick()}"></capitec-button>
+			<capitec-button class="button" type="primary" label="Return to Stop Card" @click="${() => this._returnToStopCardClick()}"></capitec-button>
 		</capitec-group>`;
 	}
 
@@ -475,6 +477,12 @@ export class StopCardSuccess extends View {
 				</horizon-verify-caller>`;
 		}
 		return html``;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 
