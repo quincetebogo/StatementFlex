@@ -668,7 +668,7 @@ export class TransactionHistory extends Component {
 				</capitec-text-field>
                  <capitec-date-time-picker
                     id="calendarRange"
-                    label = "Choose a date"
+                    label = "Choose a date (up to 90 days)"
                     startDate='${this.startDate}'
                     endDate='${this.endDate}'
                     maxDate="${new Date().toString()}"
