@@ -46,9 +46,10 @@ const RENDER_MODE = Object.freeze({
 		this.issue = ``;
 		this.solutionDisplay = false;
 		this.searchObject = null;
-		this.specificNeedObjects = null;
-		this.issueTypeObjects = null;
-		this.solutionObjects = null;
+		this.specificNeedObject = null;
+		this.issueTypeObject = null;
+		this.issuesObject = null;
+		this.solutionObject = null;
 
 		this._configuration = Configuration.getInstance();
 	}
@@ -72,9 +73,10 @@ const RENDER_MODE = Object.freeze({
 			chooseIssue: { type: Boolean },
 			solutionDisplay: { type: Boolean },
 			searchObject: { type: Object },
-			specificNeedObjects: { type: Object },
-			issueTypeObjects: { type: Object },
-			solutionObjects: { type: Object },
+			specificNeedObject: { type: Object },
+			issueTypeObject: { type: Object },
+			solutionObject: { type: Object },
+			issuesObject: {type: Object},
 			renderMode: { attribute: false }
 		};
 	}
@@ -130,7 +132,7 @@ const RENDER_MODE = Object.freeze({
 			}
 		}
 			if (returnValue.succeeded && returnValue.result) {
-				this.specificNeedObjects = returnValue.result.needs.map(item => item.need);
+				this.specificNeedObject = returnValue.result.needs.map(item => item.need);
 			} else {
 				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
@@ -149,7 +151,9 @@ const RENDER_MODE = Object.freeze({
 			const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
 		
 				if (returnValue.succeeded && returnValue.result) {
-				this.issueTypeObjects = returnValue.result.issues.map(item => item.issue);
+					
+					this.issuesObject = returnValue.result.issues;
+					this.issueTypeObject = returnValue.result.issues.map(item => item.issue);
 			} else {
 				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
@@ -162,14 +166,9 @@ const RENDER_MODE = Object.freeze({
 	async _chooseIssueType(e) {
 		this.solutionDisplay = true;
 		this.issue = e.currentTarget.value;
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
 		
-		if (returnValue.succeeded && returnValue.result) {
-			this.solutionObjects = returnValue.result.issues.map(item => item.solution);
-		} else {
+		this.solutionObject = this.issuesObject.find(item => item.issue === this.issue).solution;
 			
-			this.logger.log(`error`, `Failed to retrieve Other Needs Solution`, `_chooseIssueType`, returnValue.result);
-		}
 	}
 
 	_onLaunchStrackClick() {
@@ -355,7 +354,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose specific need" 
-					.items="${this.specificNeedObjects}"
+					.items="${this.specificNeedObject}"
 					display-field="need"
 					id-field="need"
 					value="${live(this.need)}"
@@ -365,7 +364,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose issue type" 
-					.items="${this.issueTypeObjects}"
+					.items="${this.issueTypeObject}"
 					display-field="issue"
 					id-field="issues"
 					value="${live(this.issue)}"
@@ -385,7 +384,7 @@ const RENDER_MODE = Object.freeze({
 						<capitec-label
 							class="solution-heading"
 							type="default"
-							label="${this.solutionObjects}">
+							label="${this.solutionObject}">
 						</capitec-label>
 					</capitec-content-box>
 					
