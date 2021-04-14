@@ -476,10 +476,8 @@ export class VerifyCaller extends Component {
 					--theme-container-padding-right: 17px;
 					--theme-container-padding-bottom: 12px;
 					--theme-container-padding-left: 16px;
+					--theme-container-margin-bottom: 0px;
 					height: auto;
-				}
-				#notification-status-box > capitec-group {
-					--theme-layout-gap-spacing: 16px;
 				}
 				#notification-status-box > capitec-group > capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
@@ -490,20 +488,20 @@ export class VerifyCaller extends Component {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					--theme-alert-banner-unsuccessful-red-border: none;
-					
+					--theme-alert-banner-margin-bottom: 0px;
+
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 				}
 				#notification-status-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
-					margin-bottom: 34px;
 
 					--theme-label-title-font-size: 15px;
 				}
 				#notification-status-error-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
-					margin-bottom: 26px;
+					margin-bottom: 0px;
 
 					--theme-label-title-font-size: 15px;
 				}
@@ -560,7 +558,7 @@ export class VerifyCaller extends Component {
 					margin-top: 45px;
 				}
 				.foreign-client, .notification-info {
-					margin-bottom: 5px;
+					margin-bottom: 0px;
 				}
 			`
 		];
