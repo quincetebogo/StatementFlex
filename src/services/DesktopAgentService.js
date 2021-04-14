@@ -114,6 +114,9 @@ export class DesktopAgentService {
 			// have been injected into the event.
 
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
+
+			newCallEvent.incomingTelephoneNumber = this._cleanupTelephoneNumber(newCallEvent.incomingTelephoneNumber);
+
 			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
 			newCallEvent.agentTelephoneNumber = validate(eventData.AgentTelephoneNumber, DesktopAgentService.agentTelephoneNumberValidation);
 			newCallEvent.VDN = validate(eventData.VDN, DesktopAgentService.vdnValidation);
@@ -131,7 +134,8 @@ export class DesktopAgentService {
 			}
 
 			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
-				newCallEvent.voiceReferenceNumber = 0;
+				
+				newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
 				this._logger.log(`error`, `No Voice Reference Number received!. The ACapitecAES Proxy component may be down!`, `_onNewCall`);
 			}
 
@@ -141,6 +145,14 @@ export class DesktopAgentService {
 		} catch (err) {
 			this._logger.log(`fatal`, err.message, `_onNewCall`);
 		}
+	}
+
+	_cleanupTelephoneNumber(telephoneNumber) {
+		if (telephoneNumber.length >= 9) {
+			return `0${telephoneNumber.substr(telephoneNumber.length - 9)}`;
+		} 
+
+		return telephoneNumber;
 	}
 
 	/**
@@ -243,7 +255,7 @@ export class DesktopAgentService {
 			const vdn = await this._configuration.getSetting(`VDN`);
 
 			newCallEvent.incomingTelephoneNumber = `0000000000`; // incoming telephone number
-			newCallEvent.voiceReferenceNumber = `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber
+			newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
 			newCallEvent.agentTelephoneNumber = `000000`;
 			newCallEvent.VDN = vdn;
 			newCallEvent.ivrOptionCode = `Transact`;
@@ -275,6 +287,20 @@ export class DesktopAgentService {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_generateVoiceReference() {
+		const d = new Date();
+		const year = d.getFullYear();
+		const month = (d.getMonth() + 1).toString().padStart(2, `0`);
+		const day = d.getDate().toString().padStart(2, `0`);
+		const hours = d.getHours().toString().padStart(2, `0`);
+		const minutes = d.getMinutes().toString().padStart(2, `0`);
+		const seconds = d.getSeconds().toString().padStart(2, `0`);
+
+		const currentdate = `${year}${month}${day}-${hours}${minutes}${seconds}`;
+		return `${this._securityContext.username}-${currentdate}`; // voicedReferenceNumber;
+	}
+	
 
 	async _mapIvrOption(IvrOptionCode) {
 		const ivrMapping = await this._configuration.getSetting(`ivrMapping`);
