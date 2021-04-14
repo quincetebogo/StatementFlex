@@ -415,7 +415,7 @@ export class TransactionHistory extends Component {
 
 				/* Header Styles */
 				.transaction-history-title {
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					border-radius: 4px 4px 0 0;
 					padding: 11px 24px 11px 15px;
@@ -430,7 +430,7 @@ export class TransactionHistory extends Component {
 				/* Account Details Bar styles */
 				.actionbar-header {
 					height: 64px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					padding: 11px 24px 11px 43px;
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
@@ -456,7 +456,7 @@ export class TransactionHistory extends Component {
 				/* Filter Bar styles */
 				.transaction-action-bar {
 					height: 64px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
@@ -510,7 +510,7 @@ export class TransactionHistory extends Component {
 					width: auto;
 				}
 				capitec-table{
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;

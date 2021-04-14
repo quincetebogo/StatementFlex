@@ -100,7 +100,7 @@ export class ProductButtonPanel extends Component {
 
             .product-button{
                 padding: 0px 0px 0px 0px;
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}
 			.hide-tile{

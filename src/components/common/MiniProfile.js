@@ -113,7 +113,7 @@ export class MiniProfile extends Component {
 			super.styles,
 			css`
 				.hello-card {
-					width: 440px;
+					width: var(--horizon-left-panel-width, 440px);
 					height: auto;
 
 					--theme-card-border-radius: 4px;

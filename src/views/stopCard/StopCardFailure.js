@@ -283,15 +283,15 @@ export class StopCardFailure extends View {
                 .button-bar {
                     box-sizing: border-box;
                     height: 64px;
-                    width: 1064px;
-                    border: 1px solid #E1E1E1;
+					width: var(--horizon-center-panel-width, 1064px);
+					border: 1px solid #E1E1E1;
                     border-radius: 0 0 4px 4px;
                     background-color: #FFFFFF;
 				}
 				
 				.card {
 					height: 823px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 
 				.button-assign {
@@ -321,7 +321,7 @@ export class StopCardFailure extends View {
 
 				.notify-client{
 					height: 24px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					color: #545D60;
 					font-family: "Hind Vadodara";
 					font-size: 15px;

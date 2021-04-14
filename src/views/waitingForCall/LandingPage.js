@@ -1,16 +1,19 @@
-import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, css, html } from 'platform/elements';
+import { Configuration, Logger } from 'platform/core';
+import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { ViewBase } from 'app/views/common/ViewBase.js';
+
 
 import 'platform/components/buttons/Button';
 
@@ -22,14 +25,6 @@ import 'app/components/dialogs/common/Error404';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/stopCard/AssignStopCard';
 
-const RENDER_MODE = {
-	PAGE_ONLY: -1,
-	CONFIRM_CALLER: 0,
-	STOP_CARD_SEARCH: 1,
-	START_AGENT: 2,
-	SEARCH_CALLER: 3
-};
-
 /**
  * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
  * This is the only page that can accept an incoming call. On completing the handling of a call
@@ -37,9 +32,9 @@ const RENDER_MODE = {
  *
  * @export
  * @class LandingPage
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class LandingPage extends View {
+export class LandingPage extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -47,12 +42,7 @@ export class LandingPage extends View {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.isBusy = false;
-
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();
@@ -79,7 +69,7 @@ export class LandingPage extends View {
 				this.callStatus = `WAITING-FOR-CALL`;
 				this.horizonStore.setState({ callStatus: this.callStatus });
 				this.desktopAgentService.callComplete();
-				this.renderMode = RENDER_MODE.PAGE_ONLY;
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		});
 
@@ -89,13 +79,6 @@ export class LandingPage extends View {
 	// ----------
 	// PROPERTIES
 	// ----------
-
-	static get properties() {
-		return {
-			renderMode: { attribute: false },
-			isBusy: { attribute: false }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -139,7 +122,7 @@ export class LandingPage extends View {
 	_desktopAgentup() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			// Dismiss error dialog once the Desktop Agent is up and running
-			this.renderMode = RENDER_MODE.PAGE_ONLY;
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
 		}
 	}
 
@@ -340,10 +323,6 @@ export class LandingPage extends View {
 		}
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	_landingPageErrorHandler(exception) {
 		// Errors that can happen on the landing page
 
@@ -372,17 +351,13 @@ export class LandingPage extends View {
 		];
 	}
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
-
 	_webTemplate() {
 		return html`
 		${this._renderMiddleSection()}
-		${this._renderLoadingIndicator()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
 		${this._renderStartAgentPrompt()}
+		${super._webTemplate()}
 		`;
 	}
 
@@ -390,14 +365,6 @@ export class LandingPage extends View {
 		return html`
 			<horizon-landing-page-wait-for-call class="wait-for-call"></horizon-landing-page-wait-for-call>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderConfirmCallerDetailsDialog() {
@@ -437,7 +404,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
 				<horizon-error-404 
-					@click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
+					@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-error-404>
 			`;
 		}

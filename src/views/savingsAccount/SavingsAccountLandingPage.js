@@ -7,22 +7,15 @@ import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
 
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	TRANSACTION_HISTORY: 2,
-	DEBI_CHECK_PAGE: 3
-});
-
 const TRANSACTION_HISTORY = {
-	ACCOUNT_TYPE : `PRIMARY_SAVINGS`,
-	END_DATE : new Date().toISOString().substr(0,10),
+	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
+	END_DATE: new Date().toISOString().substr(0, 10),
 	// 7776000000 is 90 days in milliseconds
 	START_DATE: new Date(Date.now() - 7776000000).toISOString().substr(0, 10),
-	START_AT_INDEX : 0,
-	MAX_RESULTS : 50,
-	MONEY_TYPE : 'BOTH'
-}
+	START_AT_INDEX: 0,
+	MAX_RESULTS: 50,
+	MONEY_TYPE: `BOTH`
+};
 
 /**
  * Savings Account View
@@ -35,7 +28,7 @@ const TRANSACTION_HISTORY = {
  * @class SavingsAccount
  * @extends {Component}
  */
-export class SavingsAccountLandingPage extends View {
+export class SavingsAccountLandingPage extends ViewBase {
 	
 	// --------------
 	// INITIALISATION
@@ -44,26 +37,18 @@ export class SavingsAccountLandingPage extends View {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
 	
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
 		this.transactionHistory = null;
 		this.accountDetails = null;
 	
 		// private properites
-		this.isBusy = false;
 		this.loading = true;
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// -------------------
@@ -102,8 +87,6 @@ export class SavingsAccountLandingPage extends View {
 
 	static get properties() {
 		return {
-			isBusy: { attribute: false },
-			renderMode: { attribute: false },
 			loading: { attribute: false }
 		};
 	}
@@ -187,10 +170,6 @@ export class SavingsAccountLandingPage extends View {
 		this.horizonStore.saveState(state);
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-	
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
 	}
@@ -259,7 +238,7 @@ export class SavingsAccountLandingPage extends View {
 			css`
 			.savingsaccount{
 				width: 100%;
-				height: 888px;
+				height: var(--horizon-panel-height, 888px);
 			}
 			`
 		];
@@ -273,14 +252,8 @@ export class SavingsAccountLandingPage extends View {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
-			${this._renderLoadingIndicator()}
-			`;
-	}
 
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
+			${super._webTemplate()}`;
 	}
 
 	_renderSavingsLandingPage() {
