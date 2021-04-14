@@ -163,7 +163,6 @@ export class TransactionHistory extends Component {
         last90day.setDate(today.getDate() - 90);
 
         return [
-            { text: "Today", value: { startDate: today.toISOString(), endDate: today.toISOString() } },
             { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
             { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
             { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
@@ -522,6 +521,7 @@ export class TransactionHistory extends Component {
 					--theme-data-table-padding-bottom: 9px;
 					--theme-data-table-expander-size: 12px;
 					--theme-data-table-footer-border: 0px;
+                    --theme-data-table-expander-size: 24px;
 				}
 
 				/* Modal Calendar Styles */
@@ -680,8 +680,8 @@ export class TransactionHistory extends Component {
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
                 </capitec-date-time-picker>	
 
-
-				<capitec-select
+            
+            <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
 					.items="${TRANSACTION_STATUS_LIST}"
