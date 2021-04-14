@@ -15,8 +15,6 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		this.card1 = `5284 **** **** 1522`;
         this.card2 = `5238 **** **** 8907`;
 
-		this.list = ["STATEMENTS", "TAP_TO_PAY"];
-
         this.horizonRouter = HorizonRouter.getInstance();
         this.incomingCallDetails = this.state.incomingCallDetails;
         this.incidentRecId = this.incomingCallDetails.incidentRecId;
@@ -28,7 +26,7 @@ export class UnsuccessfulCardLimitUpdate extends View {
 
 	static get properties() {
 		return {
-			list: { type: Array }
+
 		};
 	}
 
@@ -131,7 +129,7 @@ export class UnsuccessfulCardLimitUpdate extends View {
 	_renderRelatedOptions() {
         return html`
             <horizon-related-options
-				.options= "${this.list}">
+				context = "Failure">
             </horizon-related-options>
         `;
     }

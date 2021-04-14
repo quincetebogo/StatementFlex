@@ -32,8 +32,6 @@ export class StopCardSuccess extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-
-		this.list = ["UPDATE_LIMITS", "TRANSACTION_HISTORY"];
 	}
 
 
@@ -46,7 +44,6 @@ export class StopCardSuccess extends View {
 			displayNotification: { type: Boolean },
 			renderMode: { type: Number },
 
-			list: { type: Array }
 		};
 	}
 
@@ -357,7 +354,7 @@ export class StopCardSuccess extends View {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				.options= "${this.list}">
+				context = "Success">
 			</horizon-related-options>
 		`;
 	}

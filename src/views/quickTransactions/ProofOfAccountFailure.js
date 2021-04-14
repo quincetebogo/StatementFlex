@@ -36,8 +36,6 @@ const RENDER_MODE = {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.list = ["TAX_CERTIFICATE", "PROOF_OF_ACCOUNT"];
 	}
 
 	
@@ -53,7 +51,6 @@ const RENDER_MODE = {
 		return {
 			renderMode: { attribute: false },
 
-			list: { type: Array }
 		};
 	}
 
@@ -164,7 +161,7 @@ const RENDER_MODE = {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				.options= "${this.list}"
+				context = "Failure"
 				@cancel = "${() => this.renderMode = RENDER_MODE.PROOFOFACCOUNT_FAILURE}">
 			</horizon-related-options>
 		`;

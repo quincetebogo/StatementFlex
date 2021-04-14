@@ -35,8 +35,6 @@ export class StatementsUnsuccess extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
-
-		this.list = ["TAX_CERTIFICATE", "PROOF_OF_ACCOUNT"];
 	}
 
 
@@ -53,7 +51,6 @@ export class StatementsUnsuccess extends View {
 		return {
 			renderMode: { attribute: false },
 
-			list: { type: Array }
 		};
 	}
 
@@ -160,7 +157,7 @@ export class StatementsUnsuccess extends View {
     _renderRelatedOptions() {
 		return html`
             <horizon-related-options
-            	.options= "${this.list}"
+				context = "Failure"
 				@cancel = "${() => this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS}">
             </horizon-related-options>
 		`;
