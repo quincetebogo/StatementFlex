@@ -3,6 +3,7 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/common/OptionButton';
 import 'app/components/dialogs/common/EndCallSession';
@@ -82,6 +83,8 @@ export class StopCardSuccess extends View {
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadStopCard();
+
 		if (this.verifySub) {
 			this.verifySub.dispose();
 		}
