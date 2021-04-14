@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -151,6 +152,11 @@ export class StopCardSearchCaller extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadSearchClient({
+			screen: TelemetryScreen.SEARCH_CLIENT
+		}); 
+
 		// We can enter this dialog in two ways
 		//    1. From the Confirm Caller Dialog that the caller is not associated with the verified phone number
 		//    2. From the Landing Page after receiving an unverified call
@@ -171,6 +177,15 @@ export class StopCardSearchCaller extends Component {
 		this.isUnverifiedNumber = true; // this.unverifiedCaller.isUnverifiedNumber;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 		this.searchFieldText = null;
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadSearchClient({
+			screen: TelemetryScreen.SEARCH_CLIENT
+		}); 
 	}
 
 	// --------------
@@ -194,6 +209,14 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	async _onSearchClick(e) {
+
+		// Telemetry
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
+
 		if (this.validateFields()) {
 			console.log(`service call`);
 
@@ -238,6 +261,12 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_onEndCall() {
+		
+		// Telemetry
+		HorizonTelemetry.instance.endCallSelected({
+			screen		: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: null
+		});
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
