@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 import { SecurityContext } from 'platform/core';
 import { Telemetry } from '../mocks/Telemetry';
 import { v4 } from 'uuid';
@@ -21,7 +22,22 @@ export const TelemetryScreen = {
 	ADD_CALLER_DETAILS: `Add Caller Details`,
 
 	STOP_CARD: `Stop Card`,
-	STOP_CARD_OUTCOME: `Stop Card Outcome`
+	STOP_CARD_OUTCOME: `Stop Card Outcome`,
+
+	FAVOURITES: `Favourite Transactions`,
+
+	UPDATE_CARD_LIMITS: `Update Card Limits`,
+
+	TAP_TO_PAY: `Tap to Pay`,
+	STATEMENTS: `Statements`,
+	TAX_CERTIFICATE: `Tax Certificate`,
+	PROOF_OF_ACCOUNT: `Proof of Account`,
+	SEARCH_OTHER_NEED: `Search Other Need`,
+	VERIFY_CALLER: `Verify Caller`,
+
+	SECURITY_QUESTIONS: `Security Questions`,
+
+	END_CALL: `End Call Session`
 };
 
 
@@ -71,8 +87,48 @@ const TelemetryEvent = {
 	STOP_CARD_DONE: `horizon.call.fulfill-need.stop-card.outcome.done`,
 	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`,
 
+	// Verify Caller
+	SCR_LD_VERIFY_CALLER: `horizon.call.verify-caller.start-span`,
+	VERIFY_CALLER: `horizon.call.verify-caller.ita.start-span`,
+	VERIFICATION_REQUEST_SENT: `horizon.call.verify-caller.ita.requested`,
+	SELECT_SECURITY_QUESTIONS: `horizon.call.verify-caller.ita.security-questions`,
+	ITA_SKIP_VERIFICATION: `horizon.call.verify-caller.ita.skip-verification`,
+	TRY_VERIFICATION_AGAIN: `horizon.call.verify-caller.ita.try-again`,
+	VERIFICATION_TIMEOUT: `horizon.call.verify-caller.ita.timeout`,
+	VERIFICATION_SUCCESS: `horizon.call.verify-caller.ita.success`,
+	VERIFICATION_FAILED: `horizon.call.verify-caller.ita.failed`,
+	SCR_UNLD_VERIFY_CALLER: `horizon.call.verify-caller.ita.end-span`,
+
+	// Security Questions
+	SCR_LD_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.start-span`,
+	GO_TO_NEXT_QUESTION: `horizon.call.verify-caller.xds.next`,
+	XDS_SKIP_VERIFICATION: `horizon.call.verify-caller.xds.skip-verification`,
+	CANCEL_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.cancel`,
+	SECURITY_QUESTIONS_PASSED: `horizon.call.verify-caller.xds.success`,
+	SECURITY_QUESTIONS_FAILED: `horizon.call.verify-caller.xds.failed`,
+	SECURITY_QUESTIONS_TRY_AGAIN: `horizon.call.verify-caller.xds.try-again`,
+	SCR_UNLD_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.end-span`,
+	CALLER_VERIFIED: `horizon.call.verify-caller.end-span`,
+
+
 	// End Call Selected
-	END_CALL_SELECTED: `horizon.call.end-call-selected`
+	END_CALL_SELECTED: `horizon.call.end-call-selected`,
+
+	// Favourite Transactions
+	SCR_LD_FULFILL_NEED: `horizon.call.fulfill-need.start-span`,
+	SCR_LD_FAVOURITES: `horizon.call.fulfill-need.favourites`,
+	DEBI_CHECK_ALERT: `horizon.call.fulfill-need.debicheck-alert`,
+	DEBI_CHECK_ALERT_DISMISS: `horizon.call.fulfill-need.debicheck-alert.dismiss`,
+	DEBI_CHECK_ALERT_ACCEPT: `horizon.call.fulfill-need.debicheck-alert.accept`,
+	SELECT_DEBI_CHECK: `horizon.call.fulfill-need.select-debicheck`,
+	SELECT_STOP_CARD: `horizon.call.fulfill-need.select-stop-card`,
+	SELECT_UPDATE_CARD_LIMITS: `horizon.call.fulfill-need.select-card-limits`,
+	SELECT_TAP_TO_PAY: `horizon.call.fulfill-need.select-tap-to-pay`,
+	SELECT_STATEMENTS: `horizon.call.fulfill-need.select-statements`,
+	SELECT_TAX_CERTIFICATE: `horizon.call.fulfill-need.select-tax-certificate`,
+	SELECT_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.select-proof-of-account`,
+	SELECT_SEARCH_OTHER_NEED: `horizon.call.fulfill-need.select-other-need`,
+	SCR_UNLD_NEED_FULFILLED: `horizon.call.fulfill-need.end-span`
 };
 
 
@@ -130,7 +186,10 @@ export class HorizonTelemetry {
 			"search-client": null,
 			"add-caller": null,
 			"fulfill-need": null,
-			"stop-card": null
+			"stop-card": null,
+			"verify-caller": null,
+			"ita": null,
+			"xds": null
 		};
 
 	}
@@ -1000,8 +1059,291 @@ export class HorizonTelemetry {
 
 	// #endregion STOP CARD
 
+	// #region VERIFY CALLER
+	
+	/**
+	 * @typedef {Object} ScrLdVerifyCallerModel
+	 * @property {String} screen 
+	 */
+
+	/** Verify Caller screen loaded telemetry event
+	 * @screen Verify Caller
+	 * @event Screen Load: Verify Caller
+	 * 
+	 * @param {ScrLdVerifyCallerModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadVerifyCaller(baggage) {
+		const spanId = this.telemetry.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans[`horizon.call`],
+			eventName: TelemetryEvent.SCR_LD_VERIFY_CALLER,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_VERIFY_CALLER),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+ 		this.currentActiveSpans[`verify-caller`] = spanId; 
+		}
+	}
+
+
+	/**
+	 * @typedef {Object} VerifyCallerViaITAModel
+	 * @property {String} screen 
+	 */
+
+	/** ITA Verify Caller screen loaded telemetry event
+	 * @screen ITA Verify Caller
+	 * @event Screen Load: ITA Verify Caller
+	 * 
+	 * @param {VerifyCallerViaITAModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verifyCallerViaITA(baggage) {
+		const spanId = this.telemetry.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.VERIFY_CALLER,
+			tags: this._extractTags(TelemetryEvent.VERIFY_CALLER),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+ 		this.currentActiveSpans[`ita`] = spanId; 
+		}
+	}
+
+	/**
+	 * @typedef {Object} VerificationRequestSentModel
+	 * @property {String} screen
+	 */
+
+	/** Verification Request Sent telemetry event
+	 * @screen Verify Caller 
+	 * @event Verification Request Sent
+	 * 
+	 * @param {VerificationRequestSentModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationRequestSent(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.VERIFICATION_REQUEST_SENT,
+			tags: this._extractTags(TelemetryEvent.VERIFICATION_REQUEST_SENT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectSecurityQuestionsModel
+	 * @property {String} screen
+	 */
+
+	/** Select Security Questions telemetry event
+	 * @screen Verify Caller 
+	 * @nextScreen Verify Via Security Questions
+	 * @event Select Security Questions
+	 * 
+	 * @param {SelectSecurityQuestionsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectSecurityQuestions(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_SECURITY_QUESTIONS,
+			tags: this._extractTags(TelemetryEvent.SELECT_SECURITY_QUESTIONS),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SkipVerificationITAModel
+	 * @property {String} screen
+	 */
+
+	/** ITA Skip Veriification telemetry event
+	 * @screen Verify Caller 
+	 * @nextScreen Verify Via Security Questions
+	 * @event ITA Skip Verification
+	 * 
+	 * @param {SkipVerificationITAModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 skipVerificationITA(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: null,
+			eventName: TelemetryEvent.ITA_SKIP_VERIFICATION,
+			tags: this._extractTags(TelemetryEvent.ITA_SKIP_VERIFICATION),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} TryVerificationAgainModel
+	 * @property {String} screen
+	 */
+
+	/** ITA Skip Verification telemetry event
+	 * @screen Verify Caller 
+	 * @event Try Verification Again
+	 * 
+	 * @param {TryVerificationAgainModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 tryVerificationAgain(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.TRY_VERIFICATION_AGAIN,
+			tags: this._extractTags(TelemetryEvent.TRY_VERIFICATION_AGAIN),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} VerificationTimeoutModel
+	 * @property {String} screen
+	 */
+
+	/** Verification Timeout ITA telemetry event
+	 * @screen Verify Caller 
+	 * @event Verification Timeout
+	 * 
+	 * @param {VerificationTimeoutModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationTimeout(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.VERIFICATION_TIMEOUT,
+			tags: this._extractTags(TelemetryEvent.VERIFICATION_TIMEOUT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} VerificationFailedITAModel
+	 * @property {String} screen
+	 */
+
+	/** ITA Verification Failed telemetry event
+	 * @screen Verify Caller 
+	 * @event Verification Failed 
+	 * 
+	 * @param {VerificationFailedITAModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationFailedITA(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.VERIFICATION_FAILED,
+			tags: this._extractTags(TelemetryEvent.VERIFICATION_FAILED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} VerificationSuccessITAModel
+	 * @property {String} screen
+	 */
+
+	/** ITA Verification Success telemetry event
+	 * @screen Verify Caller 
+	 * @event Verification Success
+	 * 
+	 * @param {VerificationSuccessITAModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationSuccessITA(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.VERIFICATION_SUCCESS,
+			tags: this._extractTags(TelemetryEvent.VERIFICATION_SUCCESS),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+
+	/**
+	 * @typedef  {Object} ScrUnldVerifyCallerModel 
+	 * @property {String} screen 
+	 */
+
+	/** Verify Caller Screen Unload
+	 * @screen Verify Caller
+	 * @event Screen Unload: Verify Caller
+	 * 
+	 * @param {ScrUnldVerifyCallerModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	screenUnloadVerifyCaller(baggage) {
+		this.telemetry.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`ita`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.SCR_UNLD_VERIFY_CALLER,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_VERIFY_CALLER),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		this.currentActiveSpans[`ita`] = null;
+	}
+
+	// #endregion VERIFY CALLER
+
 	// #region END CALL SELECTED
-			/**
+		
+	/**
 	 * @typedef {Object} EndCallSelected
 	 * @property {String} screen
 	 * @property {String} nextScreen
@@ -1026,13 +1368,668 @@ export class HorizonTelemetry {
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
 			baggage: [
+					{ "screen": baggage.screen },
+					{ "nextScreen": baggage.nextScreen }
+				]
+		});
+	}
+	// #endregion END CALL SELECTED
+
+
+	// #region SECURITY QUESTIONS
+
+	/**
+	 * @typedef {Object} ScrLdSecurityQuestionsModel
+	 * @property {String} screen 
+	 */
+
+	/** Security Questions screen loaded telemetry event
+	 * @screen XDS Verify Caller
+	 * @event Screen Load: Security Questions
+	 * 
+	 * @param {ScrLdSecurityQuestionsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadSecurityQuestions(baggage) {
+		const spanId = this.telemetry.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.SCR_LD_SECURITY_QUESTIONS,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_SECURITY_QUESTIONS),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+ 		this.currentActiveSpans[`xds`] = spanId; 
+		}
+	}
+
+	/**
+	 * @typedef {Object} GoToNextQuestionModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Go to Next Question telemetry event
+	 * @screen Security Questions
+	 * @event Continue to Next Question
+	 * 
+	 * @param {GoToNextQuestionModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 goToNextQuestion(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: null,
+			eventName: TelemetryEvent.GO_TO_NEXT_QUESTION,
+			tags: this._extractTags(TelemetryEvent.GO_TO_NEXT_QUESTION),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	
+	/**
+	 * @typedef {Object} SkipVerificationXDSModel
+	 * @property {String} screen
+	 */
+
+	/** XDS Skip Veriification telemetry event
+	 * @screen Security Questions 
+	 * @nextScreen Favourites Unverified
+	 * @event XDS Skip Verification
+	 * 
+	 * @param {SkipVerificationXDSModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 skipVerificationXDS(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: null,
+			eventName: TelemetryEvent.XDS_SKIP_VERIFICATION,
+			tags: this._extractTags(TelemetryEvent.XDS_SKIP_VERIFICATION),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
 				{ "screen": baggage.screen },
 				{ "nextScreen": baggage.nextScreen }
 			]
 		});
 	}
-	// #endregion END CALL SELECTED
 	
+	/**
+	 * @typedef {Object} CancelSecurityQuestionsModel
+	 * @property {String} screen
+	 */
+
+	/** Cancel Security Questions telemetry event
+	 * @screen Security Questions 
+	 * @nextScreen Confirm Caller
+	 * @event Cancel Security Questions
+	 * 
+	 * @param {CancelSecurityQuestionsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 cancelSecurityQuestions(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: null,
+			eventName: TelemetryEvent.CANCEL_SECURITY_QUESTIONS,
+			tags: this._extractTags(TelemetryEvent.CANCEL_SECURITY_QUESTIONS),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SecurityQuestionsTryAgainModel
+	 * @property {String} screen
+	 */
+
+	/** Security Questions Try Again Verification telemetry event
+	 * @screen Security Questions
+	 * @event Security Questions Try Again
+	 * 
+	 * @param {SecurityQuestionsTryAgainModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 securityQuestionsTryAgain(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.SECURITY_QUESTIONS_TRY_AGAIN,
+			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_TRY_AGAIN),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} VerificationFailedXDSModel
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
+
+	/** Security Questions/XDS Verification Failed telemetry event
+	 * @screen Security Questions
+	 * @event XDS Verification Failed 
+	 * 
+	 * @param {VerificationFailedXDSModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationFailedXDS(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.SECURITY_QUESTIONS_FAILED,
+			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_FAILED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} VerificationSuccessXDSModel
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
+
+	/** Security Questions/XDS Verification Success telemetry event
+	 * @screen Security Questions
+	 * @event XDS Verification Success 
+	 * 
+	 * @param {VerificationSuccessXDSModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 verificationSuccessXDS(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: this.currentActiveSpans[`verify-caller`],
+			eventName: TelemetryEvent.SECURITY_QUESTIONS_PASSED,
+			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_PASSED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef  {Object} ScrUnldSecurityQuestionsModel 
+	 * @property {String} screen 
+	 */
+
+	/** Security Questions Screen Unload
+	 * @screen Security Questions
+	 * @event Screen Unload: Security Questions
+	 * 
+	 * @param {ScrUnldSecurityQuestionsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadSecurityQuestions(baggage) {
+		this.telemetry.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`xds`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		this.currentActiveSpans[`xds`] = null;
+	}
+
+	// #endregion SECURITY QUESTIONS
+
+	// #region FULFILL NEED
+
+	/**
+	 * @typedef {Object} ScrLdFulfillNeedModel
+	 * @property {String} screen 
+	 */
+
+	/** Fulfill need loaded telemetry event
+	 * @screen Favourite Transactions
+	 * @event Screen Load: Favourite Transactions
+	 * 
+	 * @param {ScrLdFulfillNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadFulfillNeed(baggage) {
+		const spanId = this.telemetry.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans[`horizon.call`],
+			eventName: TelemetryEvent.SCR_LD_FULFILL_NEED,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_FULFILL_NEED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+ 			this.currentActiveSpans[`fulfill-need`] = spanId; 
+		}
+	}
+
+	/** 
+	 * @typedef {Object} FavouriteTransactions
+	 */
+
+	/**
+	 * @typedef {Object} FavouriteTransactionsModel
+	 * @property {String} screen
+	 * @property {Number} debiChecksOutstanding
+	 */
+
+	/** Favourite Transactions screen load telemetry event
+	 * @screen Favourite Transactions
+	 * @event Favourite Transactions
+	 * 
+	 * @param {FavouriteTransactionsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	favouriteTransactions(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: this.currentActiveSpans[`horizon.call`],
+			eventName: TelemetryEvent.SCR_LD_FAVOURITES,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_FAVOURITES),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "debiChecksOutstanding": baggage.debiChecksOutstanding }
+			]
+		});
+	}
+	
+	/** 
+	 * @typedef {Object} DebiCheckAlert
+	 */
+
+	/**
+	 * @typedef {Object} DebiCheckAlertModel
+	 * @property {String} screen
+	 */
+
+	/** DebiCheckAlert screen load telemetry event
+	 * @screen Favourite Transactions
+	 * @event DebiCheck Alert
+	 * 
+	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckAlert(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBI_CHECK_ALERT,
+			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/** 
+	 * @typedef {Object} DebiCheckAlertdDismiss
+	 */
+
+	/**
+	 * @typedef {Object} DebiCheckAlertDismissModel
+	 * @property {String} screen
+	 */
+
+	/** DebiCheck Alert Dismiss screen load telemetry event
+	 * @screen Favourite Transactions
+	 * @event DebiCheck Alert Dismiss
+	 * 
+	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckAlertDismiss(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBI_CHECK_ALERT_DISMISS,
+			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT_DISMISS),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+	
+	/** 
+	 * @typedef {Object} DebiCheckAlertdAccept
+	 */
+
+	/**
+	 * @typedef {Object} DebiCheckAlertAcceptModel
+	 * @property {String} screen
+	 */
+
+	/** DebiCheck Alert Accept screen load telemetry event
+	 * @screen Favourite Transactions
+	 * @event DebiCheck Alert Accept
+	 * 
+	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckAlertAccept(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBI_CHECK_ALERT_ACCEPT,
+			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT_ACCEPT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectDebiCheckModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select DebiCheck telemetry event
+	 * @screen Favourite Transactions
+	 * @event DebiCheck
+	 * 
+	 * @param {SelectDebiCheckModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectDebiCheck(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_DEBI_CHECK,
+			tags: this._extractTags(TelemetryEvent.SELECT_DEBI_CHECK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectStopCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select StopCard telemetry event
+	 * @screen Favourite Transactions
+	 * @event DebiCheck
+	 * 
+	 * @param {SelectStopCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectStopCard(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_STOP_CARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_STOP_CARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectUpdateCardLimitsModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Update Card Limits telemetry event
+	 * @screen Favourite Transactions
+	 * @event Update Card Limits
+	 * 
+	 * @param {SelectUpdateCardLimitsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectUpdateCardLimits(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_UPDATE_CARD_LIMITS,
+			tags: this._extractTags(TelemetryEvent.SELECT_UPDATE_CARD_LIMITS),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectTapToPayModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select TAp To Pay telemetry event
+	 * @screen Favourite Transactions
+	 * @event Tap To Pay
+	 * 
+	 * @param {SelectTapToPayModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectTapToPay(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_TAP_TO_PAY,
+			tags: this._extractTags(TelemetryEvent.SELECT_TAP_TO_PAY),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectStatementsModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Statements telemetry event
+	 * @screen Favourite Transactions
+	 * @event Statements
+	 * 
+	 * @param {SelectStatementsModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectStatements(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_STATEMENTS,
+			tags: this._extractTags(TelemetryEvent.SELECT_STATEMENTS),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectTaxCertificateModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Tax Certificate telemetry event
+	 * @screen Favourite Transactions
+	 * @event Tax Certificate
+	 * 
+	 * @param {SelectTaxCertificateModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectTaxCertificate(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_TAX_CERTIFICATE,
+			tags: this._extractTags(TelemetryEvent.SELECT_TAX_CERTIFICATE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectProofOfAccountModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Proof Of Account telemetry event
+	 * @screen Favourite Transactions
+	 * @event Proof of Account
+	 * 
+	 * @param {SelectProofOfAccountModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectProofOfAccount(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_PROOF_OF_ACCOUNT,
+			tags: this._extractTags(TelemetryEvent.SELECT_PROOF_OF_ACCOUNT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} SelectSearchOtherNeedModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Search Other Need telemetry event
+	 * @screen Favourite Transactions
+	 * @event Search Other Need
+	 * 
+	 * @param {SelectSearchOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectSearchOtherNeed(baggage) {
+		this.telemetry.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_SEARCH_OTHER_NEED,
+			tags: this._extractTags(TelemetryEvent.SELECT_SEARCH_OTHER_NEED),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	
+	/** Screen Unload: Need Fulfilled
+	 * @screen Favourite Transactions
+	 * @event Screen Unload: Favourite Transactions
+	 * @returns { void } 
+	 */
+	 screenUnloadNeedFulfilled() {
+		this.telemetry.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans[`fulfill-need`],
+			parentSpan: this.currentActiveSpans[`horizon.call`],
+			eventName: TelemetryEvent.SCR_UNLD_NEED_FULFILLED,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_NEED_FULFILLED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+		});
+
+		this.currentActiveSpans[`fulfill-need`] = null;
+	}
+	// #endregion FULFILL NEED
+
 	// #endregion PUBLIC METHODS
 
 
