@@ -342,18 +342,23 @@ export class TransactionHistory extends Component {
 
     _refineSearch() {
 
-        this.filteredData = this.transactionHistory;
+        this.filteredData = this.transactionHistory;     
         if (RENDER_CHIPS[FILTER_BY.TEXT]) {
             const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
             const searchTextResult = searchText.map(key => {
                 if (key !== ``) {
-                    return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10));
+                    if (key.startsWith('-')) {
+                        return this.filteredData.filter(item => parseInt(item.amount, 10) === parseInt(key, 10));
+                    } else {
+                        
+                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10) || ((parseInt(item.amount, 10) * -1) === parseInt(key, 10)));
+                    }
+                   
                 }
                 return [];
-            });
-
-            this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
+            });            
+            this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
         }
 
         if (RENDER_CHIPS[FILTER_BY.DATE]) {
