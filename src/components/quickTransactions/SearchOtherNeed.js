@@ -31,26 +31,31 @@ const RENDER_MODE = Object.freeze({
 
 	constructor() {
 		super();
+
+		//Private Variables
+		this.isBusy = false;
+		this.chooseNeed = true;
+		this.chooseIssue = true;
+
+		//Private properties
+		this.orgUnit = `Client Care`;
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
+		this.solutionDisplay = false;
+		this.categories = null;
+		this.needs = null;
+		this.issues = null;
+		this.issuesObject = null;
+		this.solutionObject = null;
+
+		//Create Instances
 		this.horizonStore = HorizonStore.getInstance();
         this.state = this.horizonStore.recoverState();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.logger = Logger.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
-		this.isBusy = false;
-		this.chooseNeed = true;
-		this.chooseIssue = true;
-		this.orgUnit = `Client Care`;
-		this.category = ``;
-		this.need = ``;
-		this.issue = ``;
-		this.solutionDisplay = false;
-		this.searchObject = null;
-		this.specificNeedObject = null;
-		this.issueTypeObject = null;
-		this.issuesObject = null;
-		this.solutionObject = null;
-
 		this._configuration = Configuration.getInstance();
 	}
 	// --------------
@@ -72,9 +77,9 @@ const RENDER_MODE = Object.freeze({
 			chooseNeed: { type: Boolean },
 			chooseIssue: { type: Boolean },
 			solutionDisplay: { type: Boolean },
-			searchObject: { type: Object },
-			specificNeedObject: { type: Object },
-			issueTypeObject: { type: Object },
+			categories: { type: Object },
+			needs: { type: Object },
+			issues: { type: Object },
 			solutionObject: { type: Object },
 			issuesObject: {type: Object},
 			renderMode: { attribute: false }
@@ -91,7 +96,7 @@ const RENDER_MODE = Object.freeze({
 		const orgUnit = `Client Care`;
 		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
 		if (returnValue.succeeded && returnValue.result) {
-			this.searchObject = returnValue.result.categories;
+			this.categories = returnValue.result.categories;
 		} else {
 			this.logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
 		
@@ -132,7 +137,7 @@ const RENDER_MODE = Object.freeze({
 			}
 		}
 			if (returnValue.succeeded && returnValue.result) {
-				this.specificNeedObject = returnValue.result.needs.map(item => item.need);
+				this.needs = returnValue.result.needs.map(item => item.need);
 			} else {
 				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
@@ -153,7 +158,7 @@ const RENDER_MODE = Object.freeze({
 				if (returnValue.succeeded && returnValue.result) {
 					
 					this.issuesObject = returnValue.result.issues;
-					this.issueTypeObject = returnValue.result.issues.map(item => item.issue);
+					this.issues = returnValue.result.issues.map(item => item.issue);
 			} else {
 				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
@@ -344,7 +349,7 @@ const RENDER_MODE = Object.freeze({
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-select 
 					label="Search client need"
-					.items="${this.searchObject}"
+					.items="${this.categories}"
 					display-field="category"
 					id-field="category"
 					value = "${this.category}"
@@ -354,7 +359,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose specific need" 
-					.items="${this.specificNeedObject}"
+					.items="${this.needs}"
 					display-field="need"
 					id-field="need"
 					value="${live(this.need)}"
@@ -364,7 +369,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose issue type" 
-					.items="${this.issueTypeObject}"
+					.items="${this.issues}"
 					display-field="issue"
 					id-field="issues"
 					value="${live(this.issue)}"
