@@ -193,8 +193,8 @@ const RENDER_MODE = Object.freeze({
 			super.styles,
 			css`
 				.other-need {
-					height: 888px;
-					width: 1064px;
+					height: var(--horizon-panel-height, 888px);
+					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 				capitec-card > capitec-group:first-child {

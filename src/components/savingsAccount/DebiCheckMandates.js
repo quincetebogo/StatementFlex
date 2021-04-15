@@ -180,7 +180,7 @@ export class DebiCheckMandates extends Component {
 			css`
 				.debi-check {
 					height: 889px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					box-sizing: border-box;
 					border: 1px solid #E1E1E1;
 					border-radius: 5px;

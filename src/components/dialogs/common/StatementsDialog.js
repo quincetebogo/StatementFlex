@@ -472,8 +472,10 @@ export class StatementsDialog extends Component {
 
 	_getAvailableBal(type) {
 		const products = this.clientProducts.filter(item => item.category === type);
-		const availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
-
+		let availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+		
+		//Rounding off the decimal value
+		availableBalance = Math.round(availableBalance * 100)/100;
 		return formatCurrency(availableBalance);
 	}
 

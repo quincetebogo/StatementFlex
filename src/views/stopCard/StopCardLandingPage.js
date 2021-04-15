@@ -2,6 +2,7 @@ import { View, html } from 'platform/elements';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
@@ -62,6 +63,11 @@ export class StopCardLandingPage extends View {
 	// --------------
 
 	_stoppedCards(event) {
+		HorizonTelemetry.instance.stopCardOutcome({ 
+			screen: TelemetryScreen.STOP_CARD_OUTCOME, 
+			cards: event.detail.stoppedCards
+		});
+		
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
 
 		// The stop card incident can be closed if all cards were stopped successfully.
