@@ -1025,8 +1025,10 @@ export class HorizonTelemetry {
 			eventType: TelemetryEventType.PERSON,
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
-			baggage: [{ "screen": baggage.screen,
-				 		"nextScreen": baggage.nextScreen }]
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
 		});
 	}
 	// #endregion END CALL SELECTED
