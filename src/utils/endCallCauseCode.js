@@ -23,23 +23,14 @@ export class EndCallCauseCode {
 		this.causeCode.set(`VerifyClient`, {
 			"Need incomplete, bad connection": `ClientFailedSecurityCheck`
 		});
-		this.causeCode.set(`VerifyClient`, {
-			"Need assigned": `NormalEnquiry`
-		});
 		this.causeCode.set(`StopCard`, {
 			"Need fulfilled": `NormalEnquiry`
-		});
-		this.causeCode.set(`StopCard`, {
-			"Need assigned": `NormalEnquiry`
 		});
 		this.causeCode.set(`Transact`, {
 			"Need incomplete, bad connection": `NormalEnquiry`
 		});
 		this.causeCode.set(`Transact`, {
 			"Need fulfilled": `NormalEnquiry`
-		});
-		this.causeCode.set(`Transact`, {
-			"Need assigned": `NormalEnquiry`
 		});
 	}
 
