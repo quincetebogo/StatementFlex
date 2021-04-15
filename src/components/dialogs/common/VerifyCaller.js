@@ -479,6 +479,9 @@ export class VerifyCaller extends Component {
 					--theme-container-margin-bottom: 0px;
 					height: auto;
 				}
+				#notification-status-box > capitec-group {
+					--theme-layout-gap-spacing: 16px;
+				}
 				#notification-status-box > capitec-group > capitec-alert-banner {
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-info-border: none;
@@ -495,20 +498,21 @@ export class VerifyCaller extends Component {
 				#notification-status-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
+					margin-bottom: 30px;
 
 					--theme-label-title-font-size: 15px;
 				}
 				#notification-status-error-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
-					margin-bottom: 0px;
+					margin-bottom: 26px;
 
 					--theme-label-title-font-size: 15px;
 				}
 				.sms-svg{
 					height: 152px;
 					width: 210px;
-					margin: 15px 0px 8px 0px;
+					margin: 15px 0px 12px 0px;
 				}
 				.connection-error-svg {
 					height: 152px;
@@ -554,11 +558,11 @@ export class VerifyCaller extends Component {
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
-				.warning-svg, .connection-error-svg {
-					margin-top: 45px;
+				.warning-svg {
+					margin-top: 18px;
 				}
-				.foreign-client, .notification-info {
-					margin-bottom: 0px;
+				.foreign-client {
+					margin-bottom: 42px;
 				}
 			`
 		];
