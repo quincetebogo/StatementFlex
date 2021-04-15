@@ -17,20 +17,20 @@ import { Component, css, html } from 'platform/elements';
 
 export class HorizonRadioButtonGroup extends Component {
 
-	// --------------
-	// INITIALISATION
-	// --------------
+    // --------------
+    // INITIALISATION
+    // --------------
 
-	constructor() {
-		super();
-		this.label = ``;
-		this.selectedItem = ``;
-		this.radioButtonsAvailable = [];
-	}
+    constructor() {
+        super();
+        this.label = ``;
+        this.selectedItem = ``;
+        this.radioButtonsAvailable = [];
+    }
 
-	// ----------
-	// PROPERTIES
-	// ----------
+    // ----------
+    // PROPERTIES
+    // ----------
 
 	/**
 	 * Registry of all properties defined by the component.
@@ -38,113 +38,117 @@ export class HorizonRadioButtonGroup extends Component {
 	 * @property {String} [label] - The label string to display.
 	 */
 
-	static get properties() {
-		return {
-			label: { type: String },
-			radioButtonsAvailable: { type: Array },
-			selectedItem: { type: String }
-		};
-	}
+    static get properties() {
+        return {
+            label: { type: String },
+            radioButtonsAvailable: { type: Array },
+            selectedItem: { type: String }
+        };
+    }
 
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
+    // -------------------
+    // LIFECYCLE OVERRIDES
+    // -------------------
 
-	connectedCallback() {
-		super.connectedCallback();
-	}
+    connectedCallback() {
+        super.connectedCallback();
+    }
 
-	// --------------
-	// EVENT HANDLERS
-	// --------------
+    // --------------
+    // EVENT HANDLERS
+    // --------------
 
-	_onValueChange(event, item) {
-		this.selectedItem = item.value;
+    _onValueChange(event, item) {
+        this.selectedItem = item.value;
 
-		if (event.currentTarget.__checked) {
-			this.selectedReason = {
-				old: event.detail.old,
-				new: event.detail.new,
-				key: item.key,
-				value: item.value
-			};
-		}
+        if (event.returnValue) {
+            this.selectedReason = {
+                old: !event.returnValue,
+                new: event.returnValue,
+                key: item.key,
+                value: item.value
 
-		this.dispatchEvent(new CustomEvent(`value-change`, {
-			detail: {
-				old: this.selectedReason.old,
-				new: this.selectedReason.new,
-				key: this.selectedReason.key,
-				value: this.selectedReason.value
-			}
-		}));
+            };
+            
+        }
+        this.dispatchEvent(new CustomEvent(`value-change`, {
+            detail: {
+                old: this.selectedReason.old,
+                new: this.selectedReason.new,
+                key: this.selectedReason.key,
+                value: this.selectedReason.value
+            }
+        }));
 
-		event.stopPropagation();
-	}
+        event.stopPropagation();
+    }
 
-	// --------------
-	// PUBLIC METHODS
-	// --------------
+    // --------------
+    // PUBLIC METHODS
+    // --------------
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+    // ---------------
+    // PRIVATE METHODS
+    // ---------------
 
-	// ---------
-	// RENDERING
-	// ---------
+    // ---------
+    // RENDERING
+    // ---------
 
-	static get styles() {
-		return [
-			super.styles,
-			css`
+    static get styles() {
+        return [
+            super.styles,
+            css`
 				.radio-button-container {
 					margin: 8px 0px 0px 0px;
 					height: 48px;
 					padding: 0px;
 					box-sizing: border-box;
-					border-style: solid;
-					border-width: thin;
-					border-radius: 5px;
-					border-color: lightgrey;
+
 				}
 
-				.radio-button-label {
-					height:24px;
-					margin:11px 0px 10px 16px;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					color: #545D60;
-					line-height: 20px;
+				horizon-product-tile {
+					--theme-product-tile--height: 48px;
+					--theme-product-tile-title-height: 20px;
+					--theme-product-tile-title-font-size: 15px;
+					--theme-product-tile-subtitle-height: 20px;
+					--theme-product-tile-subtitle-font-size: 16px;
+					--theme-product-tile-heading-margin-left: 6px;
+					--theme-layout-gap-spacing: 8px;
+					--theme-product-tile-title-font-weight: 600;
 				}
+
 				
 				capitec-radio-group{
 					margin-bottom: var(--horizon-radio-button-group-margin-bottom, 41px);
 				}
 			}`
-		];
-	}
+        ];
+    }
 
-	_webTemplate() {
-		return html`
+    _webTemplate() {
+        return html`
 			<capitec-radio-group>
 					${this.radioButtonsAvailable.map((item) => this._renderRadioButton(item))}
 			</capitec-radio-group>
 		`;
-	}
+    }
 
-	_renderRadioButton(item) {
-		return html`
+    _renderRadioButton(item) {
+        return html`
 			<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-				<capitec-radio
-							class="radio-button-label"
-							label="${item.value}"
-							@value-change="${(event) => this._onValueChange(event, item)}"
-							?checked="${this.selectedItem === item.value}">
-				</capitec-radio>
+            <horizon-product-tile
+                class="radio-button-label"
+                type="radio-button"
+                label="${item.value}"
+                detail=""
+                @click="${(event) => this._onValueChange(event, item)}"
+                ?selected="${this.selectedItem === item.value}">
+            </horizon-product-tile>
+				
 			</capitec-group>
 		`;
-	}
+    }
 
 }
 
