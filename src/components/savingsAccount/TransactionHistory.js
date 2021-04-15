@@ -349,10 +349,9 @@ export class TransactionHistory extends Component {
             const searchTextResult = searchText.map(key => {
                 if (key !== ``) {
                     if (key.startsWith('-')) {
-                        return this.filteredData.filter(item => parseInt(item.amount, 10) === parseInt(key, 10));
-                    } else {
-                        
-                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10) || ((parseInt(item.amount, 10) * -1) === parseInt(key, 10)));
+                        return this.filteredData.filter(item => parseFloat(item.amount) == parseFloat(key));
+                    } else {                        
+                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseFloat(item.amount) === parseFloat(key) || ((parseFloat(item.amount) * -1) === parseFloat(key)));
                     }
                    
                 }
@@ -375,10 +374,6 @@ export class TransactionHistory extends Component {
         }
         this.requestUpdate();
     }
-
-    //_showCalendar() {
-    //    this.renderMode = RENDER_MODE.CALENDAR;
-    //}
 
     _formatDate(date) {
         const newdate = new Date(Date.parse(date));
