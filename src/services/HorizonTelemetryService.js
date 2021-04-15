@@ -1,5 +1,6 @@
+import { HorizonStore } from 'app/store/HorizonStore';
 import { SecurityContext } from 'platform/core';
-import { Telemetry } from '../mocks/Telemetry';
+import { Telemetry } from 'app/mocks/Telemetry';
 import { v4 } from 'uuid';
 
 /*
@@ -104,7 +105,7 @@ const TelemetryOutcome = {
  * @export
  * @class TelemetryService
  */
-export class HorizonTelemetry {
+export class HorizonTelemetry extends Telemetry {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
 	// #region INITIALISATION
@@ -116,13 +117,13 @@ export class HorizonTelemetry {
 	}
 
 	constructor() {
+		super();
 
 		if (this._instance) {
 			return this._instance;
 		}
 
-		this.telemetry = new Telemetry();
-
+		this._traceId = ``;
 		this.currentActiveSpans = {
 			"horizon.call": null,
 			"id-caller": null,
@@ -133,10 +134,29 @@ export class HorizonTelemetry {
 			"stop-card": null
 		};
 
+		this.horizonStore = new HorizonStore();
 	}
 
 	// #endregion INITIALISATION
 
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	set traceId(val) {
+		this._traceId = val;
+	}
+
+	get traceId() {
+		let traceID = ``;
+
+		if (!this._traceId) {
+			const state = this.horizonStore.recoverState();
+			const telemetryDetails = state && state.telemetryDetails;
+			traceID = telemetryDetails.traceId;
+		}
+		return this._traceId || traceID;
+	}
 
 	// #region PUBLIC METHODS
 	// --------------
@@ -151,6 +171,11 @@ export class HorizonTelemetry {
 	 */
 	newTrace(traceId = null) {
 		this.traceId = traceId || v4();
+		const telemetryDetails = {
+			traceId: this.traceId,
+			currentActiveSpans: this.currentActiveSpans
+		};
+		this.horizonStore.saveState({ telemetryDetails: telemetryDetails});
 	}
 
 
@@ -171,7 +196,7 @@ export class HorizonTelemetry {
 	 * @returns {void}
 	 */
 	incomingCall(baggage) {
-		const telemetryCallSpanId = this.telemetry.spanStart({
+		const telemetryCallSpanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: null,
 			eventName: TelemetryEvent.INCOMING_CALL,
@@ -207,7 +232,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	incidentCreated(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`horizon.call`],
 			parentSpan: null,
@@ -232,7 +257,7 @@ export class HorizonTelemetry {
 	 * @returns { void }
 	 */
 	workflowCompleted() {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`horizon.call`],
 			parentSpan: null,
@@ -257,7 +282,7 @@ export class HorizonTelemetry {
 	 * @returns { void }
 	 */
 	identifyCallerStarts() {
-		const idCallerSpanId = this.telemetry.spanStart({
+		const idCallerSpanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`horizon.call`],
 			eventName: TelemetryEvent.IDENTIFY_CALLER_STARTS,
@@ -278,7 +303,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	callerIdentified() {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`id-caller`],
 			parentSpan: null,
@@ -308,7 +333,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenLoadConfirmCaller(baggage) {
-		const spanId = this.telemetry.spanStart({
+		const spanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`id-caller`],
 			eventName: TelemetryEvent.SCR_LD_CONFIRM_CALLER,
@@ -347,7 +372,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	selectConfirmCaller(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`confirm-caller`],
 			parentSpan: null,
@@ -381,7 +406,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	selectSearchClient(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`confirm-caller`],
 			parentSpan: null,
@@ -412,7 +437,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	selectAddCallerDetails(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`confirm-caller`],
 			parentSpan: null,
@@ -442,7 +467,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadConfirmCaller(baggage) {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`confirm-caller`],
 			parentSpan: null,
@@ -475,7 +500,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenLoadAddCallerDetails(baggage) {
-		const spanId = this.telemetry.spanStart({
+		const spanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`id-caller`],
 			eventName: TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS,
@@ -506,7 +531,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	addCallerDetailsConfirm(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`add-caller`],
 			parentSpan: this.currentActiveSpans[`id-caller`],
@@ -537,7 +562,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	addCallerDetailsCancel(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`add-caller`],
 			parentSpan: this.currentActiveSpans[`id-caller`],
@@ -567,7 +592,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadAddCallerDetails(baggage) {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`add-caller`],
 			parentSpan: this.currentActiveSpans[`id-caller`],
@@ -599,7 +624,7 @@ export class HorizonTelemetry {
 	 */
 	
 	screenLoadSearchClient(baggage) {
-		const spanId = this.telemetry.spanStart({
+		const spanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`id-caller`],
 			eventName: TelemetryEvent.SCR_LD_SEARCH_CLIENT,
@@ -635,7 +660,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	selectSearchCapitecClient(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`search-client`],
 			parentSpan: this.currentActiveSpans[`id-caller`],
@@ -665,7 +690,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadSearchClient(baggage) {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`search-client`],
 			parentSpan: this.currentActiveSpans[`id-caller`],
@@ -698,7 +723,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	 screenLoadStopCard(baggage) {
-		const spanId = this.telemetry.spanStart({
+		const spanId = super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
 			eventName: TelemetryEvent.SCR_LD_STOP_CARD,
@@ -736,7 +761,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCard(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -766,7 +791,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	confirmStopCard(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -793,7 +818,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	cancelStopCard(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -820,7 +845,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	exitStopCard(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -840,7 +865,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadStopCard() {
-		this.telemetry.spanEnd({
+		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -874,7 +899,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCardOutcome(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -904,7 +929,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCardTryAgain(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -931,7 +956,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCardAssign(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -958,7 +983,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCardDone(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -985,7 +1010,7 @@ export class HorizonTelemetry {
 	 * @returns { void } 
 	 */
 	stopCardAnother(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`stop-card`],
 			parentSpan: this.currentActiveSpans[`fulfill-need`],
@@ -1016,7 +1041,7 @@ export class HorizonTelemetry {
 	 */
 
 	endCallSelected(baggage) {
-		this.telemetry.event({
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans[`horizon.call`],
 			parentSpan: null,
@@ -1025,8 +1050,12 @@ export class HorizonTelemetry {
 			eventType: TelemetryEventType.PERSON,
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
-			baggage: [{ "screen": baggage.screen,
-				 		"nextScreen": baggage.nextScreen }]
+			baggage: [
+				{
+					"screen": baggage.screen,
+					"nextScreen": baggage.nextScreen
+				}
+			]
 		});
 	}
 	// #endregion END CALL SELECTED
