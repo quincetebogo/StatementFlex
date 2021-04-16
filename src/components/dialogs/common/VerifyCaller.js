@@ -332,6 +332,7 @@ export class VerifyCaller extends Component {
 		};
 		this.horizonStore.saveState(state);
 		this.itaMessage = `System error. Please try again later`;
+		this.itaVerificationFailed = true;
 
 		return true;
 	}
@@ -662,12 +663,12 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage && !this.xdsMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.xdsMessage) {
 
 			let message = ``;
 			if (this.appTimedOut) {
 				message = `The client did not accept the notification in time`;
-			} else if (this.itaVerificationFailed) {
+			} else if (this.itaVerificationFailed && !this.itaMessage) {
 				message = `The client rejected the notification`;
 			} else {
 				message = `The notification didn't send due to a system error.`;
@@ -774,7 +775,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderForeignClientCannotBeVerified() {
-		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
+		if (!this.callerInformation.hasDigitalChannels && this.isForeignClient) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
