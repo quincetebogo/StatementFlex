@@ -1128,7 +1128,7 @@ export class HorizonTelemetry extends Telemetry {
 	 screenLoadVerifyCaller(baggage) {
 		const spanId = this.telemetry.spanStart({
 			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans[`horizon.call`],
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_VERIFY_CALLER,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_VERIFY_CALLER),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1138,7 +1138,7 @@ export class HorizonTelemetry extends Telemetry {
 		});
 
 		if (spanId) {
- 		this.currentActiveSpans[`verify-caller`] = spanId; 
+ 		this.currentActiveSpans.set(`verify-caller`, spanId); 
 		}
 	}
 
@@ -1158,7 +1158,7 @@ export class HorizonTelemetry extends Telemetry {
 	 verifyCallerViaITA(baggage) {
 		const spanId = this.telemetry.spanStart({
 			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFY_CALLER,
 			tags: this._extractTags(TelemetryEvent.VERIFY_CALLER),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1168,7 +1168,7 @@ export class HorizonTelemetry extends Telemetry {
 		});
 
 		if (spanId) {
- 		this.currentActiveSpans[`ita`] = spanId; 
+ 		this.currentActiveSpans.set(`ita`, spanId); 
 		}
 	}
 
@@ -1187,8 +1187,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationRequestSent(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFICATION_REQUEST_SENT,
 			tags: this._extractTags(TelemetryEvent.VERIFICATION_REQUEST_SENT),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1214,7 +1214,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectSecurityQuestions(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
+			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_SECURITY_QUESTIONS,
 			tags: this._extractTags(TelemetryEvent.SELECT_SECURITY_QUESTIONS),
@@ -1244,7 +1244,7 @@ export class HorizonTelemetry extends Telemetry {
 	 skipVerificationITA(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
+			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: null,
 			eventName: TelemetryEvent.ITA_SKIP_VERIFICATION,
 			tags: this._extractTags(TelemetryEvent.ITA_SKIP_VERIFICATION),
@@ -1273,8 +1273,8 @@ export class HorizonTelemetry extends Telemetry {
 	 tryVerificationAgain(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.TRY_VERIFICATION_AGAIN,
 			tags: this._extractTags(TelemetryEvent.TRY_VERIFICATION_AGAIN),
 			eventType: TelemetryEventType.PERSON,
@@ -1299,8 +1299,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationTimeout(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFICATION_TIMEOUT,
 			tags: this._extractTags(TelemetryEvent.VERIFICATION_TIMEOUT),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1325,8 +1325,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationFailedITA(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFICATION_FAILED,
 			tags: this._extractTags(TelemetryEvent.VERIFICATION_FAILED),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1351,8 +1351,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationSuccessITA(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFICATION_SUCCESS,
 			tags: this._extractTags(TelemetryEvent.VERIFICATION_SUCCESS),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1378,8 +1378,8 @@ export class HorizonTelemetry extends Telemetry {
 	screenUnloadVerifyCaller(baggage) {
 		this.telemetry.spanEnd({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`ita`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`ita`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SCR_UNLD_VERIFY_CALLER,
 			tags: this._extractTags(TelemetryEvent.SCR_UNLD_VERIFY_CALLER),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1388,7 +1388,7 @@ export class HorizonTelemetry extends Telemetry {
 			baggage: [{ "screen": baggage.screen }]
 		});
 
-		this.currentActiveSpans[`ita`] = null;
+		this.currentActiveSpans.set(`ita`, null);
 	}
 
 	// #endregion VERIFY CALLER
@@ -1427,8 +1427,6 @@ export class HorizonTelemetry extends Telemetry {
 	// #endregion END CALL SELECTED
 
 
-
-
 	// #region SECURITY QUESTIONS
 
 	/**
@@ -1446,7 +1444,7 @@ export class HorizonTelemetry extends Telemetry {
 	 screenLoadSecurityQuestions(baggage) {
 		const spanId = this.telemetry.spanStart({
 			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SCR_LD_SECURITY_QUESTIONS,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_SECURITY_QUESTIONS),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1456,7 +1454,7 @@ export class HorizonTelemetry extends Telemetry {
 		});
 
 		if (spanId) {
- 		this.currentActiveSpans[`xds`] = spanId; 
+ 		this.currentActiveSpans.set(`xds`, spanId); 
 		}
 	}
 
@@ -1476,7 +1474,7 @@ export class HorizonTelemetry extends Telemetry {
 	 goToNextQuestion(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
+			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
 			eventName: TelemetryEvent.GO_TO_NEXT_QUESTION,
 			tags: this._extractTags(TelemetryEvent.GO_TO_NEXT_QUESTION),
@@ -1507,7 +1505,7 @@ export class HorizonTelemetry extends Telemetry {
 	 skipVerificationXDS(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
+			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
 			eventName: TelemetryEvent.XDS_SKIP_VERIFICATION,
 			tags: this._extractTags(TelemetryEvent.XDS_SKIP_VERIFICATION),
@@ -1520,6 +1518,7 @@ export class HorizonTelemetry extends Telemetry {
 			]
 		});
 	}
+
 	/**
 	 * @typedef {Object} SkipVerificationXDSModel
 	 * @property {String} screen
@@ -1536,7 +1535,7 @@ export class HorizonTelemetry extends Telemetry {
 	 skipVerificationXDS(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
+			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
 			eventName: TelemetryEvent.XDS_SKIP_VERIFICATION,
 			tags: this._extractTags(TelemetryEvent.XDS_SKIP_VERIFICATION),
@@ -1566,7 +1565,7 @@ export class HorizonTelemetry extends Telemetry {
 	 cancelSecurityQuestions(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
+			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
 			eventName: TelemetryEvent.CANCEL_SECURITY_QUESTIONS,
 			tags: this._extractTags(TelemetryEvent.CANCEL_SECURITY_QUESTIONS),
@@ -1595,8 +1594,8 @@ export class HorizonTelemetry extends Telemetry {
 	 securityQuestionsTryAgain(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`xds`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SECURITY_QUESTIONS_TRY_AGAIN,
 			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_TRY_AGAIN),
 			eventType: TelemetryEventType.PERSON,
@@ -1622,8 +1621,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationFailedXDS(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`xds`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SECURITY_QUESTIONS_FAILED,
 			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_FAILED),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1652,8 +1651,8 @@ export class HorizonTelemetry extends Telemetry {
 	 verificationSuccessXDS(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
-			parentSpan: this.currentActiveSpans[`verify-caller`],
+			spanId: this.currentActiveSpans.get(`xds`),
+			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SECURITY_QUESTIONS_PASSED,
 			tags: this._extractTags(TelemetryEvent.SECURITY_QUESTIONS_PASSED),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1681,7 +1680,7 @@ export class HorizonTelemetry extends Telemetry {
 	 screenUnloadSecurityQuestions(baggage) {
 		this.telemetry.spanEnd({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`xds`],
+			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS,
 			tags: this._extractTags(TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS),
@@ -1691,7 +1690,7 @@ export class HorizonTelemetry extends Telemetry {
 			baggage: [{ "screen": baggage.screen }]
 		});
 
-		this.currentActiveSpans[`xds`] = null;
+		this.currentActiveSpans.set(`xds`, null);
 	}
 
 	// #endregion SECURITY QUESTIONS
@@ -1713,7 +1712,7 @@ export class HorizonTelemetry extends Telemetry {
 	 screenLoadFulfillNeed(baggage) {
 		const spanId = this.telemetry.spanStart({
 			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans[`horizon.call`],
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_FULFILL_NEED,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_FULFILL_NEED),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1723,7 +1722,7 @@ export class HorizonTelemetry extends Telemetry {
 		});
 
 		if (spanId) {
- 			this.currentActiveSpans[`fulfill-need`] = spanId; 
+ 			this.currentActiveSpans.set(`fulfill-need`, spanId); 
 		}
 	}
 
@@ -1747,8 +1746,8 @@ export class HorizonTelemetry extends Telemetry {
 	favouriteTransactions(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
-			parentSpan: this.currentActiveSpans[`horizon.call`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_FAVOURITES,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_FAVOURITES),
 			eventType: TelemetryEventType.SYSTEM,
@@ -1780,7 +1779,7 @@ export class HorizonTelemetry extends Telemetry {
 	 debiCheckAlert(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.DEBI_CHECK_ALERT,
 			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT),
@@ -1810,7 +1809,7 @@ export class HorizonTelemetry extends Telemetry {
 	 debiCheckAlertDismiss(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.DEBI_CHECK_ALERT_DISMISS,
 			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT_DISMISS),
@@ -1840,7 +1839,7 @@ export class HorizonTelemetry extends Telemetry {
 	 debiCheckAlertAccept(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.DEBI_CHECK_ALERT_ACCEPT,
 			tags: this._extractTags(TelemetryEvent.DEBI_CHECK_ALERT_ACCEPT),
@@ -1867,7 +1866,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectDebiCheck(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_DEBI_CHECK,
 			tags: this._extractTags(TelemetryEvent.SELECT_DEBI_CHECK),
@@ -1897,7 +1896,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectStopCard(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_STOP_CARD,
 			tags: this._extractTags(TelemetryEvent.SELECT_STOP_CARD),
@@ -1927,7 +1926,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectUpdateCardLimits(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_UPDATE_CARD_LIMITS,
 			tags: this._extractTags(TelemetryEvent.SELECT_UPDATE_CARD_LIMITS),
@@ -1957,7 +1956,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectTapToPay(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_TAP_TO_PAY,
 			tags: this._extractTags(TelemetryEvent.SELECT_TAP_TO_PAY),
@@ -1987,7 +1986,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectStatements(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_STATEMENTS,
 			tags: this._extractTags(TelemetryEvent.SELECT_STATEMENTS),
@@ -2017,7 +2016,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectTaxCertificate(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_TAX_CERTIFICATE,
 			tags: this._extractTags(TelemetryEvent.SELECT_TAX_CERTIFICATE),
@@ -2047,7 +2046,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectProofOfAccount(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_PROOF_OF_ACCOUNT,
 			tags: this._extractTags(TelemetryEvent.SELECT_PROOF_OF_ACCOUNT),
@@ -2077,7 +2076,7 @@ export class HorizonTelemetry extends Telemetry {
 	 selectSearchOtherNeed(baggage) {
 		this.telemetry.event({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
 			eventName: TelemetryEvent.SELECT_SEARCH_OTHER_NEED,
 			tags: this._extractTags(TelemetryEvent.SELECT_SEARCH_OTHER_NEED),
@@ -2100,15 +2099,15 @@ export class HorizonTelemetry extends Telemetry {
 	 screenUnloadNeedFulfilled() {
 		this.telemetry.spanEnd({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans[`fulfill-need`],
-			parentSpan: this.currentActiveSpans[`horizon.call`],
+			spanId: this.currentActiveSpans.get(`fulfill-need`),
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_UNLD_NEED_FULFILLED,
 			tags: this._extractTags(TelemetryEvent.SCR_UNLD_NEED_FULFILLED),
 			eventType: TelemetryEventType.SYSTEM,
 			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
 		});
 
-		this.currentActiveSpans[`fulfill-need`] = null;
+		this.currentActiveSpans.set(`fulfill-need`, null);
 	}
 	// #endregion FULFILL NEED
 
