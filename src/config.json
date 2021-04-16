@@ -25,6 +25,10 @@
 			"primaryNeed": "StopCard"
 		},
 		{
+			"option": "11",
+			"primaryNeed": "StopCard"
+		},
+		{
 			"option": "3",
 			"primaryNeed": "Transact"
 		},
@@ -82,7 +86,7 @@
 		},
 		"stopCard": {
 			"enabled": false,
-			"failStopCard": true,
+			"failStopCard": false,
 			"positiveCase": true
 		},
 		"transactionHistory": {

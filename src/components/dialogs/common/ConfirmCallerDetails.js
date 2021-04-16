@@ -7,6 +7,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -108,6 +109,19 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initCallerInformation();
+
+		HorizonTelemetry.instance.screenLoadConfirmCaller({
+			screen 				: TelemetryScreen.CONFIRM_CALLER,
+			initialPrimaryNeed 	: null,
+			initialSpecificNeed : this.incomingCallDetails.ivrOption.value,
+			initialClientCif 	: this.confirmedCaller.cifNumber,
+		});
+	}
+
+	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadConfirmCaller({
+			screen : TelemetryScreen.CONFIRM_CALLER
+		});
 	}
 
 	// --------------
@@ -115,6 +129,8 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	async _addCallerDetailsClick() {
+		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+
 		const callDetails = {
 			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
@@ -163,6 +179,14 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_confirmClick() {
+		HorizonTelemetry.instance.selectConfirmCaller({
+			screen		: TelemetryScreen.CONFIRM_CALLER,
+			nextScreen	: null,
+			confirmedClientCif 		: this.callerInformation.cifNumber,
+			confirmedPrimaryNeed	: null,
+			confirmedSpecificNeed 	: this.incomingCallDetails.ivrOptionCode
+		});
+
 		const stopCard = () => this._navigateToLandingPage();
 		const productEnquiry = () => this._navigateToLandingPage();
 		const transact = () => this._verifyCaller();
@@ -235,6 +259,10 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_searchClick() {
+		HorizonTelemetry.instance.selectSearchClient({ 
+			screen : TelemetryScreen.CONFIRM_CALLER
+		});
+
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 		} else {

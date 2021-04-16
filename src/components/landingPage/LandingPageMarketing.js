@@ -21,7 +21,7 @@ export class LandingPageMarketing extends Component {
 			super.styles,
 			css`
 				.landingpage-marketing-img{
-					width: 320px;
+					width: var(--horizon-right-panel-width, 320px);
 					height: 876px;
 				}`
 		];

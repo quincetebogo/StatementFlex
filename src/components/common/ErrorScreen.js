@@ -72,7 +72,7 @@ export class ErrorScreen extends Component {
 				}
 				.card {
 					height: var(--horizon-error-screen-height, 876px);
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				#id-unsuccessful-img {
 					margin-top: 174px;
