@@ -61,6 +61,10 @@ export class HorizonRadioButtonGroup extends Component {
     _onValueChange(event, item) {
         this.selectedItem = item.value;
 
+        this.shadowRoot.querySelectorAll(`.radio-button-label`).forEach((element) => {
+            element.checked = element.period === this.selectedItem;
+        });
+
         if (event.returnValue) {
             this.selectedReason = {
                 old: !event.returnValue,
@@ -134,7 +138,7 @@ export class HorizonRadioButtonGroup extends Component {
 		`;
     }
 
-    _renderRadioButton(item) {
+    _renderRadioButton(item) {        
         return html`
 			<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
             <horizon-product-tile

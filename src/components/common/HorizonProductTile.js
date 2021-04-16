@@ -78,8 +78,10 @@ export class HorizonProductTile extends Component {
 	 * @ignore
 	 * @returns {void}
 	 */
-	_tileClicked(event) {
+    _tileClicked(event) {
 
+        this._updateButton(this.label);
+        
 		// Ignore the event if the component is disabled.
 		if (this.disabled) {
 			return event.stopImmediatePropagation();
@@ -93,6 +95,15 @@ export class HorizonProductTile extends Component {
 		event.stopPropagation();
 	}
 
+
+    _updateButton(value) {
+        this.selectedVal = value;
+
+        this.shadowRoot.querySelectorAll(`.radio-icon`).forEach((element) => {
+            element.checked = element.period === this.selectedVal;
+        });
+        //debugger
+    }
 	/**
 	 * Handles component key down events.
 	 * 
@@ -377,7 +388,7 @@ export class HorizonProductTile extends Component {
 		return html`
 			<button 
 				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
-				@click="${this._tileClicked}}"
+				@click="${(e)=> this._tileClicked(e)}}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">
@@ -395,20 +406,28 @@ export class HorizonProductTile extends Component {
 					</div>
 			</button>
 		`;
-	}
+	} 
 
-	_renderProduct() {
-
-		if (this.type === `radio-button`) {
+	_renderProduct() {        
+        if (this.type === `radio-button`) {
+            
 			return html`
 				<div class="product radion-button">
-					<capitec-radio
-						label=""
-						?checked="${this.selected}"
-						@click="${this._tileClicked}}">
-					</capitec-radio>
+                    <capitec-radio-group>
+					    <capitec-radio
+						    label=""
+                            class = "radio-icon"
+						    ?checked="${this.selectedVal===this.label}"
+@value-change="${(e)=> this._tileClicked(e)}">
+					    </capitec-radio>
+                    </capitec-radio-group>
 				</div>
 			`;
+
+//            return html`
+//<capitec-group layout="horizontal">
+//<capitec-card @click = ""
+//`;
 		}
 
 		return html`
