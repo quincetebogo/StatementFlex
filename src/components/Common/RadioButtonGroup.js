@@ -59,12 +59,6 @@ export class HorizonRadioButtonGroup extends Component {
     // --------------
 
     _onValueChange(event, item) {
-        this.selectedItem = item.value;
-
-        this.shadowRoot.querySelectorAll(`.radio-button-label`).forEach((element) => {
-            element.checked = element.period === this.selectedItem;
-        });
-
         if (event.returnValue) {
             this.selectedReason = {
                 old: !event.returnValue,

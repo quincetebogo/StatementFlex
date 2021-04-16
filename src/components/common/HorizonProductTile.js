@@ -41,7 +41,7 @@ export class HorizonProductTile extends Component {
 		this.navigational = false;
 		this.detailIcon = false;
 		this.icon = ``;
-		this.selected = false;
+        this.selected = false;
 	}
 
 	/**
@@ -80,8 +80,9 @@ export class HorizonProductTile extends Component {
 	 */
     _tileClicked(event) {
 
-        this._updateButton(this.label);
-        
+        this.shadowRoot.querySelectorAll(`.radio-icon`).forEach((element) => {
+            element.checked = element.period != this.selected;
+        });
 		// Ignore the event if the component is disabled.
 		if (this.disabled) {
 			return event.stopImmediatePropagation();
@@ -94,16 +95,6 @@ export class HorizonProductTile extends Component {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
 	}
-
-
-    _updateButton(value) {
-        this.selectedVal = value;
-
-        this.shadowRoot.querySelectorAll(`.radio-icon`).forEach((element) => {
-            element.checked = element.period === this.selectedVal;
-        });
-        //debugger
-    }
 	/**
 	 * Handles component key down events.
 	 * 
@@ -417,8 +408,8 @@ export class HorizonProductTile extends Component {
 					    <capitec-radio
 						    label=""
                             class = "radio-icon"
-						    ?checked="${this.selectedVal===this.label}"
-@value-change="${(e)=> this._tileClicked(e)}">
+						    ?checked="${this.selected}"
+                            @value-change="${(e)=> this._tileClicked(e)}">
 					    </capitec-radio>
                     </capitec-radio-group>
 				</div>
