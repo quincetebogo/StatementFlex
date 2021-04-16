@@ -226,7 +226,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 				capitec-content-box {
 					height: auto;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.verified-existing-client-cb {
 					--theme-container-padding-left: 24px;
