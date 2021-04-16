@@ -40,7 +40,7 @@ export class ViewBase extends View {
 
 		if (Object.hasOwnProperty.call(state, `callerInformation`)) {
 			this.callerInformation = state.callerInformation;
-			this.verificationStatus = this.callerInformation.verificationStatus;
+			this.verificationStatus = state.callerInformation.verificationStatus;
 		} else {
 			this.callerInformation = null;
 		}
