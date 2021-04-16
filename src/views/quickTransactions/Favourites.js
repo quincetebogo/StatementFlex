@@ -95,7 +95,7 @@ export class Favourites extends View {
 		this.curOptionEvent = null;
 		this.cards = [];
 		this.debiCheckDetails = {};
-		this.clientProducts = {};
+		this.clientProducts = [];
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
