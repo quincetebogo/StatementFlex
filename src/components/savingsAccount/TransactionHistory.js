@@ -80,7 +80,7 @@ export class TransactionHistory extends Component {
         this.filteredData = [];
         this.rawTableData = [];
         this.searchTextLabel = `Search for amount or transaction name`;
-        this.statuslabel = `Transaction Status`;
+        this.statuslabel = `Transaction status`;
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
@@ -294,7 +294,7 @@ export class TransactionHistory extends Component {
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
         this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
-        this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction Status` : ``;
+        this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction status` : ``;
         if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
