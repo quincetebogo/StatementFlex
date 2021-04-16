@@ -59,6 +59,8 @@ export class HorizonRadioButtonGroup extends Component {
     // --------------
 
     _onValueChange(event, item) {
+        this.selectedItem = item.value;
+
         if (event.returnValue) {
             this.selectedReason = {
                 old: !event.returnValue,
@@ -135,15 +137,14 @@ export class HorizonRadioButtonGroup extends Component {
     _renderRadioButton(item) {        
         return html`
 			<capitec-group class="radio-button-container" layout="vertical" gap="clear" halign="stretch" valign="center">
-            <horizon-product-tile
-                class="radio-button-label"
-                type="radio-button"
-                label="${item.value}"
-                detail=""
-                @click="${(event) => this._onValueChange(event, item)}"
-                ?selected="${this.selectedItem === item.value}">
-            </horizon-product-tile>
-				
+                <horizon-product-tile
+                    class="radio-button-label"
+                    type="radio-button"
+                    label="${item.value}"
+                    detail=""
+					@click="${(event) => this._onValueChange(event, item)}"
+                    ?selected="${this.selectedItem === item.value}">
+                </horizon-product-tile>
 			</capitec-group>
 		`;
     }
