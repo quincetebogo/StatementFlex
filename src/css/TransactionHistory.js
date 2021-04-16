@@ -55,7 +55,31 @@ export const EXPANDER_LABEL = `margin:5px 0px 15px 0px;
 					letter-spacing: 0;
 					line-height: 20px;`;
 
+const tableHeaderGroup = `height: 48px; 
+					background-color: #F5F5F5; 
+					width: 1063px; z-index: 10; 
+					position: absolute; 
+					border-bottom: 1px solid #E1E1E1;`;
+
+const tableHeaderLabel = `height: 48px;
+					margin-left: 16px;
+					line-height: 48px;
+					font-size: 14px;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-weight: 600;`;
+
+const headings ={
+					transactionDate: `width: 147px; `,
+					description: `width: 408px;`,
+					transactionStatus: `width: 212px;`,
+					amount: `width: 120px;` 
+};
+
 export const TABLE_EXPANDER_CELL = {
+	headerGroup: tableHeaderGroup,
+	headerLabel: tableHeaderLabel,
+	tableHeadings: headings,
 	firstcolumn: firstcolumn,
 	expanderColumns: expanderColumns,
 	expanderCell: expanderCell

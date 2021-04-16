@@ -1,7 +1,9 @@
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';

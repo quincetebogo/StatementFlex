@@ -506,12 +506,13 @@ export class TransactionHistory extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-layout-gap-line-color: 0px;
-					height: 679px;
+					height: 661px;
 					width: auto;
 				}
 				capitec-table{
 					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
+					margin-top: 5px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;
@@ -560,6 +561,7 @@ export class TransactionHistory extends Component {
                 capitec-date-time-picker{
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
+					--theme-date-time-picker-range-calendar-border: 0px;
                     margin-right: 8px;
                     width: 280px;
                 }
@@ -580,6 +582,7 @@ export class TransactionHistory extends Component {
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id = "transactions-table">
+					${this._renderTableHeader()}
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
 				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
@@ -744,9 +747,40 @@ export class TransactionHistory extends Component {
         }
     }
 
+	_renderTableHeader(){
+		return html`
+			<capitec-group layout="horizontal" halign="left" valign="center" style="${unsafeCSS(TABLE_EXPANDER_CELL.headerGroup)}">
+				<capitec-label 	label="Transaction Date"
+								row="1" 
+								column="1"
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.transactionDate)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
+				</capitec-label>
+				<capitec-label label="Description"
+								row="1" 
+								column="2"
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.description)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
+				</capitec-label>
+				<capitec-label label="Transaction Status"
+								row="1" 
+								column="3"
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.transactionStatus)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
+				</capitec-label>
+				<capitec-label label="Amount"
+								row="1" 
+								column="4"
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.amount)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
+				</capitec-label>
+				<capitec-label label="Balance"
+								row="1" 
+								column="5"
+								style="${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
+				</capitec-label>
+			</capitec-group>`;
+	}
+
     _renderTransactionHistory() {
         return html`
-			<capitec-table
+		<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
