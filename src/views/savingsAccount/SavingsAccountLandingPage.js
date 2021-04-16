@@ -331,8 +331,12 @@ export class SavingsAccountLandingPage extends ViewBase {
 			`;
 	}
 
-			${super._webTemplate()}`;
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
+	
 
 	_renderSavingsLandingPage() {
 		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
