@@ -113,6 +113,7 @@ export class HorizonActionBar extends Component {
 				}
 
 				horizon-label{
+					--theme-text-select: text;
 					--horizon-label-text-height: 16px;
 					--horizon-label-text-color: #969B9D;
 					--horizon-label-text-line-height: 16px;
