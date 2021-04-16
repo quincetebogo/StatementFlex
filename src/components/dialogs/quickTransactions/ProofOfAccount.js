@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -71,6 +72,17 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadProofOfAccount({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT
+		});
+	}
+
+	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadProofOfAccount({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT
+		});
 	}
 
 	// --------------
@@ -101,6 +113,17 @@ export class ProofOfAccount extends Component {
 				"accountType": ACCOUNT_TYPE
 			};
 
+			// Telemetry
+			HorizonTelemetry.instance.selectProofOfAccountSend({
+				screen: TelemetryScreen.PROOF_OF_ACCOUNT,
+				nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+			});
+
+			HorizonTelemetry.instance.proofOfAccountOutcome({
+				screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+				nextScreen: null
+			});
+
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
 			if (returnValue.succeeded) {
@@ -118,6 +141,12 @@ export class ProofOfAccount extends Component {
 	}
 
 	_cancelClick(e) {
+
+		HorizonTelemetry.instance.selectCancelProofOfAccount({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
