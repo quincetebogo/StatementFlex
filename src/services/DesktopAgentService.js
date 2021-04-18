@@ -1,4 +1,4 @@
-import { Configuration, EventAggregator, Logger, NavigationContext, SecurityContext } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -52,6 +52,17 @@ export class DesktopAgentService {
 			return this.instance;
 		}
 
+		
+		this._configuration = Configuration.getInstance();
+		this._eventAggregator = EventAggregator.getInstance();
+		this._logger = Logger.getInstance();
+		this._navigationContext = NavigationContext.getInstance();
+		this._security = Security.getInstance();
+		this._securityContext = SecurityContext.getInstance();
+
+		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.HorizonRouter = HorizonRouter.getInstance();
+
 		this.nextCall = null; // A pending call event
 		this.lastEventId = 0; // The last SSE ID recieved
 		this.onCall = false; // Indicates that the UI is still handling a call
@@ -59,16 +70,9 @@ export class DesktopAgentService {
 
 		this.registrationUrl = null;
 
+		// this.refreshTokenTime = new Date();
+
 		this._setValidationData();
-
-		this._configuration = Configuration.getInstance();
-		this._eventAggregator = EventAggregator.getInstance();
-		this._logger = Logger.getInstance();
-		this._navigationContext = NavigationContext.getInstance();
-		this._securityContext = SecurityContext.getInstance();
-
-		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.HorizonRouter = HorizonRouter.getInstance();
 
 		this._eventAggregator.subscribe(`landing-page-loaded`, () => this._onLandingPageLoaded());
 	}
@@ -95,6 +99,19 @@ export class DesktopAgentService {
 				this._eventAggregator.publish(`desktop-agent-up`, {});
 			}
 			this.connectionTries = 0;
+
+			// We tend to lose the first notification that arrives after an IDP token expires.
+			// This is because the logout/login process kicks in and resets everything
+			//
+			// Here we leverage the Desktop Agent heartbeat to keep the IDP token refreshed.
+			// As long as the hearbeat interval is less than the 30s token refresh window this
+			// should work nicely. This code should probably move onto a timer in the App Shell though.
+			if (!this.onCall) {
+				// The token will only actually get refreshed if this call lands in the 30s window
+				// before token expiry. Otherwise this call should have little effect.
+				this._security.ensureValidToken();
+			}
+
 			return;
 		}
 
@@ -136,7 +153,7 @@ export class DesktopAgentService {
 			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
 				
 				newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
-				this._logger.log(`error`, `No Voice Reference Number received!. The ACapitecAES Proxy component may be down!`, `_onNewCall`);
+				this._logger.log(`error`, `No Voice Reference Number received! The ACapitecAES Proxy component may be down!`, `_onNewCall`);
 			}
 
 			this.nextCall = newCallEvent;
@@ -320,8 +337,12 @@ export class DesktopAgentService {
 	}
 
 	_handleIncomingCall() {
-		// Don't handle incoming call if if application is still starting up
-		if (!this.nextCall || this._navigationContext.current === undefined) {
+		// Don't handle incoming call if if application is still starting up or if we already on a call
+		// If we have not completed the previous call, the new call will be buffered until returning
+		// to the call waiting landing page. The landing page must make use of the callComplete()
+		// method when reloading which will trigger the handling of the buffered call.
+		
+		if (!this.nextCall || this._navigationContext.current === undefined || this.onCall) {
 			return;
 		}
 
@@ -358,9 +379,8 @@ export class DesktopAgentService {
 	}
 
 	_waitingForCallPageActive() {
-		// TODO: Restore onCall check once all screens for insure etc. are properly wired up again
 		if (this._navigationContext.current !== undefined) {
-			return this._navigationContext.current.route.name === `horizon-landing-page`; /* && !this.onCall */
+			return this._navigationContext.current.route.name === `horizon-landing-page`;
 		}
 
 		return false;
