@@ -1,7 +1,6 @@
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
@@ -37,8 +36,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
@@ -51,7 +48,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 	
 		// private properites
 		this.loading = true;
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));

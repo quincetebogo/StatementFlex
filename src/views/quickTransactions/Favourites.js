@@ -19,6 +19,8 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 
+const SAVINGS_ACCOUNT_TYPE = 300;
+
 /**
  * The Quick Transactions Favourites Landing Page View
  *
@@ -40,16 +42,7 @@ export class Favourites extends ViewBase {
 
 		// Recover information from state
 		const state = this.horizonStore.recoverState();
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
-    
-
-		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+    		
 		// When returning from the success screen, check which page we should display
 		if (state.returnTo && state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -68,7 +61,7 @@ export class Favourites extends ViewBase {
 		this.curOptionEvent = null;
 		this.cards = [];
 		this.debiCheckDetails = {};
-		this.clientProducts = {};
+		this.clientProducts = [];
 
 		// Subscribe to shell events
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
@@ -306,6 +299,19 @@ export class Favourites extends ViewBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result.savingsProducts;
+		}
+		return [];
+	}
+
 	async _stopCard() {
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
@@ -372,10 +378,10 @@ export class Favourites extends ViewBase {
 	}
 
 	async _getStatements() {
-		const returnValue = await this.quickTransactionService.getClientProducts(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.clientProducts = returnValue.result && returnValue.result.savingsProducts;
+		const clientProductDetails = await this._getClientProducts();
+
+		if (clientProductDetails) {
+			this.clientProducts = clientProductDetails;
 			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
@@ -384,8 +390,19 @@ export class Favourites extends ViewBase {
 		// TODO: Functionality to generate tax certificate comes here
 	}
 
-	_proofOfAccount() {
-        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	async _proofOfAccount() {
+		// Temporary fix to get the account number using statements CS call as the account number field 
+		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
+		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
+			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+		}
 	}
 
 	_unavailableOption() {
@@ -529,10 +546,9 @@ export class Favourites extends ViewBase {
 			? html`
 				<horizon-proof-of-account
 					@cancel="${() => this._mainPage()}"
-					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}"
-                    ></horizon-proof-of-account>`
+					.landingPageInfo="${this.landingPageInfo}"
+					></horizon-proof-of-account>`
 			: html``;
     }
 

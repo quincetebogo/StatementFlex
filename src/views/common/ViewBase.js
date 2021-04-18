@@ -40,8 +40,13 @@ export class ViewBase extends View {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
+		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
+			this.isReassigned = state.isReassigned;
+		} else {
+			this.isReassigned = false;
+		}
+
 		this.isBusy = false;
-		this.isReassigned = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}

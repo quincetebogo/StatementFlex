@@ -25,21 +25,38 @@ const STATEMENTS_STEPS = [
 	}
 ];
 
-const ACCOUNT_TYPES = {
+const ACCOUNTS_ENUM = {
 	PRIMARY_SAVINGS: {
-		id: [300],
 		type: `PRIMARY_SAVINGS`,
-		label: `Savings Account`,
 		showPlans: false
 	},
 	FLEXIBLE_SAVINGS: {
-		id: [200, 201],
 		type: `FLEXIBLE_SAVINGS`,
-		label: `Savings Plans`,
 		showPlans: true
 	},
 	CREDIT: {
 		// Configure when ready
+	}
+};
+
+const ACCOUNT_INTCAT_ENUM = {
+	300: {
+		type: `PRIMARY_SAVINGS`,
+		category: `PRIMARY_SAVINGS`
+	},
+	200: {
+		type: `FLEXIBLE_SAVINGS`,
+		category: `FLEXIBLE_SAVINGS`
+	},
+	201: {
+		1: {
+			type: `FIXED_TERM_MULTIPLE_DEPOSITS`,
+			category: `FLEXIBLE_SAVINGS`
+		},
+		2: {
+			type: `FIXED_TERM_SINGLE_DEPOSIT`,
+			category: `FLEXIBLE_SAVINGS`
+		}
 	}
 };
 
@@ -50,7 +67,7 @@ const TIME_PERIOD = {
 		range: 30
 	},
 	THREE_MONHTS: {
-		value: `THREE_MONHT`,
+		value: `THREE_MONTH`,
 		label: `3 months`,
 		range: 90
 	},
@@ -92,6 +109,7 @@ export class StatementsDialog extends Component {
 	constructor() {
 		super();
 
+		this.isBusy = false;
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 0;
 		this.notifyClient = true;
@@ -136,6 +154,7 @@ export class StatementsDialog extends Component {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
 
+			isBusy: { attribute: false },
 			currentStep: { attribute: false },
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
@@ -204,10 +223,6 @@ export class StatementsDialog extends Component {
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
-		this.toDate = new Date();
-		this.fromDate = new Date();
-		this.fromDate.setDate(this.toDate.getDate() - TIME_PERIOD[range].range);
-
 		this._customDateRange = false;
 		this.errorMessage = ``;
 	}
@@ -224,39 +239,20 @@ export class StatementsDialog extends Component {
 	_showCalendar() {
 		this.showCalendar = !this.showCalendar;
 	}
-
-	_startDateChanged(e) {
-		if (e.detail.new.date) {
-			this.fromDate = this._formatDate(e.detail.new.date);
-			if (this._validateRangeSelected()) {
-				this.showCalendar = this.toDate === `dd mm yyyy`;
-				this.errorMessage = ``;
-			}
-		}
-	}
-
-	_endDateChanged(e) {
-		if (e.detail.new.date) {
-			this.toDate = this._formatDate(e.detail.new.date);
-			if (this._validateRangeSelected()) {
-				this.showCalendar = this.fromDate === `dd mm yyyy`;
-				this._summary.dateRangeLabel = `Choose date range`;
-				this.errorMessage = ``;
-			}
-
-		}
-	}
 	
 	_calendarSelectionChange(e) {
-		this.fromDate = new Date(e.detail.new.startDate);
-		this.toDate = new Date(e.detail.new.endDate);
-		const rangeDiff = Math.floor((this.toDate.getTime() - this.fromDate.getTime()) / (1000 * 3600 * 24));
-		if (rangeDiff > 90 || this.fromDate > this.toDate) {
+		const fromDate = new Date(e.detail.new.startDate);
+		const toDate = new Date(e.detail.new.endDate);
+		const rangeDiff = Math.floor((toDate.getTime() - fromDate.getTime()) / (1000 * 3600 * 24));
+		
+		if (rangeDiff > 90 || fromDate > toDate) {
 			this.errorMessage = `Out of range, please select the correct range up to 90 days`;
 			this.calendarErrorMessage = `Date range up to 90 days only`;
 		} else {
 			this.errorMessage = ``;
 			this.calendarErrorMessage = ``;
+			this.fromDate = e.detail.new.startDate.slice(0, 10);
+			this.toDate = e.detail.new.endDate.slice(0, 10);
 		}
 	}
 
@@ -299,13 +295,17 @@ export class StatementsDialog extends Component {
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
-				"dateRange": {
-					"startDate": this.fromDate,
-					"endDate": this.toDate
-				},
-				"presetInterval": ``
+				"dateRange": {},
+				"presetInterval": `${this.periodSelected}`
 			}
 		};
+
+		if (this._customDateRange) {
+			statement.statementDateRange.dateRange = {
+				"startDate": this.fromDate,
+				"endDate": this.toDate
+			};
+		}
 
 		const returnValue = await this.quickTransactionService.viewStatement(statement);
 		if (returnValue.succeeded) {
@@ -330,13 +330,17 @@ export class StatementsDialog extends Component {
 			"accountNumber": `${this.productSelected.accountNumber}`,
 			"accountType": this.productSelected.accountType,
 			"statementDateRange": {
-				"dateRange": {
-					"startDate": this.fromDate,
-					"endDate": this.toDate
-				},
-				"presetInterval": this.periodSelected || null
+				"dateRange": {},
+				"presetInterval": `${this.periodSelected}`
 			}
 		};
+
+		if (this._customDateRange) {
+			statement.statementDateRange.dateRange = {
+				"startDate": this.fromDate,
+				"endDate": this.toDate
+			};
+		}
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 
@@ -358,11 +362,14 @@ export class StatementsDialog extends Component {
 
 	_initialise() {
 		this.clientProducts = this.clientProducts.map(item => {
+			const account = ACCOUNT_INTCAT_ENUM[item.accountType];
 
-			if (ACCOUNT_TYPES.PRIMARY_SAVINGS.id.indexOf(item.accountType) !== -1) {
-				item.type = ACCOUNT_TYPES.PRIMARY_SAVINGS.type;
-			} else if (ACCOUNT_TYPES.FLEXIBLE_SAVINGS.id.indexOf(item.accountType) !== -1) {
-				item.type = ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type;
+			if (account && account[item.interestCategory]) {
+				item.type = account[item.interestCategory].type;
+				item.category = account[item.interestCategory].category;
+			} else {
+				item.type = account && account.type;
+				item.category = account && account.category;
 			}
 			return item;
 		});
@@ -376,7 +383,7 @@ export class StatementsDialog extends Component {
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Select an account`;
 			return false;
-		} else if (this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
+		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
 			this.errorMessage = `Select a plan`;
 			return false;
 		}
@@ -420,7 +427,6 @@ export class StatementsDialog extends Component {
 	}
 
 	_getSummary() {
-
 		if (this._customDateRange) {
 			const fromDate = new Date(this.fromDate);
 			const toDate = new Date(this.toDate);
@@ -432,11 +438,6 @@ export class StatementsDialog extends Component {
 		} else {
 			// do nothing
 		}
-	}
-
-	_formatDate(date) {
-		const myDate = new Date(date);
-		return `${myDate.getDate()} ${getMonthName(myDate.getMonth())} ${myDate.getFullYear()}`;
 	}
 
 	_getFullMonthName(date) {
@@ -460,20 +461,22 @@ export class StatementsDialog extends Component {
 		let product = {};
 
 		if (!isNullorEmpty(this.accPlanType)) {
-			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.type === this.accType);
+			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.category === this.accType);
 		} else {
-			product = this.clientProducts.find(item => item.type === this.accType);
+			product = this.clientProducts.find(item => item.category === this.accType);
 		}
 		return {
 			accountNumber: product.accountNumber,
-			accountType: this.accType
+			accountType: product.type
 		};
 	}
 
 	_getAvailableBal(type) {
-		const products = this.clientProducts.filter(item => item.type === type);
-		const availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
-
+		const products = this.clientProducts.filter(item => item.category === type);
+		let availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+		
+		// Rounding off the decimal value
+		availableBalance = Math.round(availableBalance * 100) / 100;
 		return formatCurrency(availableBalance);
 	}
 
@@ -695,7 +698,8 @@ export class StatementsDialog extends Component {
 					<div slot="footer">
 						${this._renderFooter()}
 					</div>
-			</bb-stepper-modal>`;
+			</bb-stepper-modal>
+			${this._renderLoadingIndicator()}`;
 	}
 
 	_renderContent() {
@@ -756,7 +760,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderSavingsAccountProduct() {
-		const savingsAccountProduct = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.PRIMARY_SAVINGS.type);
+		const savingsAccountProduct = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type);
 
 		return savingsAccountProduct
 			? html`
@@ -764,17 +768,17 @@ export class StatementsDialog extends Component {
 					class="product-transact"
 					type="default"
 					label="Savings Account"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
 					detail=""
 					icon="product/transact"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.PRIMARY_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNT_TYPES.PRIMARY_SAVINGS.type}">
+					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNTS_ENUM.PRIMARY_SAVINGS.type}">
 				</horizon-product-tile>`
 			: html``;
 	}
 
 	_renderSavingsPlanProduct() {
-		const savingsPlanProducts = this.clientProducts.some(item => item.type === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type);
+		const savingsPlanProducts = this.clientProducts.some(item => item.category === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type);
 
 		return savingsPlanProducts
 			? html`
@@ -782,18 +786,18 @@ export class StatementsDialog extends Component {
 					class="product-save"
 					type="default"
 					label="Savings Plans"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
+					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
 					detail=""
 					icon="product/save"
-					@click="${(e) => this._selectAccount(ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type)}"
-					?selected="${this.accType === ACCOUNT_TYPES.FLEXIBLE_SAVINGS.type}">
+					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
+					?selected="${this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type}">
 				</horizon-product-tile>`
 			: html``;
 	}
 
 	_renderPlans() {
-		const plans = this.clientProducts.filter(item => item.type === this.accType);
-		const showPlans = ACCOUNT_TYPES[this.accType] && ACCOUNT_TYPES[this.accType].showPlans;
+		const plans = this.clientProducts.filter(item => item.category === this.accType);
+		const showPlans = ACCOUNTS_ENUM[this.accType] && ACCOUNTS_ENUM[this.accType].showPlans;
 
 		return showPlans && plans.length > 0
 			? html`
@@ -808,7 +812,7 @@ export class StatementsDialog extends Component {
 						<horizon-product-tile 
 							type="radio-button"
 							label="${item.accountName}"
-							subtitle="Available balance: ${item.availableBalance}"
+							subtitle="Available balance: R${formatCurrency(item.availableBalance)}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item.accountName)}"
@@ -906,20 +910,20 @@ export class StatementsDialog extends Component {
 
 	_renderCalendar() {
 		if (this.showCalendar) {
-            return html`
-							<capitec-date-time-picker
-									class="calendar"
-									type="range"
-									mode="date"
-                                    label="Choose from and to date"
-                                    startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
-                                    endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
-									maxDate = "${this.today}"
-                                    error = "${this.calendarErrorMessage}"
-									inputType="calendar"
-									outputType="string"
-									@value-changed="${(e) => this._calendarSelectionChange(e)}">
-							</capitec-date-time-picker>
+			return html`
+				<capitec-date-time-picker
+					class="calendar"
+					type="range"
+					mode="date"
+					label="Choose from and to date"
+					startDate = "${this.fromDate === `dd mm yyyy` ? `` : this.fromDate}"
+					endDate = "${this.toDate === `dd mm yyyy` ? `` : this.toDate}"
+					maxDate = "${this.today}"
+					error = "${this.calendarErrorMessage}"
+					inputType="calendar"
+					outputType="string"
+					@value-changed="${(e) => this._calendarSelectionChange(e)}">
+				</capitec-date-time-picker>
 			`;
 		}
 		return html``;
@@ -1049,6 +1053,12 @@ export class StatementsDialog extends Component {
 					</object>
 			</capitec-content-box>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

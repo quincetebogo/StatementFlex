@@ -4,7 +4,6 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
@@ -43,7 +42,6 @@ export class LandingPage extends ViewBase {
 		super();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();
@@ -95,7 +93,12 @@ export class LandingPage extends ViewBase {
 	}
 
 	disconnectedCallback() {
-		// Cleanup all event aggregator and state management subscriptons;
+		// Telemetry
+		// TODO: This should probably move since this point will also mark the end of the caller verification.
+		HorizonTelemetry.instance.callerIdentified();
+		// TODO: Fulfill need span should start here
+
+		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
 		this.searchCallSub.dispose(); 
 		this.agentUpSub.dispose(); 
@@ -127,7 +130,7 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// Create an incident in STrack for the new incoming call. This was intially planned to happen
+		// Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
 
@@ -152,8 +155,8 @@ export class LandingPage extends ViewBase {
 		// Telemetry
 		if (incident) {
 			HorizonTelemetry.instance.incidentCreated({
-				incident_rec_id: incident.incidentRecId,
-				incident_reference: incident.incidentNumber
+				incidentRecId: incident.incidentRecId,
+				incidentReference: incident.incidentNumber
 			});
 		}
 
@@ -167,6 +170,9 @@ export class LandingPage extends ViewBase {
 
 		newCallInfo.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
+
+		// Telemetry
+		HorizonTelemetry.instance.identifyCallerStarts();
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -182,6 +188,16 @@ export class LandingPage extends ViewBase {
 			}
 		} else {
 			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
+
+			// Telemetry
+			// If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			HorizonTelemetry.instance.newTrace();
+			HorizonTelemetry.instance.incomingCall({
+				screen: TelemetryScreen.WAIT_FOR_CALL,
+				ivr: ``,
+				ucid: ``
+			});
 		}
 
 		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);
@@ -241,7 +257,7 @@ export class LandingPage extends ViewBase {
 
 	_nonClientCaptured(event) {
 		// If a non-client is calling in (determined on the general search dialog), 
-		// navigate to the appopriate landing page
+		// navigate to the appropriate landing page
 		const callerInformation = new CallerInformation(
 			``, // CIF Number
 			``, // Birth Date
