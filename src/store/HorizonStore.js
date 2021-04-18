@@ -42,6 +42,10 @@ export class HorizonStore extends Store {
 	// PUBLIC METHODS
 	// --------------
 
+	/**
+	 *  Retrieve information about the incoming/present call from state
+	 * @returns {Object} An object containing information abut the incoming call
+	 */
 	getIncomingCallDetails() {
 		if (this.state && this.state.incomingCallDetails) {
 			return this.state.incomingCallDetails;
@@ -50,6 +54,12 @@ export class HorizonStore extends Store {
 		return null;
 	}
 
+	/**
+	 * Persist informatino about the incoming/present call to state
+	 * 
+	 * @param {Object}  incomingCallDetails Information on the incoming/present call
+	 * @returns {undefined} 
+	 */
 	setIncomingCallDetails(incomingCallDetails) {
 		this.setState({ incomingCallDetails: incomingCallDetails });
 	}
@@ -64,6 +74,18 @@ export class HorizonStore extends Store {
 
 	setIncidentDetails(incidentDetails) {
 		this.setState({ incidentDetails: incidentDetails });
+	}
+
+	getIsIncidentReassigned() {
+		if (this.state && Object.hasOwnProperty.call(this.state, `isReassigned`)) {
+			return this.state.isReassigned;
+		}
+		
+		return false;
+	}
+
+	setIsIncidentReassigned(isReassigned) {
+		this.setState({ isReassigned: isReassigned });
 	}
 
 	getCallerInformation() {

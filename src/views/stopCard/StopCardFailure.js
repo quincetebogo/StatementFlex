@@ -1,9 +1,9 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
 // import 'app/components/dialogs/insure/AssignReasonDialog';
@@ -82,12 +82,7 @@ export class StopCardFailure extends View {
 			this.callerInformation = this.horizonStore.getCallerInformation();
 			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-				this.isReassigned = state.isReassigned;
-			} else {
-				this.isReassigned = false;
-			}
+			this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	
 			this.stoppedCards = state.stoppedCards;
 			
@@ -134,7 +129,7 @@ export class StopCardFailure extends View {
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
 
-		HorizonTelemetry.instance.stopCardTryAgain({screen: TelemetryScreen.STOP_CARD_OUTCOME});
+		HorizonTelemetry.instance.stopCardTryAgain({ screen: TelemetryScreen.STOP_CARD_OUTCOME });
 
 		this.retry++;
 		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
@@ -171,7 +166,7 @@ export class StopCardFailure extends View {
 
 		// On return from the Stop Card Assign dialog, mark the incident as assigned
         this.isReassigned = true;
-		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 

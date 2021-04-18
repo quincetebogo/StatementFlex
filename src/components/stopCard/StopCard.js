@@ -69,14 +69,7 @@ export class StopCard extends Component {
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-		const state = this.horizonStore.recoverState();
-    
-		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -300,7 +293,7 @@ export class StopCard extends Component {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
 		this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
