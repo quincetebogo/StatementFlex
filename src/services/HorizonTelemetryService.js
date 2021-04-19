@@ -1080,12 +1080,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [
 				{
-					baggage: [
-						{ 
 							"screen": baggage.screen,
 				 			"nextScreen": baggage.nextScreen 
-						}
-					]
 				}
 			]
 		});

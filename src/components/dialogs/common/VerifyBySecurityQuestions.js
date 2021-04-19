@@ -207,11 +207,6 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
