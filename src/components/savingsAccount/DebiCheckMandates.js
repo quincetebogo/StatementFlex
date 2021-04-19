@@ -265,7 +265,7 @@ export class DebiCheckMandates extends Component {
 				.status-icon.Active {
 					background-color: #70AF00;
 				}
-				.status-icon.InActive {
+				.status-icon.Inactive {
 					background-color: #A5132A;
 				}
 				.status-label {
@@ -444,7 +444,7 @@ export class DebiCheckMandates extends Component {
 	_renderInActiveMandates() {
 		if (this.inActiveMandates.length > 0) {
 			return html`
-				${this._renderHeader(`InActive`)}
+				${this._renderHeader(`Inactive`)}
 				<capitec-table displayMode="Full" .items="${this.inActiveMandates}" ?hideHeader=${true}>
 					<capitec-table-column label="" field="" type="text" 
 										  .renderer="${(rowData) => this._renderRows(rowData)}">
@@ -475,19 +475,19 @@ export class DebiCheckMandates extends Component {
 						   gap="none"
 						   halign="left"
 						   valign="center">
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width223)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
 					${this._renderCell(rowData.mandateName, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
 					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
-				<div style="${unsafeCSS(TABLE_ROW_CSS.width185).toString()}">
+				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
 					${this._renderCell(`Collection date`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
 				</div>
-				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 341px;">
+				<capitec-group layout="horizontal" gap="clear" halign="right" valign="center" style="width: 250px;">
 					${this._renderButtons(rowData.mandateStatus, rowData.mandateId, rowData.registerId)}
 				</capitec-group>
 				<div></div>
