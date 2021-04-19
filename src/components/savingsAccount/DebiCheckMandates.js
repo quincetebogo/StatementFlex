@@ -482,7 +482,7 @@ export class DebiCheckMandates extends Component {
 					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
-					${this._renderCell(`Collection date`, rowData.collectionDayFrequency)}
+					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width98).toString()}">
 					${this._renderCell(`Status`, MANDATE_STATUS[rowData.mandateStatus])}
