@@ -97,12 +97,11 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-
-		this.incidentDetails = state.incidentDetails;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.callerInformation = state.callerInformation;
-		this.verificationStatus = state.callerInformation.verificationStatus;
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this._updateMiniProfile();
 
@@ -134,8 +133,9 @@ export class InsureInformation extends Component {
 	}
 
 	_updateMiniProfile() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = { 
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,

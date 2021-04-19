@@ -101,8 +101,7 @@ export class EndCallCauseCode {
 	}
 
 	_getFailedVerificationCount() {
-		const state = this.horizonStore.recoverState();
-		const callerInformation = state.callerInformation;
+		const callerInformation = this.horizonStore.getCallerInformation();
 
 		// If ending a call very early (system error on invoking search dialog for example), we do not yet have
 		// caller information
