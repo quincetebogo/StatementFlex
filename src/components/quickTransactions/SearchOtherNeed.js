@@ -52,13 +52,15 @@ const RENDER_MODE = Object.freeze({
 
 		this._configuration = Configuration.getInstance();
 	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
 
 	/**
 	 *
-	 * @property {Object} searchOtherNeed Contains list of other needs
+	 * @property {Object} incidentDetails Incident details
+	 * @property {Object} incomingCallDetails Incoming call details
 	 *
 	 * @readonly
 	 * @static
@@ -66,7 +68,9 @@ const RENDER_MODE = Object.freeze({
 	 */
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
+
 			searchOtherNeed: { type: Object },
 			chooseNeed: { type: Boolean },
 			chooseIssue: { type: Boolean },
@@ -75,7 +79,8 @@ const RENDER_MODE = Object.freeze({
 			specificNeedObjects: { type: Object },
 			issueTypeObjects: { type: Object },
 			solutionObjects: { type: Object },
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -95,7 +100,7 @@ const RENDER_MODE = Object.freeze({
 		
 		}
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	// --------------
@@ -172,11 +177,28 @@ const RENDER_MODE = Object.freeze({
 		}
 	}
 
-	_onLaunchStrackClick() {
-		this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
-		window.open(this.strackURL);
-		this.renderMode = RENDER_MODE.FEEDBACK;
+	async _onLaunchStrackClick() {
+		const request = {
+			incidentRecId: this.incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: `SEARCH_OTHER_NEED`,
+			incidentCategorization: {
+				category: `${this.category}`,
+				need: `${this.need}`,
+				issue: `${this.issue}`
+			}
+		};
+		const result = await this.incidentManagementService.classifyIncident(request);
+	
+		if (result.succeeded) {
+			this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
+			window.open(this.strackURL);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		} else {
+			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
+		}
 	}
+
 	// ---------
 	// RENDERING
 	// ---------

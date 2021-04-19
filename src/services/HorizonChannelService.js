@@ -424,7 +424,10 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `initialise`);
 	}
 
-	// newIncidentRequest
+	// ----------------
+	// Incident Methods
+	// ----------------
+
 	createIncident(createIncidentRequest) {
 		const url = `/clientcare/incident/${this._version}/create-incident`;
 		const model = createIncidentRequest;
@@ -455,6 +458,12 @@ export class HorizonChannelService extends Service {
 						`CauseCode=${closeIncidentRequest.causeCode}&`;
 
 		return this._put(url, null, this._setToken(), `closeIncident`);
+	}
+
+	classifyIncident(classifyIncidentRequest) {
+		const url = `/clientcare/incident/${this._version}/classification`;
+	
+		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
 	}
 
 	// --------------
@@ -504,6 +513,7 @@ export class HorizonChannelService extends Service {
 	// ----------------
 	// call - ITA & XDS
 	// ----------------
+
 	itaVerification(request) {
 		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
@@ -631,9 +641,10 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
-	// ------------------
+	// ---------------
 	// Savings Account
-	// ------------------
+	// ---------------
+
 	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
 		if (await this._mockEnabled(`savingsAccountLanding`)) {
 			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
@@ -665,9 +676,10 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `transactionHistory`);
 	}
 
-	// ----------------
-	// Other Needs 
-	// ----------------
+	// -----------
+	// Other Needs
+	// -----------
+
 	otherNeedCategories(orgUnit) {
 		const url = `/clientcare/incident/${this._version}/categories?` +
 		`OrgUnit=${encodeURIComponent(orgUnit)}`;
@@ -705,7 +717,7 @@ export class HorizonChannelService extends Service {
 	}
 
 	getClientProducts(request) {
-		const url = `/clientcare/documents/${this._version}/statements/client/${request.cifNumber}?`+
+		const url = `/clientcare/documents/${this._version}/statements/client/${request.cifNumber}?` +
 					`ProductStatus=${request.status}`;
 		return this._get(url, this._setToken(), `getClientProducts`);
 	}

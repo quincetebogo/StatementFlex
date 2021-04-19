@@ -562,9 +562,8 @@ export class Favourites extends ViewBase {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
 			? html`
 				<search-other-need
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.landingPageInfo="${this.landingPageInfo}"
 					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</search-other-need>`
 			: html``; 

@@ -115,9 +115,30 @@ export class HorizonIncidentManager {
 		};
 	}
 
-	// --------------
+	// ---------------
 	// PRIVATE METHODS
-	// --------------
+	// ---------------
+
+	async _classifyIncident(clientNeed) {
+		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
+
+		const request = {
+			incidentRecId: this.incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: `SEARCH_OTHER_NEED`,
+			incidentCategorization: {
+				category: `${this.category}`,
+				need: `${this.need}`,
+				issue: `${this.issue}`
+			}
+		};
+		const returnValue = await this.incidentService.classifyIncident(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+		}
+		await this._closePrimaryIncident(clientNeed);
+	}
 
 	/**
 	 * Closing current need
@@ -128,9 +149,6 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _closePrimaryIncident(clientNeed) {
-
-		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
-
 		const closeIncidentRequest = {
 			incidentRecId: this.incidentRecID,
 			reason: `NeedFulfilled`,
