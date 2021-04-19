@@ -470,9 +470,6 @@ export class ConfirmCallerDetails extends Component {
 					--theme-label-title-font-weight: 600;
 					line-height: 28px;
 				}
-				horizon-label {
-					--theme-text-select: text;
-				}
 				.client-info-row {
 					height: 56px;
 					width: 216px;
