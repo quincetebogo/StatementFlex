@@ -52,8 +52,7 @@ export class HorizonIncidentManager {
 		View.prototype._inicidentManager_ = async function (clientNeed, toggleBusyFlag) {
 
 			const _horizonStore = HorizonStore.getInstance();
-			const state = _horizonStore.recoverState();
-			const incidentDetails = state && state.incidentDetails;
+			const incidentDetails = _horizonStore.getIncidentDetails();
 
 			/**
 			 * Checkpoint 1:
@@ -72,8 +71,8 @@ export class HorizonIncidentManager {
 			 * In such case, we update the state with correct need
 			 */
 			if (clientNeed !== incidentDetails.currentNeed && incidentDetails.needStatus === this.HORIZON_NEED_STATUS.INPROGRESS) {
-				state.incidentDetails.currentNeed = clientNeed;
-				_horizonStore.saveState(state);
+				incidentDetails.currentNeed = clientNeed;
+				_horizonStore.setIncidentDetails(incidentDetails);
 				return true;
 			}
 
@@ -153,8 +152,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _createSubsequentIncident(clientNeed) {
-		const state = this.horizonStore.recoverState();
-		const incomingCallDetails = state && state.incomingCallDetails;
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
 		const createSubsequentIncidentRequest = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
@@ -173,10 +171,8 @@ export class HorizonIncidentManager {
 	}
 
 	_updateIncidentState(clientNeed, newIncident) {
-
-		const state = this.horizonStore.recoverState();
-		const callerInfo = state && state.callerInformation;
-		const callDetails = state && state.incomingCallDetails;
+		const callerInfo = this.horizonStore.getCallerInformation();
+		const callDetails = this.horizonStore.getIncomingCallDetails();
 		
 		const incidentDetails = {
 			incidentReferenceNumber: newIncident ? newIncident.incidentNumber : `0`,
@@ -187,7 +183,7 @@ export class HorizonIncidentManager {
 			needStatus: `InProgress`
 		};
 
-		this.horizonStore.saveState({ incidentDetails: incidentDetails });
+		this.horizonStore.setIncidentDetails(incidentDetails);
 
 		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);

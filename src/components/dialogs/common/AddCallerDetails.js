@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -6,7 +7,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/CallerInfoBar';
@@ -141,13 +141,13 @@ export class AddCallerDetails extends Component {
 
 		// Telemetry
 		HorizonTelemetry.instance.screenLoadAddCallerDetails({
-			screen	: TelemetryScreen.ADD_CALLER_DETAILS
+			screen: TelemetryScreen.ADD_CALLER_DETAILS
 		});
 	}
 
 	disconnectedCallback() {
 		HorizonTelemetry.instance.screenUnloadAddCallerDetails({ 
-			screen : TelemetryScreen.ADD_CALLER_DETAILS 
+			screen: TelemetryScreen.ADD_CALLER_DETAILS 
 		});
 	}
 
@@ -174,8 +174,8 @@ export class AddCallerDetails extends Component {
 
 	_confirmClick() {
 		HorizonTelemetry.instance.addCallerDetailsConfirm({
-			screen 		: TelemetryScreen.ADD_CALLER_DETAILS,
-			nextScreen 	: null
+			screen: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen: null
 		});
 
 		if (!this._validateData()) {
@@ -211,8 +211,8 @@ export class AddCallerDetails extends Component {
 
 	_backClick() {
 		HorizonTelemetry.instance.addCallerDetailsCancel({
-			screen 		: TelemetryScreen.ADD_CALLER_DETAILS,
-			nextScreen 	: null
+			screen: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen: null
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {
@@ -241,9 +241,7 @@ export class AddCallerDetails extends Component {
 	}
 	
 	_errorHandler(ex) {
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails
-		});
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonRouter.navigateToSystemError();
 	}
 
