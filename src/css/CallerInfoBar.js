@@ -22,7 +22,6 @@ export const CALLERINFOBAR_CSS = css`
 		justify-content: center;
 		padding: 0px 0px 0px 16px;
 		
-		--theme-text-select: text;
 		--horizon-label-text-height: 16px;
 		--horizon-label-text-color: #545D60;
 		--horizon-label-text-font-size: 12px;

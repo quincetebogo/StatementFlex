@@ -75,6 +75,9 @@ export class HorizonLabel extends Component {
 					--theme-icon-size-small: 24px;
 				}
 
+				capitec-label {	
+					--theme-text-select: text;
+				}
 				.label-text{
 					height: var(--horizon-label-text-height, 21px);
 					color: var(--horizon-label-text-color, #4E6066);
