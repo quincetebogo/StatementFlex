@@ -265,44 +265,6 @@ export class HorizonChannelService extends Service {
 	// ----------------
 	// End Call Methods
 	// ----------------
-
-	/**
-	 * Loads the list of reasons to display on the end call dialog.
-	 *
-	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
-	 * @memberof HorizonChannelService
-	 */
-	loadEndCallOptions(endCallDetails) {
-		return this._get(
-			`/clientcare/call/${this._version}/end-call?` +
-				`IsReassigned=${endCallDetails.isReassigned}&` +
-				`IncomingTelephoneNumber=${endCallDetails.incomingTelephoneNumber}&` +
-				`VoiceReferenceNumber=${endCallDetails.voiceReferenceNumber}&` +
-				`IvrOptionCode=${endCallDetails.ivrOptionCode}&` +
-				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
-				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
-				`EndCallContext=${endCallDetails.endCallContext}`, 
-				this._setToken(), 
-			`loadEndCallOptions`
-		);
-	}
-
-	/**
-	 * Records the end call reason/cause code against an incident
-	 * 
-	 * @param {Object} endCallRequest End call request
-	 * @returns {Object} Either success or a failure object
-	 * @memberof HorizonChannelService
-	 */
-	endCall(endCallRequest) {
-		return this._post(
-			`/clientcare/call/${this._version}/end-call`,
-			endCallRequest,
-			this._setToken(),
-			`endCall`
-		);
-	}
 	
 	// stopCardRequest
 	stopCard(stopCardRequest) {
@@ -448,6 +410,23 @@ export class HorizonChannelService extends Service {
 		nonClientDetails.incidentRecId = incidentRecId;
 
 		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+	}
+
+	/**
+	 * Loads the list of reasons to display on the end call dialog.
+	 *
+	 * @param {Object} endCallDetails Call details including the end call reason/cause code
+	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
+	 * @memberof HorizonChannelService
+	 */
+	 closeIncidentOptions(endCallDetails) {
+		return this._get(
+			`/clientcare/incident/${this._version}/close-incident?` +
+				`IsReassigned=${endCallDetails.isReassigned}&` +
+				`CloseIncidentContext=${endCallDetails.endCallContext}`,
+				this._setToken(), 
+			`closeIncidentOptions`
+		);
 	}
 
 	closeIncident(closeIncidentRequest) {

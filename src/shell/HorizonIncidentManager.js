@@ -1,7 +1,7 @@
 import { Component, View } from 'platform/elements';
+import { Configuration, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { Logger } from 'platform/core';
 
 const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,
@@ -35,6 +35,7 @@ export class HorizonIncidentManager {
 
 		this._toggleBusyFunc = null;
 
+		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 	}
@@ -44,7 +45,6 @@ export class HorizonIncidentManager {
 	// --------------
 
 	initialise() {
-
 		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
@@ -92,7 +92,7 @@ export class HorizonIncidentManager {
 				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
 				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
 
-				await horizonIncidentManager._closePrimaryIncident(clientNeed);
+				await horizonIncidentManager._classifyIncident(clientNeed);
 			}
 
 			/**
@@ -118,18 +118,22 @@ export class HorizonIncidentManager {
 	// PRIVATE METHODS
 	// ---------------
 
+	async _getNeedActions() {
+		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
+		return ivrActionMapping;
+	}
+
 	async _classifyIncident(clientNeed) {
 		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const needAction = this._getNeedActions()[incidentDetails.currentNeed];
+		
 		const request = {
 			incidentRecId: this.incidentRecId,
 			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: `SEARCH_OTHER_NEED`,
-			incidentCategorization: {
-				category: `${this.category}`,
-				need: `${this.need}`,
-				issue: `${this.issue}`
-			}
+			needAction: needAction,
+			incidentCategorization: null
 		};
 		const returnValue = await this.incidentService.classifyIncident(request);
 
@@ -191,17 +195,18 @@ export class HorizonIncidentManager {
 	_updateIncidentState(clientNeed, newIncident) {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 		
-		const incidentDetails = {
+		const curIncidentDetails = {
 			incidentReferenceNumber: newIncident ? newIncident.incidentNumber : `0`,
 			incidentRecId: newIncident ? newIncident.incidentRecId : `0`,
 			primaryIncidentRecID: this.primaryNeedIncidentRecId,
-			previousNeed: state.incidentDetails.currentNeed,
+			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
 			needStatus: `InProgress`
 		};
 
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.horizonStore.setIncidentDetails(curIncidentDetails);
 
 		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);

@@ -1,11 +1,11 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { Logger, NavigationContext } from 'platform/core';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -43,16 +43,17 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
-		this.alertBannerMessage = ``;    
+		this.alertBannerMessage = ``;
 		this.incidentRefNumber = ``;
 		this.incidentRecId = ``;
 
+		this._navigationContext = NavigationContext.getInstance();
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 	}
 
 	// --------------
@@ -84,10 +85,8 @@ export class EndCallSession extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
-
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
@@ -98,17 +97,7 @@ export class EndCallSession extends Component {
 		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
 		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
 
-		const endCallDetails = {
-			isReassigned: this.incomingCallDetails.isReassigned, // Unused Version 1.0 of Channel Service 
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber, // Echoed back in the response
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber, // Echoed back in the response
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode, //  ???
-			incidentReferenceNumber: this.incidentRefNumber,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber, // Unused version 1.0 of channel servcice
-			endCallContext: this.endCallContext // Unused version 1.0 of channel service
-		};
-
-		this._loadCallOptions(endCallDetails);
+		await this._loadEndCallOptions();
 	}
 
 	// --------------
@@ -119,75 +108,12 @@ export class EndCallSession extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	async _endCallClick() {
-		const state = this.horizonStore.recoverState();
+	_endCallClick() {
+		const isValid = this._validateCloseIncidentReason();
 
-		if (Object.prototype.hasOwnProperty.call(state, `cardStopAttemptMade`)) {
-			this.cardStopAttemptMade = state.cardStopAttemptMade;
-		} else {
-			this.cardStopAttemptMade = false;
+		if (isValid) {
+			this._classifyAndClose();
 		}
-
-		if (Object.prototype.hasOwnProperty.call(state, `stoppedCardsFailed`)) {
-			this.stoppedCardsFailed = state.stoppedCardsFailed;
-		} else {
-			this.stoppedCardsFailed = false;
-		}
-
-		if (this._selectedAssignOnSuccessfulyStoppedCards()) {
-			// Don't allow the user to select Incident Assigned/Handed Off if this has not been done
-			// Should actually filter out of the options
-			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT NOT ASSIGNED`;
-			this.logger.log(`info`, `Stop Card Incident not assigned, blocking selection of incident assigned reason`);
-		} else if (this._selectedNeedFulfilledAfterAssigningStoppedCards()) {
-			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT WAS ASSIGNED`;
-			this.logger.log(`info`, `Stop Card Incident assigned, blocking selection of need fulfilled`);
-		} else if (this._selectedNeedFulfilledOnFailureToStopCards()) {
-			this.alertBannerMessage = `INCORRECT OPTION: CARDS WERE NOT STOPPED`;
-			this.logger.log(`info`, `Stop Card Incident was not assigned, blocking selection of need fulfilled`);
-		} else if (this.endCallReason) {
-			if (this._preventCloseOfIncident()) {
-				// Updating state as call ended and redirecting it to call waiting page
-				this._returnToCallWaitingPage();
-				return;
-			}
-
-			const callToEnd = {
-			incidentRecId: this.incidentRecId,
-				endReason: this.endCallReason.key,
-				resolution: this.endCallReason.value,
-				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
-			};
-
-			const returnValue = await this.callHandleService.endCall(callToEnd);
-
-			// Log any error
-			if (!returnValue.succeeded) {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
-			}
-
-			// Return the the call waiting landing page even if an error occured
-			this._returnToCallWaitingPage();
-		} else {
-			this.alertBannerMessage = ERROR_MESSAGE;
-		}
-	}
-
-	_selectedAssignOnSuccessfulyStoppedCards() {
-		// If this is a stop card incident and
-		//    an attempt to stop cards was made and
-		//    assigned was selected as an end call reason
-		//   and The incident has not been flagged as assigned
-		// then we must disallow selecting assigned as an end call reason
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2 && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
-	}
-
-	_selectedNeedFulfilledOnFailureToStopCards() {
-		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
-	}
-	
-	_selectedNeedFulfilledAfterAssigningStoppedCards() {
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	_valueChanged(e) {
@@ -205,11 +131,15 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _loadCallOptions(endCallDetails) {
-		const returnValue = await this.callHandleService.loadEndCallOptions(endCallDetails);
+	async _loadEndCallOptions() {
+		const endCallDetails = {
+			isReassigned: this.isReassigned,
+			CloseIncidentContext: this.endCallContext
+		};
+		const returnValue = await this.incidentManagementService.closeIncidentOptions(endCallDetails);
 
 		if (returnValue.succeeded) {
-			this.endCallReasons = returnValue.result.endCallReasons;
+			this.endCallReasons = returnValue.result.closeIncidentReasons;
 		} else {
 			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
@@ -258,12 +188,83 @@ export class EndCallSession extends Component {
 		//   - StopCard was the need and
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && this.endCallReason.key === 1))) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && this._waitingForCallPageActive()) {
 			this.logger.log(`info`, `A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
 
 		return false;
+	}
+
+	_waitingForCallPageActive() {
+		if (this._navigationContext.current !== undefined) {
+			return this._navigationContext.current.route.name === `horizon-landing-page`; /* && !this.onCall */
+		}
+		return false;
+	}
+
+	_validateCloseIncidentReason() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (isNullorEmpty(this.endCallReason)) {
+			this.alertBannerMessage = ERROR_MESSAGE;
+			return false;
+		}
+		else if (this.endCallReason.key === 0 && incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT WAS NOT FULFILLED`;
+			this.logger.log(`info`, `client need not fulfilled, blocking selection of need fulfilled`);
+			return false;
+		}
+		return true;
+	}
+
+	async _getNeedActions() {
+		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
+		return ivrActionMapping;
+	}
+
+	async _classifyAndClose() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const needAction = this._getNeedActions()[incidentDetails.currentNeed];
+		
+		const request = {
+			incidentRecId: this.incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: needAction,
+			incidentCategorization: null
+		};
+		const returnValue = await this.incidentManagementService.classifyIncident(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+		}
+		await this._closeIncident(clientNeed);
+	}
+
+	async _closeIncident() {
+
+		if (this._preventCloseOfIncident()) {
+			// Updating state as call ended and redirecting it to call waiting page
+			this._returnToCallWaitingPage();
+			return;
+		}
+
+		const callToEnd = {
+			incidentRecId: this.incidentRecId,
+			endReason: this.endCallReason.key,
+			resolution: this.endCallReason.value,
+			causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+		};
+
+		const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
+
+		// Log any error
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+		}
+
+		// Return the the call waiting landing page even if an error occured
+		this._returnToCallWaitingPage();
 	}
 
 	// ---------
