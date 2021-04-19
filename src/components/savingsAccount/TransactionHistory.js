@@ -1,8 +1,8 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 const RENDER_MODE = {
     MAIN_PAGE: 0,
@@ -31,10 +31,13 @@ const TRANSACTION_STATUS_LIST = [
     `Partial reversal processed`
 ];
 
+// ninety days in milliseconds
+const NINETY_DAYS = 7777000000;
+
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().substr(0, 10),
+    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -109,7 +112,7 @@ export class TransactionHistory extends Component {
             startDate: { type: String, attribute: false },
             endDate: { type: String, attribute: false },
             searchTextLabel: { attribute: false },
-            statuslabel: { attribute: false },
+            statuslabel: { attribute: false }
         };
     }
 
@@ -163,11 +166,11 @@ export class TransactionHistory extends Component {
         last90day.setDate(today.getDate() - 90);
 
         return [
-            { text: "Today", value: { startDate: today.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 90 days", value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+            { text: `Today`, value: { startDate: today.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
 
@@ -178,14 +181,12 @@ export class TransactionHistory extends Component {
     }
 
     _dateChanged(e) {
-
-
         let fromDate = DateTime.fromISO(e.detail.new.startDate);
-        var toDate = DateTime.fromISO(e.detail.new.endDate);
-        let today = DateTime.local();
+        const toDate = DateTime.fromISO(e.detail.new.endDate);
+        const today = DateTime.local();
 
 
-        if (toDate.diff(fromDate, ['days']).days > 90) {
+        if (toDate.diff(fromDate, [`days`]).days > 90) {
             
             toDate = fromDate.plus({ days: 90 });
             if (toDate > today) {
@@ -195,33 +196,29 @@ export class TransactionHistory extends Component {
             } else {
                 this.startDate = fromDate;
                 this.endDate = toDate;
-                const calendar = this.shadowRoot.querySelector('#calendarRange');
+                const calendar = this.shadowRoot.querySelector(`#calendarRange`);
                 if (calendar) {
                     calendar._placeholderEndDate = toDate;
                 }
             }
 
-        } else {
-            if (e.detail.new.endDate == null && this.endDate == ``) {
+        } else if (e.detail.new.endDate === null && this.endDate === ``) {
                 this.startDate = fromDate;
                 toDate = fromDate.plus({ days: 90 });
-                if (toDate.diff(today, ['days']).days > 0) {
+                if (toDate.diff(today, [`days`]).days > 0) {
                     this.endDate = today;
                 } else {
                     this.endDate = toDate;
                 }
-            } else if (e.detail.new.startDate == null && this.startDate == ``) {
+            } else if (e.detail.new.startDate === null && this.startDate === ``) {
                 this.endDate = toDate;
                 fromDate = toDate.minus({ days: 90 });
                 this.startDate = fromDate;
-            }
-            else {
+            } else {
                 
                 this.startDate = fromDate;
                 this.endDate = toDate;
             }
-
-        }
 
 
         RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
@@ -299,7 +296,7 @@ export class TransactionHistory extends Component {
             this.startDate = ``;
             this.endDate = ``;
 
-            const calendar = this.shadowRoot.querySelector('#calendarRange');
+            const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
                 calendar._placeholderEndDate = null;
                 calendar._placeholderStartDate = null;
@@ -372,9 +369,9 @@ export class TransactionHistory extends Component {
         this.requestUpdate();
     }
 
-    //_showCalendar() {
-    //    this.renderMode = RENDER_MODE.CALENDAR;
-    //}
+    // showCalendar() {
+    // this.renderMode = RENDER_MODE.CALENDAR;
+    // }
 
     _formatDate(date) {
         const newdate = new Date(Date.parse(date));
@@ -415,7 +412,7 @@ export class TransactionHistory extends Component {
 
 				/* Header Styles */
 				.transaction-history-title {
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					border-radius: 4px 4px 0 0;
 					padding: 11px 24px 11px 15px;
@@ -430,7 +427,7 @@ export class TransactionHistory extends Component {
 				/* Account Details Bar styles */
 				.actionbar-header {
 					height: 64px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					border-bottom: 0px;
 					padding: 11px 24px 11px 43px;
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
@@ -456,7 +453,7 @@ export class TransactionHistory extends Component {
 				/* Filter Bar styles */
 				.transaction-action-bar {
 					height: 64px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.transaction-action-bar > capitec-text-field {
 					height: 47px;
@@ -510,7 +507,7 @@ export class TransactionHistory extends Component {
 					width: auto;
 				}
 				capitec-table{
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
@@ -604,6 +601,7 @@ export class TransactionHistory extends Component {
         }
         return html``;
     }
+
     _renderLoadingIndicator() {
         return this.isBusy
             ? html`<capitec-loading-indicator></capitec-loading-indicator>`
@@ -678,7 +676,7 @@ export class TransactionHistory extends Component {
 	                outputType="string"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
-                </capitec-date-time-picker>	
+                </capitec-date-time-picker>
 
 
 				<capitec-select

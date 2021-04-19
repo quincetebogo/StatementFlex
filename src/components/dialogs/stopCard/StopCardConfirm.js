@@ -2,7 +2,6 @@ import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * Displays the list of cards that will be stopped and prompts for confirmation.

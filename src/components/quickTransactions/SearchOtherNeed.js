@@ -1,7 +1,5 @@
 import { Component, css, html, live } from 'platform/elements';
-import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { Configuration, Logger } from 'platform/core';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/dialogs/common/EndCallSession';
@@ -34,7 +32,17 @@ const RENDER_MODE = Object.freeze({
 	constructor() {
 		super();
 
+		// Create Instances
+		this.logger = Logger.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+        this.state = this.horizonStore.recoverState();
+		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+
 		// Private Variables
+
 		this.isBusy = false;
 		this.chooseNeed = true;
 		this.chooseIssue = true;
@@ -50,15 +58,9 @@ const RENDER_MODE = Object.freeze({
 		this.issues = null;
 		this.issuesObject = null;
 		this.solutionObject = null;
-
-		// Create Instances
-		this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
-		this._configuration = Configuration.getInstance();
+    
+    this.state = this.horizonStore.recoverState();    
 	}
 
 	// --------------
@@ -106,7 +108,7 @@ const RENDER_MODE = Object.freeze({
 		if (returnValue.succeeded && returnValue.result) {
 			this.categories = returnValue.result.categories;
 		} else {
-			this.logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
+			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
 		}
 	}
 
@@ -145,7 +147,7 @@ const RENDER_MODE = Object.freeze({
 		if (returnValue.succeeded && returnValue.result) {
 			this.needs = returnValue.result.needs.map(item => item.need);
 		} else {
-			this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+				this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
 		this.requestUpdate();
 	 }
@@ -165,7 +167,7 @@ const RENDER_MODE = Object.freeze({
 					this.issuesObject = returnValue.result.issues;
 					this.issues = returnValue.result.issues.map(item => item.issue);
 			} else {
-				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+				this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
 		} else {
 			this.solutionDisplay = false;
@@ -178,6 +180,7 @@ const RENDER_MODE = Object.freeze({
 		this.issue = e.currentTarget.value;
 		
 		this.solutionObject = this.issuesObject.find(item => item.issue === this.issue).solution;
+			this.logger.log(`error`, `Failed to retrieve Other Needs Solution`, `_chooseIssueType`, returnValue.result);
 	}
 
 	_onLaunchStrackClick() {
@@ -202,8 +205,8 @@ const RENDER_MODE = Object.freeze({
 			super.styles,
 			css`
 				.other-need {
-					height: 888px;
-					width: 1064px;
+					height: var(--horizon-panel-height, 888px);
+					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 				capitec-card > capitec-group:first-child {

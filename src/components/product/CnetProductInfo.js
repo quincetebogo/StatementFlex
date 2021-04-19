@@ -31,7 +31,7 @@ export class CnetProductInfo extends Component {
 			css`
 				.product-info{
 					width: 100%;
-					height: 888px;
+					height: var(--horizon-panel-height, 888px);
 				}
 				.content{
 					width: 100%;

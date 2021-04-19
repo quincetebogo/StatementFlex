@@ -209,7 +209,7 @@ export class SearchCaller extends Component {
 			
 		// Telemetry
 			HorizonTelemetry.instance.screenUnloadSearchClient({
-				screen	: TelemetryScreen.SEARCH_CLIENT
+				screen: TelemetryScreen.SEARCH_CLIENT
 			}); 
 	}
 
@@ -292,8 +292,8 @@ export class SearchCaller extends Component {
 		// Telemetry 
 
 		HorizonTelemetry.instance.selectSearchCapitecClient({
-			screen		: TelemetryScreen.SEARCH_CLIENT,
-			nextScreen	: TelemetryScreen.CONFIRM_CALLER
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
 		});
 
 		if (this._validateNonClientFields()) {
