@@ -1,6 +1,6 @@
 import { Component, css, html, live } from 'platform/elements';
-import { Configuration, Logger } from 'platform/core';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
@@ -34,21 +34,14 @@ const RENDER_MODE = Object.freeze({
 
 		// Create Instances
 		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 
-		// Private Variables
-
+		// Private properties
 		this.isBusy = false;
 		this.chooseNeed = true;
 		this.chooseIssue = true;
 
-		// Private properties
 
+		// Private Variables
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
@@ -58,9 +51,8 @@ const RENDER_MODE = Object.freeze({
 		this.issues = null;
 		this.issuesObject = null;
 		this.solutionObject = null;
+
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
-    
-    this.state = this.horizonStore.recoverState();    
 	}
 
 	// --------------
