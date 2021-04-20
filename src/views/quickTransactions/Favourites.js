@@ -151,6 +151,10 @@ export class Favourites extends ViewBase {
 	}
 
 	_mainPage() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
@@ -245,6 +249,7 @@ export class Favourites extends ViewBase {
 			};
 		}
 
+		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
 		this._updateLeftBar();
 	}
@@ -568,7 +573,7 @@ export class Favourites extends ViewBase {
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._mainPage()}">
 				</search-other-need>`
 			: html``; 
 	}
@@ -579,7 +584,7 @@ export class Favourites extends ViewBase {
 			<horizon-statements-dialog
 				.callerInformation="${this.callerInformation}"
 				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				@cancel="${() => this._mainPage()}">
 			</horizon-statements-dialog>`
 		: html``;
 	}

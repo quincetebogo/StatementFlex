@@ -40,6 +40,7 @@ export class SearchOtherNeed extends Component {
 
 		// Private properties
 		this.isBusy = false;
+		this.renderMode = -1;
 
 		// Private Variables
 		this.category = ``;
@@ -105,8 +106,8 @@ export class SearchOtherNeed extends Component {
 	}
 
 	async _categoryChanged(e) {
-		if (e.detail.new.category !== null) {
-			this.category = e.detail.new.category;
+		if (e.detail.new !== null) {
+			this.category = e.detail.new;
 			this.need = ``;
 			this.issue = ``;
 			this.solution = ``;
@@ -116,8 +117,8 @@ export class SearchOtherNeed extends Component {
 	}
 
 	async _subCategoryChanged(e) {
-		if (e.detail.new.need !== null) {
-			this.need = e.detail.new.need;
+		if (e.detail.new !== null) {
+			this.need = e.detail.new;
 			this.issue = ``;
 			this.solutionDisplay = false;
 
@@ -127,7 +128,7 @@ export class SearchOtherNeed extends Component {
 
 	_issueChanged(e) {
 		this.issue = e.currentTarget.value;
-		this.solution = this.issues.find(item => item.issue === this.issue).solution;
+		this.solution = this.issuesWithSolution.find(item => item.issue === this.issue).solution;
 	}
 
 	async _onLaunchStrackClick() {
@@ -144,8 +145,7 @@ export class SearchOtherNeed extends Component {
 		const result = await this.incidentManagementService.classifyIncident(request);
 
 		if (result.succeeded) {
-			this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
-			window.open(this.strackURL);
+			this.horizonRouter.navigateToStrack(this.incidentRecId);
 			this.renderMode = RENDER_MODE.FEEDBACK;
 		} else {
 			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
@@ -160,30 +160,34 @@ export class SearchOtherNeed extends Component {
 		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
 
 		if (returnValue.succeeded && returnValue.result) {
-			this.categories = returnValue.result.categories;
+			this.categories = returnValue.result.categories.map(item => item.category);
 		} else {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
 		}
+		this.requestUpdate();
 	}
 
 	async _getSubCategories() {
 		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, this.category);
 
 		if (returnValue.succeeded && returnValue.result) {
-			this.needs = returnValue.result.needs;
+			this.needs = returnValue.result.needs.map(item => item.need);
 		} else {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
+		this.requestUpdate();
 	}
 
 	async _getIssues() {
 		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, this.category, this.need);
 
 		if (returnValue.succeeded && returnValue.result) {
-			this.issues = returnValue.result.issues;
+			this.issuesWithSolution = returnValue.result.issues;
+			this.issues = returnValue.result.issues.map(item => item.issue);
 		} else {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
+		this.requestUpdate();
 	}
 
 	// ---------
@@ -356,7 +360,7 @@ export class SearchOtherNeed extends Component {
 					.items="${this.categories}"
 					display-field="category"
 					id-field="category"
-					value="${this.category}"
+					value="${live(this.category)}"
 					?hidden="${false}"
 					@value-changed="${(e) => this._categoryChanged(e)}"
 					searchable>
@@ -377,7 +381,7 @@ export class SearchOtherNeed extends Component {
 					label="Choose issue type"
 					.items="${this.issues}"
 					display-field="issue"
-					id-field="issues"
+					id-field="issue"
 					value="${live(this.issue)}"
 					?hidden="${isNullorEmpty(this.need)}"
 					@value-changed="${(e) => this._issueChanged(e)}"
@@ -399,7 +403,7 @@ export class SearchOtherNeed extends Component {
 					<capitec-label
 						class="solution-heading"
 						type="default"
-						label="${this.solutionObject}">
+						label="${this.solution}">
 					</capitec-label>
 				</capitec-content-box>
 				
@@ -441,7 +445,7 @@ export class SearchOtherNeed extends Component {
 	}
 
 	_renderFeedback() {
-		return this.renderMode === RENDER_MODE.FEEDBACKhtml
+		return this.renderMode === RENDER_MODE.FEEDBACK
 			? html`
 				<horizon-feedback 
 					@done="${() => this._back()}">

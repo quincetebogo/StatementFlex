@@ -65,8 +65,10 @@ const RENDER_MODE = {
 			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			this.incidentDetails = this.horizonStore.getIncidentDetails();
 			
-			this.mailId = state.emailAddress;      
+			this.mailId = state.emailAddress;
 			this.acNumber = state.accountNumber;
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 

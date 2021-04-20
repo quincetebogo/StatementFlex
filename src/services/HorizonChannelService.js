@@ -415,15 +415,15 @@ export class HorizonChannelService extends Service {
 	/**
 	 * Loads the list of reasons to display on the end call dialog.
 	 *
-	 * @param {Object} endCallDetails Call details including the end call reason/cause code
+	 * @param {Object} request Request to get close incident reasons
 	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
 	 * @memberof HorizonChannelService
 	 */
-	 closeIncidentOptions(endCallDetails) {
+	 closeIncidentOptions(request) {
 		return this._get(
 			`/clientcare/incident/${this._version}/close-incident?` +
-				`IsReassigned=${endCallDetails.isReassigned}&` +
-				`CloseIncidentContext=${endCallDetails.endCallContext}`,
+				`IsReassigned=${request.isReassigned}&` +
+				`CloseIncidentContext=${request.CloseIncidentContext}`,
 				this._setToken(), 
 			`closeIncidentOptions`
 		);
@@ -433,7 +433,7 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/incident/${this._version}/close-incident?` +
 						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
 						`Reason=${closeIncidentRequest.reason}&` +
-						`Resolution=${closeIncidentRequest.reason}&` +
+						`Resolution=${closeIncidentRequest.resolution}&` +
 						`CauseCode=${closeIncidentRequest.causeCode}&`;
 
 		return this._put(url, null, this._setToken(), `closeIncident`);
@@ -554,7 +554,8 @@ export class HorizonChannelService extends Service {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
-		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		const url = `/clientcare/card/${this._version}/limits-landing?` +
+					`cifNumber=${cifNumber}`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 

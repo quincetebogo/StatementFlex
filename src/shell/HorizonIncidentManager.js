@@ -6,7 +6,9 @@ import { IncidentManagementService } from 'app/services/IncidentManagementServic
 const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,
 	COMPLETED: `Completed`,
-	ASSIGNED: `Assigned`
+	ASSIGNED: `Assigned`,
+	FAILED: `Failed`,
+	NOT_STARTED: `Not Started`
 };
 
 /**
@@ -127,12 +129,13 @@ export class HorizonIncidentManager {
 		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
 
 		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const needAction = this._getNeedActions()[incidentDetails.currentNeed];
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const ivrActionMapping = await this._getNeedActions();
 		
 		const request = {
-			incidentRecId: this.incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: needAction,
+			incidentRecId: this.incidentRecID,
+			ivrOptionCode: incomingCallDetails.ivrOptionCode,
+			needAction: ivrActionMapping[incidentDetails.currentNeed],
 			incidentCategorization: null
 		};
 		const returnValue = await this.incidentService.classifyIncident(request);
@@ -155,7 +158,7 @@ export class HorizonIncidentManager {
 		const closeIncidentRequest = {
 			incidentRecId: this.incidentRecID,
 			reason: `NeedFulfilled`,
-			resolution: `NeedFulfilled`,
+			resolution: `Need Fulfilled`,
 			causeCode: `NormalEnquiry`
 		};
 
