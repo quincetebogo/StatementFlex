@@ -4,7 +4,6 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
@@ -65,7 +64,7 @@ export class LandingPage extends ViewBase {
 		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
 			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
 			if (this.callStatus === `CALL-ENDED`) {
-				this.horizonStore.eraseState();
+				this.horizonStore.clearState();
 				this.callStatus = `WAITING-FOR-CALL`;
 				this.horizonStore.setState({ callStatus: this.callStatus });
 				this.desktopAgentService.callComplete();
@@ -226,10 +225,11 @@ export class LandingPage extends ViewBase {
 			newCallInfo.ivrOptionCode
 		);
 
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 		const state = {
 			callStatus: this.callStatus,
-			incomingCallDetails: this.incomingCallDetails,
-			incidentDetails: this.incidentDetails,
 			canCloseIncident: true
 		};
 
@@ -281,7 +281,8 @@ export class LandingPage extends ViewBase {
 			false
 		);
 
-		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
+		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
+		this.horizonStore.setCallerInformation(callerInformation);
 
 		if (callerInformation.verificationStatus === `non-client`) {
 			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);

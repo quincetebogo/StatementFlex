@@ -140,11 +140,8 @@ export class SecurityQuestionsFailed extends Component {
 	}
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setincomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonRouter.navigateToSystemError();
 		return true;
 	}

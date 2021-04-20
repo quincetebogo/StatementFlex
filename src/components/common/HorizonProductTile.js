@@ -41,7 +41,7 @@ export class HorizonProductTile extends Component {
 		this.navigational = false;
 		this.detailIcon = false;
 		this.icon = ``;
-		this.selected = false;
+        this.selected = false;
 	}
 
 	/**
@@ -66,8 +66,8 @@ export class HorizonProductTile extends Component {
 			navigational: { type: Boolean },
 			detailIcon: { type: Boolean },
 			icon: { type: String },
-			selected: { type: Boolean }
-		};
+            selected: { type: Boolean }
+        };
 	}
 
 	/**
@@ -78,8 +78,7 @@ export class HorizonProductTile extends Component {
 	 * @ignore
 	 * @returns {void}
 	 */
-	_tileClicked(event) {
-
+    _tileClicked(event) {
 		// Ignore the event if the component is disabled.
 		if (this.disabled) {
 			return event.stopImmediatePropagation();
@@ -92,7 +91,6 @@ export class HorizonProductTile extends Component {
 		// Prevent the event from bubbling up.
 		event.stopPropagation();
 	}
-
 	/**
 	 * Handles component key down events.
 	 * 
@@ -353,6 +351,74 @@ export class HorizonProductTile extends Component {
 				.hide-icon{
 					display: none;
 				}
+
+				.radio-container {
+					display: flex;
+					align-items: center;
+				}
+
+				/* RADIO BUTTON STYLES */
+
+				.radio-container > #content {
+					box-sizing: border-box;
+					cursor: pointer;
+
+					display: flex;
+					align-items: center;
+					justify-content: center;
+
+					width: var(--theme-radio-width, 22px);
+					height: var(--theme-radio-height, 22px);
+
+					background-color: var(--theme-radio-background-color, #FFFFFF);
+
+					border-width: var(--theme-radio-border-width, 1px);
+					border-style: solid;
+					border-color: var(--theme-radio-border-color, #009DE0);
+					border-radius: var(--theme-radio-border-radius, 50%);
+					
+					outline: 0;
+				}
+				
+				.radio-container.checked > #content > .indicator {
+					width: 100%;
+					height: 100%;
+
+					border-width: var(--theme-radio-indictor-border-width, 1px);
+					border-style: solid;
+					border-color: var(--theme-radio-indictor-border-color, #FFFFFF);
+					border-radius: var(--theme-radio-border-radius, 50%);
+
+					color: var(--theme-radio-indictor-color, #FFFFFF);
+				}
+				
+				/* CHECKED STATE STYLES */
+
+				.radio-container.checked > #content {
+					background-color: var(--theme-radio-checked-background-color, #0096DA);
+				}
+				
+				/* HOVER STATE STYLES */
+
+				.radio-container > #content:hover {
+					box-shadow: var(--theme-radio-hover-box-shadow,0 0 4px 4px #e6f7ff);
+					background-color: var(--theme-radio-hover-background-color,#e6f7ff);
+				}
+
+				.radio-container.checked:hover > #content {
+					background-color: var(--theme-radio-checked-background-color, #0096DA);					
+				}
+				/* DISABLED STATE STYLES */
+
+				.radio-container.disabled > #content {
+					cursor: default;
+					border-color: var(--theme-radio-disabled-border-color, #DEDEDE);
+					background-color: var(--theme-radio-disabled-background-color, #DEDEDE);
+				}
+
+				.radio-container.disabled:hover > #content {
+					box-shadow: none;
+				}
 			`
 		];
 	}
@@ -377,7 +443,7 @@ export class HorizonProductTile extends Component {
 		return html`
 			<button 
 				class="tile ${this.type ? this.type : `transact`}${this.selected ? ` selected` : ``}"
-				@click="${this._tileClicked}}"
+				@click="${(e)=> this._tileClicked(e)}}"
 				@keydown="${e => this._keyDown(e)}"
 				tabindex="${this.disabled ? `` : 0}">
 					<div class="tile-container">
@@ -395,18 +461,24 @@ export class HorizonProductTile extends Component {
 					</div>
 			</button>
 		`;
+	} 
+
+	_renderRadioIcon() {
+		return html`
+			<div class="radio-container${this.selected ? ` checked` : ``}${this.disabled ? ` disabled` : ``}">
+				<div id="content" tabindex="${this.disabled ? `` : 0}">
+					${this.selected ? html`<div class="indicator"></div>` : ``}
+				</div>
+			</div>
+		`
 	}
 
-	_renderProduct() {
-
-		if (this.type === `radio-button`) {
+	_renderProduct() {        
+        if (this.type === `radio-button`) {
+            
 			return html`
 				<div class="product radion-button">
-					<capitec-radio
-						label=""
-						?checked="${this.selected}"
-						@click="${this._tileClicked}}">
-					</capitec-radio>
+					${this._renderRadioIcon()}
 				</div>
 			`;
 		}

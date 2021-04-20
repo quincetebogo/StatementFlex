@@ -1,9 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
@@ -66,17 +66,10 @@ export class StopCard extends Component {
 		this.cardsToStop = [];
 
 		// Recover state information
-		const state = this.horizonStore.recoverState();
-
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
-
-		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -136,7 +129,7 @@ export class StopCard extends Component {
 
 		this._updateLeftBar();
 		
-		HorizonTelemetry.instance.screenLoadStopCard({screen : TelemetryScreen.STOP_CARD});
+		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
 	}
 
 	disconnectedCallback() {
@@ -220,12 +213,12 @@ export class StopCard extends Component {
 
 		// Telemetry
 		HorizonTelemetry.instance.stopCard({
-			screen : TelemetryScreen.STOP_CARD,
-			cards : this.cardsToStop.map(card => (
+			screen: TelemetryScreen.STOP_CARD,
+			cards: this.cardsToStop.map(card => (
 				{
-					cardId : card.cardNumber,
-					maskedCardNr : card.maskedCardNumber,
-					reason : card.cardStopReason
+					cardId: card.cardNumber,
+					maskedCardNr: card.maskedCardNumber,
+					reason: card.cardStopReason
 				}
 			))
 		});
@@ -300,7 +293,7 @@ export class StopCard extends Component {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
 		this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
@@ -326,11 +319,8 @@ export class StopCard extends Component {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
-
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
@@ -578,7 +568,7 @@ export class StopCard extends Component {
 					@on-cancel="${() => { 
 						this.renderMode = RENDER_MODE.MAIN_PAGE; 
 						HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
-					} }">
+					}}">
 				</horizon-stop-card-confirm>
 			`;
 		}
