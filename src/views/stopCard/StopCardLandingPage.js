@@ -35,8 +35,9 @@ export class StopCardLandingPage extends View {
 		const state = this.horizonStore.recoverState();
 
 		this.clientProfileDetails = state.clientProfileDetails;
-		this.callerInformation = state.callerInformation; 
-		this.incomingCallDetails = state.incomingCallDetails;
+
+		this.callerInformation = this.horizonStore.getCallerInformation(); 
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 	}
 
 	// --------------

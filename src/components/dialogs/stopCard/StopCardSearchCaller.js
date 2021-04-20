@@ -264,7 +264,7 @@ export class StopCardSearchCaller extends Component {
 		
 		// Telemetry
 		HorizonTelemetry.instance.endCallSelected({
-			screen		: TelemetryScreen.SEARCH_CLIENT,
+			screen: TelemetryScreen.SEARCH_CLIENT,
 			nextScreen: null
 		});
 		this.renderMode = RENDER_MODE.END_CALL;

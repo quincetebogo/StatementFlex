@@ -96,7 +96,7 @@ export class ProofOfAccount extends Component {
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"accountNumber": this.landingPageInfo.accountNumber,
-				"accountOpenDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE
 			};
