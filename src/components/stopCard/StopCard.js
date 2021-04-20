@@ -31,10 +31,10 @@ const TABLE_STYLE = {
 };
 
 const STOPREASONS = {
-	CARD_DAMAGED: `Card Damaged`,
-	CARD_LOST: `Card Lost`,
-	CARD_STOLEN: `Card Stolen`,
-	SUSPECTED_FRAUD: `Suspected Fraud`
+	CARD_DAMAGED: `DAMAGED`,
+	CARD_LOST: `LOST`,
+	CARD_STOLEN: `STOLEN`,
+	SUSPECTED_FRAUD: `SUSPECTED_FRAUD`
 };
 
 /**
