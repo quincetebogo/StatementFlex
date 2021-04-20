@@ -288,7 +288,8 @@ export class HorizonChannelService extends Service {
 			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
 			"ivrOptionCode": stopCardRequest.ivrOptionCode,
 			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
+			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
+			"incidentRecId": stopCardRequest.incidentRecId
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);

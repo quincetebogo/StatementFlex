@@ -245,7 +245,7 @@ export class SavingsAccount extends Component {
 				</capitec-expander>
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
 					<horizon-label
-						label="Account Number"
+						label="Account number"
 						value="${this.landingPageInfo.accountNumber}">
 					</horizon-label>
 					<horizon-label
@@ -253,7 +253,7 @@ export class SavingsAccount extends Component {
 						value="${this._formatCollectionAmount(this.landingPageInfo.accountBalance)}">
 					</horizon-label>
 					<horizon-label
-						label="Available Balance"
+						label="Available balance"
 						value="${this._formatCollectionAmount(this.landingPageInfo.accountAvailableBalance)}">
 					</horizon-label>
 					<horizon-label
@@ -262,7 +262,7 @@ export class SavingsAccount extends Component {
 					</horizon-label>
 					<horizon-label
 						label="Interest"
-						value="${this.landingPageInfo.interestRatePercentage}">
+						value="${this.landingPageInfo.interestRatePercentage}%">
 					</horizon-label>
 					<horizon-label
 						label="Status"
