@@ -8,7 +8,8 @@ const HORIZON_NEED_STATUS = {
 	COMPLETED: `Completed`,
 	ASSIGNED: `Assigned`,
 	FAILED: `Failed`,
-	NOT_STARTED: `Not Started`
+	NOT_STARTED: `Not Started`,
+	CLOSED: `Closed`
 };
 
 /**
@@ -60,8 +61,10 @@ export class HorizonIncidentManager {
 			 * Checkpoint 1:
 			 * When we reload the same need. i.e., example: assume opening proof of account modal,
 			 * cancelling it and re-opening the modal
+			 * 
+			 * New case: possible to open search other needs more than once.
 			 */
-			if (clientNeed === incidentDetails.currentNeed) {
+			if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== this.HORIZON_NEED_STATUS.CLOSED) {
 				// Do nothing
 				return true;
 			}
@@ -85,31 +88,41 @@ export class HorizonIncidentManager {
 			 * Example: Landing on favourites screen, choosing proof of account and emailed client.
 			 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
 			 * 
-			 */
-			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.COMPLETED && clientNeed !== incidentDetails.currentNeed) {
-
-				const horizonIncidentManager = HorizonIncidentManager.getInstance();
-
-				horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
-				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
-				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
-
-				await horizonIncidentManager._classifyIncident(clientNeed);
-			}
-
-			/**
 			 * Checkpoint 4:
 			 * 
 			 * When current is assigned or handed off, such particular incident will not be closed
 			 * And if the client has a subsequent need, should continue by creating new incident
+			 * 
 			 */
-			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.ASSIGNED && clientNeed !== incidentDetails.currentNeed) {
+			if ((incidentDetails.needStatus === this.HORIZON_NEED_STATUS.COMPLETED || incidentDetails.needStatus === this.HORIZON_NEED_STATUS.ASSIGNED) && 
+				clientNeed !== incidentDetails.currentNeed) {
+
+					const horizonIncidentManager = HorizonIncidentManager.getInstance();
+
+					horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
+					horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
+					horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
+					horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+
+					await horizonIncidentManager._classifyIncident(clientNeed);
+			}
+
+			/**
+			 * Checkpoint 5:
+			 * 
+			 * Special case for Search-other-need: Launch Strack will classify the other need and return to Horizon
+			 * gets the status of other needs, same will be updated to STrack. We just have to create new incident if 
+			 * client have subsequent needs
+			 * 
+			 */
+			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.CLOSED) {
 
 				const horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 				horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
 				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
 				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
+				horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
 
 				await horizonIncidentManager._createSubsequentIncident(clientNeed);
 			}
@@ -126,8 +139,6 @@ export class HorizonIncidentManager {
 	}
 
 	async _classifyIncident(clientNeed) {
-		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
-
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const ivrActionMapping = await this._getNeedActions();
@@ -143,7 +154,12 @@ export class HorizonIncidentManager {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
 		}
-		await this._closePrimaryIncident(clientNeed);
+
+		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED) {
+			await this._createSubsequentIncident(clientNeed);
+		} else {
+			await this._closePrimaryIncident(clientNeed);
+		}
 	}
 
 	/**

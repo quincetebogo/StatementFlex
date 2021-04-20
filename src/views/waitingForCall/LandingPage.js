@@ -251,6 +251,7 @@ export class LandingPage extends ViewBase {
 		// Once the search dialogs identify a client we can go to the Confirm Caller Details Dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
 
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
@@ -294,12 +295,14 @@ export class LandingPage extends ViewBase {
 	_otherNeedSelected(event) {
 		// Switching from stop card search to general search dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
 	_stopCardNeedSelected(event) {
 		// Switching from general search dialog to stop card search dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH;
 	}
 

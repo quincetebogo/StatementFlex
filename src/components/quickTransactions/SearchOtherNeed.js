@@ -19,6 +19,7 @@ const RENDER_MODE = Object.freeze({
  * Events Raised
  * -------------
  * back
+ * done
  * 
  * @export
  * @class SearchOtherNeed
@@ -99,6 +100,10 @@ export class SearchOtherNeed extends Component {
 	_back() {
 		// initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_done() {
+		this.dispatchEvent(new CustomEvent(`done`, {}));
 	}
 
 	_toggleBusyFlag() {
@@ -448,7 +453,7 @@ export class SearchOtherNeed extends Component {
 		return this.renderMode === RENDER_MODE.FEEDBACK
 			? html`
 				<horizon-feedback 
-					@done="${() => this._back()}">
+					@done="${() => this._done()}">
 				</horizon-feedback>`
 			: html``;
 	}

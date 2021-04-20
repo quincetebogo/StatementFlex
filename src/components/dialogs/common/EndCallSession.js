@@ -113,6 +113,11 @@ export class EndCallSession extends Component {
 		const isValid = this._validateCloseIncidentReason();
 
 		if (isValid) {
+			if (this._preventCloseOfIncident()) {
+				// Updating state as call ended and redirecting it to call waiting page
+				this._returnToCallWaitingPage();
+				return;
+			}
 			this._classifyAndClose();
 		}
 	}
@@ -225,26 +230,22 @@ export class EndCallSession extends Component {
 	}
 
 	async _classifyAndClose() {
-		
-		if (this._preventCloseOfIncident()) {
-			// Updating state as call ended and redirecting it to call waiting page
-			this._returnToCallWaitingPage();
-			return;
-		}
-
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
-		
-		const request = {
-			incidentRecId: this.incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: ivrActionMapping[incidentDetails.currentNeed],
-			incidentCategorization: null
-		};
-		const returnValue = await this.incidentManagementService.classifyIncident(request);
+		const needAction = ivrActionMapping[incidentDetails.currentNeed];
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+		if (needAction) {
+			const request = {
+				incidentRecId: this.incidentRecId,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				needAction: needAction,
+				incidentCategorization: null
+			};
+			const returnValue = await this.incidentManagementService.classifyIncident(request);
+
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			}
 		}
 		await this._closeIncident();
 	}

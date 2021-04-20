@@ -134,7 +134,6 @@ export class Favourites extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-
 	async _clientVerified(event) {
 		super._clientVerified(event);
 
@@ -211,6 +210,11 @@ export class Favourites extends ViewBase {
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(incidentDetails);
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_searchOtherNeedDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -573,7 +577,8 @@ export class Favourites extends ViewBase {
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._mainPage()}"
+					@done="${() => this._searchOtherNeedDone()}">
 				</search-other-need>`
 			: html``; 
 	}
