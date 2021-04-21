@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from '../../store/HorizonStore';
+import { AccessChannelService } from 'app/services/AccessChannelService';
 import 'platform/components';
 import '../dialogs/AccessChannelError';
 
@@ -15,6 +16,9 @@ export class AccessMenuBar extends Component {
 		this.confirmedCaller = null;
 		this.clientProfileDetails = null;
 		this.showAlert = false;
+		this.isBusy = false;
+
+		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
 	}
 
 	// ----------
@@ -24,7 +28,10 @@ export class AccessMenuBar extends Component {
 	static get properties() {
 		return {
 			showAlert: { type: Boolean },
-			clientProfileDetails: { type: Object }
+			clientProfileDetails: { type: Object },
+
+			isBusy: { attribute: false },
+			status: { attribute: false }
 		};
 	}
 
@@ -35,11 +42,47 @@ export class AccessMenuBar extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.confirmedCaller = HorizonStore.getInstance().recoverState();
+		const state = HorizonStore.getInstance().recoverState();
+		this.confirmedCaller = state.confirmedCaller;
+		this.callerInformation = state.callerInformation;
+		this.cifNumber = this.callerInformation.cifNumber;
+
+		this._accessChannelService();
+
 		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
 		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
 
 		this.accessChannels = this.clientAccess ? Object.keys(this.clientAccess) : [];
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_accessChannelErrorHandler(ex) {
+		//TODO: Handle channel service error
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	async _accessChannelService(){
+		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
+		
+		if(returnValue.succeeded) {
+			this.status = returnValue.result;
+		}
 	}
 
 	// ---------
@@ -108,7 +151,8 @@ export class AccessMenuBar extends Component {
 				${this.renderClientInsights()}
 				${this.renderAccessChannelTabs()}
 			</section>
-			${this.renderAccessChannelError()}`;
+			${this.renderAccessChannelError()}
+			${this._renderLoadingIndicator()}`;
 	}
 
 	renderClientInsights() {
@@ -144,7 +188,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="App & Online Banking"
-					subtitle="active"
+					subtitle=${this.status.appAndInternetActive ? `Active` : `Inactive`}
 					detail=""
 					icon="system/access">
 				</horizon-product-tile>
@@ -152,7 +196,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="USSD"
-					subtitle="active"
+					subtitle=${this.status.ussdActive ? `Active` : `Inactive`}
 					detail=""
 					icon="system/cellphone">
 				</horizon-product-tile>
@@ -160,7 +204,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="Notifications"
-					subtitle="active"
+					subtitle=${this.status.notificationType}
 					detail=""
 					icon="system/messages">
 				</horizon-product-tile>
@@ -173,6 +217,14 @@ export class AccessMenuBar extends Component {
 		if (this.showAlert) {
 			return html`<horizon-access-channel-error @on-OK="${() => this.showAlert = false}"></horizon-access-channel-error>`;
 		}
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy || this.loading) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
+		return html``;
 	}
 }
 
