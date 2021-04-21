@@ -3,21 +3,10 @@ import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
-import 'app/components/savingsAccount/DebiCheckMandates';
-import 'app/components/dialogs/common/StatementsDialog';
-
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	TRANSACTION_HISTORY: 2,
-	DEBI_CHECK_PAGE: 3,
-	DEBI_CHECK_DECLINE: 4,
-	DEBI_CHECK_VIEW_INFO: 5,
-	STATEMENTS:6
-});
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -61,8 +50,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.clientProducts = null;
 
 	}
@@ -219,68 +206,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 		}
 	}
 
-	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-		}
-	}
-
-	async _declineDebiCheckMandate(event) {
-		this.mandateId = event.detail.mandateId;
-
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-	}
-
-
-	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
-		}
-	}
-
-	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
-
-		if (returnValue.succeeded) {
-			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		} 
-	}
-
-	async _getClientProducts() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-
-		if (returnValue.succeeded) {
-			return returnValue.result.savingsProducts;
-		}
-		return [];
-	}
 
 	_more() {
 		// TODO: Functionality to option 'more' comes here
@@ -361,51 +286,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 					@back="${() => this._transactionHistoryToMainPage()}">
 				</horizon-transaction-history>`
 			: html``;
-	}
-
-	_renderStatementsModal() {
-		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html`
-			<horizon-statements-dialog
-				.callerInformation="${this.callerInformation}"
-				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-statements-dialog>`
-		: html``;
-	}
-
-	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-			? html`
-				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
-					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></debi-check-mandates>
-				</debi-check-mandates>`
-			: html``;
-	}
-
-	_renderDebiCheckDeclineMandate() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
-			? html`
-				<horizon-decline-debicheck-mandate
-					mandateId=${this.mandateId}
-					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
-				</horizon-decline-debicheck-mandate>`
-			: html``;
-	}
-
-	_renderDebiCheckViewMandateInfo() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-		? html`
-			<horizon-viewinfo-debicheck
-				.debiCheckDetails=${this.debiCheckDetails}
-				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-			></horizon-viewinfo-debicheck>`
-		: html``;
 	}
 }
 

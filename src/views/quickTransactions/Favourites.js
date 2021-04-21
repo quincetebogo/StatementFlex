@@ -165,38 +165,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-		}
-	}
-
-	async _declineDebiCheckMandate(event) {
-		this.mandateId = event.detail.mandateId;
-
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-	}
-
 	_debiCheckToMainPage() {
 
 		/**
@@ -343,17 +311,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
-
-		if (returnValue.succeeded) {
-			// eslint-disable-next-line no-extra-parens
-			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		} else {
-			// Todo: Handle error scenario
-		}
-	}
 
 	async _updateCardLimits() {
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
@@ -370,15 +327,6 @@ export class Favourites extends ViewBase {
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		}
-	}
-
-	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
-
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
 
@@ -493,39 +441,6 @@ export class Favourites extends ViewBase {
 	}
 
 	// Renders the main debi-check mandates display
-	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-			? html`
-				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
-					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this._debiCheckToMainPage()}">
-				</debi-check-mandates>`
-			: html``;
-	}
-
-	_renderDebiCheckDeclineMandate() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
-			? html`
-				<horizon-decline-debicheck-mandate
-					mandateId=${this.mandateId}
-					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
-				</horizon-decline-debicheck-mandate>`
-			: html``;
-	}
-
-	_renderDebiCheckViewMandateInfo() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-		? html`
-			<horizon-viewinfo-debicheck
-				.debiCheckDetails=${this.debiCheckDetails}
-				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-			></horizon-viewinfo-debicheck>`
-		: html``;
-	}
 
 	_renderUpdateCardLimits() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
@@ -570,16 +485,6 @@ export class Favourites extends ViewBase {
 			: html``; 
 	}
 
-	_renderStatementsModal() {
-		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html`
-			<horizon-statements-dialog
-				.callerInformation="${this.callerInformation}"
-				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-statements-dialog>`
-		: html``;
-	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);
