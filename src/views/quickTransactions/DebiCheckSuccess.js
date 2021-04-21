@@ -63,8 +63,9 @@ export class DebiCheckSuccess extends View {
 
 		if (state) {
 			this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;

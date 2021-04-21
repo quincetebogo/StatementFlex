@@ -1,10 +1,27 @@
 import { Component, css, html } from 'platform/elements';
+import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
-const FEEDBACK_OPTIONS = {
-	FULFILLED: 0,
-	ASSIGNED: 1,
-	INCOMPLETE: 2
+const FEEDBACK_OPTIONS = [
+	{
+		key: 0,
+		value: `Need fulfilled`
+	},
+	{
+		key: 2,
+		value: `Need was assigned/handed off`
+	},
+	{
+		key: 1,
+		value: `Need incomplete`
+	}
+];
+
+const ERROR_LIST = {
+	VALIDATION_ERROR: `Please choose an option:`,
+	SYSTEM_ERROR: `System error. Please try again`
 };
 
 /**
@@ -31,20 +48,14 @@ export class Feedback extends Component {
 		// VARIABLES
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
-		this.feedbackOptions = [
-			{
-				key: 0,
-				value: `Need fulfilled`
-			},
-			{
-				key: 1,
-				value: `Need was assigned/handed off`
-			},
-			{
-				key: 2,
-				value: `Need incomplete`
-			}
-		];
+		this.feedbackOptions = [];
+
+		this.isBusy = false;
+
+		this.horizonStore = HorizonStore.getInstance();
+		this.endCallCauseCode = EndCallCauseCode.getInstance();
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		
 	}
 
 	// ----------
@@ -53,6 +64,7 @@ export class Feedback extends Component {
 
 	static get properties() {
 		return {
+			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
 			selectedFeedback: { attribute: false }
 		};
@@ -64,26 +76,65 @@ export class Feedback extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.selectedFeedback = -1;
+		this.feedbackOptions = FEEDBACK_OPTIONS;
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
+	async _doneClick() {
 		if (this.selectedFeedback === -1) {
-			this.alertBannerMessage = `Please choose an option:`;
+			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
 			console.log(this.selectedFeedback);
-			// TODO: Should be navigated to favourites landing page
-			this.dispatchEvent(new CustomEvent(`done`, {}));
+
+			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+			const resolution = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+
+			const closeIncidentRequest = {
+				incidentRecId: incidentDetails.incidentRecId,
+				reason: this.selectedFeedback,
+				resolution: resolution.value,
+				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, this.selectedFeedback)
+			};
+
+			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
+			
+			if (returnValue.succeeded) {
+				// Navigate to favourites landing page
+				this._updateIncidentState();
+				this.dispatchEvent(new CustomEvent(`done`, {}));
+			} else {
+				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+			}
 		}
 	}
 
-	_onValueChanged(event, item) {
+	_onValueChanged(event) {
 		this.selectedFeedback = event.detail.key; 
 		this.alertBannerMessage = ``;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_handleChannelServiceError() {
+		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------
@@ -157,7 +208,17 @@ export class Feedback extends Component {
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
+			
+			${this._renderLoadingIndicator()}
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		};
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderAlertBanner() {
@@ -182,7 +243,7 @@ export class Feedback extends Component {
 
 			<horizon-radio-button-group
 				.radioButtonsAvailable="${this.feedbackOptions}"
-				@value-change="${(event, item) => this._onValueChanged(event, item)}">
+				@value-change="${(event) => this._onValueChanged(event)}">
 			</horizon-radio-button-group>
 		`;
 	}

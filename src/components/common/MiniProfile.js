@@ -134,6 +134,7 @@ export class MiniProfile extends Component {
 					margin-top: 9px;
 					line-height: 24px;
 
+					--theme-text-select: text;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
 				}
@@ -143,9 +144,11 @@ export class MiniProfile extends Component {
 					--theme-layout-gap-spacing: 2px;
 				}
 				capitec-label[type="default"] {
+					--theme-text-select: text;
 					--theme-label-default-font-size: 14px;
 				}
 				capitec-label[type="strong"] {
+					--theme-text-select: text;
 					--theme-label-strong-font-size: 14px;
 					--theme-label-strong-font-weight: 600;
 				}

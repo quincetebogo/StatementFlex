@@ -26,14 +26,10 @@ const ITA_TIMEOUT_SECS = 60;
 
 // exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
-
 	objInstance.callerInformation.verificationStatus = `failed`;
-	const state = {
-		callerInformation: objInstance.callerInformation,
-		incomingCallDetails: objInstance.incomingCallDetails
-	};
-	objInstance.horizonStore.saveState(state);
-
+	objInstance.horizonStore.setCallerInformation(objInstance.callerInformation);
+	objInstance.horizonStore.setIncomingCallDetails(objInstance.incomingCallDetails);
+	
 	return objInstance.horizonRouter.navigateToXdsVerificationFailed();
 };
 
@@ -308,32 +304,25 @@ export class VerifyCaller extends Component {
 		this.callerInformation.verificationStatus = verificationStatus;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 
-		const state = {
-			callerInformation: this.callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		this.xdsMessage = `System error. Please try again later`;
 
 		return true;
 	}
 
 	_itaErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.itaMessage = `System error. Please try again later`;
+		this.itaVerificationFailed = true;
 
 		return true;
 	}
@@ -478,6 +467,7 @@ export class VerifyCaller extends Component {
 					--theme-container-padding-right: 17px;
 					--theme-container-padding-bottom: 12px;
 					--theme-container-padding-left: 16px;
+					--theme-container-margin-bottom: 0px;
 					height: auto;
 				}
 				#notification-status-box > capitec-group {
@@ -492,13 +482,14 @@ export class VerifyCaller extends Component {
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					--theme-alert-banner-unsuccessful-red-border: none;
-					
+					--theme-alert-banner-margin-bottom: 0px;
+
 					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 				}
 				#notification-status-group > capitec-label {
 					line-height: 24px;
 					margin: 0;
-					margin-bottom: 34px;
+					margin-bottom: 30px;
 
 					--theme-label-title-font-size: 15px;
 				}
@@ -512,7 +503,7 @@ export class VerifyCaller extends Component {
 				.sms-svg{
 					height: 152px;
 					width: 210px;
-					margin: 15px 0px 8px 0px;
+					margin: 15px 0px 12px 0px;
 				}
 				.connection-error-svg {
 					height: 152px;
@@ -558,11 +549,11 @@ export class VerifyCaller extends Component {
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
-				.warning-svg, .connection-error-svg {
-					margin-top: 45px;
+				.warning-svg {
+					margin-top: 18px;
 				}
-				.foreign-client, .notification-info {
-					margin-bottom: 25px;
+				.foreign-client {
+					margin-bottom: 42px;
 				}
 			`
 		];
@@ -665,12 +656,12 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.itaMessage && !this.xdsMessage) {
+		if (this.callerInformation.hasDigitalChannels && (this.appTimedOut || this.itaVerificationFailed) && !this.xdsMessage) {
 
 			let message = ``;
 			if (this.appTimedOut) {
 				message = `The client did not accept the notification in time`;
-			} else if (this.itaVerificationFailed) {
+			} else if (this.itaVerificationFailed && !this.itaMessage) {
 				message = `The client rejected the notification`;
 			} else {
 				message = `The notification didn't send due to a system error.`;
@@ -777,7 +768,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderForeignClientCannotBeVerified() {
-		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
+		if (!this.callerInformation.hasDigitalChannels && this.isForeignClient) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">

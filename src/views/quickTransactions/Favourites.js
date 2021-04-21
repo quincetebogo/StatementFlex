@@ -61,7 +61,7 @@ export class Favourites extends ViewBase {
 		this.curOptionEvent = null;
 		this.cards = [];
 		this.debiCheckDetails = {};
-		this.clientProducts = {};
+		this.clientProducts = null;
 
 		// Subscribe to shell events
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
@@ -134,7 +134,6 @@ export class Favourites extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-
 	async _clientVerified(event) {
 		super._clientVerified(event);
 
@@ -151,6 +150,10 @@ export class Favourites extends ViewBase {
 	}
 
 	_mainPage() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
@@ -203,10 +206,15 @@ export class Favourites extends ViewBase {
 		 * This is supposed to happen in debicheck success screen
 		 * TODO: This should be to success screen when decline or approve is ready
 		 */
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 
-		this.horizonStore.saveState(state);
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_searchOtherNeedDone() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -245,6 +253,7 @@ export class Favourites extends ViewBase {
 			};
 		}
 
+		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
 		this._updateLeftBar();
 	}
@@ -269,8 +278,9 @@ export class Favourites extends ViewBase {
 			};
 		}
 
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = {
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
@@ -288,7 +298,7 @@ export class Favourites extends ViewBase {
 		} 
 
 		this.callerInformation.verificationToastDisplayed = true;
-		this.horizonStore.saveState({ callerInformation: this.callerInformation });
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.verificationToastDisplayed = true;
 		return true;
@@ -332,11 +342,14 @@ export class Favourites extends ViewBase {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+
 			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
 				clientProfileDetails: returnValue.result
 			});
+
+
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();
@@ -562,10 +575,10 @@ export class Favourites extends ViewBase {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
 			? html`
 				<search-other-need
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.landingPageInfo="${this.landingPageInfo}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@back="${() => this._mainPage()}"
+					@done="${() => this._searchOtherNeedDone()}">
 				</search-other-need>`
 			: html``; 
 	}
@@ -576,7 +589,7 @@ export class Favourites extends ViewBase {
 			<horizon-statements-dialog
 				.callerInformation="${this.callerInformation}"
 				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				@cancel="${() => this._mainPage()}">
 			</horizon-statements-dialog>`
 		: html``;
 	}
