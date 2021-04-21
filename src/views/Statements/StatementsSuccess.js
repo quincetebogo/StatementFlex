@@ -3,17 +3,14 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/StatementsDialog';
 
 const RENDER_MODE = {
 	STATEMENTS_SUCCESS: 0,
-    END_CALLSESSION: 1,
-    STATEMENTS: 2
+	END_CALLSESSION: 1,
+	STATEMENTS: 2
 };
-
 
 export class StatementsSuccess extends View {
 
@@ -30,10 +27,8 @@ export class StatementsSuccess extends View {
 		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.landingPageInfo = {};
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
-
 
 	// ----------
 	// PROPERTIES
@@ -46,10 +41,7 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-            renderMode: { attribute: false },
-            callerInformation: { type: Object },
-            incomingCallDetails: { type: Object },
-            landingPageInfo: { type: Object }
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -69,7 +61,7 @@ export class StatementsSuccess extends View {
       		this.mailId = state.emailAddress;
       		this.acNumber = state.accountNumber;
 
-		  	this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
 				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -77,7 +69,7 @@ export class StatementsSuccess extends View {
 			});
 
 			this._updateIncidentState();
-  		};
+		};
 	}
 
 	disconnectedCallback() {
@@ -97,14 +89,12 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-    _sendAnotherClick() {
-        // this.renderMode = RENDER_MODE.STATEMENTS;
-        const returnToScreen = {
-			option: `statements`
+	_sendAnotherClick() {
+		const returnToScreen = {
+			option: super.currentNeed
 		};
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		
@@ -129,19 +119,9 @@ export class StatementsSuccess extends View {
 		return [
 			super.styles,
 			css`
-
 				#id-error-msg{
 					width: auto;
 				}
-
-				.button-margin{
-					height: 80px;
-					width: 182px;
-					margin-right:16px;
-					--horizon-option-btn-icon-height: 26px;
-					--horizon-option-btn-icon-width: 26px;          
-				}
-
 			`
 		];
 	}
@@ -154,56 +134,24 @@ export class StatementsSuccess extends View {
 		return html`
 			${this._renderSuccessScreen()}
 			${this._renderEndCallModal()}
-            ${this._renderStatementsModal()}
 		`;
 	}
 
-    _renderStatementsModal() {
-        if (this.renderMode === RENDER_MODE.STATEMENTS) {
-            return html`
-            <horizon-statements-dialog
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}"
-				.landingPageInfo="${this.landingPageInfo}"
-				@cancel="${() => this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS}">
-			</horizon-statements-dialog>
-			`;
-        }
-        return html``;
-    }
-
 	_renderSuccessScreen() {
 		return html`
-			<horizon-success-screen header="Statement sent" 
-									image="/images/statements/senddocuments.svg"
-									left="Done"
-									right="Send Another"
-									toast="Statement sent"
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._sendAnotherClick()}
-									>
-				<section 
-					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
-				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Tax Certificate" 
-						icon="system/sars-action">
-					</horizon-option-button>
-				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Proof of Account" 
-						icon="system/documents-action">
-					</horizon-option-button>
-				</section>
+			<horizon-success-screen 
+				header="Statement sent" 
+				image="/images/statements/senddocuments.svg"
+				left="Done"
+				right="Send Another"
+				toast="Statement sent"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._sendAnotherClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">
+							The statement for savings account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>
+					</section>
 			</horizon-success-screen>
 		`;
 	}
@@ -218,10 +166,8 @@ export class StatementsSuccess extends View {
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
-
 		return html``;
 	}
-
 }
 
 customElements.define(`horizon-statements-success`, StatementsSuccess);
