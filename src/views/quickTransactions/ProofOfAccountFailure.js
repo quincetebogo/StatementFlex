@@ -188,7 +188,7 @@ const RENDER_MODE = {
 				@right-click=${() => this._assignClick()}>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The proof of account <b>${this.acNumber}</b>  was not emailed to <b>${this.mailId}</b></section>
+					slot="detail">Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b></section>
 			</horizon--error-screen>
 			`;
 	}

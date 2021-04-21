@@ -161,7 +161,7 @@ export class ProofOfAccountSuccess extends View {
 									@right-click=${() => this._sendAnotherClick()}>
 				<section 
 					id="id-error-msg" 
-					slot="detail">Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
+					slot="detail">Your proof of account document for account <b>${this.acNumber}</b> was emailed to <b>${this.mailId}</b>.
 				</section>
 				<section 
 						id="id-option-button" 
