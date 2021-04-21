@@ -3,14 +3,13 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'app/components/common/OptionButton';
 import 'app/components/common/ErrorScreen';
+import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/EndCallSession';
 
 const RENDER_MODE = {
 	STATEMENTS_UNSUCCESS: 0,
-	END_CALLSESSION: 1,
-	STATEMENTS: 2
+	END_CALLSESSION: 1
 };
 
 /**
@@ -36,7 +35,6 @@ export class StatementsUnsuccess extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this.horizonRouter = HorizonRouter.getInstance();
-		this.landingPageInfo = {};
 	}
 
 
@@ -51,7 +49,8 @@ export class StatementsUnsuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+
 		};
 	}
 
@@ -97,7 +96,7 @@ export class StatementsUnsuccess extends View {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
-	_doneClick() {   
+	_doneClick() {
 		// this.renderMode = RENDER_MODE.STATEMENTS; 
         this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -115,55 +114,16 @@ export class StatementsUnsuccess extends View {
 		return [
 			super.styles,
 			css`
-             horizon--error-screen{
-	        --horizon-error-screen-height:768px;
-}
+				horizon--error-screen{
+					--horizon-error-screen-height:768px;
+				}
+
 				#id-error-msg{
 					width: auto;
 					font-weight:500;
 					color:#3A3A3A;
 					margin-bottom:35px;
 				}
-
-				.card-related-options {
-                    height: 112px;
-					width: var(--horizon-center-panel-width, 1064px);
-					margin-bottom:60px;
-                }
-
-				.button-margin{
-					height: 80px;
-					width: 182px;
-					margin-right:16px;
-					 --horizon-option-btn-icon-height: 26px;
-					--horizon-option-btn-icon-width: 26px;
-				}
-				.options-group{
-					height: 80px; 
-					margin:16.5px;
-				}
-				.related-options {
-					height: 32px;
-					width: var(--horizon-center-panel-width, 1064px);
-					margin-bottom:-2px;
-					margin-top:-4px;
-					background-color: #F7F7F7;
-					border:1px solid #E1E1E1;
-					box-sizing:border-box;
-					border-radius: 4px;
-				}
-				
-				.related-options-text{
-					margin: 0px 0px 0px 16px;
-					padding: 0px 0px 0px 0px;
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-
 			`
 		];
 	}
@@ -189,7 +149,7 @@ export class StatementsUnsuccess extends View {
 									toast="Statement not emailed"
 									@left-click=${() => this._doneClick()}
 									@right-click=${() => this._handoffClick()}>
-									<section 
+				<section 
 					id="id-error-msg" 
 					slot="detail">The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 				</section>
@@ -197,25 +157,12 @@ export class StatementsUnsuccess extends View {
 		`;
 	}
 
-	_renderRelatedOptions() {
+    _renderRelatedOptions() {
 		return html`
-		<div class="related-options">
-					<p class="related-options-text">Related Options</p>
-				</div>
-				<capitec-card class="card-related-options">
-				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button
-						class="button-margin" 
-						label="Tax Certificate" 
-						icon="system/sars-action">
-					</horizon-option-button>
-					<horizon-option-button 
-						class="button-margin" 
-						label="Proof of Account" 
-						icon="system/documents-action">
-					</horizon-option-button>
-				</capitec-group>
-		</capitec-card>
+            <horizon-related-options
+				context = "Failure"
+				@cancel = "${() => this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS}">
+            </horizon-related-options>
 		`;
 		
 	}
@@ -230,7 +177,6 @@ export class StatementsUnsuccess extends View {
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
-
 		return html``;
 	}
 
