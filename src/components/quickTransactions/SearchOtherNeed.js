@@ -1,11 +1,13 @@
 import { Component, css, html, live } from 'platform/elements';
-import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
+
+const orgUnit = `Client Care`;
 
 const RENDER_MODE = Object.freeze({
 	FEEDBACK: 0
@@ -17,13 +19,14 @@ const RENDER_MODE = Object.freeze({
  * Events Raised
  * -------------
  * back
+ * done
  * 
  * @export
  * @class SearchOtherNeed
  * @extends {Component}
  */
 
- export class SearchOtherNeed extends Component {
+export class SearchOtherNeed extends Component {
 
 	// --------------
 	// INITIALISATION
@@ -31,34 +34,35 @@ const RENDER_MODE = Object.freeze({
 
 	constructor() {
 		super();
-		this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-		this.eventAggregator = EventAggregator.getInstance();
+
+		// Create Instances
 		this.logger = Logger.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
+
+		// Private properties
 		this.isBusy = false;
-		this.chooseNeed = true;
-		this.chooseIssue = true;
-		this.orgUnit = `Client Care`;
+		this.renderMode = -1;
+
+		// Private Variables
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
-		this.solutionDisplay = false;
-		this.searchObject = null;
-		this.specificNeedObjects = null;
-		this.issueTypeObjects = null;
-		this.solutionObjects = null;
+		this.solution = ``;
+		this.categories = null;
+		this.needs = null;
+		this.issues = null;
 
-		this._configuration = Configuration.getInstance();
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
 	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
 
 	/**
 	 *
-	 * @property {Object} searchOtherNeed Contains list of other needs
+	 * @property {Object} incidentDetails Incident details
+	 * @property {Object} incomingCallDetails Incoming call details
 	 *
 	 * @readonly
 	 * @static
@@ -66,16 +70,15 @@ const RENDER_MODE = Object.freeze({
 	 */
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
-			searchOtherNeed: { type: Object },
-			chooseNeed: { type: Boolean },
-			chooseIssue: { type: Boolean },
-			solutionDisplay: { type: Boolean },
-			searchObject: { type: Object },
-			specificNeedObjects: { type: Object },
-			issueTypeObjects: { type: Object },
-			solutionObjects: { type: Object },
-			renderMode: { attribute: false }
+
+			renderMode: { attribute: false },
+			isBusy: { attribute: false },
+			category: { attribute: false },
+			need: { attribute: false },
+			issue: { attribute: false },
+			solution: { attribute: false }
 		};
 	}
 
@@ -85,17 +88,9 @@ const RENDER_MODE = Object.freeze({
 
 	async connectedCallback() {
 		super.connectedCallback();
-		
-		const orgUnit = `Client Care`;
-		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
-		if (returnValue.succeeded && returnValue.result) {
-			this.searchObject = returnValue.result.categories;
-		} else {
-			this.logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
-		
-		}
-		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+		await this._getCategories();
 	}
 
 	// --------------
@@ -107,80 +102,103 @@ const RENDER_MODE = Object.freeze({
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
+	_done() {
+		this.dispatchEvent(new CustomEvent(`done`, {}));
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-	// ---------
-	// PRIVATE METHODS
-	// ---------
-	 
-	async _searchOtherNeed(e) {
-		this.need = ``;
-		this.issue = ``;
-		this.category = e.detail.new.category;
-		
-		this.chooseNeed = false;
-			
-			const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(this.orgUnit, this.category);
-			
-			if (e.detail.old !== null) {
-				if (e.detail.old.category !== e.detail.new.category) {
-				this.chooseIssue = true;
-				this.solutionDisplay = false;
-			}
-		}
-			if (returnValue.succeeded && returnValue.result) {
-				this.specificNeedObjects = returnValue.result.needs.map(item => item.need);
-			} else {
-				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-			}
-		this.requestUpdate();
-		
-	 }
 
-	async _searchSpecificNeed(e) {
-		this.issue = ``;
-		this.solutionDisplay = false;
-		this.need = e.currentTarget.value;
-		
-		if (this[e.currentTarget.value] = e.detail.new) {
-			this.chooseIssue = false;
-		
-			const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
-		
-				if (returnValue.succeeded && returnValue.result) {
-				this.issueTypeObjects = returnValue.result.issues.map(item => item.issue);
-			} else {
-				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-			}
-		} else {
+	async _categoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.category = e.detail.new;
+			this.need = ``;
+			this.issue = ``;
+			this.solution = ``;
+
+			await this._getSubCategories();
+		}
+	}
+
+	async _subCategoryChanged(e) {
+		if (e.detail.new !== null) {
+			this.need = e.detail.new;
+			this.issue = ``;
 			this.solutionDisplay = false;
+
+			await this._getIssues();
+		}
+	}
+
+	_issueChanged(e) {
+		this.issue = e.currentTarget.value;
+		this.solution = this.issuesWithSolution.find(item => item.issue === this.issue).solution;
+	}
+
+	async _onLaunchStrackClick() {
+		const request = {
+			incidentRecId: this.incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: `SEARCH_OTHER_NEED`,
+			incidentCategorization: {
+				category: `${this.category}`,
+				need: `${this.need}`,
+				issue: `${this.issue}`
+			}
+		};
+		const result = await this.incidentManagementService.classifyIncident(request);
+
+		if (result.succeeded) {
+			this.horizonRouter.navigateToStrack(this.incidentRecId);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		} else {
+			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
+		}
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _getCategories() {
+		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.categories = returnValue.result.categories.map(item => item.category);
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
 		}
 		this.requestUpdate();
-	 }
+	}
 
-	async _chooseIssueType(e) {
-		this.solutionDisplay = true;
-		this.issue = e.currentTarget.value;
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
-		
+	async _getSubCategories() {
+		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, this.category);
+
 		if (returnValue.succeeded && returnValue.result) {
-			this.solutionObjects = returnValue.result.issues.map(item => item.solution);
+			this.needs = returnValue.result.needs.map(item => item.need);
 		} else {
-			
-			this.logger.log(`error`, `Failed to retrieve Other Needs Solution`, `_chooseIssueType`, returnValue.result);
+			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
+		this.requestUpdate();
 	}
 
-	_onLaunchStrackClick() {
-		this.strackURL = this.strackURL.replace(`$incidentRecId`, this.incidentRecId);
-		window.open(this.strackURL);
-		this.renderMode = RENDER_MODE.FEEDBACK;
+	async _getIssues() {
+		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, this.category, this.need);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.issuesWithSolution = returnValue.result.issues;
+			this.issues = returnValue.result.issues.map(item => item.issue);
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+		}
+		this.requestUpdate();
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
-	
+
 	/**
 	 * Generates the component stylesheet.
 	 *
@@ -281,7 +299,7 @@ const RENDER_MODE = Object.freeze({
 				}
 			`
 		];
-	 }
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -302,24 +320,20 @@ const RENDER_MODE = Object.freeze({
 
 		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
-	
+
 	_renderOtherNeeds() {
 		return html`
 			<capitec-card class="other-need">
-				<capitec-title-bar type="default">
-					<capitec-icon 
-						size="small"
-						icon="system/arrow-left-action"
-						@click="${() => this._back()}">
-					</capitec-icon>
-					<capitec-label label="Other Need" type="title"></capitec-label>
-				</capitec-title-bar>
+				${this._renderTitleBar()}
+
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderActionBar()}
 				</capitec-group>
+				
 				<capitec-group layout="vertical" gap="line" halign="center" valign="center">
 					${this._renderNoResults()}
 				</capitec-group>
+				
 				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
 					${this._renderSolution()}
 				</capitec-group>
@@ -330,12 +344,15 @@ const RENDER_MODE = Object.freeze({
 	_renderTitleBar() {
 		return html`
 			<capitec-title-bar type="default">
-				<capitec-icon 
+				<capitec-icon
 					size="small"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
 				</capitec-icon>
-				<capitec-label label="Other Need" type="title"></capitec-label>
+				<capitec-label
+					label="Other Need"
+					type="title">
+				</capitec-label>
 			</capitec-title-bar>
 		`;
 	}
@@ -343,34 +360,36 @@ const RENDER_MODE = Object.freeze({
 	_renderActionBar() {
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
-				<capitec-select 
+				<capitec-select
 					label="Search client need"
-					.items="${this.searchObject}"
+					.items="${this.categories}"
 					display-field="category"
 					id-field="category"
-					value = "${this.category}"
-					?hidden = "${false}"
-					@value-changed="${(e) => this._searchOtherNeed(e)}"
+					value="${live(this.category)}"
+					?hidden="${false}"
+					@value-changed="${(e) => this._categoryChanged(e)}"
 					searchable>
 				</capitec-select>
-				<capitec-select 
-					label="Choose specific need" 
-					.items="${this.specificNeedObjects}"
+
+				<capitec-select
+					label="Choose specific need"
+					.items="${this.needs}"
 					display-field="need"
 					id-field="need"
 					value="${live(this.need)}"
-					?hidden = "${this.chooseNeed}"
-					@value-changed="${(e) => this._searchSpecificNeed(e)}"
+					?hidden="${isNullorEmpty(this.category)}"
+					@value-changed="${(e) => this._subCategoryChanged(e)}"
 					searchable>
 				</capitec-select>
-				<capitec-select 
-					label="Choose issue type" 
-					.items="${this.issueTypeObjects}"
+				
+				<capitec-select
+					label="Choose issue type"
+					.items="${this.issues}"
 					display-field="issue"
-					id-field="issues"
+					id-field="issue"
 					value="${live(this.issue)}"
-					?hidden = "${this.chooseIssue}"
-					@value-changed="${(e) => this._chooseIssueType(e)}"
+					?hidden="${isNullorEmpty(this.need)}"
+					@value-changed="${(e) => this._issueChanged(e)}"
 					searchable>
 				</capitec-select>
 			</capitec-action-bar>
@@ -378,62 +397,66 @@ const RENDER_MODE = Object.freeze({
 	}
 
 	_renderSolution() {
-		if (this.solutionDisplay) {
-			return html`
-				<capitec-title-bar type="default" label="Solution"></capitec-title-bar>
-					<capitec-content-box>
-						<capitec-label
-							class="solution-heading"
-							type="default"
-							label="${this.solutionObjects}">
-						</capitec-label>
-					</capitec-content-box>
-					
-					<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
-						<capitec-button
-							class="strack-button"
-							type="primary"
-							label="Launch STrack"
-							@click="${() => this._onLaunchStrackClick()}">
-						</capitec-button>
-					</capitec-group>
-			`;
-		}
+		return !isNullorEmpty(this.solution) 
+			? html`
+				<capitec-title-bar
+					type="default"
+					label="Solution">
+				</capitec-title-bar>
+
+				<capitec-content-box>
+					<capitec-label
+						class="solution-heading"
+						type="default"
+						label="${this.solution}">
+					</capitec-label>
+				</capitec-content-box>
+				
+				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
+					<capitec-button
+						class="strack-button"
+						type="primary"
+						label="Launch STrack"
+						@click="${() => this._onLaunchStrackClick()}">
+					</capitec-button>
+				</capitec-group>`
+			: html``;
 	}
 
 	_renderNoResults() {
-		 if (this.solutionDisplay) {
-			return html``;
-		}
-		return html`
-			<capitec-group class="find-need-image-group" layout="vertical" halign="center" valign="center" gap ="clear"  >
-				<img
-					src="/images/common/search.svg"
-					class="search-icon" />
-				<capitec-label
-					class="find-need"
-					label="Find other need"
-					type="strong">
-				</capitec-label>
-				<capitec-label
-					class="find-need-second"
-					label="Search a client need not currently on Horizon"
-					type="strong">
-				</capitec-label>
-			</capitec-group>
-		`;
+		return isNullorEmpty(this.solution)
+			? html`
+				<capitec-group
+					class="find-need-image-group"
+					layout="vertical"
+					halign="center"
+					valign="center"
+					gap="clear">
+						<img 
+							src="/images/common/search.svg"
+							class="search-icon" />
+						<capitec-label
+							class="find-need"
+							label="Find other need"
+							type="strong">
+						</capitec-label>
+						<capitec-label
+							class="find-need-second"
+							label="Search a client need not currently on Horizon"
+							type="strong">
+						</capitec-label>
+				</capitec-group>`
+			: html``;
 	}
 
 	_renderFeedback() {
-		if (this.renderMode === RENDER_MODE.FEEDBACK) {
-			return html`
-				<horizon-feedback
-					@done="${() => this._back()}">
-				</horizon-feedback>
-			`;
-		}
-		return html``;
+		return this.renderMode === RENDER_MODE.FEEDBACK
+			? html`
+				<horizon-feedback 
+					@done="${() => this._done()}">
+				</horizon-feedback>`
+			: html``;
 	}
- }
- 
+}
+
 customElements.define(`search-other-need`, SearchOtherNeed);

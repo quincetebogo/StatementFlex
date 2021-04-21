@@ -1487,7 +1487,7 @@ export class HorizonTelemetry extends Telemetry {
 			]
 		});
 	}
-
+	// #endregion END CALL SELECTED
 	
 	/**
 	 * @typedef {Object} SkipVerificationXDSModel

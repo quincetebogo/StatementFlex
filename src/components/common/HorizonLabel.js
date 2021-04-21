@@ -74,7 +74,6 @@ export class HorizonLabel extends Component {
 					
 					--theme-icon-size-small: 24px;
 				}
-
 				.label-text{
 					height: var(--horizon-label-text-height, 21px);
 					color: var(--horizon-label-text-color, #4E6066);
@@ -85,6 +84,8 @@ export class HorizonLabel extends Component {
 				}
 
 				.label-value{
+					
+					--theme-text-select: text;
 					margin-top: var(--horizon-label-value-margin-top, 0px);
 					height: var(--horizon-label-value-height, 27px);
 					color: var(--horizon-label-value-color, #003652);

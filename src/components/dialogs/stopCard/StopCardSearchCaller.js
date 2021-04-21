@@ -251,10 +251,14 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
+		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 		if (this.ivrOption.value !== `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`other-need-selected`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails
+					incomingCallDetails: this.incomingCallDetails,
+					incidentDetails: this.incidentDetails
 				}
 			}));
 		}
@@ -264,7 +268,7 @@ export class StopCardSearchCaller extends Component {
 		
 		// Telemetry
 		HorizonTelemetry.instance.endCallSelected({
-			screen		: TelemetryScreen.SEARCH_CLIENT,
+			screen: TelemetryScreen.SEARCH_CLIENT,
 			nextScreen: null
 		});
 		this.renderMode = RENDER_MODE.END_CALL;
@@ -288,6 +292,7 @@ export class StopCardSearchCaller extends Component {
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: { 
 				incomingCallDetails: this.incomingCallDetails,
+				incidentDetails: this.incidentDetails,
 				confirmedCaller: confirmedCaller 
 			}
 		}));

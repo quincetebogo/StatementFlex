@@ -17,8 +17,8 @@
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
-	"VDN":"211377",
-	"LogRequestResponseModels" : true,
+	"VDN": "211377",
+	"LogRequestResponseModels": true,
 	"ivrMapping": [
 		{
 			"option": "1",
@@ -37,6 +37,17 @@
 			"primaryNeed": "ProductEnquiry"
 		}
 	],
+	"ivrActionMapping": {
+		"debi-check": "DEBI_CHECK",
+		"stop-card": "STOP_CARD",
+		"update-card-limits": "UPDATE_CARD_LIMITS",
+		"tap-to-pay": "TAP_TO_PAY",
+		"statements": "STATEMENTS",
+		"proof-of-account": "PROOF_OF_ACCOUNT",
+		"tax-certificate": "TAX_CERTIFICATE",
+		"transaction-history": "TRANSACTION_HISTORY",
+		"search-other-need": "SEARCH_OTHER_NEED"
+	},
 	"mock": {
 		"enabled": true,
 		"acceptCall": {

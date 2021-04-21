@@ -50,6 +50,18 @@ export class ViewInfoDebiCheck extends Component {
 		this.dispatchEvent(new CustomEvent(`viewed`));
 	}
 
+	_formartCollectionDate(collectionDate) {
+
+		const date = collectionDate instanceof Date ? collectionDate : new Date(collectionDate);
+
+		const months = [
+						`January`, `February`, `March`, `April`, `May`, `June`,
+						`July`, `August`, `September`, `October`, `November`, `December`
+						];
+	
+		return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -193,7 +205,10 @@ export class ViewInfoDebiCheck extends Component {
 				<img class="image" src="/images/transactions/DebiCheck-logo-Banner-1024x256.svg"/>
 				<capitec-group class="group-layout" layout="grid" rows="uniform" columns="auto" row-gap="clear" >
 				<capitec-label type="subtitle" label="First collection date" row="1" column="1"></capitec-label>
-				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.firstCollectionDate ? this.debiCheckDetails.firstCollectionDate : `-`}" row="1" column="2"></capitec-label>
+				<capitec-label id="label-value"
+								type="subtitle" 
+								label="${this.debiCheckDetails.firstCollectionDate ? this._formartCollectionDate(this.debiCheckDetails.firstCollectionDate) : `-`}" 
+								row="1" column="2"></capitec-label>
 				<capitec-label type="subtitle" label="Tracking allowed" row="2" column="1"></capitec-label>
 				<capitec-label id="label-value" type="subtitle" label="${this.debiCheckDetails.tracking ? `Yes` : `No`}" row="2" column="2"></capitec-label>
 				<capitec-label type="subtitle" label="Contract reference" row="3" column="1"></capitec-label>

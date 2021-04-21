@@ -81,11 +81,9 @@ export class ProductInformation extends View {
 		super.connectedCallback();
 		this._initialise();
 
-		const state = this.horizonStore.recoverState();
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
-
-		this.callerInformation = state.callerInformation;
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -160,10 +158,7 @@ export class ProductInformation extends View {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
