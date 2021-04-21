@@ -54,16 +54,10 @@ export class ItaVerificationFailed extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
-
-		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 
 		this._updateLeftBar();
 

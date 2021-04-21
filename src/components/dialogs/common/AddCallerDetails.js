@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -137,6 +138,17 @@ export class AddCallerDetails extends Component {
 		this.backButton = this.addCallerDialog.backButton;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadAddCallerDetails({
+			screen: TelemetryScreen.ADD_CALLER_DETAILS
+		});
+	}
+
+	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadAddCallerDetails({ 
+			screen: TelemetryScreen.ADD_CALLER_DETAILS 
+		});
 	}
 
 	// --------------
@@ -161,6 +173,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
+		HorizonTelemetry.instance.addCallerDetailsConfirm({
+			screen: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen: null
+		});
+
 		if (!this._validateData()) {
 			this.dispatchEvent(new CustomEvent(`confirm`, {
 				detail: {
@@ -193,6 +210,11 @@ export class AddCallerDetails extends Component {
 	}
 
 	_backClick() {
+		HorizonTelemetry.instance.addCallerDetailsCancel({
+			screen: TelemetryScreen.ADD_CALLER_DETAILS,
+			nextScreen: null
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {
 			detail: {
 				ivrOptionValue: this.ivrOption.value
@@ -219,9 +241,7 @@ export class AddCallerDetails extends Component {
 	}
 	
 	_errorHandler(ex) {
-		this.horizonStore.saveState({
-			incomingCallDetails: this.incomingCallDetails
-		});
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonRouter.navigateToSystemError();
 	}
 

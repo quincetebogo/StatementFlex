@@ -63,11 +63,12 @@ export class ProofOfAccountSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();;
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			this.mailId = state.emailAddress;
             this.acNumber = state.accountNumber;
+			
 		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
 		this._updateIncidentState();
@@ -108,10 +109,9 @@ export class ProofOfAccountSuccess extends View {
 	// ---------------
 
 	_updateIncidentState() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.saveState(state);
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------

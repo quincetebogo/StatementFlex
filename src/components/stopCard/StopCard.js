@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -65,17 +66,10 @@ export class StopCard extends Component {
 		this.cardsToStop = [];
 
 		// Recover state information
-		const state = this.horizonStore.recoverState();
-
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
-
-		if (state && Object.prototype.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -133,7 +127,9 @@ export class StopCard extends Component {
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 
-        this._updateLeftBar();
+		this._updateLeftBar();
+		
+		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
 	}
 
 	disconnectedCallback() {
@@ -214,9 +210,23 @@ export class StopCard extends Component {
 		)).filter(card => card.cardStopReason !== ``);
 
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
+
+		// Telemetry
+		HorizonTelemetry.instance.stopCard({
+			screen: TelemetryScreen.STOP_CARD,
+			cards: this.cardsToStop.map(card => (
+				{
+					cardId: card.cardNumber,
+					maskedCardNr: card.maskedCardNumber,
+					reason: card.cardStopReason
+				}
+			))
+		});
 	}
 
 	_confirmedStoppingCardsClick(event) {
+		HorizonTelemetry.instance.confirmStopCard({ screen: TelemetryScreen.STOP_CARD });
+
 		this.dispatchEvent(new CustomEvent(
 			`cards-stopped`,
 			{
@@ -283,7 +293,7 @@ export class StopCard extends Component {
 
 	_onHandOff(e) {
 		this.isReassigned = true;
-		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
 		this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
@@ -304,12 +314,13 @@ export class StopCard extends Component {
 		*/
 	}
 
-	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+	_back() {
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
 
+	_updateLeftBar() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
 			{
@@ -389,7 +400,14 @@ export class StopCard extends Component {
 					letter-spacing: 0;
 					line-height: 24px;
 					margin: 20px 0px 0px 23px;
-				}`
+				}
+				
+				.bold-text {
+					font-family: "Hind Vadodara";
+					font-weight: 600;
+					letter-spacing: 0;
+				}
+				`
 		];
 	}
 
@@ -416,19 +434,24 @@ export class StopCard extends Component {
 	}
 
 	_renderTitleBar() {
-		return html`<capitec-title-bar type="clear" 
-										label="Stop Card" 
-										row="1" 
-										column="1">
-					</capitec-title-bar>`;
+        return html`
+			<capitec-title-bar 
+					type="clear" 
+                                        row="1" 
+                                        column="1">
+				<img src="/images/insure/blue-left-arrow.svg" @click="${() => this._back()}"/>
+				<capitec-label 
+					label="Stop Card"
+					type="title">
+				</capitec-label>
+                    </capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
 		return html`
-			<div class="horizon-notify-client" row="2" column="1">
-				<img src="/images/info.svg" id="action-icon" />
-				<p id="action-display">&nbsp;${this.instruction}</p>
-			</div>`;
+		    <capitec-alert-banner type="info">
+				<span class="bold-text">Notify client:</span> Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021
+			</capitec-alert-banner>`;
 	}
 
 	_renderCardDetails() {
@@ -542,7 +565,10 @@ export class StopCard extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
-					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@on-cancel="${() => { 
+						this.renderMode = RENDER_MODE.MAIN_PAGE; 
+						HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
+					}}">
 				</horizon-stop-card-confirm>
 			`;
 		}

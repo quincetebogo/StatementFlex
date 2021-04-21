@@ -61,7 +61,7 @@ export class TapToPayLanding extends Component {
 			css`
 			capitec-card {
 				height: 100%;
-				width: 1064px;
+				width: var(--horizon-center-panel-width, 1064px);
 				--theme-card-border-radius: 5px;
 				--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 			}

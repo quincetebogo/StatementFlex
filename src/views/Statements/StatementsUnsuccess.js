@@ -65,8 +65,9 @@ export class StatementsUnsuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;      
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			
 			this.mailId = state.emailAddress;
       		this.acNumber = state.accountNumber;
 
@@ -124,7 +125,7 @@ export class StatementsUnsuccess extends View {
 
 				.card-related-options {
                     height: 112px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					margin-bottom:60px;
                 }
 
@@ -141,7 +142,7 @@ export class StatementsUnsuccess extends View {
 				}
 				.related-options {
 					height: 32px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					margin-bottom:-2px;
 					margin-top:-4px;
 					background-color: #F7F7F7;

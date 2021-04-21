@@ -28,8 +28,8 @@ const HORIZON_ROUTES = Object.freeze({
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
-	STATEMENTS_SUCCESSFUL: `/views/Statements/StatementsSuccess`,
-	STATEMENTS_UNSUCCESSFUL: `/views/Statements/StatementsUnsuccess`,
+	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
+	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
@@ -583,7 +583,7 @@ export default horizonRoutes = [
 		title: `CardLimitUpdateSuccess`,
 		icon: null,
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_SUCCESS,
-		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateSuccess`),
+		load: () => import(`../views/updateCardLimits/CardLimitUpdateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -591,7 +591,7 @@ export default horizonRoutes = [
 		title: `CardLimitUpdateFailed`,
 		icon: null,
 		path: HORIZON_ROUTES.CARDS_LIMIT_UPDATE_FAILED,
-		load: () => import(`../views/UpdateCardLimits/CardLimitUpdateFailure`),
+		load: () => import(`../views/updateCardLimits/CardLimitUpdateFailure`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -623,7 +623,7 @@ export default horizonRoutes = [
 		title: `StatementSuccessful`,
 		icon: null,
 		path: HORIZON_ROUTES.STATEMENTS_SUCCESSFUL,
-		load: () => import(`../views/Statements/StatementsSuccess`),
+		load: () => import(`../views/statements/StatementsSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
@@ -631,7 +631,7 @@ export default horizonRoutes = [
 		title: `StatementUnsuccessful`,
 		icon: null,
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
-		load: () => import(`../views/Statements/StatementsUnsuccess`),
+		load: () => import(`../views/statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
     }
 ];

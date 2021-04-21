@@ -27,11 +27,11 @@ export class HorizonActionBar extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		
-		this.state = this.horizonStore.recoverState();
-		this.callerInformation = this.state.callerInformation;
-		this.incomingCallDetails = this.state.incomingCallDetails;
-		this.incidentDetails = this.state.incidentDetails;
-    this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -208,7 +208,7 @@ export class HorizonActionBar extends Component {
 					<capitec-button type="clear" 
 									label="Handoff"
 									?hidden="${this.isHidden}"
-                                    @click = "${()=> this._onAssign()}">
+                                    @click = "${() => this._onAssign()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">

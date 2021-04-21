@@ -92,8 +92,7 @@ export class EndCallSession extends Component {
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
-		const state = this.horizonStore.recoverState();
-		const incidentDetails = state && state.incidentDetails;
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		// Subsequent incident might be created, so retrieving refNo & recID always from state
 		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;

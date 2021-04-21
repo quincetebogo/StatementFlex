@@ -35,17 +35,10 @@ export class XdsVerificationFailed extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		const state = this.horizonStore.recoverState();
-
-		this.incidentDetails = state.incidentDetails;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.callerInformation = state.callerInformation;
-
-		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -121,8 +114,9 @@ export class XdsVerificationFailed extends View {
 	}
 
 	_updateMiniProfile() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		const state = { 
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,

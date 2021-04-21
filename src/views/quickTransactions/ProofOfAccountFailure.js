@@ -62,8 +62,9 @@ const RENDER_MODE = {
 
 		if (state) {
 			// this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			
 			this.mailId = state.emailAddress;      
 			this.acNumber = state.accountNumber;
 
@@ -121,7 +122,7 @@ const RENDER_MODE = {
 				}
 				.card-related-options {
                     height: 112px;
-                    width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
                     margin-bottom:60px;
                 }
 				.button-margin{
@@ -137,7 +138,7 @@ const RENDER_MODE = {
                 }
                 .related-options {
                     height: 32px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					margin-top: -4px;
 					margin-bottom: -2px;
                     background-color: #F7F7F7;

@@ -1,11 +1,11 @@
 import { Component, css, html, live } from 'platform/elements';
-import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
+
+const orgUnit = `Client Care`;
 
 const RENDER_MODE = Object.freeze({
 	FEEDBACK: 0
@@ -31,34 +31,37 @@ const RENDER_MODE = Object.freeze({
 
 	constructor() {
 		super();
-		this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-		this.eventAggregator = EventAggregator.getInstance();
+
+		// Create Instances
 		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
+
+		// Private properties
 		this.isBusy = false;
 		this.chooseNeed = true;
 		this.chooseIssue = true;
-		this.orgUnit = `Client Care`;
+
+
+		// Private Variables
 		this.category = ``;
 		this.need = ``;
 		this.issue = ``;
 		this.solutionDisplay = false;
-		this.searchObject = null;
-		this.specificNeedObjects = null;
-		this.issueTypeObjects = null;
-		this.solutionObjects = null;
+		this.categories = null;
+		this.needs = null;
+		this.issues = null;
+		this.issuesObject = null;
+		this.solutionObject = null;
 
-		this._configuration = Configuration.getInstance();
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
 	}
+
 	// --------------
 	// PROPERTIES
 	// --------------
 
 	/**
 	 *
-	 * @property {Object} searchOtherNeed Contains list of other needs
+	 * @property {Object} incidentDetails Incident details
 	 *
 	 * @readonly
 	 * @static
@@ -66,16 +69,19 @@ const RENDER_MODE = Object.freeze({
 	 */
 	static get properties() {
 		return {
-			incomingCallDetails: { type: Object },
-			searchOtherNeed: { type: Object },
-			chooseNeed: { type: Boolean },
-			chooseIssue: { type: Boolean },
-			solutionDisplay: { type: Boolean },
-			searchObject: { type: Object },
-			specificNeedObjects: { type: Object },
-			issueTypeObjects: { type: Object },
-			solutionObjects: { type: Object },
-			renderMode: { attribute: false }
+			incidentDetails: { type: Object },
+			
+			searchOtherNeed: { type: Object, attribute: false },
+			chooseNeed: { type: Boolean, attribute: false },
+			chooseIssue: { type: Boolean, attribute: false },
+			solutionDisplay: { type: Boolean, attribute: false },
+			categories: { type: Object, attribute: false },
+			needs: { type: Object, attribute: false },
+			issues: { type: Object, attribute: false },
+			solutionObject: { type: Object, attribute: false },
+			issuesObject: { type: Object, attribute: false },
+			renderMode: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -85,17 +91,17 @@ const RENDER_MODE = Object.freeze({
 
 	async connectedCallback() {
 		super.connectedCallback();
-		
-		const orgUnit = `Client Care`;
-		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
-		if (returnValue.succeeded && returnValue.result) {
-			this.searchObject = returnValue.result.categories;
-		} else {
-			this.logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
-		
-		}
+
 		this.strackURL = await this._configuration.getSetting(`otherSystemsURL.strack`);
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+		
+		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.categories = returnValue.result.categories;
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `otherNeedCategories`, returnValue.result);
+		}
 	}
 
 	// --------------
@@ -110,6 +116,7 @@ const RENDER_MODE = Object.freeze({
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
+
 	// ---------
 	// PRIVATE METHODS
 	// ---------
@@ -118,24 +125,23 @@ const RENDER_MODE = Object.freeze({
 		this.need = ``;
 		this.issue = ``;
 		this.category = e.detail.new.category;
-		
 		this.chooseNeed = false;
 			
-			const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(this.orgUnit, this.category);
+		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, this.category);
 			
-			if (e.detail.old !== null) {
-				if (e.detail.old.category !== e.detail.new.category) {
+		if (e.detail.old !== null) {
+			if (e.detail.old.category !== e.detail.new.category) {
 				this.chooseIssue = true;
 				this.solutionDisplay = false;
 			}
 		}
-			if (returnValue.succeeded && returnValue.result) {
-				this.specificNeedObjects = returnValue.result.needs.map(item => item.need);
-			} else {
-				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-			}
+			
+		if (returnValue.succeeded && returnValue.result) {
+			this.needs = returnValue.result.needs.map(item => item.need);
+		} else {
+				this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+		}
 		this.requestUpdate();
-		
 	 }
 
 	async _searchSpecificNeed(e) {
@@ -146,12 +152,14 @@ const RENDER_MODE = Object.freeze({
 		if (this[e.currentTarget.value] = e.detail.new) {
 			this.chooseIssue = false;
 		
-			const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
+			const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, this.category, this.need);
 		
 				if (returnValue.succeeded && returnValue.result) {
-				this.issueTypeObjects = returnValue.result.issues.map(item => item.issue);
+					
+					this.issuesObject = returnValue.result.issues;
+					this.issues = returnValue.result.issues.map(item => item.issue);
 			} else {
-				this.logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+				this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 			}
 		} else {
 			this.solutionDisplay = false;
@@ -159,17 +167,12 @@ const RENDER_MODE = Object.freeze({
 		this.requestUpdate();
 	 }
 
-	async _chooseIssueType(e) {
+	_chooseIssueType(e) {
 		this.solutionDisplay = true;
 		this.issue = e.currentTarget.value;
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(this.orgUnit, this.category, this.need);
 		
-		if (returnValue.succeeded && returnValue.result) {
-			this.solutionObjects = returnValue.result.issues.map(item => item.solution);
-		} else {
-			
+		this.solutionObject = this.issuesObject.find(item => item.issue === this.issue).solution;
 			this.logger.log(`error`, `Failed to retrieve Other Needs Solution`, `_chooseIssueType`, returnValue.result);
-		}
 	}
 
 	_onLaunchStrackClick() {
@@ -177,6 +180,7 @@ const RENDER_MODE = Object.freeze({
 		window.open(this.strackURL);
 		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -193,8 +197,8 @@ const RENDER_MODE = Object.freeze({
 			super.styles,
 			css`
 				.other-need {
-					height: 888px;
-					width: 1064px;
+					height: var(--horizon-panel-height, 888px);
+					width: var(--horizon-center-panel-width, 1064px);
 					--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
 				}
 				capitec-card > capitec-group:first-child {
@@ -345,7 +349,7 @@ const RENDER_MODE = Object.freeze({
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-select 
 					label="Search client need"
-					.items="${this.searchObject}"
+					.items="${this.categories}"
 					display-field="category"
 					id-field="category"
 					value = "${this.category}"
@@ -355,7 +359,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose specific need" 
-					.items="${this.specificNeedObjects}"
+					.items="${this.needs}"
 					display-field="need"
 					id-field="need"
 					value="${live(this.need)}"
@@ -365,7 +369,7 @@ const RENDER_MODE = Object.freeze({
 				</capitec-select>
 				<capitec-select 
 					label="Choose issue type" 
-					.items="${this.issueTypeObjects}"
+					.items="${this.issues}"
 					display-field="issue"
 					id-field="issues"
 					value="${live(this.issue)}"
@@ -385,7 +389,7 @@ const RENDER_MODE = Object.freeze({
 						<capitec-label
 							class="solution-heading"
 							type="default"
-							label="${this.solutionObjects}">
+							label="${this.solutionObject}">
 						</capitec-label>
 					</capitec-content-box>
 					
