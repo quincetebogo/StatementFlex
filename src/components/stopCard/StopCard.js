@@ -378,7 +378,8 @@ export class StopCard extends Component {
 				}
 				capitec-table {
 					width: 100%;
-					height: 631px;
+					height: 658px;
+					margin-top: 8px;
 				}
 				button-bar{
 					border-top: thin solid #d3d3d3;
@@ -401,11 +402,31 @@ export class StopCard extends Component {
 					line-height: 24px;
 					margin: 20px 0px 0px 23px;
 				}
-				
+				capitec-button[type="clear"] {
+					--theme-button-clear-font-weight: 600;
+					--theme-button-clear-font-size: 16px;
+				}
+				capitec-button[type="clear"]:hover {
+					--theme-button-clear-font-weight: 600;
+					--theme-button-clear-font-size: 16px;
+					--theme-button-clear-font-color: #3A3A3A;
+					--theme-button-clear-background-color: #E5F5FB; 
+				}
+				capitec-button[type="clear"]:focus {
+					--theme-button-clear-font-weight: 600;
+					--theme-button-clear-font-size: 16px;
+					--theme-button-clear-font-color: #009DE0;
+					--theme-button-clearbackground-color: #E5F5FB; 
+				}
 				.bold-text {
 					font-family: "Hind Vadodara";
 					font-weight: 600;
 					letter-spacing: 0;
+				}
+				capitec-alert-banner {
+					width: 1032px;
+					height: 48px;
+					margin: 16px 16px 16px 16px;
 				}
 				`
 		];
@@ -441,7 +462,7 @@ export class StopCard extends Component {
                                         column="1">
 				<img src="/images/insure/blue-left-arrow.svg" @click="${() => this._back()}"/>
 				<capitec-label 
-					label="Stop Card"
+					label="Stop Card(s)"
 					type="title">
 				</capitec-label>
                     </capitec-title-bar>`;
@@ -533,22 +554,22 @@ export class StopCard extends Component {
 						<capitec-label label="Choose a Reason" 
                                        style="line-height: 21px; width: 102px;">
 						</capitec-label>
-						<capitec-button label="Card Damaged"
+						<capitec-button type="clear" label="Card Damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_DAMAGED}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Lost"
+						<capitec-button type="clear" label="Card Lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_LOST}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Stolen"
+						<capitec-button type="clear" label="Card Stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_STOLEN}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
 						</capitec-button>
-						<capitec-button label="Suspected Fraud"
+						<capitec-button type="clear" label="Suspected Fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.SUSPECTED_FRAUD}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">

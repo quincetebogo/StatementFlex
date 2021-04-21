@@ -497,6 +497,7 @@ export class ConfirmCallerDetails extends Component {
 					--theme-layout-gap-spacing: 25px;
 				}
 				capitec-label[type="title"] {
+					--theme-text-select: text;
 					--theme-label-title-font-weight: 600;
 					line-height: 28px;
 				}
