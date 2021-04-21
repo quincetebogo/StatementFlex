@@ -3,10 +3,8 @@ import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ViewBase } from 'app/views/common/ViewBase';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 
@@ -55,6 +53,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.clientProducts = null;
 
 	}
@@ -209,6 +208,19 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
+	}
+
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result.savingsProducts;
+		}
+		return [];
 	}
 
 
