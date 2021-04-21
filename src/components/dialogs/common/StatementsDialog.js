@@ -323,6 +323,7 @@ export class StatementsDialog extends Component {
 			return false;
 		}
 
+            // still to fill these in
 		const statement = {
 			"emailAddress": this.email,
 			"cifNumber": this.callerInformation.cifNumber,
@@ -474,8 +475,8 @@ export class StatementsDialog extends Component {
 		const products = this.clientProducts.filter(item => item.category === type);
 		let availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
 		
-		//Rounding off the decimal value
-		availableBalance = Math.round(availableBalance * 100)/100;
+		// Rounding off the decimal value
+		availableBalance = Math.round(availableBalance * 100) / 100;
 		return formatCurrency(availableBalance);
 	}
 
