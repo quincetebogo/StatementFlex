@@ -61,7 +61,7 @@ export class Favourites extends ViewBase {
 		this.curOptionEvent = null;
 		this.cards = [];
 		this.debiCheckDetails = {};
-		this.clientProducts = [];
+		this.clientProducts = null;
 
 		// Subscribe to shell events
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
