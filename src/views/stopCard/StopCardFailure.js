@@ -93,6 +93,7 @@ export class StopCardFailure extends View {
 		}
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -186,6 +187,12 @@ export class StopCardFailure extends View {
 	_onAssignIncident() {
         this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
         this.horizonRouter.navigateToStrack(this.incidentRecId);
+	}
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------

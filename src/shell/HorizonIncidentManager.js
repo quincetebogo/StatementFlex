@@ -1,12 +1,15 @@
 import { Component, View } from 'platform/elements';
+import { Configuration, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { Logger } from 'platform/core';
 
 const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,
 	COMPLETED: `Completed`,
-	ASSIGNED: `Assigned`
+	ASSIGNED: `Assigned`,
+	FAILED: `Failed`,
+	NOT_STARTED: `Not Started`,
+	CLOSED: `Closed`
 };
 
 /**
@@ -35,6 +38,7 @@ export class HorizonIncidentManager {
 
 		this._toggleBusyFunc = null;
 
+		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 	}
@@ -44,7 +48,6 @@ export class HorizonIncidentManager {
 	// --------------
 
 	initialise() {
-
 		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
@@ -58,8 +61,10 @@ export class HorizonIncidentManager {
 			 * Checkpoint 1:
 			 * When we reload the same need. i.e., example: assume opening proof of account modal,
 			 * cancelling it and re-opening the modal
+			 * 
+			 * New case: possible to open search other needs more than once.
 			 */
-			if (clientNeed === incidentDetails.currentNeed) {
+			if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== this.HORIZON_NEED_STATUS.CLOSED) {
 				// Do nothing
 				return true;
 			}
@@ -83,40 +88,79 @@ export class HorizonIncidentManager {
 			 * Example: Landing on favourites screen, choosing proof of account and emailed client.
 			 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
 			 * 
-			 */
-			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.COMPLETED && clientNeed !== incidentDetails.currentNeed) {
-
-				const horizonIncidentManager = HorizonIncidentManager.getInstance();
-
-				horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
-				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
-				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
-
-				await horizonIncidentManager._closePrimaryIncident(clientNeed);
-			}
-
-			/**
 			 * Checkpoint 4:
 			 * 
 			 * When current is assigned or handed off, such particular incident will not be closed
 			 * And if the client has a subsequent need, should continue by creating new incident
+			 * 
 			 */
-			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.ASSIGNED && clientNeed !== incidentDetails.currentNeed) {
+			if ((incidentDetails.needStatus === this.HORIZON_NEED_STATUS.COMPLETED || incidentDetails.needStatus === this.HORIZON_NEED_STATUS.ASSIGNED) && 
+				clientNeed !== incidentDetails.currentNeed) {
+
+					const horizonIncidentManager = HorizonIncidentManager.getInstance();
+
+					horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
+					horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
+					horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
+					horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+
+					await horizonIncidentManager._classifyIncident(clientNeed);
+			}
+
+			/**
+			 * Checkpoint 5:
+			 * 
+			 * Special case for Search-other-need: Launch Strack will classify the other need and return to Horizon
+			 * gets the status of other needs, same will be updated to STrack. We just have to create new incident if 
+			 * client have subsequent needs
+			 * 
+			 */
+			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.CLOSED) {
 
 				const horizonIncidentManager = HorizonIncidentManager.getInstance();
 
 				horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
 				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
 				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
+				horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
 
 				await horizonIncidentManager._createSubsequentIncident(clientNeed);
 			}
 		};
 	}
 
-	// --------------
+	// ---------------
 	// PRIVATE METHODS
-	// --------------
+	// ---------------
+
+	async _getNeedActions() {
+		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
+		return ivrActionMapping;
+	}
+
+	async _classifyIncident(clientNeed) {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const ivrActionMapping = await this._getNeedActions();
+		
+		const request = {
+			incidentRecId: this.incidentRecID,
+			ivrOptionCode: incomingCallDetails.ivrOptionCode,
+			needAction: ivrActionMapping[incidentDetails.currentNeed],
+			incidentCategorization: null
+		};
+		const returnValue = await this.incidentService.classifyIncident(request);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+		}
+
+		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED) {
+			await this._createSubsequentIncident(clientNeed);
+		} else {
+			await this._closePrimaryIncident(clientNeed);
+		}
+	}
 
 	/**
 	 * Closing current need
@@ -127,13 +171,10 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _closePrimaryIncident(clientNeed) {
-
-		this.incidentService = new IncidentManagementService(this._toggleBusyFunc, null);
-
 		const closeIncidentRequest = {
 			incidentRecId: this.incidentRecID,
 			reason: `NeedFulfilled`,
-			resolution: `NeedFulfilled`,
+			resolution: `Need Fulfilled`,
 			causeCode: `NormalEnquiry`
 		};
 
@@ -173,17 +214,18 @@ export class HorizonIncidentManager {
 	_updateIncidentState(clientNeed, newIncident) {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 		
-		const incidentDetails = {
+		const curIncidentDetails = {
 			incidentReferenceNumber: newIncident ? newIncident.incidentNumber : `0`,
 			incidentRecId: newIncident ? newIncident.incidentRecId : `0`,
 			primaryIncidentRecID: this.primaryNeedIncidentRecId,
-			previousNeed: state.incidentDetails.currentNeed,
+			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
 			needStatus: `InProgress`
 		};
 
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.horizonStore.setIncidentDetails(curIncidentDetails);
 
 		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);

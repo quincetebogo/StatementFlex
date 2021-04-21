@@ -275,13 +275,17 @@ export class SearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 
+		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
 		// Stop Card has it's own specialized search dialog. We raise this 
 		// event to give the caller the change to switch to that dialog.
 		// Switching to the dialog is not handled in this component.
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
 			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
 				detail: {
-					incomingCallDetails: this.incomingCallDetails
+					incomingCallDetails: this.incomingCallDetails,
+					incidentDetails: this.incidentDetails
 				}
 			}));
 		}
@@ -325,6 +329,7 @@ export class SearchCaller extends Component {
 				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 					detail: {
 						incomingCallDetails: this.incomingCallDetails,
+						incidentDetails: this.incidentDetails,
 						nonClient: {
 							firstName: this.nameValue,
 							surname: this.surNameValue,
@@ -495,7 +500,8 @@ export class SearchCaller extends Component {
 		this.dispatchEvent(new CustomEvent(`client-identified`, {
 			detail: { 
 				incomingCallDetails: this.incomingCallDetails,
-				confirmedCaller: confirmedCaller 
+				confirmedCaller: confirmedCaller,
+				incidentDetails: this.incidentDetails
 			}
 		}));
 	};

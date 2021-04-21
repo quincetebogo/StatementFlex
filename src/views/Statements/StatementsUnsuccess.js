@@ -70,6 +70,8 @@ export class StatementsUnsuccess extends View {
 			
 			this.mailId = state.emailAddress;
       		this.acNumber = state.accountNumber;
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {

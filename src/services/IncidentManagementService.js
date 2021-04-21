@@ -142,7 +142,19 @@ export class IncidentManagementService extends ServiceBase {
 	 otherNeedIssueType(orgUnit, category, need, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.otherNeedIssueType(orgUnit, category, need), `otherNeedIssueType`, errorHandler, autoRetries);
 		}
-    
+
+	/**
+	 * Loads the list of end call reasons to display on the end call dialog
+	 * 
+	 * @param {Object} request Request to pull options to close incident
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	closeIncidentOptions(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.closeIncidentOptions(request), `closeIncidentOptions`, errorHandler, autoRetries);
+	}
+
 	/**
 	 * Closing current incident.
 	 *
@@ -154,5 +166,18 @@ export class IncidentManagementService extends ServiceBase {
 	 */
 	 closeIncident(closeIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.closeIncident(closeIncidentRequest), `closeIncident`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * classifying incident.
+	 *
+	 * @param {object} classifyIncidentRequest IncidentRecID & need details to classify incident
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	classifyIncident(classifyIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.classifyIncident(classifyIncidentRequest), `classifyIncident`, errorHandler, autoRetries);
 	}
 }
