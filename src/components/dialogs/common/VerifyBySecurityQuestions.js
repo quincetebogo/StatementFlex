@@ -157,12 +157,8 @@ export class VerifyBySecurityQuestions extends Component {
 				this.callerInformation.verificationStatus = `failed`;
 				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
-				const state = {
-					callerInformation: this.callerInformation,
-					incomingCallDetails: this.incomingCallDetails
-				};
-
-				this.horizonStore.saveState(state);
+				this.horizonStore.setCallerInformation(this.callerInformation);
+				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
@@ -211,11 +207,9 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		this.alertBannerMessage = SYSTEM_ERROR;
 
 		return true;

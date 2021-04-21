@@ -326,7 +326,8 @@ export class HorizonChannelService extends Service {
 			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
 			"ivrOptionCode": stopCardRequest.ivrOptionCode,
 			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
+			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
+			"incidentRecId": stopCardRequest.incidentRecId
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
@@ -705,7 +706,7 @@ export class HorizonChannelService extends Service {
 	}
 
 	getClientProducts(request) {
-		const url = `/clientcare/documents/${this._version}/statements/client/${request.cifNumber}?`+
+		const url = `/clientcare/documents/${this._version}/statements/client/${request.cifNumber}?` +
 					`ProductStatus=${request.status}`;
 		return this._get(url, this._setToken(), `getClientProducts`);
 	}

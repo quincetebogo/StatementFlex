@@ -62,8 +62,9 @@ const RENDER_MODE = {
 
 		if (state) {
 			// this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			
 			this.mailId = state.emailAddress;      
 			this.acNumber = state.accountNumber;
 
