@@ -31,10 +31,10 @@ const TABLE_STYLE = {
 };
 
 const STOPREASONS = {
-	CARD_DAMAGED: `DAMAGED`,
-	CARD_LOST: `LOST`,
-	CARD_STOLEN: `STOLEN`,
-	SUSPECTED_FRAUD: `SUSPECTED_FRAUD`
+	CARD_DAMAGED: `CARD DAMAGED`,
+	CARD_LOST: `CARD LOST`,
+	CARD_STOLEN: `CARD STOLEN`,
+	SUSPECTED_FRAUD: `SUSPECTED FRAUD`
 };
 
 /**
@@ -526,22 +526,22 @@ export class StopCard extends Component {
 						<capitec-label label="Choose a Reason" 
                                        style="line-height: 21px; width: 102px;">
 						</capitec-label>
-						<capitec-button label="Card Damaged"
+						<capitec-button type="clear" label="Card Damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_DAMAGED}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Lost"
+						<capitec-button type="clear" label="Card Lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_LOST}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
 						</capitec-button>
-						<capitec-button label="Card Stolen"
+						<capitec-button type="clear" label="Card Stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_STOLEN}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
 						</capitec-button>
-						<capitec-button label="Suspected Fraud"
+						<capitec-button type="clear" label="Suspected Fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS.SUSPECTED_FRAUD}"
 							            @click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">

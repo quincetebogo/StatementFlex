@@ -411,7 +411,7 @@ export class StopCardSuccess extends View {
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully
+					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully</br>
 				</p>
 			</div>
 		`;
