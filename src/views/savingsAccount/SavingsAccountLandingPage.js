@@ -267,19 +267,10 @@ export class SavingsAccountLandingPage extends ViewBase {
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
 			${this._renderLoadingIndicator()}
-			${this._renderStatementsModal()}
-			${this._renderDebiCheckMandates()}
-			${this._renderDebiCheckDeclineMandate()}
-			${this._renderDebiCheckViewMandateInfo()}
+			${super._webTemplate()}
 			`;
 	}
 
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
-	}
-	
 
 	_renderSavingsLandingPage() {
 		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE

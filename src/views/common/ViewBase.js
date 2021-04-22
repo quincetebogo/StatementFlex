@@ -199,6 +199,10 @@ export class ViewBase extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
+			${this._renderStatementsModal()}
+			${this._renderDebiCheckMandates()}
+			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckViewMandateInfo()}
 			`; 
 	}
 

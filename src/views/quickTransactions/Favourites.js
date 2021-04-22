@@ -408,15 +408,10 @@ export class Favourites extends ViewBase {
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
 
-			${this._renderDebiCheckMandates()}
-			${this._renderDebiCheckDeclineMandate()}
-			${this._renderDebiCheckViewMandateInfo()}
-
 			${this._renderAlertModal()}
             ${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
-			${this._renderStatementsModal()}
 
 			${super._webTemplate()}
 		`;
