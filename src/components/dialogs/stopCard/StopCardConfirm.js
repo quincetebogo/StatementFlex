@@ -200,7 +200,7 @@ export class StopCardConfirm extends Component {
 
 		return html`
 		<p class="${classes}">${line.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <span class="bold-text">${line.maskedCardNumber}</span></p>
-		<p class="left-margin">Reason: <span class="bold-text">${line.cardStopReason}</span></p>
+		<p class="left-margin">Reason: <span class="bold-text">${line.cardStopReason.value}</span></p>
 		${this._renderGreyLine(index, cards)}
 		`;
 	}
