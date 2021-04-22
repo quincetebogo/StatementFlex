@@ -10,13 +10,15 @@ const rowItem = `height: 64px;
 				 margin-bottom: 8px;
 				 cursor: default`;
 
-const width223 = `width: 223px;`;
-const width185 = `width: 185px;`;
+const width280 = `width: 280px;`;
+const width240 = `width: 240px;`;
+const width165 = `width: 165px`;
 const width98 = `width: 98px;`;
 
 const borderRight = `border-right: 1px solid #E1E1E1;`;
 
-const cellGroup = `margin-left: 16px;`;
+const cellGroup = `margin-left: 16px;
+					margin-right: 8px`;
 
 const cellLabel = `--theme-label-default-font-size: 14px;
 					   --theme-label-font-color: #3A3A3A;
@@ -43,8 +45,9 @@ const cellButton = `width: 100px;
  */
 export const TABLE_ROW_CSS = {
 	rowItem: rowItem,
-	width223: width223,
-	width185: width185,
+	width280: width280,
+	width240: width240,
+	width165: width165,
 	width98: width98,
 	borderRight: borderRight
 };

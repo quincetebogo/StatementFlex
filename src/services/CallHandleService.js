@@ -101,31 +101,6 @@ export class CallHandleService extends ServiceBase {
 	}
 
 	/**
-	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
-	 * @param {Object} endCallDetails Information about the call to end (including end call reason/cause code)
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	loadEndCallOptions(endCallDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.loadEndCallOptions(endCallDetails), `loadEndCallOptions`, errorHandler, autoRetries);
-	}
-
-	/**
-	 *  Closes the incident that was created to track the call.
-	 * 
-	 * @param { object } endCallRequest An object containg the incident for the call and the reason for ending the call
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 * @memberof CallHandleService
-	 */
-	endCall(endCallRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.endCall(endCallRequest), `endCall`, errorHandler, autoRetries);
-	}
-
-	/**
 	 * Retrieves the security questions to verify the client
 	 * 
 	 * @param {string} clientID client identification number
