@@ -83,7 +83,7 @@ const TIME_PERIOD = {
 	}
 };
 
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+const EMAIL_REGEX = /[a-zA-Z0-9.-]+@[a-zA-Z-]+.(com|net|co.za|gov|co.uk)(.([a-z]+))*/;
 
 /**
  * View and email statements based on account selection and date range.
@@ -190,11 +190,13 @@ export class StatementsDialog extends Component {
 		const selectAccount = () => this._validateAccountSelection();
 		const selectPeriod = () => this._validatePeriodSelection();
 		const emailClient = () => this._validateEmailAddress();
+		const emailFormatCheck=()=>this._emailFormatCheck();
 
 		const validations = {
 			0: selectAccount,
 			1: selectPeriod,
-			2: emailClient
+			2: emailClient,
+			3: emailFormatCheck
 		};
 		const result = validations[this.currentStep]();
 		if (result && this.errorMessage === ``) {
@@ -273,6 +275,10 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
 		}
+		else {
+			this.errorMessage = ``;
+			this.mailClientError[e.currentTarget.id] = ``;
+		}
 		this.requestUpdate();
 	}
 
@@ -322,39 +328,48 @@ export class StatementsDialog extends Component {
 		if (!this._validateEmailAddress()) {
 			return false;
 		}
+		else if(!this._emailFormatCheck()){
+             return false;
+		}
+		else{
+			const statement = {
+				"emailAddress": this.email,
+				"cifNumber": this.callerInformation.cifNumber,
+				"accountNumber": `${this.productSelected.accountNumber}`,
+				"accountType": this.productSelected.accountType,
+				"statementDateRange": {
+					"dateRange": {},
+					"presetInterval": `${this.periodSelected}`
+				}
+			};
+	
+			if (this._customDateRange) {
+				statement.statementDateRange.dateRange = {
+					"startDate": this.fromDate,
+					"endDate": this.toDate
+				};
+			}
+	
+			const returnValue = await this.quickTransactionService.sendStatement(statement);
+	
+			this.horizonStore.saveState({
+				emailAddress: this.email,
+				accountNumber: this.productSelected.accountNumber
+			});
+	
+			if (returnValue.succeeded) {
+				this.horizonRouter.navigateToStatementSuccessful();
+			} else {
+				this.horizonRouter.navigateToStatementUnsuccessful();
+			}
+		
+		}
+		
+			
+		}
 
             // still to fill these in
-		const statement = {
-			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
-			"statementDateRange": {
-				"dateRange": {},
-				"presetInterval": `${this.periodSelected}`
-			}
-		};
-
-		if (this._customDateRange) {
-			statement.statementDateRange.dateRange = {
-				"startDate": this.fromDate,
-				"endDate": this.toDate
-			};
-		}
-
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		this.horizonStore.saveState({
-			emailAddress: this.email,
-			accountNumber: this.productSelected.accountNumber
-		});
-
-		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToStatementSuccessful();
-		} else {
-			this.horizonRouter.navigateToStatementUnsuccessful();
-		}
-	}
+		
 
 	// ---------------
 	// PRIVATE METHODS
@@ -381,10 +396,10 @@ export class StatementsDialog extends Component {
 
 	_validateAccountSelection() {
 		if (isNullorEmpty(this.accType)) {
-			this.errorMessage = `Select an account`;
+			this.errorMessage = `Choose Account`;
 			return false;
 		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
-			this.errorMessage = `Select a plan`;
+			this.errorMessage = `Choose Savings Plan`;
 			return false;
 		}
 		this.productSelected = this._getSelectedProductDetails();
@@ -393,11 +408,11 @@ export class StatementsDialog extends Component {
 
 	_validatePeriodSelection() {
 		if (this.periodSelected === `` && !this._customDateRange) {
-			this.errorMessage = `Please choose a from and to date`;
+			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `Please choose a from and to date`;
+			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} 
@@ -940,13 +955,13 @@ export class StatementsDialog extends Component {
 				<capitec-text-field
 					id="email"
 					label="Email address"
-					oncopy="return false"
-					onpaste="return false"
-					oncut="return false"
+					oncopy="return true"
+					onpaste="return true"
+					oncut="return true"
 					value="${this.email}"
 					error="${this.mailClientError.email}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@input="${(e) => this._inputEmail(e)}">
+					@key-input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 		
 				<capitec-label
@@ -958,13 +973,13 @@ export class StatementsDialog extends Component {
 				<capitec-text-field
 					id="confirmEmail"
 					label="Email address"
-					oncopy="return false" 
-					onpaste="return false"
-					oncut="return false"
+					oncopy="return true" 
+					onpaste="return true"
+					oncut="return true"
 					value="${this.confirmEmail}"
 					error="${this.mailClientError.confirmEmail}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@input="${(e) => this._inputEmail(e)}">
+					@key-input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 
 				<hr class="seperator">
