@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -49,8 +50,7 @@ const RENDER_MODE = {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
-
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -100,10 +100,24 @@ const RENDER_MODE = {
 	}
 
 	_doneClick() {
+		
+		// Telemetry
+		HorizonTelemetry.instance.proofOfAccountOutcome({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_assignClick() {
+
+		// Telemetry
+		HorizonTelemetry.instance.proofOfAccountOutcome({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+		});
+
 		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
 		// TODO: might make service call over here to resend or navigate to Proof of account model again
 	}
@@ -152,9 +166,9 @@ const RENDER_MODE = {
 					toast="Proof of account not sent"
 					@left-click=${() => this._doneClick()}
 					@right-click=${() => this._assignClick()}>
-					<section 
-						id="id-error-msg" 
-						slot="detail">Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b></section>
+					<section id="id-error-msg" slot="detail">
+						Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+					</section>
 				</horizon--error-screen>
 			`;
 		}

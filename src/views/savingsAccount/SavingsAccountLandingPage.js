@@ -1,10 +1,10 @@
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { ViewBase } from 'app/views/common/ViewBase';
+
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -65,7 +65,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option) => {
+		this._optionClick = async (option) => {
 
 			const transactionHistory = () => this._transactionHistory();
 			const debiCheck = () => this._debiCheck();
@@ -80,8 +80,8 @@ export class SavingsAccountLandingPage extends ViewBase {
 			};
 
 			if (actions[option]) {
-				super._inicidentManager_(option, () => this._toggleBusyFlag());
-				return actions[option];
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				return actions[option]();
 			}
 		};
 	}
@@ -267,7 +267,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					@option-click="${(event) => this._optionClick(event.detail.option)()}"
+					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
 				</horizon-savings-account>`
 			: html``;
