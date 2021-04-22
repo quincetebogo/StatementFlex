@@ -315,10 +315,10 @@ export class StopCardSuccess extends View {
 				.status-group{
 					width: auto;
 					height: 26px;
-					display: flex;
 					flex-wrap: wrap;
 					justify-content: center;
-					margin: 0px 0px 15px 0px;
+					margin: 0px auto 36px;
+                    display:block;
 				}
 
 				.card-status-success{
@@ -405,9 +405,9 @@ export class StopCardSuccess extends View {
 
 	_renderStoppedCards() {
 		return html`
-			<div class="status-group">
-				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
-			</div>
+                <div class="status-group">
+    				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
+	    		</div>
 		`;
 	}
 
@@ -421,10 +421,10 @@ export class StopCardSuccess extends View {
 
 	_renderSuccessStatus(card) {
 		return html`
-			<div class="card-status-success">
-				<capitec-icon size="medium" icon="status/success"></capitec-icon>
+			 <div class="card-status-success">
+				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully</br>
+					${card.cardDisplayName.split(`_`).map(w=> w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
 		`;

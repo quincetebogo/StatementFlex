@@ -298,7 +298,7 @@ export class StopCard extends Component {
 		this.cards.map((card, index) => {
 			card.rowIndex = index;
 			card.selected = false;
-			card.cardStopReason = STOPREASONS.CARD_LOST.key;
+			card.cardStopReason = STOPREASONS.CARD_LOST.value;
 			return card;
 		});
 	}
@@ -419,6 +419,9 @@ export class StopCard extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 				}
+                capitec-alert-banner{
+                    margin: 16px;
+                }
 				`
 		];
 	}
@@ -510,7 +513,7 @@ export class StopCard extends Component {
 				${this._renderRowInput(rowData)}
 				<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
 					<capitec-label 
-						label="${rowData[COLUMNS.CARDTYPE]}"
+						label="${rowData[COLUMNS.CARDTYPE].split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)}"
 						style="${TABLE_STYLE.CELL_HEIGHT}">
 					</capitec-label>
 				</div>
@@ -547,23 +550,23 @@ export class StopCard extends Component {
 						</capitec-label>
 						<capitec-button type="clear" label="Card Damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_DAMAGED.key}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED.key, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_DAMAGED.value}"
+							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED.value, rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_LOST.key}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST.key, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_LOST.value}"
+							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST.value, rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_STOLEN.key}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN.key, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_STOLEN.value}"
+							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN.value, rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Suspected Fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.SUSPECTED_FRAUD.key}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD.key, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS.SUSPECTED_FRAUD.value}"
+							            @click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD.value, rowData)}">
 						</capitec-button>
 					</div>`;
 		}
