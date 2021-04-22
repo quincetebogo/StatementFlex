@@ -90,6 +90,7 @@ const TIME_PERIOD = {
 };
 
 const NOTIFICATION_MESSAGE = {
+	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
 }
@@ -124,7 +125,7 @@ export class StatementsDialog extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 0;
 		this.notifyClient = true;
-		this.notifyMessage = NOTIFICATION_MESSAGE.FEE;
+		this.notifyMessage = NOTIFICATION_MESSAGE.APP;
 		this.accType = ``;
 		this.accPlanType = ``;
 		this.savingsPlans = [];
@@ -840,8 +841,8 @@ export class StatementsDialog extends Component {
 							type="radio-button"
 							label="${item.accountName}"
 							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
-										? "Balance: R" + formatCurrency(item.currentBalance) 
-										: "Available balance: R" + formatCurrency(item.availableBalance)}"
+										? "Balance R" + formatCurrency(item.currentBalance) 
+										: "Available balance R" + formatCurrency(item.availableBalance)}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item)}"
