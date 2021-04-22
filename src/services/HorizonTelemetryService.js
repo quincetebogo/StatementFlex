@@ -298,14 +298,14 @@ export class HorizonTelemetry extends Telemetry {
 		super.spanEnd({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`horizon.call`),
-			parentSpan: null,
-			eventName: TelemetryEvent.WORKFLOW_COMPLETED,
-			tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
-
-		// clear span reference
+				parentSpan: null,
+				eventName: TelemetryEvent.WORKFLOW_COMPLETED,
+				tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+	
+			// clear span reference
 		this.currentActiveSpans.set(`horizon.call`, null);
 	}
 

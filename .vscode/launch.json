@@ -30,6 +30,5 @@
 				"PATH": "${workspaceFolder}/ocwp/1.1.2/node;${env:PATH}"
 			}
 		}
-	}
     ]
 }

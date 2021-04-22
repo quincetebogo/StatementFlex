@@ -1,11 +1,11 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
-import 'app/components/common/OptionButton';
+import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 
@@ -64,9 +64,10 @@ export class StopCardSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incidentDetails = state.incidentDetails;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.callerInformation = state.callerInformation;
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.callerInformation = this.horizonStore.getCallerInformation();
+			
 			this.stoppedCards = state.stoppedCards;
 
 			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
@@ -136,10 +137,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
@@ -162,10 +160,9 @@ export class StopCardSuccess extends View {
 	}
   
 	_updateIncidentState() {
-		const state = this.horizonStore.recoverState();
-		state.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-
-		this.horizonStore.saveState(state);
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}  
 
 	_doneClick() {
@@ -283,26 +280,6 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
-				}
-  
-				.related-options {
-					margin-top:152px;
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
-				}
-
-				.related-options-text{
-					margin: 0px 0px 0px 24px;
-					padding: 0px 0px 0px 0px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
 				}
 
 				.options-group{
@@ -435,9 +412,10 @@ export class StopCardSuccess extends View {
 
 	_renderRelatedOptions() {
 		return html`
-		<div class="related-options">
-			<p class="related-options-text">Related Options</p> 
-		</div>`;
+			<horizon-related-options
+				context = "Success">
+			</horizon-related-options>
+		`;
 	}
 
 	_renderOptionsButtons() {
@@ -448,7 +426,7 @@ export class StopCardSuccess extends View {
 				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="/images/atm.svg"></horizon-option-button>
 				<horizon-option-button class="button-margin" label="Find A Branch" img-src="/images/atm.svg"></horizon-option-button>
 			</capitec-group>
-			`;
+		`;
 	}
 
 	_renderSuccessToast() {

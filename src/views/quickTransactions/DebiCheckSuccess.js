@@ -63,8 +63,9 @@ export class DebiCheckSuccess extends View {
 
 		if (state) {
 			this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.incidentDetails = state.incidentDetails;
+			
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;
@@ -134,28 +135,19 @@ export class DebiCheckSuccess extends View {
 
 	_renderSuccessScreen() {
 		return html`
-			<horizon-success-screen header="DebiCheck mandate approved"
-									image="/images/transactions/debiCheckMandate.svg"
-								    secondaryImage="/images/transactions/debiCheckLogo.svg"
-									left="Done"
-									right="DebiCheck Mandates"
-									toast="DebiCheck mandate declined."
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._debiCheckMandatesClick()}>
-									
-				<section 
-					id="id-error-msg" 
-					slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
-				</section>
-				<section 
-						id="id-option-button" 
-						slot="option-button">
-					<horizon-option-button 
-						class="button-margin" 
-						label="Transaction History" 
-						icon="system/time-action">
-					</horizon-option-button>
-				</section>
+			<horizon-success-screen 
+				header="DebiCheck mandate approved"
+				image="/images/transactions/debiCheckMandate.svg"
+				secondaryImage="/images/transactions/debiCheckLogo.svg"
+				left="Done"
+				right="DebiCheck Mandates"
+				toast="DebiCheck mandate declined."
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._debiCheckMandatesClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">DebiCheck mandate for <b>${this.mandateId}</b> has been declined.
+					</section>
 			</horizon-success-screen>
 		`;
 	}

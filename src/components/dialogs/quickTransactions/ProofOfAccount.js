@@ -5,7 +5,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
-const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
+const EMAIL_REG_EXP = /[a-zA-Z0-9.-]+@[a-zA-Z-]+.(com|net|co.za|gov|co.uk)(.([a-z]+))*/;
 
 /**
  * Proof of Account dialog is used to send POA for a primary savings account.
@@ -108,7 +108,7 @@ export class ProofOfAccount extends Component {
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
 				"accountNumber": this.landingPageInfo.accountNumber,
-				"accountOpenDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE
 			};

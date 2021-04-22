@@ -24,9 +24,7 @@ export class ExistingClient extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		
-		const state = this.horizonStore.recoverState();
-
-		this.callerInformation = state.callerInformation;
+		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	// -------------------
