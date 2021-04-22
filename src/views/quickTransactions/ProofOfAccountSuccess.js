@@ -98,7 +98,7 @@ export class ProofOfAccountSuccess extends View {
 
 	_sendAnotherClick() {
 		const returnToScreen = {
-			option: super.currentNeed
+			option: this.incidentDetails.currentNeed
 		};
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		

@@ -101,8 +101,10 @@ export class StatementsUnsuccess extends View {
         this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
-    _handoffClick() {
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+	_handoffClick() {
+		const incidentRecId = this.incidentDetails.incidentRecId;
+
+		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonRouter.navigateToReturnPage(`handoff`);
 	}
 
