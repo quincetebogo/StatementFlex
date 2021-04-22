@@ -22,7 +22,9 @@ export const TelemetryScreen = {
 	ADD_CALLER_DETAILS: `Add Caller Details`,
 
 	STOP_CARD: `Stop Card`,
-	STOP_CARD_OUTCOME: `Stop Card Outcome`
+	STOP_CARD_OUTCOME: `Stop Card Outcome`,
+
+	END_CALL: `End Call`
 };
 
 
@@ -72,7 +74,11 @@ const TelemetryEvent = {
 	STOP_CARD_DONE: `horizon.call.fulfill-need.stop-card.outcome.done`,
 	STOP_CARD_ANOTHER: `horizon.call.fulfill-need.stop-card.outcome.another`,
 
-	// End Call Selected
+	// End Call
+	SCR_LD_END_CALL: `horizon.call.end-call.start-span`,
+	END_CALL: `horizon.call.end-call.end-call`,
+	END_CALL_CANCEL: `horizon.call.end-call.cancel`,
+	SCR_UNLD_END_CALL: `horizon.call.end-call.end-span`,
 	END_CALL_SELECTED: `horizon.call.end-call-selected`
 };
 
@@ -131,7 +137,8 @@ export class HorizonTelemetry extends Telemetry {
 			"search-client": null,
 			"add-caller": null,
 			"fulfill-need": null,
-			"stop-card": null
+			"stop-card": null,
+			"end-call": null
 		};
 
 		this.horizonStore = new HorizonStore();
@@ -1053,8 +1060,129 @@ export class HorizonTelemetry extends Telemetry {
 
 	// #endregion STOP CARD
 
-	// #region END CALL SELECTED
-			/**
+	// #region END CALL
+	
+	/**
+	 * @typedef {Object} ScrLdEndCallModel
+	 * @property {String} screen 
+	 */
+
+	/** End Call screen loaded telemetry event
+	 * @screen End Call
+	 * @event Screen Load: End Call
+	 * 
+	 * @param {ScrLdEndCallModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadEndCall(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
+			eventName: TelemetryEvent.SCR_LD_END_CALL,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_END_CALL),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`end-call`, spanId);
+		}
+	}
+	
+	/**
+	 * @typedef {Object} EndCallModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 * @property {String} reason
+	 */
+
+	/** End Call telemetry event
+	 * @screen End Call
+	 * @event End Call
+	 * 
+	 * @param {EndCallModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 endCall(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`end-call`),
+			parentSpan: null,
+			eventName: TelemetryEvent.END_CALL,
+			tags: this._extractTags(TelemetryEvent.END_CALL),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen },
+				{ "reason": baggage.reason }
+			]
+		});
+	}
+	
+	/**
+	 * @typedef {Object} EndCallCancelModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 * @property {String} reason
+	 */
+
+	/** End Call Cancel telemetry event
+	 * @screen End Call
+	 * @event Cancel End Call 
+	 * 
+	 * @param {EndCallCancelModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 endCallCancel(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`end-call`),
+			parentSpan: null,
+			eventName: TelemetryEvent.END_CALL,
+			tags: this._extractTags(TelemetryEvent.END_CALL),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef  {Object} ScrUnldEndCallModel 
+	 * @property {String} screen 
+	 */
+
+	/** End Call Screen Unload
+	 * @screen End Call
+	 * @event Screen Unload: End Call
+	 * 
+	 * @param {ScrUnldEndCallModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadEndCall(baggage) {
+		super.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`end-call`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SCR_UNLD_END_CALL,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_END_CALL),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		this.currentActiveSpans.set(`end-call`, null);
+	}
+
+	/**
 	 * @typedef {Object} EndCallSelected
 	 * @property {String} screen
 	 * @property {String} nextScreen
@@ -1086,6 +1214,7 @@ export class HorizonTelemetry extends Telemetry {
 			]
 		});
 	}
+	
 	// #endregion END CALL SELECTED
 	
 	// #endregion PUBLIC METHODS
