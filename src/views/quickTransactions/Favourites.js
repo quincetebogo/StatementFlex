@@ -279,18 +279,6 @@ export class Favourites extends ViewBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	async _getClientProducts() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-
-		if (returnValue.succeeded) {
-			return returnValue.result.savingsProducts;
-		}
-		return [];
-	}
 
 	async _stopCard() {
 		const confirmedCaller = {

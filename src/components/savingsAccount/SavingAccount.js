@@ -286,7 +286,6 @@ export class SavingsAccount extends Component {
 						@click="${() => this._optionSelectedClick(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button
-					    style="visibility: visible;" ?hidden="${false}"
 					    badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						class="button-margin" 
 						label="DebiCheck" 

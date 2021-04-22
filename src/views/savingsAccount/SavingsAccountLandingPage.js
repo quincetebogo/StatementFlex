@@ -28,7 +28,7 @@ const TRANSACTION_HISTORY = {
  * 
  * @export
  * @class SavingsAccount
- * @extends {Component}
+ * @extends {ViewBase}
  */
 export class SavingsAccountLandingPage extends ViewBase {
 	

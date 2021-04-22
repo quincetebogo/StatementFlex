@@ -2,6 +2,7 @@ import { View, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -44,7 +45,7 @@ export class ViewBase extends View {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
-
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -180,6 +181,19 @@ export class ViewBase extends View {
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	}
+
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result.savingsProducts;
+		}
+		return [];
 	}
 
 	// ---------------
