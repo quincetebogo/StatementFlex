@@ -403,7 +403,7 @@ export class Favourites extends ViewBase {
 		});
 
 
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);		
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		if (returnValue.succeeded) {
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
@@ -451,8 +451,8 @@ export class Favourites extends ViewBase {
 		HorizonTelemetry.instance.selectStatements({
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.STATEMENTS
-		});		
-		const clientProductDetails = await this._getClientProducts();		
+		});
+		const clientProductDetails = await this._getClientProducts();
 		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails;
 			this.renderMode = RENDER_MODE.STATEMENTS;
