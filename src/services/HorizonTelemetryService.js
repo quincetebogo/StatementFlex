@@ -111,6 +111,14 @@ const TelemetryEvent = {
 	CALLER_VERIFIED: `horizon.call.verify-caller.end-span`,
 
 
+	// Proof of Account
+	SCR_LD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.start-span`,
+	SELECT_CANCEL_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.cancel`,
+	SELECT_SEND_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.send`,
+	PROOF_OF_ACCOUNT_OUTCOME: `horizon.call.fulfill-need.proof-of-account.outcome`,
+	SCR_UNLD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.stop-span`,
+
+	
 	// End Call Selected
 	END_CALL_SELECTED: `horizon.call.end-call-selected`,
 
@@ -1111,7 +1119,6 @@ export class HorizonTelemetry extends Telemetry {
 
 	// #endregion STOP CARD
 
-	// #region VERIFY CALLER
 	
 	/**
 	 * @typedef {Object} ScrLdVerifyCallerModel

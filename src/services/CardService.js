@@ -49,7 +49,8 @@ export class CardService extends ServiceBase {
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
 			ivrOptionCode: callerInfo.ivrOptionCode,
 			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
-			agentTelephoneNumber: callerInfo.agentTelephoneNumber
+			agentTelephoneNumber: callerInfo.agentTelephoneNumber,
+			incidentRecId: incidentDetails.incidentRecId
 		};
 
 		const returnValue = await this.wrapCall(this.channelService.stopCard(stopCardRequest), `stopCard`, errorHandler, autoRetries);

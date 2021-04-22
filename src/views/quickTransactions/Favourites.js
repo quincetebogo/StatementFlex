@@ -67,7 +67,7 @@ export class Favourites extends ViewBase {
 		this.clientProducts = null;
 
 		// Subscribe to shell events
-		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option));
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -98,7 +98,7 @@ export class Favourites extends ViewBase {
 		});
 
 		this._initialise();
-		this._performAction = (option) => {
+		this._performAction = async (option) => {
 
 			const stopCard = () => this._stopCard();
 			const debiCheck = () => this._debiCheck();
@@ -121,8 +121,8 @@ export class Favourites extends ViewBase {
 			};
 
 			if (actions[option]) {
-				super._inicidentManager_(option, () => this._toggleBusyFlag());
-				return actions[option];
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				return actions[option]();
 			}
 
 			/**
@@ -159,14 +159,17 @@ export class Favourites extends ViewBase {
 		if (this.curOptionEvent) {
 			const optionSelected = this.curOptionEvent.detail.option;
 			this.curOptionEvent = null;
-			this._performAction(optionSelected)();
+			await this._performAction(optionSelected);
 		}
 	}
 
 	_mainPage() {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
 		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
@@ -178,7 +181,7 @@ export class Favourites extends ViewBase {
 		if (e.detail.stopPropagation) {
 			this._unavailableOption();
 		} else {
-			await this._performAction(e.detail.option)();
+			await this._performAction(e.detail.option);
 		}
 	}
 
@@ -495,7 +498,8 @@ export class Favourites extends ViewBase {
 	}
 
 	_searchOtherNeed() {
-		// TODO: Navigation to search other needs page 
+		// Fetching the latest incident details from store
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 
 		// Telemetry Search Other need
@@ -565,7 +569,7 @@ export class Favourites extends ViewBase {
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.verificationStatus}"
+					.verificationStatus="${this.callerInformation.verificationStatus}"
 					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 					@verify-click="${() => super._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">

@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
+import 'app/components/common/RelatedOptions';
+
 /**
  * A generic success screen component. Most input is set via properties but there is a named slot (detail)
  * for the success message detail.
@@ -9,6 +11,7 @@ import { Component, css, html } from 'platform/elements';
  * @extends {Component}
  */
 export class SuccessScreen extends Component {
+
 	// --------------
 	// INITIALISATION
 	// --------------
@@ -23,15 +26,6 @@ export class SuccessScreen extends Component {
 		this.image = null;
 		this.secondaryImage = ``;
 		this.subDetail = ``;
-	}
-
-	// -------------------
-	// LIFECYCLE OVERRIDES
-	// -------------------
-
-	connectedCallback() {
-		super.connectedCallback();
-		window.setTimeout(() => this._closeToast(), 3000);
 	}
 
 	// ----------
@@ -62,6 +56,42 @@ export class SuccessScreen extends Component {
 		};
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		window.setTimeout(() => this._closeToast(), 3000);
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_closeToast() {
+		this.displayToast = false;
+	}
+
+	_leftClick() {
+		this.dispatchEvent(new CustomEvent(`left-click`, {}));
+	}
+
+	_rightClick() {
+		this.dispatchEvent(new CustomEvent(`right-click`, {}));
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	// N/A
+
+	// ---------------
+	// PUBLIC METHODS
+	// ---------------
+
+	// N/A
 
 	// ---------
 	// RENDERING
@@ -183,75 +213,111 @@ export class SuccessScreen extends Component {
 		];
 	}
 
-
-	_closeToast() {
-		this.displayToast = false;
-	}
-
-	_leftClick() {
-		this.dispatchEvent(new CustomEvent(`left-click`, {}));
-	}
-
-	_rightClick() {
-		this.dispatchEvent(new CustomEvent(`right-click`, {}));
-	}
-
 	_mobileTemplate() {
 	}
 
 	_webTemplate() {
 		return html`
 			<capitec-card class="card">
-				<capitec-toast ?hidden="${!this.displayToast}" 
-                                id="id-success-toast" type="success"
-                                header="Successful"
-					            detail="${this.toast}" 
-                                closable
-                                @click="${() => this.displayToast = false}">
-				</capitec-toast>
+				${this._renderToast()}
+
 				<capitec-group
-				layout="vertical"
+					layout="vertical"
 					gap="none"
 					halign="center"
 					valign="center">
-					<img id="id-successful-img" src="${this.image}" />
-				<img id="id-secondary-img" src="${this.secondaryImage}" />
-
-					<capitec-label id="id-successful-header" label="${this.header}"></capitec-label>
-					<capitec-group id="id-msg-group" layout="horizontal">
-						<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
-						<slot name="detail"></slot>
-					</capitec-group>
-					<capitec-group layout="horizontal">
-						${this.subDetail 
-							? html`<capitec-group id="id-sub-detail" layout="horizontal">
-										<capitec-icon size="default" icon="status/success-trans"></capitec-icon>
-										<slot name="sub-detail"></slot>
-									</capitec-group>`
-							: html``
-						}
-					</capitec-group>
-
-					<capitec-group id="id-button-group" layout="horizontal">
-						${this.left
-							? html`<capitec-button id="button-left" class="center-button" label="${this.left}" @click="${() => this._leftClick()}">
-									</capitec-button>`
-							: html``
-						}
-						${this.right
-							? html`<capitec-button class="center-button" type="primary" label="${this.right}" @click="${() => this._rightClick()}">
-									</capitec-button>`
-							: html``
-						}
-					</capitec-group>
-				</capitec-group>
-				<div class="related-options">
-					<p class="related-options-text">Related Options</p>
-				</div>
-				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-					<slot name="option-button"></slot>
+						${this._renderContent()}
 				</capitec-group>
 			</capitec-card>
+			${this._renderRelatedOptions()}
+		`;
+	}
+
+	_renderToast() {
+		return html`
+			<capitec-toast 
+				?hidden="${!this.displayToast}" 
+				id="id-success-toast" type="success"
+				header="Successful"
+				detail="${this.toast}" 
+				closable
+				@click="${() => this.displayToast = false}">
+			</capitec-toast>
+		`;
+	}
+
+	_renderContent() {
+		return html`
+			<img
+				id="id-successful-img"
+				src="${this.image}"/>
+			<img
+				id="id-secondary-img"
+				src="${this.secondaryImage}"/>
+
+			<capitec-label
+				id="id-successful-header"
+				label="${this.header}">
+			</capitec-label>
+
+			<capitec-group id="id-msg-group" layout="horizontal">
+				<capitec-icon
+					size="default"
+					icon="status/success-trans">
+				</capitec-icon>
+				<slot name="detail"></slot>
+			</capitec-group>
+			
+			<capitec-group layout="horizontal">
+				${this._renderSubDetail()}
+			</capitec-group>
+
+			<capitec-group id="id-button-group" layout="horizontal">
+				${this._renderLeftButton()}
+				${this._renderRightButton()}
+			</capitec-group>
+		`;
+	}
+
+	_renderSubDetail() {
+		return this.subDetail
+			? html`<capitec-group id="id-sub-detail" layout="horizontal">
+						<capitec-icon
+							size="default"
+							icon="status/success-trans">
+						</capitec-icon>
+						<slot name="sub-detail"></slot>
+					</capitec-group>`
+			: html``;
+	}
+
+	_renderLeftButton() {
+		return this.left
+			? html`<capitec-button
+						id="button-left"
+						class="center-button"
+						label="${this.left}"
+						@click="${() => this._leftClick()}">
+					</capitec-button>`
+			: html``;
+	}
+
+	_renderRightButton() {
+		return this.right
+			? html`<capitec-button
+						class="center-button"
+						type="primary"
+						label="${this.right}"
+						@click="${() => this._rightClick()}">
+					</capitec-button>`
+			: html``;
+	}
+
+	_renderRelatedOptions() {
+		return html`
+			<horizon-related-options
+				context="Success">
+			</horizon-related-options>
 		`;
 	}
 }
