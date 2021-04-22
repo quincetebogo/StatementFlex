@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -65,7 +66,7 @@ export class ProofOfAccountSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			this.mailId = state.emailAddress;
@@ -93,12 +94,26 @@ export class ProofOfAccountSuccess extends View {
 	}
 
 	_doneClick() {
+
+		// Telemetry
+		HorizonTelemetry.instance.proofOfAccountOutcome({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+	
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
+		
+		// Telemetry
+		HorizonTelemetry.instance.proofOfAccountOutcome({
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+		});
+
 		const returnToScreen = {
-			option: super.currentNeed
+			option: this.incidentDetails.currentNeed
 		};
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		
@@ -152,10 +167,8 @@ export class ProofOfAccountSuccess extends View {
 					toast="Proof of Account Sent"
 					@left-click=${() => this._doneClick()}
 					@right-click=${() => this._sendAnotherClick()}>
-						<section 
-							id="id-error-msg" 
-							slot="detail">
-								Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
+						<section id="id-error-msg" slot="detail">
+							Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
 						</section>
 				</horizon-success-screen>
 			`;

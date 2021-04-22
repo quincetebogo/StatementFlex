@@ -23,12 +23,12 @@ const RENDER_CHIPS = {
 };
 
 const TRANSACTION_STATUS_LIST = [
+	`Fee`,
     `Financial`,
     `Non Financial`,
     `Processing`,
-    `Reversed`,
-    `Partial reversal`,
-    `Partial reversal processed`
+    `Reversed`
+
 ];
 
 // ninety days in milliseconds
@@ -181,7 +181,7 @@ export class TransactionHistory extends Component {
 
     _dateChanged(e) {
         let fromDate = DateTime.fromISO(e.detail.new.startDate);
-        const toDate = DateTime.fromISO(e.detail.new.endDate);
+        let toDate = DateTime.fromISO(e.detail.new.endDate);
         const today = DateTime.local();
 
 

@@ -24,7 +24,10 @@ export const TelemetryScreen = {
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,
 
-	END_CALL: `End Call`
+	END_CALL: `End Call`,
+	
+	PROOF_OF_ACCOUNT: `Proof of Account`,
+	PROOF_OF_ACCOUNT_OUTCOME: `Proof of Account Outcome`
 };
 
 
@@ -79,7 +82,16 @@ const TelemetryEvent = {
 	END_CALL: `horizon.call.end-call.end-call`,
 	END_CALL_CANCEL: `horizon.call.end-call.cancel`,
 	SCR_UNLD_END_CALL: `horizon.call.end-call.end-span`,
-	END_CALL_SELECTED: `horizon.call.end-call-selected`
+	END_CALL_SELECTED: `horizon.call.end-call-selected`,
+
+	// Proof of Account
+	SCR_LD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.start-span`,
+	SELECT_CANCEL_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.cancel`,
+	SELECT_SEND_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.send`,
+	PROOF_OF_ACCOUNT_OUTCOME: `horizon.call.fulfill-need.proof-of-account.outcome`,
+	SCR_UNLD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.stop-span`,
+
+
 };
 
 
@@ -1060,7 +1072,166 @@ export class HorizonTelemetry extends Telemetry {
 
 	// #endregion STOP CARD
 
-	// #region END CALL
+	// #region PROOF OF ACCOUNT
+	
+	/**
+	 * @typedef {Object} ScrLdProofOfAccountModel
+	 * @property {String} screen 
+	 */
+
+	/** Proof of Account screen loaded telemetry event
+	 * @screen Proof of Account
+	 * @event Screen Load: Proof of Account
+	 * 
+	 * @param {ScrLdProofOfAccountModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadProofOfAccount(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SCR_LD_PROOF_OF_ACCOUNT,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_PROOF_OF_ACCOUNT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`proof-of-account`, spanId);
+		}
+	}
+	
+	/**
+	 * @typedef {Object} SelectCancelProofOfAccountModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to Favourites Screen from Proof of Account Cancel
+	 * @screen Proof of Account
+	 * @event Cancel Proof of Account
+	 * 
+	 * @param {SelectCancelProofOfAccountModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectCancelProofOfAccount(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`proof-of-account`),
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SELECT_CANCEL_PROOF_OF_ACCOUNT,
+			tags: this._extractTags(TelemetryEvent.SELECT_CANCEL_PROOF_OF_ACCOUNT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	
+	/**
+	 * @typedef {Object} SelectProofOfAccountSendModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Select Proof of Account Send telemetry event
+	 * @screen Proof Of Account
+	 * @event Send Proof of Account
+	 * 
+	 * @param {SelectProofOfAccountSendModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectProofOfAccountSend(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`proof-of-account`),
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SELECT_SEND_PROOF_OF_ACCOUNT,
+			tags: this._extractTags(TelemetryEvent.SELECT_SEND_PROOF_OF_ACCOUNT),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+	
+	/** 
+	 * @typedef {Object} ProofOfAccountOutcome
+	 * @property {String} proofId
+	 * @property {TelemetryOutcome} outcome
+	 */
+
+	/**
+	 * @typedef {Object} ProofOfAccountOutcomeModel
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
+
+	/** Proof Of Account outcome to be recorded to telemetry
+	 * @screen Proof of Account Outcome
+	 * @event Proof of Account Outcome
+	 * 
+	 * @param {ProofOfAccountOutcomeModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 proofOfAccountOutcome(baggage) {
+			super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`proof-of-account`),
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.PROOF_OF_ACCOUNT_OUTCOME,
+			tags: this._extractTags(TelemetryEvent.PROOF_OF_ACCOUNT_OUTCOME),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef  {Object} ScrUnldProofOfAccountModel 
+	 * @property {String} screen 
+	 */
+
+	/** Proof Of Account Screen Unload
+	 * @screen Proof of Account
+	 * @event Screen Unload: Proof of Account
+	 * 
+	 * @param {ScrUnldProofOfAccountModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadProofOfAccount(baggage) {
+		super.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`proof-of-account`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		this.currentActiveSpans.set(`proof-of-account`, null);
+	}
+
+	// #endregion PROOF OF ACCOUNT
+
+
+	// #region END CALL SELECTED
 	
 	/**
 	 * @typedef {Object} ScrLdEndCallModel
@@ -1207,10 +1378,8 @@ export class HorizonTelemetry extends Telemetry {
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
 			baggage: [
-				{
-							"screen": baggage.screen,
-				 			"nextScreen": baggage.nextScreen 
-				}
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
 			]
 		});
 	}
