@@ -25,6 +25,12 @@ const STATEMENTS_STEPS = [
 	}
 ];
 
+const ACCOUNT_TYPE = {
+	PRIMARY_SAVINGS: 300,
+	FLEXIBLE_SAVINGS: 200,
+	FIXED_TERM_SAVINGS_ACCOUNT: 201
+};
+
 const ACCOUNTS_ENUM = {
 	PRIMARY_SAVINGS: {
 		type: `PRIMARY_SAVINGS`,
@@ -83,6 +89,11 @@ const TIME_PERIOD = {
 	}
 };
 
+const NOTIFICATION_MESSAGE = {
+	FEE: ` A fee will be charged for email statements`,
+	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
+}
+
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
 /**
@@ -113,6 +124,7 @@ export class StatementsDialog extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.currentStep = 0;
 		this.notifyClient = true;
+		this.notifyMessage = NOTIFICATION_MESSAGE.FEE;
 		this.accType = ``;
 		this.accPlanType = ``;
 		this.savingsPlans = [];
@@ -211,10 +223,12 @@ export class StatementsDialog extends Component {
 		this.accType = type;
 		this.accPlanType = ``;
 		this.errorMessage = ``;
+		this.notifyMessage = NOTIFICATION_MESSAGE.FEE;
 	};
 
-	_selectPlan(savingsPlan) {
-		this.accPlanType = savingsPlan;
+	_selectPlan(plan) {
+		this.accPlanType = plan.accountName;
+		this.notifyMessage = plan.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? NOTIFICATION_MESSAGE.NO_FEE : NOTIFICATION_MESSAGE.FEE; 
 		this.errorMessage = ``;
 	}
 
@@ -473,11 +487,24 @@ export class StatementsDialog extends Component {
 
 	_getAvailableBal(type) {
 		const products = this.clientProducts.filter(item => item.category === type);
-		let availableBalance = products.reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+
+		let availableBalance = 0;
+		let currentBalance = 0;
+		let totalAmount = 0;
+
+		// To get the all account types for particular category.
+		const accountTypes = [...new Set(products.map(item => item.accountType))];
 		
+		accountTypes.forEach ( acct => {
+			acct !== ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? 
+			availableBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0) :
+			currentBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.currentBalance || 0), 0);
+			
+		})
+	
 		// Rounding off the decimal value
-		availableBalance = Math.round(availableBalance * 100) / 100;
-		return formatCurrency(availableBalance);
+		totalAmount = Math.round( (availableBalance + currentBalance) * 100) / 100;
+		return formatCurrency(totalAmount);
 	}
 
 	// ---------
@@ -738,7 +765,7 @@ export class StatementsDialog extends Component {
 					type="info"
 					@click="${() => this.notifyClient = false}"
 					closable>
-						<p><b>Notify client:</b> A fee will be charged for email statements</p>
+						<p><b>Notify client:</b>${this.notifyMessage}</p>
 				</capitec-alert-banner>
 			`;
 		}
@@ -786,7 +813,7 @@ export class StatementsDialog extends Component {
 					class="product-save"
 					type="default"
 					label="Savings Plans"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
+					subtitle="Total saved R${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
 					detail=""
 					icon="product/save"
 					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
@@ -812,10 +839,12 @@ export class StatementsDialog extends Component {
 						<horizon-product-tile 
 							type="radio-button"
 							label="${item.accountName}"
-							subtitle="Available balance: R${formatCurrency(item.availableBalance)}"
+							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
+										? "Balance: R" + formatCurrency(item.currentBalance) 
+										: "Available balance: R" + formatCurrency(item.availableBalance)}"
 							detail=""
 							icon="product/transact"
-							@click="${(e) => this._selectPlan(item.accountName)}"
+							@click="${(e) => this._selectPlan(item)}"
 							?selected="${this.accPlanType === item.accountName}">
 						</horizon-product-tile>
 					`)}

@@ -215,6 +215,7 @@ export class Favourites extends ViewBase {
 	// ---------------
 
 	async _initialise() {
+		this.verificationStatus = this.callerInformation.verificationStatus;
 		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
