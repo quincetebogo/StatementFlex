@@ -12,6 +12,19 @@ const HORIZON_NEED_STATUS = {
 	CLOSED: `Closed`
 };
 
+// temporary solution
+const CLOSE_REASONS = {
+	'Completed': `NeedFulfilled`,
+	'Failed': `NeedIncomplete`,
+	'Assigned': `ClientAssigned`
+};
+
+const REASON_RESOLUTIONS = {
+	'NeedFulfilled': `Need Fulfilled`,
+	'NeedIncomplete': `Need Incomplete`,
+	'ClientAssigned': `Client Assigned`
+};
+
 /**
  * This manager class is responsible to handle the current need and subsequent needs.
  * On initialise of this class, a function is injected into View class to serve its purspose.
@@ -52,10 +65,9 @@ export class HorizonIncidentManager {
 
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
-		View.prototype._inicidentManager_ = async function (clientNeed, toggleBusyFlag) {
+		View.prototype._inicidentManager_ = async (clientNeed, toggleBusyFlag) => {
 
-			const _horizonStore = HorizonStore.getInstance();
-			const incidentDetails = _horizonStore.getIncidentDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
 
 			/**
 			 * Checkpoint 1:
@@ -64,7 +76,7 @@ export class HorizonIncidentManager {
 			 * 
 			 * New case: possible to open search other needs more than once.
 			 */
-			if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== this.HORIZON_NEED_STATUS.CLOSED) {
+			if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== HORIZON_NEED_STATUS.CLOSED) {
 				// Do nothing
 				return true;
 			}
@@ -75,10 +87,14 @@ export class HorizonIncidentManager {
 			 * Example: Landing on favourites screen, choosing proof of account instead of statments
 			 * In such case, we update the state with correct need
 			 */
-			if (clientNeed !== incidentDetails.currentNeed && incidentDetails.needStatus === this.HORIZON_NEED_STATUS.INPROGRESS) {
-				incidentDetails.currentNeed = clientNeed;
-				_horizonStore.setIncidentDetails(incidentDetails);
-				return true;
+			if (clientNeed !== incidentDetails.currentNeed && 
+				(incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS ||
+				 incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED)) {
+					
+					incidentDetails.currentNeed = clientNeed;
+					incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
+					this.horizonStore.setIncidentDetails(incidentDetails);
+					return true;
 			}
 
 			/**
@@ -94,17 +110,17 @@ export class HorizonIncidentManager {
 			 * And if the client has a subsequent need, should continue by creating new incident
 			 * 
 			 */
-			if ((incidentDetails.needStatus === this.HORIZON_NEED_STATUS.COMPLETED || incidentDetails.needStatus === this.HORIZON_NEED_STATUS.ASSIGNED) && 
-				clientNeed !== incidentDetails.currentNeed) {
+			if (clientNeed !== incidentDetails.currentNeed &&
+				(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
+				 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
+				 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
 
-					const horizonIncidentManager = HorizonIncidentManager.getInstance();
+					this.incidentRecID = incidentDetails.incidentRecId;
+					this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
+					this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
 
-					horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
-					horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
-					horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
-					horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
-
-					await horizonIncidentManager._classifyIncident(clientNeed);
+					await this._classifyIncident(clientNeed);
+					return true;
 			}
 
 			/**
@@ -115,16 +131,14 @@ export class HorizonIncidentManager {
 			 * client have subsequent needs
 			 * 
 			 */
-			if (incidentDetails.needStatus === this.HORIZON_NEED_STATUS.CLOSED) {
+			if (incidentDetails.needStatus === HORIZON_NEED_STATUS.CLOSED) {
 
-				const horizonIncidentManager = HorizonIncidentManager.getInstance();
+				this.incidentRecID = incidentDetails.incidentRecId;
+				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
+				this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
 
-				horizonIncidentManager.incidentRecID = incidentDetails.incidentRecId;
-				horizonIncidentManager.primaryNeedIncidentRecId = incidentDetails.primaryNeedIncidentRecId || incidentDetails.incidentRecId;
-				horizonIncidentManager._toggleBusyFunc = toggleBusyFlag;
-				horizonIncidentManager.incidentService = new IncidentManagementService(toggleBusyFlag, null);
-
-				await horizonIncidentManager._createSubsequentIncident(clientNeed);
+				await this._createSubsequentIncident(clientNeed);
+				return true;
 			}
 		};
 	}
@@ -154,12 +168,7 @@ export class HorizonIncidentManager {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
 		}
-
-		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED) {
-			await this._createSubsequentIncident(clientNeed);
-		} else {
-			await this._closePrimaryIncident(clientNeed);
-		}
+		await this._closePrimaryIncident(clientNeed, incidentDetails.needStatus);
 	}
 
 	/**
@@ -168,13 +177,17 @@ export class HorizonIncidentManager {
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
 	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * @param {string} needStatus - Current need's status (Pending/ Completed/ Failed)
 	 * @returns {void}
 	 */
-	async _closePrimaryIncident(clientNeed) {
+	async _closePrimaryIncident(clientNeed, needStatus) {
+		const reason = CLOSE_REASONS[needStatus];
+		const resolution = REASON_RESOLUTIONS[reason];
+
 		const closeIncidentRequest = {
 			incidentRecId: this.incidentRecID,
-			reason: `NeedFulfilled`,
-			resolution: `Need Fulfilled`,
+			reason: reason,
+			resolution: resolution,
 			causeCode: `NormalEnquiry`
 		};
 
