@@ -188,7 +188,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="App & Online Banking"
-					subtitle=${this.status.appAndInternetActive ? `Active` : `Inactive`}
+					subtitle=${this.status.appAndInternetActive ? `active` : `inactive`}
 					detail=""
 					icon="system/access">
 				</horizon-product-tile>
@@ -196,7 +196,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="USSD"
-					subtitle=${this.status.ussdActive ? `Active` : `Inactive`}
+					subtitle=${this.status.ussdActive ? `active` : `inactive`}
 					detail=""
 					icon="system/cellphone">
 				</horizon-product-tile>
@@ -204,7 +204,7 @@ export class AccessMenuBar extends Component {
 				<horizon-product-tile 
 					type="default"
 					label="Notifications"
-					subtitle=${this.status.notificationType}
+					subtitle=${this.status.notificationType ? this.status.notificationType : `inactive`}
 					detail=""
 					icon="system/messages">
 				</horizon-product-tile>
