@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -36,6 +37,7 @@ export class StopCardFailure extends View {
 
 	constructor() {
 		super();
+
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.cardsToStop = [];
@@ -48,7 +50,7 @@ export class StopCardFailure extends View {
 		this.retry = 0;
 		this.isReassigned = false;
 
-		this.failedCards = [];
+        this.failedCards = [];
 
 	}
 
@@ -77,16 +79,13 @@ export class StopCardFailure extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.callerInformation = state.callerInformation;
-			this.incomingCallDetails = state.incomingCallDetails;
-
-			if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-				this.isReassigned = state.isReassigned;
-			} else {
-				this.isReassigned = false;
-			}
+			this.callerInformation = this.horizonStore.getCallerInformation();
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	
 			this.stoppedCards = state.stoppedCards;
+			
 			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
 			this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
@@ -97,6 +96,8 @@ export class StopCardFailure extends View {
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadStopCard();
+
 		if (this.assignSub) {
 			this.assignSub.dispose();
 		}
@@ -128,6 +129,8 @@ export class StopCardFailure extends View {
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
 
+		HorizonTelemetry.instance.stopCardTryAgain({ screen: TelemetryScreen.STOP_CARD_OUTCOME });
+
 		this.retry++;
 		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
 		if (this.retry > MAX_ATTEMPT) {
@@ -138,7 +141,7 @@ export class StopCardFailure extends View {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, (ex) => this._stopCardErrorHandler(ex));
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler(ex));
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
@@ -159,9 +162,11 @@ export class StopCardFailure extends View {
 	}
 
 	_onHandOff(e) {
+		HorizonTelemetry.instance.stopCardAssign({ screen: TelemetryScreen.STOP_CARD_OUTCOME });
+
 		// On return from the Stop Card Assign dialog, mark the incident as assigned
-		this.isReassigned = true;
-		this.horizonStore.saveState({ isReassigned: this.isReassigned });
+        this.isReassigned = true;
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -179,7 +184,8 @@ export class StopCardFailure extends View {
 	// ---------------
 
 	_onAssignIncident() {
-		this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.renderDialog = RENDER_DIALOG.ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	// ---------
@@ -273,15 +279,15 @@ export class StopCardFailure extends View {
                 .button-bar {
                     box-sizing: border-box;
                     height: 64px;
-                    width: 1064px;
-                    border: 1px solid #E1E1E1;
+					width: var(--horizon-center-panel-width, 1064px);
+					border: 1px solid #E1E1E1;
                     border-radius: 0 0 4px 4px;
                     background-color: #FFFFFF;
 				}
 				
 				.card {
 					height: 823px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 
 				.button-assign {
@@ -311,7 +317,7 @@ export class StopCardFailure extends View {
 
 				.notify-client{
 					height: 24px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					color: #545D60;
 					font-family: "Hind Vadodara";
 					font-size: 15px;
@@ -447,10 +453,11 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.ENDCALL) {
 			return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderDialog = -1}"
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails = "${this.incomingCallDetails}"
+				?isReassigned = "${this.isReassigned}"
 				endCallContext="LandingPage"
-				?isReassigned = "${this.isReassigned}">
+				@cancel="${() => this.renderDialog = -1}">
 			</horizon-end-call-session>`;
 		}
 
@@ -461,6 +468,7 @@ export class StopCardFailure extends View {
 		if (this.renderDialog === RENDER_DIALOG.HANDOFF) {
 			return html`
 				<horizon-assign-stop-card
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
 					@on-cancel="${() => this.renderDialog = -1}"

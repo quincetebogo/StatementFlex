@@ -28,8 +28,10 @@ const RENDER_MODE = {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.PROOFOFACCOUNT_FAILURE;
-		this.emailAddress = `ivanmakatini@gmail.com`;
+		this.mailId = ``;
+		this.acNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -59,11 +61,20 @@ const RENDER_MODE = {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			// TODO: email address received from API or using restore function.
-			this.emailAddress = `ivanmakatini@gmail.com`;
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+			// this.returnRoute = state.returnTo.route;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			
+			this.mailId = state.emailAddress;      
+			this.acNumber = state.accountNumber;
+
+			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+
+			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
+				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
+			});
 		}
 	}
 
@@ -84,7 +95,7 @@ const RENDER_MODE = {
 	}
 
 	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_assignClick() {
@@ -111,7 +122,7 @@ const RENDER_MODE = {
 				}
 				.card-related-options {
                     height: 112px;
-                    width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
                     margin-bottom:60px;
                 }
 				.button-margin{
@@ -127,7 +138,7 @@ const RENDER_MODE = {
                 }
                 .related-options {
                     height: 32px;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 					margin-top: -4px;
 					margin-bottom: -2px;
                     background-color: #F7F7F7;
@@ -165,7 +176,8 @@ const RENDER_MODE = {
 
 	_renderProofOfAccountFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon--error-screen
+                image="/images/insure/assign-pay-arrears.svg"
 				header="Proof of account not sent" 
 				left="Done"
 				right="Assign"
@@ -174,7 +186,7 @@ const RENDER_MODE = {
 				@right-click=${() => this._assignClick()}>
 				<section 
 					id="id-error-msg" 
-					slot="detail">The proof of account was not emailed to <b>${this.emailAddress}</b></section>
+					slot="detail">The proof of account <b>${this.acNumber}</b>  was not emailed to <b>${this.mailId}</b></section>
 			</horizon--error-screen>
 			`;
 	}
@@ -206,7 +218,8 @@ const RENDER_MODE = {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 				// TODO: edit the card stop success render mode 
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

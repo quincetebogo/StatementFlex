@@ -10,10 +10,12 @@
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
-	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3int.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchint.int.capinet:51443/",
-		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	"otherSystemsURL": {
+		"sbl": "http://standardbancslinkv3int.int.capinet:8080/",
+		"cds": "https://clientdocsearchint.int.capinet:51443/",
+		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
 	"VDN":"211377",
 	"LogRequestResponseModels" : false,
@@ -29,14 +31,13 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
+		},
+		{
+			"option": "7",
+			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"mock": {
-		"enabled": false,
-		"stopCard": {
-			"enabled": false,
-			"failStopCard": false,
-			"positiveCase": true
-		}
+		"enabled": false	
 	}
 }

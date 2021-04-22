@@ -92,11 +92,11 @@ export class ThirdPartyOrExistingClient extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.callerInformation = state.callerInformation;
-		this.verificationStatus = state.callerInformation.verificationStatus;
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this._updateMiniProfile();
 
@@ -120,8 +120,9 @@ export class ThirdPartyOrExistingClient extends Component {
 	}
 
 	_updateMiniProfile() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = {
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -225,7 +226,7 @@ export class ThirdPartyOrExistingClient extends Component {
 
 				capitec-content-box {
 					height: auto;
-					width: 1064px;
+					width: var(--horizon-center-panel-width, 1064px);
 				}
 				.verified-existing-client-cb {
 					--theme-container-padding-left: 24px;
@@ -447,7 +448,8 @@ export class ThirdPartyOrExistingClient extends Component {
 	_renderEndCallSessionDialog() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage"
 					@cancel="{${() => this._onCancelEndCall()}}">
@@ -483,6 +485,7 @@ export class ThirdPartyOrExistingClient extends Component {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

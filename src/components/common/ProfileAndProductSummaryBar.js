@@ -27,7 +27,6 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.miniProfile = null;
 
-		this.disableNavigation = true;
 		this.hasFavourites = false;
 
 		this.subtitle = {
@@ -52,6 +51,9 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.leftBarSub = this.eventAggregator.subscribe(`horizon-update-left-hand-bar`, (buttonConfig) => this._updateButtons(buttonConfig));
 		this.favouritesBarSub = this.eventAggregator.subscribe(`horizon-favorites-bar`, (e) => this.hasFavourites = e.hasFavourites);
+		this.navContextSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._onNavigationContextUpdated());
+
+		this.product = ``;
 	}
 
 	// ----------
@@ -67,10 +69,10 @@ export class ProfileAndProductSummaryBar extends Component {
 	static get properties() {
 		return {
 			miniProfile: { attribute: false },
-			disableNavigation: { attribute: false },
 			hasFavourites: { attribute: false },
 			subtitle: { attribute: false },
-			detail: { attribute: false }
+			detail: { attribute: false },
+			activePageTitle: { attribute: false }
 		};
 	}
 
@@ -85,6 +87,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	disconnectedCallback() {
 		this.leftBarSub.dispose();
 		this.favouritesBarSub.dispose();
+		this.navContextSub.dispose();
 		this.stateChangeSub.unsubscribe();
 		
 		super.disconnectedCallback();
@@ -96,6 +99,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_stateChanged(state) {
 		if (state && state.callerInformation) {
+			this.callerInformation = state.callerInformation;
 
 			let contactNumber = ``;
 			const isNonClient = state.callerInformation.verificationStatus === `non-client`;
@@ -139,14 +143,44 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.detail = buttonConfig.detail;
 	}
 
+	_onNavigationContextUpdated() {
+		// TODO: _getCurrentRoute() was supposed to be a private function, re-evaluate
+		const activePage = this.horizonRouter._getCurrentRoute(); 
+
+		// Initialise activePage properly if the current route is not yet readable
+		if (!activePage) {
+			this.activePageTitle = ``;
+		} else {
+			this.activePageTitle = activePage.title;
+			if (this.activePageTitle === `ProductInfo`) {
+				this.activePageTitle = this.product;
+			}
+		}
+	};
+
+	_productButtonClick(event) {
+		this.product = event.detail.productButton;
+		
+		// Note that when invoked from the agent's waiting for call landing page we will
+		// not have caller information
+		if (this.callerInformation) {
+			if (this.callerInformation.verificationStatus === `verified`) {
+				this.horizonRouter.navigateToLandingPage(this.product, false);
+			} else {
+				this.horizonRouter.navigateToProductInfo(this.product);
+			}
+		} 
+	}
+
+	_favouritesClicked() {
+		this.product = ``;
+		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
+	}
+
 	// --------- 
 	// PRIVATE
 	// ---------
 
-	_favouritesClicked() {
-		const state = this.horizonStore.recoverState();
-		this.horizonRouter.navigateToLandingPage(`Transact`, state.callerInformation.hasInsuranceProducts);
-	}
 
 	// ---------
 	// RENDERING
@@ -157,13 +191,13 @@ export class ProfileAndProductSummaryBar extends Component {
 			super.styles,
 			css`
 			.left-card {
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				height: 770px;
 				padding: 0px 0px 0px 0px;
 			}
 			.favourites-button{
                 padding: 0px 0px 0px 0px;
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}
 			`
@@ -182,14 +216,13 @@ export class ProfileAndProductSummaryBar extends Component {
 			<horizon-product-button-panel
 				.subtitle="${this.subtitle}"
 				.detail="${this.detail}"
-				?disablenavigation= ${true}>
+				selectedButton="${this.activePageTitle}"
+				@click="${(e) => this._productButtonClick(e)}">
 			</horizon-product-button-panel>
 		</section>`;
 	}
 
 	_renderFavourites() {
-		const activePage = this.horizonRouter._getCurrentRoute();
-
 		if (this.hasFavourites) {
 			return html`
 				<horizon-favourites-tile
@@ -197,7 +230,7 @@ export class ProfileAndProductSummaryBar extends Component {
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
 					@click="${() => this._favouritesClicked()}"
-					?selected=${activePage.title === `Favourites`}>
+					?selected=${this.activePageTitle === `Favourites`}>
 				</horizon-favourites-tile>`;
 		};
 		return html``;

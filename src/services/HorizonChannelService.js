@@ -158,6 +158,54 @@ export class HorizonChannelService extends Service {
 	}
 
 	/**
+	 * Wraps the platform's put method
+	 * 
+	 * - Debug logging is added over the platform's post capability
+	 * - A correlation id is generated for purposes of tracing calls through the UI and CS logs.
+	 *
+	 * @param {string} url The Channel Service URL
+	 * @param {Object} model The request model
+	 * @param {Object} customHeaders Any custom headers
+	 * @param {string} caller The name of the method for logging purposes
+	 * @param {Boolean} [isBinary=false] When true, converts response into object with raw binary content
+	 * @param {AbortController} [controller=null] The abort controller used to cancel file uploads, i.e. only works with FormData as model type.
+	 * @param {Number} [sla=null] SLA in milliseconds to track for the maximum allowed duration of the request.
+	 * @param {Number} [timeout=null] Timeout in milliseconds for the request.
+* 
+	 * @returns {Promise<*>} The response of the Channel Service Request
+	 * @memberof HorizonChannelService
+	 */
+	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
+		const correlationId = v4();
+		
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+
+		try {
+			const response = await super.httpClient.request({
+				method: `PUT`,
+				url: url,
+				model: model,
+				customHeaders: customHeaders,
+				correlationId: correlationId,
+				isBinary: isBinary,
+				controller: controller,
+				sla: sla,
+				timeout: timeout,
+				caller: caller
+			});
+
+			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+
+			return response;
+		} catch (exception) {
+			exception.requestUrl = url;
+			exception.requestModel = model;
+			exception.requestCaller = caller;
+			throw exception;
+		}
+	}
+
+	/**
 	 * The X-User-Token is required by some calls where the Product Services/Capabilities services 
 	 * makes calls to OpenBancs 2/Way Gate in order to retreive the agent's BANCS/SBL teller number
 	 *
@@ -261,15 +309,15 @@ export class HorizonChannelService extends Service {
 
 		/*
 		const cardStopResponse = { 
-			cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-				result: {
-					statusCode: 400
-					} }))
+							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
+								result: {
+									statusCode: 400
+								  } }))
 		};
 
 		return cardStopResponse;
 		*/
-
+	
 		
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
@@ -278,7 +326,8 @@ export class HorizonChannelService extends Service {
 			"voiceReferenceNumber": stopCardRequest.voiceReferenceNumber,
 			"ivrOptionCode": stopCardRequest.ivrOptionCode,
 			"incidentReferenceNumber": stopCardRequest.incidentReferenceNumber,
-			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber
+			"agentTelephoneNumber": stopCardRequest.agentTelephoneNumber,
+			"incidentRecId": stopCardRequest.incidentRecId
 		};
 
 		return this._post(url, model, this._setToken(), `stopCard`);
@@ -378,7 +427,7 @@ export class HorizonChannelService extends Service {
 
 	// newIncidentRequest
 	createIncident(createIncidentRequest) {
-		const url = `/clientcare/initialise/${this._version}/CreateIncident`;
+		const url = `/clientcare/incident/${this._version}/create-incident`;
 		const model = createIncidentRequest;
 
 		return this._post(url, model, this._setToken(), `createIncident`);
@@ -397,6 +446,16 @@ export class HorizonChannelService extends Service {
 		nonClientDetails.incidentRecId = incidentRecId;
 
 		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+	}
+
+	closeIncident(closeIncidentRequest) {
+		const url = `/clientcare/incident/${this._version}/close-incident?` +
+						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
+						`Reason=${closeIncidentRequest.reason}&` +
+						`Resolution=${closeIncidentRequest.reason}&` +
+						`CauseCode=${closeIncidentRequest.causeCode}&`;
+
+		return this._put(url, null, this._setToken(), `closeIncident`);
 	}
 
 	// --------------
@@ -519,6 +578,20 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
+
+	// ------------------
+	// tap - to - pay
+	// ------------------
+
+	async tapToPayLanding(cifNumber) {
+		if (await this._mockEnabled(`tapToPayLanding`)) {
+			return this._mock.tapToPay(cifNumber);
+		}
+
+		const url = `/clientcare/card/${this._version}/tap-to-pay-landing?${cifNumber}`;
+		return this._get(url, this._setToken(), `tapToPay`);
+	}
+
 	// --------------------------
 	// card - debi-check mandates
 	// --------------------------
@@ -543,6 +616,11 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/debicheck/${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, this._setToken(), `debiCheckDecline`);
 	}
+	
+	itaVerification(request) {
+		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
+									`ConnectionId=${request.connectionID}`);
+    }
 
     sendProofOfAccount(clientInfo) {
         const url = `/clientcare/documents/${this._version}/statements/send-proof-of-account`;
@@ -553,13 +631,83 @@ export class HorizonChannelService extends Service {
         const url = `/clientcare/documents/${this._version}/statements/view-proof-of-account`;
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
-  
-	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+
+	// ------------------
+	// Savings Account
+	// ------------------
+	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
+		if (await this._mockEnabled(`savingsAccountLanding`)) {
+			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
+		}
+
 		const url = `/clientcare/savingsaccount/${this._version}/landing?` +
 		`CifNumber=${cifNumber}&` +
 		`NationalIDNumber=${nationalIDNumber}&` +
 		`GetGenericData=${getGenericData}`;
-
+		
 		return this._get(url, this._setToken(), `savingsAccountLanding`);
 	}  
+
+	async transactionHistory (transactionHistoryRequest) {
+		if (await this._mockEnabled(`transactionHistory`)) {
+			return this._mock.transactionHistory(transactionHistoryRequest);
+		}
+
+		const url = `/clientcare/savingsaccount/${this._version}/client/transactions?` + 
+		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
+		`AccountType=${transactionHistoryRequest.accountType}&` +
+		`StartDate=${transactionHistoryRequest.startDate}&` +
+		`EndDate=${transactionHistoryRequest.endDate}&` +
+		`StartAtIndex=${transactionHistoryRequest.startAtIndex}&` +
+		`MaxResults=${transactionHistoryRequest.maxResults}&` +
+		`MoneyType=${transactionHistoryRequest.moneyType}`;
+
+		return this._get(url, this._setToken(), `transactionHistory`);
+	}
+
+	// ----------------
+	// Other Needs 
+	// ----------------
+	otherNeedCategories(orgUnit) {
+		const url = `/clientcare/incident/${this._version}/categories?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}`;
+		return this._get(url, this._setToken(), `otherNeedCategories`);
+	}
+
+	otherNeedSpecificNeed(orgUnit, categoryName) {
+		const url = `/clientcare/incident/${this._version}/need?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}`;
+		return this._get(url, this._setToken(), `otherNeedSpecificNeed`);
+	}
+
+	otherNeedIssueType(orgUnit, categoryName, need) {
+		const url = `/clientcare/incident/${this._version}/issue?` +
+		`OrgUnit=${encodeURIComponent(orgUnit)}&` +
+		`CategoryName=${encodeURIComponent(categoryName)}&` +
+		`Need=${encodeURIComponent(need)}`;
+		return this._get(url, this._setToken(), `otherNeedIssueType`);
+	}
+
+	sendStatement(statement) {
+		const url = `/clientcare/documents/${this._version}/statements/send-statement`;
+		return this._post(url, statement, this._setToken(), `sendStatement`);
+	}
+
+	async viewStatement(statement) {
+
+		if (await this._mockEnabled(`viewStatements`)) {
+			return this._mock.viewStatements();
+		}
+
+		const url = `/clientcare/documents/${this._version}/statements/view-statement`;
+		return this._post(url, statement, this._setToken(), `viewStatement`);
+	}
+
+	getClientProducts(request) {
+		const url = `/clientcare/documents/${this._version}/statements/client/${request.cifNumber}?` +
+					`ProductStatus=${request.status}`;
+		return this._get(url, this._setToken(), `getClientProducts`);
+	}
 }

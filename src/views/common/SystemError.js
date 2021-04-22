@@ -28,6 +28,8 @@ export class SystemError extends View {
 		super();
 
 		this.renderMode = RENDER_MODE.SYSTEM_ERROR;
+		this.incomingCallDetails = {};
+		this.incidentRecId = ``;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -35,7 +37,6 @@ export class SystemError extends View {
 
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
-
 	}
 
 	// ----------
@@ -55,11 +56,11 @@ export class SystemError extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
-		if (state) {
-			this.incomingCallDetails = state.incomingCallDetails;
-
+		if (this.incomingCallDetails) {
+			this.incidentRecId = this.incidentDetails.incidentRecId;
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallClick());
 		}
 	}
@@ -82,7 +83,8 @@ export class SystemError extends View {
 		}
 	}
 
-	_assignClick() {
+    _assignClick() {
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 		this.horizonRouter.navigateToWaitingForCall();
 	}
 
@@ -136,7 +138,8 @@ export class SystemError extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					@cancel="{${() => this.renderMode = RENDER_MODE.SYSTEM_ERROR}}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage">

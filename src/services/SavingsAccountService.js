@@ -58,6 +58,18 @@ export class SavingsAccountService extends ServiceBase {
 	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.debiCheckDecline(cifNumber, mandateReferenceNumber, debtorAccountNumber), `debiCheckDecline`, errorHandler, autoRetries);
 	}
+	
+	/**
+	 * Transaction History - list of Transactions
+	 *
+	 * @param {object} transactionHistoryRequest details required to get list of transactions
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	transactionHistory (transactionHistoryRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.transactionHistory(transactionHistoryRequest), `transactionHistory`, errorHandler, autoRetries);
+	}
 
 	/**
 	 * Get savings account landing page information
@@ -69,7 +81,7 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+ 	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData), `savingsAccountLanding`, errorHandler, autoRetries);
 	}
 }

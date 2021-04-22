@@ -32,6 +32,8 @@ export class SuccessfulCardLimitUpdate extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._updateIncidentState();
 	}
 
 	// --------------
@@ -53,6 +55,12 @@ export class SuccessfulCardLimitUpdate extends View {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
 
 	// ---------
 	// RENDERING

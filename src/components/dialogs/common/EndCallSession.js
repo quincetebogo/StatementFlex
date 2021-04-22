@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
@@ -42,7 +43,9 @@ export class EndCallSession extends Component {
 		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
-		this.alertBannerMessage = ``;
+		this.alertBannerMessage = ``;    
+		this.incidentRefNumber = ``;
+		this.incidentRecId = ``;
 
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -58,7 +61,8 @@ export class EndCallSession extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
-	 * @property {String} endCallContext Unused in version 1.0 of the channel service
+	 * @property {Object} incidentDetails Incident details
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
 	 * @static
@@ -67,6 +71,7 @@ export class EndCallSession extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 			endCallContext: { type: String }, 
 			isReassigned: { type: Boolean },
 
@@ -87,12 +92,18 @@ export class EndCallSession extends Component {
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		// Subsequent incident might be created, so retrieving refNo & recID always from state
+		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
+
 		const endCallDetails = {
 			isReassigned: this.incomingCallDetails.isReassigned, // Unused Version 1.0 of Channel Service 
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber, // Echoed back in the response
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber, // Echoed back in the response
 			ivrOptionCode: this.incomingCallDetails.ivrOptionCode, //  ???
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber, // Echoed back in the response
+			incidentReferenceNumber: this.incidentRefNumber,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber, // Unused version 1.0 of channel servcice
 			endCallContext: this.endCallContext // Unused version 1.0 of channel service
 		};
@@ -142,7 +153,7 @@ export class EndCallSession extends Component {
 			}
 
 			const callToEnd = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentRecId: this.incidentRecId,
 				endReason: this.endCallReason.key,
 				resolution: this.endCallReason.value,
 				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
@@ -152,7 +163,7 @@ export class EndCallSession extends Component {
 
 			// Log any error
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
 			}
 
 			// Return the the call waiting landing page even if an error occured
@@ -200,7 +211,7 @@ export class EndCallSession extends Component {
 		if (returnValue.succeeded) {
 			this.endCallReasons = returnValue.result.endCallReasons;
 		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
+			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
 			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
 			this._returnToCallWaitingPage();
@@ -208,6 +219,9 @@ export class EndCallSession extends Component {
 	}
 
 	_returnToCallWaitingPage() {
+		// Telemetry
+		HorizonTelemetry.instance.workflowCompleted();
+
 		const state = { callStatus: `CALL-ENDED` };
 		this.horizonStore.setState(state);
 		this.horizonRouter.navigateToWaitingForCall();
@@ -345,6 +359,7 @@ export class EndCallSession extends Component {
 				margin-top: 0px;
 				padding-bottom: 8px;
 			}
+			
 			capitec-alert-banner {
 				--theme-alert-banner-icon-margin-left: 15px;
 				--theme-alert-banner-icon-margin-right: 7px;
@@ -360,10 +375,11 @@ export class EndCallSession extends Component {
 	_webTemplate() {
 		return html`
 			<horizon-caller-dialog
-                        .incomingCallDetails="${this.incomingCallDetails}"
-                        .isNeedSelectable=${false}
-				        .headerLabel="${HEADER_LABEL}" 
-                        .displayButton="${false}">
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${false}
+						.headerLabel="${HEADER_LABEL}" 
+						.displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">
 						${this._renderAlertBanner()}
@@ -412,13 +428,13 @@ export class EndCallSession extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (this.alertBannerMessage) {
-			return html`
-				<capitec-alert-banner type="unsuccessful-red">
-					<b>Notify: </b>${this.alertBannerMessage}
+			if (this.alertBannerMessage) {
+				return html`
+					<capitec-alert-banner type="unsuccessful-red">
+						<b>Notify: </b>${this.alertBannerMessage}
 				</capitec-alert-banner>`;
+			}
 		}
-	}
 
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {

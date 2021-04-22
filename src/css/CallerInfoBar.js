@@ -1,4 +1,4 @@
-import { css } from 'platform/elements'
+import { css } from 'platform/elements';
 
 // ---------------------
 // STYLESHEET DEFINITION

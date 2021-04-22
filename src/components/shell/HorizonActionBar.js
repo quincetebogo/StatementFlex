@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
 import '../common/HorizonLabel';
@@ -16,17 +16,22 @@ export class HorizonActionBar extends Component {
 	// INITIALISATION
 	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
+
 		this.referenceNo = ``;
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
-        this.isHidden = false;
-        this.horizonStore = HorizonStore.getInstance();
-        this.state = this.horizonStore.recoverState();
-        this.callerInformation = this.state.callerInformation;
-        this.incomingCallDetails = this.state.incomingCallDetails;
+		this.isHidden = false;
+
+		this.horizonStore = HorizonStore.getInstance();
+		
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+
+		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 	}
 
 	// ----------
@@ -47,10 +52,12 @@ export class HorizonActionBar extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
-        this.eventAggregator = EventAggregator.getInstance();
-        this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
+	connectedCallback() {
+		super.connectedCallback();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		
+		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
 
@@ -64,20 +71,19 @@ export class HorizonActionBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-    _stateChanged(state) {
-        if (state) {
-            this.referenceNo = this.incomingCallDetails.incidentReferenceNumber;
-            this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-            this.clientNeed = this.incomingCallDetails.ivrOptionCode;
-            this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
+	_stateChanged(state) {
+		if (state) {
+			this.referenceNo = state && state.incidentDetails && state.incidentDetails.incidentReferenceNumber;
+			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+      this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
+			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
+		}
+	}
 
-        }
-    }
-
-    _onUpdateCallDetails(event) {
-        this.referenceNo = event.referenceNo;
-        this.phoneNumber = event.phoneNumber;
-        this.clientNeed = event.ivrOptionCode;
+	_onUpdateCallDetails(event) {
+		this.referenceNo = event.referenceNo;
+		this.phoneNumber = event.phoneNumber;
+		this.clientNeed = event.ivrOptionCode;
 		this.isUnverifiedNumber = event.isUnverifiedNumber;
 	}
 
@@ -89,8 +95,17 @@ export class HorizonActionBar extends Component {
 		this.eventAggregator.publish(`horizon-end-callsession`, {});
 	}
 
-	_onAssign() {
+    _onAssign() {
 		this.eventAggregator.publish(`horizon-assign-incident`, {});
+	}
+
+	// ---------
+	// PRIVATE METHODS
+	// ---------
+
+	_getNeedDisplayValue(need) {
+		const result = this.ivrOptions.find((entry) => entry.key === need);
+		return result ? result.value : ``;
 	}
 
 	// ---------
@@ -186,13 +201,14 @@ export class HorizonActionBar extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 					<capitec-button type="clear" 
 									label="Assign"
-									?hidden="${true}"
+									?hidden="${this.isHidden}"
 									@click="${() => this._onAssign()}">
 					</capitec-button>
 					<div class="vertical-line"></div>
 					<capitec-button type="clear" 
 									label="Handoff"
-									?hidden="${true}">
+									?hidden="${this.isHidden}"
+                                    @click = "${() => this._onAssign()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">

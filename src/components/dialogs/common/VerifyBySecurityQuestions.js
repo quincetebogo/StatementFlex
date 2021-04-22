@@ -69,6 +69,7 @@ export class VerifyBySecurityQuestions extends Component {
 	/**
 	 * Registry of all properties defined by the component.
 	 * 
+	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
@@ -81,10 +82,12 @@ export class VerifyBySecurityQuestions extends Component {
 
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
 			noOfXdsVerificationAttempted: { type: Number },
+
 			renderMode: { attribute: false },
 			questionNumber: { attribute: false },
 			isBusy: { attribute: false },
@@ -154,12 +157,8 @@ export class VerifyBySecurityQuestions extends Component {
 				this.callerInformation.verificationStatus = `failed`;
 				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
-				const state = {
-					callerInformation: this.callerInformation,
-					incomingCallDetails: this.incomingCallDetails
-				};
-
-				this.horizonStore.saveState(state);
+				this.horizonStore.setCallerInformation(this.callerInformation);
+				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
@@ -208,11 +207,9 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		this.alertBannerMessage = SYSTEM_ERROR;
 
 		return true;
@@ -349,6 +346,7 @@ export class VerifyBySecurityQuestions extends Component {
 				return html`
 					<horizon-caller-dialog class="main-container" 
 							.incomingCallDetails="${this.incomingCallDetails}"
+							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 
 							.headerLabel="${HEADER_LABEL}" 
 							@on-end-call="${() => this._endCallClick()}">
@@ -425,19 +423,20 @@ export class VerifyBySecurityQuestions extends Component {
 	_renderFailureModal() {
 		return html`
 			<horizon-security-questions-failed
-                .incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
 				.callerInformation="${this.callerInformation}" 
 				@security-questions="${(e) => this._retrySecurityQuestions(e)}"
 				@skip="${() => this._skipClick()}"
-				@verify-via-app="${() => this._verifyViaApp()}"
-				>
+				@verify-via-app="${() => this._verifyViaApp()}">
 			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {
 		return html`
 			<horizon-end-call-session
-                .incomingCallDetails="${this.incomingCallDetails}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext="VerifyClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.CONFIRM_CALLER}">
 			</horizon-end-call-session>`;

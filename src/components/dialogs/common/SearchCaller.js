@@ -1,9 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
-
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -26,6 +27,7 @@ const CLIENT_TYPE = Object.freeze({
 // These error messages has to come from service
 const ERROR_MESSAGES = {
 	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
 	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
 	REQUIRED_FIELDS_EMPTY: `All fields are required`,
 	NOT_FOUND: {
@@ -168,6 +170,7 @@ export class SearchCaller extends Component {
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
+	 * @property {object} incidentDetails Incident details
 	 *
 	 * @readonly
 	 * @static
@@ -176,6 +179,7 @@ export class SearchCaller extends Component {
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 
 			isBusy: { attribute: false },
 			renderMode: { attribute: false },
@@ -193,6 +197,20 @@ export class SearchCaller extends Component {
 		super.connectedCallback();
 		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadSearchClient({
+			screen: TelemetryScreen.SEARCH_CLIENT
+		}); 
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+			
+		// Telemetry
+			HorizonTelemetry.instance.screenUnloadSearchClient({
+				screen: TelemetryScreen.SEARCH_CLIENT
+			}); 
 	}
 
 	// --------------
@@ -218,11 +236,18 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
+
 		if (this._validateFields()) {
 			const searchClient = {
 				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				incidentNo: this.incomingCallDetails.incidentReferenceNumber,
+				incidentNo: this.incidentDetails.incidentReferenceNumber,
 				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 				ivrOption: this.incomingCallDetails.ivrOption.value,
 				identificationMethod: this.searchType.key,
@@ -238,9 +263,11 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else {
-				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-			}
+			} else if (this.incomingCallDetails.incidentReferenceNumber === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
+					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				}
 		}
 	}
 
@@ -261,6 +288,14 @@ export class SearchCaller extends Component {
 	}
 
 	async _onContinue() {
+
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
+
 		if (this._validateNonClientFields()) {
 			const callerDetails = new CallerDetails();
 
@@ -268,8 +303,8 @@ export class SearchCaller extends Component {
 			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
 			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-			callerDetails.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-			callerDetails.incidentRecId = this.incomingCallDetails.incidentRecId;
+			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
 			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
 			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
@@ -282,10 +317,10 @@ export class SearchCaller extends Component {
 				firstName: this.nameValue,
 				surname: this.surNameValue,
 				cellPhone: this.cellPhoneNumberValue
-			};
+            };
 
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incomingCallDetails.incidentRecId, nonClientDetails);
-
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			
 			if (returnValue.succeeded) {
 				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
 					detail: {
@@ -297,10 +332,12 @@ export class SearchCaller extends Component {
 						}
 					}
 				}));
-			} else {
+			} else if (this.incomingCallDetails.incidentRecId === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-			} 
+				} 
 		}
 	}
 
@@ -317,7 +354,7 @@ export class SearchCaller extends Component {
 			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
 			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
 			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
-			"incidentReferenceNumber": this.incomingCallDetails.incidentReferenceNumber,
+			"incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
 			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
 		};
 
@@ -424,10 +461,10 @@ export class SearchCaller extends Component {
 	}
 
 	_clearErrors(e) {
-        this.errMessage[e.currentTarget.id] = ``;
-        this.errMessage.nameValue = ``;
-        this.errMessage.surNameValue = ``;
-        this.alertBannerMessage = ``;
+		this.errMessage[e.currentTarget.id] = ``;
+		this.errMessage.nameValue = ``;
+		this.errMessage.surNameValue = ``;
+		this.alertBannerMessage = ``;
 	}
 
 	_toggleBusyFlag() {
@@ -554,8 +591,12 @@ export class SearchCaller extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.SEARCH_CALLER:
 				return html`
-					<horizon-caller-dialog .incomingCallDetails="${this.incomingCallDetails}" .isNeedSelectable=${true}
-						.headerLabel="${this.headerLabel}" @on-end-call="${() => this._onEndCall()}"
+					<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${this.headerLabel}"
+						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
 							<capitec-content-box>
@@ -710,15 +751,16 @@ export class SearchCaller extends Component {
 		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
-                    type="primary"
-                    @click="${(e) => this._onSearchClient(e)}" label="Search Client"
+					type="primary"
+					@click="${(e) => this._onSearchClient(e)}"
+					label="Search Client"
 					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}
 					tabindex="5">
 				</capitec-button>
 				<capitec-button
-                    type="primary"
-                    @click="${(e) => this._onContinue(e)}"
-                    label="Continue"
+					type="primary"
+					@click="${(e) => this._onContinue(e)}"
+					label="Continue"
 					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
 					tabindex="6">
 				</capitec-button>
@@ -729,6 +771,7 @@ export class SearchCaller extends Component {
 		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;

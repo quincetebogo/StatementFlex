@@ -27,9 +27,11 @@ export class ProofOfAccountSuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.PROOFOFACCOUNT_SUCCESS;
-		this.accountNumber = `5238 **** **** 8907`;
-		this.emailAddress = `ivanmakatini@gmail.com`;
+		this.acNumber = ``;
+		this.mailId = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -61,13 +63,15 @@ export class ProofOfAccountSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
-			// TODO: accountNumber and email address received from API.
-			this.accountNumber = `5238 **** **** 8907`;
-			this.emailAddress = `ivanmakatini@gmail.com`;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();;
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+
+			this.mailId = state.emailAddress;
+            this.acNumber = state.accountNumber;
+			
 		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		}
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -87,12 +91,27 @@ export class ProofOfAccountSuccess extends View {
 	}
 
 	_doneClick() {
-		this.horizonRouter.navigateToReturnPage(`done`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
-		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
-		//might make service call over here to resend or navigate to Proof of account model again
+		
+		const returnToScreen = {
+			option: `proof-of-account`
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		
+		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------
@@ -142,7 +161,7 @@ export class ProofOfAccountSuccess extends View {
 									@right-click=${() => this._sendAnotherClick()}>
 				<section 
 					id="id-error-msg" 
-					slot="detail">Your proof of account document for account <b>${this.accountNumber}</b> has been emailed to <b>${this.emailAddress}</b>.
+					slot="detail">Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
 				</section>
 				<section 
 						id="id-option-button" 
@@ -169,7 +188,8 @@ export class ProofOfAccountSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

@@ -1,46 +1,34 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
-import { View, css, html } from 'platform/elements';
-
+import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
-import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyCaller';
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/StatementsDialog';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
+import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
+import 'app/components/quickTransactions/TapToPayLanding';
 
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	SELECT_ASSIGN_REASON: 2,
-	ASSIGN: 3,
-	VERIFY_NOW: 4,
-	ALERT_MODAL: 5,
-	DEBI_CHECK_PAGE: 6,
-	DEBI_CHECK_APPROVE: 7,
-	DEBI_CHECK_DECLINE: 8,
-	DEBI_CHECK_VIEW_INFO: 9,
-    UPDATE_CARD_LIMITS: 10,
-    PROOF_OF_ACCOUNT: 11
-});
+const SAVINGS_ACCOUNT_TYPE = 300;
 
 /**
  * The Quick Transactions Favourites Landing Page View
  *
  * @export
  * @class Favourites
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class Favourites extends View {
+export class Favourites extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -49,22 +37,12 @@ export class Favourites extends View {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
-		// Reconver information from state
-        const state = this.horizonStore.recoverState();
-        this.callerInformation = state.callerInformation;
-        this.incomingCallDetails = state.incomingCallDetails;
-
-		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
-
+		// Recover information from state
+		const state = this.horizonStore.recoverState();
+    		
 		// When returning from the success screen, check which page we should display
 		if (state.returnTo && state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -75,8 +53,6 @@ export class Favourites extends View {
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
-		this.verificationStatus = this.callerInformation.verificationStatus;
-		this.isBusy = false;
 		this.isLoading = true;
 
 		// private variables
@@ -84,12 +60,11 @@ export class Favourites extends View {
 		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-        this.debiCheckDetails = {};
+		this.debiCheckDetails = {};
+		this.clientProducts = [];
 
 		// Subscribe to shell events
-		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
-		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
-		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option)());
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -101,10 +76,7 @@ export class Favourites extends View {
 	// --------------
 	static get properties() {
 		return {
-			isBusy: { attribute: false },
 			isLoading: { attribute: false },
-			renderMode: { attribute: false },
-			verificationStatus: { attribute: false },
 			verificationToastDisplayed: { attribute: false }
 		};
 	}
@@ -126,6 +98,7 @@ export class Favourites extends View {
 			const statements = () => this._getStatements();
 			const taxCertificates = () => this._taxCertificates();
 			const proofOfAccount = () => this._proofOfAccount();
+			const searchOtherNeed = () => this._searchOtherNeed();
 
 			const actions = {
 				'stop-card': stopCard,
@@ -134,10 +107,12 @@ export class Favourites extends View {
 				'tap-to-pay': tapToPay,
 				'statements': statements,
 				'tax-certificate': taxCertificates,
-				'proof-of-account': proofOfAccount
+				'proof-of-account': proofOfAccount,
+				'search-other-need': searchOtherNeed
 			};
 
 			if (actions[option]) {
+				super._inicidentManager_(option, () => this._toggleBusyFlag());
 				return actions[option];
 			}
 
@@ -150,9 +125,7 @@ export class Favourites extends View {
 	}
 
 	disconnectedCallback() {
-		this.endCallSub.dispose();
-		this.assignSub.dispose();
-		this.verifySub.dispose();
+		this.returnToSub.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -161,40 +134,9 @@ export class Favourites extends View {
 	// EVENT HANDLERS
 	// --------------
 
-	_endCallClick() {
-		this.renderMode = RENDER_MODE.END_CALL;
-	}
-
-	_cancelEndCallClick() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	_assignIncidentClick() {
-		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
-	}
-
-	_verifyClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
-	}
-
-	_skipVerification(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	_verificationCancelled(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this.verificationStatus = this.callerInformation.verificationStatus;
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
 
 	async _clientVerified(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
+		super._clientVerified(event);
 
 		// re-initialise the page when the verification status changes
 		// verificationStatus is on the this.callerInformation object
@@ -210,7 +152,7 @@ export class Favourites extends View {
 
 	_mainPage() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+    }
 
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
@@ -255,13 +197,24 @@ export class Favourites extends View {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
+	_debiCheckToMainPage() {
+
+		/**
+		 * This is supposed to happen in debicheck success screen
+		 * TODO: This should be to success screen when decline or approve is ready
+		 */
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
-
 		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -316,13 +269,15 @@ export class Favourites extends View {
 			};
 		}
 
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = {
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: subtitle ? subtitle : ``,
 				detail: detail ? detail : ``
-			}
+            },
+            landingPageInfo: this.landingPageInfo
 		};
 
 		this.horizonStore.saveState(state);
@@ -334,7 +289,7 @@ export class Favourites extends View {
 		} 
 
 		this.callerInformation.verificationToastDisplayed = true;
-		this.horizonStore.saveState(this.callerInformation);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.verificationToastDisplayed = true;
 		return true;
@@ -344,8 +299,17 @@ export class Favourites extends View {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
+	async _getClientProducts() {
+		const request = {
+			cifNumber: this.callerInformation.cifNumber,
+			status: `OPEN`
+		};
+		const returnValue = await this.quickTransactionService.getClientProducts(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result.savingsProducts;
+		}
+		return [];
 	}
 
 	async _stopCard() {
@@ -354,8 +318,8 @@ export class Favourites extends View {
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+			incidentRecId: this.incidentDetails.incidentRecId,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			nonClientFullName: this.callerInformation.nonClientFullName,
 			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
@@ -369,11 +333,14 @@ export class Favourites extends View {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+
 			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
 				clientProfileDetails: returnValue.result
 			});
+
+
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();
@@ -401,24 +368,50 @@ export class Favourites extends View {
 		}
 	}
 
-	_tapToPay() {
-		// TODO: Functionality to toggle tap to pay comes here
+	async _tapToPay() {
+		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
+			 
+		if (returnValue.succeeded) {
+			this.cards = returnValue.result;
+			this.renderMode = RENDER_MODE.TAP_TO_PAY;
+		}
 	}
 
-	_getStatements() {
-		// TODO: Functionality to generate statements comes here
+	async _getStatements() {
+		const clientProductDetails = await this._getClientProducts();
+
+		if (clientProductDetails) {
+			this.clientProducts = clientProductDetails;
+			this.renderMode = RENDER_MODE.STATEMENTS;
+		}
 	}
 
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 	}
 
-	_proofOfAccount() {
-        this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+	async _proofOfAccount() {
+		// Temporary fix to get the account number using statements CS call as the account number field 
+		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
+		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+
+			this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
+			this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
+			this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
+		}
 	}
 
 	_unavailableOption() {
 		this.renderMode = RENDER_MODE.ALERT_MODAL;
+	}
+
+	_searchOtherNeed() {
+		// TODO: Navigation to search other needs page 
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------
@@ -438,14 +431,15 @@ export class Favourites extends View {
 			css`
 			.favourites{
 				width: 100%;
-				height: 888px;
+				height: 100%;
+			}
+
+			capitec-content-box {
+				width: 100%;
+				height: var(--horizon-panel-height, 888px);
 			}
 			`
 		];
-	}
-
-	_mobileTemplate() {
-		return this._webTemplate();
 	}
 
 	_webTemplate() {
@@ -458,23 +452,20 @@ export class Favourites extends View {
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${this._renderAlertModal()}
-			${this._renderVerifyNowModal()}
-			${this._renderEndCallSessionModal()}
-			${this._renderLoadingIndicator()}
+            ${this._renderTapToPay()}
+			${this._renderSearchOtherNeed()}      
             ${this._renderProofOfAccount()}
-		`;
-	}
+			${this._renderStatementsModal()}
 
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
+			${super._webTemplate()}
+		`;
 	}
 
 	_renderFavouritesLandingPage() {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.PROOF_OF_ACCOUNT:
+			case RENDER_MODE.STATEMENTS:
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
@@ -486,7 +477,7 @@ export class Favourites extends View {
 					.callerInformation="${this.callerInformation}"
 					.verificationStatus="${this.verificationStatus}"
 					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-					@verify-click="${() => this._verifyClick()}"
+					@verify-click="${() => super._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 				</horizon-favourite-transactions>`;
 			default:
@@ -494,53 +485,27 @@ export class Favourites extends View {
 		}
 	}
 
-	_renderVerifyNowModal() {
-		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`
-				<horizon-verify-caller
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					@skip="${(e) => this._skipVerification(e)}"
-					@cancel="${(e) => this._verificationCancelled(e)}"
-					@verified="${(e) => this._clientVerified(e)}">
-				</horizon-verify-caller>`;
-		}
-		return html``;
-	}
-
-	_renderEndCallSessionModal() {
-		if (this.renderMode === RENDER_MODE.END_CALL) {
-			return html`
-				<horizon-end-call-session
-					.incomingCallDetails="${this.incomingCallDetails}"
-					?isReassigned="${this.isReassigned}"
-					endCallContext="LandingPage"
-					@cancel="${() => this._cancelEndCallClick()}">
-				</horizon-end-call-session>`;
-		}
-		return html``;
-	}
-
 	_renderAlertModal() {
 		if (this.renderMode === RENDER_MODE.ALERT_MODAL) {
 			return html`
 				<horizon-client-not-verified
 					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
-					@verify-now="${() => this._verifyClick()}">
+					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>
 			`;
 		}
 	}
 
-
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE || this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._debiCheckToMainPage()}">
 				</debi-check-mandates>`
 			: html``;
 	}
@@ -574,18 +539,49 @@ export class Favourites extends View {
 					@back="${() => this._mainPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
+	}
+
+	_renderProofOfAccount() {
+		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
+			? html`
+				<horizon-proof-of-account
+					@cancel="${() => this._mainPage()}"
+					.callerInformation="${this.callerInformation}"
+					.landingPageInfo="${this.landingPageInfo}"
+					></horizon-proof-of-account>`
+			: html``;
     }
 
-    _renderProofOfAccount() {
-        return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
-            ? html`
-                <horizon-proof-of-account
-                    .incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-                    .landingPageInfo="${this.landingPageInfo}">
-                </horizon-proof-of-account>`
-            : html``; 
-    }
+	_renderTapToPay() {
+		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
+		? html` 
+			<horizon-tap-to-pay-landing
+				.cards="${this.cards}"
+				@back="${() => this._mainPage()}"
+			></horizon-tap-to-pay-landing>
+		` : html``;
+	}
+  
+	_renderSearchOtherNeed() {
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+			? html`
+				<search-other-need
+					.incidentDetails="${this.incidentDetails}"
+					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+				</search-other-need>`
+			: html``; 
+	}
+
+	_renderStatementsModal() {
+		return this.renderMode === RENDER_MODE.STATEMENTS 
+		? html`
+			<horizon-statements-dialog
+				.callerInformation="${this.callerInformation}"
+				.clientProducts="${this.clientProducts}"
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-statements-dialog>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);

@@ -1,8 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-
 import 'platform/components/buttons/ProductTile';
 import 'app/components/common/HorizonProductTile';
 
@@ -29,8 +25,8 @@ export class ProductButtonPanel extends Component {
 	constructor() {
 		super();
 
-		this.disableNavigation = false;
-		
+		this.selectedButton = ``;
+
 		this.subtitle = {
 			savingsAccount: ``,
 			savingsPlan: ``,
@@ -44,10 +40,6 @@ export class ProductButtonPanel extends Component {
 			insure: ``, 
 			credit: ``
 		};
-		
-		this._configuration = Configuration.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -55,7 +47,6 @@ export class ProductButtonPanel extends Component {
 	// --------------
 
 	/**
-	 * @property {Boolean} disableNavigation Flag to disable navigation to client need landing pages
 	 * @property {Object} subtitle Object holds the subtitle info to be shown on menu button
 	 * @property {Object} detail Object holds the detail info to be shown on menu button
 	 *
@@ -65,7 +56,7 @@ export class ProductButtonPanel extends Component {
 	 */
 	static get properties() {
 		return {
-			disableNavigation: { type: Boolean },
+			selectedButton: { type: String },
 			subtitle: { type: Object },
 			detail: { type: Object }
 		};
@@ -87,59 +78,8 @@ export class ProductButtonPanel extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	// TODO Refeactor these methods to raise events. The caller should handle the navigation
-	_savingsAccountClick() {
-		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToSavingsAccountProduct();
-		}
-		this._performNavigation(`SavingsAccount`, false);
-	}
-
-	_savingsPlanClick() {
-				if (!this.disableNavigation) {
-			this.horizonRouter.navigateToSavingsPlanProduct();
-		}
-		this._performNavigation(`SavingsPlan`, false);
-	}
-
-	_insureClick() {
-		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToInsureProduct();
-		}
-
-		// Note we will not have callerInformation when being invoked from the Agent's waiting for call landing page
-		const state = this.horizonStore.recoverState();
-		this._performNavigation(`Insure`, state && state.callerInformation ? state.callerInformation.hasInsuranceProducts : false);
-	}
-
-	_creditClick() {
-		if (!this.disableNavigation) {
-			this.horizonRouter.navigateToCreditProduct();
-		}
-		this._performNavigation(`Credit`, false);
-	}
-
-	_performNavigation(type, hasInsuranceProducts) {
-
-		const state = this.horizonStore.recoverState();
-		const callerInfo = state && state.callerInformation;
-		
-		/**
-		 * Scenario 1: When a 3rd party or non-client is dialing for any need, clicking on the products buttons
-		 * 			   should display product info coming soon screen
-		 * Scenario 2: We are going production only with stop card, apart from dev / int regions product buttons
-		 * 			   are set to do nothing
-		 * TODO: Remove this environment check when product screens are ready/ when we want to map it to other needs
-		 */
-
-		// Note that when invoked from the agent's waiting for call landing page we will
-		// not have caller information
-		if (callerInfo && (callerInfo.is3rdParty || callerInfo.isNonClient)) {
-			this.horizonRouter.navigateToProductInfo(type);
-		} else {
-			// For now, from DEV, INT and upwards, the  product buttons go to product info pages.
-			this.horizonRouter.navigateToProductInfo(type);
-		}
+	_productButtonClick(button) {
+		this.dispatchEvent(new CustomEvent(`click`, { detail: { productButton: button } }));
 	}
 
 	// ---------
@@ -160,7 +100,7 @@ export class ProductButtonPanel extends Component {
 
             .product-button{
                 padding: 0px 0px 0px 0px;
-				width: 440px;
+				width: var(--horizon-left-panel-width, 440px);
 				margin-top: 16px;
 			}
 			.hide-tile{
@@ -171,17 +111,6 @@ export class ProductButtonPanel extends Component {
 	}
 
 	render() {
-
-		// TODO: Refactor this out into the calling components
-		let activePage = this.horizonRouter._getCurrentRoute(); // TODO: _getCurrentRoute() was supposed to be a private function, re-evaluate
-
-		// Initialise activePage properly if the current route is not yet readable
-		if (!activePage) {
-			activePage = {
-				title: ``
-			};
-		}
-
 		return html`
 			<horizon-product-tile 
 				class="product-button"
@@ -190,8 +119,8 @@ export class ProductButtonPanel extends Component {
 				subtitle="${this.subtitle.savingsAccount ? this.subtitle.savingsAccount : DEFAULT_SUBTITLE.SAVINGS_ACCOUNT}"
 				detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
 				icon="product/transact-white"
-				@click="${() => this._savingsAccountClick()}"
-				?selected="${activePage.title === `SavingsAccount`}">
+				@click="${() => this._productButtonClick(`SavingsAccount`)}"
+				?selected="${this.selectedButton === `SavingsAccount`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -200,8 +129,8 @@ export class ProductButtonPanel extends Component {
 				subtitle="${this.subtitle.savingsPlan ? this.subtitle.savingsPlan : DEFAULT_SUBTITLE.SAVINGS_PLAN}"
 				detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
 				icon="product/save-white"
-				@click="${() => this._savingsPlanClick()}"
-				?selected="${activePage.title === `SavingsPlan`}">
+				@click="${() => this._productButtonClick(`SavingsPlan`)}"
+				?selected="${this.selectedButton === `SavingsPlan`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -210,8 +139,8 @@ export class ProductButtonPanel extends Component {
 				subtitle="${this.subtitle.insure ? this.subtitle.insure : DEFAULT_SUBTITLE.INSURE}"
 				detail="${this.detail.insure ? this.detail.insure : ``}"
 				icon="product/insure-white"
-				@click="${() => this._insureClick()}"
-				?selected="${activePage.title === `Insure`}">
+				@click="${() => this._productButtonClick(`Insure`)}"
+				?selected="${this.selectedButton === `Insure`}">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -221,8 +150,8 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.credit ? this.detail.credit : ``}"
 				icon="product/credit-white"
 				?detailIcon="${false}"
-				@click="${() => this._creditClick()}"
-				?selected="${activePage.title === `Credit`}">
+				@click="${() => this._productButtonClick(`Credit`)}"
+				?selected="${this.selectedButton === `Credit`}">
 			</horizon-product-tile>
 		`;
 	}

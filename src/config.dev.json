@@ -1,8 +1,8 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs.platform-dev.int.capinet",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -10,11 +10,14 @@
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8888/subscribe"
 	},
-	"StatusBar": {
-		"sblUrl": "http://standardbancslinkv3.int.capinet:8080/",
-		"cdsUrl": "https://clientdocsearchdev.int.capinet:51443/",
-		"cnetUrl": "http://c-net.int.capinet:51001/Pages/default.aspx"
+	"otherSystemsURL": {
+		"sbl": "http://SBLDEV01.int.capinet:8102/",
+		"cds": "https://clientdocsearchdev.int.capinet:51443/",
+		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
+		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
+	"VDN":"211377",
 	"LogRequestResponseModels" : true,
 	"ivrMapping": [
 		{
@@ -28,13 +31,78 @@
 		{
 			"option": "3",
 			"primaryNeed": "Transact"
+		},
+		{
+			"option": "7",
+			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"mock": {
+		"enabled": true,
+		"acceptCall": {
 		"enabled": false,
-		"stopCard": {
+			"positiveCase": true
+		},
+		"identifyCaller": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"favouritesLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cardLimitsLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"xdsQuestions": {
 			"enabled": true,
+			"substituteIdOnly": "",
+			"positiveCase": true
+		},
+		"verifySecurityQuestions": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"digitalVerificationChannelsAvailable": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckMandates": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"debiCheckDetails": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"cardLimits": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"hasInsuranceProducts": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"stopCard": {
+			"enabled": false,
 			"failStopCard": true,
+			"positiveCase": true
+		},
+		"transactionHistory": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"savingsAccountLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"tapToPayLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"viewStatements": {
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

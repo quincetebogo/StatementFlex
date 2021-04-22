@@ -20,8 +20,9 @@ export class CallerInfoBar extends Component {
 		super();
 
 		this.incomingCallDetails = null;
-        this.need = null;
-        this.isNeedSelectable = false;
+		this.incidentDetails = null;
+		this.need = null;
+		this.isNeedSelectable = false;
 	}
 
 	// --------------
@@ -32,11 +33,13 @@ export class CallerInfoBar extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {Object} incomingCallDetails - Incoming Caller Information (see models/IncomingCallDetails for layout)
+	 * @property {object} incidentDetails - Incident details
 	 * @property {Boolean} [isNeedSelectable=false] Determines if the need can be switched via the Caller Info Bar on the dialog
-     */
+	*/
 	static get properties() {
 		return {
 			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
 			isNeedSelectable: { type: Boolean }
 		};
 	}
@@ -82,7 +85,7 @@ export class CallerInfoBar extends Component {
 		this.possibleNeedValues = this.incomingCallDetails.ivrOption.possibleValues;
 
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
+		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
 	}
 
 
@@ -115,21 +118,23 @@ export class CallerInfoBar extends Component {
 		return html`
 			<div class="call-details-bar">
 				<horizon-label
-                    label="Reference Number"
-                    value = "${this.incidentReferenceNumber && this.incidentReferenceNumber > 0 ? this.incidentReferenceNumber : ``}">
+					label="Reference Number"
+					value = "${this.incidentReferenceNumber && this.incidentReferenceNumber > 0 ? this.incidentReferenceNumber : ``}">
 				</horizon-label>
 				<horizon-select
-                    label="Client Need"
-                    display-field="value"
-                    .items="${this.possibleNeedValues}"
-					.value="${this._getNeedDisplayValue(this.need)}" @value-changed="${(e) => this._onIvrOptionChanged(e)}"
+					label="Client Need"
+					display-field="value"
+					.items="${this.possibleNeedValues}"
+					.value="${this._getNeedDisplayValue(this.need)}"
+					@value-changed="${(e) => this._onIvrOptionChanged(e)}"
 					?disabled=${!this.isNeedSelectable}>
 				</horizon-select>
 				<horizon-label
-                    label="Incoming Number"
-                    value="${this.incomingTelephoneNumber}">
+					label="Incoming Number"
+					value="${this.incomingTelephoneNumber}">
 				</horizon-label>
-			</div>`;
+			</div>
+		`;
 	}
 }
 

@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
@@ -16,6 +17,10 @@ const RENDER_MODE = {
 
 /**
  * Display an confirmation/success screen indicating which cards have been successfully stopped.
+ * 
+ * @export
+ * @class StopCardSuccess
+ * @extends View
  */
 export class StopCardSuccess extends View {
 
@@ -59,8 +64,10 @@ export class StopCardSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incomingCallDetails = state.incomingCallDetails;
-			this.callerInformation = state.callerInformation;
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.callerInformation = this.horizonStore.getCallerInformation();
+			
 			this.stoppedCards = state.stoppedCards;
 
 			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
@@ -73,9 +80,12 @@ export class StopCardSuccess extends View {
 		);
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
+		HorizonTelemetry.instance.screenUnloadStopCard();
+
 		if (this.verifySub) {
 			this.verifySub.dispose();
 		}
@@ -90,6 +100,7 @@ export class StopCardSuccess extends View {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
 	_onToastDisplayTimeout() {
 		this.displayNotification = true;
 	}
@@ -97,7 +108,6 @@ export class StopCardSuccess extends View {
 	_onEndCallSession() {
 		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
-
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -127,10 +137,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_updateLeftBar() {
-		const state = {
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		this.eventAggregator.publish(
 			`horizon-update-left-hand-bar`,
@@ -151,6 +158,12 @@ export class StopCardSuccess extends View {
 			}
 		);
 	}
+  
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}  
 
 	_doneClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
@@ -456,9 +469,10 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
 			<horizon-end-call-session
-				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails ="${this.incomingCallDetails}"
-				endCallContext="LandingPage">
+				endCallContext="LandingPage"
+				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
 			</horizon-end-call-session>`;
 		}
 
@@ -469,6 +483,7 @@ export class StopCardSuccess extends View {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
 				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"

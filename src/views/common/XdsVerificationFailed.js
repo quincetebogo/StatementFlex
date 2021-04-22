@@ -35,16 +35,10 @@ export class XdsVerificationFailed extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.callerInformation = state.callerInformation;
-
-		if (state && Object.hasOwnProperty.call(state, `isReassigned`)) {
-			this.isReassigned = state.isReassigned;
-		} else {
-			this.isReassigned = false;
-		}
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 
 		// Subscribe to shell events
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
@@ -120,8 +114,9 @@ export class XdsVerificationFailed extends View {
 	}
 
 	_updateMiniProfile() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		const state = { 
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -178,7 +173,8 @@ export class XdsVerificationFailed extends View {
 	_renderVerifyNowModal() {
 		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-				<horizon-verify-caller 
+				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					.callerInformation ="${this.callerInformation}"
 					@skip="${(e) => this._skipVerification(e)}"
@@ -192,7 +188,8 @@ export class XdsVerificationFailed extends View {
 	_renderEndCallSessionModal() {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
-				<horizon-end-call-session 
+				<horizon-end-call-session
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}" 
 					?isReassigned="${this.isReassigned}"
 					endCallContext="LandingPage"

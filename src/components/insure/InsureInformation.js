@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Router } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/layouts/Layout';
@@ -43,7 +44,11 @@ export class InsureInformation extends Component {
 		super();
 		this.router = Router.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+        this.horizonRouter = HorizonRouter.getInstance();
+        this.incomingCallDetails = this.state.incomingCallDetails;
+        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+
 		
 		this.index = 0;
 		this.renderMode = RENDER_MODE.DISCLAIMER;
@@ -92,11 +97,11 @@ export class InsureInformation extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.callerInformation = state.callerInformation;
-		this.verificationStatus = state.callerInformation.verificationStatus;
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
+		this.verificationStatus = this.callerInformation.verificationStatus;
 
 		this._updateMiniProfile();
 
@@ -128,8 +133,9 @@ export class InsureInformation extends Component {
 	}
 
 	_updateMiniProfile() {
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		const state = { 
-			callerInformation: this.callerInformation,
 			leftBarButtonConfig: {
 				hasFavourites: true,
 				subtitle: ``,
@@ -173,7 +179,8 @@ export class InsureInformation extends Component {
 	}
 
 	_onAssignIncident() {
-		this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.renderMode = RENDER_MODE.SELECT_ASSIGN_REASON;
+        this.horizonRouter.navigateToStrack(this.incidentRecId);
 	}
 
 	_onCancelSelectAssignReason() {
@@ -911,7 +918,8 @@ export class InsureInformation extends Component {
 		if (this.renderMode === RENDER_MODE.END_CALL) {
 			return html`
 				<horizon-end-call-session 
-					.incomingCallDetails="${this.incomingCallDetails}" 
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
 					endCallContext="LandingPage"
 					.isReassigned="${this.isReassigned}"
 					@cancel="${() => this._endCallCancelled()}">
@@ -947,6 +955,7 @@ export class InsureInformation extends Component {
 			? html``
 			: html`
 				<horizon-verify-caller 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					@cancel="${(e) => this._verificationCancelled(e)}"

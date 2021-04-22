@@ -1,14 +1,18 @@
-import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { View, css, html } from 'platform/elements';
+import { Configuration, Logger } from 'platform/core';
+import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
+import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { ViewBase } from 'app/views/common/ViewBase.js';
+
 
 import 'platform/components/buttons/Button';
 
@@ -20,14 +24,6 @@ import 'app/components/dialogs/common/Error404';
 import 'app/components/dialogs/stopCard/StopCardSearchCaller';
 import 'app/components/dialogs/stopCard/AssignStopCard';
 
-const RENDER_MODE = {
-	PAGE_ONLY: -1,
-	CONFIRM_CALLER: 0,
-	STOP_CARD_SEARCH: 1,
-	START_AGENT: 2,
-	SEARCH_CALLER: 3
-};
-
 /**
  * The Horizon Landing/Startup Page that is presented when starting the Horizon User Interface.
  * This is the only page that can accept an incoming call. On completing the handling of a call
@@ -35,9 +31,9 @@ const RENDER_MODE = {
  *
  * @export
  * @class LandingPage
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class LandingPage extends View {
+export class LandingPage extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -45,12 +41,7 @@ export class LandingPage extends View {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.PAGE_ONLY;
-		this.isBusy = false;
-
-		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this.logger = Logger.getInstance();
@@ -61,6 +52,7 @@ export class LandingPage extends View {
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 
 		this.incomingCallDetails = new IncomingCallDetails();
+		this.incidentDetails = {};
 
 		this.newCallSub = this.eventAggregator.subscribe(`new-call`, (newCallInfo) => this._onNewCall(newCallInfo));
 		this.searchCallSub = this.eventAggregator.subscribe(`search-caller`, (newCallInfo) => this._onSearchCaller(newCallInfo));
@@ -72,11 +64,11 @@ export class LandingPage extends View {
 		this.callStatusSubscription = this.horizonStore.stateChanged.subscribe(state => {
 			this.callStatus = state && state.callStatus ? state.callStatus : `WAITING-FOR-CALL`;
 			if (this.callStatus === `CALL-ENDED`) {
-				this.horizonStore.eraseState();
+				this.horizonStore.clearState();
 				this.callStatus = `WAITING-FOR-CALL`;
 				this.horizonStore.setState({ callStatus: this.callStatus });
 				this.desktopAgentService.callComplete();
-				this.renderMode = RENDER_MODE.PAGE_ONLY;
+				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		});
 
@@ -86,13 +78,6 @@ export class LandingPage extends View {
 	// ----------
 	// PROPERTIES
 	// ----------
-
-	static get properties() {
-		return {
-			renderMode: { attribute: false },
-			isBusy: { attribute: false }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -108,7 +93,12 @@ export class LandingPage extends View {
 	}
 
 	disconnectedCallback() {
-		// Cleanup all event aggregator and state management subscriptons;
+		// Telemetry
+		// TODO: This should probably move since this point will also mark the end of the caller verification.
+		HorizonTelemetry.instance.callerIdentified();
+		// TODO: Fulfill need span should start here
+
+		// Cleanup all event aggregator and state management subscriptions;
 		this.newCallSub.dispose();
 		this.searchCallSub.dispose(); 
 		this.agentUpSub.dispose(); 
@@ -131,7 +121,7 @@ export class LandingPage extends View {
 	_desktopAgentup() {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			// Dismiss error dialog once the Desktop Agent is up and running
-			this.renderMode = RENDER_MODE.PAGE_ONLY;
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
 		}
 	}
 
@@ -140,11 +130,18 @@ export class LandingPage extends View {
 	}
 
 	async _onNewCall(newCallInfo) {
-		// Create an incident in STrack for the new incoming call. This was intially planned to happen
+		// Create an incident in STrack for the new incoming call. This was initially planned to happen
 		// in the desktop agent but has moved here. 
 		const incident = await this._createIncident(newCallInfo);
 
-		this._acceptCall(newCallInfo, incident);
+		this.incidentDetails = new IncidentDetails(
+			incident ? incident.incidentNumber : `0`,
+			incident ? incident.incidentRecId : `0`,
+			``,
+			newCallInfo.ivrOptionCode,
+			``
+		);
+		this._acceptCall(newCallInfo);
 	}
 
 	async _createIncident(newCallInfo) {
@@ -154,16 +151,28 @@ export class LandingPage extends View {
 		if (!returnValue.succeeded || !incident) {
 			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		}
+
+		// Telemetry
+		if (incident) {
+			HorizonTelemetry.instance.incidentCreated({
+				incidentRecId: incident.incidentRecId,
+				incidentReference: incident.incidentNumber
+			});
+		}
+
 		return incident;
 	}
 
-	async _acceptCall(newCallInfo, incident) {
+	async _acceptCall(newCallInfo) {
 		const incomingNumber = newCallInfo.incomingTelephoneNumber;
 		let callerDetails = null;
 		let forceSearchDialog = true;
 
-		newCallInfo.incidentReferenceNumber = incident ? incident.incidentNumber : `0`;
-		newCallInfo.incidentRecId = incident ? incident.incidentRecId : `0`;
+		newCallInfo.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
+
+		// Telemetry
+		HorizonTelemetry.instance.identifyCallerStarts();
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -179,6 +188,16 @@ export class LandingPage extends View {
 			}
 		} else {
 			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
+
+			// Telemetry
+			// If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			HorizonTelemetry.instance.newTrace();
+			HorizonTelemetry.instance.incomingCall({
+				screen: TelemetryScreen.WAIT_FOR_CALL,
+				ivr: ``,
+				ucid: ``
+			});
 		}
 
 		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);
@@ -197,15 +216,22 @@ export class LandingPage extends View {
 		// Set up state for the incoming call
 		this.callStatus = `CALL-IN-PROGRESS`;
 		this.incomingCallDetails = new IncomingCallDetails(
+			newCallInfo.VDN,
 			newCallInfo.incomingTelephoneNumber,
-			newCallInfo.incidentReferenceNumber,
-			newCallInfo.incidentRecId,
+			false, 
+			false,
 			newCallInfo.voiceReferenceNumber,
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
 
-		const state = { callStatus: this.callStatus, incomingCallDetails: this.incomingCallDetails };
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		const state = {
+			callStatus: this.callStatus,
+			canCloseIncident: true
+		};
 
 		this.horizonStore.saveState(state);
 
@@ -231,7 +257,7 @@ export class LandingPage extends View {
 
 	_nonClientCaptured(event) {
 		// If a non-client is calling in (determined on the general search dialog), 
-		// navigate to the appopriate landing page
+		// navigate to the appropriate landing page
 		const callerInformation = new CallerInformation(
 			``, // CIF Number
 			``, // Birth Date
@@ -255,7 +281,8 @@ export class LandingPage extends View {
 			false
 		);
 
-		this.horizonStore.saveState({ incomingCallDetails: event.detail.incomingCallDetails, callerInformation: callerInformation });
+		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
+		this.horizonStore.setCallerInformation(callerInformation);
 
 		if (callerInformation.verificationStatus === `non-client`) {
 			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
@@ -297,10 +324,6 @@ export class LandingPage extends View {
 		}
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	_landingPageErrorHandler(exception) {
 		// Errors that can happen on the landing page
 
@@ -329,17 +352,13 @@ export class LandingPage extends View {
 		];
 	}
 
-	_mobileTemplate() {
-		return this._webTemplate();
-	}
-
 	_webTemplate() {
 		return html`
 		${this._renderMiddleSection()}
-		${this._renderLoadingIndicator()}
 		${this._renderConfirmCallerDetailsDialog()}
 		${this._renderSearchDialog()}
 		${this._renderStartAgentPrompt()}
+		${super._webTemplate()}
 		`;
 	}
 
@@ -349,20 +368,13 @@ export class LandingPage extends View {
 		`;
 	}
 
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-	}
-
 	_renderConfirmCallerDetailsDialog() {
 		if (this.renderMode === RENDER_MODE.CONFIRM_CALLER) {
 			return html`
 				<horizon-confirm-caller-details 
-					.confirmedCaller="${this.confirmedCaller}" 
+					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
@@ -373,6 +385,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-stop-card-search-caller 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(data) => this._clientIdentified(data)}"
 					@other-need-selected="${(event) => this._otherNeedSelected(event)}">
 				</horizon-stop-card-search-caller>`;
@@ -380,6 +393,7 @@ export class LandingPage extends View {
 			return html`
 				<horizon-search-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
@@ -391,7 +405,7 @@ export class LandingPage extends View {
 		if (this.renderMode === RENDER_MODE.START_AGENT) {
 			return html`
 				<horizon-error-404 
-					@click="${() => this.renderMode = RENDER_MODE.PAGE_ONLY}">
+					@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-error-404>
 			`;
 		}

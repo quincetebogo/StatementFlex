@@ -3,6 +3,7 @@ import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManag
 import { Shell, css, html } from 'platform/elements';
 
 import { DesktopAgentService } from 'app/services/DesktopAgentService.js';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 // Import Horizon Routes
@@ -77,6 +78,7 @@ export class AppShell extends Shell {
 		this.currentMessage = ``;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
+		this.horizonIncidentManager = HorizonIncidentManager.getInstance();
 		this.currentView = this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.LANDING_PAGES);
 	}
 
@@ -107,6 +109,7 @@ export class AppShell extends Shell {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
 		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._restoreState(state));
 
@@ -139,9 +142,9 @@ export class AppShell extends Shell {
 		this.applicationVersion = await this._executionContext.applicationVersion;
 		this.clientIp = this._executionContext.clientIp;
 
-		this.sblUrl = await this._configuration.getSetting(`StatusBar.sblUrl`);
-		this.cdsUrl = await this._configuration.getSetting(`StatusBar.cdsUrl`);
-		this.cnetUrl = await this._configuration.getSetting(`StatusBar.cnetUrl`);
+		this.sblUrl = await this._configuration.getSetting(`otherSystemsURL.sbl`);
+		this.cdsUrl = await this._configuration.getSetting(`otherSystemsURL.cds`);
+		this.cnetUrl = await this._configuration.getSetting(`otherSystemsURL.cnet`);
 
 		// Start the Desktop Agent service to subscribe to incoming call events from the Desktop Agent Application
 		this.agentService = DesktopAgentService.getInstance();
@@ -218,19 +221,20 @@ export class AppShell extends Shell {
 		return [
 			super.styles,
 			css`
-				/* TRY TO MAINLY CONTROL THE SCREEN SIZE FROM HERE. LIMIT FIXED SIZES FURTHER WHERE POSSIBLE */
-				.screen-size{
-					width : 1920px; 
-					height : 1080px;
-					display: flex;
-					flex-direction: column;
+				:host {
+					--horizon-screen-width: 1920px;
+					--horizon-screen-height: 1080px;
+					--horizon-center-panel-width: 1064px;
+					--horizon-left-panel-width: 440px;
+					--horizon-right-panel-width: 320px;
+					--horizon-panel-height: 888px;
 				}
 
-				.additional-bar{
-					width: 100%;
-					height: 56px;
-					margin: 0px 0px 0px 0px;
-					background: #f4f4f4; 
+				.screen-size {
+					width : var(--horizon-screen-width);
+					height : var(--horizon-screen-height);
+					display: flex;
+					flex-direction: column;
 				}
 
 				.screen-content {
@@ -241,7 +245,7 @@ export class AppShell extends Shell {
 
 				.grid-container {
 					display: grid;
-					grid-template-columns: 440px 1064px 320px;
+					grid-template-columns: var(--horizon-left-panel-width) var(--horizon-center-panel-width) var(--horizon-right-panel-width);
 					grid-template-areas: "left middle right";
 					grid-gap: 24px;
 					background-color: #F4F4F4;
@@ -254,11 +258,11 @@ export class AppShell extends Shell {
 				}
 
 				.left{
-					width:440px; 
+					width: var(--horizon-left-panel-width);
 				}
 
 				.right{
-					width:320px; 
+					width: var(--horizon-right-panel-width);
 				}
 
 				* {
@@ -340,7 +344,7 @@ export class AppShell extends Shell {
 
                 	<capitec-content-box class="screen-content" nopadding>
 						<div class="grid-container">
-						<div class="left">
+							<div class="left">
 							    ${this.horizonViewManager.renderLeftBar(this.currentView)}
 							</div>
 							<div class="middle">

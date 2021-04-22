@@ -26,14 +26,10 @@ const ITA_TIMEOUT_SECS = 60;
 
 // exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
-
 	objInstance.callerInformation.verificationStatus = `failed`;
-	const state = {
-		callerInformation: objInstance.callerInformation,
-		incomingCallDetails: objInstance.incomingCallDetails
-	};
-	objInstance.horizonStore.saveState(state);
-
+	objInstance.horizonStore.setCallerInformation(objInstance.callerInformation);
+	objInstance.horizonStore.setIncomingCallDetails(objInstance.incomingCallDetails);
+	
 	return objInstance.horizonRouter.navigateToXdsVerificationFailed();
 };
 
@@ -92,6 +88,7 @@ export class VerifyCaller extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Information on the incoming call
 	 * @property {Object} callerInformation Information (mini-profile) on the incoming caller
+	 * @property {object} incidentDetails Incident details
 	 * 
 	 */
 	static get properties() {
@@ -99,6 +96,7 @@ export class VerifyCaller extends Component {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			noOfXdsVerificationAttempted: { type: Number },
+			incidentDetails: { type: Object },
 
 			renderMode: { attribute: false },
 			timeLeft: { attribute: false },
@@ -127,8 +125,8 @@ export class VerifyCaller extends Component {
 		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
 		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 
-		this.incidentReferenceNumber = this.incomingCallDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
 
 		// Resetting ITA & XDS attempts
@@ -306,31 +304,23 @@ export class VerifyCaller extends Component {
 		this.callerInformation.verificationStatus = verificationStatus;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 
-		const state = {
-			callerInformation: this.callerInformation,
-			incomingCallDetails: this.incomingCallDetails
-		};
-
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
 	}
 
 	_xdsErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		this.xdsMessage = `System error. Please try again later`;
 
 		return true;
 	}
 
 	_itaErrorHandler(exception) {
-		const state = {
-			incomingCallDetails: this.incomingCallDetails,
-			callerInformation: this.callerInformation
-		};
-		this.horizonStore.saveState(state);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		
 		this.itaMessage = `System error. Please try again later`;
 		this.itaVerificationFailed = true;
 
@@ -590,7 +580,8 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-caller-dialog
-					.incomingCallDetails="${this.incomingCallDetails}" 
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					.isNeedSelectable=${false}
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
@@ -610,6 +601,7 @@ export class VerifyCaller extends Component {
 			? html``
 			: html`
 				<horizon-security-question 
+					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
@@ -627,6 +619,7 @@ export class VerifyCaller extends Component {
 			: html`
 				<horizon-end-call-session 
 					.incomingCallDetails="${this.incomingCallDetails}"
+					.incidentDetails="${this.incidentDetails}"
 					endCallContext="VerifyClient"
 					@cancel="${() => this.renderMode = RENDER_MODE.VERIFY_CALLER}">
 				</horizon-end-call-session>`;

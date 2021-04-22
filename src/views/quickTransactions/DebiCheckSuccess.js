@@ -27,8 +27,10 @@ export class DebiCheckSuccess extends View {
 
 	constructor() {
 		super();
+
 		this.renderMode = RENDER_MODE.DEBICHECK_SUCCESS;
 		this.mandateId = ``;
+		
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -61,7 +63,10 @@ export class DebiCheckSuccess extends View {
 
 		if (state) {
 			this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = state.incomingCallDetails;
+			
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+
 			// TODO: mandate ID to be obtained from state.
 			this.mandateId = `DISCLIFE 5130111776-21`;
 		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
@@ -159,7 +164,8 @@ export class DebiCheckSuccess extends View {
 	_renderEndCallModal() {
 		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
 			return html`
-			<horizon-end-call-session 
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				endCallContext="LandingPage"
 				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">

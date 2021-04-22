@@ -52,7 +52,7 @@ export class AccessMenuBar extends Component {
 			css`
 				.insights-card {
 					height: 462px;
-					width: 320px
+					width: var(--horizon-right-panel-width, 320px);
 				}
 				capitec-title-bar {
 					border-bottom: 1px solid #E1E1E1;

@@ -30,17 +30,21 @@ export class StopCardConfirm extends Component {
 	// ----------
 
 	/**
-	 *
-	 *
+	 * @property {Object} incidentDetails Incident details
+	 * @property {Object} incomingCallDetails Incoming call information
+	 * @property {Object} cardsToStop List of cards to stop
+	 * 
 	 * @readonly
 	 * @static
 	 * @memberof StopCardConfirm
 	 */
 	static get properties() {
 		return {
+			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			cardsToStop: { type: Array },
-			isBusy: { type: Boolean }
+
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -65,7 +69,7 @@ export class StopCardConfirm extends Component {
 	// --------------
 
 	async _onConfirmClick() {
-		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails);
+		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {

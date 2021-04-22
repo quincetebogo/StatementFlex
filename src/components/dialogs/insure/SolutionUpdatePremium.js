@@ -1,4 +1,4 @@
-import { Component, html, css } from 'platform/elements';
+import { Component, css, html } from 'platform/elements';
 
 export class UpdatePremium extends Component {
 
@@ -9,9 +9,9 @@ export class UpdatePremium extends Component {
 	constructor() {
 		super();
 
-		this.alertBannerType = "info";
+		this.alertBannerType = `info`;
 		this.checked = false;
-		this.alertBannerMessage = "After each change, the ‘Update’ and ‘Calculate’ button must be clicked.";
+		this.alertBannerMessage = `After each change, the ‘Update’ and ‘Calculate’ button must be clicked.`;
 	}
 
 	// --------------
@@ -24,7 +24,7 @@ export class UpdatePremium extends Component {
 			alertBannerType: { type: String },
 			alertBannerMessage: { type: String },
 			checked: { type: Boolean }
-		}
+		};
 	}
 
 	// -------------------
@@ -44,19 +44,17 @@ export class UpdatePremium extends Component {
 
 	_onDoneClick() {
 		if (!this.checked) {
-			this.alertBannerType = "error";
-			this.alertBannerMessage = "Choose a feedback reason to continue.";
-		}
-
-		else {
-			//TODO: Should be navigated based on the option selected. Can be done when channel is ready.
+			this.alertBannerType = `error`;
+			this.alertBannerMessage = `Choose a feedback reason to continue.`;
+		} else {
+			// TODO: Should be navigated based on the option selected. Can be done when channel is ready.
 		}
 	}
 
 	_onValueChanged() {
 		this.checked = !this.checked;
-		this.alertBannerMessage = this.alertBannerType === "error" ? "After each change, the ‘Update’ and ‘Calculate’ button must be clicked." : "Choose a feedback reason to continue.";
-		this.alertBannerType = this.alertBannerType === "error" ? "info" : "error";
+		this.alertBannerMessage = this.alertBannerType === `error` ? `After each change, the ‘Update’ and ‘Calculate’ button must be clicked.` : `Choose a feedback reason to continue.`;
+		this.alertBannerType = this.alertBannerType === `error` ? `info` : `error`;
 	}
 
 	// --------------
@@ -146,7 +144,6 @@ export class UpdatePremium extends Component {
 					line-height: 24px;
 					letter-spacing: 0;
 					font-weight: 600;
-					font-weight
 				}
 
 				.navigate-bullet-list {
@@ -313,8 +310,8 @@ export class UpdatePremium extends Component {
 					--theme-alert-banner-info-border: 0px;
 					--theme-alert-banner-height: 48px;
 					--theme-alert-banner-font-weight: 500;
-				}
-		`];
+				}`
+		];
 	}
 
 	_mobileTemplate() {
@@ -337,11 +334,10 @@ export class UpdatePremium extends Component {
 	}
 
 	_renderAlertBanner() {
-		if (this.alertBannerType === "info") {
+		if (this.alertBannerType === `info`) {
 			return html`
 			<capitec-alert-banner label="${this.alertBannerMessage}" type="${this.alertBannerType}"></capitec-alert-banner>`;
-		}
-		else if (this.alertBannerType === "error") {
+		} else if (this.alertBannerType === `error`) {
 			return html`
 			<capitec-alert-banner class="alert-banner-error" label="${this.alertBannerMessage}" type="${this.alertBannerType}"></capitec-alert-banner>`;
 		}
@@ -423,8 +419,6 @@ export class UpdatePremium extends Component {
 					id="id-cancel-button"
 					type="clear"
 					label="Cancel"
-					?hidden=""
-					.disabled=""
 					tabindex=""
 					@click="${() => this._onCancelClick()}">
 				</capitec-button>
@@ -433,8 +427,6 @@ export class UpdatePremium extends Component {
 					id="id-done-button"
 					type="primary"
 					label="Done"
-					?hidden=""
-					.disabled=""
 					tabindex=""
 					@click="${() => this._onDoneClick()}">
 				</capitec-button>
@@ -443,4 +435,4 @@ export class UpdatePremium extends Component {
 	}
 }
 
-window.customElements.define(`horizon-update-premium`, UpdatePremium)
+window.customElements.define(`horizon-update-premium`, UpdatePremium);
