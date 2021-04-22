@@ -50,8 +50,7 @@ const RENDER_MODE = {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
-
+			renderMode: { attribute: false }
 		};
 	}
 
@@ -167,9 +166,9 @@ const RENDER_MODE = {
 					toast="Proof of account not sent"
 					@left-click=${() => this._doneClick()}
 					@right-click=${() => this._assignClick()}>
-					<section 
-						id="id-error-msg" 
-						slot="detail">Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b></section>
+					<section id="id-error-msg" slot="detail">
+						Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+					</section>
 				</horizon--error-screen>
 			`;
 		}
