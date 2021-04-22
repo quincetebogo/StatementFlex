@@ -272,7 +272,7 @@ export class StopCardSuccess extends View {
 				}
 				  
 				.stop-card-text {
-					margin: 0px 0px 0px 0px;
+					margin: 16px 0px 0px 0px;
 					color: #4E6066;
 					font-family: "Hind Vadodara";
 					font-weight: 600;
@@ -306,7 +306,7 @@ export class StopCardSuccess extends View {
 					width: auto;
 					display: flex;
 					align-items: center;
-					margin: 0px 0px 0px 15px;
+					margin: 0px 0px 16px 15px;
 				}
 
 				capitec-icon{

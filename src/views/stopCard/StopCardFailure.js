@@ -264,7 +264,7 @@ export class StopCardFailure extends View {
 					width: auto;
 					display: flex;
 					align-items: center;
-					margin: 0px 0px 0px 15px;
+					margin: 16px 40px;
 				}
 
 				capitec-icon{
@@ -332,6 +332,7 @@ export class StopCardFailure extends View {
 					line-height: 24px;
 					text-align: center;
 					margin: 15px 0px 0px 0px;
+                    padding-top: 16px;
 				}
 			`
 		];
