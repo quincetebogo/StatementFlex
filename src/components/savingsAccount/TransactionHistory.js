@@ -23,12 +23,12 @@ const RENDER_CHIPS = {
 };
 
 const TRANSACTION_STATUS_LIST = [
+	`Fee`,
     `Financial`,
     `Non Financial`,
     `Processing`,
-    `Reversed`,
-    `Partial reversal`,
-    `Partial reversal processed`
+    `Reversed`
+
 ];
 
 // ninety days in milliseconds
