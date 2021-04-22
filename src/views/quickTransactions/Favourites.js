@@ -215,7 +215,6 @@ export class Favourites extends ViewBase {
 	// ---------------
 
 	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
 		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -476,7 +475,7 @@ export class Favourites extends ViewBase {
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.verificationStatus}"
+					.verificationStatus="${this.callerInformation.verificationStatus}"
 					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 					@verify-click="${() => super._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">

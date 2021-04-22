@@ -93,7 +93,7 @@ const NOTIFICATION_MESSAGE = {
 	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
-}
+};
 
 const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
@@ -496,15 +496,16 @@ export class StatementsDialog extends Component {
 		// To get the all account types for particular category.
 		const accountTypes = [...new Set(products.map(item => item.accountType))];
 		
-		accountTypes.forEach ( acct => {
-			acct !== ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? 
-			availableBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0) :
-			currentBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.currentBalance || 0), 0);
-			
-		})
+		accountTypes.forEach(acct => {
+			if (acct !== ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT) {
+				availableBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.availableBalance || 0), 0);
+			} else {
+				currentBalance = products.filter(item => item.accountType === acct).reduce((sum = 0, item) => sum + (item.currentBalance || 0), 0);
+			}
+		});
 	
 		// Rounding off the decimal value
-		totalAmount = Math.round( (availableBalance + currentBalance) * 100) / 100;
+		totalAmount = Math.round((availableBalance + currentBalance) * 100) / 100;
 		return formatCurrency(totalAmount);
 	}
 
@@ -841,8 +842,8 @@ export class StatementsDialog extends Component {
 							type="radio-button"
 							label="${item.accountName}"
 							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
-										? "Balance R" + formatCurrency(item.currentBalance) 
-										: "Available balance R" + formatCurrency(item.availableBalance)}"
+										? `Balance R${formatCurrency(item.currentBalance)}` 
+										: `Available balance R${formatCurrency(item.availableBalance)}`}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item)}"
