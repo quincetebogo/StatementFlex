@@ -164,7 +164,13 @@ export class HorizonTelemetry extends Telemetry {
 		if (!this._traceId) {
 			const state = this.horizonStore.recoverState();
 			const telemetryDetails = state && state.telemetryDetails;
-			traceID = telemetryDetails.traceId;
+
+			if (telemetryDetails && telemetryDetails.traceId) {
+				traceID = telemetryDetails.traceId;
+			} else {
+				// If traceId is still null, no trace was ever started, so starting a new trace.
+				this.newTrace();
+			}
 		}
 		return this._traceId || traceID;
 	}
@@ -214,6 +220,8 @@ export class HorizonTelemetry extends Telemetry {
 			currentActiveSpans: this.currentActiveSpans
 		};
 		this.horizonStore.saveState({ telemetryDetails: telemetryDetails });
+
+		return this.traceId;
 	}
 
 

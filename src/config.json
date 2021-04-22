@@ -49,17 +49,17 @@
 		"search-other-need": "SEARCH_OTHER_NEED"
 	},
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -80,11 +80,11 @@
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimits": {
@@ -113,7 +113,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		}
 	}
