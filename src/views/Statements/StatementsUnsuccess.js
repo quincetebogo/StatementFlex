@@ -49,8 +49,7 @@ export class StatementsUnsuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
-
+			renderMode: { attribute: false }
 		};
 	}
 

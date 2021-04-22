@@ -65,7 +65,7 @@ export class ProofOfAccountSuccess extends View {
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();;
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 			this.mailId = state.emailAddress;

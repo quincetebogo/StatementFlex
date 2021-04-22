@@ -49,8 +49,7 @@ const RENDER_MODE = {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
-
+			renderMode: { attribute: false }
 		};
 	}
 
