@@ -23,12 +23,12 @@ const RENDER_CHIPS = {
 };
 
 const TRANSACTION_STATUS_LIST = [
+	`Fee`,
     `Financial`,
     `Non Financial`,
     `Processing`,
-    `Reversed`,
-    `Partial reversal`,
-    `Partial reversal processed`
+    `Reversed`
+
 ];
 
 // ninety days in milliseconds
@@ -166,11 +166,10 @@ export class TransactionHistory extends Component {
         last90day.setDate(today.getDate() - 90);
 
         return [
-            { text: `Today`, value: { startDate: today.toISOString(), endDate: today.toISOString() } },
-            { text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-            { text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-            { text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-            { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+            { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+            { text: "Last 90 days", value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
 
@@ -340,18 +339,22 @@ export class TransactionHistory extends Component {
 
     _refineSearch() {
 
-        this.filteredData = this.transactionHistory;
+        this.filteredData = this.transactionHistory;     
         if (RENDER_CHIPS[FILTER_BY.TEXT]) {
             const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
             const searchTextResult = searchText.map(key => {
                 if (key !== ``) {
-                    return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key) !== -1 || parseInt(item.amount, 10) === parseInt(key, 10));
+                    if (key.startsWith('-')) {
+                        return this.filteredData.filter(item => parseFloat(item.amount) == parseFloat(key));
+                    } else {                        
+                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseFloat(item.amount) === parseFloat(key) || ((parseFloat(item.amount) * -1) === parseFloat(key)));
+                    }
+                   
                 }
                 return [];
-            });
-
-            this.filteredData = Array.from(new Set([...searchTextResult.flat()]));
+            });            
+            this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
         }
 
         if (RENDER_CHIPS[FILTER_BY.DATE]) {
@@ -368,10 +371,6 @@ export class TransactionHistory extends Component {
         }
         this.requestUpdate();
     }
-
-    // showCalendar() {
-    // this.renderMode = RENDER_MODE.CALENDAR;
-    // }
 
     _formatDate(date) {
         const newdate = new Date(Date.parse(date));
@@ -520,6 +519,7 @@ export class TransactionHistory extends Component {
 					--theme-data-table-padding-bottom: 9px;
 					--theme-data-table-expander-size: 12px;
 					--theme-data-table-footer-border: 0px;
+                    --theme-data-table-expander-size: 24px;
 				}
 
 				/* Modal Calendar Styles */
@@ -681,8 +681,8 @@ export class TransactionHistory extends Component {
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
                 </capitec-date-time-picker>
 
-
-				<capitec-select
+            
+            <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
 					.items="${TRANSACTION_STATUS_LIST}"

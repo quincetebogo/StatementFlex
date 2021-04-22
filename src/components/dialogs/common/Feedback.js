@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
 	{
@@ -10,19 +10,19 @@ const FEEDBACK_OPTIONS = [
 		value: `Need fulfilled`
 	},
 	{
-		key: 1,
+		key: 2,
 		value: `Need was assigned/handed off`
 	},
 	{
-		key: 2,
+		key: 1,
 		value: `Need incomplete`
 	}
 ];
 
 const ERROR_LIST = {
-	VALIDATION_ERROR : `Please choose an option:`,
-	SYSTEM_ERROR : `System error. Please try again`
-}
+	VALIDATION_ERROR: `Please choose an option:`,
+	SYSTEM_ERROR: `System error. Please try again`
+};
 
 /**
  * Feedback for other needs component
@@ -76,7 +76,7 @@ export class Feedback extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.feedbackOptions = FEEDBACK_OPTIONS
+		this.feedbackOptions = FEEDBACK_OPTIONS;
 	}
 
 	// --------------
@@ -89,20 +89,23 @@ export class Feedback extends Component {
 		} else {
 			console.log(this.selectedFeedback);
 
-			const state = this.horizonStore.recoverState();
-			const incidentRecId = state.incidentDetails && state.incidentDetails.incidentRecId;
-			const ivrOptionCode = state.incomingCallDetails; 
+			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+			const resolution = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
 
 			const closeIncidentRequest = {
-				incidentRecId: incidentRecId,
+				incidentRecId: incidentDetails.incidentRecId,
 				reason: this.selectedFeedback,
-				causeCode: this.endCallCauseCode.getCauseCode("LandingPage", ivrOptionCode, this.selectedFeedback)
+				resolution: resolution.value,
+				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, this.selectedFeedback)
 			};
 
 			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
 			
-			if(returnValue.succeeded){
-				//Navigate to favourites landing page
+			if (returnValue.succeeded) {
+				// Navigate to favourites landing page
+				this._updateIncidentState();
 				this.dispatchEvent(new CustomEvent(`done`, {}));
 			} else {
 				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
@@ -110,15 +113,9 @@ export class Feedback extends Component {
 		}
 	}
 
-	_onValueChanged(event, item) {
-		this.selectedFeedback = event.detail.value; 
+	_onValueChanged(event) {
+		this.selectedFeedback = event.detail.key; 
 		this.alertBannerMessage = ``;
-
-		this.selectedFeedback = {
-			'Need fulfilled' : `NeedFulfilled`,
-			'Need was assigned/handed off' : `ClientAssigned`,
-			'Need incomplete' : `NeedIncomplete`
-		}[this.selectedFeedback];
 	}
 
 	_toggleBusyFlag() {
@@ -127,6 +124,17 @@ export class Feedback extends Component {
 
 	_handleChannelServiceError() {
 		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+
+		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
 	// ---------
@@ -235,7 +243,7 @@ export class Feedback extends Component {
 
 			<horizon-radio-button-group
 				.radioButtonsAvailable="${this.feedbackOptions}"
-				@value-change="${(event, item) => this._onValueChanged(event, item)}">
+				@value-change="${(event) => this._onValueChanged(event)}">
 			</horizon-radio-button-group>
 		`;
 	}
