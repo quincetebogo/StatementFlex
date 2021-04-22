@@ -488,7 +488,7 @@ export class Favourites extends ViewBase {
 					.landingPageInfo="${this.landingPageInfo}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.verificationStatus}"
+					.verificationStatus="${this.callerInformation.verificationStatus}"
 					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 					@verify-click="${() => super._verifyClick()}"
 					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
