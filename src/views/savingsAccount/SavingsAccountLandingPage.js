@@ -7,6 +7,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
+import 'app/components/savingsAccount/DebiCheckMandates';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -67,7 +68,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 		this._initialise();
 
-		this._optionClick = (option) => {
+		this._optionClick = async (option) => {
 
 			const transactionHistory = () => this._transactionHistory();
 			const debiCheck = () => this._debiCheck();
@@ -82,8 +83,8 @@ export class SavingsAccountLandingPage extends ViewBase {
 			};
 
 			if (actions[option]) {
-				super._inicidentManager_(option, () => this._toggleBusyFlag());
-				return actions[option];
+				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				return actions[option]();
 			}
 		};
 	}
@@ -286,7 +287,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 				<horizon-savings-account
 					class="savingsaccount"
 					.landingPageInfo = "${this.landingPageInfo}"
-					@option-click="${(event) => this._optionClick(event.detail.option)()}"
+					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@savings-enquiry="${(event) => this._productEnquiry(event, `transact`)}">
 				</horizon-savings-account>`
 			: html``;

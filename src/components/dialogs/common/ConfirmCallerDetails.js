@@ -223,6 +223,7 @@ export class ConfirmCallerDetails extends Component {
 		// the results of the search
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
 
 		// TODO: Do we lose the added caller details if we go there first before doing a search???
 		this._initCallerInformation();
@@ -244,11 +245,13 @@ export class ConfirmCallerDetails extends Component {
 
 	_otherNeedSelected(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 	}
 
 	_stopCardNeedSelected(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.incidentDetails = event.detail.incidentDetails;
 		this.renderMode = RENDER_MODE.STOP_CARD_SEARCH_CALLER;
 	}
 
@@ -256,6 +259,9 @@ export class ConfirmCallerDetails extends Component {
 		this.confirmedCaller.ivrOptionCode = event.detail.new;
 		this.incomingCallDetails.ivrOption.value = event.detail.new;
 		this.incomingCallDetails.ivrOptionCode = event.detail.new;
+
+		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	_searchClick() {
@@ -497,6 +503,7 @@ export class ConfirmCallerDetails extends Component {
 					--theme-layout-gap-spacing: 25px;
 				}
 				capitec-label[type="title"] {
+					--theme-text-select: text;
 					--theme-label-title-font-weight: 600;
 					line-height: 28px;
 				}

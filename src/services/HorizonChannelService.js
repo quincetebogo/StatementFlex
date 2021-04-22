@@ -265,44 +265,6 @@ export class HorizonChannelService extends Service {
 	// ----------------
 	// End Call Methods
 	// ----------------
-
-	/**
-	 * Loads the list of reasons to display on the end call dialog.
-	 *
-	 * @param {Object} endCallDetails Call details including the end call reason/cause code
-	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
-	 * @memberof HorizonChannelService
-	 */
-	loadEndCallOptions(endCallDetails) {
-		return this._get(
-			`/clientcare/call/${this._version}/end-call?` +
-				`IsReassigned=${endCallDetails.isReassigned}&` +
-				`IncomingTelephoneNumber=${endCallDetails.incomingTelephoneNumber}&` +
-				`VoiceReferenceNumber=${endCallDetails.voiceReferenceNumber}&` +
-				`IvrOptionCode=${endCallDetails.ivrOptionCode}&` +
-				`IncidentReferenceNumber=${endCallDetails.incidentReferenceNumber}&` +
-				`AgentTelephoneNumber=${endCallDetails.agentTelephoneNumber}&` +
-				`EndCallContext=${endCallDetails.endCallContext}`, 
-				this._setToken(), 
-			`loadEndCallOptions`
-		);
-	}
-
-	/**
-	 * Records the end call reason/cause code against an incident
-	 * 
-	 * @param {Object} endCallRequest End call request
-	 * @returns {Object} Either success or a failure object
-	 * @memberof HorizonChannelService
-	 */
-	endCall(endCallRequest) {
-		return this._post(
-			`/clientcare/call/${this._version}/end-call`,
-			endCallRequest,
-			this._setToken(),
-			`endCall`
-		);
-	}
 	
 	// stopCardRequest
 	stopCard(stopCardRequest) {
@@ -425,7 +387,10 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `initialise`);
 	}
 
-	// newIncidentRequest
+	// ----------------
+	// Incident Methods
+	// ----------------
+
 	createIncident(createIncidentRequest) {
 		const url = `/clientcare/incident/${this._version}/create-incident`;
 		const model = createIncidentRequest;
@@ -448,14 +413,37 @@ export class HorizonChannelService extends Service {
 		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
 	}
 
+	/**
+	 * Loads the list of reasons to display on the end call dialog.
+	 *
+	 * @param {Object} request Request to get close incident reasons
+	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
+	 * @memberof HorizonChannelService
+	 */
+	 closeIncidentOptions(request) {
+		return this._get(
+			`/clientcare/incident/${this._version}/close-incident?` +
+				`IsReassigned=${request.isReassigned}&` +
+				`CloseIncidentContext=${request.CloseIncidentContext}`,
+				this._setToken(), 
+			`closeIncidentOptions`
+		);
+	}
+
 	closeIncident(closeIncidentRequest) {
 		const url = `/clientcare/incident/${this._version}/close-incident?` +
 						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
 						`Reason=${closeIncidentRequest.reason}&` +
-						`Resolution=${closeIncidentRequest.reason}&` +
+						`Resolution=${closeIncidentRequest.resolution}&` +
 						`CauseCode=${closeIncidentRequest.causeCode}&`;
 
 		return this._put(url, null, this._setToken(), `closeIncident`);
+	}
+
+	classifyIncident(classifyIncidentRequest) {
+		const url = `/clientcare/incident/${this._version}/classification`;
+	
+		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
 	}
 
 	// --------------
@@ -505,6 +493,7 @@ export class HorizonChannelService extends Service {
 	// ----------------
 	// call - ITA & XDS
 	// ----------------
+
 	itaVerification(request) {
 		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
@@ -566,7 +555,8 @@ export class HorizonChannelService extends Service {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
-		const url = `/clientcare/card/${this._version}/limits-landing?${cifNumber}`;
+		const url = `/clientcare/card/${this._version}/limits-landing?` +
+					`cifNumber=${cifNumber}`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
@@ -632,9 +622,10 @@ export class HorizonChannelService extends Service {
         return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
-	// ------------------
+	// ---------------
 	// Savings Account
-	// ------------------
+	// ---------------
+
 	async savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData) {
 		if (await this._mockEnabled(`savingsAccountLanding`)) {
 			return this._mock.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData);
@@ -666,9 +657,10 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `transactionHistory`);
 	}
 
-	// ----------------
-	// Other Needs 
-	// ----------------
+	// -----------
+	// Other Needs
+	// -----------
+
 	otherNeedCategories(orgUnit) {
 		const url = `/clientcare/incident/${this._version}/categories?` +
 		`OrgUnit=${encodeURIComponent(orgUnit)}`;
