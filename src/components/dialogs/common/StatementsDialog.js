@@ -83,7 +83,7 @@ const TIME_PERIOD = {
 	}
 };
 
-const EMAIL_REGEX = /[a-zA-Z0-9.-]+@[a-zA-Z-]+.(com|net|co.za|gov|co.uk)(.([a-z]+))*/;
+const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 
 /**
  * View and email statements based on account selection and date range.
@@ -190,13 +190,11 @@ export class StatementsDialog extends Component {
 		const selectAccount = () => this._validateAccountSelection();
 		const selectPeriod = () => this._validatePeriodSelection();
 		const emailClient = () => this._validateEmailAddress();
-		const emailFormatCheck=()=>this._emailFormatCheck();
 
 		const validations = {
 			0: selectAccount,
 			1: selectPeriod,
-			2: emailClient,
-			3: emailFormatCheck
+			2: emailClient
 		};
 		const result = validations[this.currentStep]();
 		if (result && this.errorMessage === ``) {
@@ -265,7 +263,8 @@ export class StatementsDialog extends Component {
 		if (e.detail.new.length > 0) {
 			if (!EMAIL_REGEX.test(e.detail.new)) {
 				this.errorMessage = `Invalid email format`;
-				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
+				this.mailClientError.email=`Invalid email format`;
+				this.mailClientError.confirmEmail=`Invalid email format`;
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;
@@ -273,11 +272,9 @@ export class StatementsDialog extends Component {
 		}
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
-			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
-		}
-		else {
-			this.errorMessage = ``;
-			this.mailClientError[e.currentTarget.id] = ``;
+			this.mailClientError.email=`Emails don't match`;
+				this.mailClientError.confirmEmail=`Emails don't match`;
+			//this.mailClientError[e.currentTarget.id] = `Emails don't match`;
 		}
 		this.requestUpdate();
 	}
@@ -292,6 +289,8 @@ export class StatementsDialog extends Component {
 
 	_inputEmail(e) {
 		this.mailClientError[e.currentTarget.id] = ``;
+		this.mailClientError.email=``;
+		this.mailClientError.confirmEmail=``;
 		this.errorMessage = ``;
 	}
 
@@ -326,10 +325,13 @@ export class StatementsDialog extends Component {
 
 	async _sendStatement() {
 		if (!this._validateEmailAddress()) {
+			this.mailClientError.email=`Please enter email`;
+			this.mailClientError.confirmEmai=`Please enter email`;
+			this.errorMessage=`Complete all fields.`;
 			return false;
 		}
-		else if(!this._emailFormatCheck()){
-             return false;
+		if(this.errorMessage){
+			return false;
 		}
 		else{
 			const statement = {
@@ -426,8 +428,8 @@ export class StatementsDialog extends Component {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-		this.errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return this.errorMessage === ``;
+		let errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return errorMessage === ``;
 	}
 
 	_validateRangeSelected() {
@@ -540,7 +542,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
-					height: 730px;
+					height: 500px;
 
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;
@@ -955,13 +957,13 @@ export class StatementsDialog extends Component {
 				<capitec-text-field
 					id="email"
 					label="Email address"
-					oncopy="return true"
-					onpaste="return true"
-					oncut="return true"
+					oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
 					value="${this.email}"
 					error="${this.mailClientError.email}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@key-input="${(e) => this._inputEmail(e)}">
+					@input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 		
 				<capitec-label
@@ -973,13 +975,13 @@ export class StatementsDialog extends Component {
 				<capitec-text-field
 					id="confirmEmail"
 					label="Email address"
-					oncopy="return true" 
-					onpaste="return true"
-					oncut="return true"
+					oncopy="return false" 
+					onpaste="return false"
+					oncut="return false"
 					value="${this.confirmEmail}"
 					error="${this.mailClientError.confirmEmail}"
 					@value-changed="${(e) => this._emailFormatCheck(e)}"
-					@key-input="${(e) => this._inputEmail(e)}">
+					@input="${(e) => this._inputEmail(e)}">
 				</capitec-text-field>
 
 				<hr class="seperator">
