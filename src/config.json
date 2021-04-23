@@ -49,7 +49,7 @@
 		"search-other-need": "SEARCH_OTHER_NEED"
 	},
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": false,
 			"positiveCase": true
