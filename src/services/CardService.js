@@ -43,7 +43,7 @@ export class CardService extends ServiceBase {
 				cardExpiryYear: card.cardExpiryYear,
 				cardExpiryMonth: card.cardExpiryMonth,
 				cardSequenceNumber: card.cardSequenceNumber,
-				reason: card.cardStopReason
+				reason: card.cardStopReason.key
 			})),
 			incomingTelephoneNumber: callerInfo.incomingTelephoneNumber,
 			voiceReferenceNumber: callerInfo.voiceReferenceNumber,
