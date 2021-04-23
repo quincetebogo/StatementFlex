@@ -702,4 +702,13 @@ export class HorizonChannelService extends Service {
 					`ProductStatus=${request.status}`;
 		return this._get(url, this._setToken(), `getClientProducts`);
 	}
+
+	// ----------------
+	// Access Channels 
+	// ----------------
+
+	accessChannel(cifNumber) {
+		const url = `/clientcare/accesschannels/${this._version}/access-channels?cif=${cifNumber}`;
+		return this._get(url, this._setToken(), `accessChannels`);
+	}
 }
