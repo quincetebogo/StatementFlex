@@ -4,6 +4,7 @@ import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetry
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
@@ -103,6 +104,7 @@ export class StopCardSearchCaller extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 		RegExp();
 
@@ -251,7 +253,7 @@ export class StopCardSearchCaller extends Component {
 		this.ivrOption.value = e.detail.new;
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		if (this.ivrOption.value !== `StopCard`) {
