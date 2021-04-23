@@ -245,10 +245,10 @@ export class StopCardFailure extends View {
 				.status-group{
 					width: auto;
 					height: 26px;
-					display: flex;
 					flex-wrap: wrap;
 					justify-content: center;
-					margin: 0px;
+                    margin: 0px 269px 36px;
+					display: block;
 				}
 
 				.card-status-success{
@@ -264,7 +264,7 @@ export class StopCardFailure extends View {
 					width: auto;
 					display: flex;
 					align-items: center;
-					margin: 0px 0px 0px 15px;
+					margin: 16px 40px;
 				}
 
 				capitec-icon{
@@ -332,6 +332,7 @@ export class StopCardFailure extends View {
 					line-height: 24px;
 					text-align: center;
 					margin: 15px 0px 0px 0px;
+                    padding-top: 16px;
 				}
 			`
 		];
@@ -423,8 +424,9 @@ export class StopCardFailure extends View {
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardDisplayName} <b>${card.maskedCardNumber}</b> was stopped successfully
+					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
+
 			</div>
 		`;
 	}
@@ -434,7 +436,7 @@ export class StopCardFailure extends View {
 			<div class="card-status-error">
 				<capitec-icon size="medium" icon="status/error"></capitec-icon>
 				<p class="card-status-text">
-					Unable to stop ${card.cardDisplayName} <b>${card.maskedCardNumber}</b>
+					Unable to stop ${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> 
 				</p>
 			</div>
 		`;

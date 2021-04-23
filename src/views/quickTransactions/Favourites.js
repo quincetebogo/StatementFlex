@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -7,6 +8,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -18,6 +20,7 @@ import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
+
 
 const SAVINGS_ACCOUNT_TYPE = 300;
 
@@ -88,6 +91,12 @@ export class Favourites extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		// Telemetry 
+		HorizonTelemetry.instance.screenLoadFulfillNeed({
+			screen: TelemetryScreen.FAVOURITES
+			// debiChecksOutstanding: this.pendingMandateCount
+		});
+
 		this._initialise();
 		this._performAction = async (option) => {
 
@@ -125,6 +134,11 @@ export class Favourites extends ViewBase {
 	}
 
 	disconnectedCallback() {
+
+		// Telemetry unload Favourites
+		HorizonTelemetry.instance.screenUnloadNeedFulfilled({
+			screen: TelemetryScreen.FAVOURITES
+		});
 		this.returnToSub.dispose();
 
 		super.disconnectedCallback();
@@ -176,6 +190,12 @@ export class Favourites extends ViewBase {
 			this.mandateId = event.detail.mandateId;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
 		} else if (event.detail.action === `approve`) {
+
+			// Telemetry for accepting DebiCheck
+			HorizonTelemetry.instance.debiCheckAlertAccept({
+				screen: TelemetryScreen.FAVOURITES
+			});
+
 			const state = {
 				returnTo: {
 					route: this.navigationContext.current.route.path,
@@ -196,6 +216,12 @@ export class Favourites extends ViewBase {
 	}
 
 	async _declineDebiCheckMandate(event) {
+			// Telemetry for dismissing DebiCheck
+			HorizonTelemetry.instance.debiCheckAlertDismiss({
+				screen: TelemetryScreen.FAVOURITES
+			});
+
+
 		this.mandateId = event.detail.mandateId;
 
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
@@ -325,6 +351,13 @@ export class Favourites extends ViewBase {
 	}
 
 	async _stopCard() {
+
+		// Telemetry for selecting Stop Card button
+		HorizonTelemetry.instance.selectStopCard({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.STOP_CARD
+		});
+
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -360,8 +393,20 @@ export class Favourites extends ViewBase {
 	}
 
 	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
+		// Telemetry for Alert Checks
+		HorizonTelemetry.instance.debiCheckAlert({
+			screen: TelemetryScreen.FAVOURITES
+		});
 
+		// Telemetry
+		HorizonTelemetry.instance.selectDebiCheck({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: null /** TelemetryScreen.DEBI_CHECK */,
+			selectedOption: this.selectedOption
+		});
+
+
+		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		if (returnValue.succeeded) {
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
@@ -372,6 +417,13 @@ export class Favourites extends ViewBase {
 	}
 
 	async _updateCardLimits() {
+
+		// Telemetry select Update Card Limits
+		HorizonTelemetry.instance.selectUpdateCardLimits({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.UPDATE_CARD_LIMITS
+		});
+
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
@@ -381,6 +433,13 @@ export class Favourites extends ViewBase {
 	}
 
 	async _tapToPay() {
+
+		// Telemetry select Tap to Pay
+		HorizonTelemetry.instance.selectTapToPay({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
+
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
@@ -390,8 +449,13 @@ export class Favourites extends ViewBase {
 	}
 
 	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
 
+		// Telemetry Statements
+		HorizonTelemetry.instance.selectStatements({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+		const clientProductDetails = await this._getClientProducts();
 		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails;
 			this.renderMode = RENDER_MODE.STATEMENTS;
@@ -400,9 +464,21 @@ export class Favourites extends ViewBase {
 
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
+
+		// Telemetry Tax Certificate
+		HorizonTelemetry.instance.selectTaxCertificate({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.TAX_CERTIFICATE
+		});
 	}
 
 	async _proofOfAccount() {
+		// Telemetry
+		HorizonTelemetry.instance.selectProofOfAccount({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+		});
+		
 		// Temporary fix to get the account number using statements CS call as the account number field 
 		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
 		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
@@ -425,6 +501,12 @@ export class Favourites extends ViewBase {
 		// Fetching the latest incident details from store
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+
+		// Telemetry Search Other need
+		HorizonTelemetry.instance.selectSearchOtherNeed({
+			screen: TelemetryScreen.FAVOURITES,
+			nextScreen: TelemetryScreen.SEARCH_OTHER_NEED
+		});
 	}
 
 	// ---------
@@ -465,11 +547,10 @@ export class Favourites extends ViewBase {
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${this._renderAlertModal()}
-            ${this._renderTapToPay()}
+			${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}      
-            ${this._renderProofOfAccount()}
+            		${this._renderProofOfAccount()}
 			${this._renderStatementsModal()}
-
 			${super._webTemplate()}
 		`;
 	}
@@ -508,6 +589,7 @@ export class Favourites extends ViewBase {
 			`;
 		}
 	}
+
 
 	// Renders the main debi-check mandates display
 	_renderDebiCheckMandates() {
