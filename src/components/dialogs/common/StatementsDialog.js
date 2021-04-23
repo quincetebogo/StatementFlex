@@ -289,7 +289,6 @@ export class StatementsDialog extends Component {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError.email=`Emails don't match`;
 				this.mailClientError.confirmEmail=`Emails don't match`;
-			//this.mailClientError[e.currentTarget.id] = `Emails don't match`;
 		}
 		this.requestUpdate();
 	}
