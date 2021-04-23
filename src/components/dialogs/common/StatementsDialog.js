@@ -95,7 +95,6 @@ const NOTIFICATION_MESSAGE = {
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
 };
 
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 
 /**
@@ -380,11 +379,8 @@ export class StatementsDialog extends Component {
 			} else {
 				this.horizonRouter.navigateToStatementUnsuccessful();
 			}
-		
-		}
-		
-			
-		}
+		}	
+	}
 
             // still to fill these in
 		
