@@ -8,6 +8,8 @@ import { QuickTransactionsService } from 'app/services/QuickTransactionsService'
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
+import 'app/components/dialogs/common/StatementsDialog';
+import {SavingsAccountBase} from 'app/views/common/SavingsAccountBase';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -28,9 +30,9 @@ const TRANSACTION_HISTORY = {
  * 
  * @export
  * @class SavingsAccount
- * @extends {ViewBase}
+ * @extends {SavingsAccountBase}
  */
-export class SavingsAccountLandingPage extends ViewBase {
+export class SavingsAccountLandingPage extends SavingsAccountBase {
 	
 	// --------------
 	// INITIALISATION

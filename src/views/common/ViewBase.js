@@ -2,12 +2,10 @@ import { View, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
-import 'app/components/savingsAccount/DebiCheckMandates';
-import 'app/components/dialogs/common/StatementsDialog';
+
 
 
 /**
@@ -45,7 +43,6 @@ export class ViewBase extends View {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -131,71 +128,6 @@ export class ViewBase extends View {
 		this.isBusy = !this.isBusy;
 	}
 
-
-	async _debiCheck() {
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
-
-		if (returnValue.succeeded) {
-			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		} 
-	}
-
-	async _getStatements() {
-		const clientProductDetails = await this._getClientProducts();
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
-		}
-	}
-
-	
-
-	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-		}
-	}
-
-	async _declineDebiCheckMandate(event) {
-		this.mandateId = event.detail.mandateId;
-
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-	}
-
-	async _getClientProducts() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-
-		if (returnValue.succeeded) {
-			return returnValue.result.savingsProducts;
-		}
-		return [];
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -213,10 +145,6 @@ export class ViewBase extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
-			${this._renderStatementsModal()}
-			${this._renderDebiCheckMandates()}
-			${this._renderDebiCheckDeclineMandate()}
-			${this._renderDebiCheckViewMandateInfo()}
 			`; 
 	}
 
@@ -252,50 +180,5 @@ export class ViewBase extends View {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
-	}
-
-	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE||
-		this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-		this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-			? html`
-				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
-					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></debi-check-mandates>
-				</debi-check-mandates>`
-			: html``;
-	}
-
-	_renderDebiCheckViewMandateInfo() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-		? html`
-			<horizon-viewinfo-debicheck
-				.debiCheckDetails=${this.debiCheckDetails}
-				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-			></horizon-viewinfo-debicheck>`
-		: html``;
-	}
-
-	_renderDebiCheckDeclineMandate() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
-			? html`
-				<horizon-decline-debicheck-mandate
-					mandateId=${this.mandateId}
-					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
-				</horizon-decline-debicheck-mandate>`
-			: html``;
-	}
-
-	_renderStatementsModal() {
-		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html`
-			<horizon-statements-dialog
-				.callerInformation="${this.callerInformation}"
-				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-statements-dialog>`
-		: html``;
 	}
 }

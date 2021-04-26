@@ -8,6 +8,7 @@ import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import {SavingsAccountBase} from 'app/views/common/SavingsAccountBase';
 
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -29,9 +30,9 @@ const SAVINGS_ACCOUNT_TYPE = 300;
  *
  * @export
  * @class Favourites
- * @extends {ViewBase}
+ * @extends {SavingsAccountBase}
  */
-export class Favourites extends ViewBase {
+export class Favourites extends SavingsAccountBase {
 
 	// --------------
 	// INITIALISATION
@@ -185,49 +186,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-
-			// Telemetry for accepting DebiCheck
-			HorizonTelemetry.instance.debiCheckAlertAccept({
-				screen: TelemetryScreen.FAVOURITES
-			});
-
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-		}
-	}
-
-	async _declineDebiCheckMandate(event) {
-			// Telemetry for dismissing DebiCheck
-			HorizonTelemetry.instance.debiCheckAlertDismiss({
-				screen: TelemetryScreen.FAVOURITES
-			});
-
-
-		this.mandateId = event.detail.mandateId;
-
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-	}
 
 	_debiCheckToMainPage() {
 
@@ -380,29 +338,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _debiCheck() {
-		// Telemetry for Alert Checks
-		HorizonTelemetry.instance.debiCheckAlert({
-			screen: TelemetryScreen.FAVOURITES
-		});
-
-		// Telemetry
-		HorizonTelemetry.instance.selectDebiCheck({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: null /** TelemetryScreen.DEBI_CHECK */,
-			selectedOption: this.selectedOption
-		});
-
-
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
-		if (returnValue.succeeded) {
-			// eslint-disable-next-line no-extra-parens
-			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		} else {
-			// Todo: Handle error scenario
-		}
-	}
 
 	async _updateCardLimits() {
 
@@ -436,19 +371,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _getStatements() {
-
-		// Telemetry Statements
-		HorizonTelemetry.instance.selectStatements({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-		const clientProductDetails = await this._getClientProducts();
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
-		}
-	}
 
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
