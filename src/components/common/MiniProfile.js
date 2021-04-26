@@ -274,6 +274,7 @@ export class MiniProfile extends Component {
 	}
 
 	_renderActionButtons() {
+		this.miniProfile.showButtons = false; // Force to false for now
 		if (!this.miniProfile.showButtons) {
 			return html``;
 		}
