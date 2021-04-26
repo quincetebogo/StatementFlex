@@ -254,7 +254,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
-			${this._renderLoadingIndicator()}
 			${super._webTemplate()}
 			`;
 	}
