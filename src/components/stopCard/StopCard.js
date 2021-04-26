@@ -31,12 +31,29 @@ const TABLE_STYLE = {
 	REASON_BUTTONS: `padding: 0px 0px 0px 14px; --theme-button-padding-top: 5.5px; --theme-button-padding-bottom: 5.5px; --theme-button-padding-left: 10px; --theme-button-padding-right: 10px; --theme-button-font-size: 14px;`
 };
 
-const STOPREASONS = {
-	CARD_DAMAGED: `DAMAGED`,
-	CARD_LOST: `LOST`,
-	CARD_STOLEN: `STOLEN`,
-	SUSPECTED_FRAUD: `SUSPECTED_FRAUD`
-};
+const DAMAGED = 0;
+const LOST = 1;
+const STOLEN = 2;
+const SUSPECTED_FRAUD = 3;
+
+const STOPREASONS = [
+     {
+        key: `DAMAGED`,
+        value: `Card Damaged`
+    },
+     {
+        key: `LOST`,
+        value: `Card Lost`
+    },
+     {
+        key: `STOLEN`,
+        value: `Card Stolen`
+    },
+     {
+        key: `SUSPECTED_FRAUD`,
+        value: `Suspected Fraud`
+    }
+];
 
 /**
  * The StopCard component is the main component of the Horizon Stop Card View.
@@ -286,7 +303,7 @@ export class StopCard extends Component {
 		this.cards.map((card, index) => {
 			card.rowIndex = index;
 			card.selected = false;
-			card.cardStopReason = STOPREASONS.CARD_LOST;
+			card.cardStopReason = STOPREASONS[LOST];
 			return card;
 		});
 	}
@@ -519,7 +536,7 @@ export class StopCard extends Component {
 				${this._renderRowInput(rowData)}
 				<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
 					<capitec-label 
-						label="${rowData[COLUMNS.CARDTYPE]}"
+						label="${rowData[COLUMNS.CARDTYPE].split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)}"
 						style="${TABLE_STYLE.CELL_HEIGHT}">
 					</capitec-label>
 				</div>
@@ -556,23 +573,23 @@ export class StopCard extends Component {
 						</capitec-label>
 						<capitec-button type="clear" label="Card Damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_DAMAGED}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_DAMAGED, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS[DAMAGED]}"
+							            @click="${(e) => this._onClickReason(STOPREASONS[DAMAGED], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_LOST}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_LOST, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS[LOST]}"
+							            @click="${(e) => this._onClickReason(STOPREASONS[LOST], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.CARD_STOLEN}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.CARD_STOLEN, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS[STOLEN]}"
+							            @click="${(e) => this._onClickReason(STOPREASONS[STOLEN], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Suspected Fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
-							            .disabled="${rowData.cardStopReason === STOPREASONS.SUSPECTED_FRAUD}"
-							            @click="${(e) => this._onClickReason(STOPREASONS.SUSPECTED_FRAUD, rowData)}">
+							            .disabled="${rowData.cardStopReason === STOPREASONS[SUSPECTED_FRAUD]}"
+							            @click="${(e) => this._onClickReason(STOPREASONS[SUSPECTED_FRAUD], rowData)}">
 						</capitec-button>
 					</div>`;
 		}
