@@ -46,7 +46,10 @@
 		"proof-of-account": "PROOF_OF_ACCOUNT",
 		"tax-certificate": "TAX_CERTIFICATE",
 		"transaction-history": "TRANSACTION_HISTORY",
-		"search-other-need": "SEARCH_OTHER_NEED"
+		"search-other-need": "SEARCH_OTHER_NEED",
+		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
+		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
 	},
 	"mock": {
 		"enabled": true,
