@@ -1,30 +1,25 @@
-import { html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ViewBase } from 'app/views/common/ViewBase';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { html } from 'platform/elements';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
 
-
 /**
- * A Base class for view components to collect common functionality used across most views
+ * A sub-base class of viewbase for Favourites & Savings account landing pages 
+ * to collect common functionality used by those views
  * 
- * This base class will contain the following common code
+ * This sub-base class will contain the following common code
  * 
- *    - support for ending a call: added
- *    - support for verifying a caller: added
- *    - support for assigning/handing off a call
- *    - restoration of common state information: added
+ *    - debi check mandates: added
+ *    - statements: added
+ *    - handling of back to landing page from component
+ *    - mandate action click (View), in future it support approve/decline: added
  *    - incident management
- *    - toggling isBusy support: added
- *    - possibly support for updating the left menu bar
- *    - possibly support for updating access channels
- *    - possibly support for updating client insights
  *
  * @export
  * @class SavingsAccountBase
@@ -39,22 +34,22 @@ export class SavingsAccountBase extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-
-		this.callerInformation = this.horizonStore.getCallerInformation();
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
+
+		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
-			callerInformation: { attribute: false },
 			renderMode: { attribute: false },
 			isBusy: { attribute: false }
 		};
@@ -76,7 +71,6 @@ export class SavingsAccountBase extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 	
-
 	async _debiCheck() {
 		// Telemetry for Alert Checks
 		HorizonTelemetry.instance.debiCheckAlert({
@@ -90,8 +84,8 @@ export class SavingsAccountBase extends ViewBase {
 			selectedOption: this.selectedOption
 		});
 
-
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
+		
 		if (returnValue.succeeded) {
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
@@ -108,7 +102,9 @@ export class SavingsAccountBase extends ViewBase {
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
+
 		const clientProductDetails = await this._getClientProducts();
+		
 		if (clientProductDetails) {
 			this.clientProducts = clientProductDetails;
 			this.renderMode = RENDER_MODE.STATEMENTS;
@@ -136,6 +132,7 @@ export class SavingsAccountBase extends ViewBase {
 			this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
 			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
+			
 			if (returnValue.succeeded && returnValue.result) {
 				this.debiCheckDetails = returnValue.result;
 				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
@@ -151,13 +148,16 @@ export class SavingsAccountBase extends ViewBase {
 			screen: TelemetryScreen.FAVOURITES
 		});
 
-
 		this.mandateId = event.detail.mandateId;
 
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
 	async _getClientProducts() {
 		const request = {
@@ -172,7 +172,24 @@ export class SavingsAccountBase extends ViewBase {
 		return [];
 	}
 
-	_updateReturnToScreen(){
+	_backToLandingPage() {
+		
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_updateReturnToScreen() {
 		const state = this.horizonStore.recoverState();
 		const returnToScreen = {
 			name: this.navigationContext.current.route.title,
@@ -181,22 +198,22 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonStore.saveState({ returnToScreen: returnToScreen });
 	}
 
-	async _returnToScreen(){
+	_performReturnToScreen() {
 		const state = this.horizonStore.recoverState();
 		const returnToScreen = state.returnToScreen;
 		
-		if(returnToScreen && returnToScreen.option){
+		if (returnToScreen && returnToScreen.option) {
 			
-			this.eventAggregator.publish(`horizon-return-to-screen`, {option: returnToScreen.option});
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.option });
 
 			returnToScreen.option = null;
-			this.horizonStore.saveState( { returnToScreen : returnToScreen } );
+			this.horizonStore.saveState({ returnToScreen: returnToScreen });
 		}
 	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
+	// ---------
+	// RENDERING
+	// ---------
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -212,32 +229,32 @@ export class SavingsAccountBase extends ViewBase {
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
 			${this._renderDebiCheckViewMandateInfo()}
+
 			${super._webTemplate()}
-			`; 
+		`;
 	}
 
-
 	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE||
-		this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-		this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
+				this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
 					.debiCheckMandates="${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"></debi-check-mandates>
+					@back="${() => this._setIncidentDone()}">
 				</debi-check-mandates>`
 			: html``;
 	}
 
 	_renderDebiCheckViewMandateInfo() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-		? html`
-			<horizon-viewinfo-debicheck
-				.debiCheckDetails=${this.debiCheckDetails}
-				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-			></horizon-viewinfo-debicheck>`
-		: html``;
+			? html`
+				<horizon-viewinfo-debicheck
+					.debiCheckDetails=${this.debiCheckDetails}
+					@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
+				></horizon-viewinfo-debicheck>`
+			: html``;
 	}
 
 	_renderDebiCheckDeclineMandate() {
@@ -253,12 +270,12 @@ export class SavingsAccountBase extends ViewBase {
 
 	_renderStatementsModal() {
 		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html`
-			<horizon-statements-dialog
-				.callerInformation="${this.callerInformation}"
-				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-statements-dialog>`
-		: html``;
+			? html`
+				<horizon-statements-dialog
+					.callerInformation="${this.callerInformation}"
+					.clientProducts="${this.clientProducts}"
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-statements-dialog>`
+			: html``;
 	}
 }

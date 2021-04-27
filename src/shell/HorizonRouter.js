@@ -363,7 +363,6 @@ export class HorizonRouter {
 			layoutByVerifictionMode: setShellLayoutByVerificationMode
 		}[prenavFunc]();
 	}
-
 }
 
 // -------------------------

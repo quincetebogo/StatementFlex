@@ -89,7 +89,10 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-		this._navigateToScreen();
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = state && state.returnToScreen;
+		
+		this._navigateToScreen(returnToScreen.name);
 	}
 
 	_sendAnotherClick() {
@@ -97,18 +100,18 @@ export class StatementsSuccess extends View {
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
 		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		
-		this._navigateToScreen();
+		this._navigateToScreen(state.returnToScreen.name);
 	}
 
-	_navigateToScreen(){
-		const state = this.horizonStore.recoverState();
-		
-		if(state.returnToScreen.name === 'Favourites' ){
-			this.horizonRouter.navigateToQuickTransactionFavourites();
-		} else if(state.returnToScreen.name === 'SavingsAccount' ){
-			this.horizonRouter.navigateToSavingsAccount();
-		}
+	_navigateToScreen(screenName) {
+		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
+
+		const landingScreens = {
+			'Favourites': transactLP,
+			'SavingsAccount': savingsAccountLP
+		};
+		landingScreens[screenName]();
 	}
 
 	// ---------------

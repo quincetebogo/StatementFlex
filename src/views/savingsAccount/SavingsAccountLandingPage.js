@@ -1,15 +1,15 @@
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
+import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { ViewBase } from 'app/views/common/ViewBase';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
+import { SavingsAccountService } from 'app/services/SavingsAccountService';
+
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
-import {SavingsAccountBase} from 'app/views/common/SavingsAccountBase';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -42,25 +42,20 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super();
 
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
-	
-		this.callerInformation = this.horizonStore.getCallerInformation();
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.transactionHistory = null;
 		this.accountDetails = null;
+		this.clientProducts = null;
 	
 		// private properites
 		this.loading = true;
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.clientProducts = null;
 		
-		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option) );
-	
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
 
 	// -------------------
@@ -70,6 +65,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._updateReturnToScreen();
 		this._initialise();
 
 		this._optionClick = async (option) => {
@@ -88,10 +84,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
-		
 	}
 
 	disconnectedCallback() {
@@ -113,25 +109,19 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_transactionHistoryToMainPage() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+	// N/A
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
+	// N/A
 	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
 	async _initialise() {
-
-		this._updateReturnToScreen();
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
@@ -151,13 +141,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				this._updateLeftBar();
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-			this._returnToScreen();
 		} else {
 			// minimal object for the Favourites landing page component
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 
 		this.loading = false;
+		this._performReturnToScreen();
 	}
 
 	_updateLeftBar() {
@@ -234,6 +224,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			window.open(`${globalOneUrl}${type}`);
 		}
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -266,9 +257,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
 			${super._webTemplate()}
-			`;
+		`;
 	}
-
 
 	_renderSavingsLandingPage() {
 		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
@@ -290,7 +280,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._transactionHistoryToMainPage()}">
+					@back="${() => this._setIncidentDone()}">
 				</horizon-transaction-history>`
 			: html``;
 	}

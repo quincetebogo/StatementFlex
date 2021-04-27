@@ -7,7 +7,6 @@ import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 
 
-
 /**
  * A Base class for view components to collect common functionality used across most views
  * 
@@ -51,6 +50,7 @@ export class ViewBase extends View {
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
 			callerInformation: { attribute: false },
@@ -132,6 +132,20 @@ export class ViewBase extends View {
 	// PRIVATE METHODS
 	// ---------------
 
+	/**
+	 * Necessary to refresh the incident details object, when a primary incident is closed
+	 * and subsequent incident is opened
+	 * 
+	 * @returns {void}
+	 */
+	_refreshIncidentDetails() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -145,7 +159,7 @@ export class ViewBase extends View {
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
-			`; 
+		`; 
 	}
 
 	_renderVerifyNowModal() {
