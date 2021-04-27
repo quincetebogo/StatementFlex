@@ -96,8 +96,17 @@ export class StatementsUnsuccess extends View {
 	}
 
 	_doneClick() {
-		// this.renderMode = RENDER_MODE.STATEMENTS; 
-        this.horizonRouter.navigateToQuickTransactionFavourites();
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = state && state.returnToScreen;
+		
+		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
+
+		const landingScreens = {
+			'Favourites': transactLP,
+			'SavingsAccount': savingsAccountLP
+		};
+		landingScreens[returnToScreen.name]();
 	}
 
 	_handoffClick() {
