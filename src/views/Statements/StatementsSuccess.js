@@ -89,16 +89,26 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this._navigateToScreen();
 	}
 
 	_sendAnotherClick() {
-		const returnToScreen = {
-			option: this.incidentDetails.currentNeed
-		};
-		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		const state = this.horizonStore.recoverState();
+		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
+		
+		this._navigateToScreen();
+	}
+
+	_navigateToScreen(){
+		const state = this.horizonStore.recoverState();
+		
+		if(state.returnToScreen.name === 'Favourites' ){
+			this.horizonRouter.navigateToQuickTransactionFavourites();
+		} else if(state.returnToScreen.name === 'SavingsAccount' ){
+			this.horizonRouter.navigateToSavingsAccount();
+		}
 	}
 
 	// ---------------

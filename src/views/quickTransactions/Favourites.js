@@ -46,7 +46,7 @@ export class Favourites extends SavingsAccountBase {
 
 		// Recover information from state
 		const state = this.horizonStore.recoverState();
-    		
+
 		// When returning from the success screen, check which page we should display
 		if (state.returnTo && state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -67,9 +67,8 @@ export class Favourites extends SavingsAccountBase {
 		this.debiCheckDetails = {};
 		this.clientProducts = null;
 
-		// Subscribe to shell events
-		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option));
-		
+        this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option) );
+	
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -139,8 +138,8 @@ export class Favourites extends SavingsAccountBase {
 		// Telemetry unload Favourites
 		HorizonTelemetry.instance.screenUnloadNeedFulfilled({
 			screen: TelemetryScreen.FAVOURITES
-		});
-		this.returnToSub.dispose();
+        });
+        this.returnToSub.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -210,6 +209,8 @@ export class Favourites extends SavingsAccountBase {
 	// ---------------
 
 	async _initialise() {
+		this._updateReturnToScreen();
+
 		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -243,6 +244,7 @@ export class Favourites extends SavingsAccountBase {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
 		this._updateLeftBar();
+		this._returnToScreen();
 	}
 
 	_updateLeftBar() {

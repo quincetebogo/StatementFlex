@@ -364,18 +364,6 @@ export class HorizonRouter {
 		}[prenavFunc]();
 	}
 
-	static _postNavigate() {
-		const horizonRouter = HorizonRouter.getInstance();
-		const horizonStore = HorizonStore.getInstance();
-		
-		const state = horizonStore.recoverState();
-		const option = state && state.returnToScreen && state.returnToScreen.option;
-		
-		if (option) {
-			horizonRouter.eventAggregator.publish(`horizon-returnTo-screen`, option);
-			horizonStore.saveState({ returnToScreen: null });
-		}
-	}
 }
 
 // -------------------------
@@ -527,8 +515,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TRANSACT_FAVOURITES,
 		load: () => import(`../views/quickTransactions/Favourites`),
-        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`),
-		onPostNavigate: () => HorizonRouter._postNavigate()
+        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `horizon-xds-verification-failed`,

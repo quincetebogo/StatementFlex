@@ -1,4 +1,5 @@
 import { html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
@@ -39,6 +40,7 @@ export class SavingsAccountBase extends ViewBase {
 		super();
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -113,8 +115,6 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	
-
 	async _mandateActionClick (event) {
 		if (event.detail.action === `decline`) {
 			this.mandateId = event.detail.mandateId;
@@ -152,12 +152,12 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
 
-	this.mandateId = event.detail.mandateId;
+		this.mandateId = event.detail.mandateId;
 
-	const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
-	this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-}
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+	}
 
 	async _getClientProducts() {
 		const request = {
@@ -170,6 +170,28 @@ export class SavingsAccountBase extends ViewBase {
 			return returnValue.result.savingsProducts;
 		}
 		return [];
+	}
+
+	_updateReturnToScreen(){
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = {
+			name: this.navigationContext.current.route.title,
+			option: state.returnToScreen ? state.returnToScreen.option : null
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+	}
+
+	async _returnToScreen(){
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = state.returnToScreen;
+		
+		if(returnToScreen && returnToScreen.option){
+			
+			this.eventAggregator.publish(`horizon-return-to-screen`, {option: returnToScreen.option});
+
+			returnToScreen.option = null;
+			this.horizonStore.saveState( { returnToScreen : returnToScreen } );
+		}
 	}
 
 	// ---------------
@@ -190,6 +212,7 @@ export class SavingsAccountBase extends ViewBase {
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
 			${this._renderDebiCheckViewMandateInfo()}
+			${super._webTemplate()}
 			`; 
 	}
 

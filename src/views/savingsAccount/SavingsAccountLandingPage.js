@@ -58,7 +58,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.clientProducts = null;
-
+		
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option) );
+	
 	}
 
 	// -------------------
@@ -89,6 +91,12 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				return actions[option]();
 			}
 		};
+		
+	}
+
+	disconnectedCallback() {
+        this.returnToScreen.dispose();
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -122,8 +130,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// ---------------
 
 	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
+		this._updateReturnToScreen();
+
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -140,7 +151,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				this._updateLeftBar();
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-
+			this._returnToScreen();
 		} else {
 			// minimal object for the Favourites landing page component
 			this.landingPageInfo = { pendingMandateCount: 0 };
