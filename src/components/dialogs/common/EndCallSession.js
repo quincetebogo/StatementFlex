@@ -147,12 +147,24 @@ export class EndCallSession extends Component {
 
 		if (returnValue.succeeded) {
 			this.endCallReasons = returnValue.result.closeIncidentReasons;
+			this._setDefaultValues();
 		} else {
 			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
 
 			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
 			this._returnToCallWaitingPage();
 		}
+	}
+
+	_setDefaultValues() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const feedback = incidentDetails.feedback;
+
+		if (incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
+			this.endCallReason = ``;
+			return;
+		}
+		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
 	_returnToCallWaitingPage() {
@@ -472,13 +484,15 @@ export class EndCallSession extends Component {
 
 	_renderChooseEndCallReason() {
 		return html`
-			<capitec-label class="end-reason-label" label="Choose reason"></capitec-label>
+			<capitec-label
+				class="end-reason-label"
+				label="Choose reason">
+			</capitec-label>
 			<horizon-radio-button-group
-                class="radio-button"
-                .radioButtonsAvailable="${this.endCallReasons}"
-                @value-change="${(e) => {
-				this._valueChanged(e);
-			}}">
+				class="radio-button"
+				.radioButtonsAvailable="${this.endCallReasons}"
+				@value-change="${(e) => this._valueChanged(e)}"
+				.selectedItem="${this.endCallReason && this.endCallReason.value}">
 			</horizon-radio-button-group>
 		`;
 	}
@@ -487,30 +501,30 @@ export class EndCallSession extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-                    id="id-cancel-button"
-                    type="clear"
-                    label="Cancel"
-                    @click="${() => this._cancelClick()}">
+					id="id-cancel-button"
+					type="clear"
+					label="Cancel"
+					@click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-button
-                    id="id-continue-button"
-                    type="primary"
-                    label="End Call"
-                    @click="${() => this._endCallClick()}">
+					id="id-continue-button"
+					type="primary"
+					label="End Call"
+					@click="${() => this._endCallClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;
 	}
 
 	_renderAlertBanner() {
-			if (this.alertBannerMessage) {
-				return html`
-					<capitec-alert-banner type="unsuccessful-red">
-						<b>Notify: </b>${this.alertBannerMessage}
-				</capitec-alert-banner>`;
-			}
+		if (this.alertBannerMessage) {
+			return html`
+				<capitec-alert-banner type="unsuccessful-red">
+					<b>Notify: </b>${this.alertBannerMessage}
+			</capitec-alert-banner>`;
 		}
+	}
 
 	_renderLoadingIndicator() {
 		if (!this.isBusy) {
