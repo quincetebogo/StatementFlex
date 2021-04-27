@@ -5,11 +5,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
-import {SavingsAccountBase} from 'app/views/common/SavingsAccountBase';
-
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -21,7 +19,6 @@ import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
-
 
 const SAVINGS_ACCOUNT_TYPE = 300;
 
@@ -78,6 +75,7 @@ export class Favourites extends SavingsAccountBase {
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
 			isLoading: { attribute: false },
@@ -123,6 +121,7 @@ export class Favourites extends SavingsAccountBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 
@@ -164,17 +163,6 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_mainPage() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-		}
-		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
-
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
 		this.curOptionEvent = e;
@@ -185,7 +173,6 @@ export class Favourites extends SavingsAccountBase {
 			await this._performAction(e.detail.option);
 		}
 	}
-
 
 	_debiCheckToMainPage() {
 
@@ -201,7 +188,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_searchOtherNeedDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this._refreshIncidentDetails();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -295,7 +282,6 @@ export class Favourites extends SavingsAccountBase {
 		this.horizonRouter.navigateToSystemError();
 	}
 
-
 	async _stopCard() {
 
 		// Telemetry for selecting Stop Card button
@@ -338,7 +324,6 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-
 	async _updateCardLimits() {
 
 		// Telemetry select Update Card Limits
@@ -370,7 +355,6 @@ export class Favourites extends SavingsAccountBase {
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		}
 	}
-
 
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
@@ -408,8 +392,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_searchOtherNeed() {
-		// Fetching the latest incident details from store
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 
 		// Telemetry Search Other need
@@ -454,8 +436,8 @@ export class Favourites extends SavingsAccountBase {
 
 			${this._renderAlertModal()}
 			${this._renderTapToPay()}
-			${this._renderSearchOtherNeed()}      
-            ${this._renderProofOfAccount()}
+			${this._renderSearchOtherNeed()}
+			${this._renderProofOfAccount()}
 
 			${super._webTemplate()}
 		`;
@@ -470,16 +452,16 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
 				return html`
-				<horizon-favourite-transactions 
-					class="favourites"
-					.landingPageInfo="${this.landingPageInfo}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.callerInformation.verificationStatus}"
-					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-					@verify-click="${() => super._verifyClick()}"
-					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
-				</horizon-favourite-transactions>`;
+					<horizon-favourite-transactions 
+						class="favourites"
+						.landingPageInfo="${this.landingPageInfo}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.callerInformation="${this.callerInformation}"
+						.verificationStatus="${this.callerInformation.verificationStatus}"
+						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+						@verify-click="${() => super._verifyClick()}"
+						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
+					</horizon-favourite-transactions>`;
 			default:
 				return html``;
 		}
@@ -496,15 +478,12 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-
-	// Renders the main debi-check mandates display
-
 	_renderUpdateCardLimits() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._backToLandingPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
 	}
@@ -513,7 +492,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._mainPage()}"
+					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
 					></horizon-proof-of-account>`
@@ -525,7 +504,7 @@ export class Favourites extends SavingsAccountBase {
 		? html` 
 			<horizon-tap-to-pay-landing
 				.cards="${this.cards}"
-				@back="${() => this._mainPage()}"
+				@back="${() => this._backToLandingPage()}"
 			></horizon-tap-to-pay-landing>
 		` : html``;
 	}
@@ -536,7 +515,7 @@ export class Favourites extends SavingsAccountBase {
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@back="${() => this._mainPage()}"
+					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</search-other-need>`
 			: html``; 
