@@ -95,7 +95,7 @@ const NOTIFICATION_MESSAGE = {
 	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
 };
 
-const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
 
 /**
  * View and email statements based on account selection and date range.
@@ -278,7 +278,8 @@ export class StatementsDialog extends Component {
 		if (e.detail.new.length > 0) {
 			if (!EMAIL_REGEX.test(e.detail.new)) {
 				this.errorMessage = `Invalid email format`;
-				this.mailClientError[e.currentTarget.id] = `Invalid email format`;
+				this.mailClientError.email=`Invalid email format`;
+				this.mailClientError.confirmEmail=`Invalid email format`;
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;
@@ -286,7 +287,8 @@ export class StatementsDialog extends Component {
 		}
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
-			this.mailClientError[e.currentTarget.id] = `Emails don't match`;
+			this.mailClientError.email=`Emails don't match`;
+				this.mailClientError.confirmEmail=`Emails don't match`;
 		}
 		this.requestUpdate();
 	}
@@ -301,6 +303,8 @@ export class StatementsDialog extends Component {
 
 	_inputEmail(e) {
 		this.mailClientError[e.currentTarget.id] = ``;
+		this.mailClientError.email=``;
+		this.mailClientError.confirmEmail=``;
 		this.errorMessage = ``;
 	}
 
@@ -335,41 +339,50 @@ export class StatementsDialog extends Component {
 
 	async _sendStatement() {
 		if (!this._validateEmailAddress()) {
+			this.mailClientError.email=`Please enter email`;
+			this.mailClientError.confirmEmai=`Please enter email`;
+			this.errorMessage=`Complete all fields.`;
 			return false;
 		}
+		if(this.errorMessage){
+			return false;
+		}
+		else{
+			const statement = {
+				"emailAddress": this.email,
+				"cifNumber": this.callerInformation.cifNumber,
+				"accountNumber": `${this.productSelected.accountNumber}`,
+				"accountType": this.productSelected.accountType,
+				"statementDateRange": {
+					"dateRange": {},
+					"presetInterval": `${this.periodSelected}`
+				}
+			};
+	
+			if (this._customDateRange) {
+				statement.statementDateRange.dateRange = {
+					"startDate": this.fromDate,
+					"endDate": this.toDate
+				};
+			}
+	
+			const returnValue = await this.quickTransactionService.sendStatement(statement);
+	
+			this.horizonStore.saveState({
+				emailAddress: this.email,
+				accountNumber: this.productSelected.accountNumber
+			});
+	
+			if (returnValue.succeeded) {
+				this.horizonRouter.navigateToStatementSuccessful();
+			} else {
+				this.horizonRouter.navigateToStatementUnsuccessful();
+			}
+		}	
+	}
 
             // still to fill these in
-		const statement = {
-			"emailAddress": this.email,
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountNumber": `${this.productSelected.accountNumber}`,
-			"accountType": this.productSelected.accountType,
-			"statementDateRange": {
-				"dateRange": {},
-				"presetInterval": `${this.periodSelected}`
-			}
-		};
-
-		if (this._customDateRange) {
-			statement.statementDateRange.dateRange = {
-				"startDate": this.fromDate,
-				"endDate": this.toDate
-			};
-		}
-
-		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		this.horizonStore.saveState({
-			emailAddress: this.email,
-			accountNumber: this.productSelected.accountNumber
-		});
-
-		if (returnValue.succeeded) {
-			this.horizonRouter.navigateToStatementSuccessful();
-		} else {
-			this.horizonRouter.navigateToStatementUnsuccessful();
-		}
-	}
+		
 
 	// ---------------
 	// PRIVATE METHODS
@@ -396,10 +409,10 @@ export class StatementsDialog extends Component {
 
 	_validateAccountSelection() {
 		if (isNullorEmpty(this.accType)) {
-			this.errorMessage = `Select an account`;
+			this.errorMessage = `Choose Account`;
 			return false;
 		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
-			this.errorMessage = `Select a plan`;
+			this.errorMessage = `Choose Savings Plan`;
 			return false;
 		}
 		this.productSelected = this._getSelectedProductDetails();
@@ -408,11 +421,11 @@ export class StatementsDialog extends Component {
 
 	_validatePeriodSelection() {
 		if (this.periodSelected === `` && !this._customDateRange) {
-			this.errorMessage = `Please choose a from and to date`;
+			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} else if (this._customDateRange && (this.fromDate === `dd mm yyyy` || this.toDate === `dd mm yyyy`)) {
-			this.errorMessage = `Please choose a from and to date`;
+			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
 			return false;
 		} 
@@ -426,8 +439,8 @@ export class StatementsDialog extends Component {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-		this.errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return this.errorMessage === ``;
+		let errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return errorMessage === ``;
 	}
 
 	_validateRangeSelected() {
@@ -554,7 +567,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
-					height: 730px;
+					height: 500px;
 
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;

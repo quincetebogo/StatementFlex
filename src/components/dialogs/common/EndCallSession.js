@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { Configuration, Logger, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { Configuration, Logger } from 'platform/core';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -88,6 +88,11 @@ export class EndCallSession extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadEndCall({
+			screen: TelemetryScreen.END_CALL
+		});
+
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -100,15 +105,38 @@ export class EndCallSession extends Component {
 		await this._loadEndCallOptions();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadEndCall({
+			screen: TelemetryScreen.END_CALL
+		});
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_cancelClick() {
+		// Telemetry
+		HorizonTelemetry.instance.endCallCancel({
+			screen: TelemetryScreen.END_CALL,
+			nextScreen: null
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_endCallClick() {
+
+		// Telemetry 
+		HorizonTelemetry.instance.endCall({
+			screen: TelemetryScreen.END_CALL,
+			reason: this.endCallReason.value,
+			nextScreen: TelemetryScreen.WAIT_FOR_CALL
+		});
+
 		const isValid = this._validateCloseIncidentReason();
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
