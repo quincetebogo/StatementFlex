@@ -579,7 +579,6 @@ export class TransactionHistory extends Component {
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
 				<capitec-content-box class="main-view" id = "transactions-table">
-					${this._renderTableHeader()}
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
 				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
@@ -744,37 +743,6 @@ export class TransactionHistory extends Component {
 			`;
         }
     }
-
-	_renderTableHeader(){
-		return html`
-			<capitec-group layout="horizontal" halign="left" valign="center" style="${unsafeCSS(TABLE_EXPANDER_CELL.headerGroup)}">
-				<capitec-label 	label="Transaction Date"
-								row="1" 
-								column="1"
-								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.transactionDate)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
-				</capitec-label>
-				<capitec-label label="Description"
-								row="1" 
-								column="2"
-								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.description)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
-				</capitec-label>
-				<capitec-label label="Transaction Status"
-								row="1" 
-								column="3"
-								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.transactionStatus)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
-				</capitec-label>
-				<capitec-label label="Amount"
-								row="1" 
-								column="4"
-								style="${unsafeCSS(TABLE_EXPANDER_CELL.tableHeadings.amount)} ${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
-				</capitec-label>
-				<capitec-label label="Balance"
-								row="1" 
-								column="5"
-								style="${unsafeCSS(TABLE_EXPANDER_CELL.headerLabel)}">
-				</capitec-label>
-			</capitec-group>`;
-	}
 
     _renderTransactionHistory() {
         return html`
