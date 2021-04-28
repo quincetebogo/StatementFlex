@@ -45,6 +45,7 @@ export class ViewBase extends View {
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showEndCall = false;
 	}
 
 	// --------------
@@ -58,7 +59,8 @@ export class ViewBase extends View {
 			verificationStatus: { attribute: false },
 
 			renderMode: { attribute: false },
-			isBusy: { attribute: false }
+			isBusy: { attribute: false },
+			showEndCall: { attribute: false }
 		};
 	}
 
@@ -117,11 +119,11 @@ export class ViewBase extends View {
 	}
 
 	_endCallClick() {
-		this.renderMode = RENDER_MODE.END_CALL;
+		this.showEndCall = !this.showEndCall;
 	}
 
 	_cancelEndCallClick() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showEndCall = !this.showEndCall;
 	}
 
 	_toggleBusyFlag() {
@@ -178,7 +180,7 @@ export class ViewBase extends View {
 	}
 
 	_renderEndCallSessionModal() {
-		return this.renderMode === RENDER_MODE.END_CALL
+		return this.showEndCall
 			? html`
 				<horizon-end-call-session
 					.incidentDetails="${this.incidentDetails}"
