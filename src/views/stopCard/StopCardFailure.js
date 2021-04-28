@@ -231,7 +231,7 @@ export class StopCardFailure extends View {
 				
 				.network-error {
                     margin-top: 36px;
-					margin-bottom: 24px;
+					margin-bottom: 15px;
 					height: 36px;
 					color: #003652;
 					font-family: "Hind Vadodara";
@@ -240,15 +240,6 @@ export class StopCardFailure extends View {
 					letter-spacing: 0;
 					line-height: 36px;
                     text-align: center;
-				}
-
-				.status-group{
-					width: auto;
-					height: 26px;
-					flex-wrap: wrap;
-					justify-content: center;
-                    margin: 0px 269px 36px;
-					display: block;
 				}
 
 				.card-status-success{
@@ -264,7 +255,7 @@ export class StopCardFailure extends View {
 					width: auto;
 					display: flex;
 					align-items: center;
-					margin: 16px 40px;
+					margin: 8px 40px 0px;
 				}
 
 				capitec-icon{
@@ -290,10 +281,11 @@ export class StopCardFailure extends View {
 					border: 1px solid #E1E1E1;
                     border-radius: 0 0 4px 4px;
                     background-color: #FFFFFF;
+					margin-top: auto;
 				}
 				
 				.card {
-					height: 823px;
+					height: 885px;
 					width: var(--horizon-center-panel-width, 1064px);
 				}
 
@@ -331,8 +323,7 @@ export class StopCardFailure extends View {
 					letter-spacing: 0;
 					line-height: 24px;
 					text-align: center;
-					margin: 15px 0px 0px 0px;
-                    padding-top: 16px;
+					margin: 16px 0px 0px 0px;
 				}
 			`
 		];
@@ -405,9 +396,9 @@ export class StopCardFailure extends View {
 
 	_renderStoppedCards() {
 		return html`
-			<div class="status-group">
+			<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
 				${this.stoppedCards.map((card) => this._renderCardStatus(card))}
-			</div>
+			</capitec-group>
 		`;
 	}
 
@@ -422,7 +413,7 @@ export class StopCardFailure extends View {
 	_renderSuccessStatus(card) {
 		return html`
 			<div class="card-status-success">
-				<capitec-icon size="medium" icon="status/success"></capitec-icon>
+				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
 				<p class="card-status-text">
 					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
@@ -434,7 +425,7 @@ export class StopCardFailure extends View {
 	_renderErrorStatus(card) {
 		return html`
 			<div class="card-status-error">
-				<capitec-icon size="medium" icon="status/error"></capitec-icon>
+				<capitec-icon size="medium" icon="status/error-trans"></capitec-icon>
 				<p class="card-status-text">
 					Unable to stop ${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> 
 				</p>
