@@ -1,10 +1,11 @@
 import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -34,26 +35,22 @@ export class SavingsAccountBase extends ViewBase {
 	constructor() {
 		super();
 
-		this.isBusy = false;
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
+
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+		this.debiCheckMandates = {};
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-			renderMode: { attribute: false },
-			isBusy: { attribute: false }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -66,6 +63,7 @@ export class SavingsAccountBase extends ViewBase {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -158,6 +156,11 @@ export class SavingsAccountBase extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_errorHandler(exception) {
+		this.horizonRouter.navigateToSystemError();
+	}
+
 
 	async _getClientProducts() {
 		const request = {

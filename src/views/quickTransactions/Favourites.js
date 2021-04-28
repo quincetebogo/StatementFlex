@@ -1,16 +1,12 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ClientNotVerified';
-import 'app/components/dialogs/common/StatementsDialog';
-import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
@@ -37,7 +33,7 @@ export class Favourites extends SavingsAccountBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 
 		// Recover information from state
 		const state = this.horizonStore.recoverState();
@@ -56,17 +52,12 @@ export class Favourites extends SavingsAccountBase {
 
 		// private variables
 		this.landingPageInfo = null;
-		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-		this.debiCheckDetails = {};
-		this.clientProducts = null;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 	
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -276,9 +267,6 @@ export class Favourites extends SavingsAccountBase {
 		return true;
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
 
 	async _stopCard() {
 
