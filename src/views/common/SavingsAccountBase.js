@@ -1,3 +1,4 @@
+import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
@@ -35,6 +36,9 @@ export class SavingsAccountBase extends ViewBase {
 		super();
 
 		this.horizonRouter = HorizonRouter.getInstance();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -186,6 +190,28 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_updateReturnToScreen() {
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = {
+			name: this.navigationContext.current.route.title,
+			option: state.returnToScreen ? state.returnToScreen.option : null
+		};
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+	}
+
+	_performReturnToScreen() {
+		const state = this.horizonStore.recoverState();
+		const returnToScreen = state.returnToScreen;
+		
+		if (returnToScreen && returnToScreen.option) {
+			
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.option });
+
+			returnToScreen.option = null;
+			this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		}
 	}
 
 	// ---------

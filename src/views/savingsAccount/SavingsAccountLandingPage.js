@@ -1,5 +1,5 @@
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
+import { Configuration } from 'platform/core';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -42,12 +42,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		super();
 
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
-	
-		this.callerInformation = this.horizonStore.getCallerInformation();
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.transactionHistory = null;
 		this.accountDetails = null;
 		this.clientProducts = null;
@@ -55,9 +52,10 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		// private properites
 		this.loading = true;
 
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		
+		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
 
 	// -------------------
@@ -67,6 +65,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._updateReturnToScreen();
 		this._initialise();
 
 		this._optionClick = async (option) => {
@@ -89,6 +88,11 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				return actions[option]();
 			}
 		};
+	}
+
+	disconnectedCallback() {
+        this.returnToScreen.dispose();
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -118,8 +122,9 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	// ---------------
 
 	async _initialise() {
-		this.verificationStatus = this.callerInformation.verificationStatus;
 
+		this.verificationStatus = this.callerInformation.verificationStatus;
+		
 		if (this.callerInformation.verificationStatus !== `non-client`) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -136,13 +141,13 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				this._updateLeftBar();
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
-
 		} else {
 			// minimal object for the Favourites landing page component
 			this.landingPageInfo = { pendingMandateCount: 0 };
 		}
 
 		this.loading = false;
+		this._performReturnToScreen();
 	}
 
 	_updateLeftBar() {
@@ -254,7 +259,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 			${super._webTemplate()}
 		`;
 	}
-
 
 	_renderSavingsLandingPage() {
 		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
