@@ -1,13 +1,15 @@
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
 import 'app/components/savingsAccount/DebiCheckMandates';
+import 'app/components/dialogs/common/StatementsDialog';
 
 const TRANSACTION_HISTORY = {
 	ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
@@ -28,9 +30,9 @@ const TRANSACTION_HISTORY = {
  * 
  * @export
  * @class SavingsAccount
- * @extends {Component}
+ * @extends {SavingsAccountBase}
  */
-export class SavingsAccountLandingPage extends ViewBase {
+export class SavingsAccountLandingPage extends SavingsAccountBase {
 	
 	// --------------
 	// INITIALISATION
@@ -48,12 +50,14 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 		this.transactionHistory = null;
 		this.accountDetails = null;
+		this.clientProducts = null;
 	
 		// private properites
 		this.loading = true;
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// -------------------
@@ -81,6 +85,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 		};
@@ -100,17 +105,13 @@ export class SavingsAccountLandingPage extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	_transactionHistoryToMainPage() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
+	// N/A
 
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
+	// N/A
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -208,14 +209,6 @@ export class SavingsAccountLandingPage extends ViewBase {
 		}
 	}
 
-	_debiCheck() {
-		// TODO: Functionality to Debi check comes here
-	}
-
-	_getStatements() {
-		// TODO: Functionality to generate statements comes here
-	}
-
 	_more() {
 		// TODO: Functionality to option 'more' comes here
 	}
@@ -226,6 +219,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 			window.open(`${globalOneUrl}${type}`);
 		}
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -257,9 +251,10 @@ export class SavingsAccountLandingPage extends ViewBase {
 		return html`
 			${this._renderSavingsLandingPage()}
 			${this._renderTransactionHistory()}
-
-			${super._webTemplate()}`;
+			${super._webTemplate()}
+		`;
 	}
+
 
 	_renderSavingsLandingPage() {
 		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
@@ -281,7 +276,7 @@ export class SavingsAccountLandingPage extends ViewBase {
 					.accountDetails = "${this.accountDetails}"
 					.callerInformation = "${this.callerInformation}"
 					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._transactionHistoryToMainPage()}">
+					@back="${() => this._setIncidentDone()}">
 				</horizon-transaction-history>`
 			: html``;
 	}

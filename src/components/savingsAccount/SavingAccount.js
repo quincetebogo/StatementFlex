@@ -285,7 +285,8 @@ export class SavingsAccount extends Component {
 						icon="system/time-action"
 						@click="${() => this._optionSelectedClick(`transaction-history`)}">
 					</horizon-option-button>
-					<horizon-option-button 
+					<horizon-option-button
+					    badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debit-order-action"
@@ -301,6 +302,7 @@ export class SavingsAccount extends Component {
 						class="button-margin button-more"
 						label="More" 
 						icon="system/more-action"
+						style="visibility: hidden"
 						@click="${() => this._optionSelectedClick(`more`)}">
 					</horizon-option-button>
 				</capitec-group>
@@ -323,11 +325,6 @@ export class SavingsAccount extends Component {
 							label="Product enquiry"
 							icon="system/info-action"
 							@click="${() => this._accountSavingsEnquiry(`product-enquiry`)}">
-					</horizon-option-button>
-					<horizon-option-button 
-						class="button-margin"
-						label="Add a Savings Plan"
-						icon="system/add-action">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-group>

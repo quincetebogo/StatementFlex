@@ -2,8 +2,10 @@ import { View, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
+
 
 /**
  * A Base class for view components to collect common functionality used across most views
@@ -40,7 +42,6 @@ export class ViewBase extends View {
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
-
 		this.isBusy = false;
 		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -49,6 +50,7 @@ export class ViewBase extends View {
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
 			callerInformation: { attribute: false },
@@ -130,6 +132,20 @@ export class ViewBase extends View {
 	// PRIVATE METHODS
 	// ---------------
 
+	/**
+	 * Necessary to refresh the incident details object, when a primary incident is closed
+	 * and subsequent incident is opened
+	 * 
+	 * @returns {void}
+	 */
+	_refreshIncidentDetails() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -142,7 +158,8 @@ export class ViewBase extends View {
 		return html`
 			${this._renderVerifyNowModal()}
 			${this._renderEndCallSessionModal()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+		`; 
 	}
 
 	_renderVerifyNowModal() {
