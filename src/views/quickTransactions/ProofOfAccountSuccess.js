@@ -111,11 +111,11 @@ export class ProofOfAccountSuccess extends View {
 			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
 			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
 		});
-
-		const returnToScreen = {
-			option: this.incidentDetails.currentNeed
-		};
-		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		
+		const state = this.horizonStore.recoverState();
+		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		
+		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
 		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
