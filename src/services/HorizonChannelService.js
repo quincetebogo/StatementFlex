@@ -22,7 +22,7 @@ export class HorizonChannelService extends Service {
 			name: `HorizonChannelService`
 		});
 
-		this._version = `v1`;
+		this._version = `v2`;
 		this._mocking = null;
 		this._mock = null;
 
