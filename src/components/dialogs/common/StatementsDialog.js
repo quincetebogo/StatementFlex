@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -189,6 +190,21 @@ export class StatementsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadStatements({
+			screen: TelemetryScreen.STATEMENTS
+		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 	}
 	
 	// --------------
@@ -200,6 +216,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_next() {
+
 		const selectAccount = () => this._validateAccountSelection();
 		const selectPeriod = () => this._validatePeriodSelection();
 		const emailClient = () => this._validateEmailAddress();
@@ -221,6 +238,13 @@ export class StatementsDialog extends Component {
 	}
 
 	_selectAccount(type) {
+
+		// Telemetry 
+		HorizonTelemetry.instance.selectAccountType({
+			screen: TelemetryScreen.STATEMENTS,
+			accountType: type
+		});
+
 		this.accType = type;
 		this.accPlanType = ``;
 		this.errorMessage = ``;
@@ -228,27 +252,43 @@ export class StatementsDialog extends Component {
 	};
 
 	_selectPlan(plan) {
+
+		// Telemetry
+		HorizonTelemetry.instance.selectAccount({
+			screen: TelemetryScreen.STATEMENTS,
+			accountId: plan.accountNumber
+		});
+
 		this.accPlanType = plan.accountName;
 		this.notifyMessage = plan.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? NOTIFICATION_MESSAGE.NO_FEE : NOTIFICATION_MESSAGE.FEE; 
 		this.errorMessage = ``;
 	}
 
 	_choosePeriod(range) {
+
 		this.periodSelected = TIME_PERIOD[range].value;
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
 		this._customDateRange = false;
-		this.errorMessage = ``;
+		this.errorMessage = ``;	
+		
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnPeriod({
+			screen: TelemetryScreen.STATEMENTS,
+			period: this.periodSelected
+		});
 	}
 
 	_customDateRangeSelected() {
+	
 		this.showCalendar = true;
 		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
 		this._customDateRange = !this._customDateRange;
+	
 	}
 
 	_showCalendar() {
@@ -334,6 +374,7 @@ export class StatementsDialog extends Component {
 	}
 
 	async _sendStatement() {
+
 		if (!this._validateEmailAddress()) {
 			return false;
 		}
@@ -365,8 +406,20 @@ export class StatementsDialog extends Component {
 		});
 
 		if (returnValue.succeeded) {
+			// Telemetry
+			HorizonTelemetry.instance.sendStatement({
+				screen: TelemetryScreen.STATEMENTS,
+				nextScreen: TelemetryScreen.FAVOURITES
+			});
+
 			this.horizonRouter.navigateToStatementSuccessful();
 		} else {
+
+			// Telemetry
+			HorizonTelemetry.instance.screenUnloadStatements({
+				screen: TelemetryScreen.STATEMENTS
+			});
+
 			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
@@ -395,6 +448,11 @@ export class StatementsDialog extends Component {
 	}
 
 	_validateAccountSelection() {
+
+		
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnAccount({});
+
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Select an account`;
 			return false;
@@ -407,6 +465,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_validatePeriodSelection() {
+	
 		if (this.periodSelected === `` && !this._customDateRange) {
 			this.errorMessage = `Please choose a from and to date`;
 			this.calendarErrorMessage = `Required`;
@@ -418,6 +477,13 @@ export class StatementsDialog extends Component {
 		} 
 
 		this._getSummary();
+
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnPeriod({
+			screen: TelemetryScreen.STATEMENTS,
+			startDate: this.fromDate,
+			endDate: this.toDate
+		});
 
 		return true;
 	}
