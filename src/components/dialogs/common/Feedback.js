@@ -133,6 +133,7 @@ export class Feedback extends Component {
 	_updateIncidentState() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+		incidentDetails.feedback = this.selectedFeedback;
 
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}

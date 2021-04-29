@@ -16,6 +16,7 @@
 	 * @param {string} [currentNeed = ``] Current need [Stopcard/ Debicheck/ Statements etc..]
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
 	 * @param {status} [needStatus = `InProgress`] Status of need *Internal purpose* [InProgress/ Completed/ Assigned]
+	 * @param {string} [feedback = ``] Feedback of incident (need fulfilled/ assigned/ handed-off)
 	 * @memberof IncidentDetails
 	 */
 
@@ -25,7 +26,8 @@
 		primaryIncidentRecID = ``,
 		currentNeed = ``,
 		previousNeed = ``,
-		needStatus = `InProgress`
+		needStatus = `InProgress`,
+		feedback = ``
 	) {
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
@@ -33,5 +35,6 @@
 		this.currentNeed = currentNeed;
 		this.previousNeed = previousNeed;
 		this.needStatus = needStatus;
+		this.feedback = feedback;
 	}
 };
