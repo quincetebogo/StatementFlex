@@ -3,8 +3,8 @@ export const stopCardMockResponse = {
 	instruction: ``,
 	cards: [
 		{
-			cardNumber: `4000000000000062`,
-			maskedCardNumber: `4*************62`,
+			cardNumber: `4000000000000060`,
+			maskedCardNumber: `4000********0060`,
 			cardDisplayName: `Cheque Card`,
 			cardStopReason: `LOST`,
 			cardExpiryYear: `2020`,
@@ -18,8 +18,53 @@ export const stopCardMockResponse = {
 			}
 		},
 		{
-			cardNumber: `4000080000000048`,
-			maskedCardNumber: `4*************48`,
+			cardNumber: `4000000000000061`,
+			maskedCardNumber: `4000********0061`,
+			cardDisplayName: `Cheque Card`,
+			cardStopReason: `LOST`,
+			cardExpiryYear: `2020`,
+			cardExpiryMonth: `10`,
+			cardSequenceNumber: `02`,
+			supplementaryCard: true,
+			stopCard: {
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			}
+		},
+		{
+			cardNumber: `4000000000000063`,
+			maskedCardNumber: `4000********0063`,
+			cardDisplayName: `Cheque Card`,
+			cardStopReason: `LOST`,
+			cardExpiryYear: `2020`,
+			cardExpiryMonth: `10`,
+			cardSequenceNumber: `02`,
+			supplementaryCard: true,
+			stopCard: {
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			}
+		},
+		{
+			cardNumber: `4000000000000064`,
+			maskedCardNumber: `4000********0064`,
+			cardDisplayName: `Cheque Card`,
+			cardStopReason: `LOST`,
+			cardExpiryYear: `2020`,
+			cardExpiryMonth: `10`,
+			cardSequenceNumber: `02`,
+			supplementaryCard: true,
+			stopCard: {
+				enabled: true,
+				tabIndex: 0,
+				visible: true
+			}
+		},
+		{
+			cardNumber: `4000080000000065`,
+			maskedCardNumber: `4000********0065`,
 			cardDisplayName: `Credit Card`,
 			cardStopReason: `LOST`,
 			cardExpiryYear: `2020`,

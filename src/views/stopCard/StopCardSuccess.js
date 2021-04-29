@@ -213,13 +213,13 @@ export class StopCardSuccess extends View {
 		return [
 			super.styles,
 			css`
+				.success-group {
+					height: 885px;
+				}
+
 				.title-bar-text {
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 24px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 36px;
+					--theme-label-title-font-size : 24px;
+					--theme-label-title-font-weight: 600;
 				}
 
 				.success-toast{
@@ -253,16 +253,11 @@ export class StopCardSuccess extends View {
 					letter-spacing: 0;
 					line-height: 24px;
 				};
-				
-				.card-image {
-					margin: auto;
-				}
-				
+
 				.card-stopped {
-					margin-top:36px;
-					margin-bottom:24px;
-					height: 36px;
-					color: #003652;
+				    margin: 52px 0px 16px;
+					height: 32px;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
 					font-weight: 600;
@@ -273,7 +268,7 @@ export class StopCardSuccess extends View {
 				  
 				.stop-card-text {
 					margin: 16px 0px 0px 0px;
-					color: #4E6066;
+					color: #545D60;
 					font-family: "Hind Vadodara";
 					font-weight: 600;
 					font-size: 15px;
@@ -283,7 +278,7 @@ export class StopCardSuccess extends View {
 				}
 
 				.options-group{
-					margin:22px 0px 23px 22px;
+					margin: auto 0px 23px 22px;
 				}
 
 				.button-margin{
@@ -292,21 +287,12 @@ export class StopCardSuccess extends View {
 					margin-right:16px;
 				}
 
-				.status-group{
-					width: auto;
-					height: 26px;
-					flex-wrap: wrap;
-					justify-content: center;
-					margin: 0px auto 36px;
-                    display:block;
-				}
-
 				.card-status-success{
-					height: 26px;
+					height: 24px;
 					width: auto;
 					display: flex;
 					align-items: center;
-					margin: 0px 0px 16px 15px;
+					margin-top: 8px;
 				}
 
 				capitec-icon{
@@ -327,7 +313,7 @@ export class StopCardSuccess extends View {
 
 				#id-button-group {
 					justify-content: center;
-					margin-top: 16px;
+					margin-top: 24px;
 				}
 			`
 ];
@@ -339,7 +325,7 @@ export class StopCardSuccess extends View {
 	_webTemplate() {
 		return html`
 		<capitec-card>
-			<capitec-group layout="vertical" gap="none" style="width:100%;">
+			<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
 				${this._renderTitleBar()}
 				${this._renderSuccessToast()}
 				${this._renderGraphic()}
@@ -380,14 +366,14 @@ export class StopCardSuccess extends View {
 	}
 
 	_renderGraphic() {
-		return html`<img class="card-image" style="margin: 100px auto auto auto;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
+		return html`<img style="margin: 109px 406px 0px 406px;" width="252" height="182" src="/images/cardStop/cards.svg"/>`;
 	}
 
 	_renderStoppedCards() {
 		return html`
-                <div class="status-group">
+                <capitec-group layout="vertical" halign="center" valign="center" gap="clear">
     				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
-	    		</div>
+				</capitec-group>
 		`;
 	}
 
