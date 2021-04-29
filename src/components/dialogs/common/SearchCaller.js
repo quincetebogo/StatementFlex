@@ -4,6 +4,7 @@ import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetry
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -159,6 +160,7 @@ export class SearchCaller extends Component {
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
@@ -275,7 +277,7 @@ export class SearchCaller extends Component {
 		this.incomingCallDetails.ivrOptionCode = e.detail.new;
 		this.incomingCallDetails.ivrOption.value = e.detail.new;
 
-		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
 		// Stop Card has it's own specialized search dialog. We raise this 
