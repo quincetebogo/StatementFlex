@@ -197,21 +197,17 @@ export class StatementsDialog extends Component {
 		});
 	}
 
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS,
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
-	}
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_cancel() {
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -230,9 +226,23 @@ export class StatementsDialog extends Component {
 		if (result && this.errorMessage === ``) {
 			this.currentStep++;
 		}
+
+	}
+	
+	_close() {
+		this.renderMode = RENDER_MODE.EMAIL;
+		HorizonTelemetry.instance.selectBack({
+			screen: TelemetryScreen.STATEMENTS
+		});
 	}
 
 	_back() {
+
+		// Telemetry
+		HorizonTelemetry.instance.selectBack({
+			screen: TelemetryScreen.STATEMENTS
+		});
+
 		this.errorMessage = ``;
 		this.currentStep--;
 	}
@@ -272,11 +282,12 @@ export class StatementsDialog extends Component {
 
 		this._customDateRange = false;
 		this.errorMessage = ``;	
-		
+
 		// Telemetry 
 		HorizonTelemetry.instance.selectNextOnPeriod({
-			screen: TelemetryScreen.STATEMENTS,
-			period: this.periodSelected
+			period: this.periodSelected,
+			startDate: null,
+			endDate: null
 		});
 	}
 
@@ -349,6 +360,8 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
+
+		HorizonTelemetry.instance.selectViewDocuments({});
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
@@ -416,8 +429,15 @@ export class StatementsDialog extends Component {
 	
 			if (returnValue.succeeded) {
 				this.horizonRouter.navigateToStatementSuccessful();
+
+			// Telemetry
+			HorizonTelemetry.instance.sendStatement({
+				screen: TelemetryScreen.STATEMENTS,
+				nextScreen: TelemetryScreen.STATEMENTS_OUTCOME
+			});
+
 			} else {
-				this.horizonRouter.navigateToStatementUnsuccessful();
+				this.horizonRouter.navigateToStatementUnsuccessful()
 			}
 		}	
 	}
@@ -481,7 +501,7 @@ export class StatementsDialog extends Component {
 
 		// Telemetry 
 		HorizonTelemetry.instance.selectNextOnPeriod({
-			screen: TelemetryScreen.STATEMENTS,
+			period: this.periodSelected,
 			startDate: this.fromDate,
 			endDate: this.toDate
 		});
@@ -1130,7 +1150,7 @@ export class StatementsDialog extends Component {
 					<capitec-button
 						type="primary"
 						label="Close"
-						@click="${() => this.renderMode = RENDER_MODE.EMAIL}"
+						@click="${() => this._close()}"
 						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
 			</capitec-content-box>

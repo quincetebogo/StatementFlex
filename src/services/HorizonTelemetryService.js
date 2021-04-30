@@ -30,6 +30,7 @@ export const TelemetryScreen = {
 
 	TAP_TO_PAY: `Tap to Pay`,
 	STATEMENTS: `Statements`,
+	STATEMENTS_OUTCOME: `Statements Outcome`,
 	TAX_CERTIFICATE: `Tax Certificate`,
 	PROOF_OF_ACCOUNT: `Proof of Account`,
 	SEARCH_OTHER_NEED: `Search Other Need`,
@@ -149,9 +150,9 @@ const TelemetryEvent = {
 	SELECT_PERIOD: `horizon.call.statements.period.next`,
 	VIEW_DOCUMENT: `horizon.call.statements.view-document`,
 	STATEMENTS_SEND: `horizon.call.statements.send`,
+	SELECT_BACK: `horizon.call.statements.back`,
 	STATEMENTS_SEND_ANOTHER: `horizon.call.statements.send-another`,
-	SCR_UNLD_STATEMENTS_DONE: `horizon.call.statements.end-span`,
-	SCR_UNLD_STATEMENTS_HANDOFF: `horizon.call.statements.end-span`,
+	SCR_UNLD_STATEMENTS: `horizon.call.statements.end-span`,
 	STATEMENTS_CANCEL_BACK: ``
 };
 
@@ -215,7 +216,8 @@ export class HorizonTelemetry extends Telemetry {
 			"end-call": null,
 			"verify-caller": null,
 			"ita": null,
-			"xds": null
+			"xds": null,
+			"statements": null
 		};
 
 		this.horizonStore = new HorizonStore();
@@ -2426,27 +2428,22 @@ export class HorizonTelemetry extends Telemetry {
 	// #endregion FULFILL NEED
 
 	// #region STATEMENTS
-
-	/** 
-	 * @typedef {Object} Statements
-	 */
-
+	
 	/**
-	 * @typedef {Object} StatementsModel
-	 * @property {String} screen
+	 * @typedef {Object} ScrLdStatementsModel
+	 * @property {String} screen 
 	 */
 
-	/** Statements screen load telemetry event
+	/** Statements loaded telemetry event
 	 * @screen Statements
-	 * @event Statements
+	 * @event Screen Load: Statements
 	 * 
-	 * @param {StatementsModel} baggage Information to attach to the telemetry event
+	 * @param {ScrLdStatementsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
 	 screenLoadStatements(baggage) {
-		super.event({
+		const spanId = super.spanStart({
 			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_STATEMENTS,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_STATEMENTS),
@@ -2455,6 +2452,10 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		if (spanId) {
+ 			this.currentActiveSpans.set(`statements`, spanId); 
+		}
 	}
 
 	/**
@@ -2548,11 +2549,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * @typedef {Object} SelectNextOnPeriodModel
 	 * @property {date} startDate
 	 * @property {date} endDate
-	 * @property {date} customDate
 	 * @property {String} period
 	 */
 
-	/** Select Account type telemetry event
+	/** Select Next On Period telemetry event
 	 * @screen Statements
 	 * @event Statements
 	 * 
@@ -2570,16 +2570,13 @@ export class HorizonTelemetry extends Telemetry {
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
 			baggage: [
-				{ 'screen': baggage.screen },
 				{ "period": baggage.period },
 				{ "startDate": baggage.startDate },
-				{ "endDate": baggage.endDate },
-				{ "customDate": baggage.customDate }
+				{ "endDate": baggage.endDate }
 			
 			]
 		});
 	}
-
 
 	/**
 	 * @typedef {Object} SelectViewDocumentsModel
@@ -2600,14 +2597,11 @@ export class HorizonTelemetry extends Telemetry {
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.VIEW_DOCUMENT,
-			tags: this._extractTags(TelemetryEvent.SELECT_PERIOD),
+			tags: this._extractTags(TelemetryEvent.VIEW_DOCUMENT),
 			eventType: TelemetryEventType.PERSON,
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
-			]
+			baggage: []
 		});
 	}
 
@@ -2647,14 +2641,14 @@ export class HorizonTelemetry extends Telemetry {
 	 * @property {String} nextScreen
 	 */
 
-	/** Select  View Documents telemetry event
+	/** Select  Send Another Statement telemetry event
 	 * @screen Statements
 	 * @event Statements
 	 * 
 	 * @param {SelectSendAnotherStatementModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectsendnotherStatement(baggage) {
+	 selectSendAnotherStatement(baggage) {
 		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
@@ -2671,24 +2665,62 @@ export class HorizonTelemetry extends Telemetry {
 		});
 	}
 
-	
-	/** Screen Unload: Statements
+	/**
+	 * @typedef {Object} SelectBackModel
+	 * @property {String} screen
+	 */
+
+	/** Select Back telemetry event
 	 * @screen Statements
-	 * @event Screen Unload: Statements
+	 * @event Statements
+	 * 
+	 * @param {SelectBackModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadStatements() {
-		super.spanEnd({
+	 selectBack(baggage) {
+		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SCR_UNLD_STATEMENTS_DONE,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_STATEMENTS_DONE),
+			eventName: TelemetryEvent.SELECT_BACK,
+			tags: this._extractTags(TelemetryEvent.SELECT_BACK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+	}
+
+	/**
+	 * @typedef  {Object} ScrUnldStatementsModel 
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 */
+
+	/** Screen Unload: Statements Unload
+	 * @screen Statements
+	 * @event Screen Unload: Statements
+	 * 
+	 * @param {ScrUnldStatementsModel} baggage Information to attach to the telemetry event 
+	 * @returns { void } 
+	 */
+	 screenUnloadStatements(baggage) {
+		super.spanEnd({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`statements`),
+			parentSpan: this.currentActiveSpans.get(`horizon.call`),
+			eventName: TelemetryEvent.SCR_UNLD_STATEMENTS,
+			tags: this._extractTags(TelemetryEvent.SCR_UNLD_STATEMENTS),
 			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
 		});
 
-		this.currentActiveSpans.set(`fulfill-need`, null);
+		this.currentActiveSpans.set(`statements`, null);
 	}
 
 	// #endregion STATEMENTS
