@@ -508,7 +508,6 @@ export class TransactionHistory extends Component {
 				capitec-table{
 					width: var(--horizon-center-panel-width, 1064px);
 					height: auto;
-					margin-top: 5px;
 					--theme-data-table-body-group-font-weight: 600;
 					--theme-data-table-font-size : 15px;
 					--theme-data-table-padding-left: 16px;
@@ -520,6 +519,8 @@ export class TransactionHistory extends Component {
 					--theme-data-table-expander-size: 12px;
 					--theme-data-table-footer-border: 0px;
                     --theme-data-table-expander-size: 24px;
+                    --theme-data-table-header-font-weight: 600;
+
 				}
 
 				/* Modal Calendar Styles */
