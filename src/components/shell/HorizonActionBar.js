@@ -23,7 +23,7 @@ export class HorizonActionBar extends Component {
 		this.phoneNumber = ``;
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
-		this.isHidden = false;
+		this.isHidden = true;
 
 		this.horizonStore = HorizonStore.getInstance();
 		
