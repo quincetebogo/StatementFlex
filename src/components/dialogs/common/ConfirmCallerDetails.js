@@ -260,7 +260,7 @@ export class ConfirmCallerDetails extends Component {
 		this.incomingCallDetails.ivrOption.value = event.detail.new;
 		this.incomingCallDetails.ivrOptionCode = event.detail.new;
 
-		this.incidentDetails.currentNeed = this.confirmedCaller.ivrOptionCode;
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 

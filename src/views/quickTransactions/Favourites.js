@@ -1,18 +1,12 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { NavigationContext } from 'platform/core';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
+import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
-
 import 'app/components/dialogs/common/ClientNotVerified';
-import 'app/components/dialogs/common/StatementsDialog';
-import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
@@ -21,7 +15,6 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 
-
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 /**
@@ -29,9 +22,9 @@ const SAVINGS_ACCOUNT_TYPE = 300;
  *
  * @export
  * @class Favourites
- * @extends {ViewBase}
+ * @extends {SavingsAccountBase}
  */
-export class Favourites extends ViewBase {
+export class Favourites extends SavingsAccountBase {
 
 	// --------------
 	// INITIALISATION
@@ -40,12 +33,11 @@ export class Favourites extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
 		// Recover information from state
 		const state = this.horizonStore.recoverState();
-    		
+
 		// When returning from the success screen, check which page we should display
 		if (state.returnTo && state.returnTo.mode === `mandate`) {
 			this._debiCheck();
@@ -60,23 +52,18 @@ export class Favourites extends ViewBase {
 
 		// private variables
 		this.landingPageInfo = null;
-		this.debiCheckMandates = {};
 		this.curOptionEvent = null;
 		this.cards = [];
-		this.debiCheckDetails = {};
-		this.clientProducts = null;
 
-		// Subscribe to shell events
-		this.returnToSub = this.eventAggregator.subscribe(`horizon-returnTo-screen`, (option) => this._performAction(option));
-		
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+	
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
+
 	static get properties() {
 		return {
 			isLoading: { attribute: false },
@@ -97,6 +84,7 @@ export class Favourites extends ViewBase {
 			// debiChecksOutstanding: this.pendingMandateCount
 		});
 
+		this._updateReturnToScreen();
 		this._initialise();
 		this._performAction = async (option) => {
 
@@ -122,6 +110,7 @@ export class Favourites extends ViewBase {
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
 				return actions[option]();
 			}
 
@@ -134,13 +123,12 @@ export class Favourites extends ViewBase {
 	}
 
 	disconnectedCallback() {
-
 		// Telemetry unload Favourites
 		HorizonTelemetry.instance.screenUnloadNeedFulfilled({
 			screen: TelemetryScreen.FAVOURITES
 		});
+		
 		this.returnToSub.dispose();
-
 		super.disconnectedCallback();
 	}
 
@@ -163,17 +151,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	_mainPage() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-		}
-		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-    }
-
 	async _onFavouritesOptionClick(e) {
 		// Getting hold of event to perform continue action if client decides to do verification
 		this.curOptionEvent = e;
@@ -183,50 +160,6 @@ export class Favourites extends ViewBase {
 		} else {
 			await this._performAction(e.detail.option);
 		}
-	}
-
-	async _mandateActionClick (event) {
-		if (event.detail.action === `decline`) {
-			this.mandateId = event.detail.mandateId;
-			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
-		} else if (event.detail.action === `approve`) {
-
-			// Telemetry for accepting DebiCheck
-			HorizonTelemetry.instance.debiCheckAlertAccept({
-				screen: TelemetryScreen.FAVOURITES
-			});
-
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
-			this.horizonRouter.navigateToDebiCheckSuccess();
-		} else if (event.detail.action === `viewInfo`) {
-			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
-			if (returnValue.succeeded && returnValue.result) {
-				this.debiCheckDetails = returnValue.result;
-				this.renderMode = RENDER_MODE.DEBI_CHECK_VIEW_INFO;
-			} else {
-				this.horizonRouter.navigateToSystemError();
-			}
-		}
-	}
-
-	async _declineDebiCheckMandate(event) {
-			// Telemetry for dismissing DebiCheck
-			HorizonTelemetry.instance.debiCheckAlertDismiss({
-				screen: TelemetryScreen.FAVOURITES
-			});
-
-
-		this.mandateId = event.detail.mandateId;
-
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
 	_debiCheckToMainPage() {
@@ -243,7 +176,7 @@ export class Favourites extends ViewBase {
 	}
 
 	_searchOtherNeedDone() {
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this._refreshIncidentDetails();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -252,6 +185,7 @@ export class Favourites extends ViewBase {
 	// ---------------
 
 	async _initialise() {
+
 		if (this.callerInformation.verificationStatus !== `non-client` && isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber)) {
 			const landingRequest = {
 				cifNumber: this.callerInformation.cifNumber,
@@ -262,9 +196,8 @@ export class Favourites extends ViewBase {
 			 const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 			 
 			 if (returnValue.succeeded) {
-                 this.isLoading = false;
-                 this.landingPageInfo = returnValue.result;
-
+				this.isLoading = false;
+				this.landingPageInfo = returnValue.result;
 			 }
 		} else {
 			// minimal object for the Favourites landing page component
@@ -285,6 +218,7 @@ export class Favourites extends ViewBase {
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
 		this._updateLeftBar();
+		this._performReturnToScreen();
 	}
 
 	_updateLeftBar() {
@@ -333,22 +267,6 @@ export class Favourites extends ViewBase {
 		return true;
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
-
-	async _getClientProducts() {
-		const request = {
-			cifNumber: this.callerInformation.cifNumber,
-			status: `OPEN`
-		};
-		const returnValue = await this.quickTransactionService.getClientProducts(request);
-
-		if (returnValue.succeeded) {
-			return returnValue.result.savingsProducts;
-		}
-		return [];
-	}
 
 	async _stopCard() {
 
@@ -392,30 +310,6 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-	async _debiCheck() {
-		// Telemetry for Alert Checks
-		HorizonTelemetry.instance.debiCheckAlert({
-			screen: TelemetryScreen.FAVOURITES
-		});
-
-		// Telemetry
-		HorizonTelemetry.instance.selectDebiCheck({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: null /** TelemetryScreen.DEBI_CHECK */,
-			selectedOption: this.selectedOption
-		});
-
-
-		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
-		if (returnValue.succeeded) {
-			// eslint-disable-next-line no-extra-parens
-			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
-			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-		} else {
-			// Todo: Handle error scenario
-		}
-	}
-
 	async _updateCardLimits() {
 
 		// Telemetry select Update Card Limits
@@ -445,20 +339,6 @@ export class Favourites extends ViewBase {
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		}
-	}
-
-	async _getStatements() {
-
-		// Telemetry Statements
-		HorizonTelemetry.instance.selectStatements({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-		const clientProductDetails = await this._getClientProducts();
-		if (clientProductDetails) {
-			this.clientProducts = clientProductDetails;
-			this.renderMode = RENDER_MODE.STATEMENTS;
 		}
 	}
 
@@ -498,8 +378,6 @@ export class Favourites extends ViewBase {
 	}
 
 	_searchOtherNeed() {
-		// Fetching the latest incident details from store
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 
 		// Telemetry Search Other need
@@ -542,15 +420,11 @@ export class Favourites extends ViewBase {
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
 
-			${this._renderDebiCheckMandates()}
-			${this._renderDebiCheckDeclineMandate()}
-			${this._renderDebiCheckViewMandateInfo()}
-
 			${this._renderAlertModal()}
 			${this._renderTapToPay()}
-			${this._renderSearchOtherNeed()}      
-            		${this._renderProofOfAccount()}
-			${this._renderStatementsModal()}
+			${this._renderSearchOtherNeed()}
+			${this._renderProofOfAccount()}
+
 			${super._webTemplate()}
 		`;
 	}
@@ -564,16 +438,16 @@ export class Favourites extends ViewBase {
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
 				return html`
-				<horizon-favourite-transactions 
-					class="favourites"
-					.landingPageInfo="${this.landingPageInfo}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					.verificationStatus="${this.callerInformation.verificationStatus}"
-					?displayVerificationStatusToast="${this._shouldToastDisplay()}"
-					@verify-click="${() => super._verifyClick()}"
-					@option-click="${(e) => this._onFavouritesOptionClick(e)}">
-				</horizon-favourite-transactions>`;
+					<horizon-favourite-transactions 
+						class="favourites"
+						.landingPageInfo="${this.landingPageInfo}"
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.callerInformation="${this.callerInformation}"
+						.verificationStatus="${this.callerInformation.verificationStatus}"
+						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
+						@verify-click="${() => super._verifyClick()}"
+						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
+					</horizon-favourite-transactions>`;
 			default:
 				return html``;
 		}
@@ -590,48 +464,12 @@ export class Favourites extends ViewBase {
 		}
 	}
 
-
-	// Renders the main debi-check mandates display
-	_renderDebiCheckMandates() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-			this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-			? html`
-				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
-					@action="${(event) => this._mandateActionClick(event)}"
-					@back="${() => this._debiCheckToMainPage()}">
-				</debi-check-mandates>`
-			: html``;
-	}
-
-	_renderDebiCheckDeclineMandate() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE 
-			? html`
-				<horizon-decline-debicheck-mandate
-					mandateId=${this.mandateId}
-					@cancel="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
-				</horizon-decline-debicheck-mandate>`
-			: html``;
-	}
-
-	_renderDebiCheckViewMandateInfo() {
-		return this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
-		? html`
-			<horizon-viewinfo-debicheck
-				.debiCheckDetails=${this.debiCheckDetails}
-				@viewed="${() => this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE}"
-			></horizon-viewinfo-debicheck>`
-		: html``;
-	}
-
 	_renderUpdateCardLimits() {
 		return this.renderMode === RENDER_MODE.UPDATE_CARD_LIMITS
 			? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._backToLandingPage()}">
 				</horizon-card-limits-landing>`
 			: html``;
 	}
@@ -640,7 +478,7 @@ export class Favourites extends ViewBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._mainPage()}"
+					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
 					></horizon-proof-of-account>`
@@ -652,7 +490,7 @@ export class Favourites extends ViewBase {
 		? html` 
 			<horizon-tap-to-pay-landing
 				.cards="${this.cards}"
-				@back="${() => this._mainPage()}"
+				@back="${() => this._backToLandingPage()}"
 			></horizon-tap-to-pay-landing>
 		` : html``;
 	}
@@ -663,21 +501,10 @@ export class Favourites extends ViewBase {
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
-					@back="${() => this._mainPage()}"
+					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</search-other-need>`
 			: html``; 
-	}
-
-	_renderStatementsModal() {
-		return this.renderMode === RENDER_MODE.STATEMENTS 
-		? html`
-			<horizon-statements-dialog
-				.callerInformation="${this.callerInformation}"
-				.clientProducts="${this.clientProducts}"
-				@cancel="${() => this._mainPage()}">
-			</horizon-statements-dialog>`
-		: html``;
 	}
 }
 

@@ -1,10 +1,10 @@
 import { Configuration, Logger } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
@@ -192,7 +192,8 @@ export class LandingPage extends ViewBase {
 			// Telemetry
 			// If the call was created manually, we log telemetry without any IVR selection.
 			// The mapped need will be logged later.
-			HorizonTelemetry.instance.newTrace();
+
+			// HorizonTelemetry.instance.newTrace();
 			HorizonTelemetry.instance.incomingCall({
 				screen: TelemetryScreen.WAIT_FOR_CALL,
 				ivr: ``,

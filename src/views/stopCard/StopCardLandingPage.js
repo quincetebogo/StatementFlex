@@ -1,8 +1,8 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, html } from 'platform/elements';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
@@ -73,7 +73,7 @@ export class StopCardLandingPage extends View {
 
 		// The stop card incident can be closed if all cards were stopped successfully.
 		// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
-		this.horizonStore.saveState({ stoppedCards: event.detail.stoppedCards, stoppedCardsFailed: stoppedCardsFailed });
+		this.horizonStore.saveState({ stoppedCards: event.detail.stoppedCards, cardStopAttemptMade: true, stoppedCardsFailed: stoppedCardsFailed });
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();

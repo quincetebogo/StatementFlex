@@ -17,22 +17,22 @@ const CONFIG = {
 	SavingsAccount: {
 		type: `transact`,
 		header: `Savings Account`,
-		product: `SavingsAccount`
+		product: `savings-product-info`
 	},
 	SavingsPlan: {
 		type: `save`,
 		header: `Savings Plans`,
-		product: `SavingsPlan`
+		product: `savings-product-info`
 	},
 	Insure: {
 		type: `insure`,
 		header: `Insure`,
-		product: `Insure`
+		product: `insure-product-info`
 	},
 	Credit: {
 		type: `credit`,
 		header: `Credit`,
-		product: `Credit`
+		product: `credit-product-info`
 	}
 };
 
@@ -55,6 +55,7 @@ export class ProductInformation extends View {
 		
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this._config = {};
+		this.isBusy = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -69,7 +70,8 @@ export class ProductInformation extends View {
 
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+			renderMode: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -114,6 +116,7 @@ export class ProductInformation extends View {
 	async _viewBenefits() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}${this._config.type}/`);
+		this._updateIncidentState();
 	}
 	
 	_endCallClick() {
@@ -149,11 +152,13 @@ export class ProductInformation extends View {
 	// PRIVATE METHODS
 	// ---------------
 
-	_initialise() {
+	async _initialise() {
 		const currRoute = this.navigationContext.current;
 		const type = currRoute.queryParams && currRoute.queryParams.type;
 		
 		this._config = CONFIG[type] || CONFIG.SavingsAccount;
+		
+		await super._inicidentManager_(this._config.product, () => this._toggleBusyFlag());
 		this.requestUpdate();
 	}
 
@@ -180,6 +185,17 @@ export class ProductInformation extends View {
 		);
 	}
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -193,6 +209,7 @@ export class ProductInformation extends View {
 			${this._renderProductInfo()}
 			${this._renderEndCallSessionModal()}
 			${this._renderVerifyNowModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -231,6 +248,12 @@ export class ProductInformation extends View {
 				</horizon-verify-caller>`;
 		}
 		return html``;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

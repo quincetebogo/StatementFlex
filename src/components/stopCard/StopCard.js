@@ -27,7 +27,8 @@ const RENDER_MODE = {
 const TABLE_STYLE = {
 	HEADER_CELL: `width: 490px; font-size: 16px; font-weight: 600; letter-spacing: 0; line-height: 22px;`,
 	BODY_CELL: `width: 490px; text-align: left; font-size: 16px; letter-spacing: 0; line-height: 22px;`,
-	CELL_HEIGHT: `height: 22px`,
+	CELL_HEIGHT: `height: 22px; --theme-label-subtitle-font-weight: 600; --theme-label-font-color: #3A3A3A;
+`,
 	REASON_BUTTONS: `padding: 0px 0px 0px 14px; --theme-button-padding-top: 5.5px; --theme-button-padding-bottom: 5.5px; --theme-button-padding-left: 10px; --theme-button-padding-right: 10px; --theme-button-font-size: 14px;`
 };
 
@@ -165,7 +166,7 @@ export class StopCard extends Component {
 	 * Not used for now, will be used when we are going to implement table group by
 	 */
 	_customGroupByHandler(renderSet) {
-		renderSet.pagedItems = renderSet.pagedItems.filter(x => !x.group);
+		renderSet.items = renderSet.items.filter(x => !x.group);
 
 		const groupedValues = Utilities.groupBy(this.cards, renderSet.strategy.groupField);
 
@@ -303,6 +304,7 @@ export class StopCard extends Component {
 		this.cards.map((card, index) => {
 			card.rowIndex = index;
 			card.selected = false;
+			card.cardType = card.supplementaryCard ? 'Supplementary Cards' : '';
 			card.cardStopReason = STOPREASONS[LOST];
 			return card;
 		});
@@ -375,6 +377,8 @@ export class StopCard extends Component {
 					align-items: flex-start;
 					background-color: white;
 					border-radius: none;
+					--theme-label-title-font-weight: 600;
+					--theme-label-title-font-size: 24px;
 				}
 				.horizon-notify-client{
 					display: flex;
@@ -396,7 +400,12 @@ export class StopCard extends Component {
 				capitec-table {
 					width: 100%;
 					height: 658px;
-					margin-top: 8px;
+					margin-top: 8px;  
+					--theme-data-table-body-group-font-weight: 600;
+					--theme-data-table-body-group-padding-top: 0px;
+					--theme-data-table-body-group-padding-bottom: 0px;
+					--theme-data-table-body-group-color: #3A3A3A;
+				
 				}
 				button-bar{
 					border-top: thin solid #d3d3d3;
@@ -494,7 +503,7 @@ export class StopCard extends Component {
 
 	_renderCardDetails() {
 		return html`
-				<capitec-table .items="${this.cards}" row="3" column="1">
+				<capitec-table .items="${this.cards}" row="3" column="1" align="left"  groupField="cardType" .dataHandler="${(renderSet) => this._customGroupByHandler(renderSet)}">
 					<capitec-table-column label="" 
                                           field="" 
                                           type="text" 
