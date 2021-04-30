@@ -37,6 +37,20 @@
 			"primaryNeed": "ProductEnquiry"
 		}
 	],
+	"ivrActionMapping": {
+		"debi-check": "DEBI_CHECK",
+		"stop-card": "STOP_CARD",
+		"update-card-limits": "UPDATE_CARD_LIMITS",
+		"tap-to-pay": "TAP_TO_PAY",
+		"statements": "STATEMENTS",
+		"proof-of-account": "PROOF_OF_ACCOUNT",
+		"tax-certificate": "TAX_CERTIFICATE",
+		"transaction-history": "TRANSACTION_HISTORY",
+		"search-other-need": "SEARCH_OTHER_NEED",
+		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
+		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
+	},
 	"mock": {
 		"enabled": false
 	}
