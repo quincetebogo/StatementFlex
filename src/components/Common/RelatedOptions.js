@@ -3,6 +3,7 @@ import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
@@ -14,8 +15,7 @@ const RENDER_MODE = Object.freeze({
 	TAP_TO_PAY: 2,
 	STATEMENTS: 3,
 	PROOF_OF_ACCOUNT: 4,
-	TAX_CERTIFICATE: 5,
-	TRANSACTION_HISTORY: 6
+	TAX_CERTIFICATE: 5
 });
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -47,6 +47,7 @@ export class RelatedOptions extends Component {
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.logger = Logger.getInstance();
 		
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -79,6 +80,7 @@ export class RelatedOptions extends Component {
 		this.callerInformation = state.callerInformation;
 		this.incomingCallDetails = state.incomingCallDetails;
 		this.incidentDetails = state.incidentDetails;
+		this.landingPageInfo = state.landingPageInfo;
 
 		const currNeed = this.incidentDetails.currentNeed;
 		this.options = relatedOptions[currNeed][this.context];
@@ -100,7 +102,14 @@ export class RelatedOptions extends Component {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_navigateToOption(item) {
+	async _navigateToOption(item) {
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		const isVerifiedClient = this._isVerifiedClient();
+
+		if (!isVerifiedClient) {
+			this.dispatchEvent(new CustomEvent(`verify-now-alert`, {}));
+			return false;
+		}
 	
 		const stopCard = () => this._stopCard();
 		const updateCardLimits = () => this._updateCardLimits();
@@ -108,21 +117,22 @@ export class RelatedOptions extends Component {
 		const statements = () => this._Statements();
 		const taxCertificate = () => this._taxCertificate();
 		const proofOfAccount = () => this._proofOfAccount();
-		const transactionHistory = () => this._transactionHistory();
+		const transactionHistory = (item) => this._transactionHistory(item);
 
 		const actions = {
-			'STOP_CARD': stopCard,
-			'UPDATE_CARD_LIMITS': updateCardLimits,
-			'TAP_TO_PAY': tapToPay,
-			'STATEMENTS': statements,
-			'TAX_CERTIFICATE': taxCertificate,
-			'PROOF_OF_ACCOUNT': proofOfAccount,
-			'TRANSACTION_HISTORY': transactionHistory
+			'stop-card': stopCard,
+			'update-card-limits': updateCardLimits,
+			'tap-to-pay': tapToPay,
+			'statements': statements,
+			'tax-certificate': taxCertificate,
+			'proof-of-account': proofOfAccount,
+			'transaction-history': transactionHistory
 		};
 
 			if (actions[item]) {
-				// super._inicidentManager_(option, () => this._toggleBusyFlag());
-				return actions[item]();
+				await super._inicidentManager_(item, () => this._toggleBusyFlag());
+				this._refreshIncidentDetails();
+				return actions[item](item);
 			}
 
 			/**
@@ -132,9 +142,37 @@ export class RelatedOptions extends Component {
 			return true;
 	}
 
+	_verifyClick() {
+		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
+	}
+
+	_backToLandingPage() {
+		
+		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
+			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
+			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		}
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_setIncidentDone() {
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_isVerifiedClient() {
+		return this.callerInformation && this.callerInformation.verificationStatus === `verified`;
+	}
+
+	_refreshIncidentDetails() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -229,33 +267,13 @@ export class RelatedOptions extends Component {
 		}
 	}
 
-	async _transactionHistory() {
-		const transactionHistoryRequest = {
-			cifNumber: this.callerInformation.cifNumber,
-			accountNumber: this.landingPageInfo.accountNumber,
-			accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-			startDate: TRANSACTION_HISTORY.START_DATE,
-			endDate: TRANSACTION_HISTORY.END_DATE,
-			startAtIndex: TRANSACTION_HISTORY.START_AT_INDEX,
-			maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
-			moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+	_transactionHistory(option) {
+		const returnToScreen = {
+			name: ``,
+			option: option
 		};
-
-		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.transactionHistory = returnValue.result.transactions;
-			this.accountDetails = {
-				"accountNumber": this.landingPageInfo.accountNumber,
-				"balance": this.landingPageInfo.accountBalance,
-				"availableBalance": this.landingPageInfo.accountAvailableBalance,
-				"pendingAmount": this.landingPageInfo.accountPendingAmount,
-				"interest": this.landingPageInfo.interestRatePercentage,
-				"status": this.landingPageInfo.accountStatus
-			};
-
-			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
-		}
+		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
 	}
 
 	// ---------
@@ -306,8 +324,6 @@ export class RelatedOptions extends Component {
 				return html`${this._renderUpdateCardLimits()}`;
 			case RENDER_MODE.TAP_TO_PAY:
 				return html`${this._renderTapToPay()}`;
-			case RENDER_MODE.TRANSACTION_HISTORY:
-				return html`${this._renderTransactionHistory()}`;
 			default:
 				return html`
 					${this._renderContent()}
@@ -381,7 +397,7 @@ export class RelatedOptions extends Component {
 				<horizon-statements-dialog
 					.callerInformation="${this.callerInformation}"
 					.clientProducts="${this.clientProducts}"
-					@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+					@cancel="${() => this._backToLandingPage()}">
 				</horizon-statements-dialog>`
 			: html``;
 	}
@@ -390,10 +406,10 @@ export class RelatedOptions extends Component {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._onCancel()}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
-					.landingPageInfo="${this.landingPageInfo}">
+					.landingPageInfo="${this.landingPageInfo}"
+					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;
 	}
@@ -401,19 +417,6 @@ export class RelatedOptions extends Component {
 	_renderTaxCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 			? html``
-			: html``;
-	}
-
-	_renderTransactionHistory() {
-		return this.renderMode === RENDER_MODE.TRANSACTION_HISTORY
-			? html`
-				<horizon-transaction-history
-					.transactionHistory = "${this.transactionHistory}"
-					.accountDetails = "${this.accountDetails}"
-					.callerInformation = "${this.callerInformation}"
-					@error-handler = "${() => this._errorHandler()}"
-					@back="${() => this._transactionHistoryToMainPage()}">
-				</horizon-transaction-history>`
 			: html``;
 	}
 }

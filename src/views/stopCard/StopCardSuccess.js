@@ -6,13 +6,15 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/RelatedOptions';
+import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
 	END_CALLSESSION: 1,
-	VERIFY_NOW: 2
+	VERIFY_NOW: 2,
+	ALERT_MODAL: 3
 };
 
 /**
@@ -338,6 +340,7 @@ export class StopCardSuccess extends View {
 				${this._renderVerifyNowModal()}
 				${this._renderEndCallModal()}
 				${this._renderLoadingIndicator()}
+				${this._renderAlertModal()}
 			</capitec-group>
 		</capitec-card>`;
 	}
@@ -390,7 +393,7 @@ export class StopCardSuccess extends View {
 			 <div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardDisplayName.split(`_`).map(w=> w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
+					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
 		`;
@@ -399,7 +402,8 @@ export class StopCardSuccess extends View {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				context = "Success">
+				context = "Success"
+				@verify-now-alert="${() => this.renderMode = RENDER_MODE.ALERT_MODAL}">
 			</horizon-related-options>
 		`;
 	}
@@ -464,6 +468,16 @@ export class StopCardSuccess extends View {
 	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
+	_renderAlertModal() {
+		return this.renderMode === RENDER_MODE.ALERT_MODAL
+			? html`
+				<horizon-client-not-verified
+					@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
+					@verify-now="${() => this._verifyClick()}">
+				</horizon-client-not-verified>`
 			: html``;
 	}
 }
