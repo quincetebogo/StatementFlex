@@ -117,7 +117,7 @@ export class RelatedOptions extends Component {
 		const statements = () => this._Statements();
 		const taxCertificate = () => this._taxCertificate();
 		const proofOfAccount = () => this._proofOfAccount();
-		const transactionHistory = (item) => this._transactionHistory(item);
+		const transactionHistory = (option) => this._transactionHistory(option);
 
 		const actions = {
 			'stop-card': stopCard,
