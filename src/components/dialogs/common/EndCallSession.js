@@ -277,7 +277,7 @@ export class EndCallSession extends Component {
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
 
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
 			}
 		}
 		await this._closeIncident();
