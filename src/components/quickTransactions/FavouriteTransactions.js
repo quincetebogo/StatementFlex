@@ -328,7 +328,7 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;">
+						style="display: none;">
 					</horizon-option-button>
 					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
