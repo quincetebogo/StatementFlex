@@ -567,7 +567,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
-					height: 500px;
+					height: 100%;
 
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;

@@ -142,23 +142,12 @@ export class RelatedOptions extends Component {
 			return true;
 	}
 
-	_verifyClick() {
-		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
-	}
-
 	_backToLandingPage() {
 		
 		if (this.incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.COMPLETED) {
 			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.NOT_STARTED;
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
-	_setIncidentDone() {
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
