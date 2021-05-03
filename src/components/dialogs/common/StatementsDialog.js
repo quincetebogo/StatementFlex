@@ -127,7 +127,7 @@ export class StatementsDialog extends Component {
 		this.notifyClient = true;
 		this.notifyMessage = NOTIFICATION_MESSAGE.APP;
 		this.accType = ``;
-		this.accPlanType = ``;
+		this.accPlanNumber = ``;
 		this.savingsPlans = [];
 		this.periodSelected = ``;
 		this.showCalendar = false;
@@ -172,7 +172,7 @@ export class StatementsDialog extends Component {
 			renderMode: { attribute: false },
 			notifyClient: { attribute: false },
 			accType: { attribute: false },
-			accPlanType: { attribute: false },
+			accPlanNumber: { attribute: false },
 			periodSelected: { attribute: false },
 			showCalendar: { attribute: false },
 			fromDate: { attribute: false },
@@ -222,13 +222,13 @@ export class StatementsDialog extends Component {
 
 	_selectAccount(type) {
 		this.accType = type;
-		this.accPlanType = ``;
+		this.accPlanNumber = ``;
 		this.errorMessage = ``;
 		this.notifyMessage = NOTIFICATION_MESSAGE.FEE;
 	};
 
 	_selectPlan(plan) {
-		this.accPlanType = plan.accountName;
+		this.accPlanNumber = plan.accountNumber;
 		this.notifyMessage = plan.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? NOTIFICATION_MESSAGE.NO_FEE : NOTIFICATION_MESSAGE.FEE; 
 		this.errorMessage = ``;
 	}
@@ -411,7 +411,7 @@ export class StatementsDialog extends Component {
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Choose Account`;
 			return false;
-		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanType)) {
+		} else if (this.accType === ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type && isNullorEmpty(this.accPlanNumber)) {
 			this.errorMessage = `Choose Savings Plan`;
 			return false;
 		}
@@ -488,8 +488,8 @@ export class StatementsDialog extends Component {
 	_getSelectedProductDetails() {
 		let product = {};
 
-		if (!isNullorEmpty(this.accPlanType)) {
-			product = this.clientProducts.find(item => item.accountName === this.accPlanType && item.category === this.accType);
+		if (!isNullorEmpty(this.accPlanNumber)) {
+			product = this.clientProducts.find(item => item.accountNumber === this.accPlanNumber && item.category === this.accType);
 		} else {
 			product = this.clientProducts.find(item => item.category === this.accType);
 		}
@@ -860,7 +860,7 @@ export class StatementsDialog extends Component {
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item)}"
-							?selected="${this.accPlanType === item.accountName}">
+							?selected="${this.accPlanNumber === item.accountNumber}">
 						</horizon-product-tile>
 					`)}
 				</capitec-radio-group>`
