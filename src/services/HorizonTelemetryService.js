@@ -1,6 +1,6 @@
-import { HorizonStore } from 'app/store/HorizonStore';
 import { SecurityContext } from 'platform/core';
 import { Telemetry } from 'app/mocks/Telemetry';
+import { TelemetryStore } from 'app/store/TelemetryStore';
 import { v4 } from 'uuid';
 
 /*
@@ -205,7 +205,7 @@ export class HorizonTelemetry extends Telemetry {
 			"xds": null
 		};
 
-		this.horizonStore = new HorizonStore();
+		this.telemetryStore = new TelemetryStore();
 		this.initialise();
 	}
 
@@ -223,7 +223,7 @@ export class HorizonTelemetry extends Telemetry {
 		let traceID = ``;
 
 		if (!this._traceId) {
-			const state = this.horizonStore.recoverState();
+			const state = this.telemetryStore.getState();
 			const telemetryDetails = state && state.telemetryDetails;
 
 			if (telemetryDetails && telemetryDetails.traceId) {
@@ -243,7 +243,7 @@ export class HorizonTelemetry extends Telemetry {
 	initialise() {
 		this.currentActiveSpans.get = (prop) => {
 			if (!this.currentActiveSpans[prop]) {
-				const state = this.horizonStore.recoverState();
+				const state = this.telemetryStore.getState();
 				const telemetryDetails = state && state.telemetryDetails;
 
 				return telemetryDetails.currentActiveSpans[prop];
@@ -254,11 +254,11 @@ export class HorizonTelemetry extends Telemetry {
 		this.currentActiveSpans.set = (prop, val) => {
 			this.currentActiveSpans[prop] = val;
 		
-			const state = this.horizonStore.recoverState();
+			const state = this.telemetryStore.getState();
 			const telemetryDetails = state && state.telemetryDetails;
 			telemetryDetails.currentActiveSpans = this.currentActiveSpans;
 
-			this.horizonStore.saveState({ telemetryDetails: telemetryDetails });
+			this.telemetryStore.getState({ telemetryDetails: telemetryDetails });
 		};
 	}
 
@@ -280,7 +280,8 @@ export class HorizonTelemetry extends Telemetry {
 			traceId: this.traceId,
 			currentActiveSpans: this.currentActiveSpans
 		};
-		this.horizonStore.saveState({ telemetryDetails: telemetryDetails });
+		this.telemetryStore.clearState();
+		this.telemetryStore.setState({ telemetryDetails: telemetryDetails }, `TELEMETRY-ADD`);
 
 		return this.traceId;
 	}
@@ -364,18 +365,24 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void }
 	 */
 	workflowCompleted() {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`horizon.call`),
-			parentSpan: null,
-			eventName: TelemetryEvent.WORKFLOW_COMPLETED,
-			tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
+		const spanId = this.currentActiveSpans.get(`horizon.call`);
 
-		// clear span reference
-		this.currentActiveSpans.set(`horizon.call`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.WORKFLOW_COMPLETED,
+				tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+	
+			// clear span reference
+			this.currentActiveSpans.set(`horizon.call`, null);
+		} else {
+			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
+		}
 	}
 
 	// #endregion ACCEPT CALL
