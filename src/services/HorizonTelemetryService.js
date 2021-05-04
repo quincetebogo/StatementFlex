@@ -223,9 +223,7 @@ export class HorizonTelemetry extends Telemetry {
 		let traceID = ``;
 
 		if (!this._traceId) {
-			const state = this.telemetryStore.getState();
-			const telemetryDetails = state && state.telemetryDetails;
-
+			const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 			if (telemetryDetails && telemetryDetails.traceId) {
 				traceID = telemetryDetails.traceId;
 			} else {
@@ -243,9 +241,7 @@ export class HorizonTelemetry extends Telemetry {
 	initialise() {
 		this.currentActiveSpans.get = (prop) => {
 			if (!this.currentActiveSpans[prop]) {
-				const state = this.telemetryStore.getState();
-				const telemetryDetails = state && state.telemetryDetails;
-
+				const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 				return telemetryDetails.currentActiveSpans[prop];
 			}
 			return this.currentActiveSpans[prop];
@@ -254,11 +250,10 @@ export class HorizonTelemetry extends Telemetry {
 		this.currentActiveSpans.set = (prop, val) => {
 			this.currentActiveSpans[prop] = val;
 		
-			const state = this.telemetryStore.getState();
-			const telemetryDetails = state && state.telemetryDetails;
+			const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 			telemetryDetails.currentActiveSpans = this.currentActiveSpans;
 
-			this.telemetryStore.getState({ telemetryDetails: telemetryDetails });
+			this.telemetryStore.setTelemetryDetails(telemetryDetails);
 		};
 	}
 
@@ -281,7 +276,7 @@ export class HorizonTelemetry extends Telemetry {
 			currentActiveSpans: this.currentActiveSpans
 		};
 		this.telemetryStore.clearState();
-		this.telemetryStore.setState({ telemetryDetails: telemetryDetails }, `TELEMETRY-ADD`);
+		this.telemetryStore.setTelemetryDetails(telemetryDetails);
 
 		return this.traceId;
 	}
