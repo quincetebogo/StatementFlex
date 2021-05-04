@@ -8,7 +8,7 @@
 		"tellerNumber": "22312"
 	},
 	"DesktopAgent": {
-		"registrationUrl": "http://localhost:8888/subscribe"
+		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
@@ -17,23 +17,23 @@
 		"strack": "http://strackdevnlb.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
-	"VDN": "211377",
+	"VDN": "7253",
 	"LogRequestResponseModels": true,
 	"ivrMapping": [
 		{
-			"option": "1",
+			"option": "7251",
 			"primaryNeed": "StopCard"
 		},
 		{
-			"option": "11",
-			"primaryNeed": "StopCard"
-		},
-		{
-			"option": "3",
+			"option": "7253",
 			"primaryNeed": "Transact"
 		},
 		{
-			"option": "7",
+			"option": "8251",
+			"primaryNeed": "ProductEnquiry"
+		},
+		{
+			"option": "8252",
 			"primaryNeed": "ProductEnquiry"
 		}
 	],
@@ -54,15 +54,15 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -71,7 +71,7 @@
 		},
 		"xdsQuestions": {
 			"enabled": true,
-			"substituteIdOnly": "",
+			"substituteIdOnly": "6712075142087",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
