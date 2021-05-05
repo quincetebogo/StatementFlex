@@ -108,10 +108,14 @@ export class EndCallSession extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadEndCall({
-			screen: TelemetryScreen.END_CALL
-		});
+		/*
+		  We can't put this here because frequently we have navigated back to the call-waiting landing page
+		  before the disconnectedCallback fires. The call-waitng landing page clears all state.
+		  An error then occurs because the telemetry data in state has been wiped.
+
+		  Also, if we are cancelling a call, the disconnected callback will fire and this will be incorrect.
+		*/
+		// HorizonTelemetry.instance.screenUnloadEndCall({ screen: TelemetryScreen.END_CALL });
 	}
 
 	// --------------
@@ -124,6 +128,7 @@ export class EndCallSession extends Component {
 			screen: TelemetryScreen.END_CALL,
 			nextScreen: null
 		});
+		HorizonTelemetry.instance.screenUnloadEndCall({ screen: TelemetryScreen.END_CALL });
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
@@ -197,6 +202,7 @@ export class EndCallSession extends Component {
 
 	_returnToCallWaitingPage() {
 		// Telemetry
+		HorizonTelemetry.instance.screenUnloadEndCall({ screen: TelemetryScreen.END_CALL });
 		HorizonTelemetry.instance.workflowCompleted();
 
 		const state = { callStatus: `CALL-ENDED` };
