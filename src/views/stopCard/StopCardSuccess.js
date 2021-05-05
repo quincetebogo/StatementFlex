@@ -254,7 +254,7 @@ export class StopCardSuccess extends View {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 24px;
-				};
+				}
 
 				.card-stopped {
 				    margin: 52px 0px 16px;
@@ -316,6 +316,7 @@ export class StopCardSuccess extends View {
 				#id-button-group {
 					justify-content: center;
 					margin-top: 24px;
+					margin-bottom: auto;
 				}
 			`
 ];
@@ -336,7 +337,6 @@ export class StopCardSuccess extends View {
 				<p class="stop-card-text">Please visit a branch to get a new card.</p>
 				${this._renderButtons()}
 				${this._renderRelatedOptions()}
-				${this._renderOptionsButtons()} 
 				${this._renderVerifyNowModal()}
 				${this._renderEndCallModal()}
 				${this._renderLoadingIndicator()}
@@ -405,17 +405,6 @@ export class StopCardSuccess extends View {
 				context = "Success"
 				@verify-now-alert="${() => this.renderMode = RENDER_MODE.ALERT_MODAL}">
 			</horizon-related-options>
-		`;
-	}
-
-	_renderOptionsButtons() {
-		return html`
-			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="/images/access.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Card Skimming Case" img-src="/images/cards.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="/images/atm.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Find A Branch" img-src="/images/atm.svg"></horizon-option-button>
-			</capitec-group>
 		`;
 	}
 
