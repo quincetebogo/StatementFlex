@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/EventAggregator';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -45,10 +46,14 @@ export class RelatedOptions extends Component {
 		this.landingPageInfo = {};
 		this.cards = [];
 
+		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+
 		
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
+
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -86,6 +91,13 @@ export class RelatedOptions extends Component {
 		this.options = relatedOptions[currNeed][this.context];
 	}
 
+	disconnectedCallback() {
+		
+		// do disposed as this one (will be triggered when  you move over to another screen)
+		this.returnToSub.dispose();
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -107,7 +119,9 @@ export class RelatedOptions extends Component {
 		const isVerifiedClient = this._isVerifiedClient();
 
 		if (!isVerifiedClient) {
-			this.dispatchEvent(new CustomEvent(`verify-now-alert`, {}));
+			this.dispatchEvent(new CustomEvent(`verify-now-alert`, {
+				detail:{
+					option:item}}));
 			return false;
 		}
 	

@@ -136,6 +136,8 @@ export class StopCardSuccess extends View {
 		this.callerInformation = event.detail.callerInformation;
         this._updateLeftBar();
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
+
+		this.eventAggregator.publish(`horizon-navigate-related-option`, {option:this._option});
 	}
 
 	_updateLeftBar() {
@@ -169,6 +171,11 @@ export class StopCardSuccess extends View {
 
 	_doneClick() {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
+	}
+
+	_relatedOptionSelected(event) {
+		this.renderMode = RENDER_MODE.ALERT_MODAL;
+		this._option = event.detail.option;
 	}
 
 	async _returnToStopCardClick() {
@@ -403,7 +410,8 @@ export class StopCardSuccess extends View {
 		return html`
 			<horizon-related-options
 				context = "Success"
-				@verify-now-alert="${() => this.renderMode = RENDER_MODE.ALERT_MODAL}">
+				@verify-now-alert="${(event) => this._relatedOptionSelected(event)}">
+			
 			</horizon-related-options>
 		`;
 	}
