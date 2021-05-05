@@ -255,7 +255,7 @@ export class TransactionHistory extends Component {
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
             endDate: this.endTransactionDate.toLocaleString().slice(0, 10),
-            startAtIndex: /*this.filteredData.length*/ 0,
+            startAtIndex: 0,
             maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
         };
@@ -271,12 +271,11 @@ export class TransactionHistory extends Component {
     async _loadFilteredTransactions() {
 
         // debugger
-        const loadMoreData = this.transactionHistory.length > 0 ? await this._populateTransactions() : [];
+        const loadMoreData = await this._populateTransactions();
         // debugger
         if (loadMoreData.length > 0) {
-            this.rawTableData = [...this.rawTableData, ...loadMoreData];
-            const tableData = this._initialize(loadMoreData);
-            this.transactionHistory = [...this.transactionHistory, ...tableData];
+            this.rawTableData = loadMoreData;
+            this.transactionHistory = this._initialize(loadMoreData);
         }
         if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
             this.showLoadMore = false;
@@ -358,14 +357,13 @@ export class TransactionHistory extends Component {
             this.endDate = ``;
             this.startTransactionDate = new Date("January 01, 2000");
             this.endTransactionDate = new Date();
-            //TRANSACTION_HISTORY.START_DATE = new Date("January 01, 2000").toISOString().substr(0,10);
-            //TRANSACTION_HISTORY.END_DATE = new Date().toISOString.substr(0,10);
 
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
                 calendar._placeholderEndDate = null;
                 calendar._placeholderStartDate = null;
             }
+			this._loadFilteredTransactions();
         }
     }
 
@@ -387,16 +385,15 @@ export class TransactionHistory extends Component {
     }
 
     async getMoreTransactions() {
+		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
+		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+
         const transactionHistoryRequest = {
             cifNumber: this.callerInformation.cifNumber,
             accountNumber: this.accountDetails.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-            startDate: TRANSACTION_HISTORY.START_DATE,
-            endDate: TRANSACTION_HISTORY.END_DATE,
-            //startDate: this.startTransactionDate === null ? TRANSACTION_HISTORY.START_DATE : this.startTransactionDate,
-            //endDate: this.endTransactionDate === null ? TRANSACTION_HISTORY.END_DATE : this.endTransactionDate,
-            //startDate: this.startTransactionDate,
-            //endDate: this.endTransactionDate,
+            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
             startAtIndex: this.rawTableData.length,
             maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
