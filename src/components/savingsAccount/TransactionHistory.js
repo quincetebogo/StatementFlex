@@ -251,7 +251,9 @@ export class TransactionHistory extends Component {
 
     async _loadFilteredTransactions() {
 
-        const loadMoreData = this.transactionHistory.length > 0 ? await this._populateTransactions() : [];
+        // debugger
+        const loadMoreData = await this._populateTransactions();
+        // debugger
         if (loadMoreData.length > 0) {
             this.rawTableData = loadMoreData;
             this.transactionHistory = this._initialize(loadMoreData);
@@ -335,12 +337,13 @@ export class TransactionHistory extends Component {
             this.endDate = ``;
             this.startTransactionDate = new Date("January 01, 2000");
             this.endTransactionDate = new Date();
-            this._loadFilteredTransactions();
+
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
                 calendar._placeholderEndDate = null;
                 calendar._placeholderStartDate = null;
             }
+			this._loadFilteredTransactions();
         }
     }
 
@@ -359,8 +362,8 @@ export class TransactionHistory extends Component {
     }
 
     async getMoreTransactions() {
-        const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
-        const endDate= this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
+		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
 
         const transactionHistoryRequest = {
             cifNumber: this.callerInformation.cifNumber,
