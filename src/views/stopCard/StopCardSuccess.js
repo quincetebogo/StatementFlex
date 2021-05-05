@@ -137,7 +137,7 @@ export class StopCardSuccess extends View {
         this._updateLeftBar();
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 
-		this.eventAggregator.publish(`horizon-navigate-related-option`, {option:this._option});
+		this.eventAggregator.publish(`horizon-navigate-related-option`, { option: this._option });
 	}
 
 	_updateLeftBar() {

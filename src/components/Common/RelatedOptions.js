@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
+import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
@@ -119,9 +119,7 @@ export class RelatedOptions extends Component {
 		const isVerifiedClient = this._isVerifiedClient();
 
 		if (!isVerifiedClient) {
-			this.dispatchEvent(new CustomEvent(`verify-now-alert`, {
-				detail:{
-					option:item}}));
+			this.dispatchEvent(new CustomEvent(`verify-now-alert`, { cdetail: { option: item } }));
 			return false;
 		}
 	
