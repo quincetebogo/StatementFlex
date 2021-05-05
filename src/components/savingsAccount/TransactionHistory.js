@@ -37,7 +37,7 @@ const NINETY_DAYS = 7777000000;
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+    START_DATE: new Date("January 01, 2000").toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -85,6 +85,9 @@ export class TransactionHistory extends Component {
         this.searchTextLabel = `Search for amount or transaction name`;
         this.statuslabel = `Transaction status`;
 
+        this.startTransactionDate = null; /*new Date("January 01, 2000");*/
+        this.endTransactionDate = null; /*new Date();*/
+
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
 
@@ -126,6 +129,7 @@ export class TransactionHistory extends Component {
         this.rawTableData = this.transactionHistory;
         this.transactionHistory = this._initialize(this.transactionHistory);
         this.filteredData = this.transactionHistory;
+        // debugger
 
     }
 
@@ -221,6 +225,64 @@ export class TransactionHistory extends Component {
 
 
         RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+        this.startTransactionDate = this.startDate;
+        this.endTransactionDate = this.endDate;
+        //TRANSACTION_HISTORY.START_DATE = this.startDate.substr(0,10);
+        //TRANSACTION_HISTORY.END_DATE = this.endDate.substr(0,10);
+        // debugger
+        //this._populateTransactions();
+
+        //this.filteredData = this._populateTransactions(); 
+        this._loadFilteredTransactions();
+        //debugger
+        //if (RENDER_CHIPS[FILTER_BY.DATE]) {
+        //    const startDate = new Date(Date.parse(this.startDate));
+        //    const endDate = new Date(Date.parse(this.endDate));
+        //    debugger
+        //    this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+        //    debugger
+        //}
+        this.requestUpdate();
+        // debugger
+        //this._refineSearch();
+    }
+
+    async _populateTransactions() {
+        // debugger
+        const transactionHistoryRequest = {
+            cifNumber: this.callerInformation.cifNumber,
+            accountNumber: this.accountDetails.accountNumber,
+            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+            startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
+            endDate: this.endTransactionDate.toLocaleString().slice(0, 10),
+            startAtIndex: /*this.filteredData.length*/ 0,
+            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+        };
+
+        // debugger
+        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+        // debugger
+        if (returnValue.succeeded && returnValue.result) {
+            return returnValue.result.transactions;
+        }
+    }
+
+    async _loadFilteredTransactions() {
+
+        // debugger
+        const loadMoreData = this.transactionHistory.length > 0 ? await this._populateTransactions() : [];
+        // debugger
+        if (loadMoreData.length > 0) {
+            this.rawTableData = [...this.rawTableData, ...loadMoreData];
+            const tableData = this._initialize(loadMoreData);
+            this.transactionHistory = [...this.transactionHistory, ...tableData];
+        }
+        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+            this.showLoadMore = false;
+        }
+        this.filteredData = this.transactionHistory;
+        // debugger
         this._refineSearch();
     }
 
@@ -276,7 +338,7 @@ export class TransactionHistory extends Component {
 
             return item;
         });
-
+        // debugger
         return tableData.filter(item => item.transactionStatus !== ``);
     }
 
@@ -294,6 +356,10 @@ export class TransactionHistory extends Component {
         if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
+            this.startTransactionDate = new Date("January 01, 2000");
+            this.endTransactionDate = new Date();
+            //TRANSACTION_HISTORY.START_DATE = new Date("January 01, 2000").toISOString().substr(0,10);
+            //TRANSACTION_HISTORY.END_DATE = new Date().toISOString.substr(0,10);
 
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
@@ -305,6 +371,7 @@ export class TransactionHistory extends Component {
 
     async _loadMoreTransactions() {
 
+        // debugger
         const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
         if (loadMoreData.length > 0) {
             this.rawTableData = [...this.rawTableData, ...loadMoreData];
@@ -315,6 +382,7 @@ export class TransactionHistory extends Component {
             this.showLoadMore = false;
         }
         this.filteredData = this.transactionHistory;
+        // debugger
         this._refineSearch();
     }
 
@@ -325,13 +393,18 @@ export class TransactionHistory extends Component {
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: TRANSACTION_HISTORY.START_DATE,
             endDate: TRANSACTION_HISTORY.END_DATE,
+            //startDate: this.startTransactionDate === null ? TRANSACTION_HISTORY.START_DATE : this.startTransactionDate,
+            //endDate: this.endTransactionDate === null ? TRANSACTION_HISTORY.END_DATE : this.endTransactionDate,
+            //startDate: this.startTransactionDate,
+            //endDate: this.endTransactionDate,
             startAtIndex: this.rawTableData.length,
             maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
         };
 
+		// debugger
         const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
+        // debugger
         if (returnValue.succeeded && returnValue.result) {
             return returnValue.result.transactions;
         }
@@ -345,6 +418,7 @@ export class TransactionHistory extends Component {
 
             const searchTextResult = searchText.map(key => {
                 if (key !== ``) {
+                    debugger
                     if (key.startsWith('-')) {
                         return this.filteredData.filter(item => parseFloat(item.amount) == parseFloat(key));
                     } else {                        
@@ -361,7 +435,8 @@ export class TransactionHistory extends Component {
             const startDate = new Date(Date.parse(this.startDate));
             const endDate = new Date(Date.parse(this.endDate));
 
-            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
+            // debugger
         }
 
         if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -679,9 +754,7 @@ export class TransactionHistory extends Component {
 	                outputType="string"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
-                </capitec-date-time-picker>
-
-            
+                </capitec-date-time-picker>           
             <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
