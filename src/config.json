@@ -8,7 +8,7 @@
 		"tellerNumber": "22312"
 	},
 	"DesktopAgent": {
-		"registrationUrl": "http://localhost:8888/subscribe"
+		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
 		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
@@ -112,7 +112,7 @@
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"viewStatements": {

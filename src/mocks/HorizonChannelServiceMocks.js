@@ -179,6 +179,7 @@ export class HorizonChannelServiceMocks {
 		if (this._mocking.tapToPayLanding.positiveCase) {
 			return this.cardLimitsMocks.mockCards;
 		}
+		return null;
 	}
 
 	viewStatements() {

@@ -34,7 +34,8 @@ const HORIZON_ROUTES = Object.freeze({
 	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
-	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`
+	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
+	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay-success`
 });
 
 /**
@@ -262,6 +263,10 @@ export class HorizonRouter {
 
 	navigateToProofOfAccountFailed() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.PROOF_OF_ACCOUNT_FAILED}`);
+	}
+
+	navigateToTapToPaySuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESS}`);
 	}
 
 	_productLandingPagesActive() {
@@ -619,5 +624,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
 		load: () => import(`../views/statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    }
+    },
+	{
+		name: `horizon-tap-to-pay-success`,
+		title: `TapToPaySuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL,
+		load: () => import(`../views/tapToPay/TapToPaySuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	}
 ];
