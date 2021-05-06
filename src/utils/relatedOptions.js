@@ -7,67 +7,49 @@
  */
 export const relatedOptions = {
 	'debi-check': {
-		Success: [`TRANSACTION_HISOTRY`],
-		Failure: [`TRANSACTION_HISOTRY`]
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
 	},
 	'stop-card': {
-		Success: [
-			`UPDATE_CARD_LIMITS`,
-			`TRANSACTION_HISOTRY`
-		],
-		Failure: [
-			`UPDATE_CARD_LIMITS`,
-			`TRANSACTION_HISOTRY`
-		]
+		Success: [`transaction-history`],
+		Failure: [`transaction-history`]
 	},
 	'update-card-limits': {
 		Success: [
-			`STATEMENTS`,
-			`TAP_TO_PAY`
+			`statements`,
+			`tap-to-pay`
 		],
 		Failure: [
-			`STATEMENTS`,
-			`TAP_TO_PAY`
+			`statements`,
+			`tap-to-pay`
 		]
 	},
 	'tap-to-pay': {
 		Success: [
-			`UPDATE_CARD_LIMITS`,
-			`STATEMENTS`
+			`update-card-limits`,
+			`statements`
 		],
 		Failure: [
-			`UPDATE_CARD_LIMITS`,
-			`STOP_CARD`
+			`update-card-limits`,
+			`stop-card`
 		]
 	},
 	'statements': {
-		Success: [
-			`TAX_CERTIFICATE`,
-			`PROOF_OF_ACCOUNT`
-		],
-		Failure: [
-			`TAX_CERTIFICATE`,
-			`PROOF_OF_ACCOUNT`
-		]
+		Success: [`proof-of-account`],
+		Failure: [`proof-of-account`]
 	},
 	'proof-of-account': {
-		Success: [
-			`TAX_CERTIFICATE`,
-			`STATEMENTS`
-		],
-		Failure: [
-			`TAX_CERTIFICATE`,
-			`PROOF_OF_ACCOUNT`
-		]
+		Success: [`statements`],
+		Failure: [`statements`]
 	},
 	'tax-certificate': {
 		Success: [
-			`PROOF_OF_ACCOUNT`,
-			`STATEMENTS`
+			`proof-of-account`,
+			`statements`
 		],
 		Failure: [
-			`TAX_CERTIFICATE`,
-			`PROOF_OF_ACCOUNT`
+			`tax-certificate`,
+			`proof-of-account`
 		]
 	}
 };
@@ -79,31 +61,31 @@ export const relatedOptions = {
  * @constant optionsConfig
  */
 export const optionsConfig = {
-	STOP_CARD: {
+	'stop-card': {
 		label: `Stop Card`,
 		src: `system/stop-card-action`
 	},
-	UPDATE_CARD_LIMITS: {
+	'update-card-limits': {
 		label: `Update Limits`,
 		src: `system/cards-action`
 	},
-	TAP_TO_PAY: {
+	'tap-to-pay': {
 		label: `Tap To Pay`,
 		src: `system/contactless-action`
 	},
-	STATEMENTS: {
+	'statements': {
 		label: `Statements`,
 		src: `system/documents-action`
 	},
-	PROOF_OF_ACCOUNT: {
+	'proof-of-account': {
 		label: `Proof Of Account`,
 		src: `system/documents-action`
 	},
-	TAX_CERTIFICATE: {
+	'tax-certificate': {
 		label: `Tax Certificate`,
 		src: `system/sars-action`
 	},
-	TRANSACTION_HISTORY: {
+	'transaction-history': {
 		label: `Transaction History`,
 		src: `system/time-action`
 	}
