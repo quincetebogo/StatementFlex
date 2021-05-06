@@ -266,7 +266,7 @@ export class HorizonRouter {
 	}
 
 	navigateToTapToPaySuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESS}`);
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
 	_productLandingPagesActive() {

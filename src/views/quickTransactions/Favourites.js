@@ -7,6 +7,7 @@ import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ClientNotVerified';
+import 'app/components/dialogs/common/TapToPayAgreement';
 import 'app/components/dialogs//quickTransactions/DeclineDebiCheckMandate';
 import 'app/components/quickTransactions/FavouriteTransactions';
 import 'app/components/quickTransactions/CardLimitsLanding';
@@ -437,6 +438,7 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
+			case RENDER_MODE.TAP_TO_PAY:
 				return html`
 					<horizon-favourite-transactions 
 						class="favourites"
