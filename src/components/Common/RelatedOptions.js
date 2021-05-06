@@ -119,7 +119,7 @@ export class RelatedOptions extends Component {
 		const isVerifiedClient = this._isVerifiedClient();
 
 		if (!isVerifiedClient) {
-			this.dispatchEvent(new CustomEvent(`verify-now-alert`, { cdetail: { option: item } }));
+			this.dispatchEvent(new CustomEvent(`verify-now-alert`, { detail: { option: item } }));
 			return false;
 		}
 	
