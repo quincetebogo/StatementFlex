@@ -351,13 +351,13 @@ export class EndCallSession extends Component {
 			}
 
 			const callToEnd = {
-				incidentRecId: this.incomingCallDetails.incidentRecId,
-				endReason: this.endCallReason.key,
+				incidentRecId: this.incidentRecId,
+				reason: this.endCallReason.key,
 				resolution: this.endCallReason.value,
 				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 			};
 
-			const returnValue = await this.callHandleService.endCall(callToEnd);
+			const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
 
 			// Log any error
 			if (!returnValue.succeeded) {
