@@ -282,7 +282,7 @@ export class StatementsDialog extends Component {
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
 		this._customDateRange = false;
-		this.errorMessage = ``;	
+		this.errorMessage = ``;
 
 		// Telemetry 
 		HorizonTelemetry.instance.selectNextOnPeriod({

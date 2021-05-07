@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { getMonthName, isNullorEmpty, formatCurrency } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
@@ -37,7 +37,7 @@ const NINETY_DAYS = 7777000000;
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date("January 01, 2000").toISOString().substr(0, 10),
+    START_DATE: new Date(`January 01, 2000`).toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -85,8 +85,8 @@ export class TransactionHistory extends Component {
         this.searchTextLabel = `Search for amount or transaction name`;
         this.statuslabel = `Transaction status`;
 
-        this.startTransactionDate = null; /*new Date("January 01, 2000");*/
-        this.endTransactionDate = null; /*new Date();*/
+        this.startTransactionDate = null; /* new Date("January 01, 2000"); */
+        this.endTransactionDate = null; /* new Date(); */
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
@@ -169,10 +169,10 @@ export class TransactionHistory extends Component {
         last90day.setDate(today.getDate() - 90);
 
         return [
-            { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 90 days", value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+            { text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
 
@@ -328,7 +328,7 @@ export class TransactionHistory extends Component {
         if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
-            this.startTransactionDate = new Date("January 01, 2000");
+            this.startTransactionDate = new Date(`January 01, 2000`);
             this.endTransactionDate = new Date();
 
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
@@ -382,8 +382,8 @@ export class TransactionHistory extends Component {
 
             const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
-					if (key.startsWith('-')) {
-					   return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key) );
+					if (key.startsWith(`-`)) {
+					   return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
 					} else {
 						return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || 
 																parseFloat(item.amount).toFixed(2).startsWith(key) || 
