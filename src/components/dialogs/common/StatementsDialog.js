@@ -330,8 +330,8 @@ export class StatementsDialog extends Component {
 		if (e.detail.new.length > 0) {
 			if (!EMAIL_REGEX.test(e.detail.new)) {
 				this.errorMessage = `Invalid email format`;
-				this.mailClientError.email=`Invalid email format`;
-				this.mailClientError.confirmEmail=`Invalid email format`;
+				this.mailClientError.email = `Invalid email format`;
+				this.mailClientError.confirmEmail = `Invalid email format`;
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;
@@ -339,8 +339,8 @@ export class StatementsDialog extends Component {
 		}
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
-			this.mailClientError.email=`Emails don't match`;
-				this.mailClientError.confirmEmail=`Emails don't match`;
+			this.mailClientError.email = `Emails don't match`;
+				this.mailClientError.confirmEmail = `Emails don't match`;
 		}
 		this.requestUpdate();
 	}
@@ -355,8 +355,8 @@ export class StatementsDialog extends Component {
 
 	_inputEmail(e) {
 		this.mailClientError[e.currentTarget.id] = ``;
-		this.mailClientError.email=``;
-		this.mailClientError.confirmEmail=``;
+		this.mailClientError.email = ``;
+		this.mailClientError.confirmEmail = ``;
 		this.errorMessage = ``;
 	}
 
@@ -394,42 +394,43 @@ export class StatementsDialog extends Component {
 	async _sendStatement() {
 
 		if (!this._validateEmailAddress()) {
-			this.mailClientError.email=`Please enter email`;
-			this.mailClientError.confirmEmai=`Please enter email`;
-			this.errorMessage=`Complete all fields.`;
+			this.mailClientError.email = `Please enter email`;
+			this.mailClientError.confirmEmai = `Please enter email`;
+			this.errorMessage = `Complete all fields.`;
 			return false;
 		}
-		if(this.errorMessage){
+
+		if (this.errorMessage) {
 			return false;
-		}
-		else{
-			const statement = {
-				"emailAddress": this.email,
-				"cifNumber": this.callerInformation.cifNumber,
-				"accountNumber": `${this.productSelected.accountNumber}`,
-				"accountType": this.productSelected.accountType,
-				"statementDateRange": {
-					"dateRange": {},
-					"presetInterval": `${this.periodSelected}`
-				}
-			};
-	
-			if (this._customDateRange) {
-				statement.statementDateRange.dateRange = {
-					"startDate": this.fromDate,
-					"endDate": this.toDate
-				};
+		} 
+
+		const statement = {
+			"emailAddress": this.email,
+			"cifNumber": this.callerInformation.cifNumber,
+			"accountNumber": `${this.productSelected.accountNumber}`,
+			"accountType": this.productSelected.accountType,
+			"statementDateRange": {
+				"dateRange": {},
+				"presetInterval": `${this.periodSelected}`
 			}
-	
-			const returnValue = await this.quickTransactionService.sendStatement(statement);
-	
-			this.horizonStore.saveState({
-				emailAddress: this.email,
-				accountNumber: this.productSelected.accountNumber
-			});
-	
-			if (returnValue.succeeded) {
-				this.horizonRouter.navigateToStatementSuccessful();
+		};
+
+		if (this._customDateRange) {
+			statement.statementDateRange.dateRange = {
+				"startDate": this.fromDate,
+				"endDate": this.toDate
+			};
+		}
+
+		const returnValue = await this.quickTransactionService.sendStatement(statement);
+
+		this.horizonStore.saveState({
+			emailAddress: this.email,
+			accountNumber: this.productSelected.accountNumber
+		});
+
+		if (returnValue.succeeded) {
+			this.horizonRouter.navigateToStatementSuccessful();
 
 			// Telemetry
 			HorizonTelemetry.instance.sendStatement({
@@ -437,14 +438,10 @@ export class StatementsDialog extends Component {
 				nextScreen: TelemetryScreen.STATEMENTS_OUTCOME
 			});
 
-			} else {
-				this.horizonRouter.navigateToStatementUnsuccessful()
-			}
-		}	
+		} else {
+				this.horizonRouter.navigateToStatementUnsuccessful();
+		}
 	}
-
-            // still to fill these in
-		
 
 	// ---------------
 	// PRIVATE METHODS
@@ -514,7 +511,7 @@ export class StatementsDialog extends Component {
 		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
 		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-		let errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
 		return errorMessage === ``;
 	}
 
@@ -642,7 +639,7 @@ export class StatementsDialog extends Component {
 					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
-					height: 500px;
+					height: 100%;
 
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;

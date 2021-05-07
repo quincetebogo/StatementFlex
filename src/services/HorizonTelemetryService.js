@@ -1,6 +1,6 @@
-import { HorizonStore } from 'app/store/HorizonStore';
 import { SecurityContext } from 'platform/core';
 import { Telemetry } from 'app/mocks/Telemetry';
+import { TelemetryStore } from 'app/store/TelemetryStore';
 import { v4 } from 'uuid';
 
 /*
@@ -13,6 +13,7 @@ import { v4 } from 'uuid';
 /** The screens on which telemetry events are logged.
  * This correspond to the "screen" column in the Data Spec.
  * @readonly
+ * @enum {String} TelemetryScreen
  * @enum {String} TelemetryScreen
  */
 export const TelemetryScreen = {
@@ -220,7 +221,7 @@ export class HorizonTelemetry extends Telemetry {
 			"statements": null
 		};
 
-		this.horizonStore = new HorizonStore();
+		this.telemetryStore = new TelemetryStore();
 		this.initialise();
 	}
 
@@ -238,9 +239,7 @@ export class HorizonTelemetry extends Telemetry {
 		let traceID = ``;
 
 		if (!this._traceId) {
-			const state = this.horizonStore.recoverState();
-			const telemetryDetails = state && state.telemetryDetails;
-
+			const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 			if (telemetryDetails && telemetryDetails.traceId) {
 				traceID = telemetryDetails.traceId;
 			} else {
@@ -258,9 +257,7 @@ export class HorizonTelemetry extends Telemetry {
 	initialise() {
 		this.currentActiveSpans.get = (prop) => {
 			if (!this.currentActiveSpans[prop]) {
-				const state = this.horizonStore.recoverState();
-				const telemetryDetails = state && state.telemetryDetails;
-
+				const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 				return telemetryDetails.currentActiveSpans[prop];
 			}
 			return this.currentActiveSpans[prop];
@@ -269,11 +266,10 @@ export class HorizonTelemetry extends Telemetry {
 		this.currentActiveSpans.set = (prop, val) => {
 			this.currentActiveSpans[prop] = val;
 		
-			const state = this.horizonStore.recoverState();
-			const telemetryDetails = state && state.telemetryDetails;
+			const telemetryDetails = this.telemetryStore.getTelemetryDetails();
 			telemetryDetails.currentActiveSpans = this.currentActiveSpans;
 
-			this.horizonStore.saveState({ telemetryDetails: telemetryDetails });
+			this.telemetryStore.setTelemetryDetails(telemetryDetails);
 		};
 	}
 
@@ -295,7 +291,8 @@ export class HorizonTelemetry extends Telemetry {
 			traceId: this.traceId,
 			currentActiveSpans: this.currentActiveSpans
 		};
-		this.horizonStore.saveState({ telemetryDetails: telemetryDetails });
+		this.telemetryStore.clearState();
+		this.telemetryStore.setTelemetryDetails(telemetryDetails);
 
 		return this.traceId;
 	}
@@ -379,18 +376,24 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void }
 	 */
 	workflowCompleted() {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`horizon.call`),
-			parentSpan: null,
-			eventName: TelemetryEvent.WORKFLOW_COMPLETED,
-			tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
+		const spanId = this.currentActiveSpans.get(`horizon.call`);
 
-		// clear span reference
-		this.currentActiveSpans.set(`horizon.call`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.WORKFLOW_COMPLETED,
+				tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+	
+			// clear span reference
+			this.currentActiveSpans.set(`horizon.call`, null);
+		} else {
+			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
+		}
 	}
 
 	// #endregion ACCEPT CALL
@@ -425,17 +428,21 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	callerIdentified() {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`id-caller`),
-			parentSpan: null,
-			eventName: TelemetryEvent.CALLER_IDENTIFIED,
-			tags: this._extractTags(TelemetryEvent.CALLER_IDENTIFIED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
+		const spanId = this.currentActiveSpans.get(`id-caller`);
 
-		this.currentActiveSpans.set(`id-caller`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.CALLER_IDENTIFIED,
+				tags: this._extractTags(TelemetryEvent.CALLER_IDENTIFIED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+
+			this.currentActiveSpans.set(`id-caller`, null);
+		}
 	}
 
 
@@ -589,19 +596,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadConfirmCaller(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`confirm-caller`),
-			parentSpan: null,
-			eventName: TelemetryEvent.SCR_UNLD_CONFIRM_CALLER,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_CONFIRM_CALLER),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`confirm-caller`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_CONFIRM_CALLER,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_CONFIRM_CALLER),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`confirm-caller`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`confirm-caller`, null);
+		}
 	}
 
 	// #endregion CONFIRM CALLER
@@ -714,19 +725,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadAddCallerDetails(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`add-caller`),
-			parentSpan: this.currentActiveSpans.get(`id-caller`),
-			eventName: TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`add-caller`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`id-caller`),
+				eventName: TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_ADD_CALLER_DETAILS),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`add-caller`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`add-caller`, null);
+		}
 	}
 
 	// #endregion ADD CALLER DETAILS
@@ -812,19 +827,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadSearchClient(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`search-client`),
-			parentSpan: this.currentActiveSpans.get(`id-caller`),
-			eventName: TelemetryEvent.SCR_UNLD_SEARCH_CLIENT,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_SEARCH_CLIENT),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-	
-			baggage: [{ "screen": baggage.screen }]
-		});
+		const spanId = this.currentActiveSpans.get(`search-client`);
 
-		this.currentActiveSpans.set(`search-client`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`id-caller`),
+				eventName: TelemetryEvent.SCR_UNLD_SEARCH_CLIENT,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_SEARCH_CLIENT),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`search-client`, null);
+		}
 	}
 	
 	// #endregion SEARCH CALLER
@@ -987,17 +1006,21 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadStopCard() {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`stop-card`),
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SCR_UNLD_STOP_CARD,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_STOP_CARD),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
+		const spanId = this.currentActiveSpans.get(`stop-card`);
 
-		this.currentActiveSpans.set(`stop-card`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+				eventName: TelemetryEvent.SCR_UNLD_STOP_CARD,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_STOP_CARD),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+
+			this.currentActiveSpans.set(`stop-card`, null);
+		}
 	}
 
 
@@ -1289,19 +1312,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	 screenUnloadProofOfAccount(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`proof-of-account`),
-			parentSpan: null,
-			eventName: TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`proof-of-account`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`proof-of-account`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`proof-of-account`, null);
+		}
 	}
 
 	// #endregion PROOF OF ACCOUNT
@@ -1570,19 +1597,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	screenUnloadVerifyCaller(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`ita`),
-			parentSpan: this.currentActiveSpans.get(`verify-caller`),
-			eventName: TelemetryEvent.SCR_UNLD_VERIFY_CALLER,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_VERIFY_CALLER),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`ita`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`verify-caller`),
+				eventName: TelemetryEvent.SCR_UNLD_VERIFY_CALLER,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_VERIFY_CALLER),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`ita`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`ita`, null);
+		}
 	}
 
 	// #endregion VERIFY CALLER
@@ -1694,19 +1725,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	 screenUnloadEndCall(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`end-call`),
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.SCR_UNLD_END_CALL,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_END_CALL),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`end-call`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`horizon.call`),
+				eventName: TelemetryEvent.SCR_UNLD_END_CALL,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_END_CALL),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`end-call`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`end-call`, null);
+		}
 	}
 
 	/**
@@ -1994,19 +2029,23 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	 screenUnloadSecurityQuestions(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`xds`),
-			parentSpan: null,
-			eventName: TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`xds`);
 
-			baggage: [{ "screen": baggage.screen }]
-		});
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_SECURITY_QUESTIONS),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`xds`, null);
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`xds`, null);
+		}
 	}
 
 	// #endregion SECURITY QUESTIONS
@@ -2413,17 +2452,21 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	 screenUnloadNeedFulfilled() {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`fulfill-need`),
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.SCR_UNLD_NEED_FULFILLED,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_NEED_FULFILLED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-		});
+		const spanId = this.currentActiveSpans.get(`fulfill-need`);
 
-		this.currentActiveSpans.set(`fulfill-need`, null);
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`horizon.call`),
+				eventName: TelemetryEvent.SCR_UNLD_NEED_FULFILLED,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_NEED_FULFILLED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
+			});
+
+			this.currentActiveSpans.set(`fulfill-need`, null);
+		}
 	}
 	// #endregion FULFILL NEED
 
@@ -2705,22 +2748,26 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 	 screenUnloadStatements(baggage) {
-		super.spanEnd({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`statements`),
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.SCR_UNLD_STATEMENTS,
-			tags: this._extractTags(TelemetryEvent.SCR_UNLD_STATEMENTS),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+		const spanId = this.currentActiveSpans.get(`statements`);
 
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "nextScreen": baggage.nextScreen }
-			]
-		});
+			if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: this.currentActiveSpans.get(`horizon.call`),
+				eventName: TelemetryEvent.SCR_UNLD_STATEMENTS,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_STATEMENTS),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 
-		this.currentActiveSpans.set(`statements`, null);
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "nextScreen": baggage.nextScreen }
+				]
+			});
+
+			this.currentActiveSpans.set(`statements`, null);
+		}
 	}
 
 	// #endregion STATEMENTS

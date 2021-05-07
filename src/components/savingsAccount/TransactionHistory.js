@@ -37,7 +37,7 @@ const NINETY_DAYS = 7777000000;
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+    START_DATE: new Date("January 01, 2000").toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -84,6 +84,9 @@ export class TransactionHistory extends Component {
         this.rawTableData = [];
         this.searchTextLabel = `Search for amount or transaction name`;
         this.statuslabel = `Transaction status`;
+
+        this.startTransactionDate = null; /*new Date("January 01, 2000");*/
+        this.endTransactionDate = null; /*new Date();*/
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
@@ -221,6 +224,44 @@ export class TransactionHistory extends Component {
 
 
         RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+        this.startTransactionDate = this.startDate;
+        this.endTransactionDate = this.endDate;
+        this._loadFilteredTransactions();
+        this.requestUpdate();
+
+    }
+
+    async _populateTransactions() {
+        const transactionHistoryRequest = {
+            cifNumber: this.callerInformation.cifNumber,
+            accountNumber: this.accountDetails.accountNumber,
+            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+            startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
+            endDate: this.endTransactionDate.toLocaleString().slice(0, 10),
+            startAtIndex: 0,
+            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+        };
+
+        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+        if (returnValue.succeeded && returnValue.result) {
+            return returnValue.result.transactions;
+        }
+    }
+
+    async _loadFilteredTransactions() {
+
+        // debugger
+        const loadMoreData = await this._populateTransactions();
+        // debugger
+        if (loadMoreData.length > 0) {
+            this.rawTableData = loadMoreData;
+            this.transactionHistory = this._initialize(loadMoreData);
+        }
+        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+            this.showLoadMore = false;
+        }
+        this.filteredData = this.transactionHistory;
         this._refineSearch();
     }
 
@@ -276,7 +317,6 @@ export class TransactionHistory extends Component {
 
             return item;
         });
-
         return tableData.filter(item => item.transactionStatus !== ``);
     }
 
@@ -289,22 +329,25 @@ export class TransactionHistory extends Component {
 
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
+        this.showLoadMore = true;
         this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
         this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction status` : ``;
         if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
+            this.startTransactionDate = new Date("January 01, 2000");
+            this.endTransactionDate = new Date();
 
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
                 calendar._placeholderEndDate = null;
                 calendar._placeholderStartDate = null;
             }
+			this._loadFilteredTransactions();
         }
     }
 
     async _loadMoreTransactions() {
-
         const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
         if (loadMoreData.length > 0) {
             this.rawTableData = [...this.rawTableData, ...loadMoreData];
@@ -319,19 +362,20 @@ export class TransactionHistory extends Component {
     }
 
     async getMoreTransactions() {
+		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
+		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+
         const transactionHistoryRequest = {
             cifNumber: this.callerInformation.cifNumber,
             accountNumber: this.accountDetails.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-            startDate: TRANSACTION_HISTORY.START_DATE,
-            endDate: TRANSACTION_HISTORY.END_DATE,
+            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
             startAtIndex: this.rawTableData.length,
             maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
         };
-
         const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
         if (returnValue.succeeded && returnValue.result) {
             return returnValue.result.transactions;
         }
@@ -361,7 +405,7 @@ export class TransactionHistory extends Component {
             const startDate = new Date(Date.parse(this.startDate));
             const endDate = new Date(Date.parse(this.endDate));
 
-            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
         }
 
         if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -679,9 +723,7 @@ export class TransactionHistory extends Component {
 	                outputType="string"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
-                </capitec-date-time-picker>
-
-            
+                </capitec-date-time-picker>           
             <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
