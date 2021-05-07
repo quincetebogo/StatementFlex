@@ -278,11 +278,11 @@ export class StatementsDialog extends Component {
 	_choosePeriod(range) {
 
 		this.periodSelected = TIME_PERIOD[range].value;
-		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
+		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label}`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
 		this._customDateRange = false;
-		this.errorMessage = ``;	
+		this.errorMessage = ``;
 
 		// Telemetry 
 		HorizonTelemetry.instance.selectNextOnPeriod({
@@ -882,7 +882,7 @@ export class StatementsDialog extends Component {
 					class="product-transact"
 					type="default"
 					label="Savings Account"
-					subtitle="Available balance R${this._getAvailableBal(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
+					subtitle="Available balance ${this._getAvailableBal(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
 					detail=""
 					icon="product/transact"
 					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.PRIMARY_SAVINGS.type)}"
@@ -900,7 +900,7 @@ export class StatementsDialog extends Component {
 					class="product-save"
 					type="default"
 					label="Savings Plans"
-					subtitle="Total saved R${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
+					subtitle="Total saved ${this._getAvailableBal(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
 					detail=""
 					icon="product/save"
 					@click="${(e) => this._selectAccount(ACCOUNTS_ENUM.FLEXIBLE_SAVINGS.type)}"
@@ -927,8 +927,8 @@ export class StatementsDialog extends Component {
 							type="radio-button"
 							label="${item.accountName}"
 							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
-										? `Balance R${formatCurrency(item.currentBalance)}` 
-										: `Available balance R${formatCurrency(item.availableBalance)}`}"
+										? `Balance ${formatCurrency(item.currentBalance)}` 
+										: `Available balance ${formatCurrency(item.availableBalance)}`}"
 							detail=""
 							icon="product/transact"
 							@click="${(e) => this._selectPlan(item)}"
