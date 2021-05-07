@@ -12,9 +12,6 @@ export class TapToPayLanding extends Component {
 	constructor() {
 		super();
 
-		this.primaryCards = [];
-		this.supplementaryCards = [];
-
 		this.showTapToPayAgreement = false;
 	}
 
@@ -36,12 +33,16 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
 	}
 
-	// -------------
+	// ---------------
 	// PRIVATE METHODS
-	// -------------
+	// ---------------
+
+	_updateCards() {
+		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
+		this.cards[index].isContactlessActivated = this.selectedCard.isContactlessActivated;
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -52,24 +53,23 @@ export class TapToPayLanding extends Component {
 	}
 
 	_toggleTapToPayAgreement(event) {
-		this.cardID = event.currentTarget.card.cardId;
-		this.selectedCard = this.cards.find(card => card.cardId === this.cardID);
+		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 
+		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
 	}
 
 	_cancel() {
-		const index = this.cards.findIndex(card => card.cardId === this.cardID);
-		this.cards[index].isContactlessActivated = !this.selectedCard.isContactlessActivated;
-
+		this.selectedCard.isContactlessActivated = !this.selectedCard.isContactlessActivated;
+		
+		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
 	}
 
 	// ---------
 	// RENDERING
 	// ---------
-
 	
 	static get styles() {
 		return [
@@ -175,9 +175,9 @@ export class TapToPayLanding extends Component {
 
 	_webTemplate() {
 		return html`
-				${this._renderContainer()}
-				${this._renderTapToPayAgreement()}
-			`;
+			${this._renderContainer()}
+			${this._renderTapToPayAgreement()}
+		`;
 	}
 
 	_renderContainer() {
@@ -202,42 +202,61 @@ export class TapToPayLanding extends Component {
 
 	_renderTapToPayBody() {
 		return html`
-			<capitec-alert-banner class="alert-banner" type="info" label="Notify Client:">
-				<p class="alert-banner-paragraph">After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.</p>
+			<capitec-alert-banner
+				class="alert-banner"
+				type="info"
+				label="Notify Client:">
+					<p class="alert-banner-paragraph">
+						After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.
+					</p>
 			</capitec-alert-banner>
 
 			${this._renderPrimaryCards()}
-
 			${this._renderSupplementaryCards()}
 		`;
 	}
 
 	_renderPrimaryCards() {
-		return html`
-			<capitec-label class="primary-card-label" type="title" label="Primary cards"></capitec-label>
+		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && !card.isContactlessCard);
 
-			<capitec-group class="primary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
-				${this._renderPrimaryCardArt()}
+		return html`
+			<capitec-label
+				class="primary-card-label"
+				type="title"
+				label="Primary cards">
+			</capitec-label>
+
+			<capitec-group
+				class="primary-cards"
+				valign="top"
+				halign="left"
+				gap="clear"
+				layout="horizontal"
+				grow="horizontal">
+					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
 	}
 
-	_renderPrimaryCardArt() {
-		const primaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
-		return primaryCards.map((card, index) => html`
-		<horizon-card-art
-			id="primaryCard-widget-${index}"
-			.card="${card}"
-			.disableHover="${true}"
-			context="tap-to-pay"
-			@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
-		></horizon-card-art>
-		`);
+	_renderPrimaryCardArt(card, index) {
+		return html`
+			<horizon-card-art
+				id="primaryCard-widget-${index}"
+				.card="${card}"
+				.disableHover="${true}"
+				context="tap-to-pay"
+				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+			</horizon-card-art>
+		`;
 	}
 
 	_renderSupplementaryCards() {
 		return html`
-			<capitec-label class="supplementary-card-label" type="title" label="Supplementary cards"></capitec-label>
+			<capitec-label
+				class="supplementary-card-label"
+				type="title"
+				label="Supplementary cards">
+			</capitec-label>
 
 			<capitec-group class="supplementary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
 				${this._renderSupplementaryCardsArt()}
@@ -246,24 +265,25 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderSupplementaryCardsArt() {
-		const supplementaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
+		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && !card.isContactlessCard);
+		
 		return supplementaryCards.map((card, index) => html`
-		<horizon-card-art
-			id="supplementaryCard-widget-${index}"
-			.card="${card}"
-			.disableHover="${true}"
-			context="tap-to-pay"
-			@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
-		></horizon-card-art>
+			<horizon-card-art
+				id="supplementaryCard-widget-${index}"
+				.card="${card}"
+				.disableHover="${true}"
+				context="tap-to-pay"
+				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+			</horizon-card-art>
 		`);
 	}
 
 	_renderTapToPayAgreement() {
 		return this.showTapToPayAgreement
-			? html`<horizon-tap-to-pay-agreement
-						@cancel="${() => this._cancel()}">
-					</horizon-tap-to-pay-agreement>`
-
+			? html`
+				<horizon-tap-to-pay-agreement
+					@cancel="${() => this._cancel()}">
+				</horizon-tap-to-pay-agreement>`
 			: html``;
 	}
 }

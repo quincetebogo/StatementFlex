@@ -33,7 +33,10 @@ export class CardArt extends Component {
 		this.cardArtSVG = ``;
 		this.isFocused = false;
 		this.selectedItem = ``;
+		this._toggleStatus = false;
+
 		this._initialise();
+		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
 		this.addEventListener(`mouseleave`, this._mouseLeaveCardArt.bind(this));
 	}
@@ -56,7 +59,9 @@ export class CardArt extends Component {
 			disableHover: { type: Boolean },
 			cardArtSVG: { type: String },
 			context: { type: String },
-			selectedItem: { type: String }
+			selectedItem: { type: String },
+
+			_toggleStatus: { attribute: false }
 		};
 	}
 
@@ -71,6 +76,7 @@ export class CardArt extends Component {
 		const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
 		this.type = this.cardArtComponents[this.card.cardArt].type;
 		this.cardArtSVG = frameCardArt(this.card);
+		this._toggleStatus = this.card.isContactlessActivated;
 	}
 
 	// --------------
@@ -155,19 +161,19 @@ export class CardArt extends Component {
 	}
 
 	_toggleChecked(event) {
-		console.log(`Tap to pay Clicked`);
+		this._toggleStatus = event.detail.new;
 
 		this.dispatchEvent(new CustomEvent(`toggle-agreement`, { 
 			detail: {
-                old: event.detail.old,
-                new: event.detail.new,
-                currentTarget: event.currentTarget
-            }
+				old: event.detail.old,
+				new: event.detail.new,
+				currentTarget: event.currentTarget
+			}
 		 }));
 
 		event.stopPropagation();
-
 	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -326,69 +332,75 @@ export class CardArt extends Component {
 
 	_renderCheckBox() {
 		if (this.context === `stop-card`) {
-		return html`<capitec-check label=""></capitec-check>`;
+			return html`<capitec-check label=""></capitec-check>`;
 		}
 	}
 
 	_renderCardArt() {
 		return html`
-				<capitec-content-box class="${this.type}-card-img-cb">
-					${this.cardArtSVG}
-				</capitec-content-box>
+			<capitec-content-box class="${this.type}-card-img-cb">
+				${this.cardArtSVG}
+			</capitec-content-box>
 		`;
 	}
 
 	_renderCardInfo() {
 		return html`
-				<capitec-group layout="vertical" gap="clear" halign="left" valign="top">
-					<capitec-label label="${this.card.cardDisplayName}"
-								   type="default">
-					</capitec-label>
-					<capitec-label label="${this.card.maskedCardNumber}"
-								   type="strong">
-					</capitec-label>
-				</capitec-group>
-				
-				<capitec-spacer></capitec-spacer>
-				
-				<capitec-group layout="vertical"
-							   gap="clear"
-							   halign="right"
-							   valign="top"
-							   class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
+			<capitec-group layout="vertical" gap="clear" halign="left" valign="top">
+				<capitec-label label="${this.card.cardDisplayName}"
+								type="default">
+				</capitec-label>
+				<capitec-label label="${this.card.maskedCardNumber}"
+								type="strong">
+				</capitec-label>
+			</capitec-group>
+			
+			<capitec-spacer></capitec-spacer>
+			
+			<capitec-group layout="vertical"
+							gap="clear"
+							halign="right"
+							valign="top"
+							class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
 
-							   ${this._renderLabelOrToggle()}
-				</capitec-group>
+							${this._renderLabelOrToggle()}
+			</capitec-group>
 		`;
 	}
 
 	_renderLabelOrToggle() {
 		if (this.context === `tap-to-pay`) {
 			return html`
-				
-				<capitec-group layout="vertical"
-								gap="clear"
-								halign="right"
-								valign="top"
-								class="toggle-group">
-					<capitec-label class="toggle-label ${this.card.isContactlessActivated ? `On` : `Off`}" 
-									label=${this.card.isContactlessActivated ? `On` : `Off`}
-									type="default"></capitec-label>
-					<capitec-toggle
-							class="${this.card.isContactlessActivated ? `On` : `Off`}"
-							 label="" 
+				<capitec-group
+					layout="vertical"
+					gap="clear"
+					halign="right"
+					valign="top"
+					class="toggle-group">
+						<capitec-label
+							class="toggle-label ${this._toggleStatus ? `On` : `Off`}"
+							label=${this._toggleStatus ? `On` : `Off`}
+							type="default">
+						</capitec-label>
+						
+						<capitec-toggle
+							class="${this._toggleStatus ? `On` : `Off`}"
+							label=""
 							@value-changed=${(event) => this._toggleChecked(event)}
-							?checked="${this.card.isContactlessActivated}"></capitec-toggle>
+							?checked="${this._toggleStatus}">
+						</capitec-toggle>
 				</capitec-group>`;
 		}
-			return html`
-				<capitec-label label="Tap to Pay"
-									type="default">
-				</capitec-label>
-				<capitec-label label="${this.card.isContactlessActivated ? `On` : `Off`}"
-								   type="strong">
-				</capitec-label>`;
+		return html`
+			<capitec-label
+				label="Tap to Pay"
+				type="default">
+			</capitec-label>
+			<capitec-label
+				label="${this.card.isContactlessActivated ? `On` : `Off`}"
+				type="strong">
+			</capitec-label>`;
 	}
 }
 
-customElements.define(`horizon-card-art`, CardArt);
+window.customElements.define(`horizon-card-art`, CardArt);
