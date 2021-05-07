@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
@@ -37,7 +37,7 @@ const NINETY_DAYS = 7777000000;
 const TRANSACTION_HISTORY = {
     ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
     END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(Date.now() - NINETY_DAYS).toISOString().substr(0, 10),
+    START_DATE: new Date(`January 01, 2000`).toISOString().substr(0, 10),
     MAX_RESULTS: 50,
     MONEY_TYPE: `BOTH`
 };
@@ -84,6 +84,9 @@ export class TransactionHistory extends Component {
         this.rawTableData = [];
         this.searchTextLabel = `Search for amount or transaction name`;
         this.statuslabel = `Transaction status`;
+
+        this.startTransactionDate = null; /* new Date("January 01, 2000"); */
+        this.endTransactionDate = null; /* new Date(); */
 
         this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
@@ -166,10 +169,10 @@ export class TransactionHistory extends Component {
         last90day.setDate(today.getDate() - 90);
 
         return [
-            { text: "Last 7 days", value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 30 days", value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 60 days", value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
-            { text: "Last 90 days", value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
+            { text: `Last 7 days`, value: { startDate: last7day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 30 days`, value: { startDate: last30day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 60 days`, value: { startDate: last60day.toISOString(), endDate: today.toISOString() } },
+            { text: `Last 90 days`, value: { startDate: last90day.toISOString(), endDate: today.toISOString() } }
         ];
     }
 
@@ -221,6 +224,44 @@ export class TransactionHistory extends Component {
 
 
         RENDER_CHIPS[FILTER_BY.DATE] = this._getDateRange();
+        this.startTransactionDate = this.startDate;
+        this.endTransactionDate = this.endDate;
+        this._loadFilteredTransactions();
+        this.requestUpdate();
+
+    }
+
+    async _populateTransactions() {
+        const transactionHistoryRequest = {
+            cifNumber: this.callerInformation.cifNumber,
+            accountNumber: this.accountDetails.accountNumber,
+            accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
+            startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
+            endDate: this.endTransactionDate.toLocaleString().slice(0, 10),
+            startAtIndex: 0,
+            maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
+            moneyType: TRANSACTION_HISTORY.MONEY_TYPE
+        };
+
+        const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
+        if (returnValue.succeeded && returnValue.result) {
+            return returnValue.result.transactions;
+        }
+    }
+
+    async _loadFilteredTransactions() {
+
+        // debugger
+        const loadMoreData = await this._populateTransactions();
+        // debugger
+        if (loadMoreData.length > 0) {
+            this.rawTableData = loadMoreData;
+            this.transactionHistory = this._initialize(loadMoreData);
+        }
+        if (!loadMoreData.length > 0 && this.transactionHistory.length > 0) {
+            this.showLoadMore = false;
+        }
+        this.filteredData = this.transactionHistory;
         this._refineSearch();
     }
 
@@ -271,40 +312,35 @@ export class TransactionHistory extends Component {
 
             item.tranDate = date;
             item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-            item.formatedAmount = this._formatAmount(item.amount);
-            item.formatedBalance = this._formatAmount(item.balance);
+            item.formatedAmount = formatCurrency(item.amount);
+            item.formatedBalance = formatCurrency(item.balance);
 
             return item;
         });
-
         return tableData.filter(item => item.transactionStatus !== ``);
-    }
-
-    // To format the raw amount as per the design
-    _formatAmount(amount) {
-        const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-        return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
-
     }
 
     // To set the values to default on closing the chip or clearing all the filters
     _reset() {
+        this.showLoadMore = true;
         this.searchTextLabel = RENDER_CHIPS[FILTER_BY.TEXT] === `` ? `Search for amount or transaction name` : ``;
         this.statuslabel = RENDER_CHIPS[FILTER_BY.STATUS] === `` ? `Transaction status` : ``;
         if (isNullorEmpty(RENDER_CHIPS[FILTER_BY.DATE])) {
             this.startDate = ``;
             this.endDate = ``;
+            this.startTransactionDate = new Date(`January 01, 2000`);
+            this.endTransactionDate = new Date();
 
             const calendar = this.shadowRoot.querySelector(`#calendarRange`);
             if (calendar) {
                 calendar._placeholderEndDate = null;
                 calendar._placeholderStartDate = null;
             }
+			this._loadFilteredTransactions();
         }
     }
 
     async _loadMoreTransactions() {
-
         const loadMoreData = this.transactionHistory.length > 0 ? await this.getMoreTransactions() : [];
         if (loadMoreData.length > 0) {
             this.rawTableData = [...this.rawTableData, ...loadMoreData];
@@ -319,19 +355,20 @@ export class TransactionHistory extends Component {
     }
 
     async getMoreTransactions() {
+		const startDate = this.startTransactionDate && this.startTransactionDate.toLocaleString().slice(0, 10);
+		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
+
         const transactionHistoryRequest = {
             cifNumber: this.callerInformation.cifNumber,
             accountNumber: this.accountDetails.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
-            startDate: TRANSACTION_HISTORY.START_DATE,
-            endDate: TRANSACTION_HISTORY.END_DATE,
+            startDate: startDate || TRANSACTION_HISTORY.START_DATE,
+            endDate: endDate || TRANSACTION_HISTORY.END_DATE,
             startAtIndex: this.rawTableData.length,
             maxResults: TRANSACTION_HISTORY.MAX_RESULTS,
             moneyType: TRANSACTION_HISTORY.MONEY_TYPE
         };
-
         const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
-
         if (returnValue.succeeded && returnValue.result) {
             return returnValue.result.transactions;
         }
@@ -344,14 +381,16 @@ export class TransactionHistory extends Component {
             const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
             const searchTextResult = searchText.map(key => {
-                if (key !== ``) {
-                    if (key.startsWith('-')) {
-                        return this.filteredData.filter(item => parseFloat(item.amount) == parseFloat(key));
-                    } else {                        
-                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseFloat(item.amount) === parseFloat(key) || ((parseFloat(item.amount) * -1) === parseFloat(key)));
+				if (key !== ``) {
+					if (key.startsWith(`-`)) {
+					   return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
+					} else {
+						return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || 
+																parseFloat(item.amount).toFixed(2).startsWith(key) || 
+																((parseFloat(item.amount) * -1).toFixed(2).startsWith(key) ));
                     }
-                   
-                }
+
+			   }
                 return [];
             });            
             this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
@@ -361,7 +400,7 @@ export class TransactionHistory extends Component {
             const startDate = new Date(Date.parse(this.startDate));
             const endDate = new Date(Date.parse(this.endDate));
 
-            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate);
+            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
         }
 
         if (RENDER_CHIPS[FILTER_BY.STATUS]) {
@@ -555,6 +594,7 @@ export class TransactionHistory extends Component {
 				.scroll-top {
 					--theme-icon-size-medium: 26px;
     				padding-top: 12px;
+					cursor: pointer;
 				}
                 capitec-date-time-picker{
 					--theme-modal-header-color: #3A3A3A;
@@ -632,15 +672,15 @@ export class TransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${this._formatAmount(this.accountDetails.balance)}">
+					value="${formatCurrency(this.accountDetails.balance)}">
 				</horizon-label>
 				<horizon-label
 					label="Available balance"
-					value="${this._formatAmount(this.accountDetails.availableBalance)}">
+					value="${formatCurrency(this.accountDetails.availableBalance)}">
 				</horizon-label>
 				<horizon-label
 					label="Pending amount"
-					value="${this._formatAmount(this.accountDetails.pendingAmount)}">
+					value="${formatCurrency(this.accountDetails.pendingAmount)}">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
@@ -679,9 +719,7 @@ export class TransactionHistory extends Component {
 	                outputType="string"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
                     @apply-clicked="${(e) => this._dateChanged(e)}">                  
-                </capitec-date-time-picker>
-
-            
+                </capitec-date-time-picker>           
             <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"

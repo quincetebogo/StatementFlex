@@ -281,10 +281,11 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderTransactSection() {
+		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
 				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: visible;" ?hidden="${false}"></capitec-title-bar>
 				<capitec-button-bar  style="visibility: visible;" ?hidden="${false}">
-					<horizon-option-button badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
+					<horizon-option-button badgeText="${pendingMandates}"
 						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
@@ -304,13 +305,13 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;"
+	                    style="visibility: hidden;"
 						>
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;"
+	                    style="visibility: hidden;"
 						>
 					</horizon-option-button>
 				</capitec-button-bar>
@@ -328,7 +329,7 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: hidden;">
+						style="display: none;">
 					</horizon-option-button>
 					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
