@@ -40,7 +40,6 @@ export class StopCardFailure extends View {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.cardsToStop = [];
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 
@@ -146,17 +145,17 @@ export class StopCardFailure extends View {
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
+			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
 
 			this.failedCards = cardStopResults.filter(cards => !cards.cardStopped);
-
 			// Toggling back to Network Error summary
 			this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
+			this._updateStoppedCards(cardStopResults);
 	
-			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
 			if (isAllSuccess) {
 				// The stop card incident can be closed if all cards were stopped successfully.
 				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
-				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCards: this.cardsToStop, stoppedCardsFailed: false });
+				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCardsFailed: false });
 				this.horizonRouter.navigateToStoppedCards();
 			}
 		}
@@ -193,6 +192,23 @@ export class StopCardFailure extends View {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
+	/**
+	 * Updating the stopped cards list with the tried again cards status
+	 * @param {*} attemptedCards Failed cards which are attempted to stop using try again
+	 * @returns {void}
+	 * 
+	 */
+	_updateStoppedCards(attemptedCards) {
+		attemptedCards.forEach(card => {
+			const index = this.stoppedCards.findIndex(stoppedCard => stoppedCard.cardNumber === card.cardNumber);
+
+			this.stoppedCards[index].cardStopped = card.cardStopped;
+			this.stoppedCards[index].statusCode = card.statusCode;
+		});
+
+		this.horizonStore.saveState({ stoppedCards: this.stoppedCards });
 	}
 
 	// ---------
