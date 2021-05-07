@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -189,17 +190,29 @@ export class StatementsDialog extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadStatements({
+			screen: TelemetryScreen.STATEMENTS
+		});
 	}
+
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_cancel() {
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_next() {
+
 		const selectAccount = () => this._validateAccountSelection();
 		const selectPeriod = () => this._validatePeriodSelection();
 		const emailClient = () => this._validateEmailAddress();
@@ -213,14 +226,35 @@ export class StatementsDialog extends Component {
 		if (result && this.errorMessage === ``) {
 			this.currentStep++;
 		}
+
+	}
+	
+	_close() {
+		this.renderMode = RENDER_MODE.EMAIL;
+		HorizonTelemetry.instance.selectBack({
+			screen: TelemetryScreen.STATEMENTS
+		});
 	}
 
 	_back() {
+
+		// Telemetry
+		HorizonTelemetry.instance.selectBack({
+			screen: TelemetryScreen.STATEMENTS
+		});
+
 		this.errorMessage = ``;
 		this.currentStep--;
 	}
 
 	_selectAccount(type) {
+
+		// Telemetry 
+		HorizonTelemetry.instance.selectAccountType({
+			screen: TelemetryScreen.STATEMENTS,
+			accountType: type
+		});
+
 		this.accType = type;
 		this.accPlanNumber = ``;
 		this.errorMessage = ``;
@@ -228,27 +262,45 @@ export class StatementsDialog extends Component {
 	};
 
 	_selectPlan(plan) {
+
+		// Telemetry
+		HorizonTelemetry.instance.selectAccount({
+			screen: TelemetryScreen.STATEMENTS,
+			accountId: plan.accountNumber
+		});
+
+		this.accPlanType = plan.accountName;
 		this.accPlanNumber = plan.accountNumber;
 		this.notifyMessage = plan.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT ? NOTIFICATION_MESSAGE.NO_FEE : NOTIFICATION_MESSAGE.FEE; 
 		this.errorMessage = ``;
 	}
 
 	_choosePeriod(range) {
+
 		this.periodSelected = TIME_PERIOD[range].value;
 		this._summary.dateRangeLabel = `${TIME_PERIOD[range].label} (${TIME_PERIOD[range].range} days)`;
 		this._summary.detail = `Last ${TIME_PERIOD[range].range} days`;
 
 		this._customDateRange = false;
-		this.errorMessage = ``;
+		this.errorMessage = ``;	
+
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnPeriod({
+			period: this.periodSelected,
+			startDate: null,
+			endDate: null
+		});
 	}
 
 	_customDateRangeSelected() {
+	
 		this.showCalendar = true;
 		this.periodSelected = ``;
 		this.calendarErrorMessage = ``;
 		this.fromDate = `dd mm yyyy`;
 		this.toDate = `dd mm yyyy`;
 		this._customDateRange = !this._customDateRange;
+	
 	}
 
 	_showCalendar() {
@@ -309,6 +361,8 @@ export class StatementsDialog extends Component {
 	}
 
 	async _viewPDF() {
+
+		HorizonTelemetry.instance.selectViewDocuments({});
 		const statement = {
 			"cifNumber": this.callerInformation.cifNumber,
 			"accountNumber": `${this.productSelected.accountNumber}`,
@@ -338,6 +392,7 @@ export class StatementsDialog extends Component {
 	}
 
 	async _sendStatement() {
+
 		if (!this._validateEmailAddress()) {
 			this.mailClientError.email = `Please enter email`;
 			this.mailClientError.confirmEmai = `Please enter email`;
@@ -376,8 +431,15 @@ export class StatementsDialog extends Component {
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
+
+			// Telemetry
+			HorizonTelemetry.instance.sendStatement({
+				screen: TelemetryScreen.STATEMENTS,
+				nextScreen: TelemetryScreen.STATEMENTS_OUTCOME
+			});
+
 		} else {
-			this.horizonRouter.navigateToStatementUnsuccessful();
+				this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
@@ -405,6 +467,11 @@ export class StatementsDialog extends Component {
 	}
 
 	_validateAccountSelection() {
+
+		
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnAccount({});
+
 		if (isNullorEmpty(this.accType)) {
 			this.errorMessage = `Choose Account`;
 			return false;
@@ -417,6 +484,7 @@ export class StatementsDialog extends Component {
 	}
 
 	_validatePeriodSelection() {
+	
 		if (this.periodSelected === `` && !this._customDateRange) {
 			this.errorMessage = `Choose Period`;
 			this.calendarErrorMessage = `Required`;
@@ -428,6 +496,13 @@ export class StatementsDialog extends Component {
 		} 
 
 		this._getSummary();
+
+		// Telemetry 
+		HorizonTelemetry.instance.selectNextOnPeriod({
+			period: this.periodSelected,
+			startDate: this.fromDate,
+			endDate: this.toDate
+		});
 
 		return true;
 	}
@@ -1073,7 +1148,7 @@ export class StatementsDialog extends Component {
 					<capitec-button
 						type="primary"
 						label="Close"
-						@click="${() => this.renderMode = RENDER_MODE.EMAIL}"
+						@click="${() => this._close()}"
 						?hidden="${this.renderMode !== RENDER_MODE.PDF}">
 					</capitec-button>
 			</capitec-content-box>
