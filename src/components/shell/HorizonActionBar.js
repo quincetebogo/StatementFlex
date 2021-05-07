@@ -216,7 +216,7 @@ export class HorizonActionBar extends Component {
 					</capitec-button>
 					<capitec-button type="clear"
 									label="Add caller details"
-									?hidden="${this.isHidden}"
+									?hidden="${false}"
 									@click="${() => this._addCallerDetails()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
