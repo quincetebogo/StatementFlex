@@ -65,87 +65,91 @@ export class HorizonIncidentManager {
 
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
-		View.prototype._inicidentManager_ = async (clientNeed, toggleBusyFlag) => {
-
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-
-			/**
-			 * Checkpoint 1:
-			 * When we reload the same need. i.e., example: assume opening proof of account modal,
-			 * cancelling it and re-opening the modal
-			 * 
-			 * New case: possible to open search other needs more than once.
-			 */
-			if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== HORIZON_NEED_STATUS.CLOSED) {
-				// Do nothing
-				return true;
-			}
-
-			/**
-			 * Checkpoint 2:
-			 * When need is In-Progress and toggling between needs should not create new incident
-			 * Example: Landing on favourites screen, choosing proof of account instead of statments
-			 * In such case, we update the state with correct need
-			 */
-			if (clientNeed !== incidentDetails.currentNeed && 
-				(incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS ||
-				 incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED)) {
-					
-					incidentDetails.currentNeed = clientNeed;
-					incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
-					this.horizonStore.setIncidentDetails(incidentDetails);
-					return true;
-			}
-
-			/**
-			 * Checkpoint 3:
-			 * 
-			 * When need is fullfilled and switching to other need should close current incident and create new subsequent incident
-			 * Example: Landing on favourites screen, choosing proof of account and emailed client.
-			 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
-			 * 
-			 * Checkpoint 4:
-			 * 
-			 * When current is assigned or handed off, such particular incident will not be closed
-			 * And if the client has a subsequent need, should continue by creating new incident
-			 * 
-			 */
-			if (clientNeed !== incidentDetails.currentNeed &&
-				(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
-				 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
-				 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
-
-					this.incidentRecID = incidentDetails.incidentRecId;
-					this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-					this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
-
-					await this._classifyIncident(clientNeed);
-					return true;
-			}
-
-			/**
-			 * Checkpoint 5:
-			 * 
-			 * Special case for Search-other-need: Launch Strack will classify the other need and return to Horizon
-			 * gets the status of other needs, same will be updated to STrack. We just have to create new incident if 
-			 * client have subsequent needs
-			 * 
-			 */
-			if (incidentDetails.needStatus === HORIZON_NEED_STATUS.CLOSED) {
-
-				this.incidentRecID = incidentDetails.incidentRecId;
-				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-				this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
-
-				await this._createSubsequentIncident(clientNeed);
-				return true;
-			}
-		};
+		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		
+		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
+
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		/**
+		 * Checkpoint 1:
+		 * When we reload the same need. i.e., example: assume opening proof of account modal,
+		 * cancelling it and re-opening the modal
+		 * 
+		 * New case: possible to open search other needs more than once.
+		 */
+		if (clientNeed === incidentDetails.currentNeed && incidentDetails.needStatus !== HORIZON_NEED_STATUS.CLOSED) {
+			// Do nothing
+			return true;
+		}
+
+		/**
+		 * Checkpoint 2:
+		 * When need is In-Progress and toggling between needs should not create new incident
+		 * Example: Landing on favourites screen, choosing proof of account instead of statments
+		 * In such case, we update the state with correct need
+		 */
+		if (clientNeed !== incidentDetails.currentNeed && 
+			(incidentDetails.needStatus === HORIZON_NEED_STATUS.INPROGRESS ||
+			 incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED)) {
+				
+				incidentDetails.currentNeed = clientNeed;
+				incidentDetails.needStatus = HORIZON_NEED_STATUS.INPROGRESS;
+				this.horizonStore.setIncidentDetails(incidentDetails);
+				return true;
+		}
+
+		/**
+		 * Checkpoint 3:
+		 * 
+		 * When need is fullfilled and switching to other need should close current incident and create new subsequent incident
+		 * Example: Landing on favourites screen, choosing proof of account and emailed client.
+		 * Then selecting transaction hisotry to enquire a transaction, which is subsequent need
+		 * 
+		 * Checkpoint 4:
+		 * 
+		 * When current is assigned or handed off, such particular incident will not be closed
+		 * And if the client has a subsequent need, should continue by creating new incident
+		 * 
+		 */
+		if (clientNeed !== incidentDetails.currentNeed &&
+			(incidentDetails.needStatus === HORIZON_NEED_STATUS.COMPLETED ||
+			 incidentDetails.needStatus === HORIZON_NEED_STATUS.ASSIGNED ||
+			 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
+
+				this.incidentRecID = incidentDetails.incidentRecId;
+				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
+				this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+
+				await this._classifyIncident(clientNeed);
+				return true;
+		}
+
+		/**
+		 * Checkpoint 5:
+		 * 
+		 * Special case for Search-other-need: Launch Strack will classify the other need and return to Horizon
+		 * gets the status of other needs, same will be updated to STrack. We just have to create new incident if 
+		 * client have subsequent needs
+		 * 
+		 */
+		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.CLOSED) {
+
+			this.incidentRecID = incidentDetails.incidentRecId;
+			this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
+			this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+
+			await this._createSubsequentIncident(clientNeed);
+			return true;
+		}
+	}
 
 	async _getNeedActions() {
 		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
@@ -166,7 +170,7 @@ export class HorizonIncidentManager {
 		const returnValue = await this.incidentService.classifyIncident(request);
 
 		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyIncident`, returnValue.correlationId);
 		}
 		await this._closePrimaryIncident(clientNeed, incidentDetails.needStatus);
 	}

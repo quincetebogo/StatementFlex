@@ -6,13 +6,15 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/RelatedOptions';
+import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
 
 const RENDER_MODE = {
 	CARD_STOP_SUCCESS: 0,
 	END_CALLSESSION: 1,
-	VERIFY_NOW: 2
+	VERIFY_NOW: 2,
+	ALERT_MODAL: 3
 };
 
 /**
@@ -134,6 +136,8 @@ export class StopCardSuccess extends View {
 		this.callerInformation = event.detail.callerInformation;
         this._updateLeftBar();
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
+
+		this.eventAggregator.publish(`horizon-navigate-related-option`, { option: this._option });
 	}
 
 	_updateLeftBar() {
@@ -169,14 +173,19 @@ export class StopCardSuccess extends View {
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
+	_relatedOptionSelected(event) {
+		this.renderMode = RENDER_MODE.ALERT_MODAL;
+		this._option = event.detail.option;
+	}
+
 	async _returnToStopCardClick() {
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
 			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incomingCallDetails.incidentReferenceNumber,
-			incidentRecId: this.incomingCallDetails.incidentRecId,
+			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
+			incidentRecId: this.incidentDetails.incidentRecId,
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
 			nonClientFullName: this.callerInformation.nonClientFullName,
 			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
@@ -252,7 +261,7 @@ export class StopCardSuccess extends View {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: 24px;
-				};
+				}
 
 				.card-stopped {
 				    margin: 52px 0px 16px;
@@ -314,6 +323,7 @@ export class StopCardSuccess extends View {
 				#id-button-group {
 					justify-content: center;
 					margin-top: 24px;
+					margin-bottom: auto;
 				}
 			`
 ];
@@ -334,10 +344,10 @@ export class StopCardSuccess extends View {
 				<p class="stop-card-text">Please visit a branch to get a new card.</p>
 				${this._renderButtons()}
 				${this._renderRelatedOptions()}
-				${this._renderOptionsButtons()} 
 				${this._renderVerifyNowModal()}
 				${this._renderEndCallModal()}
 				${this._renderLoadingIndicator()}
+				${this._renderAlertModal()}
 			</capitec-group>
 		</capitec-card>`;
 	}
@@ -390,7 +400,7 @@ export class StopCardSuccess extends View {
 			 <div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
 				<p class="card-status-text">
-					${card.cardDisplayName.split(`_`).map(w=> w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
+					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
 		`;
@@ -399,19 +409,10 @@ export class StopCardSuccess extends View {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				context = "Success">
+				context = "Success"
+				@verify-now-alert="${(event) => this._relatedOptionSelected(event)}">
+			
 			</horizon-related-options>
-		`;
-	}
-
-	_renderOptionsButtons() {
-		return html`
-			<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-				<horizon-option-button class="button-margin" label="Remote Banking Channels" img-src="/images/access.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Card Skimming Case" img-src="/images/cards.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="ATM Withdrawal Dispute" img-src="/images/atm.svg"></horizon-option-button>
-				<horizon-option-button class="button-margin" label="Find A Branch" img-src="/images/atm.svg"></horizon-option-button>
-			</capitec-group>
 		`;
 	}
 
@@ -464,6 +465,16 @@ export class StopCardSuccess extends View {
 	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
+	_renderAlertModal() {
+		return this.renderMode === RENDER_MODE.ALERT_MODAL
+			? html`
+				<horizon-client-not-verified
+					@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
+					@verify-now="${() => this._verifyClick()}">
+				</horizon-client-not-verified>`
 			: html``;
 	}
 }

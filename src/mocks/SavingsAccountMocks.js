@@ -7,9 +7,10 @@
 
 export const savingsAccountDetails = {
 		"accountNumber": '1928247288',
-		"accountBalance": 20916.00, 
-		"accountAvailableBalance": 20567.00, 
-		"accountPendingAmount": 349.00, 
+		"accountBalance": 20916.1, 
+		"accountAvailableBalance": 20567.23, 
+		"accountPendingAmount": 349, 
 		"interestRatePercentage": '5.5%',
-		"accountStatus": 'Active'
+		"accountStatus": 'Active',
+		"pendingMandateCount": 2
 }

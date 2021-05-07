@@ -341,9 +341,9 @@ export class DesktopAgentService {
 
 	_setValidationData() {
 		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{6,14}`; // E164 telephone number format (minimum of 7 digits, maximum of 15)
-		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; // Avaya specific. Needs to be revised when adding more incoming channels.
-		DesktopAgentService.agentTelephoneNumberValidation = `^[1-9][0-9]{3,5}`; // Dialplan as configured on Avaya
-		DesktopAgentService.vdnValidation = `^[1-9][0-9]{5}`; // Dialplan as configured on Avaya
+		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; 
+		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; // 
+		DesktopAgentService.vdnValidation = `^[0-9]*`; 
 		DesktopAgentService.incidentReferenceNumberValidation = `^[0-9]{1,10}`; // STrack reference numbers
 		DesktopAgentService.incidentRecIdValidation = `^[a-fA-F0-9]{8}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{4}-?[a-fA-F0-9]{12}$`; // STrack rec id
 		DesktopAgentService.ivrOptionCodeValidation = `^[0-9]*`;
