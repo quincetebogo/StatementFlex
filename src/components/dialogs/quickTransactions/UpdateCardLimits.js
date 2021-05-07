@@ -193,7 +193,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getHint(value) {
-		return `Max limit - R${formatCurrency(value)}`;
+		return `Max limit - ${formatCurrency(value)}`;
 	}
 
 	_getErrorsCount() {
@@ -218,13 +218,13 @@ export class UpdateCardLimits extends Component {
 		} 
 		return html`
 			<div>
-				Maximum limit for cash withdrawl is <strong>R${formatCurrency(this.maxValue)}</strong>
+				Maximum limit for cash withdrawl is <strong>${formatCurrency(this.maxValue)}</strong>
 			</div>
 		`;
 	}
 
 	_getFieldError(value) {
-		return !value ? `` : `Max limit - R${formatCurrency(value)}`;
+		return !value ? `` : `Max limit - ${formatCurrency(value)}`;
 	}
 
 	// ---------
