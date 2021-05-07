@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
-import { getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { getMonthName, isNullorEmpty, formatCurrency } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
@@ -312,19 +312,12 @@ export class TransactionHistory extends Component {
 
             item.tranDate = date;
             item.groupByItem = `${getMonthName(date.getMonth())} ${date.getFullYear()}`;
-            item.formatedAmount = this._formatAmount(item.amount);
-            item.formatedBalance = this._formatAmount(item.balance);
+            item.formatedAmount = formatCurrency(item.amount);
+            item.formatedBalance = formatCurrency(item.balance);
 
             return item;
         });
         return tableData.filter(item => item.transactionStatus !== ``);
-    }
-
-    // To format the raw amount as per the design
-    _formatAmount(amount) {
-        const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-        return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
-
     }
 
     // To set the values to default on closing the chip or clearing all the filters
@@ -388,14 +381,16 @@ export class TransactionHistory extends Component {
             const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
             const searchTextResult = searchText.map(key => {
-                if (key !== ``) {
-                    if (key.startsWith('-')) {
-                        return this.filteredData.filter(item => parseFloat(item.amount) == parseFloat(key));
-                    } else {                        
-                        return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || parseFloat(item.amount) === parseFloat(key) || ((parseFloat(item.amount) * -1) === parseFloat(key)));
+				if (key !== ``) {
+					if (key.startsWith('-')) {
+					   return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key) );
+					} else {
+						return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || 
+																parseFloat(item.amount).toFixed(2).startsWith(key) || 
+																((parseFloat(item.amount) * -1).toFixed(2).startsWith(key) ));
                     }
-                   
-                }
+
+			   }
                 return [];
             });            
             this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
@@ -599,6 +594,7 @@ export class TransactionHistory extends Component {
 				.scroll-top {
 					--theme-icon-size-medium: 26px;
     				padding-top: 12px;
+					cursor: pointer;
 				}
                 capitec-date-time-picker{
 					--theme-modal-header-color: #3A3A3A;
@@ -676,15 +672,15 @@ export class TransactionHistory extends Component {
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${this._formatAmount(this.accountDetails.balance)}">
+					value="${formatCurrency(this.accountDetails.balance)}">
 				</horizon-label>
 				<horizon-label
 					label="Available balance"
-					value="${this._formatAmount(this.accountDetails.availableBalance)}">
+					value="${formatCurrency(this.accountDetails.availableBalance)}">
 				</horizon-label>
 				<horizon-label
 					label="Pending amount"
-					value="${this._formatAmount(this.accountDetails.pendingAmount)}">
+					value="${formatCurrency(this.accountDetails.pendingAmount)}">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
