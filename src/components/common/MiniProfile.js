@@ -133,10 +133,16 @@ export class MiniProfile extends Component {
 				capitec-label[type="title"] {
 					margin-top: 9px;
 					line-height: 24px;
-
 					--theme-text-select: text;
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
+				}
+				.client-name {
+					display: inline-block;
+					width: 225px; 
+					white-space: nowrap; 
+					overflow: hidden;
+					text-overflow: ellipsis; 
 				}
 				.info-rowGroup {
 					height: 20px;
@@ -242,7 +248,7 @@ export class MiniProfile extends Component {
 				halign="left"
 				valign="top"
 				gap="clear">
-					<capitec-label
+					<capitec-label class="client-name"
 						label="${this.miniProfile.name}"
 						type="title">
 					</capitec-label>
