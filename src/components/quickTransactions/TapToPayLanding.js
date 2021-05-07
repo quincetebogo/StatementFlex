@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 
 import 'app/components/common/CardArt';
+import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
 export class TapToPayLanding extends Component {
 
@@ -13,6 +14,8 @@ export class TapToPayLanding extends Component {
 
 		this.primaryCards = [];
 		this.supplementaryCards = [];
+
+		this.showTapToPayAgreement = false;
 	}
 
 	// ---------------
@@ -21,7 +24,9 @@ export class TapToPayLanding extends Component {
 
 	static get properties() {
 		return {
-			cards: { type: Array }
+			cards: { type: Array },
+
+			showTapToPayAgreement: { attribute: false }
 		};
 	}
 
@@ -31,9 +36,6 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard !== true && card.isContactlessCard === false);
-		this.primaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
 		
 	}
 
@@ -41,14 +43,28 @@ export class TapToPayLanding extends Component {
 	// PRIVATE METHODS
 	// -------------
 
-	_back() {
-		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
-
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	_toggleTapToPayAgreement(event) {
+		this.cardID = event.currentTarget.card.cardId;
+		this.selectedCard = this.cards.find(card => card.cardId === this.cardID);
+		this.selectedCard.isContactlessActivated = event.detail.new;
+
+		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+	}
+
+	_cancel() {
+		const index = this.cards.findIndex(card => card.cardId === this.cardID);
+		this.cards[index].isContactlessActivated = !this.selectedCard.isContactlessActivated;
+
+		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+	}
 
 	// ---------
 	// RENDERING
@@ -160,6 +176,7 @@ export class TapToPayLanding extends Component {
 	_webTemplate() {
 		return html`
 				${this._renderContainer()}
+				${this._renderTapToPayAgreement()}
 			`;
 	}
 
@@ -206,12 +223,14 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderPrimaryCardArt() {
-		return this.primaryCards.map((card, index) => html`
+		const primaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
+		return primaryCards.map((card, index) => html`
 		<horizon-card-art
 			id="primaryCard-widget-${index}"
 			.card="${card}"
 			.disableHover="${true}"
 			context="tap-to-pay"
+			@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
 		></horizon-card-art>
 		`);
 	}
@@ -227,14 +246,26 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderSupplementaryCardsArt() {
-		return this.primaryCards.map((card, index) => html`
+		const supplementaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
+		return supplementaryCards.map((card, index) => html`
 		<horizon-card-art
 			id="supplementaryCard-widget-${index}"
 			.card="${card}"
 			.disableHover="${true}"
 			context="tap-to-pay"
+			@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
 		></horizon-card-art>
 		`);
 	}
+
+	_renderTapToPayAgreement() {
+		return this.showTapToPayAgreement
+			? html`<horizon-tap-to-pay-agreement
+						@cancel="${() => this._cancel()}">
+					</horizon-tap-to-pay-agreement>`
+
+			: html``;
+	}
 }
+
 window.customElements.define(`horizon-tap-to-pay-landing`, TapToPayLanding);

@@ -155,15 +155,15 @@ export class CardArt extends Component {
 	}
 
 	_toggleChecked(event) {
-		this.selectedItem = event.detail.new;
+		console.log(`Tap to pay Clicked`);
 
-		this.card.isContactlessActivated = this.selectedItem;
-		if (this.selectedItem) {
-			// Navigate to tap to pay aggreement 
-			console.log(`Tap to pay activated`);
-		} else {
-			console.log(`Tap to pay deactivated`);
-		}
+		this.dispatchEvent(new CustomEvent(`toggle-agreement`, { 
+			detail: {
+                old: event.detail.old,
+                new: event.detail.new,
+                currentTarget: event.currentTarget
+            }
+		 }));
 
 		event.stopPropagation();
 
