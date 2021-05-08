@@ -1,8 +1,10 @@
-import { View, css, html } from 'platform/elements';
-
+import { css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/SuccessScreen';
 
-export class TapToPaySuccess extends View {
+export class TapToPaySuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -13,6 +15,9 @@ export class TapToPaySuccess extends View {
 
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
+		this.tapToPayStatus = ``;
+		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -37,17 +42,27 @@ export class TapToPaySuccess extends View {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate to Fvourites screen
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		// TODO : Functionality to tap to pay
+		this.horizonRouter.navigateToTapToPayLanding();
 	}
 
 	_tapToPayStatus() {
 
 	}
 
+	_navigateToScreen(screenName) {
+		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
+		const tapToPayLP = () => this.horizonRouter.navigateToTapToPayLanding();
+
+		const landingScreens = {
+			'Favourites': transactLP,
+			'TapToPay': tapToPayLP
+		};
+		landingScreens[screenName]();
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
