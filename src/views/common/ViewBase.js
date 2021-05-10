@@ -185,7 +185,7 @@ export class ViewBase extends View {
 	async _addCallerDetailsConfirmed(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
-		debugger
+
 		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
 			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
@@ -195,7 +195,7 @@ export class ViewBase extends View {
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-			debugger
+
 			if (returnValue.succeeded) {
 				this._navigateToLandingPage();
 			} else {

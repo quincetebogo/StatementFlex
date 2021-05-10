@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from '../../store/HorizonStore';
 import { AccessChannelService } from 'app/services/AccessChannelService';
+import { HorizonStore } from '../../store/HorizonStore';
 import 'platform/components';
 import '../dialogs/AccessChannelError';
 
@@ -70,17 +70,17 @@ export class AccessMenuBar extends Component {
 	// ---------------
 
 	_accessChannelErrorHandler(ex) {
-		//TODO: Handle channel service error
+		// TODO: Handle channel service error
 	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
-	async _accessChannelService(){
+	async _accessChannelService() {
 		const returnValue = await this.accessChannelService.accessChannelStatus(this.cifNumber);
 		
-		if(returnValue.succeeded) {
+		if (returnValue.succeeded) {
 			this.status = returnValue.result;
 		}
 	}

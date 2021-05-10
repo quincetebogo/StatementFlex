@@ -76,7 +76,7 @@ const RENDER_MODE = {
 			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				referenceNo: this.incidentDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});

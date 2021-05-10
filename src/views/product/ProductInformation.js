@@ -79,7 +79,7 @@ export class ProductInformation extends View {
 		return {
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
-			showAddCallerDetails: { attribute: false}
+			showAddCallerDetails: { attribute: false }
 		};
 	}
 
@@ -98,7 +98,7 @@ export class ProductInformation extends View {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				referenceNo: this.incidentDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
@@ -240,7 +240,6 @@ export class ProductInformation extends View {
 	async _addCallerDetailsConfirmed(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
-		debugger
 		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
 			const nonClientDetails = {
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
@@ -250,7 +249,6 @@ export class ProductInformation extends View {
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-			debugger
 			if (returnValue.succeeded) {
 				this._navigateToLandingPage();
 			} else {
