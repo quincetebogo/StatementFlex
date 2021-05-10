@@ -46,6 +46,11 @@ export class AccessMenuBar extends Component {
 		this.confirmedCaller = state.confirmedCaller;
 		this.callerInformation = state.callerInformation;
 		this.cifNumber = this.callerInformation.cifNumber;
+		this.status = {
+			appAndInternetActive: false,
+			ussdActive: false,
+			notificationType: `unknown`
+		};
 
 		this._accessChannelService();
 
