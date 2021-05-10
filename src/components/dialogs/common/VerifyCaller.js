@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
+import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
@@ -76,6 +76,7 @@ export class VerifyCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
@@ -153,7 +154,6 @@ export class VerifyCaller extends Component {
 		this.isForeignClient = !hasSouthAfricanID;
 
 		if (this.callerInformation.hasDigitalChannels) {
-			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 			this._initiateItaVerification();
 		} else if (hasSouthAfricanID) {
 			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
@@ -261,7 +261,6 @@ export class VerifyCaller extends Component {
 		this.callerInformation = event.detail.callerInformation;
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 		this._initiateItaVerification();
 	}
 
@@ -363,9 +362,12 @@ export class VerifyCaller extends Component {
 	}
 
 	async _initiateItaVerification() {
-
-		await this._initialiseSignalR();
-		this._itaServiceCall();
+		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
+		if (signalRUrl && signalRUrl !== ``) {
+			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+			await this._initialiseSignalR();
+			this._itaServiceCall();
+		}
 	}
 
 	async _initialiseSignalR() {
@@ -442,7 +444,7 @@ export class VerifyCaller extends Component {
 
 	_stopSignalRConnection() {
 		if (this.horizonSignalRClient) {
-			this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_stopSignalRConnection`);
+			this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
 			this.horizonSignalRClient.deRegisterHandler();
 			this.horizonSignalRClient.stopConnection();
 			this.horizonSignalRClient = null;
