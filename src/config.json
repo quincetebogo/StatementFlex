@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "https://horizoncs-ita-v1.platform-dev.int.capinet",
+	"signalRUrl": "",
 	"bancsUser": {
 		"branchCode": "2000",
 		"tellerNumber": "22312"
@@ -52,7 +52,7 @@
 		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
 	},
 	"mock": {
-		"enabled": false,
+		"enabled": true,
 		"acceptCall": {
 			"enabled": true,
 			"positiveCase": true
@@ -71,7 +71,7 @@
 		},
 		"xdsQuestions": {
 			"enabled": true,
-			"substituteIdOnly": "",
+			"substituteIdOnly": "6712075142087",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
