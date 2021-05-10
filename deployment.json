@@ -1,0 +1,6 @@
+{
+	"feature": "BSC-Horizon",
+	"subsystem": "Horizon-UI",
+	"organization": "horizon-ui",
+	"tempDeploymentFolder": "C:/WebDeployment/"
+}

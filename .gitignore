@@ -1,0 +1,6 @@
+dist
+jsconfig.json
+/src/types.d.ts
+ocwp
+**.log
+.vs

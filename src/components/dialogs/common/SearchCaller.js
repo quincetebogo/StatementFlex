@@ -1,0 +1,789 @@
+import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { CallHandleService } from 'app/services/CallHandleService';
+import { CallerDetails } from 'app/models/CallerDetails';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+
+import 'app/components/common/HorizonSelect';
+import 'app/components/common/CallerDialog';
+import 'app/components/dialogs/common/EndCallSession';
+
+
+const RENDER_MODE = Object.freeze({
+	SEARCH_CALLER: 0,
+	END_CALL: 1
+});
+
+const CLIENT_TYPE = Object.freeze({
+	CAPITEC_CLIENT: 0,
+	NON_CLIENT: 1
+});
+
+// ToDO: Below const need to be removed, once channelService fix the issue on contract.
+// These error messages has to come from service
+const ERROR_MESSAGES = {
+	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
+	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
+	REQUIRED_FIELDS_EMPTY: `All fields are required`,
+	NOT_FOUND: {
+		0: {
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
+		},
+		1: {
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
+		},
+		2: {
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
+		},
+		3: {
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
+		},
+		4: {
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
+		}
+	}
+};
+
+const NONCLIENT_REGEX_PATTERN = {
+	CHARACTER_ERROR: `Invalid Special Character(s)`,
+	ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
+	nameValue: {
+        PATTERN: /^[A-Za-z\s-]+$/,
+		FIELD_ERROR: `Enter a name`,
+		ALERT_BANNER: `Name and surname must be completed`
+	},
+	surNameValue: {
+        PATTERN: /^[A-Za-z\s-]+$/,
+		FIELD_ERROR: `Enter a surname`,
+		ALERT_BANNER: `Name and surname must be completed`
+	},
+	cellPhoneNumberValue: [
+		{
+			PATTERN: /^[0-9]{10}$/,
+			FIELD_ERROR: `Must be 10 digits`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		},
+		{
+			PATTERN: /^0[0-9].*$/,
+			FIELD_ERROR: `Incorrect cellphone number`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		}
+	]
+};
+
+const REGEX_PATTERNS = {
+	0: {
+        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		FIELD_ERROR: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
+	},
+	1: {
+		PATTERN: /^/,
+		FIELD_ERROR: ``
+	},
+	2: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
+	},
+	3: {
+		PATTERN: /^[0-9]{8}$/,
+		FIELD_ERROR: `Reference number must be 8 characters long`,
+		ALERT_BANNER: `Incorrect Reference number`
+	},
+	4: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: `Enter a 10 digit cellphone number`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
+	}
+};
+
+const HEADER_LABEL = `Search Caller Details`;
+
+/**
+ * Search Dialog for all needs except Stop Card. Stop Card has a specialized search dialog.
+ * 
+ * Events Raised 
+ * -------------
+ * non-client-captured
+ * client-identified
+ * stop-card-need-selected
+ *
+ * @export
+ * @class SearchCaller
+ * @extends {Component}
+ */
+export class SearchCaller extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
+
+	constructor() {
+		super();
+
+		RegExp();
+
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		this.isBusy = false;
+		this.clientType = -1;
+		this.errMessage = {
+			searchType: ``,
+			searchValue: ``,
+			nameValue: ``,
+			surNameValue: ``,
+			cellPhoneNumberValue: ``
+		};
+
+		this.alertBannerMessage = ``;
+
+		this.headerLabel = HEADER_LABEL;
+
+		this.searchType = { "key": ``, "value": `` };
+		this.searchValue = ``;
+		this.nameValue = ``;
+		this.surNameValue = ``;
+		this.cellPhoneNumberValue = ``;
+
+		this.logger = Logger.getInstance();
+
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+	}
+
+	// ----------
+	// PROPERTIES
+	// ----------
+
+	/**
+	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
+	 * @property {object} incidentDetails Incident details
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof SearchCaller
+	 */
+	static get properties() {
+		return {
+			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
+
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			clientType: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false }
+		};
+	}
+
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+		this._loadSearchOptions();
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadSearchClient({
+			screen: TelemetryScreen.SEARCH_CLIENT
+		}); 
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+			
+		// Telemetry
+			HorizonTelemetry.instance.screenUnloadSearchClient({
+				screen: TelemetryScreen.SEARCH_CLIENT
+			}); 
+	}
+
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
+	_clientTypeChanged(e) {
+		if (e.detail.new) {
+			this.clientType = e.target.id === `capitecClient` ? CLIENT_TYPE.CAPITEC_CLIENT : CLIENT_TYPE.NON_CLIENT;
+		}
+		this.headerLabel = this.clientType === CLIENT_TYPE.CAPITEC_CLIENT ? `Search Caller Details` : `Add Caller Details`;
+		this._clearErrors(e);
+	}
+
+	_valueChanged(e) {
+		this[e.currentTarget.id] = e.detail.new;
+		this._clearErrors(e);
+	}
+
+	_onKeyPress(e) {
+		this._clearErrors(e);
+	}
+
+	async _onSearchClient() {
+
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
+
+		if (this._validateFields()) {
+			const searchClient = {
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+				incidentNo: this.incidentDetails.incidentReferenceNumber,
+				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+				ivrOption: this.incomingCallDetails.ivrOption.value,
+				identificationMethod: this.searchType.key,
+				searchValue: this.searchValue
+			};
+
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const identifiedClient = returnValue.result;
+
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+				this._raiseOnClientIdentified(identifiedClient);
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
+				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+				this.alertBannerMessage = errMessages.ALERT_BANNER;
+				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+			} else if (this.incomingCallDetails.incidentReferenceNumber === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
+					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				}
+		}
+	}
+
+	_needChanged(e) {
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
+		this.incomingCallDetails.ivrOption.value = e.detail.new;
+
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		// Stop Card has it's own specialized search dialog. We raise this 
+		// event to give the caller the change to switch to that dialog.
+		// Switching to the dialog is not handled in this component.
+		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
+			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails,
+					incidentDetails: this.incidentDetails
+				}
+			}));
+		}
+	}
+
+	async _onContinue() {
+
+		// Telemetry 
+
+		HorizonTelemetry.instance.selectSearchCapitecClient({
+			screen: TelemetryScreen.SEARCH_CLIENT,
+			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		});
+
+		if (this._validateNonClientFields()) {
+			const callerDetails = new CallerDetails();
+
+			callerDetails.idNumber = ``;
+			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
+			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
+			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
+			callerDetails.nonClientIDNumber = ``;
+			callerDetails.nonClientRelationship = ``;
+
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.nameValue,
+				surname: this.surNameValue,
+				cellPhone: this.cellPhoneNumberValue
+            };
+
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+					detail: {
+						incomingCallDetails: this.incomingCallDetails,
+						incidentDetails: this.incidentDetails,
+						nonClient: {
+							firstName: this.nameValue,
+							surname: this.surNameValue,
+							cellphone: this.cellPhoneNumberValue
+						}
+					}
+				}));
+			} else if (this.incomingCallDetails.incidentRecId === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+				} 
+		}
+	}
+
+	_onEndCall() {
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	async _loadSearchOptions() {
+		const clientInfo = {
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
+			"incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
+			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
+		};
+
+		const returnValue = await this.callHandleService.searchOptions(clientInfo);
+		const options = returnValue.result;
+
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
+
+	extractIdentificationMethods(identificationMethods) {
+
+		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
+
+			Object.assign(identificationMethod, identificationMethod.value);
+			delete identificationMethod.value;
+			return identificationMethod;
+		});
+		return identificationMethods;
+	}
+
+	_validateNonClientFields() {
+		// Trimming/ removing empty spaces around non client details
+		this.nameValue = this.nameValue.trim();
+		this.surNameValue = this.surNameValue.trim();
+
+		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
+
+		if (this.nameValue || this.surNameValue) {
+
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue)) {
+				this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.nameValue = ``;
+			};
+
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) {
+				this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.surNameValue = ``;
+			}
+
+			if (!isNullorEmpty(this.errMessage.nameValue) || !isNullorEmpty(this.errMessage.surNameValue)) {
+				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
+				return false;
+			}
+		}
+
+		if (this.cellPhoneNumberValue) {
+			// Handled value length and should start with 0
+			for (const item of NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue) {
+				if (!RegExp(item.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
+					this.errMessage.cellPhoneNumberValue = item.FIELD_ERROR;
+					this.alertBannerMessage = item.ALERT_BANNER;
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	_validateFields() {
+
+		const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
+
+		const regexValidation = REGEX_PATTERNS[this.searchType.key];
+		const REGEX_PATTERN = regexValidation.PATTERN;
+
+		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchValue)) {
+			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
+			this.alertBannerMessage = regexValidation.ALERT_BANNER;
+			return false;
+		}
+
+		return true;
+	}
+
+	_isRequiredNonClientFieldsEmpty() {
+		this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : ``;
+		this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : ``;
+
+		return this.errMessage.nameValue || this.errMessage.surNameValue;
+	}
+
+	_isRequiredFieldsEmpty() {
+		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? `This is a required field` : ``;
+		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? `Choose an Identification Method` : ``;
+
+		return this.errMessage.searchValue || this.errMessage.searchType;
+	}
+
+	_clearErrors(e) {
+		this.errMessage[e.currentTarget.id] = ``;
+		this.errMessage.nameValue = ``;
+		this.errMessage.surNameValue = ``;
+		this.alertBannerMessage = ``;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_handleAddNonClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
+		return true;
+	}
+
+	_handleSearchClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
+		return true;
+	}
+
+	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value
+		};
+
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: { 
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller,
+				incidentDetails: this.incidentDetails
+			}
+		}));
+	};
+
+	// ---------
+	// RENDERING
+	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+
+				div[slot="body"]{
+					width: 690px;
+				}
+
+				capitec-content-box{
+					--theme-container-padding-top: 24px;
+					--theme-container-padding-bottom: 0px;
+					height: 484px;
+				}
+				.client-type-label{
+					height: 24px;
+					width: 91px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					margin: 0px 0px 31px 0px;
+				}
+				capitec-radio-group{
+					height: 24px;
+					width: 398px;
+				}
+				capitec-radio{
+					height:24px;
+					width: 199px;
+				}
+				.search-label{
+					height: 24px;
+					width: 175px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
+					font-size: 18px;
+					font-weight: 600;
+					letter-spacing: 0;
+					line-height: 24px;
+					margin-top: 31px;
+					margin-bottom: 18px;
+				}
+				.reset-margin-bottom{
+					margin-bottom : 0px;
+				}
+				.id-options{
+					text-align: justify;
+					line-height: 12px;
+				}
+				.search-field-row{
+					height: 72px;
+					margin-top: 8px;
+				}
+				.nonClient-fields-group{
+					margin-top: 20px;
+				}
+				div[slot="footer"] > capitec-group{
+					height: 48px;
+				}
+				div[slot="footer"] > capitec-group > capitec-button{
+					margin: 0px;
+				}
+				capitec-alert-banner{
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+
+					margin: 0px 0px 16px 0px;
+					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
+					color: var(--theme-alert-banner-unsuccessful-red-font-color, #C83C37);
+				}
+				#id-label-enter-details {
+					margin: 0px 0px 16px 0px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+				}`
+		];
+	}
+
+	_webTemplate() {
+		switch (this.renderMode) {
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`
+					<horizon-caller-dialog
+						.incomingCallDetails="${this.incomingCallDetails}"
+						.incidentDetails="${this.incidentDetails}"
+						.isNeedSelectable=${true}
+						.headerLabel="${this.headerLabel}"
+						@on-end-call="${() => this._onEndCall()}"
+						@on-need-changed="${(event) => this._needChanged(event)}">
+						<div slot="body">
+							<capitec-content-box>
+								${this._renderAlertBanner()}
+								${this._renderClientType()}
+								${this._renderCapitecClientFields()}
+								${this._renderNonClientFields()}
+							</capitec-content-box>
+							${this._renderLoadingIndicator()}
+						</div>
+						<div slot="footer">
+							${this._renderFooter()}
+						</div>
+					</horizon-caller-dialog>`;
+			case RENDER_MODE.END_CALL:
+				return html`${this._renderEndCallModal()}`;
+			default:
+		}
+	}
+
+	_renderLoadingIndicator() {
+		if (!this.isBusy) {
+			return html``;
+		}
+
+		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+	}
+
+	_renderClientType() {
+		return html`
+			<capitec-label 
+				class="client-type-label" 
+				label="Client Type">
+			</capitec-label>
+			<capitec-radio-group>
+				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
+					<capitec-radio 
+						id="capitecClient" 
+						label="Capitec Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}"
+						row="1" column="1">
+					</capitec-radio>
+					<capitec-radio 
+						id="nonCient" 
+						label="Non Client" 
+						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
+						column="2">
+					</capitec-radio>
+				</capitec-group>
+			</capitec-radio-group>`;
+	}
+
+	_renderCapitecClientFields() {
+		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
+			return html`
+					<capitec-label 
+						class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
+						label="Search existing client"
+						tabindex="-1">
+					</capitec-label>
+					<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
+						<div class="search-field-row">
+							<capitec-select 
+								id="searchType" 
+								error="${this.errMessage.searchType}"
+								label="Choose identification method"
+								class="id-options" 
+								.items="${this.identificationMethods !== undefined ? this.identificationMethods.possibleValues : [{ displayText: `ID Number` }]}"
+								id-field="key" 
+								display-field="displayText"
+								@value-changed="${(e) => this._valueChanged(e)}"
+								tabindex=3>
+							</capitec-select>
+						</div>
+						<div class="search-field-row">
+							<capitec-text-field 
+								id="searchValue" 
+								type="search" 
+								keyboardMode="numeric" 
+								label="Search" 
+								focussed
+								value="${this.searchValue}" 
+								@value-changed="${(e) => this._valueChanged(e)}"
+								@key-input="${(e) => this._onKeyPress(e)}" 
+								error="${this.errMessage.searchValue}"
+								tabindex="4">
+							</capitec-text-field>
+						</div>
+					</capitec-group>`;
+		}
+		return html``;
+	}
+
+	_renderNonClientFields() {
+		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
+			return html`
+				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
+					<capitec-label
+						id="id-label-enter-details"
+						type="title"
+						label="Enter details below:">
+					</capitec-label>
+					<div class="search-field-row">
+						<capitec-text-field
+							id="nameValue"
+							label="Name"
+							hint="Required Field"
+							.value="${this.nameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.nameValue}">
+						</capitec-text-field>
+					</div>
+					<div class="search-field-row">
+						<capitec-text-field
+							id="surNameValue"
+							label="Surname"
+							hint="Required Field"
+							.value="${this.surNameValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.surNameValue}">
+						</capitec-text-field>
+					</div>
+					<div class="search-field-row">
+						<capitec-text-field
+							id="cellPhoneNumberValue"
+							label="Cellphone number (optional)"
+							type="numeric"
+							.value="${this.cellPhoneNumberValue}"
+							@value-changed="${(e) => this._valueChanged(e)}"
+							@key-input="${(e) => this._onKeyPress(e)}"
+							error="${this.errMessage.cellPhoneNumberValue}">
+						</capitec-text-field>
+					</div>
+				</capitec-group>`;
+		}
+		return html``;
+	}
+
+	_renderAlertBanner() {
+
+		if (!isNullorEmpty(this.alertBannerMessage)) {
+			return html`
+				<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>
+			`;
+		}
+		return html``;
+	}
+
+	_renderFooter() {
+		return html`
+			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+				<capitec-button
+					type="primary"
+					@click="${(e) => this._onSearchClient(e)}"
+					label="Search Client"
+					?hidden=${this.clientType !== CLIENT_TYPE.CAPITEC_CLIENT}
+					tabindex="5">
+				</capitec-button>
+				<capitec-button
+					type="primary"
+					@click="${(e) => this._onContinue(e)}"
+					label="Continue"
+					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
+					tabindex="6">
+				</capitec-button>
+			</capitec-group>`;
+	}
+
+	_renderEndCallModal() {
+		return html`
+			<horizon-end-call-session 
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				endCallContext="ConfirmClient"
+				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
+			</horizon-end-call-session>`;
+	}
+}
+
+window.customElements.define(`horizon-search-caller`, SearchCaller);
