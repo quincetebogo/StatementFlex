@@ -361,7 +361,7 @@ export class EndCallSession extends Component {
 
 			// Log any error
 			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `An error occured while trying to close the incident ${this.incomingCallDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
+				this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
 			}
 
 			// Return the the call waiting landing page even if an error occured

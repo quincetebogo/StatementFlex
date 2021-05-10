@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -8,6 +9,8 @@ import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/AddCallerDetails';
+
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
@@ -21,7 +24,8 @@ const RENDER_MODE = {
 	END_CALLSESSION: 3,
 	ASSIGN: 4,
 	ASSIGN_REASON_SELECTED: 5,
-	VERIFY_NOW: 6
+	VERIFY_NOW: 6,
+	ADD_CALLER_DETAILS: 7
 };
 
 const TABLE_STYLE = {
@@ -77,11 +81,13 @@ export class StopCard extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
+		this.showAddCallerDetails = false;
 
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -108,7 +114,8 @@ export class StopCard extends Component {
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			cardsToStop: { type: Array }
+			cardsToStop: { type: Array },
+			showAddCallerDetails: { type: Boolean }
 		};
 	}
 
@@ -144,7 +151,7 @@ export class StopCard extends Component {
 
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-
+		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._onAddCallerDetailsClick());
 		this._updateLeftBar();
 		
 		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
@@ -154,9 +161,64 @@ export class StopCard extends Component {
 		this.verifySub.dispose();
 		this.assignSub.dispose();
 		this.endCallSub.dispose();
+		this.addCallerDetailsSub.dispose();
 
 		super.disconnectedCallback();
 	}
+
+	_onAddCallerDetailsClick() {
+		this.showAddCallerDetails = !this.showAddCallerDetails;
+		this._addCallerDetailsClick();
+	}
+
+	async _addCallerDetailsClick() {
+		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+
+		const callDetails = {
+			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOption: this.incomingCallDetails.ivrOption.value,
+			incidentNo: this.incidentDetails.incidentReferenceNumber,
+			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
+		};
+
+		const returnValue = await this.cardService.addCallerDetails(callDetails);
+		if (returnValue.succeeded) {
+			this.addCallerDetails = returnValue.result;
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}
+	}
+
+	_addCallerDetailsCancelled(event) {
+		this.confirmedCaller = {};
+		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
+	async _addCallerDetailsConfirmed(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			if (returnValue.succeeded) {
+				this._navigateToLandingPage();
+			} else {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+		}
+	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -304,7 +366,7 @@ export class StopCard extends Component {
 		this.cards.map((card, index) => {
 			card.rowIndex = index;
 			card.selected = false;
-			card.cardType = card.supplementaryCard ? 'Supplementary Cards' : '';
+			card.cardType = card.supplementaryCard ? `Supplementary Cards` : ``;
 			card.cardStopReason = STOPREASONS[LOST];
 			return card;
 		});
@@ -477,6 +539,7 @@ export class StopCard extends Component {
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
 			${this._renderVerifyNowModal()}
+			${this._renderAddCallerDetailsModal()}
 		`;
 	}
 
@@ -676,6 +739,29 @@ export class StopCard extends Component {
 				</horizon-verify-caller>`;
 		}
 		return html``;
+	}
+
+	_renderAddCallerDetails() {
+		return html`
+		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+			<capitec-hyperlink label="Add Caller Details" 
+				@click="${() => this._addCallerDetailsClick()}">
+			</capitec-hyperlink>
+			if the caller is calling on another client's behalf
+		</capitec-alert-banner>`;
+	}
+
+	_renderAddCallerDetailsModal() {
+		return this.showAddCallerDetails && this.renderMode === RENDER_MODE.ADD_CALLER_DETAILS ? html`
+			<horizon-add-caller-details
+				.confirmedCaller="${this.confirmedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.addCallerDialog="${this.addCallerDetails}"
+				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
+				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
+			</horizon-add-caller-details>`
+		: html``;
 	}
 }
 

@@ -344,13 +344,11 @@ export class HorizonRouter {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
 
-				/* TEMPORARY LOCK TO MARKETING BAR
 				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
 					break;
 				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
 				case `3rdparty`:
-				*/
 				default:
 					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;

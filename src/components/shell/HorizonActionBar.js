@@ -56,7 +56,6 @@ export class HorizonActionBar extends Component {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
@@ -64,6 +63,7 @@ export class HorizonActionBar extends Component {
 	disconnectedCallback() {
 		this.assignSub.dispose();
 		this.stateChangeSub.unsubscribe();
+
 		super.disconnectedCallback();
 	}
 
@@ -89,6 +89,10 @@ export class HorizonActionBar extends Component {
 
 	_isDisabled(e) {
 		this.isHidden = true;
+	}
+
+	_addCallerDetails() {
+		this.eventAggregator.publish(`horizon-add-caller-details`, {});
 	}
 
 	_endCallSession() {
@@ -209,6 +213,11 @@ export class HorizonActionBar extends Component {
 									label="Handoff"
 									?hidden="${this.isHidden}"
                                     @click = "${() => this._onAssign()}">
+					</capitec-button>
+					<capitec-button type="clear"
+									label="Add caller details"
+									?hidden="${false}"
+									@click="${() => this._addCallerDetails()}">
 					</capitec-button>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">
