@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
-import { CardService } from 'app/services/CardService';
 import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
@@ -183,7 +183,6 @@ export class StopCard extends Component {
 		};
 
 		const returnValue = await this.cardService.addCallerDetails(callDetails);
-		console.log(returnValue)
 		if (returnValue.succeeded) {
 			this.addCallerDetails = returnValue.result;
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
@@ -191,7 +190,6 @@ export class StopCard extends Component {
 	}
 
 	_addCallerDetailsCancelled(event) {
-		console.log(event)
 		this.confirmedCaller = {};
 		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
 		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
@@ -368,7 +366,7 @@ export class StopCard extends Component {
 		this.cards.map((card, index) => {
 			card.rowIndex = index;
 			card.selected = false;
-			card.cardType = card.supplementaryCard ? 'Supplementary Cards' : '';
+			card.cardType = card.supplementaryCard ? `Supplementary Cards` : ``;
 			card.cardStopReason = STOPREASONS[LOST];
 			return card;
 		});
@@ -763,7 +761,7 @@ export class StopCard extends Component {
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`
-		: html ``;
+		: html``;
 	}
 }
 
