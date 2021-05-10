@@ -7,10 +7,10 @@
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
 	"otherSystemsURL": {
-		"sbl": "http://standardbancslinkv3qa.int.capinet:8080/",
-		"cds": "https://clientdocsearchqa.int.capinet:51443/",
+		"sbl": "http://standardbancslinkv3.int.capinet:8080/",
+		"cds": "https://clientdocsearch.int.capinet:51443/",
 		"cnet": "http://c-net.int.capinet:51001/Pages/default.aspx",
-		"strack": "http://strack8qa-clientaccess.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
+		"strack": "http://strack8-clientaccess.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
 	"VDN":"7253",
