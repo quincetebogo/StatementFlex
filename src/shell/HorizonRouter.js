@@ -250,10 +250,12 @@ export class HorizonRouter {
 	}
 
     navigateToStrack(incidentRecId) {
-        // get the rec id and replace the keyword in the constant url
-        const newUrl = this.strackURL.toString();
-        this.strackURL = newUrl.replace(`$incidentRecId`, incidentRecId);
-        window.open(this.strackURL);
+        // Clone the strackURL and update that. Don't modify the original this.strackURL as 
+		// this will break the incidentRecId replacement logic and cause the same incident
+		// to be opened every time.
+        let newUrl = this.strackURL.slice();
+        newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
+        window.open(strackURL);
     }
 
 	navigateToProofOfAccountSuccess() {
