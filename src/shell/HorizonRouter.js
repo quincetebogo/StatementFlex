@@ -255,7 +255,7 @@ export class HorizonRouter {
 		// to be opened every time.
         let newUrl = this.strackURL.slice();
         newUrl = newUrl.replace(`$incidentRecId`, incidentRecId);
-        window.open(strackURL);
+        window.open(newUrl);
     }
 
 	navigateToProofOfAccountSuccess() {
