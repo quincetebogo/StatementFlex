@@ -106,6 +106,7 @@ export class ErrorScreen extends Component {
 				}
 				#id-msg-group{
 					justify-content: center;
+					margin-top: 16px;
 				}
 				#id-visit-branch-msg{
 					height: 24px;
