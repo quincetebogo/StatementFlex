@@ -306,6 +306,7 @@ export class ProductInformation extends View {
 				<horizon-verify-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
+					.incidentDetails="${this.incidentDetails}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
