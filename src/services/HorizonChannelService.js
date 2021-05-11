@@ -435,7 +435,7 @@ export class HorizonChannelService extends Service {
 						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
 						`Reason=${closeIncidentRequest.reason}&` +
 						`Resolution=${closeIncidentRequest.resolution}&` +
-						`CauseCode=${closeIncidentRequest.causeCode}&`;
+						`CauseCode=${closeIncidentRequest.causeCode}`;
 
 		return this._put(url, null, this._setToken(), `closeIncident`);
 	}
