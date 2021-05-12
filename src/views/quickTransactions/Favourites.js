@@ -438,7 +438,6 @@ export class Favourites extends SavingsAccountBase {
 			case RENDER_MODE.VERIFY_NOW:
 			case RENDER_MODE.END_CALL:
 			case RENDER_MODE.ALERT_MODAL:
-			case RENDER_MODE.TAP_TO_PAY:
 				return html`
 					<horizon-favourite-transactions 
 						class="favourites"

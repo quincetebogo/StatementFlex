@@ -65,7 +65,7 @@ export const optionsConfig = {
 		label: `Stop Card`,
 		src: `system/stop-card-action`
 	},
-	UPDATE_CARD_LIMITS: {
+	'update-card-limits': {
 		label: `Update Card Limits`,
 		src: `system/cards-action`
 	},

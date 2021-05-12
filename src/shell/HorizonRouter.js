@@ -35,8 +35,7 @@ const HORIZON_ROUTES = Object.freeze({
     CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
-	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay-success`,
-	TAP_TO_PAY_LANDING: `/tap-to-pay-landing`
+	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay-success`
 });
 
 /**
@@ -268,10 +267,6 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
-	}
-
-	navigateToTapToPayLanding() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_LANDING}`);
 	}
 
 	_productLandingPagesActive() {
@@ -636,14 +631,6 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL,
 		load: () => import(`../views/tapToPay/TapToPaySuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-	},
-	{
-		name: `horizon-tap-to-pay-landing`,
-		title: `TapToPayLanding`,
-		icon: null,
-		path: HORIZON_ROUTES.TAP_TO_PAY_LANDING,
-		load: () => import(`../components/quickTransactions/TapToPayLanding`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

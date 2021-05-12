@@ -46,23 +46,19 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_tapToPayClick() {
-		this.horizonRouter.navigateToTapToPayLanding();
+		
+		const state = this.horizonStore.recoverState();
+		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		
+		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
+		
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayStatus() {
 
 	}
 
-	_navigateToScreen(screenName) {
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		const tapToPayLP = () => this.horizonRouter.navigateToTapToPayLanding();
-
-		const landingScreens = {
-			'Favourites': transactLP,
-			'TapToPay': tapToPayLP
-		};
-		landingScreens[screenName]();
-	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
