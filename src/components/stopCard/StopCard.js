@@ -5,6 +5,9 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
+import { Logger } from 'platform/core';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+
 import 'platform/components';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
@@ -79,15 +82,18 @@ export class StopCard extends Component {
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
 		this.showAddCallerDetails = false;
+		this.isBusy = false;
 
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -115,6 +121,7 @@ export class StopCard extends Component {
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
 			cardsToStop: { type: Array },
+			isBusy: { attribute: false },
 			showAddCallerDetails: { type: Boolean }
 		};
 	}
@@ -151,7 +158,7 @@ export class StopCard extends Component {
 
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._onAddCallerDetailsClick());
+		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 		this._updateLeftBar();
 		
 		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
@@ -166,12 +173,7 @@ export class StopCard extends Component {
 		super.disconnectedCallback();
 	}
 
-	_onAddCallerDetailsClick() {
-		this.showAddCallerDetails = !this.showAddCallerDetails;
-		this._addCallerDetailsClick();
-	}
-
-	async _addCallerDetailsClick() {
+	async _addCallerDetails() {
 		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
 
 		const callDetails = {
@@ -185,15 +187,13 @@ export class StopCard extends Component {
 		const returnValue = await this.cardService.addCallerDetails(callDetails);
 		if (returnValue.succeeded) {
 			this.addCallerDetails = returnValue.result;
+			this.showAddCallerDetails = !this.showAddCallerDetails;
 			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 		}
 	}
 
-	_addCallerDetailsCancelled(event) {
-		this.confirmedCaller = {};
-		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
+	_addCallerDetailsCancelled(event) {	
+		this.showAddCallerDetails = !this.showAddCallerDetails;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
 
@@ -210,7 +210,7 @@ export class StopCard extends Component {
 			};
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 			if (returnValue.succeeded) {
-				this._navigateToLandingPage();
+				this.showAddCallerDetails = !this.showAddCallerDetails;
 			} else {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
 			}
@@ -327,8 +327,7 @@ export class StopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		// Only used for Call Completion at present.
-		// May be implemented later to render progress on endCall method
+		this.isBusy = !this.isBusy;
   }
 
 	_verifyClick() {
@@ -352,6 +351,11 @@ export class StopCard extends Component {
 		this.callerInformation = event.detail.callerInformation;
 		this._updateLeftBar();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_handleChannelServiceError() {
+		// Error scenarios for CardServices and IncidentService to be handled here after confirming with BA's
+		return true;
 	}
 
 	// --------------
@@ -540,6 +544,7 @@ export class StopCard extends Component {
 			${this._renderAssignModal()}
 			${this._renderVerifyNowModal()}
 			${this._renderAddCallerDetailsModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -741,20 +746,10 @@ export class StopCard extends Component {
 		return html``;
 	}
 
-	_renderAddCallerDetails() {
-		return html`
-		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink label="Add Caller Details" 
-				@click="${() => this._addCallerDetailsClick()}">
-			</capitec-hyperlink>
-			if the caller is calling on another client's behalf
-		</capitec-alert-banner>`;
-	}
-
 	_renderAddCallerDetailsModal() {
 		return this.showAddCallerDetails && this.renderMode === RENDER_MODE.ADD_CALLER_DETAILS ? html`
 			<horizon-add-caller-details
-				.confirmedCaller="${this.confirmedCaller}"
+				.confirmedCaller="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
@@ -762,6 +757,12 @@ export class StopCard extends Component {
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`
 		: html``;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

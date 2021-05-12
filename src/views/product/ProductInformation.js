@@ -3,7 +3,9 @@ import { View, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { CardService } from 'app/services/CardService';
+import { Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/product/CnetProductInfo';
 import 'app/components/dialogs/common/EndCallSession';
@@ -67,7 +69,10 @@ export class ProductInformation extends View {
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.logger = Logger.getInstance();
+
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 	}
 
@@ -107,7 +112,7 @@ export class ProductInformation extends View {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
-		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._onAddCallerDetailsClick());
+		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 	}
 
 	disconnectedCallback() {
@@ -158,6 +163,11 @@ export class ProductInformation extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_handleChannelServiceError() {
+		// Error scenarios for CardServices and IncidentService to be handled here after confirming with BA's
+		return true;
+	}
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -206,12 +216,7 @@ export class ProductInformation extends View {
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
-	async _onAddCallerDetailsClick() {
-		console.log("click")
-		await this._addCallerDetailsClick();
-	}
-
-	async _addCallerDetailsClick() {
+	async _addCallerDetails() {
 		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
 
 		const callDetails = {
@@ -230,10 +235,6 @@ export class ProductInformation extends View {
 	}
 
 	_addCallerDetailsCancelled(event) {
-		this.confirmedCaller = {};
-		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
 		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
@@ -250,7 +251,7 @@ export class ProductInformation extends View {
 			};
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 			if (returnValue.succeeded) {
-				this._navigateToLandingPage();
+				this.showAddCallerDetails = !this.showAddCallerDetails;
 			} else {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
 			}
@@ -315,20 +316,10 @@ export class ProductInformation extends View {
 		return html``;
 	}
 
-	_renderAddCallerDetails() {
-		return html`
-		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink label="Add Caller Details" 
-				@click="${() => this._addCallerDetailsClick()}">
-			</capitec-hyperlink>
-			if the caller is calling on another client's behalf
-		</capitec-alert-banner>`;
-	}
-
 	_renderAddCallerDetailsModal() {
 		return this.showAddCallerDetails ? html`
 			<horizon-add-caller-details
-				.confirmedCaller="${this.confirmedCaller}"
+				.confirmedCaller="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
