@@ -472,7 +472,7 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
-					${this._renderCell(rowData.mandateName, formatCurrency(rowData.maxCollectionAmount))}
+					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
 					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount))}
