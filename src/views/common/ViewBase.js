@@ -1,9 +1,12 @@
 import { View, html } from 'platform/elements';
 import { EventAggregator } from 'platform/core';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { CardService } from 'app/services/CardService';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+
+import { CardService } from 'app/services/CardService';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -39,8 +42,10 @@ export class ViewBase extends View {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
 
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -197,7 +202,7 @@ export class ViewBase extends View {
 			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
 			if (returnValue.succeeded) {
-				this._navigateToLandingPage();
+				this.showAddCallerDetails = !this.showAddCallerDetails;
 			} else {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
 			}
