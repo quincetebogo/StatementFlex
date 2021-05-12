@@ -1,6 +1,12 @@
 import { HorizonStore } from 'app/store/HorizonStore';
 
 const DEFAULT_CAUSECODE = `NormalEnquiry`;
+const FAILED_VERIFICATION_CAUSECODE = `ClientFailedSecurityCheck`;
+
+const VERIFICATION_STATUS = {
+	VERIFIED: `verified`,
+	UNVERIFIED: `unverified`
+};
 
 /**
  * End call cause code
@@ -56,8 +62,11 @@ export class EndCallCauseCode {
 
 	_verifyClient(context, clientNeed, reasonCode) {
 		const failedVerificationCount = this._getFailedVerificationCount();
+		
 		if (this.causeCode.has(context)) {
-			return failedVerificationCount > 0 ? this.causeCode.get(context)[reasonCode] : DEFAULT_CAUSECODE;
+			// When client verification fails, irrespective of any end call reason cause code
+			// should be ClientFailedSecurityCheck
+			return failedVerificationCount > 0 ? FAILED_VERIFICATION_CAUSECODE : DEFAULT_CAUSECODE;
 		}
 		return DEFAULT_CAUSECODE; // Default cause code
 	}
@@ -94,9 +103,12 @@ export class EndCallCauseCode {
 		 * It's handled explicitly
 		 */
 		const failedVerificationCount = this._getFailedVerificationCount();
-		if (failedVerificationCount > 0) {
-			return this.causeCode.get(`VerifyClient`)[reasonCode];
+		const verificationStatus = this._getVerificationStatus();
+		
+		if (failedVerificationCount > 0 && verificationStatus !== VERIFICATION_STATUS.VERIFIED) {
+			return FAILED_VERIFICATION_CAUSECODE;
 		}
+
 		return this.causeCode.get(clientNeed)[reasonCode] ? this.causeCode.get(clientNeed)[reasonCode] : DEFAULT_CAUSECODE;
 	}
 
@@ -108,5 +120,11 @@ export class EndCallCauseCode {
 		return callerInformation 
 			? callerInformation.verificationAttempts.itaAttempts + callerInformation.verificationAttempts.xdsAttempts
 			: 0;
+	}
+
+	_getVerificationStatus() {
+		const callerInformation = this.horizonStore.getCallerInformation();
+		const status = callerInformation && callerInformation.verificationStatus;
+		return status || `unverified`;
 	}
 }
