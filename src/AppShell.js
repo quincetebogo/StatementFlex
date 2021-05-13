@@ -196,13 +196,12 @@ export class AppShell extends Shell {
 
 	_restoreState() {
 
-		/* Restore application state here
-
-		if (!state) {
-			return;
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		
+		if (callerInfo && callerInfo.verificationStatus == `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
+			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+			this.currentView=this.horizonViewManager.getCurrentView();
 		}
-
-		*/ 
 	};
 
 	// ---------
