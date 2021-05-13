@@ -228,6 +228,7 @@ export class ProductInformation extends View {
 
 		const returnValue = await this.cardService.addCallerDetails(callDetails);
 		if (returnValue.succeeded) {
+			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.showAddCallerDetails = !this.showAddCallerDetails;
 			this.addCallerDetails = returnValue.result;
 		}

@@ -210,6 +210,7 @@ export class StopCard extends Component {
 			};
 			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 			if (returnValue.succeeded) {
+				this.horizonStore.setCallerInformation(this.callerInformation);
 				this.showAddCallerDetails = !this.showAddCallerDetails;
 			} else {
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
