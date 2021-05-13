@@ -1,6 +1,6 @@
 import { css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { ViewBase } from './ViewBase';
+import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 

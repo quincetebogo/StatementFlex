@@ -1,30 +1,21 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { ViewBase } from '../common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
-import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/VerifyCaller';
-
-const RENDER_MODE = {
-	CARD_STOP_SUCCESS: 0,
-	END_CALLSESSION: 1,
-	VERIFY_NOW: 2,
-	ALERT_MODAL: 3
-};
 
 /**
  * Display an confirmation/success screen indicating which cards have been successfully stopped.
  * 
  * @export
  * @class StopCardSuccess
- * @extends View
+ * @extends ViewBase
  */
-export class StopCardSuccess extends View {
+export class StopCardSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -33,12 +24,11 @@ export class StopCardSuccess extends View {
 	constructor() {
 		super();
 		this.displayNotification = false;
-		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 		this.isBusy = false;
+		this.showAlertModal = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 
@@ -49,8 +39,8 @@ export class StopCardSuccess extends View {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			renderMode: { type: Number },
-			isBusy: { attribute: false }
+			isBusy: { attribute: false },
+			showAlertModal: { attribute: false }
 		};
 	}
 
@@ -71,9 +61,6 @@ export class StopCardSuccess extends View {
 			this.callerInformation = this.horizonStore.getCallerInformation();
 			
 			this.stoppedCards = state.stoppedCards;
-
-			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
-			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 		}
 
 		this.cardService = new CardService(
@@ -88,14 +75,6 @@ export class StopCardSuccess extends View {
 	disconnectedCallback() {
 		HorizonTelemetry.instance.screenUnloadStopCard();
 
-		if (this.verifySub) {
-			this.verifySub.dispose();
-		}
-		
-		if (this.endCallSub) {
-			this.endCallSub.dispose();
-		}
-
 		super.disconnectedCallback();
 	}
 
@@ -107,60 +86,8 @@ export class StopCardSuccess extends View {
 		this.displayNotification = true;
 	}
 
-	_onEndCallSession() {
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_verifyClick() {
-		this.renderMode = RENDER_MODE.VERIFY_NOW;
-	}
-
-	_skipVerification(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
-	}
-
-	_verificationCancelled(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
-	}
-
-	 _clientVerified(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-        this._updateLeftBar();
-		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
-
-		this.eventAggregator.publish(`horizon-navigate-related-option`, { option: this._option });
-	}
-
-	_updateLeftBar() {
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		this.eventAggregator.publish(
-			`horizon-update-left-hand-bar`,
-			{
-				hasFavourites: true,
-				subtitle: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				},
-				detail: {
-					savingsAccount: ``,
-					savingsPlan: ``,
-					insure: ``,
-					credit: ``
-				}
-			}
-		);
 	}
   
 	_updateIncidentState() {
@@ -174,7 +101,7 @@ export class StopCardSuccess extends View {
 	}
 
 	_relatedOptionSelected(event) {
-		this.renderMode = RENDER_MODE.ALERT_MODAL;
+		this.showAlertModal = !this.showAlertModal;
 		this._option = event.detail.option;
 	}
 
@@ -212,6 +139,10 @@ export class StopCardSuccess extends View {
 
 	_stopCardErrorHandler(exception) {
 		return true;
+	}
+
+	_onCancel() {
+		this.showAlertModal = !this.showAlertModal;
 	}
 
 	// ---------
@@ -330,26 +261,34 @@ export class StopCardSuccess extends View {
 	}
 
 	_mobileTemplate() {
+		return this._webTemplate();
 	}
 
 	_webTemplate() {
 		return html`
-		<capitec-card>
-			<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
-				${this._renderTitleBar()}
-				${this._renderSuccessToast()}
-				${this._renderGraphic()}
-				<p class="card-stopped">Card Stopped</p>
-				${this._renderStoppedCards()}
-				<p class="stop-card-text">Please visit a branch to get a new card.</p>
-				${this._renderButtons()}
-				${this._renderRelatedOptions()}
-				${this._renderVerifyNowModal()}
-				${this._renderEndCallModal()}
-				${this._renderLoadingIndicator()}
-				${this._renderAlertModal()}
-			</capitec-group>
-		</capitec-card>`;
+			${this._renderStopCardSuccess()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderStopCardSuccess() {
+		return html`
+			<capitec-card>
+				<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
+					${this._renderTitleBar()}
+					${this._renderSuccessToast()}
+					${this._renderGraphic()}
+					<p class="card-stopped">Card Stopped</p>
+					${this._renderStoppedCards()}
+					<p class="stop-card-text">Please visit a branch to get a new card.</p>
+					${this._renderButtons()}
+					${this._renderRelatedOptions()}
+					${this._renderLoadingIndicator()}
+					${this._renderAlertModal()}
+				</capitec-group>
+			</capitec-card>
+		`;
 	}
 
 	_renderTitleBar() {
@@ -433,35 +372,6 @@ export class StopCardSuccess extends View {
 		return html``;
 	}
 
-	_renderEndCallModal() {
-		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
-			return html`
-			<horizon-end-call-session
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails ="${this.incomingCallDetails}"
-				endCallContext="LandingPage"
-				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
-			</horizon-end-call-session>`;
-		}
-
-		return html``;
-	}
-
-	_renderVerifyNowModal() {
-		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
-			return html`
-				<horizon-verify-caller
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
-					.callerInformation="${this.callerInformation}"
-					@skip="${(e) => this._skipVerification(e)}"
-					@cancel="${(e) => this._verificationCancelled(e)}"
-					@verified="${(e) => this._clientVerified(e)}">
-				</horizon-verify-caller>`;
-		}
-		return html``;
-	}
-
 	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
@@ -469,11 +379,11 @@ export class StopCardSuccess extends View {
 	}
 
 	_renderAlertModal() {
-		return this.renderMode === RENDER_MODE.ALERT_MODAL
+		return this.showAlertModal
 			? html`
 				<horizon-client-not-verified
-					@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}"
-					@verify-now="${() => this._verifyClick()}">
+					@cancel="${() => this._onCancel()}"
+					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>`
 			: html``;
 	}

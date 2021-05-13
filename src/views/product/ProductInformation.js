@@ -3,16 +3,9 @@ import { html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { CardService } from 'app/services/CardService';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/product/CnetProductInfo';
-
-const RENDER_MODE = Object.freeze({
-	MAIN_PAGE: 0,
-	END_CALL: 1,
-	VERIFY_NOW: 2
-});
 
 const CONFIG = {
 	SavingsAccount: {
@@ -54,11 +47,8 @@ export class ProductInformation extends ViewBase {
 	constructor() {
 		super();
 		
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this._config = {};
 		this.isBusy = false;
-		this.showAddCallerDetails = false;
-
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -77,7 +67,6 @@ export class ProductInformation extends ViewBase {
 		return {
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
-			showAddCallerDetails: { attribute: false }
 		};
 	}
 
@@ -91,7 +80,6 @@ export class ProductInformation extends ViewBase {
 
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
-		this.callerInformation = this.horizonStore.getCallerInformation();
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,

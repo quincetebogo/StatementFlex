@@ -1,15 +1,10 @@
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
-
-const RENDER_MODE = {
-	DEBICHECK_SUCCESS: 0,
-	END_CALLSESSION: 1
-};
 
 /**
  * Display an confirmation/success screen indicating the selected debicheck mandate have been successfully declined.

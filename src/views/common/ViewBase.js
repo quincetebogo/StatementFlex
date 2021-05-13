@@ -4,7 +4,6 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-
 import { CardService } from 'app/services/CardService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
