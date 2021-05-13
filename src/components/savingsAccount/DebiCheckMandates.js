@@ -1,4 +1,5 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
 import { formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
@@ -71,6 +72,20 @@ export class DebiCheckMandates extends Component {
 		super.connectedCallback();
 
 		this._initialise();
+
+		// Telemetry 
+		HorizonTelemetry.instance.screenLoadDebiCheck({
+			screen: TelemetryScreen.DEBICHECK
+		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadDebiCheckMandates({
+			screen: TelemetryScreen.DEBICHECK
+		});
 	}
 
 	// --------------
@@ -78,6 +93,11 @@ export class DebiCheckMandates extends Component {
 	// --------------
 
 	_back() {
+		// Telemetry 
+		HorizonTelemetry.instance.exitDebiCheck({
+			screen: TelemetryScreen.DEBICHECK,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
@@ -128,10 +148,21 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_viewInfo(mandateId, registerId) {
+		// Telemetry
+		HorizonTelemetry.instance.selectViewDebiCheck({
+			screen: TelemetryScreen.DEBICHECK,
+			nextScreen: TelemetryScreen.VIEWINFO
+		});
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
 	}
 
 	_decline(mandateId) {
+		// Telemetry
+		HorizonTelemetry.instance.declineDebiCheckMandate({
+			screen: TelemetryScreen.DEBICHECK,
+			nextScreen: TelemetryScreen.DECLINE_DEBICHECK
+		});
+
 		// TODO: Add mandate data to the event
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId } }));
 	}
