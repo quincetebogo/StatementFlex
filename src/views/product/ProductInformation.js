@@ -1,10 +1,9 @@
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { CardService } from 'app/services/CardService';
-import { Logger } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/product/CnetProductInfo';
@@ -165,6 +164,7 @@ export class ProductInformation extends View {
 
 	_handleChannelServiceError() {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 	// ---------------

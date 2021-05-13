@@ -1,11 +1,10 @@
-import { View, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { CardService } from 'app/services/CardService';
+import { EventAggregator, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { View, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { Logger } from 'platform/core';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -144,6 +143,7 @@ export class ViewBase extends View {
 
 	_handleChannelServiceError() {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 	// ---------------
