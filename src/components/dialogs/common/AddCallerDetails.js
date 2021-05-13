@@ -190,7 +190,7 @@ export class AddCallerDetails extends Component {
 						``,
 						this.nonClientRelationship.value,
 						true,
-						`unverified`,
+						this.confirmedCaller.verificationStatus || `unverified`,
 						false,
 						true,
 						false,
@@ -349,7 +349,6 @@ export class AddCallerDetails extends Component {
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}
 								${this._renderAddCallerDetails()}
-								${this._renderLoadingIndicator()}
 							</div>
 							<div slot="footer">
 								${this._renderFooter()}
