@@ -86,7 +86,7 @@ export class StopCard extends Component {
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
-		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
@@ -208,7 +208,7 @@ export class StopCard extends Component {
 				surname: this.callerInformation.nonClientSurName,
 				cellPhone: this.callerInformation.nonClientCellPhone
 			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 			if (returnValue.succeeded) {
 				this.showAddCallerDetails = !this.showAddCallerDetails;
 			} else {
@@ -354,8 +354,7 @@ export class StopCard extends Component {
 	}
 
 	_handleChannelServiceError() {
-		// Error scenarios for CardServices and IncidentService to be handled here after confirming with BA's
-		return true;
+		this.horizonRouter.navigateToSystemError();
 	}
 
 	// --------------
