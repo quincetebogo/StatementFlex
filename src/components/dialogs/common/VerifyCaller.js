@@ -416,11 +416,11 @@ export class VerifyCaller extends Component {
 		this._stopTimer();
 
 		if ((typeof verificationStatus === `boolean` && verificationStatus) || (typeof verificationStatus === `string` && verificationStatus === `true`)) {
+			
+			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
-			this._stopSignalRConnection();
-
-			this.callerInformation.verificationStatus = `verified`;
+			this._updateApplicationState(`verified`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
 				detail: {
