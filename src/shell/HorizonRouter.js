@@ -469,7 +469,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-failure`,
@@ -477,7 +477,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-existing-client`,
