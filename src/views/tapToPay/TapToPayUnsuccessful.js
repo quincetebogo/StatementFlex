@@ -1,11 +1,13 @@
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
 
+/**
+ * An error/failure screen that will be displayed when Tap To Pay is unsuccessfuil
+ */
 export class TapToPayUnsuccessful extends ViewBase {
 
 	// --------------
@@ -16,7 +18,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 		super();
 		this.card = `5284 **** **** 1522`;
 		this.selectedCard = ``;
-		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
