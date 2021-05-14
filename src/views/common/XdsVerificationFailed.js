@@ -99,7 +99,7 @@ export class XdsVerificationFailed extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_verified(event) {
+	_clientVerified(event) {
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);

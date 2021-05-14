@@ -111,7 +111,7 @@ export class AppShell extends Shell {
 
 		this.horizonIncidentManager.initialise();
 		// Subscribe to store.
-		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._restoreState(state));
+		this._appStoreSub = this._appStore.stateChanged.subscribe(state => this._stateChanged(state));
 
 		const nextView = this.horizonViewManager.getCurrentView();
 		if (this.currentView !== nextView) {
@@ -194,15 +194,13 @@ export class AppShell extends Shell {
 	// PRIVATE METHODS
 	// ---------------
 
-	_restoreState() {
-
-		/* Restore application state here
-
-		if (!state) {
-			return;
+	_stateChanged() {
+		const callerInfo = HorizonStore.getInstance().getCallerInformation();
+		
+		if (callerInfo && callerInfo.verificationStatus == `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
+			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
+			this.currentView=this.horizonViewManager.getCurrentView();
 		}
-
-		*/ 
 	};
 
 	// ---------
