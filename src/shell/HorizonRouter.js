@@ -22,19 +22,20 @@ const HORIZON_ROUTES = Object.freeze({
 	INSURE_PROSPECTIVE_CLIENT: `/insure/prospective`,
 	INSURE_EXISTING_CLIENT: `/insure/existing-client`,
 	TRANSACT_FAVOURITES: `/transact/favourites`,
-	XDS_VERIFICATION_FAILED: `/error/xds-verification-failed`,
-	ITA_VERIFICATION_FAILED: `/error/ita-verification-failed`,
+	SAVINGS_ACCOUNT: `/transact/savings-account`,
+	XDS_VERIFICATION_FAILED: `/error/xds-verification`,
+	ITA_VERIFICATION_FAILED: `/error/ita-verification`,
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
-	SAVINGS_ACCOUNT: `/transact/savings-account`,
-	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update-success`,
-    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update-failed`,
+	CARDS_LIMIT_UPDATE_SUCCESS: `/success/card-limit-update`,
+    CARDS_LIMIT_UPDATE_FAILED: `/error/card-limit-update`,
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
-	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay-success`
+	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
+	TAP_TO_PAY_UNSUCCESSFUL: `error/tap-to-pay`
 });
 
 /**
