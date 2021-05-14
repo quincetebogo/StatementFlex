@@ -243,12 +243,12 @@ export class HorizonIncidentManager {
 		};
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
-
-		if (callerInfo.is3rdParty || callerInfo.isNonClient) {
+	
+        if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+			this._updateSubsequentNeedClientDetails(callDetails, callerInfo, newIncident);
+        } else {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);
-		} else {
-			this._updateSubsequentNeedClientDetails(callerInfo, newIncident);
-		}
+        }
 	}
 
 	/**
@@ -258,7 +258,7 @@ export class HorizonIncidentManager {
 	 * @param {object} newIncident - Newly created subsequent incident details
 	 * @returns {void}
 	 */
-	async _updateSubsequentNeedClientDetails(callerInfo, newIncident) {
+	async _updateSubsequentNeedClientDetails(callDetails, callerInfo, newIncident) {
 
 		if (newIncident.incidentRecId === `` || newIncident.incidentRecId === `0`) {
 			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedClientDetails`);
@@ -268,6 +268,10 @@ export class HorizonIncidentManager {
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedClientDetails`, returnValue.correlationId);
+		} 
+
+		if (callerInfo.is3rdParty) {
+			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);
 		}
 	}
 

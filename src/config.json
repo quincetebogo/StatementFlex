@@ -3,10 +3,6 @@
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "",
-	"bancsUser": {
-		"branchCode": "2000",
-		"tellerNumber": "22312"
-	},
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
