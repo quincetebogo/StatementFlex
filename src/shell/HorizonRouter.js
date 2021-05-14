@@ -27,7 +27,6 @@ const HORIZON_ROUTES = Object.freeze({
 	SYSTEM_ERROR: `/error/system-error`,
 	INITIAL_SYSTEM_ERROR: `/error/initial-system-error`,
 	DEBICHECK_SUCCESS: `/success/debicheck`,
-	SAVINGS_ACCOUNT: `/transact/savings-account`,
 	STATEMENTS_SUCCESSFUL: `/views/statements/StatementsSuccess`,
 	STATEMENTS_UNSUCCESSFUL: `/views/statements/StatementsUnsuccess`,
 	SAVINGS_ACCOUNT: `/transact/savings-account`,
@@ -346,13 +345,11 @@ export class HorizonRouter {
 			const routingInfo = horizonRouter.getRoutingInfo();
 			switch (routingInfo.verificationStatus) {
 
-				/* TEMPORARY LOCK TO MARKETING BAR
 				case `verified`: shellLayout = HORIZON_VIEW_SET.VERIFIED_PAGES;
 					break;
 				case `unverified`: shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
 				case `3rdparty`:
-				*/
 				default:
 					shellLayout = HORIZON_VIEW_SET.UNVERIFIED_PAGES;
 					break;
@@ -472,7 +469,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_SUCCESS_PAGE,
 		load: () => import(`../views/stopCard/StopCardSuccess`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-stop-card-failure`,
@@ -480,7 +477,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.CARD_STOP_FAILURE_PAGE,
 		load: () => import(`../views/stopCard/StopCardFailure`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.UNVERIFIED_PAGES)
 	},
 	{
 		name: `horizon-existing-client`,
@@ -564,7 +561,7 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.SAVINGS_ACCOUNT,
 		load: () => import(`../views/savingsAccount/SavingsAccountLandingPage`),
-		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+        onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	},
 	{
 		name: `card-limit-update-success`,

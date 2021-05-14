@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen} from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -5,6 +6,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/SuccessScreen';
 import 'app/components/dialogs/common/EndCallSession';
+
 
 const RENDER_MODE = {
 	STATEMENTS_SUCCESS: 0,
@@ -63,7 +65,7 @@ export class StatementsSuccess extends View {
 
 			this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				referenceNo: this.incidentDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});
@@ -89,6 +91,12 @@ export class StatementsSuccess extends View {
 	}
 
 	_doneClick() {
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS_OUTCOME,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
 		const state = this.horizonStore.recoverState();
 		const returnToScreen = state && state.returnToScreen;
 		
@@ -96,6 +104,12 @@ export class StatementsSuccess extends View {
 	}
 
 	_sendAnotherClick() {
+		// Telemetry
+		HorizonTelemetry.instance.selectSendAnotherStatement({
+			screen: TelemetryScreen.STATEMENTS_OUTCOME,
+			nextScreen: TelemetryScreen.STATEMENTS
+		});
+
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		

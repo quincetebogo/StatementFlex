@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
@@ -72,12 +73,6 @@ export class SavingsAccount extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	
-	_formatCollectionAmount(amount) {
-		const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-		return currencyString.includes(`.`) ? currencyString : `${currencyString}.00`;
-
-	}
 	
 	// ---------
 	// RENDERING
@@ -250,15 +245,15 @@ export class SavingsAccount extends Component {
 					</horizon-label>
 					<horizon-label
 						label="Balance"
-						value="${this._formatCollectionAmount(this.landingPageInfo.accountBalance)}">
+						value="${formatCurrency(this.landingPageInfo.accountBalance)}">
 					</horizon-label>
 					<horizon-label
 						label="Available balance"
-						value="${this._formatCollectionAmount(this.landingPageInfo.accountAvailableBalance)}">
+						value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
 					</horizon-label>
 					<horizon-label
 						label="Pending amount"
-						value="${this._formatCollectionAmount(this.landingPageInfo.accountPendingAmount)}">
+						value="${formatCurrency(this.landingPageInfo.accountPendingAmount)}">
 					</horizon-label>
 					<horizon-label
 						label="Interest"
@@ -274,6 +269,7 @@ export class SavingsAccount extends Component {
 	}
 
 	_renderOptions() {
+		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
 			<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
 
@@ -286,7 +282,7 @@ export class SavingsAccount extends Component {
 						@click="${() => this._optionSelectedClick(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button
-					    badgeText="${this.landingPageInfo && this.landingPageInfo.pendingMandateCount}"
+					    badgeText="${pendingMandates}"
 						class="button-margin" 
 						label="DebiCheck" 
 						icon="system/debit-order-action"

@@ -98,7 +98,7 @@ export class Feedback extends Component {
 				incidentRecId: incidentDetails.incidentRecId,
 				reason: this.selectedFeedback,
 				resolution: resolution.value,
-				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, this.selectedFeedback)
+				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, resolution.value)
 			};
 
 			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);

@@ -1,6 +1,6 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
 const FILTER_BY = {
 	ALL: 0,
@@ -120,15 +120,11 @@ export class DebiCheckMandates extends Component {
 		return `${collectionDate.day}${getDateOrdinal(collectionDate.day)} of each ${collectionDate.frequency}`;
 	}
 
-	_formatCollectionAmount(amount) {
-		return `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-	}
-
 	_lookForSearchText(status, searchText) {
 		return this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === status &&
 											  (item.mandateName.toLowerCase().indexOf(searchText) !== -1 ||
-											   parseInt(item.amount, 10) === parseInt(searchText, 10) ||
-											   parseInt(item.maxCollectionAmount, 10) === parseInt(searchText, 10)));
+											   parseFloat(item.amount).toFixed(2).startsWith(searchText) ||
+											   parseFloat(item.maxCollectionAmount).toFixed(2).startsWith(searchText)));
 	}
 
 	_viewInfo(mandateId, registerId) {
@@ -476,10 +472,10 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
-					${this._renderCell(rowData.mandateName, this._formatCollectionAmount(rowData.maxCollectionAmount))}
+					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount / 100))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
-					${this._renderCell(`Max collection amount`, this._formatCollectionAmount(rowData.maxCollectionAmount))}
+					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount / 100))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}

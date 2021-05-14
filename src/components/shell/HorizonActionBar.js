@@ -24,6 +24,7 @@ export class HorizonActionBar extends Component {
 		this.clientNeed = ``;
 		this.isUnverifiedNumber = null;
 		this.isHidden = true;
+		this.hideAddCallerDetails = false;
 
 		this.horizonStore = HorizonStore.getInstance();
 		
@@ -44,7 +45,8 @@ export class HorizonActionBar extends Component {
 			phoneNumber: { type: String },
 			clientNeed: { type: String },
 			isUnverifiedNumber: { type: Boolean },
-			isHidden: { type: Boolean }
+			isHidden: { type: Boolean },
+			hideAddCallerDetails: { attribute: false}
 		};
 	}
 
@@ -56,7 +58,6 @@ export class HorizonActionBar extends Component {
 		super.connectedCallback();
 
 		this.eventAggregator = EventAggregator.getInstance();
-		
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 		this.assignSub = this.eventAggregator.subscribe(`horizon-disable-assign-handoff`, (e) => this._isDisabled(e));
 	}
@@ -64,6 +65,7 @@ export class HorizonActionBar extends Component {
 	disconnectedCallback() {
 		this.assignSub.dispose();
 		this.stateChangeSub.unsubscribe();
+
 		super.disconnectedCallback();
 	}
 
@@ -75,8 +77,9 @@ export class HorizonActionBar extends Component {
 		if (state) {
 			this.referenceNo = state && state.incidentDetails && state.incidentDetails.incidentReferenceNumber;
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-      this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
+			this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;
+			this.hideAddCallerDetails = state.callerInformation && state.callerInformation.isNonClient;
 		}
 	}
 
@@ -89,6 +92,10 @@ export class HorizonActionBar extends Component {
 
 	_isDisabled(e) {
 		this.isHidden = true;
+	}
+
+	_addCallerDetails() {
+		this.eventAggregator.publish(`horizon-add-caller-details`, {});
 	}
 
 	_endCallSession() {
@@ -204,12 +211,18 @@ export class HorizonActionBar extends Component {
 									?hidden="${this.isHidden}"
 									@click="${() => this._onAssign()}">
 					</capitec-button>
-					<div class="vertical-line"></div>
+					<div class="vertical-line" ?hidden= ${true}></div>
 					<capitec-button type="clear" 
 									label="Handoff"
 									?hidden="${this.isHidden}"
                                     @click = "${() => this._onAssign()}">
 					</capitec-button>
+					<capitec-button type="clear"
+									label="Add caller details"
+									?hidden="${this.hideAddCallerDetails || false}"
+									@click="${() => this._addCallerDetails()}">
+					</capitec-button>
+					<div class="vertical-line"></div>
 					<capitec-button label="End Call" 
 									@click="${() => this._endCallSession()}">
 						<img class="end-call-icon" src="/images/hangup.svg"/>

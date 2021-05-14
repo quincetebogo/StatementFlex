@@ -72,7 +72,13 @@ export function getMonthName(month) {
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
 export function formatCurrency(value) {
-	return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	if (value.toString().includes(`R`)) {
+		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	} else {
+	const amount = parseFloat(value).toFixed(2);
+	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	return currencyString;
+	}
 }
 
 /**

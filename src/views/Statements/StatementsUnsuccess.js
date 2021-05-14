@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen} from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -73,7 +74,7 @@ export class StatementsUnsuccess extends View {
 
 		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				referenceNo: this.incidentDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			});
@@ -96,6 +97,11 @@ export class StatementsUnsuccess extends View {
 	}
 
 	_doneClick() {
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS_OUTCOME,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		const state = this.horizonStore.recoverState();
 		const returnToScreen = state && state.returnToScreen;
 		
@@ -110,6 +116,11 @@ export class StatementsUnsuccess extends View {
 	}
 
 	_handoffClick() {
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadStatements({
+			screen: TelemetryScreen.STATEMENTS_OUTCOME,
+			nextScreen: null
+		});
 		const incidentRecId = this.incidentDetails.incidentRecId;
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
