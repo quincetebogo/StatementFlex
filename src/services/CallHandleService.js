@@ -108,7 +108,7 @@ export class CallHandleService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing list of security questions & answers and the result of the channel service call
 	 */
-	xdsQuestions(clientID, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	xdsQuestions(clientID, errorHandler = null, autoRetries = 1) {
 		return this.wrapCall(this.channelService.xdsQuestions(clientID), `xdsQuestions`, errorHandler, autoRetries);
 	}
 
@@ -120,7 +120,7 @@ export class CallHandleService extends ServiceBase {
 	 * @param {Number} autoRetries The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object indicating if the verification process was successful or if not, the reason for failure
 	 */
-	verifySecurityQuestions(response, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	verifySecurityQuestions(response, errorHandler = null, autoRetries = 1) {
 		return this.wrapCall(this.channelService.verifySecurityQuestions(response), `verifySecurityQuetsions`, errorHandler, autoRetries);
 	}
 
