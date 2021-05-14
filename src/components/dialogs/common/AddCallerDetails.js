@@ -1,11 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CallerInformation } from 'app/models/CallerInformation';
-import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { InsureService } from 'app/services/InsureService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -75,10 +73,6 @@ export class AddCallerDetails extends Component {
 		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
-		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-		this.insureService = new InsureService(() => this._toggleBusyFlag(), (ex) => this._errorHandler(ex));
-
-		this.isBusy = false;
 		this.validationFailed = false;
 		this.alertBannerMessage = ``;
 
@@ -108,7 +102,6 @@ export class AddCallerDetails extends Component {
 			incidentDetails: { type: Object },
 			addCallerDialog: { type: Object },
 
-			isBusy: { attribute: false },
 			renderMode: { attribute: false },
 			validationFailed: { attribute: false }
 		};
@@ -197,7 +190,7 @@ export class AddCallerDetails extends Component {
 						``,
 						this.nonClientRelationship.value,
 						true,
-						`unverified`,
+						this.confirmedCaller.verificationStatus || `unverified`,
 						false,
 						true,
 						false,
@@ -235,15 +228,6 @@ export class AddCallerDetails extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-	
-	_errorHandler(ex) {
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-		this.horizonRouter.navigateToSystemError();
-	}
 
 	_validateData() {
 		for (const key in this.nonClientInformation) {
@@ -365,7 +349,6 @@ export class AddCallerDetails extends Component {
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}
 								${this._renderAddCallerDetails()}
-								${this._renderLoadingIndicator()}
 							</div>
 							<div slot="footer">
 								${this._renderFooter()}
@@ -375,14 +358,6 @@ export class AddCallerDetails extends Component {
 				return html`${this._renderEndCallModal()}`;
 			default:
 		}
-	}
-
-	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		};
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 	}
 
 	_renderErrorMessage() {
