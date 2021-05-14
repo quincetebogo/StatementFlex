@@ -55,4 +55,8 @@ export class QuickTransactionsService extends ServiceBase {
 	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.getClientProducts(request), `getClientProducts`, errorHandler, autoRetries);
 	}
+
+	tapToPayAgreement(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.tapToPayAgreement(request), `agreeTapToPay`, errorHandler, autoRetries);
+	}
 }

@@ -251,10 +251,9 @@ export class TransactionHistory extends Component {
 
     async _loadFilteredTransactions() {
 
-        // debugger
         const loadMoreData = await this._populateTransactions();
-        // debugger
-        if (loadMoreData.length > 0) {
+
+		if (loadMoreData.length > 0) {
             this.rawTableData = loadMoreData;
             this.transactionHistory = this._initialize(loadMoreData);
         }
