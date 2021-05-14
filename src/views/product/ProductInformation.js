@@ -1,11 +1,15 @@
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext } from 'platform/core';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, html } from 'platform/elements';
+import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
 
 import 'app/components/product/CnetProductInfo';
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/AddCallerDetails';
 
 const RENDER_MODE = Object.freeze({
 	MAIN_PAGE: 0,
@@ -56,12 +60,19 @@ export class ProductInformation extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this._config = {};
 		this.isBusy = false;
+		this.showAddCallerDetails = false;
+
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
+		this.logger = Logger.getInstance();
+
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+
 	}
 
 	// ----------
@@ -71,7 +82,8 @@ export class ProductInformation extends View {
 	static get properties() {
 		return {
 			renderMode: { attribute: false },
-			isBusy: { attribute: false }
+			isBusy: { attribute: false },
+			showAddCallerDetails: { attribute: false }
 		};
 	}
 
@@ -90,7 +102,7 @@ export class ProductInformation extends View {
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
 			{
-				referenceNo: this.incomingCallDetails.incidentReferenceNumber,
+				referenceNo: this.incidentDetails.incidentReferenceNumber,
 				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
 			}
@@ -99,12 +111,14 @@ export class ProductInformation extends View {
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCallClick());
 		this.navSub = this.eventAggregator.subscribe(`platform-navigation-context-updated`, () => this._initialise());
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
 	}
 
 	disconnectedCallback() {
 		this.endCallSub.dispose();
 		this.navSub.dispose();
 		this.verifySub.dispose();
+		this.addCallerDetailsSub.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -146,6 +160,11 @@ export class ProductInformation extends View {
 		this.callerInformation = event.detail.callerInformation;
 		this._updateLeftBar();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_handleChannelServiceError() {
+		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 	// ---------------
@@ -196,6 +215,51 @@ export class ProductInformation extends View {
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
+	async _addCallerDetails() {
+		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+
+		const callDetails = {
+			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOption: this.incomingCallDetails.ivrOption.value,
+			incidentNo: this.incidentDetails.incidentReferenceNumber,
+			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
+		};
+
+		const returnValue = await this.cardService.addCallerDetails(callDetails);
+		if (returnValue.succeeded) {
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.showAddCallerDetails = !this.showAddCallerDetails;
+			this.addCallerDetails = returnValue.result;
+		}
+	}
+
+	_addCallerDetailsCancelled(event) {
+		this.showAddCallerDetails = !this.showAddCallerDetails;
+	}
+
+	async _addCallerDetailsConfirmed(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentManagementService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			if (returnValue.succeeded) {
+				this.showAddCallerDetails = !this.showAddCallerDetails;
+			} else {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -209,6 +273,7 @@ export class ProductInformation extends View {
 			${this._renderProductInfo()}
 			${this._renderEndCallSessionModal()}
 			${this._renderVerifyNowModal()}
+			${this._renderAddCallerDetailsModal()}
 			${this._renderLoadingIndicator()}
 		`;
 	}
@@ -242,6 +307,7 @@ export class ProductInformation extends View {
 				<horizon-verify-caller
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
+					.incidentDetails="${this.incidentDetails}"
 					@skip="${(e) => this._skipVerification(e)}"
 					@cancel="${(e) => this._verificationCancelled(e)}"
 					@verified="${(e) => this._clientVerified(e)}">
@@ -250,6 +316,19 @@ export class ProductInformation extends View {
 		return html``;
 	}
 
+	_renderAddCallerDetailsModal() {
+		return this.showAddCallerDetails ? html`
+			<horizon-add-caller-details
+				.confirmedCaller="${this.callerInformation}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.addCallerDialog="${this.addCallerDetails}"
+				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
+				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
+			</horizon-add-caller-details>`
+		: html ``;
+	}
+	
 	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`

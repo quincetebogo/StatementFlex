@@ -265,7 +265,7 @@ export class SearchCaller extends Component {
 				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
-			} else if (this.incomingCallDetails.incidentReferenceNumber === null) {
+			} else if (this.incidentDetails.incidentReferenceNumber === null) {
 					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
 				} else {
 					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
