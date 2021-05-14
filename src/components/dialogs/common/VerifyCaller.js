@@ -22,7 +22,7 @@ const HEADER_LABEL = `Verify Caller`;
 const MAX_ITA_ATTEMPTS = 3;
 const MAX_XDS_ATTEMPTS = 2;
 
-const ITA_TIMEOUT_SECS = 60;
+const ITA_TIMEOUT_SECS = 70;
 
 // exporting the common code - used in securityQuestions failed screen
 export const navigateToFailedScreen = (objInstance) => {
@@ -58,7 +58,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.incomingCallDetails = null;
-		this.timeLeft = `1:00`;
+		this.timeLeft = `1:10`;
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
