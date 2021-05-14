@@ -6,7 +6,7 @@ const FILTER_BY = {
 	ALL: 0,
 	PENDING: 1,
 	ACTIVE: 2,
-	INACTIVE: 3
+    INACTIVE: 3
 };
 
 const MANDATE_STATUS = {
@@ -40,7 +40,8 @@ export class DebiCheckMandates extends Component {
 		this.pendingMandates = [];
 		this.activeMandates = [];
 		this.inActiveMandates = [];
-		this.filterBy = 0;
+        this.filterBy = 0;
+        this.noMandatesError = "No DebiCheck mandates on the account";
 	}
 
 	// --------------
@@ -95,10 +96,12 @@ export class DebiCheckMandates extends Component {
 			return true;
 		}
 
-		const searchText = event.detail.new && event.detail.new.toLowerCase();
-		if (!searchText) {
+        const searchText = event.detail.new && event.detail.new.toLowerCase();
+        if (!searchText) {
+            this.noMandatesError = "No DebiCheck mandates on the account";        
 			this._initialise();
-		} else {
+        } else {
+            this.noMandatesError = "No results found";
 			this.pendingMandates = this._lookForSearchText(MANDATE_STATUS.PENDING, searchText);
 			this.activeMandates = this._lookForSearchText(MANDATE_STATUS.ACTIVE, searchText);
 			this.inActiveMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText);
@@ -144,14 +147,14 @@ export class DebiCheckMandates extends Component {
 	_hasMandatesToDisplay() {
 		let flag = false;
 
-		if (this.filterBy === FILTER_BY.ALL && (this.pendingMandates.length > 0 || this.activeMandates.length > 0 || this.inActiveMandates.length > 0)) {
-			flag = !flag;
+        if (this.filterBy === FILTER_BY.ALL && (this.pendingMandates.length > 0 || this.activeMandates.length > 0 || this.inActiveMandates.length > 0)) {
+            flag = !flag;
 		} else if (this.filterBy === FILTER_BY.PENDING && this.pendingMandates.length > 0) {
-			flag = !flag;
+            flag = !flag;
 		} else if (this.filterBy === FILTER_BY.ACTIVE && this.activeMandates.length > 0) {
-			flag = !flag;
+            flag = !flag;
 		} else if (this.filterBy === FILTER_BY.INACTIVE && this.inActiveMandates.length > 0) {
-			flag = !flag;
+            flag = !flag;
 		} else {
 			// do nothing
 		}
@@ -535,9 +538,9 @@ export class DebiCheckMandates extends Component {
 
 	_renderNoResults() {
 		
-		if (this._hasMandatesToDisplay()) {
-			return html``;
-		}
+        if (this._hasMandatesToDisplay()) {
+            return html``;
+        }
 
 		return html`
 			<capitec-group
@@ -554,7 +557,7 @@ export class DebiCheckMandates extends Component {
 						class="debi-check-logo"/>
 					<capitec-label
 						class="no-results"
-						label="No DebiCheck mandates on the account"
+						label="${this.noMandatesError}"
 						type="strong">
 					</capitec-label>
 			</capitec-group>
