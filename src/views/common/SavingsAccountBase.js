@@ -78,8 +78,7 @@ export class SavingsAccountBase extends ViewBase {
 		// Telemetry
 		HorizonTelemetry.instance.selectDebiCheck({
 			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: null /** TelemetryScreen.DEBI_CHECK */,
-			selectedOption: this.selectedOption
+			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
@@ -117,7 +116,8 @@ export class SavingsAccountBase extends ViewBase {
 
 			// Telemetry for accepting DebiCheck
 			HorizonTelemetry.instance.debiCheckAlertAccept({
-				screen: TelemetryScreen.FAVOURITES
+				screen: TelemetryScreen.FAVOURITES,
+				nextScreen: TelemetryScreen.DEBICHECK
 			});
 
 			const state = {
@@ -128,6 +128,11 @@ export class SavingsAccountBase extends ViewBase {
 			};
 			this.horizonStore.saveState(state);
 			this.horizonRouter.navigateToDebiCheckSuccess();
+			// Telemetry
+			HorizonTelemetry.instance.debiCheckOutcome({
+				screen: TelemetryScreen.DEBICHECK,
+				nextScreen: TelemetryScreen.DEBICHECK_OUTCOME
+			});
 		} else if (event.detail.action === `viewInfo`) {
 			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
 			
