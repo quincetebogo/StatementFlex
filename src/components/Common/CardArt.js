@@ -32,8 +32,6 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-		this.selectedItem = ``;
-		this._toggleStatus = false;
 
 		this._initialise();
 		
@@ -56,12 +54,14 @@ export class CardArt extends Component {
 	static get properties() {
 		return {
 			card: { type: Object },
-			disableHover: { type: Boolean },
-			cardArtSVG: { type: String },
+			disableHover: { 
+				type: Boolean,
+				attribute: `disable-hover`
+			},
 			context: { type: String },
-			selectedItem: { type: String },
+			tapToPayStatus: { type: Boolean },
 
-			_toggleStatus: { attribute: false }
+			cardArtSVG: { attribute: false }
 		};
 	}
 
@@ -76,7 +76,6 @@ export class CardArt extends Component {
 		const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
 		this.type = this.cardArtComponents[this.card.cardArt].type;
 		this.cardArtSVG = frameCardArt(this.card);
-		this._toggleStatus = this.card.isContactlessActivated;
 	}
 
 	// --------------
@@ -161,7 +160,6 @@ export class CardArt extends Component {
 	}
 
 	_toggleChecked(event) {
-		this._toggleStatus = event.detail.new;
 
 		this.dispatchEvent(new CustomEvent(`toggle-agreement`, { 
 			detail: {
@@ -346,22 +344,14 @@ export class CardArt extends Component {
 
 	_renderCardInfo() {
 		return html`
-			<capitec-group layout="vertical" gap="clear" halign="left" valign="top">
-				<capitec-label label="${this.card.cardDisplayName}"
-								type="default">
-				</capitec-label>
-				<capitec-label label="${this.card.maskedCardNumber}"
-								type="strong">
-				</capitec-label>
-			</capitec-group>
-			
+			${this._renderCardNumber()}
 			<capitec-spacer></capitec-spacer>
-			
+	
 			<capitec-group layout="vertical"
 							gap="clear"
 							halign="right"
 							valign="top"
-							class="${this.card.isContactlessActivated === null ? `hide` : `show`}">
+							class="${this.tapToPayStatus === null ? `hide` : `show`}">
 
 							${this._renderLabelOrToggle()}
 			</capitec-group>
@@ -369,37 +359,68 @@ export class CardArt extends Component {
 	}
 
 	_renderLabelOrToggle() {
-		if (this.context === `tap-to-pay`) {
-			return html`
-				<capitec-group
-					layout="vertical"
-					gap="clear"
-					halign="right"
-					valign="top"
-					class="toggle-group">
-						<capitec-label
-							class="toggle-label ${this._toggleStatus ? `On` : `Off`}"
-							label=${this._toggleStatus ? `On` : `Off`}
-							type="default">
-						</capitec-label>
-						
-						<capitec-toggle
-							class="${this._toggleStatus ? `On` : `Off`}"
-							label=""
-							@value-changed=${(event) => this._toggleChecked(event)}
-							?checked="${this._toggleStatus}">
-						</capitec-toggle>
-				</capitec-group>`;
+		switch (this.context) {
+			case `tap-to-pay`:
+				return html`${this._renderTapToPayToggle()}`;
+			default:
+				return html`${this._renderTapToPayLabel()}`;
 		}
+	}
+
+	_renderCardNumber() {
+		return html`
+			<capitec-group
+				layout="vertical"
+				gap="clear"
+				halign="left"
+				valign="top">
+					<capitec-label
+						label="${this.card.cardDisplayName}"
+						type="default">
+					</capitec-label>
+					<capitec-label
+						label="${this.card.maskedCardNumber}"
+						type="strong">
+					</capitec-label>
+			</capitec-group>
+		`;
+	}
+
+	_renderTapToPayToggle() {
+		return html`
+			<capitec-group
+				layout="vertical"
+				gap="clear"
+				halign="right"
+				valign="top"
+				class="toggle-group">
+					<capitec-label
+						class="toggle-label ${this.tapToPayStatus ? `On` : `Off`}"
+						label=${this.tapToPayStatus ? `On` : `Off`}
+						type="default">
+					</capitec-label>
+					
+					<capitec-toggle
+						class="${this.tapToPayStatus ? `On` : `Off`}"
+						label=""
+						@value-changed=${(event) => this._toggleChecked(event)}
+						?checked="${this.tapToPayStatus}">
+					</capitec-toggle>
+			</capitec-group>
+		`;
+	}
+
+	_renderTapToPayLabel() {
 		return html`
 			<capitec-label
 				label="Tap to Pay"
 				type="default">
 			</capitec-label>
 			<capitec-label
-				label="${this.card.isContactlessActivated ? `On` : `Off`}"
+				label="${this.tapToPayStatus ? `On` : `Off`}"
 				type="strong">
-			</capitec-label>`;
+			</capitec-label>
+		`;
 	}
 }
 

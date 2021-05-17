@@ -243,14 +243,17 @@ export class TapToPayLanding extends Component {
 			<horizon-card-art
 				id="primaryCard-widget-${index}"
 				.card="${card}"
-				.disableHover="${true}"
+				disable-hover="${true}"
 				context="tap-to-pay"
+				.tapToPayStatus="${card.isContactlessActivated}"
 				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
 			</horizon-card-art>
 		`;
 	}
 
 	_renderSupplementaryCards() {
+		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && !card.isContactlessCard);
+
 		return html`
 			<capitec-label
 				class="supplementary-card-label"
@@ -258,24 +261,29 @@ export class TapToPayLanding extends Component {
 				label="Supplementary cards">
 			</capitec-label>
 
-			<capitec-group class="supplementary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
-				${this._renderSupplementaryCardsArt()}
+			<capitec-group
+				class="supplementary-cards"
+				valign="top"
+				halign="left"
+				gap="clear"
+				layout="horizontal"
+				grow="horizontal">
+					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
 	}
 
-	_renderSupplementaryCardsArt() {
-		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && !card.isContactlessCard);
-		
-		return supplementaryCards.map((card, index) => html`
+	_renderSupplementaryCardArt(card, index) {
+		return html`
 			<horizon-card-art
 				id="supplementaryCard-widget-${index}"
 				.card="${card}"
-				.disableHover="${true}"
+				disable-hover="${true}"
 				context="tap-to-pay"
+				.tapToPayStatus="${card.isContactlessActivated}"
 				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
 			</horizon-card-art>
-		`);
+		`;
 	}
 
 	_renderTapToPayAgreement() {
