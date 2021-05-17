@@ -1,6 +1,18 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 
+/**
+ * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
+ * 
+ * Events Raised 
+ * -------------
+ * -
+ * 
+ * @export
+ * @class TapToPayAgreement
+ * @extends {Component}
+ */
+
 export class TapToPayAgreement extends Component {
 
 	// --------------
