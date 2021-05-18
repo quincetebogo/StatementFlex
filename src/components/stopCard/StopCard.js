@@ -1,16 +1,31 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
-
 import 'platform/components';
+import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
+import 'app/components/dialogs/common/VerifyCaller';
+import 'app/components/dialogs/common/AddCallerDetails';
+
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
 	CARDNUMBER: `maskedCardNumber`
+};
+
+const RENDER_MODE = {
+	MAIN_PAGE: 0,
+	CARD_STOP_MODAL: 1,
+	CARD_STOP_SUCCESS: 2,
+	END_CALLSESSION: 3,
+	ASSIGN: 4,
+	ASSIGN_REASON_SELECTED: 5,
+	VERIFY_NOW: 6,
+	ADD_CALLER_DETAILS: 7
 };
 
 const TABLE_STYLE = {
@@ -61,19 +76,24 @@ export class StopCard extends Component {
 	constructor() {
 		super();
 
-		this.horizonStore = HorizonStore.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.showStopCardModal = false;
+		this.showAddCallerDetails = false;
 
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 	}
 
 	// ----------
@@ -93,8 +113,9 @@ export class StopCard extends Component {
 			incomingCallDetails: { type: Object },
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
+			renderMode: { type: Number },
 			cardsToStop: { type: Array },
-			showStopCardModal: { attribute: false}
+			showAddCallerDetails: { type: Boolean }
 		};
 	}
 
@@ -128,10 +149,76 @@ export class StopCard extends Component {
 			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber
 		};
 
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
+		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._onAddCallerDetailsClick());
 		this._updateLeftBar();
-
+		
 		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
 	}
+
+	disconnectedCallback() {
+		this.verifySub.dispose();
+		this.assignSub.dispose();
+		this.endCallSub.dispose();
+		this.addCallerDetailsSub.dispose();
+
+		super.disconnectedCallback();
+	}
+
+	_onAddCallerDetailsClick() {
+		this.showAddCallerDetails = !this.showAddCallerDetails;
+		this._addCallerDetailsClick();
+	}
+
+	async _addCallerDetailsClick() {
+		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+
+		const callDetails = {
+			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
+			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
+			ivrOption: this.incomingCallDetails.ivrOption.value,
+			incidentNo: this.incidentDetails.incidentReferenceNumber,
+			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
+		};
+
+		const returnValue = await this.cardService.addCallerDetails(callDetails);
+		if (returnValue.succeeded) {
+			this.addCallerDetails = returnValue.result;
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
+		}
+	}
+
+	_addCallerDetailsCancelled(event) {
+		this.confirmedCaller = {};
+		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
+		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
+
+	async _addCallerDetailsConfirmed(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.callerInformation.nonClientFirstName,
+				surname: this.callerInformation.nonClientSurName,
+				cellPhone: this.callerInformation.nonClientCellPhone
+			};
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			if (returnValue.succeeded) {
+				this._navigateToLandingPage();
+			} else {
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
+			}
+		} else {
+			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
+		}
+	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -202,7 +289,7 @@ export class StopCard extends Component {
 			}
 		)).filter(card => card.cardStopReason !== ``);
 
-		this.showStopCardModal = !this.showStopCardModal;
+		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 
 		// Telemetry
 		HorizonTelemetry.instance.stopCard({
@@ -230,6 +317,43 @@ export class StopCard extends Component {
 		));
 	}
 
+	_onAssignReasonSelected(e) {
+		this.assignReason = e.detail.reason;
+		this.renderMode = RENDER_MODE.ASSIGN_REASON_SELECTED;
+	}
+
+	_onEndCallSession() {
+		this.renderMode = RENDER_MODE.END_CALLSESSION;
+	}
+
+	_toggleBusyFlag() {
+		// Only used for Call Completion at present.
+		// May be implemented later to render progress on endCall method
+  }
+
+	_verifyClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
+	}
+
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	 _clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this._updateLeftBar();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -246,6 +370,16 @@ export class StopCard extends Component {
 			card.cardStopReason = STOPREASONS[LOST];
 			return card;
 		});
+	}
+
+	_onHandOff(e) {
+		this.isReassigned = true;
+		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
+		this.horizonRouter.navigateToStrack(this.incidentRecId);
+	}
+
+	_onAssignIncident() {
+        this.renderMode = RENDER_MODE.ASSIGN;
 	}
 
 	_updateApplicationState() {
@@ -296,7 +430,7 @@ export class StopCard extends Component {
 		return [
 			super.styles,
 			css`
-				.stop-card {
+				.stop-card{
 					width: 1065px;
 					height: 876px;
 					padding: 0px 0px 0px 0px;
@@ -308,17 +442,17 @@ export class StopCard extends Component {
 					--theme-label-title-font-weight: 600;
 					--theme-label-title-font-size: 24px;
 				}
-				.horizon-notify-client {
+				.horizon-notify-client{
 					display: flex;
 					flex-direction: row;
 					width: 100%;
 					height: 64px;
 					background: #DAF5F3;
 				}
-				#action-icon {
+				#action-icon{
 					margin-left: 24px;
 				}
-				#action-display {
+				#action-display{
 					margin: 0px 0px 0px 0px;
 					color: #08A6B5;
 					font-family: "Hind Vadodara";
@@ -335,11 +469,11 @@ export class StopCard extends Component {
 					--theme-data-table-body-group-color: #3A3A3A;
 				
 				}
-				button-bar {
+				button-bar{
 					border-top: thin solid #d3d3d3;
 					height: 64px;
 				}
-				button-bar > capitec-button {
+				button-bar > capitec-button{
 					--theme-button-padding-top: 8px; 
 					--theme-button-padding-bottom: 8px; 
 					--theme-button-padding-left: 8px; 
@@ -348,7 +482,7 @@ export class StopCard extends Component {
 					width: 135px;
 					margin: 12px 24px 0px 0px;
 				}
-				button-bar > capitec-label {
+				button-bar > capitec-label{
 					--theme-label-subtitle-font-weight: 600;
 					float: left;
 					width: 125px;
@@ -391,13 +525,6 @@ export class StopCard extends Component {
 
 	_webTemplate() {
 		return html`
-			${this._renderStopCard()}
-			${this._renderStopCardModal()}
-		`;
-	}
-
-	_renderStopCard() {
-		return html`
 			<capitec-card class="stop-card">
 				<capitec-group layout="grid" gap="none" row="auto" columns="uniform" style="width:100%;">
 			
@@ -408,27 +535,31 @@ export class StopCard extends Component {
 			
 				</capitec-group>
 			</capitec-card>
+			${this._renderEndCallModal()}
+			${this._renderStopCardModal()}
+			${this._renderAssignModal()}
+			${this._renderVerifyNowModal()}
+			${this._renderAddCallerDetailsModal()}
 		`;
 	}
 
 	_renderTitleBar() {
-		return html`
+        return html`
 			<capitec-title-bar 
-						type="clear" 
-						row="1" 
-						column="1">
+					type="clear" 
+                                        row="1" 
+                                        column="1">
 				<img src="/images/insure/blue-left-arrow.svg" @click="${() => this._back()}"/>
 				<capitec-label 
 					label="Stop Card(s)"
 					type="title">
 				</capitec-label>
-			</capitec-title-bar>
-		`;
+                    </capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
 		return html`
-			<capitec-alert-banner type="info">
+		    <capitec-alert-banner type="info">
 				<span class="bold-text">Notify client:</span> Once card has been stopped you will need to visit a branch for a new card. You can also order a new card on the app from 15 May 2021
 			</capitec-alert-banner>`;
 	}
@@ -437,14 +568,15 @@ export class StopCard extends Component {
 		return html`
 				<capitec-table .items="${this.cards}" row="3" column="1" align="left"  groupField="cardType" .dataHandler="${(renderSet) => this._customGroupByHandler(renderSet)}">
 					<capitec-table-column label="" 
-										  field="" 
-										  type="text" 
-										  size="1064px;"
-										  .renderer="${(rowData) => this._renderRowData(rowData)}" 
-										  .headerRenderer="${() => this._headerRenderer()}">
+                                          field="" 
+                                          type="text" 
+                                          size="1064px;"
+						                  .renderer="${(rowData) => this._renderRowData(rowData)}" 
+                                          .headerRenderer="${() => this._headerRenderer()}">
 					</capitec-table-column>
 				</capitec-table>
-		`;
+				`;
+
 	}
 
 	_headerRenderer() {
@@ -535,6 +667,23 @@ export class StopCard extends Component {
 		}
 	}
 
+	_renderStopCardModal() {
+		if (this.renderMode === RENDER_MODE.CARD_STOP_MODAL) {
+			return html`
+				<horizon-stop-card-confirm
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.cardsToStop="${this.cardsToStop}"
+					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
+					@on-cancel="${() => { 
+						this.renderMode = RENDER_MODE.MAIN_PAGE; 
+						HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
+					}}">
+				</horizon-stop-card-confirm>
+			`;
+		}
+	}
+
 	_renderFooter() {
 		if (this.selectedCardCount > 0) {
 			return html`
@@ -548,22 +697,72 @@ export class StopCard extends Component {
 		}
 	}
 
-	_renderStopCardModal() {
-		return this.showStopCardModal
-				?	html`
-						<horizon-stop-card-confirm
-							.incidentDetails="${this.incidentDetails}"
-							.incomingCallDetails="${this.incomingCallDetails}"
-							.cardsToStop="${this.cardsToStop}"
-							@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
-							@on-cancel="${() => { 
-								this.showStopCardModal = !this.showStopCardModal;
-								HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
-							}}">
-						</horizon-stop-card-confirm>`
-				: html``;
+	_renderEndCallModal() {
+		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
+			return html`
+			<horizon-end-call-session
+				.incidentDetails="${this.incidentDetails}"
+				.incomingCallDetails = "${this.incomingCallDetails}"
+				endCallContext="LandingPage"
+				?isReassigned = "${this.isReassigned}"
+				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
+			</horizon-end-call-session>`;
+		}
+		return html``;
 	}
 
+	_renderAssignModal() {
+		if (this.renderMode === RENDER_MODE.ASSIGN) {
+			return html`
+				<horizon-assign-stop-card
+					.callerInfo=${this.callerInfo}
+					.cards=${this.cards}
+					.incidentDetails="${this.incidentDetails}"
+					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}"
+					@on-handoff="${(e) => this._onHandOff(e)}">
+				</horizon-assign-stop-card>
+			`;
+		}
+		return html``;
+	}
+
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
+			return html`
+				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}"
+					.callerInformation="${this.callerInformation}"
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
+		}
+		return html``;
+	}
+
+	_renderAddCallerDetails() {
+		return html`
+		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+			<capitec-hyperlink label="Add Caller Details" 
+				@click="${() => this._addCallerDetailsClick()}">
+			</capitec-hyperlink>
+			if the caller is calling on another client's behalf
+		</capitec-alert-banner>`;
+	}
+
+	_renderAddCallerDetailsModal() {
+		return this.showAddCallerDetails && this.renderMode === RENDER_MODE.ADD_CALLER_DETAILS ? html`
+			<horizon-add-caller-details
+				.confirmedCaller="${this.confirmedCaller}"
+				.incomingCallDetails="${this.incomingCallDetails}"
+				.incidentDetails="${this.incidentDetails}"
+				.addCallerDialog="${this.addCallerDetails}"
+				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
+				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
+			</horizon-add-caller-details>`
+		: html``;
+	}
 }
 
 customElements.define(`horizon-stop-card`, StopCard);
