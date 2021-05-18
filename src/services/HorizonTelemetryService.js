@@ -30,6 +30,7 @@ export const TelemetryScreen = {
 	UPDATE_CARD_LIMITS: `Update Card Limits`,
 
 	TAP_TO_PAY: `Tap to Pay`,
+	TAP_TO_PAY_AGREEMENT: `Tap To Pay Agreement`,
 	STATEMENTS: `Statements`,
 	STATEMENTS_OUTCOME: `Statements Outcome`,
 	TAX_CERTIFICATE: `Tax Certificate`,
@@ -154,7 +155,18 @@ const TelemetryEvent = {
 	SELECT_BACK: `horizon.call.statements.back`,
 	STATEMENTS_SEND_ANOTHER: `horizon.call.statements.send-another`,
 	SCR_UNLD_STATEMENTS: `horizon.call.statements.end-span`,
-	STATEMENTS_CANCEL_BACK: ``
+	STATEMENTS_CANCEL_BACK: ``,
+
+	// Tap To Pay
+	SCR_LD_TAP_TO_PAY: `horizon.call.tap-to-pay.start-span`,
+	SELECT_CARD: `horizon.call.tap-to-pay.select-card`,
+	SELECT_AGREE: `horizon.call.tap-to-pay.agreement.agree`,
+	TAP_TO_PAY_SUCCESS_DONE: `horizon.call.tap-to-pay.success.done`,
+	TAP_TO_PAY_SUCCESS_OUTCOME: `horizon.call.tap-to-pay.success.tap-to-pay`,
+	TAP_TO_PAY_FAILURE_DONE: `horizon.call.tap-to-pay.failure.done`,
+	TAP_TO_PAY_HANDOFF: `horizon.call.tap-to-pay.failure.handoff`,
+	TAP_TO_PAY_CANCEL: `horizon.call.tap-to-pay.cancel`,
+	SCR_UNLD_TAP_TO_PAY: `horizon.call.tap-to-pay.end-span`
 };
 
 
@@ -218,7 +230,8 @@ export class HorizonTelemetry extends Telemetry {
 			"verify-caller": null,
 			"ita": null,
 			"xds": null,
-			"statements": null
+			"statements": null,
+			"tap-to-pay": null
 		};
 
 		this.telemetryStore = new TelemetryStore();
@@ -2771,6 +2784,73 @@ export class HorizonTelemetry extends Telemetry {
 	}
 
 	// #endregion STATEMENTS
+
+	// #region TAP TO PAY
+	
+	/**
+	 * @typedef {Object} ScrLdTapToPayModel
+	 * @property {String} screen 
+	 */
+
+	/** Tap To Pay screen loaded telemetry event
+	 * @screen Tap To Pay
+	 * @event Screen Load: Tap To Pay
+	 * 
+	 * @param {ScrLdTapToPayModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadTapToPay(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SCR_LD_TAP_TO_PAY,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_TAP_TO_PAY),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`tap-to-pay`, spanId);
+		}
+	}
+
+
+	/**
+	 * @typedef {Object} SelectTapToPayCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen
+	 * @property {String} cardId
+	 */
+
+	/** Select Tap To Pay Card Toggle telemetry event
+	 * @screen Tap To Pay
+	 * @event Select Tap To Pay Card
+	 * 
+	 * @param {SelectTapToPayCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectToggle(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`tap-to-pay`),
+			parentSpan: this.currentActiveSpans.get(`tap-to-pay`),
+			eventName: TelemetryEvent.SELECT_CARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_CARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen },
+				{ "cardId": baggage.cardId }
+			]
+		});
+	}
+	
+
+	// #endregion TAP TO PAY
 
 	// #endregion PUBLIC METHODS
 

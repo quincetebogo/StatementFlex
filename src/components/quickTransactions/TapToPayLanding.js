@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'app/components/common/CardArt';
 
 export class TapToPayLanding extends Component {
@@ -31,7 +31,10 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY
+		});
 		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard !== true && card.isContactlessCard === false);
 		this.primaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
 		
