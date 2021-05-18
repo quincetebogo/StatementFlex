@@ -130,27 +130,25 @@ export class TapToPayAgreement extends Component {
 					--theme-label-font-color: #3A3A3A;
 				}
 
-
-				div[slot="body"] {
-					width: auto;
-					height: 728px;
-				}
-
 				.expander-cb {
 					background-color: #FFFFFF;
 					border-top: 1px solid #E1E1E1;
 
 					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 9px;
+					--theme-container-padding-top: 13px;
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 0px;
-					--theme-layout-gap-spacing: 18px;
+					--theme-layout-gap-spacing: 14px;
 				}
 
 				.terms-and-conditions {
 					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
+				}
+
+				.expander-cb > .terms-and-conditions:nth-child(n+2) {
+					--theme-layout-gap-spacing: 71px;
 				}
 
 				.terms-and-conditions > ol {
@@ -164,13 +162,12 @@ export class TapToPayAgreement extends Component {
 
 				.accept-terms-and-conditions {
 					justify-content: center;
-					margin-top: 61px;
-					margin-bottom: 16px;
 
 					--theme-card-min-height: 48px;
 				}
 
 				.main {
+					height: 728px;
 					border-bottom: 1px solid #E1E1E1;
 
 					--theme-container-padding-left: 16px;
