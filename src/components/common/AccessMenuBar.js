@@ -75,7 +75,7 @@ export class AccessMenuBar extends Component {
 	// ---------------
 
 	_accessChannelErrorHandler(ex) {
-		// TODO: Handle channel service error
+		return true;
 	}
 
 	_toggleBusyFlag() {

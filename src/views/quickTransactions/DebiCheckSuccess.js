@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -50,7 +51,10 @@ export class DebiCheckSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		// Telemetry 
+		HorizonTelemetry.instance.debiCheckOutcome({
+			screen: TelemetryScreen.DEBICHECK_OUTCOME
+		});
 		const state = this.horizonStore.recoverState();
 
 		if (state) {
@@ -66,10 +70,18 @@ export class DebiCheckSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		// Telemetry
+		HorizonTelemetry.instance.debiCheckOutcomeDone({
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		this.horizonRouter.navigateToReturnPage(`done`);
 	}
 
 	_debiCheckMandatesClick() {
+		// Telemetry
+		HorizonTelemetry.instance.debiCheckOutcomeBackToMandates({
+			nextScreen: TelemetryScreen.DEBICHECK
+		});
 		this.horizonRouter.navigateToReturnPage(`mandate`);
 	}
 

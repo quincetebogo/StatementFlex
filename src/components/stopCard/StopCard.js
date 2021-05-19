@@ -4,7 +4,10 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { Logger } from 'platform/core';
 import { Utilities } from '@cb/platform-web-core';
+
 import 'platform/components';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -76,14 +79,17 @@ export class StopCard extends Component {
         this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.logger = Logger.getInstance();
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
+		this.isBusy = false;
 
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -110,7 +116,8 @@ export class StopCard extends Component {
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			cardsToStop: { type: Array }
+			cardsToStop: { type: Array },
+			isBusy: { attribute: false }
 		};
 	}
 
@@ -247,8 +254,7 @@ export class StopCard extends Component {
 	}
 
 	_toggleBusyFlag() {
-		// Only used for Call Completion at present.
-		// May be implemented later to render progress on endCall method
+		this.isBusy = !this.isBusy;
   }
 
 	_verifyClick() {
@@ -272,6 +278,11 @@ export class StopCard extends Component {
 		this.callerInformation = event.detail.callerInformation;
 		this._updateLeftBar();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_handleChannelServiceError() {
+		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 	// --------------
@@ -458,6 +469,7 @@ export class StopCard extends Component {
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
 			${this._renderVerifyNowModal()}
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -644,6 +656,13 @@ export class StopCard extends Component {
 		}
 		return html``;
 	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
+
 }
 
 customElements.define(`horizon-stop-card`, StopCard);

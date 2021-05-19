@@ -2,7 +2,6 @@ import { Configuration, EventAggregator, NavigationContext } from 'platform/core
 import { html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { CardService } from 'app/services/CardService';
 import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/product/CnetProductInfo';
@@ -55,7 +54,7 @@ export class ProductInformation extends ViewBase {
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
-		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
+		this.logger = Logger.getInstance();
 
 	}
 
