@@ -27,6 +27,11 @@ export const TelemetryScreen = {
 
 	FAVOURITES: `Favourite Transactions`,
 
+	DEBICHECK: `DebiCheck Mandates`,
+	VIEWINFO: `DebiCheck View Info`,
+	DECLINE_DEBICHECK: `Decline Debi Check`,
+	DEBICHECK_OUTCOME: `DebiCheck Outcome`,
+
 	UPDATE_CARD_LIMITS: `Update Card Limits`,
 
 	TAP_TO_PAY: `Tap to Pay`,
@@ -166,7 +171,24 @@ const TelemetryEvent = {
 	TAP_TO_PAY_FAILURE_DONE: `horizon.call.tap-to-pay.failure.done`,
 	TAP_TO_PAY_HANDOFF: `horizon.call.tap-to-pay.failure.handoff`,
 	TAP_TO_PAY_CANCEL: `horizon.call.tap-to-pay.cancel`,
-	SCR_UNLD_TAP_TO_PAY: `horizon.call.tap-to-pay.end-span`
+	SCR_UNLD_TAP_TO_PAY: `horizon.call.tap-to-pay.end-span`,
+
+	//Debicheck
+	SCR_LD_DEBICHECK: `horizon.call.fulfill-need.debicheck.start-span`,
+	EXIT_DEBICHECK: `horizon.call.fulfill-need.debicheck.exit`,
+	VIEW_DEBICHECK_MANDATE: `horizon.call.fulfill-need.debicheck.view-mandate`,
+	CLOSE_VIEW_DEBICHECK: `horizon.call.fulfill-need.debicheck.view-mandate.back`,
+	DECLINE_DEBICHECK_MANDATE: `horizon.call.fulfill-need.debicheck.decline`,
+	DECLINE_DEBICHECK_CONFIRMATION: `horizon.call.fulfill-need.debicheck.decline.confirm`,
+	DECLINE_DEBICHECK_CANCELATION: `horizon.call.fulfill-need.debicheck.decline.cancel`,
+	APPROVE_DEBICHECK_MANDATE: `horizon.call.fulfill-need.debicheck.approve`,
+	APPROVE_DEBICHECK_CONFIMATION: `horizon.call.fulfill-need.debicheck.approve.confirm`,
+	APPROVE_DEBICHECK_CANCELATION: `horizon.call.fulfill-need.debicheck.approve.cancel`,
+	DEBICHECK_OUTCOME: `horizon.call.fulfill-need.debicheck.outcome`,
+	DEBICHECK_OUTCOME_DONE: `horizon.call.fulfill-need.debicheck.outcome.done`,
+	DEBICHECK_OUTCOME_BACK_TO_MANDATES: `horizon.call.fulfill-need.debicheck.outcome.another`,
+	DEBICHECK_OUTCOME_ASSIGN: `horizon.call.fulfill-need.debicheck.outcome.assign`,
+	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`
 };
 
 
@@ -231,7 +253,8 @@ export class HorizonTelemetry extends Telemetry {
 			"ita": null,
 			"xds": null,
 			"statements": null,
-			"tap-to-pay": null
+			"tap-to-pay": null,
+			"debicheck": null
 		};
 
 		this.telemetryStore = new TelemetryStore();
@@ -533,7 +556,6 @@ export class HorizonTelemetry extends Telemetry {
 		});
 	}
 
-
 	/**
 	 * @typedef {Object} NavigateSearchClientModel
 	 * @property {String} screen 
@@ -563,7 +585,6 @@ export class HorizonTelemetry extends Telemetry {
 			]
 		});
 	}
-
 
 	/**
 	 * @typedef  {Object} NavigateAddCallerDetailsModel 
@@ -2784,6 +2805,465 @@ export class HorizonTelemetry extends Telemetry {
 	}
 
 	// #endregion STATEMENTS
+	
+	// #region DEBI CHECK
+
+	/**
+	 * @typedef {Object} ScrLdDebiCheckModel
+	 * @property {String} screen
+	 */
+
+	/** Debi Check
+	 * @screen Debi Check
+	 * @event Screen Load: Debi Check
+	 * 
+	 * @param {ScrLdDebiCheckModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadDebiCheck(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SCR_LD_DEBICHECK,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_DEBICHECK),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`debicheck`, spanId);
+		}
+	}
+
+	/**
+	 * @typedef {Object} ExitDebiCheckModel
+	 * @property {String} screen
+	 * @property {String} nextScreen
+	 */
+
+	/** Exit DebiCheck telemetry event
+	 * @screen DebiCheck Mandate
+	 * @nextScreen Favourites Landing
+	 * @event Exit DebiCheck
+	 * 
+	 * @param {ExitDebiCheckModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 exitDebiCheck(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.EXIT_DEBICHECK,
+			tags: this._extractTags(TelemetryEvent.EXIT_DEBICHECK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} ViewDebiCheckMandateModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to View DebiCheck Screen
+	 * @screen DebiCheck Mandate
+	 * @event Navigate to View DebiCheck
+	 * 
+	 * @param {ViewDebiCheckMandateModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectViewDebiCheck(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.VIEW_DEBICHECK_MANDATE,
+			tags: this._extractTags(TelemetryEvent.VIEW_DEBICHECK_MANDATE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} CloseViewDebiCheckModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Mandates Screen
+	 * @screen View DebiCheck
+	 * @event Navigate to DebiCheck Mandates
+	 * 
+	 * @param {CloseViewDebiCheckModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 closeViewDebiCheck(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.CLOSE_VIEW_DEBICHECK,
+			tags: this._extractTags(TelemetryEvent.CLOSE_VIEW_DEBICHECK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} DeclineDebiCheckMandateModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to Decline DebiCheck Mandate Screen
+	 * @screen View DebiCheck Mandates
+	 * @event Navigate to Decline DebiCheck Mandate
+	 * 
+	 * @param {DeclineDebiCheckMandateModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 declineDebiCheckMandate(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DECLINE_DEBICHECK_MANDATE,
+			tags: this._extractTags(TelemetryEvent.DECLINE_DEBICHECK_MANDATE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+		/**
+	 * @typedef {Object} DeclineDebiCheckConfirmationModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Confirmation Outcome
+	 * @screen Decline DebiCheck
+	 * @event Navigate to DebiCheck Confirmation Outcome
+	 * 
+	 * @param {DeclineDebiCheckConfirmationModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 declineDebiCheckConfirmation(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DECLINE_DEBICHECK_MANDATE,
+			tags: this._extractTags(TelemetryEvent.DECLINE_DEBICHECK_MANDATE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} CancelDeclineDebiCheckModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Mandates Screen
+	 * @screen Decline DebiCheck
+	 * @event Navigate to DebiCheck Mandates
+	 * 
+	 * @param {CancelDeclineDebiCheckModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectCancelDeclineDebiCheck(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DECLINE_DEBICHECK_CANCELATION,
+			tags: this._extractTags(TelemetryEvent.DECLINE_DEBICHECK_CANCELATION),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} ApproveDebiCheckModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Outcome Screen
+	 * @screen Decline DebiCheck
+	 * @event Navigate to DebiCheck Outcome
+	 * 
+	 * @param {ApproveDebiCheckModel} baggage Information to attach to the telemetry event
+	 * There is no Approve DebiCheck Mandate Dialog / Buttons at this point to add an event.
+	 * @returns { void } 
+	 */
+	 selectApproveDebiCheck(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.APPROVE_DEBICHECK_MANDATE,
+			tags: this._extractTags(TelemetryEvent.APPROVE_DEBICHECK_MANDATE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} ApproveDebiCheckMandateConfirmationModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Approve Outcome Screen
+	 * @screen Approve DebiCheck
+	 * @event Navigate to DebiCheck Outcome
+	 * 
+	 * @param {ApproveDebiCheckMandateConfirmationModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectApproveDebiCheckConfirmation(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.APPROVE_DEBICHECK_CONFIMATION,
+			tags: this._extractTags(TelemetryEvent.APPROVE_DEBICHECK_CONFIMATION),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+	
+	/**
+	 * @typedef {Object} CancelDebiCheckMandateConfirmationModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Approve Outcome Screen
+	 * @screen Approve DebiCheck
+	 * @event Navigate to DebiCheck Outcome
+	 * 
+	 * @param {CancelDebiCheckMandateConfirmationModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 selectCancelDebiCheckConfirmation(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.APPROVE_DEBICHECK_CANCELATION,
+			tags: this._extractTags(TelemetryEvent.APPROVE_DEBICHECK_CANCELATION),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} NavigateDebiCheckOutcomeModel
+	 * @property {String} screen 
+	 * @property  {String} nextScreen
+	 */
+
+	/** Navigate to DebiCheck Outcome Screen
+	 * @screen DebiCheck Mandate Approve || Decline
+	 * @event Navigate to DebiCheck Outcome
+	 * 
+	 * @param {NavigateDebiCheckOutcomeModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckOutcome(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBICHECK_OUTCOME,
+			tags: this._extractTags(TelemetryEvent.DEBICHECK_OUTCOME),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "nextScreen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} NavigateDebiCheckOutcomeDoneModel
+	 * @property {String} screen 
+	 * @property {TelemetryOutcome} outcome
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Outcome Done Screen
+	 * @screen DebiCheck Mandate Approve || Decline
+	 * @event Navigate to DebiCheck Outcome
+	 * 
+	 * @param {NavigateDebiCheckOutcomeDoneModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckOutcomeDone(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBICHECK_OUTCOME_DONE,
+			tags: this._extractTags(TelemetryEvent.DEBICHECK_OUTCOME_DONE),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} NavigateDebiCheckOutcomeBackToMandatesModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Mandates Screen
+	 * @screen DebiCheck Mandate Mandates Outcome 
+	 * @event Navigate to DebiCheck Mandates
+	 * 
+	 * @param {NavigateDebiCheckOutcomeBackToMandatesModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckOutcomeBackToMandates(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBICHECK_OUTCOME_BACK_TO_MANDATES,
+			tags: this._extractTags(TelemetryEvent.DEBICHECK_OUTCOME_BACK_TO_MANDATES),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} NavigateDebiCheckOutcomeAssignModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Navigate to DebiCheck Outcome Assign Screen
+	 * @screen DebiCheck Mandate Approve || Decline
+	 * @event Navigate to DebiCheck Outcome Assign
+	 * 
+	 * @param {NavigateDebiCheckOutcomeAssignModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 debiCheckOutcomeAssign(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`debicheck`),
+			parentSpan: null,
+			eventName: TelemetryEvent.DEBICHECK_OUTCOME_ASSIGN,
+			tags: this._extractTags(TelemetryEvent.DEBICHECK_OUTCOME_ASSIGN),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+	/**
+	 * @typedef {Object} ScrUnldDebiCheckMandatesModel 
+	 * @property {String} screen 
+	 */
+
+	/** DebiCheck Mandates Screen Unload
+	 * @screen DebiCheck Mandates Outcome
+	 * @event Screen Unload: DebiCeck Mandates
+	 * 
+	 * @param {ScrUnldDebiCheckMandatesModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadDebiCheckMandates(baggage) {
+		const spanId = this.currentActiveSpans.get(`debicheck`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_DEBICHECK,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_DEBICHECK),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [{ "screen": baggage.screen }]
+			});
+
+			this.currentActiveSpans.set(`debicheck`, null);
+		}
+	}
+
+
+	// #endregion DEBI CHECK
 
 	// #region TAP TO PAY
 	

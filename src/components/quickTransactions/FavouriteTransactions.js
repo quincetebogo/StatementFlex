@@ -311,7 +311,7 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: visible;"
+						style="visibility: visible;"
 						>
 					</horizon-option-button>
 				</capitec-button-bar>

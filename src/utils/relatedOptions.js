@@ -66,7 +66,7 @@ export const optionsConfig = {
 		src: `system/stop-card-action`
 	},
 	'update-card-limits': {
-		label: `Update Limits`,
+		label: `Update Card Limits`,
 		src: `system/cards-action`
 	},
 	'tap-to-pay': {

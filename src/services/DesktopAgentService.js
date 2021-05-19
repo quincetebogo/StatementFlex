@@ -155,7 +155,7 @@ export class DesktopAgentService {
 			if (!newCallEvent.voiceReferenceNumber || newCallEvent.voiceReferenceNumber === 0) {
 				
 				newCallEvent.voiceReferenceNumber = this._generateVoiceReference();
-				this._logger.log(`error`, `No Voice Reference Number received! The ACapitecAES Proxy component may be down!`, `_onNewCall`);
+				this._logger.log(`warn`, `No Voice Reference Number received! This call may have been handled by doing a manual search.`, `_onNewCall`);
 			}
 
 			this.nextCall = newCallEvent;
@@ -290,6 +290,8 @@ export class DesktopAgentService {
 			newCallEvent.VDN = vdn;
 			newCallEvent.ivrOptionCode = `Transact`;
 			newCallEvent.date = currentdate;
+
+			this._logger.log(`warn`, `Manual call handling invoked. This may be due to a missed incoming call event.`, `manualCreateCall`);
 	
 			if (this.nextCall) {
 				this._logger.log(`warn`, `Dropped call detected. A previous call was delivered to the user interface but not handled.`, `manualCreateCall`);
