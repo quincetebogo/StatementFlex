@@ -186,7 +186,7 @@ export class VerifyCaller extends Component {
 
 		if (this.itaTimer) {
 			this._stopTimer();
-			this.horizonSignalRClient.deRegisterHandler();
+            this.horizonSignalRClient.deRegisterHandler();            
 		}
 
 		this.xdsMessage = ``;
@@ -197,27 +197,27 @@ export class VerifyCaller extends Component {
 			this.securityQuestions = returnValue.result;
 
 			const authHistory = this.securityQuestions.authenticationHistory;
-			if (authHistory) {
+            if (authHistory) {                
 				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
 			}
 
-			if (!this.securityQuestions.authenticationPermitted) {
+            if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				this._updateApplicationState(`failed`);
-				this.horizonRouter.navigateToXdsVerificationFailed();
-			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+                this.horizonRouter.navigateToXdsVerificationFailed();
+            } else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 				this._stopSignalRConnection();
 				this._stopTimer();
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			} else {
+            } else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
-		} else {
+        } else {
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
-		}
+        }
 	}
 
 	_calculateXDSAttempts(authHistory) {
@@ -730,7 +730,7 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-	_renderOtherOptions() {
+    _renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
@@ -739,6 +739,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/apply-now-action"
 						iconSize="default"
+                        ?disabled=${this.callerInformation.verificationAttempts.xdsAttempts == 2}
 						?hidden=${this.isForeignClient}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
