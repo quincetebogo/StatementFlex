@@ -6,11 +6,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Utilities } from '@cb/platform-web-core';
 import 'platform/components';
-import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/stopCard/StopCardConfirm';
 import 'app/components/dialogs/common/VerifyCaller';
-import 'app/components/dialogs/common/AddCallerDetails';
-
 
 const COLUMNS = {
 	CARDTYPE: `cardDisplayName`,
@@ -87,7 +84,6 @@ export class StopCard extends Component {
 		this.cards = null;
 		this.selectedCardCount = 0;
 		this.cardsToStop = [];
-		this.showAddCallerDetails = false;
 
 		// Recover state information
 		this.callerInformation = this.horizonStore.getCallerInformation();
@@ -114,8 +110,7 @@ export class StopCard extends Component {
 			cards: { type: Array },
 			selectedCardCount: { type: Number },
 			renderMode: { type: Number },
-			cardsToStop: { type: Array },
-			showAddCallerDetails: { type: Boolean }
+			cardsToStop: { type: Array }
 		};
 	}
 
@@ -136,22 +131,7 @@ export class StopCard extends Component {
 		*/
 		this.addFieldsToCardsArray();
 
-		// The End Call Modal is using a different modal to the Stop Card Modal
-		this.endCallCallerInfo = {
-			ivrOption: {
-				possibleValues: this.incomingCallDetails.ivrOption,
-				value: this.incomingCallDetails.ivrOptionCode
-			},
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber
-		};
-
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._onAddCallerDetailsClick());
 		this._updateLeftBar();
 		
 		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
@@ -160,65 +140,9 @@ export class StopCard extends Component {
 	disconnectedCallback() {
 		this.verifySub.dispose();
 		this.assignSub.dispose();
-		this.endCallSub.dispose();
-		this.addCallerDetailsSub.dispose();
 
 		super.disconnectedCallback();
 	}
-
-	_onAddCallerDetailsClick() {
-		this.showAddCallerDetails = !this.showAddCallerDetails;
-		this._addCallerDetailsClick();
-	}
-
-	async _addCallerDetailsClick() {
-		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
-
-		const callDetails = {
-			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOption: this.incomingCallDetails.ivrOption.value,
-			incidentNo: this.incidentDetails.incidentReferenceNumber,
-			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
-		};
-
-		const returnValue = await this.cardService.addCallerDetails(callDetails);
-		if (returnValue.succeeded) {
-			this.addCallerDetails = returnValue.result;
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-		}
-	}
-
-	_addCallerDetailsCancelled(event) {
-		this.confirmedCaller = {};
-		this.confirmedCaller.ivrOptionCode = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOption.value = event.detail.ivrOptionValue;
-		this.incomingCallDetails.ivrOptionCode = event.detail.ivrOptionValue;
-		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-	}
-
-	async _addCallerDetailsConfirmed(event) {
-		this.incomingCallDetails = event.detail.incomingCallDetails;
-		this.callerInformation = event.detail.callerInformation;
-		if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
-			const nonClientDetails = {
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				firstName: this.callerInformation.nonClientFirstName,
-				surname: this.callerInformation.nonClientSurName,
-				cellPhone: this.callerInformation.nonClientCellPhone
-			};
-			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
-			if (returnValue.succeeded) {
-				this._navigateToLandingPage();
-			} else {
-				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_addCallerDetailsConfirmed`, returnValue.correlationId);
-			}
-		} else {
-			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
-		}
-	}
-
 
 	// --------------
 	// EVENT HANDLERS
@@ -320,10 +244,6 @@ export class StopCard extends Component {
 	_onAssignReasonSelected(e) {
 		this.assignReason = e.detail.reason;
 		this.renderMode = RENDER_MODE.ASSIGN_REASON_SELECTED;
-	}
-
-	_onEndCallSession() {
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
 	}
 
 	_toggleBusyFlag() {
@@ -535,11 +455,9 @@ export class StopCard extends Component {
 			
 				</capitec-group>
 			</capitec-card>
-			${this._renderEndCallModal()}
 			${this._renderStopCardModal()}
 			${this._renderAssignModal()}
 			${this._renderVerifyNowModal()}
-			${this._renderAddCallerDetailsModal()}
 		`;
 	}
 
@@ -697,20 +615,6 @@ export class StopCard extends Component {
 		}
 	}
 
-	_renderEndCallModal() {
-		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
-			return html`
-			<horizon-end-call-session
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails = "${this.incomingCallDetails}"
-				endCallContext="LandingPage"
-				?isReassigned = "${this.isReassigned}"
-				@cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
-			</horizon-end-call-session>`;
-		}
-		return html``;
-	}
-
 	_renderAssignModal() {
 		if (this.renderMode === RENDER_MODE.ASSIGN) {
 			return html`
@@ -739,29 +643,6 @@ export class StopCard extends Component {
 				</horizon-verify-caller>`;
 		}
 		return html``;
-	}
-
-	_renderAddCallerDetails() {
-		return html`
-		<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			<capitec-hyperlink label="Add Caller Details" 
-				@click="${() => this._addCallerDetailsClick()}">
-			</capitec-hyperlink>
-			if the caller is calling on another client's behalf
-		</capitec-alert-banner>`;
-	}
-
-	_renderAddCallerDetailsModal() {
-		return this.showAddCallerDetails && this.renderMode === RENDER_MODE.ADD_CALLER_DETAILS ? html`
-			<horizon-add-caller-details
-				.confirmedCaller="${this.confirmedCaller}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.incidentDetails="${this.incidentDetails}"
-				.addCallerDialog="${this.addCallerDetails}"
-				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
-				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
-			</horizon-add-caller-details>`
-		: html``;
 	}
 }
 
