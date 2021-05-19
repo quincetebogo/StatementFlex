@@ -169,3 +169,18 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 
 	return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=113.5`;
 }
+
+/**
+ * Convert cents to Rand
+ *
+ * @export
+ * @param {*} value Amount or any numeric value
+ * @returns {*} Numeric value
+ */
+ export function convertCentsToRand(value) {
+	if (!isNaN(value)) {
+		console.log(`${value} is not a number to perform conversion`)
+	}
+
+	return value / 100;
+}
