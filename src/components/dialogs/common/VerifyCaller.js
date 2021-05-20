@@ -548,6 +548,13 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
+
+				.btnTryAgain[disabled] {
+					cursor:default;
+					pointer-events:none;
+					filter: grayscale(100%);
+				}
+
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
@@ -731,6 +738,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderOtherOptions() {
+		const disableTryAgain = !this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS || this.appTimedOut || this.itaMessage == "" ? true : false;
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
@@ -748,11 +756,12 @@ export class VerifyCaller extends Component {
 						iconSize="default"
 					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
-					<horizon-option-button 
+					<horizon-option-button
+					class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
+						?disabled=${disableTryAgain}
 						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
