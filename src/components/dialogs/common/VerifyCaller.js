@@ -199,10 +199,13 @@ export class VerifyCaller extends Component {
 			const authHistory = this.securityQuestions.authenticationHistory;
             if (authHistory) {                
 				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
+				if (this.noOfXdsVerificationAttempted > 0) {
+					this.logger.log(`warn`, `The caller made ${this.noOfXdsVerificationAttempted} attempts at verifying via XDS in the last 24 hours!`);
+				}
 			}
 
-            if (!this.securityQuestions.authenticationPermitted) {
-				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
+			if (!this.securityQuestions.authenticationPermitted) {
+				this.logger.log(`warn`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				this._updateApplicationState(`failed`);
                 this.horizonRouter.navigateToXdsVerificationFailed();
