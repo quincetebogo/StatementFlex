@@ -118,7 +118,7 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+        this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
 
 		// Extracting incoming call details
 		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
@@ -737,7 +737,7 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-						icon="system/apply-now-action"
+						icon="${this.callerInformation.verificationAttempts.xdsAttempts == 2 ? `system/apply-now` : `system/apply-now-action`}"
 						iconSize="default"
                         ?disabled=${this.callerInformation.verificationAttempts.xdsAttempts == 2}
 						?hidden=${this.isForeignClient}
