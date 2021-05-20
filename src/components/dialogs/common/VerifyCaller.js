@@ -141,6 +141,8 @@ export class VerifyCaller extends Component {
 
 		// function for stopping the ITA timer
 		this._stopTimer = () => {
+			this._stopSignalRConnection();
+
 			if (this.itaTimer) {
 				clearInterval(this.itaTimer);
 				this.itaTimer = null;
@@ -172,7 +174,6 @@ export class VerifyCaller extends Component {
 		// Cleanup before we leave the dialog
 		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
 		this._stopTimer();
-		this._stopSignalRConnection();
 		super.disconnectedCallback();
 	}
 
@@ -209,7 +210,6 @@ export class VerifyCaller extends Component {
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-				this._stopSignalRConnection();
 				this._stopTimer();
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
@@ -281,7 +281,7 @@ export class VerifyCaller extends Component {
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			// Re-initialting the ITA verification
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
-			this._itaServiceCall();
+			this._initiateItaVerification();
 		} else {
 			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
 			this._navigateToItaVerificationFailed();
@@ -339,12 +339,12 @@ export class VerifyCaller extends Component {
 
 			if (this.seconds <= 0) {
 				this._stopTimer();
+				
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
-					this._stopSignalRConnection();
 					this._navigateToItaVerificationFailed();
 				} else {
 					this._updateApplicationState(`unverified`);
@@ -440,7 +440,6 @@ export class VerifyCaller extends Component {
 
 		if ((typeof verificationStatus === `boolean` && verificationStatus) || (typeof verificationStatus === `string` && verificationStatus === `true`)) {
 			
-			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
 			this._updateApplicationState(`verified`);
@@ -458,7 +457,6 @@ export class VerifyCaller extends Component {
 			this.itaFailedCount++;
 
 			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
-				this._stopSignalRConnection();
 				this._navigateToItaVerificationFailed();
 			}
 			this._updateApplicationState(`failed`);
