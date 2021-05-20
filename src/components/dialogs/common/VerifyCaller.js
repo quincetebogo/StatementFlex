@@ -367,9 +367,15 @@ export class VerifyCaller extends Component {
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 		if (signalRUrl && signalRUrl !== ``) {
-			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
-			await this._initialiseSignalR();
-			this._itaServiceCall();
+			if (!this.HorizonSignalRClient) {
+				this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+				await this._initialiseSignalR();
+				this._itaServiceCall();
+			} else {
+				this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
+			}
+		} else {
+			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
 		}
 	}
 
