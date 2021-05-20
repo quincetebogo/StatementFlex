@@ -96,7 +96,7 @@ export class SecurityQuestionsFailed extends Component {
 			const securityQuestions = returnValue.result;
 
 			if (!securityQuestions.authenticationPermitted) {
-				this.logger.log(`info`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
+				this.logger.log(`warning`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				// common code - imported from VerifyCaller
 				navigateToFailedScreen(this);
@@ -105,9 +105,15 @@ export class SecurityQuestionsFailed extends Component {
 					detail: { 'securityQuestions': securityQuestions }
 				}));
 			} else {
+				this.logger.log(`error`, `Failure retrieving security questions: ${securityQuestions.errorMessage}`, `_retrySecurityQuestions`);
 				this.xdsMessage = securityQuestions.errorMessage;
 			}
-		}
+		} else {
+			this.logger.log(`error`, `Failed to retrieve security questions. This will be treated as a final failure!`, `_retrySecurityQuestions`);
+			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // Treat this as too many attempts
+			// common code - imported from VerifyCaller
+			navigateToFailedScreen(this);
+	}
 	}
 
 
@@ -140,7 +146,7 @@ export class SecurityQuestionsFailed extends Component {
 	}
 
 	_xdsErrorHandler(exception) {
-		this.horizonStore.setincomingCallDetails(this.incomingCallDetails);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonRouter.navigateToSystemError();
 		return true;
