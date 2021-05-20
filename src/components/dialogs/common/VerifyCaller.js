@@ -63,7 +63,6 @@ export class VerifyCaller extends Component {
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 		this.isBusy = false;
-		this.connectionID = ``;
 		this.itaFailedCount = 0;
 		this.itaTimer = null;
 		this.loading = true;
@@ -104,7 +103,6 @@ export class VerifyCaller extends Component {
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
 			itaMessage: { attribute: false }, // Set when there has been a system error with ITA
 			itaFailedCount: { attribute: false },
-			connectionID: { attribute: false },
 			isBusy: { attribute: false },
 			loading: { attribute: false },
 			itaVerificationFailed: { attribute: false },
@@ -369,8 +367,12 @@ export class VerifyCaller extends Component {
 		if (signalRUrl && signalRUrl !== ``) {
 			if (!this.HorizonSignalRClient) {
 				this.horizonSignalRClient = HorizonSignalRClient.getInstance();
-				await this._initialiseSignalR();
-				this._itaServiceCall();
+				const connectionID = await this._initialiseSignalR();
+				if (connectionID) {
+					this._itaServiceCall(connectionID);
+				} else {
+					this.logger.log(`error`, `ITA Service call not made as ITA subscription was not started`, `_initiateItaVerification`);
+				}
 			} else {
 				this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
 			}
@@ -383,19 +385,29 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
 		this.itaVerificationFailed = false;
 		// Starting signalR connection
-		this.horizonSignalRClient.startConnection();
-		// Fetching connection id from signalR client
-		this.connectionID = await this.horizonSignalRClient.getConnectionId();
 
-		this.logger.log(`info`, `SignalR connection established`, `_initialiseSignalR`);
+		try {
+			await this.horizonSignalRClient.startConnection();
+
+			// Fetching connection id from signalR client
+			const connectionID = await this.horizonSignalRClient.getConnectionId();
+	
+			this.logger.log(`info`, `SignalR connection established`, `_initialiseSignalR`);
+			
+			return connectionID;
+		} catch (error) {
+			this.logger.log(`error`, `Failed to establish ITA Hub Connection`, `_initialiseSignalR`);
+		}
+
+		return null;
 	}
 
-	async _itaServiceCall() {
-		if (this.connectionID) {
+	async _itaServiceCall(connectionID) {
+		if (connectionID) {
 
 			const request = {
 				cifNumber: this.callerInformation.cifNumber,
-				connectionID: this.connectionID
+				connectionID: connectionID
 			};
 
 			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
@@ -416,6 +428,8 @@ export class VerifyCaller extends Component {
 			} else {
 				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
 			}
+		} else {
+			this.logger.log(`error`, `ITA Verification not started as no connection ID was set`, `_itaServiceCall`);
 		}
 	}
 
