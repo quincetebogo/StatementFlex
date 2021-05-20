@@ -338,6 +338,7 @@ export class StopCardSuccess extends View {
 			<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
 				${this._renderTitleBar()}
 				${this._renderSuccessToast()}
+				${this._renderNotifyClient()}
 				${this._renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
 				${this._renderStoppedCards()}
@@ -365,13 +366,13 @@ export class StopCardSuccess extends View {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
 			<div 
-				style="visibility:${!this.displayNotification ? `hidden` : `visible`}"
+				style="visibility:${!this.displayNotification ? `visible` : `visible`}" 
 				class="horizon-notify-client">
 				<img 
 					src="/images/info.svg" 
 					id="action-icon" 
 					/>
-				<p id="action-display">&nbsp;See related options to assist if the client needs to stop their Remote Banking (app/USSD) channels</p>
+				<p id="action-display">&nbsp;Notice: Please check if the client also needs to stop the remote banking app channels (App/USSD)</p>
 			</div>`;
 	}
 
