@@ -76,12 +76,12 @@ export const mockCards = [
 		"isContactlessActivated": false
 	},
 	{
-		"cardId": `4526125468979087`,
+		"cardId": `5526125468979087`,
 		"primaryAccountId": `6601254634`,
 		"cardExpiryYear": `23`,
 		"cardExpiryMonth": `10`,
 		"cardSequenceNumber": ``,
-		"maskedCardNumber": `4526 **** **** 9087`,
+		"maskedCardNumber": `5526 **** **** 9087`,
 		"cardDisplayName": `Supplementary debit card`,
 		"cardArt": `DEBIT_MASTERCARD_20190608`,
 		"cardStatus": `ACTIVE`,

@@ -113,7 +113,7 @@ export class ItaVerificationFailed extends View {
 				const event = {
 					from: `UI-CS`,
 					status: `error`,
-					message: `Failed to retrieve security questions from ITA`
+					message: `Failed to retrieve security questions from XDS`
 				};
 				this.eventAggregator.publish(`horizon-status-bar-update`, event);
 			}
