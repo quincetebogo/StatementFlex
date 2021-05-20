@@ -57,7 +57,7 @@ export class LandingPageWaitForCall extends Component {
 			}
 			#alert {
 				width: 520px;
-				height: 48px;
+				--theme-alert-banner-height: 48px;
 				margin-top: 10px;
 			}
 			`
