@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
-import { HorizonTelemetry } from '../../services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from '../../services/HorizonTelemetryService';
 
 export class TapToPayLanding extends Component {
 
@@ -40,6 +40,12 @@ export class TapToPayLanding extends Component {
 		});
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		HorizonTelemetry.instance.screenUnloadTapToPay({
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+	}
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -58,11 +64,18 @@ export class TapToPayLanding extends Component {
 	}
 
 	_toggleTapToPayAgreement(event) {
+
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 
 		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+		
+		HorizonTelemetry.instance.selectToggle({
+			screen: TelemetryScreen.TAP_TO_PAY,
+			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			cardId: this.selectedCard.cardId
+		});
 	}
 
 	_cancel() {

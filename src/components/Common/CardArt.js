@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry } from '../../services/HorizonTelemetryService';
 // import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
