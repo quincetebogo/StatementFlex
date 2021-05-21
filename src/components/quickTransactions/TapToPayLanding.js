@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
+import { HorizonTelemetry } from '../../services/HorizonTelemetryService';
 
 export class TapToPayLanding extends Component {
 

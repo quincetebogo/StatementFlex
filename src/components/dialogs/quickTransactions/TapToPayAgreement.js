@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry } from '../../../services/HorizonTelemetryService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -80,7 +81,7 @@ export class TapToPayAgreement extends Component {
 			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
 			cardId: this.card
 		});
-		
+
 		this.tapToPayInfo[e.currentTarget.id] = e.detail.new;
 	}
 
