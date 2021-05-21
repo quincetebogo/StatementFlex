@@ -275,6 +275,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
+	navigateToTapToPaySuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}
@@ -628,7 +632,7 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL,
 		load: () => import(`../views/statements/StatementsUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
-    },
+	},
 	{
 		name: `horizon-tap-to-pay-success`,
 		title: `TapToPaySuccessful`,
