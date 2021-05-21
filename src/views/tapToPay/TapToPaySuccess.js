@@ -46,7 +46,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	_doneClick() {
 		
-		//Telemetry
+		// Telemetry
 		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
 			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
 			nextScreen: TelemetryScreen.TAP_TO_PAY

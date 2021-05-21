@@ -51,7 +51,7 @@ export class TapToPayAgreement extends Component {
 
 	_cancel() {
 
-		//Telemetry
+		// Telemetry
 		HorizonTelemetry.instance.tapToPayCancel({
 			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
 			nextScreen: TelemetryScreen.TAP_TO_PAY
@@ -66,7 +66,7 @@ export class TapToPayAgreement extends Component {
 		HorizonTelemetry.instance.selectAgreeTapToPay({
 			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
 			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			tncAgree: null
+			tncAccepted: null
 		});
 		if (this._validateCheckBox()) {
 			this.horizonRouter.navigateToTapToPaySuccess();
