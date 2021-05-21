@@ -1,8 +1,12 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "http://localhost:6001"
 	},
 	"signalRUrl": "",
+	"bancsUser": {
+		"branchCode": "2000",
+		"tellerNumber": "22312"
+	},
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
@@ -50,7 +54,7 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {
@@ -62,12 +66,12 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
 			"enabled": true,
-			"substituteIdOnly": "6712075142087",
+			"substituteIdOnly": "",
 			"positiveCase": true
 		},
 		"verifySecurityQuestions": {
@@ -108,7 +112,7 @@
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"viewStatements": {
