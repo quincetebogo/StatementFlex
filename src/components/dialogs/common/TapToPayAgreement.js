@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { HorizonTelemetry, TelemetryScreen } from '../../../services/HorizonTelemetryService';
 
 export class TapToPayAgreement extends Component {
 
@@ -41,10 +42,24 @@ export class TapToPayAgreement extends Component {
 	// --------------
 
 	_cancel() {
+
+		//Telemetry
+		HorizonTelemetry.instance.tapToPayCancel({
+			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`));
 	}
 
 	 _agree() {
+
+		//Telemetry
+		HorizonTelemetry.instance.selectAgreeTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			tncAgree: this.activate
+		});
 
 		this.dispatchEvent(new CustomEvent(`agree`));
 		this.horizonRouter.navigateToTapToPaySuccess();

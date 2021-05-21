@@ -36,6 +36,7 @@ export const TelemetryScreen = {
 
 	TAP_TO_PAY: `Tap to Pay`,
 	TAP_TO_PAY_AGREEMENT: `Tap To Pay Agreement`,
+	TAP_TO_PAY_OUTCOME: `Tap to Pay Outcome`,
 	STATEMENTS: `Statements`,
 	STATEMENTS_OUTCOME: `Statements Outcome`,
 	TAX_CERTIFICATE: `Tax Certificate`,
@@ -3404,7 +3405,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {TapToPaySuccessOutcomeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 TapToPaySuccessOutcome(baggage) {
+	 tapToPaySuccessOutcome(baggage) {
 		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`tap-to-pay`),
@@ -3434,7 +3435,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {TapToPayFailureOutcomeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 TapToPayFailureOutcome(baggage) {
+	 selectDoneTapToPayFailure(baggage) {
 		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`tap-to-pay`),
@@ -3454,7 +3455,6 @@ export class HorizonTelemetry extends Telemetry {
 	/**
 	 * @typedef {Object} TapToPayHandoffModel
 	 * @property {String} screen
-	 * * @property {String} nextScreen
 	 */
 
 	/** Select Tap To Pay Handoff telemetry event
@@ -3464,7 +3464,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {TapToPayHandoffModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 TapToPayHandoff(baggage) {
+	 tapToPayHandoff(baggage) {
 		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`tap-to-pay`),
@@ -3475,8 +3475,7 @@ export class HorizonTelemetry extends Telemetry {
 			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
 
 			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
+				{ "screen": baggage.screen }
 			]
 		});
 	}
@@ -3494,7 +3493,7 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {TapToPayCancelModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 TapToPayCancel(baggage) {
+	 tapToPayCancel(baggage) {
 		super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`tap-to-pay`),

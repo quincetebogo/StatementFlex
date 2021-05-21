@@ -50,7 +50,7 @@
 	"mock": {
 		"enabled": true,
 		"acceptCall": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"identifyCaller": {

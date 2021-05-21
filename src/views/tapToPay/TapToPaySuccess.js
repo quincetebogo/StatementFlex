@@ -3,6 +3,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 import 'app/components/common/SuccessScreen';
+import { HorizonTelemetry } from '../../services/HorizonTelemetryService';
 
 export class TapToPaySuccess extends ViewBase {
 
@@ -34,6 +35,12 @@ export class TapToPaySuccess extends ViewBase {
 	// -------------------
 
 	connectedCallback() {
+
+		//Telemetry
+		HorizonTelemetry.instance.tapToPaySuccessOutcome({
+			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
 		super.connectedCallback();
 	}
 
@@ -42,6 +49,12 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		
+		//Telemetry
+		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 

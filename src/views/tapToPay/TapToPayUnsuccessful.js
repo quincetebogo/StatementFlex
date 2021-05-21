@@ -4,6 +4,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
+import { HorizonTelemetry, TelemetryScreen } from '../../services/HorizonTelemetryService';
 
 /**
  * An error/failure screen that will be displayed when Tap To Pay is unsuccessfuil
@@ -57,6 +58,12 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	_doneClick() {
 
+		//Telemetry
+		HorizonTelemetry.instance.selectDoneTapToPayFailure({
+			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
 		const state = this.horizonStore.recoverState();
 		const returnToScreen = state && state.returnToScreen;
 		
@@ -71,6 +78,11 @@ export class TapToPayUnsuccessful extends ViewBase {
 	_handoffClick() {
 
 		// Incident must stay active until a team lead closes it, Save store & Launch STRACK
+
+		//Telemetry
+		HorizonTelemetry.instance.tapToPayHandoff({
+			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME
+		});
 
 		const incidentRecId = this.incidentDetails.incidentRecId;
 		this.horizonRouter.navigateToStrack(incidentRecId);

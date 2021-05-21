@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry } from '../../services/HorizonTelemetryService';
+// import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * Renders card art layout and corresponding card action for stopcard/update card limits
@@ -161,7 +162,7 @@ export class CardArt extends Component {
 		HorizonTelemetry.instance.selectToggle({
 			screen: TelemetryScreen.TAP_TO_PAY,
 			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			cardId: null
+			cardId: this.card
 		});
 		
 		this.selectedItem = event.detail.new;
