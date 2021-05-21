@@ -238,29 +238,9 @@ export class StopCardSuccess extends View {
 					width : 352px;
 					height: 64px;
 				}
-				  
-				.horizon-notify-client{
-					display: flex;
-					flex-direction: row;
-					width: 100%;
-					height: 64px;
-					background-color: rgba(8,166,181,0.15);
-				}
 
 				#action-icon{
 					margin-left: 24px;
-				}
-				
-				#action-display{
-					margin-top:20px;
-					height: 24px;
-					width: 774px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
 				}
 
 				.card-stopped {
@@ -365,15 +345,9 @@ export class StopCardSuccess extends View {
 	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<div 
-				style="visibility:${!this.displayNotification ? `visible` : `visible`}" 
-				class="horizon-notify-client">
-				<img 
-					src="/images/info.svg" 
-					id="action-icon" 
-					/>
-				<p id="action-display">&nbsp;Notice: Please check if the client also needs to stop the remote banking app channels (App/USSD)</p>
-			</div>`;
+			<capitec-alert-banner type="info" style="visibility:${!this.displayNotification ? `visible` : `visible`}">
+			Notice: Please check if the client also needs to stop the remote banking app channels (App/USSD)
+			</capitec-alert-banner>`;
 	}
 
 	_renderGraphic() {
