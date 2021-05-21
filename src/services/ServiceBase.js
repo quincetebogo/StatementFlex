@@ -98,6 +98,7 @@ export class ServiceBase {
 						case 401: // Unauthorized
 						case 403: // Forbidden 
 						case 404: // Not Found
+						case 424: // Dependency error
 						case 501: // Not implemented
 							tryCount = maxAttempts; // Fail immediately, no retries
 							break;
