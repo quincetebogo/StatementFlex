@@ -63,7 +63,6 @@ export class VerifyCaller extends Component {
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 		this.isBusy = false;
-		this.connectionID = ``;
 		this.itaFailedCount = 0;
 		this.itaTimer = null;
 		this.loading = true;
@@ -104,7 +103,6 @@ export class VerifyCaller extends Component {
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
 			itaMessage: { attribute: false }, // Set when there has been a system error with ITA
 			itaFailedCount: { attribute: false },
-			connectionID: { attribute: false },
 			isBusy: { attribute: false },
 			loading: { attribute: false },
 			itaVerificationFailed: { attribute: false },
@@ -143,6 +141,8 @@ export class VerifyCaller extends Component {
 
 		// function for stopping the ITA timer
 		this._stopTimer = () => {
+			this._stopSignalRConnection();
+
 			if (this.itaTimer) {
 				clearInterval(this.itaTimer);
 				this.itaTimer = null;
@@ -174,7 +174,6 @@ export class VerifyCaller extends Component {
 		// Cleanup before we leave the dialog
 		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
 		this._stopTimer();
-		this._stopSignalRConnection();
 		super.disconnectedCallback();
 	}
 
@@ -211,7 +210,6 @@ export class VerifyCaller extends Component {
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-				this._stopSignalRConnection();
 				this._stopTimer();
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
@@ -283,7 +281,7 @@ export class VerifyCaller extends Component {
 		if (this.itaFailedCount < MAX_ITA_ATTEMPTS) {
 			// Re-initialting the ITA verification
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
-			this._itaServiceCall();
+			this._initiateItaVerification();
 		} else {
 			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
 			this._navigateToItaVerificationFailed();
@@ -341,12 +339,12 @@ export class VerifyCaller extends Component {
 
 			if (this.seconds <= 0) {
 				this._stopTimer();
+				
 				this.itaTimer = null;
 				this.itaFailedCount += 1;
 				this.appTimedOut = true;
 
 				if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
-					this._stopSignalRConnection();
 					this._navigateToItaVerificationFailed();
 				} else {
 					this._updateApplicationState(`unverified`);
@@ -367,9 +365,19 @@ export class VerifyCaller extends Component {
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 		if (signalRUrl && signalRUrl !== ``) {
-			this.horizonSignalRClient = HorizonSignalRClient.getInstance();
-			await this._initialiseSignalR();
-			this._itaServiceCall();
+			if (!this.HorizonSignalRClient) {
+				this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+				const connectionID = await this._initialiseSignalR();
+				if (connectionID) {
+					this._itaServiceCall(connectionID);
+				} else {
+					this.logger.log(`error`, `ITA Service call not made as ITA subscription was not started`, `_initiateItaVerification`);
+				}
+			} else {
+				this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
+			}
+		} else {
+			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
 		}
 	}
 
@@ -377,19 +385,29 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Initialising SignalR connection for ITA verification`, `_initialiseSignalR`);
 		this.itaVerificationFailed = false;
 		// Starting signalR connection
-		this.horizonSignalRClient.startConnection();
-		// Fetching connection id from signalR client
-		this.connectionID = await this.horizonSignalRClient.getConnectionId();
 
-		this.logger.log(`info`, `SignalR connection established`, `_initialiseSignalR`);
+		try {
+			await this.horizonSignalRClient.startConnection();
+
+			// Fetching connection id from signalR client
+			const connectionID = await this.horizonSignalRClient.getConnectionId();
+	
+			this.logger.log(`info`, `SignalR connection established`, `_initialiseSignalR`);
+			
+			return connectionID;
+		} catch (error) {
+			this.logger.log(`error`, `Failed to establish ITA Hub Connection`, `_initialiseSignalR`);
+		}
+
+		return null;
 	}
 
-	async _itaServiceCall() {
-		if (this.connectionID) {
+	async _itaServiceCall(connectionID) {
+		if (connectionID) {
 
 			const request = {
 				cifNumber: this.callerInformation.cifNumber,
-				connectionID: this.connectionID
+				connectionID: connectionID
 			};
 
 			const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
@@ -410,6 +428,8 @@ export class VerifyCaller extends Component {
 			} else {
 				this.logger.log(`error`, `itaVerification channel service call failed`, `_itaServiceCall`, returnValue.correlationId);
 			}
+		} else {
+			this.logger.log(`error`, `ITA Verification not started as no connection ID was set`, `_itaServiceCall`);
 		}
 	}
 
@@ -420,7 +440,6 @@ export class VerifyCaller extends Component {
 
 		if ((typeof verificationStatus === `boolean` && verificationStatus) || (typeof verificationStatus === `string` && verificationStatus === `true`)) {
 			
-			this._stopSignalRConnection();
 			this.logger.log(`info`, `ITA SignalR subscription stopped`, `_signalRPostEventAction`);
 
 			this._updateApplicationState(`verified`);
@@ -438,7 +457,6 @@ export class VerifyCaller extends Component {
 			this.itaFailedCount++;
 
 			if (this.itaFailedCount >= MAX_ITA_ATTEMPTS) {
-				this._stopSignalRConnection();
 				this._navigateToItaVerificationFailed();
 			}
 			this._updateApplicationState(`failed`);
