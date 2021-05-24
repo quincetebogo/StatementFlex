@@ -171,30 +171,23 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _loadEndCallOptions() {
-		const endCallDetails = {
-			isReassigned: this.isReassigned,
-			CloseIncidentContext: this.endCallContext
-		};
-		const returnValue = {
-			"closeIncidentReasons": [
-				{
-					"key": "NeedFulfilled",
-					"value": "Need fulfilled"
-				},
-				{
-					"key": "NeedIncomplete",
-					"value": "Need incomplete, bad connection"
-				},
-				{
-					"key": "ClientAssigned",
-					"value": "Need Assigned/ Handed off"
-				}
-			]
-		};
-
-		this.endCallReasons = returnValue.closeIncidentReasons;
-		this._setDefaultValues();	
+	_loadEndCallOptions() {
+		this.endCallReasons = [
+			{
+				"key": 0,
+				"value": `Need fulfilled`
+			},
+			{
+				"key": 1,
+				"value": `Need incomplete, bad connection`
+			},
+			{
+				"key": 2,
+				"value": `Need Assigned/ Handed off`
+			}
+		];
+		
+		this._setDefaultValues();
 	}
 
 	_setDefaultValues() {
