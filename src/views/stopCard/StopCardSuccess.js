@@ -305,8 +305,17 @@ export class StopCardSuccess extends View {
 					margin-top: 24px;
 					margin-bottom: auto;
 				}
+
+				capitec-alert-banner {
+					margin: 16px;
+					--theme-alert-banner-height: 48px;
+				}
+
+				.bold-text {
+					font-weight: 600;
+				}
 			`
-];
+		];
 	}
 
 	_mobileTemplate() {
@@ -346,7 +355,7 @@ export class StopCardSuccess extends View {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
 			<capitec-alert-banner type="info" style="visibility:${!this.displayNotification ? `visible` : `visible`}">
-			Notice: Please check if the client also needs to stop the remote banking app channels (App/USSD)
+			<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
 			</capitec-alert-banner>`;
 	}
 
