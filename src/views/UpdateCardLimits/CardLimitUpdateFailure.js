@@ -1,9 +1,10 @@
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
 
-export class UnsuccessfulCardLimitUpdate extends View {
+export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -13,11 +14,11 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		super();
 
 		this.card1 = `5284 **** **** 1522`;
-        this.card2 = `5238 **** **** 8907`;
+		this.card2 = `5238 **** **** 8907`;
 
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.incomingCallDetails = this.state.incomingCallDetails;
+		this.incidentRecId = this.incomingCallDetails.incidentRecId;
 	}
 
 	// --------------
@@ -46,8 +47,8 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		// TODO : Functionality to navigate after card limit successfully updated
 	}
 
-    _onHandoff() {
-        this.horizonRouter.navigateToStrack(this.incidentRecId);
+	_onHandoff() {
+		this.horizonRouter.navigateToStrack(this.incidentRecId);
 		// TODO : Functionality to update card limits
 	}
 
@@ -68,7 +69,7 @@ export class UnsuccessfulCardLimitUpdate extends View {
 			super.styles,
 			css`
 
-				.id-update-msg{
+				.id-update-msg {
 					width: auto;
 				}
 
@@ -76,31 +77,6 @@ export class UnsuccessfulCardLimitUpdate extends View {
 					height: 112px;
 					width: auto;
 				}
-
-				.related-options {
-					height: 32px;
-					width: 100%;
-					background-color: #F4F4F4;
-					border-top: 1px solid #dfdfdf;
-					border-bottom: 1px solid #dfdfdf;
-				}
-				
-				.related-options-text{
-					margin: 0px 0px 0px 16px;
-					padding: 0px 0px 0px 0px;
-					color: #003652;
-					font-family: "Hind Vadodara";
-					font-size: 15px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 30px;
-				}
-
-				.options-group{
-					height: 80px; 
-					margin: 16px 0px 16px 16px;
-				}
-
 			`
 		];
 	}
@@ -110,6 +86,15 @@ export class UnsuccessfulCardLimitUpdate extends View {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderCardLimitsUpdateFailure()}
+			${this._renderRelatedOptions()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderCardLimitsUpdateFailure() {
 		return html`
 			<horizon--error-screen 
 					header="Permanent card limits not updated" 
@@ -121,18 +106,17 @@ export class UnsuccessfulCardLimitUpdate extends View {
 					@right-click=${() => this._onHandoff()}>
 					<section id="id-error-msg" slot="detail"><b>The permanent card limits for debit card 5284 **** **** 1522 was not updated.</b></section>
 			</horizon--error-screen>
-
-			${this._renderRelatedOptions()}
 		`;
 	}
 
 	_renderRelatedOptions() {
-        return html`
-            <horizon-related-options
+		return html`
+			<horizon-related-options
 				context = "Failure">
-            </horizon-related-options>
-        `;
-    }
+			</horizon-related-options>
+		`;
+	}
+
 }
 
 customElements.define(`permanent-card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
