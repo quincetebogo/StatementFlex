@@ -171,22 +171,23 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _loadEndCallOptions() {
-		const endCallDetails = {
-			isReassigned: this.isReassigned,
-			CloseIncidentContext: this.endCallContext
-		};
-		const returnValue = await this.incidentManagementService.closeIncidentOptions(endCallDetails);
-
-		if (returnValue.succeeded) {
-			this.endCallReasons = returnValue.result.closeIncidentReasons;
-			this._setDefaultValues();
-		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
-
-			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
-			this._returnToCallWaitingPage();
-		}
+	_loadEndCallOptions() {
+		this.endCallReasons = [
+			{
+				"key": 0,
+				"value": `Need fulfilled`
+			},
+			{
+				"key": 1,
+				"value": `Need incomplete, bad connection`
+			},
+			{
+				"key": 2,
+				"value": `Need Assigned/ Handed off`
+			}
+		];
+		
+		this._setDefaultValues();
 	}
 
 	_setDefaultValues() {
@@ -231,10 +232,11 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		if (this.isReassigned) {
-			this.logger.log(`info`, `Incident assigned or handed off. The call will be ended without closing the incident.`);
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} assigned or handed off. The call will be ended without closing the incident.`);
 			// Don't close the incident if it has been reassigned or handed off
 			return true; 
 		} else if (incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED) {
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} already marked a closed. No further close action required.`);
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
@@ -247,9 +249,10 @@ export class EndCallSession extends Component {
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && this.endCallReason.key === 1))) {
-			this.logger.log(`info`, `A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
+
 		return false;
 	}
 
@@ -336,13 +339,13 @@ export class EndCallSession extends Component {
 			// Don't allow the user to select Incident Assigned/Handed Off if this has not been done
 			// Should actually filter out of the options
 			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT NOT ASSIGNED`;
-			this.logger.log(`info`, `Stop Card Incident not assigned, blocking selection of incident assigned reason`);
+			this.logger.log(`warn`, `Stop Card Incident not assigned, blocking selection of incident assigned reason`);
 		} else if (this._selectedNeedFulfilledAfterAssigningStoppedCards()) {
 			this.alertBannerMessage = `INCORRECT OPTION: INCIDENT WAS ASSIGNED`;
-			this.logger.log(`info`, `Stop Card Incident assigned, blocking selection of need fulfilled`);
+			this.logger.log(`warn`, `Stop Card Incident assigned, blocking selection of need fulfilled`);
 		} else if (this._selectedNeedFulfilledOnFailureToStopCards()) {
 			this.alertBannerMessage = `INCORRECT OPTION: CARDS WERE NOT STOPPED`;
-			this.logger.log(`info`, `Stop Card Incident was not assigned, blocking selection of need fulfilled`);
+			this.logger.log(`warn`, `Stop Card Incident was not assigned, blocking selection of need fulfilled`);
 		} else if (this.endCallReason) {
 			if (this._preventCloseOfIncident()) {
 				// Updating state as call ended and redirecting it to call waiting page
