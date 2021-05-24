@@ -238,29 +238,9 @@ export class StopCardSuccess extends View {
 					width : 352px;
 					height: 64px;
 				}
-				  
-				.horizon-notify-client{
-					display: flex;
-					flex-direction: row;
-					width: 100%;
-					height: 64px;
-					background-color: rgba(8,166,181,0.15);
-				}
 
 				#action-icon{
 					margin-left: 24px;
-				}
-				
-				#action-display{
-					margin-top:20px;
-					height: 24px;
-					width: 774px;
-					color: #08A6B5;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
 				}
 
 				.card-stopped {
@@ -325,8 +305,17 @@ export class StopCardSuccess extends View {
 					margin-top: 24px;
 					margin-bottom: auto;
 				}
+
+				capitec-alert-banner {
+					margin: 16px;
+					--theme-alert-banner-height: 48px;
+				}
+
+				.bold-text {
+					font-weight: 600;
+				}
 			`
-];
+		];
 	}
 
 	_mobileTemplate() {
@@ -338,6 +327,7 @@ export class StopCardSuccess extends View {
 			<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
 				${this._renderTitleBar()}
 				${this._renderSuccessToast()}
+				${this._renderNotifyClient()}
 				${this._renderGraphic()}
 				<p class="card-stopped">Card Stopped</p>
 				${this._renderStoppedCards()}
@@ -364,15 +354,9 @@ export class StopCardSuccess extends View {
 	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<div 
-				style="visibility:${!this.displayNotification ? `hidden` : `visible`}"
-				class="horizon-notify-client">
-				<img 
-					src="/images/info.svg" 
-					id="action-icon" 
-					/>
-				<p id="action-display">&nbsp;See related options to assist if the client needs to stop their Remote Banking (app/USSD) channels</p>
-			</div>`;
+			<capitec-alert-banner type="info" style="visibility:${!this.displayNotification ? `visible` : `visible`}">
+			<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
+			</capitec-alert-banner>`;
 	}
 
 	_renderGraphic() {
