@@ -195,7 +195,7 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_convertCentsToRand() {
-		this.debiCheckMandates.map(item => {
+		this.debiCheckMandates.foreach(item => {
 			item.amount = convertCentsToRand(item.amount);
 			item.maxCollectionAmount = convertCentsToRand(item.maxCollectionAmount);
 		});
