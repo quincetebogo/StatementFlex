@@ -365,7 +365,9 @@ export class ConfirmCallerDetails extends Component {
 				return; 
 			}
 
-			this.horizonStore.saveState({ clientProfileDetails: returnValue.result });
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
 		};
 
 		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
@@ -418,7 +420,6 @@ export class ConfirmCallerDetails extends Component {
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
-
 
 		return flagsSet;
 	}
@@ -480,7 +481,7 @@ export class ConfirmCallerDetails extends Component {
 	async _updateClientDetails() {
 		const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 		
-		if(!returnValue.succeeded) {
+		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
 		} 
 	}

@@ -34,9 +34,9 @@ const RENDER_MODE = {
 		this.mailId = ``;
 		this.acNumber = ``;
 
-		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	
@@ -61,26 +61,16 @@ const RENDER_MODE = {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-			// this.returnRoute = state.returnTo.route;
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			
-			this.mailId = state.emailAddress;
-			this.acNumber = state.accountNumber;
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incidentDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
-		}
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 	}
 
 	disconnectedCallback() {

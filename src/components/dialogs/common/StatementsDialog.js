@@ -423,11 +423,7 @@ export class StatementsDialog extends Component {
 		}
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		this.horizonStore.saveState({
-			emailAddress: this.email,
-			accountNumber: this.productSelected.accountNumber
-		});
+		this._updateScreenDetails();
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
@@ -437,9 +433,8 @@ export class StatementsDialog extends Component {
 				screen: TelemetryScreen.STATEMENTS,
 				nextScreen: TelemetryScreen.STATEMENTS_OUTCOME
 			});
-
 		} else {
-				this.horizonRouter.navigateToStatementUnsuccessful();
+			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
@@ -592,6 +587,15 @@ export class StatementsDialog extends Component {
 		// Rounding off the decimal value
 		totalAmount = Math.round((availableBalance + currentBalance) * 100) / 100;
 		return formatCurrency(totalAmount);
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.emailAddress = this.email;
+		screenDetails.accountNumber = this.productSelected.accountNumber;
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------

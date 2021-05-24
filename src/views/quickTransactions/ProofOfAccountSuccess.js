@@ -33,9 +33,9 @@ export class ProofOfAccountSuccess extends View {
 		this.acNumber = ``;
 		this.mailId = ``;
 		
-		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 
@@ -63,17 +63,15 @@ export class ProofOfAccountSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
-			
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-		}
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+		
 		this._updateIncidentState();
 	}
 
@@ -112,11 +110,10 @@ export class ProofOfAccountSuccess extends View {
 			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		
+		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 

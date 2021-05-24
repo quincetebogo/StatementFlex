@@ -16,8 +16,10 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
+
 		this.card = `5284 **** **** 1522`;
 		this.selectedCard = ``;
+		
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
@@ -38,17 +40,14 @@ export class TapToPayUnsuccessful extends ViewBase {
 		super.connectedCallback();
 		this._updateIncidentState();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			this.selectedCard = state.selectedCard;
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-		}
+		this.selectedCard = screenDetails && screenDetails.selectedCard;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// --------------
@@ -56,23 +55,14 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// --------------
 
 	_doneClick() {
-
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state && state.returnToScreen;
-		
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		
-		const landingScreens = {
-			'Favourites': transactLP
-		};
-		landingScreens[returnToScreen.name]();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_handoffClick() {
-
 		// Incident must stay active until a team lead closes it, Save store & Launch STRACK
 
 		const incidentRecId = this.incidentDetails.incidentRecId;
+
 		this.horizonRouter.navigateToStrack(incidentRecId);
 		this.horizonRouter.navigateToReturnPage(`handoff`);
 	}

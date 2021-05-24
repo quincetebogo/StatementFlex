@@ -75,21 +75,17 @@ export class StopCardFailure extends View {
 
 		this.eventAggregator = EventAggregator.getInstance();
 
-		const state = this.horizonStore.recoverState();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.stoppedCards = screenDetails && screenDetails.stoppedCards;
+		this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
 
-		if (state) {
-			this.callerInformation = this.horizonStore.getCallerInformation();
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			this.isReassigned = this.horizonStore.getIsIncidentReassigned();
-	
-			this.stoppedCards = state.stoppedCards;
-			
-			this.failedCards = this.stoppedCards.filter(cards => !cards.cardStopped);
-
-			this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
-			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		}
+		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();
@@ -146,16 +142,21 @@ export class StopCardFailure extends View {
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;
 			const isAllSuccess = cardStopResults.every(cards => cards.cardStopped === true);
+			const screenDetails = this.horizonStore.getScreenDetails();
 
 			this.failedCards = cardStopResults.filter(cards => !cards.cardStopped);
 			// Toggling back to Network Error summary
 			this.renderMode = RENDER_MODE.CARD_STOP_FAILURE;
 			this._updateStoppedCards(cardStopResults);
+
+			screenDetails.stoppedCards = this.stoppedCards;
+			screenDetails.stoppedCardsFailed = !isAllSuccess;
+
+			this.horizonStore.setScreenDetails(screenDetails);
 	
 			if (isAllSuccess) {
 				// The stop card incident can be closed if all cards were stopped successfully.
 				// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
-				this.horizonStore.saveState({ callerInfo: this.callerInfo, stoppedCardsFailed: false });
 				this.horizonRouter.navigateToStoppedCards();
 			}
 		}
@@ -207,8 +208,6 @@ export class StopCardFailure extends View {
 			this.stoppedCards[index].cardStopped = card.cardStopped;
 			this.stoppedCards[index].statusCode = card.statusCode;
 		});
-
-		this.horizonStore.saveState({ stoppedCards: this.stoppedCards });
 	}
 
 	// ---------

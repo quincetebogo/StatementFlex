@@ -107,7 +107,8 @@ export class StopCard extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} clientProfileDetails - Information on confirmed client.
+	 * @property {Array} cards - Client's card array
+	 * @property {Object} incomingCallDetails - Incomming call information
 	 *
 	 * @readonly
 	 * @static
@@ -115,14 +116,14 @@ export class StopCard extends Component {
 	 */
 	static get properties() {
 		return {
-			clientProfileDetails: { type: Object },
-			incomingCallDetails: { type: Object },
 			cards: { type: Array },
-			selectedCardCount: { type: Number },
-			renderMode: { type: Number },
-			cardsToStop: { type: Array },
-			isBusy: { attribute: false },
-			showAddCallerDetails: { type: Boolean }
+			incomingCallDetails: { type: Object },
+
+			selectedCardCount: { type: Number, attribute: false },
+			renderMode: { type: Number, attribute: false },
+			cardsToStop: { type: Array, attribute: false },
+			isBusy: { type: Boolean, attribute: false },
+			showAddCallerDetails: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -133,9 +134,6 @@ export class StopCard extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.instruction = this.clientProfileDetails.instruction;
-		this.cards = this.clientProfileDetails.cards;
 
 		/**
 		* Add rowIndex, selected, stopReason fields to cards array. 
@@ -192,7 +190,7 @@ export class StopCard extends Component {
 		}
 	}
 
-	_addCallerDetailsCancelled(event) {	
+	_addCallerDetailsCancelled(event) {
 		this.showAddCallerDetails = !this.showAddCallerDetails;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
 	}
@@ -274,7 +272,6 @@ export class StopCard extends Component {
 		this.cards[rowData.rowIndex].cardStopReason = cardStopReason;
 		this.requestUpdate();
 	}
-
 
 	_onStopCards() {
 		this.cardsToStop = this.cards.map(card => (

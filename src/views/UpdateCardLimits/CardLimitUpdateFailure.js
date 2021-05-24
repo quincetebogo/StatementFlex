@@ -1,4 +1,6 @@
 import { View, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -13,11 +15,13 @@ export class UnsuccessfulCardLimitUpdate extends View {
 		super();
 
 		this.card1 = `5284 **** **** 1522`;
-        this.card2 = `5238 **** **** 8907`;
+		this.card2 = `5238 **** **** 8907`;
 
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	// --------------
@@ -127,12 +131,12 @@ export class UnsuccessfulCardLimitUpdate extends View {
 	}
 
 	_renderRelatedOptions() {
-        return html`
-            <horizon-related-options
+		return html`
+			<horizon-related-options
 				context = "Failure">
-            </horizon-related-options>
-        `;
-    }
+			</horizon-related-options>
+		`;
+	}
 }
 
 customElements.define(`permanent-card-limit-update-failure`, UnsuccessfulCardLimitUpdate);

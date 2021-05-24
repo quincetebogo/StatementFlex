@@ -32,9 +32,11 @@ export class StopCardSuccess extends View {
 
 	constructor() {
 		super();
+		
 		this.displayNotification = false;
 		this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS;
 		this.isBusy = false;
+		this.stoppedCards = [];
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -61,20 +63,15 @@ export class StopCardSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.stoppedCards = [];
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
 
-		const state = this.horizonStore.recoverState();
-
-		if (state) {
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.callerInformation = this.horizonStore.getCallerInformation();
-			
-			this.stoppedCards = state.stoppedCards;
-
-			this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
-			this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
-		}
+		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._onEndCallSession());
 
 		this.cardService = new CardService(
 			() => this._toggleBusyFlag(),
@@ -196,14 +193,13 @@ export class StopCardSuccess extends View {
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 
 		if (returnValue.succeeded) {
-			this.incomingCallDetails.ivrOptionCode = `StopCard`;
-			this.incomingCallDetails.ivrOption.value = `StopCard`;
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
 
-			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
-				clientProfileDetails: returnValue.result
-			});
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setScreenDetails(screenDetails);
+			
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();

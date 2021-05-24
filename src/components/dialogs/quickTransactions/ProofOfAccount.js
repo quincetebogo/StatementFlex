@@ -100,10 +100,7 @@ export class ProofOfAccount extends Component {
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
 			// saving 'emailAddress' and 'accountNumber' in state.
-			this.horizonStore.saveState({
-				emailAddress: this.idEmailAddress,
-				accountNumber: this.landingPageInfo.accountNumber
-			});
+			this._updateScreenDetails();
 
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -201,13 +198,11 @@ export class ProofOfAccount extends Component {
 		this._clearErrors(e);
 	}
 
-
 	_clearErrors(e) {
         this.errMessage.idEmailAddress = ``;
         this.errMessage.idConfirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.emailText = `Email address`;
-
 	}
 
 	_valueChanged(e) {
@@ -218,6 +213,15 @@ export class ProofOfAccount extends Component {
 
 	_isNullorEmpty(fieldValue) {
 		return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.emailAddress = this.idEmailAddress;
+		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------------
@@ -307,7 +311,6 @@ export class ProofOfAccount extends Component {
 		return _webTemplate();
 	}
 
-
 	_webTemplate() {
 		return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
@@ -326,13 +329,19 @@ export class ProofOfAccount extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-		<capitec-alert-banner type="unsuccessful-red">
-			<capitec-group layout="horizontal">
-				<capitec-label type="subtitle" label="Notify: " class="label-err-message"></capitec-label>
-				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
-			</capitec-group>
-		
-		</capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red">
+					<capitec-group layout="horizontal">
+						<capitec-label
+							type="subtitle"
+							label="Notify: "
+							class="label-err-message">
+						</capitec-label>
+						<capitec-label
+							label="${this.alertBannerMessage}"
+							class="label-err-message">
+						</capitec-label>
+					</capitec-group>
+				</capitec-alert-banner>
 			`;
 		}
 		return html``;

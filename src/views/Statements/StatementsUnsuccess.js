@@ -1,4 +1,4 @@
-import { HorizonTelemetry, TelemetryScreen} from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -33,9 +33,9 @@ export class StatementsUnsuccess extends View {
 		this.mailId = ``;
 		this.acNumber = ``;
 		
-		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 
@@ -61,24 +61,16 @@ export class StatementsUnsuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			
-			this.mailId = state.emailAddress;
-      		this.acNumber = state.accountNumber;
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		    this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incidentDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
-		}
+		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 	}
 		
 	disconnectedCallback() {
@@ -102,9 +94,9 @@ export class StatementsUnsuccess extends View {
 			screen: TelemetryScreen.STATEMENTS_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state && state.returnToScreen;
-		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const returnToScreen = screenDetails && screenDetails.returnToScreen;
+
 		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
 		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
 
@@ -112,7 +104,7 @@ export class StatementsUnsuccess extends View {
 			'Favourites': transactLP,
 			'SavingsAccount': savingsAccountLP
 		};
-		landingScreens[returnToScreen.name]();
+		landingScreens[returnToScreen]();
 	}
 
 	_handoffClick() {
@@ -163,27 +155,29 @@ export class StatementsUnsuccess extends View {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen header="Statement not emailed"
-			                        image="/images/insure/assign-pay-arrears.svg"
-									left="Done"
-									right="Assign"
-									toast="Statement not emailed"
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._handoffClick()}>
-				<section 
-					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
-				</section>
+			<horizon--error-screen
+				header="Statement not emailed"
+				image="/images/insure/assign-pay-arrears.svg"
+				left="Done"
+				right="Assign"
+				toast="Statement not emailed"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._handoffClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">
+							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+					</section>
 			</horizon--error-screen>
 		`;
 	}
 
-    _renderRelatedOptions() {
+	_renderRelatedOptions() {
 		return html`
-            <horizon-related-options
+			<horizon-related-options
 				context = "Failure"
 				@cancel = "${() => this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS}">
-            </horizon-related-options>
+			</horizon-related-options>
 		`;
 		
 	}

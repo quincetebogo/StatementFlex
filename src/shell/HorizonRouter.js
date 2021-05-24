@@ -275,10 +275,6 @@ export class HorizonRouter {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
-	navigateToTapToPaySuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
-	}
-
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
 	}

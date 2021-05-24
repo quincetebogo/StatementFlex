@@ -320,16 +320,16 @@ export class EndCallSession extends Component {
 	}
 
 	async _stopCardEndCall() {
-		const state = this.horizonStore.recoverState();
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		if (Object.prototype.hasOwnProperty.call(state, `cardStopAttemptMade`)) {
-			this.cardStopAttemptMade = state.cardStopAttemptMade;
+		if (Object.prototype.hasOwnProperty.call(screenDetails, `cardStopAttemptMade`)) {
+			this.cardStopAttemptMade = screenDetails.cardStopAttemptMade;
 		} else {
 			this.cardStopAttemptMade = false;
 		}
 
-		if (Object.prototype.hasOwnProperty.call(state, `stoppedCardsFailed`)) {
-			this.stoppedCardsFailed = state.stoppedCardsFailed;
+		if (Object.prototype.hasOwnProperty.call(screenDetails, `stoppedCardsFailed`)) {
+			this.stoppedCardsFailed = screenDetails.stoppedCardsFailed;
 		} else {
 			this.stoppedCardsFailed = false;
 		}

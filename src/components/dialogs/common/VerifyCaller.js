@@ -120,16 +120,6 @@ export class VerifyCaller extends Component {
 
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
 
-		// Extracting incoming call details
-		this.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-		this.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-		this.ivrOptions = this.incomingCallDetails.ivrOption.possibleValues;
-		this.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-
-		this.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-		this.incidentRecId = this.incidentDetails.incidentRecId;
-		this.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-
 		// Resetting ITA & XDS attempts
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
