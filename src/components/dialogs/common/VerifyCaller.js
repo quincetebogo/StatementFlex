@@ -68,10 +68,11 @@ export class VerifyCaller extends Component {
 		this.itaTimer = null;
 		this.loading = true;
 		this.xdsMessage = ``;
-		this.foreignClientErr = ``;
+		this.unableToVerifyErr = ``;
 		this.itaMessage = ``;
 		this.noOfXdsVerificationAttempted = 0;
 		this.itaVerificationFailed = false;
+		this.hasSouthAfricanID = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -108,7 +109,8 @@ export class VerifyCaller extends Component {
 			isBusy: { attribute: false },
 			loading: { attribute: false },
 			itaVerificationFailed: { attribute: false },
-			foreignClientErr: { attribute: false }
+			foreignClientErr: { attribute: false },
+			hasSouthAfricanID: { attribute: false }
 		};
 	}
 
@@ -150,19 +152,17 @@ export class VerifyCaller extends Component {
 			}
 		};
 
-		const hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-		this.isForeignClient = !hasSouthAfricanID;
-
+		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
-		} else if (hasSouthAfricanID) {
+		} else if (this.hasSouthAfricanID) {
 			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
 			await this._securityQuestionsClick();
 		} else {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
 			this.logger.log(`info`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
-			this.foreignClientErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
+			this.unableToVerifyErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
 		}
 
 		// The Verify Caller UI will not display until this.loading is false. This keeps it hidden
@@ -595,7 +595,7 @@ export class VerifyCaller extends Component {
 						${this._renderXdsError()}
 						${this._renderPushNotificationError()}
 						${this._renderLoadingIndicator()}
-						${this._renderForeignClientCannotBeVerified()}
+						${this._renderClientCannotBeVerified()}
 						${this._renderOtherOptions()}
 					</div>
 				</horizon-caller-dialog>`;
@@ -691,7 +691,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again${!this.isForeignClient ? ` or complete through security questions.` : ``}">
+								label="Notify the client and either try again${this.hasSouthAfricanID ? ` or complete through security questions.` : ``}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -740,10 +740,9 @@ export class VerifyCaller extends Component {
 				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
 					<horizon-option-button 
 						label="Security Questions" 
-						icon="${this.callerInformation.verificationAttempts.xdsAttempts == 2 ? `system/apply-now` : `system/apply-now-action`}"
+						icon="system/apply-now-action"
 						iconSize="default"
-                        ?disabled=${this.callerInformation.verificationAttempts.xdsAttempts == 2}
-						?hidden=${this.isForeignClient}
+						?hidden=${!this.hasSouthAfricanID || this.callerInformation.verificationAttempts.xdsAttempts >= 2}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -756,7 +755,6 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?disabled=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						?hidden=${!this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
@@ -773,13 +771,18 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-	_renderForeignClientCannotBeVerified() {
-		if (!this.callerInformation.hasDigitalChannels && this.isForeignClient) {
+	_renderClientCannotBeVerified() {
+
+		/*
+			1. If client doesn't have digital channels and doesn't have a South African ID, we are unable to verify
+			2. If client doesn't have digital channels and the XDS attempts have also been exceeded we are unable to verify
+		*/
+		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 						<capitec-alert-banner type="error">
-							<b>Notify: </b>${this.foreignClientErr}
+							<b>Notify: </b>${this.unableToVerifyErr}
 						</capitec-alert-banner>
 						<capitec-group layout="vertical" 
 							halign="center"
