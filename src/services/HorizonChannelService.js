@@ -404,23 +404,6 @@ export class HorizonChannelService extends Service {
 		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
 	}
 
-	/**
-	 * Loads the list of reasons to display on the end call dialog.
-	 *
-	 * @param {Object} request Request to get close incident reasons
-	 * @returns {Promise<*>} A list of end call reasons for the end call dialog
-	 * @memberof HorizonChannelService
-	 */
-	 closeIncidentOptions(request) {
-		return this._get(
-			`/clientcare/incident/${this._version}/close-incident?` +
-				`IsReassigned=${request.isReassigned}&` +
-				`CloseIncidentContext=${request.CloseIncidentContext}`,
-				this._setToken(), 
-			`closeIncidentOptions`
-		);
-	}
-
 	closeIncident(closeIncidentRequest) {
 		const url = `/clientcare/incident/${this._version}/close-incident?` +
 						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +

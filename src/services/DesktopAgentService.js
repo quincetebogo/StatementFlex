@@ -134,6 +134,11 @@ export class DesktopAgentService {
 
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 
+			if (newCallEvent.incomingTelephoneNumber === 0) {
+				this._logger.log(`warn`, `Incoming number does not match validation rule: ${eventData.IncomingTelephoneNumber}`);
+				newCallEvent.incomingTelephoneNumber = `0000000000`;
+			}
+
 			newCallEvent.incomingTelephoneNumber = this._cleanupTelephoneNumber(newCallEvent.incomingTelephoneNumber);
 
 			newCallEvent.voiceReferenceNumber = validate(eventData.VoiceReferenceNumber, DesktopAgentService.voiceReferenceNumberValidation);
@@ -180,7 +185,9 @@ export class DesktopAgentService {
 	_cleanupTelephoneNumber(telephoneNumber) {
 		if (telephoneNumber.length >= 9) {
 			return `0${telephoneNumber.substr(telephoneNumber.length - 9)}`;
-		} 
+		} else if (telephoneNumber.length < 10) {
+			telephoneNumber.padStart(10, `0`);
+		}
 
 		return telephoneNumber;
 	}

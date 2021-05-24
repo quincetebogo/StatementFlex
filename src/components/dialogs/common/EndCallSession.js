@@ -171,22 +171,23 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _loadEndCallOptions() {
-		const endCallDetails = {
-			isReassigned: this.isReassigned,
-			CloseIncidentContext: this.endCallContext
-		};
-		const returnValue = await this.incidentManagementService.closeIncidentOptions(endCallDetails);
-
-		if (returnValue.succeeded) {
-			this.endCallReasons = returnValue.result.closeIncidentReasons;
-			this._setDefaultValues();
-		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
-
-			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
-			this._returnToCallWaitingPage();
-		}
+	_loadEndCallOptions() {
+		this.endCallReasons = [
+			{
+				"key": 0,
+				"value": `Need fulfilled`
+			},
+			{
+				"key": 1,
+				"value": `Need incomplete, bad connection`
+			},
+			{
+				"key": 2,
+				"value": `Need Assigned/ Handed off`
+			}
+		];
+		
+		this._setDefaultValues();
 	}
 
 	_setDefaultValues() {
