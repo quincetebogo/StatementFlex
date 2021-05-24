@@ -3,6 +3,7 @@ import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { Logger } from 'platform/core';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -55,6 +56,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.checked = false;
 		this.alertBannerMessage = ``;
 
+		this.logger = Logger.getInstance();
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -140,19 +142,35 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
-
 			this.alertBannerMessage = ``;
 			this.checked = false;
 
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
 
-			if (returnValue.succeeded && returnValue.result === `Authenticated`) {
-				this.callerInformation.verificationStatus = `verified`;
-				this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-			} else if (returnValue.succeeded && returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
+			if (returnValue.succeeded) {
+				if (returnValue.result === `Authenticated`) {
+					this.callerInformation.verificationStatus = `verified`;
+					this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+				} else if (returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
+					this.renderMode = RENDER_MODE.FIRST_FAILURE;
+					this.noOfXdsVerificationAttempted++;
+				} else if (returnValue.succeeded) {
+					this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
+					this.noOfXdsVerificationAttempted++;
+					this.callerInformation.verificationStatus = `failed`;
+					this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+	
+					this.horizonStore.setCallerInformation(this.callerInformation);
+					this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+	
+					this.horizonRouter.navigateToXdsVerificationFailed();
+				} 
+			} else if (this.noOfXdsVerificationAttempted < 1) {
+				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 				this.noOfXdsVerificationAttempted++;
-			} else if (returnValue.succeeded) {
+			} else {
+				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treatign this as the final failure.`, `_verifyClick`);
 				this.noOfXdsVerificationAttempted++;
 				this.callerInformation.verificationStatus = `failed`;
 				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
@@ -186,6 +204,7 @@ export class VerifyBySecurityQuestions extends Component {
 			this.questionNumber = 0;
 			this.securityQuestions = e.detail.securityQuestions;
 			this.questions = e.detail.securityQuestions.questions;
+			this.alertBannerMessage = ``;
 			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		}
 	}

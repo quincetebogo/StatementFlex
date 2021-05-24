@@ -35,6 +35,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
 	}
 
 	// --------------
@@ -42,11 +43,11 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		// TODO : Functionality to navigate to Favourites screen
 	}
 
 	_tapToPayClick() {
-		
+		// TODO : Functionality to tap to pay
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
@@ -76,7 +77,7 @@ export class TapToPaySuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-update-msg{
+				#id-update-msg {
 					width: auto;
 				}
 
