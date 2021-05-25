@@ -1,7 +1,7 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';

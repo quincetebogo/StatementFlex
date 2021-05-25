@@ -1,8 +1,8 @@
 import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'app/components/product/CnetProductInfo';
 
@@ -65,7 +65,7 @@ export class ProductInformation extends ViewBase {
 	static get properties() {
 		return {
 			renderMode: { attribute: false },
-			isBusy: { attribute: false },
+			isBusy: { attribute: false }
 		};
 	}
 

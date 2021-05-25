@@ -45,6 +45,10 @@ export class TapToPayUnsuccessful extends ViewBase {
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------

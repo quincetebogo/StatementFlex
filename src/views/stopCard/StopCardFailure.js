@@ -1,9 +1,7 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
 // import 'app/components/dialogs/insure/AssignReasonSelected';
@@ -15,7 +13,7 @@ const RENDER_MODE = {
 };
 const RENDER_DIALOG = {
 	ASSIGN_REASON: 0,
-	ASSIGN_REASON_SELECTED: 1,
+	ASSIGN_REASON_SELECTED: 1
 };
 const MAX_ATTEMPT = 2;
 

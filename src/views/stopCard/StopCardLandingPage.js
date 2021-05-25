@@ -1,9 +1,8 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { html } from 'platform/elements';
-import { ViewBase } from 'app/views/common/ViewBase';
-
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
@@ -55,6 +54,10 @@ export class StopCardLandingPage extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------

@@ -1,6 +1,6 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 
@@ -45,6 +45,10 @@ export class StatementsSuccess extends ViewBase {
 		this.acNumber = screenDetails && screenDetails.accountNumber;
 
 		this._updateIncidentState();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
