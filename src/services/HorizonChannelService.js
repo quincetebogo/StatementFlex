@@ -429,6 +429,12 @@ export class HorizonChannelService extends Service {
 		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
 	}
 
+	incidentStatus(incidentRecId) {
+		const url = `/clientcare/incident/${this._version}/incident/${incidentRecId}`;
+	
+		return this._get(url, this._setToken(), `incidentStatus`);
+	}
+
 	// --------------
 	// INSURE METHODS
 	// --------------

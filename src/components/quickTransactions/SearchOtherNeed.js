@@ -137,23 +137,14 @@ export class SearchOtherNeed extends Component {
 	}
 
 	async _onLaunchStrackClick() {
-		const request = {
-			incidentRecId: this.incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: `SEARCH_OTHER_NEED`,
-			incidentCategorization: {
-				category: `${this.category}`,
-				need: `${this.need}`,
-				issue: `${this.issue}`
-			}
-		};
-		const result = await this.incidentManagementService.classifyIncident(request);
+		const strackIncidentInfo = await this._incidentStatus() || {};
+		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 
-		if (result.succeeded) {
+		if (continueUpdate) {
+			await this._classifyIncident();
+		} else {
 			this.horizonRouter.navigateToStrack(this.incidentRecId);
 			this.renderMode = RENDER_MODE.FEEDBACK;
-		} else {
-			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
 		}
 	}
 
@@ -193,6 +184,37 @@ export class SearchOtherNeed extends Component {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
 		this.requestUpdate();
+	}
+
+	async _classifyIncident() {
+		const request = {
+			incidentRecId: this.incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: `SEARCH_OTHER_NEED`,
+			incidentCategorization: {
+				category: `${this.category}`,
+				need: `${this.need}`,
+				issue: `${this.issue}`
+			}
+		};
+		const result = await this.incidentManagementService.classifyIncident(request);
+
+		if (result.succeeded) {
+			this.horizonRouter.navigateToStrack(this.incidentRecId);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		} else {
+			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
+		}
+	}
+
+	async _incidentStatus() {
+		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
 	}
 
 	// ---------
