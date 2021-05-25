@@ -3,6 +3,7 @@ import { SecurityContext } from 'platform/SecurityContext';
 
 const STRACK_URGENCY = `Medium`;
 const STRACK_IMPACT = `Medium`;
+const STARCK_SOURCE = `RealConnect`;
 
 /**
  * The IncidentManagementService is used to create an incident for recording information
@@ -55,7 +56,7 @@ export class IncidentManagementService extends ServiceBase {
 			"issue": ``,
 			"vdn": incidentData.VDN,
 			"networkUserName": SecurityContext.getInstance().username,
-			"source": ``,
+			"source": `${STARCK_SOURCE}`,
 			"impact": `${STRACK_IMPACT}`,
 			"urgency": `${STRACK_URGENCY}`,
 			"branchID": ``,

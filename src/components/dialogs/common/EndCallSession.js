@@ -291,6 +291,10 @@ export class EndCallSession extends Component {
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
 			}
+		} 
+		
+		if (!continueUpdate) {
+			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 		await this._closeIncident(strackIncidentInfo);
 	}
