@@ -88,7 +88,29 @@ export class Feedback extends Component {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
 			console.log(this.selectedFeedback);
-			await this._closeIncident();
+			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
+
+			const closeIncidentRequest = {
+				incidentRecId: incidentDetails.incidentRecId,
+				reason: this.selectedFeedback,
+				resolution: resolution,
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
+			};
+
+			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
+			
+			if (returnValue.succeeded) {
+				// Navigate to favourites landing page
+				this._updateIncidentState();
+				this.dispatchEvent(new CustomEvent(`done`, {}));
+			} else {
+				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+			}
 		}
 	}
 
@@ -117,31 +139,6 @@ export class Feedback extends Component {
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
-	async _closeIncident() {
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-		const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
-		const resolution = this._getResolution(strackIncidentInfo.resolution);
-
-		const closeIncidentRequest = {
-			incidentRecId: incidentDetails.incidentRecId,
-			reason: this.selectedFeedback,
-			resolution: resolution,
-			causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, resolution.value)
-		};
-
-		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
-		
-		if (returnValue.succeeded) {
-			// Navigate to favourites landing page
-			this._updateIncidentState();
-			this.dispatchEvent(new CustomEvent(`done`, {}));
-		} else {
-			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-		}
-	}
-
 	async _incidentStatus(incidentRecId) {
 		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
 
@@ -152,9 +149,7 @@ export class Feedback extends Component {
 		return returnValue.result;
 	}
 
-	_getResolution(resolution) {
-		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
-
+	_getResolution(resolution, selectedOption) {
 		return resolution ? `${resolution || ``}%0D%0A${selectedOption.value}` : `${selectedOption.value}`;
 	}
 
