@@ -1,5 +1,6 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, html } from 'platform/elements';
+import { html } from 'platform/elements';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -9,16 +10,15 @@ import 'app/components/stopCard/StopCard';
 import 'app/components/common/AccessMenuBar';
 import 'app/components/common/ProfileAndProductSummaryBar';
 
-
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
  * with the newer designs at some point.
  *
  * @export
  * @class StopCardLandingPage
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class StopCardLandingPage extends View {
+export class StopCardLandingPage extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -103,6 +103,14 @@ export class StopCardLandingPage extends View {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderStopCardComponent()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
 				.cards="${this.cards || []}"

@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
+
 import 'app/components/common/SuccessScreen';
 
 export class TapToPaySuccess extends ViewBase {
@@ -16,9 +15,6 @@ export class TapToPaySuccess extends ViewBase {
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
 		this.tapToPayStatus = ``;
-
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -38,6 +34,10 @@ export class TapToPaySuccess extends ViewBase {
 		super.connectedCallback();
 
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -94,6 +94,14 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderTapToPaySuccess()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
 				header="Tap to pay activated" 

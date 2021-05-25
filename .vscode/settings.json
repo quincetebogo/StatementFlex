@@ -29,8 +29,8 @@
 		"src/types.d.ts": true,
 		"ocwp": true
 	},
-	"eslint.nodePath": "./ocwp/1.2.0/node_modules",
-	"eslint.runtime": "./ocwp/1.2.0/node/node.exe",
+	"eslint.nodePath": "./ocwp/1.3.2/node_modules",
+	"eslint.runtime": "./ocwp/1.3.2/node/node.exe",
 	"eslint.options": {
 		"configFile": "./.eslintrc.json"
 	},
@@ -44,5 +44,6 @@
 		"recognised",
 		"repos",
 		"ucid"
-	]
+	],
+	"eslint.enable": true
 }

@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -19,8 +18,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 		this.card = `5284 **** **** 1522`;
 		this.selectedCard = ``;
-		
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -40,8 +37,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 		super.connectedCallback();
 		this._updateIncidentState();
 
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		this.selectedCard = screenDetails && screenDetails.selectedCard;
@@ -104,6 +99,15 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	_webTemplate() {
 		return html`
+			${this._renderTapToPayFailure()}
+			${this._renderRelatedOptions()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderTapToPayFailure() {
+		return html`
 			<horizon--error-screen 
 				header="Tap to pay not activated" 
 				image="src/images/tap-to-pay-error.svg"
@@ -119,17 +123,15 @@ export class TapToPayUnsuccessful extends ViewBase {
 						Tap to Pay for debit card ${this.card} was not activated.
 					</section>
 			</horizon--error-screen >
-
-			${this._renderRelatedOptions()}
 		`;
 	}
 
 	_renderRelatedOptions() {
-        return html`
-            <horizon-related-options
+		return html`
+			<horizon-related-options
 				context="Failure">
-            </horizon-related-options>
-        `;
-    }
-}   
+			</horizon-related-options>
+		`;
+	}
+}
 customElements.define(`horizon-tap-to-pay-unsuccessful`, TapToPayUnsuccessful);

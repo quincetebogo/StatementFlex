@@ -1,7 +1,7 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
-import { formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
+import { convertCentsToRand, formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
 const FILTER_BY = {
 	ALL: 0,
@@ -42,7 +42,7 @@ export class DebiCheckMandates extends Component {
 		this.activeMandates = [];
 		this.inActiveMandates = [];
         this.filterBy = 0;
-        this.noMandatesError = "No DebiCheck mandates on the account";
+        this.noMandatesError = `No DebiCheck mandates on the account`;
 	}
 
 	// --------------
@@ -72,6 +72,7 @@ export class DebiCheckMandates extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._convertCentsToRand();
 		this._initialise();
 
 		// Telemetry 
@@ -118,10 +119,10 @@ export class DebiCheckMandates extends Component {
 
         const searchText = event.detail.new && event.detail.new.toLowerCase();
         if (!searchText) {
-            this.noMandatesError = "No DebiCheck mandates on the account";        
+            this.noMandatesError = `No DebiCheck mandates on the account`;
 			this._initialise();
         } else {
-            this.noMandatesError = "No results found";
+            this.noMandatesError = `No results found`;
 			this.pendingMandates = this._lookForSearchText(MANDATE_STATUS.PENDING, searchText);
 			this.activeMandates = this._lookForSearchText(MANDATE_STATUS.ACTIVE, searchText);
 			this.inActiveMandates = this._lookForSearchText(MANDATE_STATUS.INACTIVE, searchText);
@@ -191,6 +192,13 @@ export class DebiCheckMandates extends Component {
 		}
 
 		return flag;
+	}
+
+	_convertCentsToRand() {
+		this.debiCheckMandates.foreach(item => {
+			item.amount = convertCentsToRand(item.amount);
+			item.maxCollectionAmount = convertCentsToRand(item.maxCollectionAmount);
+		});
 	}
 
 	// ---------
@@ -506,10 +514,10 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
-					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount / 100))}
+					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
-					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount / 100))}
+					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDayFrequency)}

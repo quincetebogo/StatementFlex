@@ -1,20 +1,10 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/Views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
-import 'app/components/dialogs/common/EndCallSession';
 
-
-const RENDER_MODE = {
-	STATEMENTS_SUCCESS: 0,
-	END_CALLSESSION: 1,
-	STATEMENTS: 2
-};
-
-export class StatementsSuccess extends View {
+export class StatementsSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -23,13 +13,8 @@ export class StatementsSuccess extends View {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.STATEMENTS_SUCCESS;
 		this.mailId = ``;
 		this.acNumber = ``;
-		
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -43,7 +28,7 @@ export class StatementsSuccess extends View {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false }
+
 		};
 	}
 
@@ -54,33 +39,17 @@ export class StatementsSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		this.mailId = screenDetails && screenDetails.emailAddress;
 		this.acNumber = screenDetails && screenDetails.accountNumber;
 
-		this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-
 		this._updateIncidentState();
 	}
 
-	disconnectedCallback() {
-		if (this.endCallSub) {
-			this.endCallSub.dispose();
-		}
-
-		super.disconnectedCallback();
-	}
-  
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_endCall() {
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
 
 	_doneClick() {
 		// Telemetry
@@ -137,7 +106,7 @@ export class StatementsSuccess extends View {
 		return [
 			super.styles,
 			css`
-				#id-error-msg{
+				#id-error-msg {
 					width: auto;
 				}
 			`
@@ -151,7 +120,8 @@ export class StatementsSuccess extends View {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
-			${this._renderEndCallModal()}
+
+			${super._webTemplate()}
 		`;
 	}
 
@@ -172,19 +142,6 @@ export class StatementsSuccess extends View {
 					</section>
 			</horizon-success-screen>
 		`;
-	}
-
-	_renderEndCallModal() {
-		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
-			return html`
-			<horizon-end-call-session
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				endCallContext="LandingPage"
-				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
-			</horizon-end-call-session>`;
-		}
-		return html``;
 	}
 }
 
