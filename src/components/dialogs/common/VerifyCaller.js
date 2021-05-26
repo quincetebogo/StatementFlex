@@ -24,14 +24,6 @@ const MAX_XDS_ATTEMPTS = 2;
 
 const ITA_TIMEOUT_SECS = 60;
 
-// exporting the common code - used in securityQuestions failed screen
-export const navigateToFailedScreen = (objInstance) => {
-	objInstance.callerInformation.verificationStatus = `failed`;
-	objInstance.horizonStore.setCallerInformation(objInstance.callerInformation);
-	objInstance.horizonStore.setIncomingCallDetails(objInstance.incomingCallDetails);
-	
-	return objInstance.horizonRouter.navigateToXdsVerificationFailed();
-};
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
@@ -57,15 +49,13 @@ export class VerifyCaller extends Component {
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		this.incomingCallDetails = null;
 		this.timeLeft = `1:00`;
 		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.isBusy = false;
 		this.loading = true;
+
 		this.xdsMessage = ``;
-		this.unableToVerifyErr = ``;
-		this.noOfXdsVerificationAttempted = 0;
 
 		this.itaTimer = null;
 		this.itaAttempts = 0;
@@ -98,23 +88,21 @@ export class VerifyCaller extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
-			noOfXdsVerificationAttempted: { type: Number },
 			incidentDetails: { type: Object },
 
 			renderMode: { attribute: false },
-			timeLeft: { attribute: false },
+			
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
+			hasSouthAfricanID: { attribute: false },
 
+			timeLeft: { attribute: false },
 			itaAttempts: { attribute: false },
 			itaTimouet: { attribute: false },
 			itaRejected: { attribute: false },
-			itaSystemError: { attribute: false }, // Set when there has been a system error with ITA			
+			itaSystemError: { attribute: false }, 
 
 			isBusy: { attribute: false },
-			loading: { attribute: false },
-			itaVerificationFailed: { attribute: false },
-			foreignClientErr: { attribute: false },
-			hasSouthAfricanID: { attribute: false }
+			loading: { attribute: false }
 		};
 	}
 
@@ -167,7 +155,6 @@ export class VerifyCaller extends Component {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
 			this.logger.log(`info`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
-			this.unableToVerifyErr = `Client can not be verified. Continue unverified or transfer call to team leader.`;
 		}
 
 		// The Verify Caller UI will not display until this.loading is false. This keeps it hidden
@@ -188,7 +175,8 @@ export class VerifyCaller extends Component {
 
 	async _securityQuestionsClick() {
 
-			this._stopTimer();
+		// This burns an ITA attempt!
+		this._stopTimer();
 
 		this.xdsMessage = ``;
 		const clientID = this.callerInformation.southAfricanIDNumber;
@@ -199,17 +187,16 @@ export class VerifyCaller extends Component {
 
 			const authHistory = this.securityQuestions.authenticationHistory;
             if (authHistory) {                
-				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
-				if (this.noOfXdsVerificationAttempted > 0) {
-					this.logger.log(`warn`, `The caller made ${this.noOfXdsVerificationAttempted} attempts at verifying via XDS in the last 24 hours!`);
+				this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
+				if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
+					this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} attempts at verifying via XDS in the last 24 hours!`);
 				}
 			}
 
 			if (!this.securityQuestions.authenticationPermitted) {
-				this.logger.log(`warn`, `Maximum attempts at XDS verification exceeded`, `_securityQuestionsClick`);
+				this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
-				this._updateApplicationState(`failed`);
-                this.horizonRouter.navigateToXdsVerificationFailed();
+				this._navigateToXdsVerificationFailed();
             } else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
@@ -218,6 +205,7 @@ export class VerifyCaller extends Component {
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
         } else {
+			this.xdsMessage = `System Issue: Unable to obtain security questions`;
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
         }
 	}
@@ -323,6 +311,12 @@ export class VerifyCaller extends Component {
 		this._updateApplicationState(`failed`);
 		this.horizonRouter.navigateToItaVerificationFailed();
 	}
+
+	_navigateToXdsVerificationFailed() {
+		this._updateApplicationState(`failed`);
+		return this.horizonRouter.navigateToXdsVerificationFailed();
+	};
+	
 
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
@@ -637,7 +631,6 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}" 
 					.securityQuestions="${this.securityQuestions}"
-					.noOfXdsVerificationAttempted="${this.noOfXdsVerificationAttempted}"
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
 					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
@@ -718,7 +711,9 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again${this.hasSouthAfricanID ? ` or complete through security questions.` : ``}">
+								label="Notify the client and either try again${this.hasSouthAfricanID && this.callerInformation.verificationAttempts.xdsAttempts <= MAX_XDS_ATTEMPTS 
+									? ` or complete through security questions.` 
+									: ``}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -730,7 +725,7 @@ export class VerifyCaller extends Component {
 
 	_renderXdsError() {
 		if (this.xdsMessage) {
-			const message = this.callerInformation.hasDigitalChannels
+			const message = this.callerInformation.hasDigitalChannels && this.itaAttempts <= MAX_ITA_ATTEMPTS
 				? `Notify the client and either try again or complete verification verification via the App.`
 				: `Notify the client and try again`;
 
@@ -760,6 +755,33 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
+	_renderClientCannotBeVerified() {
+		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && this.maxItaAttempts <= MAX_ITA_ATTEMPTS;
+		const canVerifyViaXDS = this.hasSouthAfricanID && this.callerInformation.verificationAttempts.xdsAttempts <= MAX_XDS_ATTEMPTS;
+
+		if (!canVerifyViaITA && !canVerifyViaXDS) {
+			return html`
+				<capitec-content-box id="notification-status-box">
+					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+						<capitec-alert-banner type="error">
+							<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
+						</capitec-alert-banner>
+						<capitec-group layout="vertical" 
+							halign="center"
+							valign="top" 
+							gap="clear"
+							id="notification-status-error-group">
+							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+							<div class="foreign-client notification-info">
+								Unable to be verified, you can assist with with stopping cards and product enquiries.
+							</div>
+						</capitec-group>
+					</capitec-group>
+				</capitec-content-box>`;
+		}
+		return html``;
+	}
+
     _renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -769,7 +791,7 @@ export class VerifyCaller extends Component {
 						label="Security Questions" 
 						icon="system/apply-now-action"
 						iconSize="default"
-						?hidden=${!this.hasSouthAfricanID || this.callerInformation.verificationAttempts.xdsAttempts >= 2}
+						?hidden=${!this.hasSouthAfricanID || this.callerInformation.verificationAttempts.xdsAttempts >= MAX_XDS_ATTEMPTS}
 						@click="${() => this._securityQuestionsClick()}">
 					</horizon-option-button>
 					<horizon-option-button 
@@ -795,35 +817,6 @@ export class VerifyCaller extends Component {
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
-		return html``;
-	}
-
-	_renderClientCannotBeVerified() {
-
-		/*
-			1. If client doesn't have digital channels and doesn't have a South African ID, we are unable to verify
-			2. If client doesn't have digital channels and the XDS attempts have also been exceeded we are unable to verify
-		*/
-		if (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID) {
-			return html`
-				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-						<capitec-alert-banner type="error">
-							<b>Notify: </b>${this.unableToVerifyErr}
-						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
-							halign="center"
-							valign="top" 
-							gap="clear"
-							id="notification-status-error-group">
-							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
-							<div class="foreign-client notification-info">
-								Unable to be verified, you can assist with with stopping cards and product enquiries.
-							</div>
-						</capitec-group>
-					</capitec-group>
-				</capitec-content-box>`;
-		}
 		return html``;
 	}
 }
