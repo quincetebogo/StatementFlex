@@ -43,6 +43,7 @@ export const TelemetryScreen = {
 	VERIFY_CALLER: `Verify Caller`,
 
 	SECURITY_QUESTIONS: `Security Questions`,
+	FEEDBACK: `Feedback`,
 
 	END_CALL: `End Call Session`
 };
@@ -175,7 +176,16 @@ const TelemetryEvent = {
 	DEBICHECK_OUTCOME_DONE: `horizon.call.fulfill-need.debicheck.outcome.done`,
 	DEBICHECK_OUTCOME_BACK_TO_MANDATES: `horizon.call.fulfill-need.debicheck.outcome.another`,
 	DEBICHECK_OUTCOME_ASSIGN: `horizon.call.fulfill-need.debicheck.outcome.assign`,
-	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`
+	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`,
+
+	//OtherNeed
+	SCR_LD_OTHERNEED: `horizon.call.otherneed.start-span`,
+	SELECT_LAUNCH_STRACK: `horizon.call.otherneed.select-launch-strack`,
+	SCR_UNLD_OTHERNEED: `horizon.call.otherneed.end-span`,
+
+	//Feedback
+	SCR_LD_FEEDBACK: `horizon.call.feedback.start-span`,
+	SCR_UNLD_FEEDBACK: `horizon.call.feedback.end-span`
 };
 
 
@@ -240,7 +250,9 @@ export class HorizonTelemetry extends Telemetry {
 			"ita": null,
 			"xds": null,
 			"statements": null,
-			"debicheck": null
+			"debicheck": null,
+			"otherneed": null,
+			"feedback": null
 		};
 
 		this.telemetryStore = new TelemetryStore();
@@ -3250,6 +3262,194 @@ export class HorizonTelemetry extends Telemetry {
 
 
 	// #endregion DEBI CHECK
+
+
+
+	// #region Search Other Need
+
+	/**
+	 * @typedef {Object} ScrLdOtherNeedModel
+	 * @property {String} screen
+	 */
+
+	/** Other Need
+	 * @screen Search Other Need
+	 * @event Screen Load: Search Other Need
+	 * 
+	 * @param {ScrLdOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadOtherNeed(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SCR_LD_OTHERNEED,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_OTHERNEED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`otherneed`, spanId);
+		}
+	}
+
+
+/**
+	 * @typedef {Object} NavigateOtherNeedModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Launches Strack
+	 * @screen Strack
+	 * @event Navigate to Strack screen
+	 * 
+	 * @param {NavigateOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 otherNeedLaunchStrack(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`otherneed`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_LAUNCH_STRACK,
+			tags: this._extractTags(TelemetryEvent.SELECT_LAUNCH_STRACK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+
+	/**
+	 * @typedef {Object} ScrUnldOtherNeedModel 
+	 * @property {String} screen 
+	 * @property {String} clientNeed 
+	 * @property {String} specificNeed 
+	 * @property {String} issueType 
+	 */
+
+	/** Search Other Need Screen Unload
+	 * @screen  Search Other Need 
+	 * @event Screen Unload: Search Other Need
+	 * 
+	 * @param {ScrUnldOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadOtherNeed(baggage) {
+		const spanId = this.currentActiveSpans.get(`otherneed`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_OTHERNEED,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_OTHERNEED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "client-need": baggage.clientNeed },
+					{ "specific-need": baggage.specificNeed },
+					{ "issue-type": baggage.issueType }
+				]
+			});
+
+			this.currentActiveSpans.set(`otherneed`, null);
+		}
+	}
+
+
+
+	// #endregion Search Other Need
+
+
+
+
+// #region Feedback screen 
+
+	/**
+	 * @typedef {Object} ScrLdFeedbackModel
+	 * @property {String} screen
+	 * @property {String} currentSpan
+	 */
+
+	/** Feedback screen
+	 * @screen Feedback screen
+	 * @event Screen Load: Feedback screen
+	 * 
+	 * @param {ScrLdFeedbackModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadFeedbackScreen(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(baggage.currentSpan),
+			eventName: TelemetryEvent.SCR_LD_FEEDBACK,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_FEEDBACK),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`feedback`, spanId);
+		}
+	}
+
+
+	/**
+	 * @typedef {Object} ScrUnldFeedbackModel 
+	 * @property {String} screen 
+	 * @property {String} strackOutcome 
+	 */
+
+	/** Feedback screen Unload
+	 * @screen  Feedback screen 
+	 * @event Screen Unload: Feedback screen
+	 * 
+	 * @param {ScrUnldFeedbackModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadFeedbackScreen(baggage) {
+		const spanId = this.currentActiveSpans.get(`feedback`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_FEEDBACK,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_FEEDBACK),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "strack-outcome": baggage.strackOutcome },
+				]
+			});
+
+			this.currentActiveSpans.set(`feedback`, null);
+		}
+	}
+
+
+
+	// #endregion Feedback screen 
+
+
 
 	// #endregion PUBLIC METHODS
 
