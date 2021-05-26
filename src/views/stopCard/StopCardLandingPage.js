@@ -1,9 +1,8 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { html } from 'platform/elements';
-import { ViewBase } from 'app/views/common/ViewBase';
-
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
@@ -32,12 +31,10 @@ export class StopCardLandingPage extends ViewBase {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 
-		const state = this.horizonStore.recoverState();
-
-		this.clientProfileDetails = state.clientProfileDetails;
-
 		this.callerInformation = this.horizonStore.getCallerInformation(); 
 		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		this.cards = this.screenDetails && this.screenDetails.cards;
 	}
 
 	// --------------
@@ -59,6 +56,10 @@ export class StopCardLandingPage extends ViewBase {
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -73,7 +74,13 @@ export class StopCardLandingPage extends ViewBase {
 
 		// The stop card incident can be closed if all cards were stopped successfully.
 		// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
-		this.horizonStore.saveState({ stoppedCards: event.detail.stoppedCards, cardStopAttemptMade: true, stoppedCardsFailed: stoppedCardsFailed });
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		screenDetails.stoppedCards = event.detail.stoppedCards;
+		screenDetails.cardStopAttemptMade = true;
+		screenDetails.stoppedCardsFailed = stoppedCardsFailed;
+
+		this.horizonStore.setScreenDetails(screenDetails);
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
@@ -109,7 +116,7 @@ export class StopCardLandingPage extends ViewBase {
 	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
-				.clientProfileDetails="${this.clientProfileDetails}"
+				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">
 			</horizon-stop-card>

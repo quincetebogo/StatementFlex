@@ -267,20 +267,11 @@ export class HorizonChannelService extends Service {
 	// ----------------
 	
 	// stopCardRequest
-	stopCard(stopCardRequest) {
-
-		/*
-		const cardStopResponse = { 
-							cardResponses: stopCardRequest.cards.map((card) => ({ maskedCardNumber: card.maskedCardNumber,
-								result: {
-									statusCode: 400
-								  } }))
-		};
-
-		return cardStopResponse;
-		*/
+	async stopCard(stopCardRequest) {
+		if (await this._mockEnabled(`stopCard`)) {
+			return this._mock.stopCard(stopCardRequest);
+		}
 	
-		
 		const url = `/clientcare/card/${this._version}/StopCard`;
 		const model = {
 			"cards": stopCardRequest.cards,
@@ -326,8 +317,8 @@ export class HorizonChannelService extends Service {
 
 	// confirmedClientProfileRequest
 	async identifyCaller(callerData) {
-		if (await this._mockEnabled(`stopCard`)) {
-			return this._mock.stopCard();
+		if (await this._mockEnabled(`stopCardLanding`)) {
+			return this._mock.stopCardLanding();
 		}
 
 		const url = `/clientcare/card/${this._version}/LoadConfirmedClientProfile`;
@@ -427,6 +418,12 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare/incident/${this._version}/classification`;
 	
 		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
+	}
+
+	incidentStatus(incidentRecId) {
+		const url = `/clientcare/incident/${this._version}/incident/${incidentRecId}`;
+	
+		return this._get(url, this._setToken(), `incidentStatus`);
 	}
 
 	// --------------

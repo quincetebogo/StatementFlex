@@ -10,6 +10,7 @@ import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { ScreenDetails } from 'app/models/ScreenDetails';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 
@@ -143,12 +144,12 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
-		const incident = returnValue.result;
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
+		 const incident = returnValue.result;
 
-		if (!returnValue.succeeded || !incident) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
-		}
+		 if (!returnValue.succeeded || !incident) {
+		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
+		 }
 
 		// Telemetry
 		if (incident) {
@@ -223,9 +224,11 @@ export class LandingPage extends ViewBase {
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
+		const screenDetails = new ScreenDetails();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonStore.setScreenDetails(screenDetails);
 
 		const state = {
 			callStatus: this.callStatus,

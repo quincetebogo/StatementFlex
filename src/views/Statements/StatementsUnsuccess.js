@@ -1,9 +1,6 @@
-import { HorizonTelemetry, TelemetryScreen} from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -26,10 +23,6 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -55,23 +48,16 @@ export class StatementsUnsuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
-
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			
-			this.mailId = state.emailAddress;
-			this.acNumber = state.accountNumber;
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incidentDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
-		}
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
+		
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -84,9 +70,9 @@ export class StatementsUnsuccess extends ViewBase {
 			screen: TelemetryScreen.STATEMENTS_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state && state.returnToScreen;
-		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const returnToScreen = screenDetails && screenDetails.returnToScreen;
+
 		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
 		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
 
@@ -94,7 +80,7 @@ export class StatementsUnsuccess extends ViewBase {
 			'Favourites': transactLP,
 			'SavingsAccount': savingsAccountLP
 		};
-		landingScreens[returnToScreen.name]();
+		landingScreens[returnToScreen]();
 	}
 
 	_handoffClick() {
@@ -146,17 +132,19 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen header="Statement not emailed"
-									image="/images/insure/assign-pay-arrears.svg"
-									left="Done"
-									right="Assign"
-									toast="Statement not emailed"
-									@left-click=${() => this._doneClick()}
-									@right-click=${() => this._handoffClick()}>
-				<section 
-					id="id-error-msg" 
-					slot="detail">The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
-				</section>
+			<horizon--error-screen
+				header="Statement not emailed"
+				image="/images/insure/assign-pay-arrears.svg"
+				left="Done"
+				right="Assign"
+				toast="Statement not emailed"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._handoffClick()}>
+					<section 
+						id="id-error-msg" 
+						slot="detail">
+							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+					</section>
 			</horizon--error-screen>
 		`;
 	}
@@ -164,7 +152,8 @@ export class StatementsUnsuccess extends ViewBase {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
-				context = "Failure">
+				context = "Failure"
+				@cancel = "${() => this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS}">
 			</horizon-related-options>
 		`;
 	}

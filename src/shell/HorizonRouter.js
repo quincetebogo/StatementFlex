@@ -1,5 +1,5 @@
 import { Configuration, EventAggregator } from 'platform/core';
-import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
@@ -270,10 +270,6 @@ export class HorizonRouter {
 
 	_navigateToTapToPayUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL}`);
-	}
-
-	navigateToTapToPaySuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
 	navigateToTapToPaySuccess() {

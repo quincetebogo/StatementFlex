@@ -1,8 +1,6 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/SuccessScreen';
@@ -24,9 +22,6 @@ export class DebiCheckSuccess extends ViewBase {
 		super();
 
 		this.mandateId = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -55,14 +50,13 @@ export class DebiCheckSuccess extends ViewBase {
 		HorizonTelemetry.instance.debiCheckOutcome({
 			screen: TelemetryScreen.DEBICHECK_OUTCOME
 		});
-		const state = this.horizonStore.recoverState();
 
-		if (state) {
-			this.returnRoute = state.returnTo.route;
+		// TODO: mandate ID to be obtained from state.
+		this.mandateId = `DISCLIFE 5130111776-21`;
+	}
 
-			// TODO: mandate ID to be obtained from state.
-			this.mandateId = `DISCLIFE 5130111776-21`;
-		}
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -74,7 +68,7 @@ export class DebiCheckSuccess extends ViewBase {
 		HorizonTelemetry.instance.debiCheckOutcomeDone({
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		this.horizonRouter.navigateToReturnPage(`done`);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_debiCheckMandatesClick() {
@@ -82,7 +76,12 @@ export class DebiCheckSuccess extends ViewBase {
 		HorizonTelemetry.instance.debiCheckOutcomeBackToMandates({
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
-		this.horizonRouter.navigateToReturnPage(`mandate`);
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------
@@ -93,11 +92,9 @@ export class DebiCheckSuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-
 				#id-error-msg {
 					width: auto;
 				}
-
 				.button-margin {
 					height: 80px;
 					width: 182px;

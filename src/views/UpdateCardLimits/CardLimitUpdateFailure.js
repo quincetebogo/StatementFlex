@@ -1,5 +1,5 @@
 import { css, html } from 'platform/elements';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -16,9 +16,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
 
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.incomingCallDetails = this.state.incomingCallDetails;
-		this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	// --------------
@@ -37,6 +35,10 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -116,7 +118,6 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 			</horizon-related-options>
 		`;
 	}
-
 }
 
 customElements.define(`permanent-card-limit-update-failure`, UnsuccessfulCardLimitUpdate);

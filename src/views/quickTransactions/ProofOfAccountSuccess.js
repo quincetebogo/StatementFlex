@@ -1,8 +1,6 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 import 'app/components/common/RelatedOptions';
@@ -25,9 +23,6 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 		this.acNumber = ``;
 		this.mailId = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -42,9 +37,6 @@ export class ProofOfAccountSuccess extends ViewBase {
 	 */
 	static get properties() {
 		return {
-			renderMode: { attribute: false },
-
-			list: { type: Array }
 		};
 	}
 
@@ -55,17 +47,16 @@ export class ProofOfAccountSuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
-
-		}
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		
 		this._updateIncidentState();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -91,11 +82,10 @@ export class ProofOfAccountSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		
+		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
