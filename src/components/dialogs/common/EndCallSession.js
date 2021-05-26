@@ -313,7 +313,7 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incidentRecId,
 			reason: this.endCallReason.key,
-			resolution: resolution,
+			resolution: this._formatLineBreaks(resolution),
 			causeCode: strackIncidentInfo.causeCode || causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 
@@ -339,7 +339,11 @@ export class EndCallSession extends Component {
 	}
 
 	_getResolution(resolution) {
-		return resolution ? `${resolution || ``}%0D%0A${this.endCallReason.value}` : `${this.endCallReason.value}`;
+		return resolution ? `${resolution || ``}\n${this.endCallReason.value}` : `${this.endCallReason.value}`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
 	}
 
 	async _stopCardEndCall() {
@@ -375,11 +379,14 @@ export class EndCallSession extends Component {
 				return;
 			}
 
+			const strackIncidentInfo = await this._incidentStatus(this.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution);
+
 			const callToEnd = {
 				incidentRecId: this.incidentRecId,
 				reason: this.endCallReason.key,
-				resolution: this.endCallReason.value,
-				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+				resolution: this._formatLineBreaks(resolution),
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 			};
 
 			const returnValue = await this.incidentManagementService.closeIncident(callToEnd);

@@ -98,7 +98,7 @@ export class Feedback extends Component {
 			const closeIncidentRequest = {
 				incidentRecId: incidentDetails.incidentRecId,
 				reason: this.selectedFeedback,
-				resolution: resolution,
+				resolution: this._formatLineBreaks(resolution),
 				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
 			};
 
@@ -150,7 +150,11 @@ export class Feedback extends Component {
 	}
 
 	_getResolution(resolution, selectedOption) {
-		return resolution ? `${resolution || ``}%0D%0A${selectedOption.value}` : `${selectedOption.value}`;
+		return resolution ? `${resolution || ``}\n${selectedOption.value}` : `${selectedOption.value}`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
 	}
 
 	// ---------
