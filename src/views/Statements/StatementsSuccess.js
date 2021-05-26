@@ -1,9 +1,6 @@
-import { HorizonTelemetry, TelemetryScreen} from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from 'app/Views/common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 
@@ -18,10 +15,6 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ----------
@@ -46,23 +39,16 @@ export class StatementsSuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.mailId = screenDetails && screenDetails.emailAddress;
+		this.acNumber = screenDetails && screenDetails.accountNumber;
 
-			this.mailId = state.emailAddress;
-			this.acNumber = state.accountNumber;
+		this._updateIncidentState();
+	}
 
-			this.eventAggregator.publish(`horizon-update-call_actionbar`, {
-				referenceNo: this.incidentDetails.incidentReferenceNumber,
-				phoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOptionCode
-			});
-
-			this._updateIncidentState();
-		};
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -76,10 +62,9 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state && state.returnToScreen;
+		const screenDetails = this.horizonStore.getScreenDetails();
 		
-		this._navigateToScreen(returnToScreen.name);
+		this._navigateToScreen(screenDetails.returnToScreen);
 	}
 
 	_sendAnotherClick() {
@@ -89,11 +74,11 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
 
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		this._navigateToScreen(state.returnToScreen.name);
+		this.horizonStore.setScreenDetails(screenDetails);
+		this._navigateToScreen(screenDetails.returnToScreen);
 	}
 
 	_navigateToScreen(screenName) {
@@ -162,7 +147,6 @@ export class StatementsSuccess extends ViewBase {
 			</horizon-success-screen>
 		`;
 	}
-
 }
 
 customElements.define(`horizon-statements-success`, StatementsSuccess);

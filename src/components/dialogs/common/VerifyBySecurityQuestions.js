@@ -51,7 +51,6 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 		this.questionNumber = 0;
-		this.state = [];
 		this.questions = [];
 		this.checked = false;
 		this.alertBannerMessage = ``;

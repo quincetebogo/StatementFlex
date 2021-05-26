@@ -94,9 +94,12 @@
 			"enabled": false,
 			"positiveCase": true
 		},
+		"stopCardLanding": {
+			"enabled": true,
+			"positiveCase": true
+		},
 		"stopCard": {
 			"enabled": true,
-			"failStopCard": false,
 			"positiveCase": true
 		},
 		"transactionHistory": {

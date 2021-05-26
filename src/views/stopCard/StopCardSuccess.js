@@ -1,9 +1,7 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { ViewBase } from '../common/ViewBase';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -23,12 +21,11 @@ export class StopCardSuccess extends ViewBase {
 
 	constructor() {
 		super();
+		
 		this.displayNotification = false;
 		this.isBusy = false;
+		this.stoppedCards = [];
 		this.showAlertModal = false;
-
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -50,18 +47,9 @@ export class StopCardSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.stoppedCards = [];
-
-		const state = this.horizonStore.recoverState();
-
-		if (state) {
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.callerInformation = this.horizonStore.getCallerInformation();
-			
-			this.stoppedCards = state.stoppedCards;
-		}
+		
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
 
 		this.cardService = new CardService(
 			() => this._toggleBusyFlag(),
@@ -123,14 +111,13 @@ export class StopCardSuccess extends ViewBase {
 		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
 
 		if (returnValue.succeeded) {
-			this.incomingCallDetails.ivrOptionCode = `StopCard`;
-			this.incomingCallDetails.ivrOption.value = `StopCard`;
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
 
-			this.horizonStore.saveState({
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
-				clientProfileDetails: returnValue.result
-			});
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setScreenDetails(screenDetails);
+			
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();
@@ -267,7 +254,7 @@ export class StopCardSuccess extends ViewBase {
 				<capitec-group class="success-group" layout="vertical" gap="none" style="width:100%;">
 					${this._renderTitleBar()}
 					${this._renderSuccessToast()}
-				${this._renderNotifyClient()}
+					${this._renderNotifyClient()}
 					${this._renderGraphic()}
 					<p class="card-stopped">Card Stopped</p>
 					${this._renderStoppedCards()}
@@ -304,24 +291,36 @@ export class StopCardSuccess extends ViewBase {
 
 	_renderStoppedCards() {
 		return html`
-                <capitec-group layout="vertical" halign="center" valign="center" gap="clear">
-    				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
-				</capitec-group>
+			<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
+				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
+			</capitec-group>
 		`;
 	}
 
 	_renderButtons() {
 		return html`
-		<capitec-group id="id-button-group" layout="horizontal">
-			<capitec-button class="button" label="Done" @click="${() => this._doneClick()}"></capitec-button>
-			<capitec-button class="button" type="primary" label="Return to Stop Card" @click="${() => this._returnToStopCardClick()}"></capitec-button>
-		</capitec-group>`;
+			<capitec-group id="id-button-group" layout="horizontal">
+				<capitec-button
+					class="button"
+					label="Done"
+					@click="${() => this._doneClick()}">
+				</capitec-button>
+				<capitec-button
+					class="button"
+					type="primary"
+					label="Return to Stop Card"
+					@click="${() => this._returnToStopCardClick()}">
+				</capitec-button>
+			</capitec-group>`;
 	}
 
 	_renderSuccessStatus(card) {
 		return html`
 			 <div class="card-status-success">
-				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
+				<capitec-icon
+					size="medium"
+					icon="status/success-trans">
+				</capitec-icon>
 				<p class="card-status-text">
 					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
@@ -334,7 +333,6 @@ export class StopCardSuccess extends ViewBase {
 			<horizon-related-options
 				context = "Success"
 				@verify-now-alert="${(event) => this._relatedOptionSelected(event)}">
-			
 			</horizon-related-options>
 		`;
 	}
@@ -342,16 +340,15 @@ export class StopCardSuccess extends ViewBase {
 	_renderSuccessToast() {
 		if (!this.displayNotification) {
 			return html`
-			<capitec-toast 
-				class="success-toast" 
-				type="success" 
-				header="Successfull" 
-				detail="Debit card stopped" 
-				closable
-				@click="${() => this._onToastDisplayTimeout()}"
-				>
-			</capitec-toast>
-		`;
+				<capitec-toast 
+					class="success-toast" 
+					type="success" 
+					header="Successfull" 
+					detail="Debit card stopped" 
+					closable
+					@click="${() => this._onToastDisplayTimeout()}">
+				</capitec-toast>
+			`;
 		}
 		return html``;
 	}

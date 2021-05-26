@@ -237,7 +237,7 @@ export class MiniProfile extends Component {
 		return html`
 			<capitec-avatar 
 				shape="square"
-				icon="../../../images/common/avatar.svg">
+				icon="/images/common/avatar.svg">
 			</capitec-avatar>`;
 	}
 
