@@ -88,17 +88,18 @@ export class Feedback extends Component {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
 			console.log(this.selectedFeedback);
-
 			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			const incidentDetails = this.horizonStore.getIncidentDetails();
 			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-			const resolution = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
 
 			const closeIncidentRequest = {
 				incidentRecId: incidentDetails.incidentRecId,
 				reason: this.selectedFeedback,
-				resolution: resolution.value,
-				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, resolution.value)
+				resolution: resolution,
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
 			};
 
 			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
@@ -136,6 +137,20 @@ export class Feedback extends Component {
 		incidentDetails.feedback = this.selectedFeedback;
 
 		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
+	async _incidentStatus(incidentRecId) {
+		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
+	_getResolution(resolution, selectedOption) {
+		return resolution ? `${resolution || ``}%0D%0A${selectedOption.value}` : `${selectedOption.value}`;
 	}
 
 	// ---------
