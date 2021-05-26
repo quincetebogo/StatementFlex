@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components';
-import '../dialogs/AccessChannelError';
+import 'app/components/dialogs/AccessChannelError';
 
 export class AccessMenuBar extends Component {
 

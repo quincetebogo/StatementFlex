@@ -620,7 +620,7 @@ export class ConfirmCallerDetails extends Component {
 				<capitec-group class="client-info" layout="horizontal" gap="clear">
 					<capitec-avatar 
 						shape="square"
-						icon="../../../images/common/avatar.svg">
+						icon="/images/common/avatar.svg">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label row="1" column="1" colspan="2" type="title"
