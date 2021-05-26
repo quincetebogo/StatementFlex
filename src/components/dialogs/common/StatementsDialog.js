@@ -7,7 +7,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'platform/components/popups/Modal';
-import 'app/components/Common/StepperModal';
+import 'app/components/common/StepperModal';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
