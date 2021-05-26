@@ -275,8 +275,11 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
 		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		const strackIncidentInfo = await this._incidentStatus() || {};
+		// Flag to check, if the incident is already updated outside of Horizon
+		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 
-		if (needAction) {
+		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
@@ -288,12 +291,17 @@ export class EndCallSession extends Component {
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
 			}
+		} 
+		
+		if (!continueUpdate) {
+			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
-		await this._closeIncident();
+		await this._closeIncident(strackIncidentInfo);
 	}
 
-	async _closeIncident() {
+	async _closeIncident(strackIncidentInfo) {
 		let causeCode = ``;
+		const resolution = this._getResolution(strackIncidentInfo.resolution);
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		// Special case, when subsequent need is created on opening a need, if its not required anymore
@@ -305,8 +313,8 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incidentRecId,
 			reason: this.endCallReason.key,
-			resolution: this.endCallReason.value,
-			causeCode: causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			resolution: resolution,
+			causeCode: strackIncidentInfo.causeCode || causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 
 		const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
@@ -318,6 +326,20 @@ export class EndCallSession extends Component {
 
 		// Return the the call waiting landing page even if an error occured
 		this._returnToCallWaitingPage();
+	}
+
+	async _incidentStatus() {
+		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
+	_getResolution(resolution) {
+		return resolution ? `${resolution || ``}%0D%0A${this.endCallReason.value}` : `${this.endCallReason.value}`;
 	}
 
 	async _stopCardEndCall() {
