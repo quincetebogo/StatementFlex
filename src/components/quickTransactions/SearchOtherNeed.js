@@ -137,14 +137,13 @@ export class SearchOtherNeed extends Component {
 	}
 
 	async _onLaunchStrackClick() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 
 		if (continueUpdate) {
 			await this._classifyIncident();
 		} else {
-			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
+			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
 
 			this.horizonRouter.navigateToStrack(this.incidentRecId);
 			this.renderMode = RENDER_MODE.FEEDBACK;
