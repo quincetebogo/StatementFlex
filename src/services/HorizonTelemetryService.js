@@ -44,7 +44,7 @@ export const TelemetryScreen = {
 
 	SECURITY_QUESTIONS: `Security Questions`,
 	FEEDBACK: `Feedback`,
-
+	ASSIGN_STOP_CARD: `Assign stop card`,
 	END_CALL: `End Call Session`
 };
 
@@ -185,7 +185,13 @@ const TelemetryEvent = {
 
 	//Feedback
 	SCR_LD_FEEDBACK: `horizon.call.feedback.start-span`,
-	SCR_UNLD_FEEDBACK: `horizon.call.feedback.end-span`
+	SCR_UNLD_FEEDBACK: `horizon.call.feedback.end-span`,
+
+	//StopCardAssign
+	SCR_LD_ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.start-span`,
+	SELECT_CANCEL__ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.cancel`,
+	SELECT_ASSIGN__ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.assign`,
+	SCR_UNLD_ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.end-span`,
 };
 
 
@@ -252,7 +258,8 @@ export class HorizonTelemetry extends Telemetry {
 			"statements": null,
 			"debicheck": null,
 			"otherneed": null,
-			"feedback": null
+			"feedback": null,
+			"assign-stop-card": null
 		};
 
 		this.telemetryStore = new TelemetryStore();
@@ -3375,13 +3382,150 @@ export class HorizonTelemetry extends Telemetry {
 
 
 
+// #region Assign Stopped card
+
+	/**
+	 * @typedef {Object} ScrLdAssignStoppedCardModel
+	 * @property {String} screen
+	 */
+
+	/** Other Need
+	 * @screen Assign Stop Card
+	 * @event Screen Load: Assign Stop Card
+	 * 
+	 * @param {ScrLdAssignStoppedCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadAssignStopCard(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`stop-card`),
+			eventName: TelemetryEvent.SCR_LD_ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`assign-stop-card`, spanId);
+		}
+	}
+
+
+/**
+	 * @typedef {Object} CancelAssignStopCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Cancel assign stop card
+	 * @screen  assign stop card
+	 * @event Navigate to Cancel assign stop card
+	 * 
+	 * @param {CancelAssignStopCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 assignStopCardCancel(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`assign-stop-card`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_CANCEL__ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_CANCEL__ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+	/**
+	 * @typedef {Object} AssignStopCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/**  assign stop card
+	 * @screen  assign stop card
+	 * @event Navigate to  assign stop card
+	 * 
+	 * @param {AssignStopCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 assignStopCard(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`assign-stop-card`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_ASSIGN__ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_ASSIGN__ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+
+	/**
+	 * @typedef {Object} ScrUnldAssignStopCard 
+	 * @property {String} screen 
+	 * @property {String} team 
+	 */
+
+	/** assign stop card Unload
+	 * @screen  assign stop card
+	 * @event Screen Unload: assign stop card
+	 * 
+	 * @param {ScrUnldAssignStopCard} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadAssignStopCard(baggage) {
+		const spanId = this.currentActiveSpans.get(`assign-stop-card`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_ASSIGNSTOPCARD,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_ASSIGNSTOPCARD),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "team": baggage.team }
+				]
+			});
+
+			this.currentActiveSpans.set(`assign-stop-card`, null);
+		}
+	}
+
+
+
+	// #endregion Assign stop card
+
+
+
+
 
 // #region Feedback screen 
 
 	/**
 	 * @typedef {Object} ScrLdFeedbackModel
 	 * @property {String} screen
-	 * @property {String} currentSpan
 	 */
 
 	/** Feedback screen
@@ -3394,7 +3538,7 @@ export class HorizonTelemetry extends Telemetry {
 	 screenLoadFeedbackScreen(baggage) {
 		const spanId = super.spanStart({
 			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans.get(baggage.currentSpan),
+			parentSpan: this.currentActiveSpans.get(`otherneed`),
 			eventName: TelemetryEvent.SCR_LD_FEEDBACK,
 			tags: this._extractTags(TelemetryEvent.SCR_LD_FEEDBACK),
 			eventType: TelemetryEventType.SYSTEM,
