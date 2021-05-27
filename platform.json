@@ -14,10 +14,12 @@
                 "http://localhost:8889"
 			],
 			"default-src": [
-				"blob:"
+				"blob:",
+				"data:"
 			],
 			"child-src": [
-				"blob:"
+				"blob:",
+				"data:"
             ]
         }
 	},

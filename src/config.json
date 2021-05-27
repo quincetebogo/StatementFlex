@@ -58,7 +58,7 @@
 			"positiveCase": true
 		},
 		"identifyCaller": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"favouritesLanding": {
@@ -91,7 +91,7 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {

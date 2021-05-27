@@ -582,6 +582,23 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `tapToPayLanding`);
 	}
 
+	tapToPayAgreement(agreementInfo) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+		const model = {
+			"cifNumber": agreementInfo.cifNumber,
+			"tapToPayStatus": agreementInfo.tapToPayStatus,
+			"cardDetails": {
+			  "cardId": agreementInfo.cardDetails.cardId,
+			  "cardExpiryYear": agreementInfo.cardDetails.cardExpiryYear,
+			  "cardExpiryMonth": agreementInfo.cardDetails.cardExpiryMonth,
+			  "cardSequenceNumber": agreementInfo.cardDetails.cardSequenceNumber
+			}
+		};
+
+		return this._post(url, model, this._setToken(), `tapToPayAgreement`);
+
+	}
+
 	// --------------------------
 	// card - debi-check mandates
 	// --------------------------

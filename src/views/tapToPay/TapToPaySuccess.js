@@ -12,6 +12,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	constructor() {
 		super();
+		this.cards = {};
 
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
@@ -36,6 +37,15 @@ export class TapToPaySuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		const state = this.horizonStore.recoverState();
+
+		if (state) {
+			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			this.incidentDetails = this.horizonStore.getIncidentDetails();
+			this.callerInformation = this.horizonStore.getCallerInformation();
+		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+		}
+		this._updateIncidentState();
 	}
 
 	// --------------
@@ -43,11 +53,12 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate to Favourites screen
+		// Functionality to navigate to Favourites screen
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		// TODO : Functionality to tap to pay
+		// Functionality to tap to pay
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
@@ -68,6 +79,11 @@ export class TapToPaySuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -107,7 +123,7 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
+							The tap to pay functionality on your dual credit card <b>${this.cards.maskedCardNumber}</b> has been ${this.cards.cardStatus} and is now pending.
 					</section>
 			</horizon-success-screen>
 		`;

@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -21,9 +23,12 @@ export class TapToPayAgreement extends Component {
 
 	constructor() {
 		super();
-
+		this.selectedCard = {};
 		this.tapToPayInfo = {};
+		this.tapToPayAgreement = ``;
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 
@@ -33,6 +38,10 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
+			tapToPayAgreement: { 
+				type: String,
+				attribute: false 
+			}
 		};
 	}
 
@@ -42,11 +51,21 @@ export class TapToPayAgreement extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.horizonStore.recoverState();
+		this._viewAgreement();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+    _errorHandler(ex) {
+        return true;
+    }
+
+	_toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
+    }
 
 	_cancel() {
 		this.tapToPayInfo.acceptedTapToPay = false;
@@ -54,6 +73,7 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agree() {
+
 		if (this._validateCheckBox()) {
 			this.horizonRouter.navigateToTapToPaySuccess();
 		}
@@ -74,7 +94,26 @@ export class TapToPayAgreement extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	async _viewAgreement() {
+		const state = this.horizonStore.getCallerInformation();
+		const tapToPayStatus = this.selectedCard.cardStatus;
 
+		const agreementInfo = {
+			"cifNumber": state.cifNumber,
+			"tapToPayStatus": tapToPayStatus,
+			"cardDetails": {
+				"cardId": this.selectedCard.cardId,
+				"cardExpiryYear": this.selectedCard.cardExpiryYear,
+				"cardExpiryMonth": this.selectedCard.cardExpiryMonth,
+				"cardSequenceNumber": this.selectedCard.cardSequenceNumber
+			}
+		};
+		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementInfo);
+
+		if (returnValue.succeeded) {
+			this.tapToPayAgreement = returnValue.result.cardAgreement.agreementContent.agreementContentData;
+		}
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -175,6 +214,11 @@ export class TapToPayAgreement extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 0px;
 				}
+
+				.agreement-viewer {
+					width: 100%;
+					height: 100%;
+				}
 			`
 		];
 	}
@@ -210,11 +254,7 @@ export class TapToPayAgreement extends Component {
 				<capitec-expander 
 					expandbuttonalignment="left" 
 					label="View Agreement">
-						<capitec-content-box class="expander-cb" halign="center" valign="center" gap="none">
-								<capitec-label 
-									label="Placeholder for agreement">
-								</capitec-label>
-						</capitec-content-box>
+						${this._renderViewContent()}
 				</capitec-expander>
 
 				<capitec-expander 
@@ -227,7 +267,15 @@ export class TapToPayAgreement extends Component {
 			</capitec-expander-group>
 		`;
 	}
-	
+
+	_renderViewContent() {
+		return html`
+			<capitec-content-box class="expander-cb" halign="left" valign="top" gap="none">
+			<object class="agreement-viewer" data="data:text/html;base64,${this.tapToPayAgreement}" type="text/html">
+			</object>
+			</capitec-content-box>`;
+	}
+
 	_renderTapToPayAgreement() {
 		return html`
 			<capitec-content-box class="expander-cb">
@@ -254,6 +302,7 @@ export class TapToPayAgreement extends Component {
 			</capitec-content-box>
 		`;
 	}
+
 	_renderLoadingIndicator() {}
 	
 	_renderFooter() {

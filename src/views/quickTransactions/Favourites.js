@@ -338,7 +338,7 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
 			 
 		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
+			this.cards = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		}
 	}

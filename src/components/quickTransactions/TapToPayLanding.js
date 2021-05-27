@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-
+import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
+
 
 export class TapToPayLanding extends Component {
 
@@ -13,15 +14,24 @@ export class TapToPayLanding extends Component {
 		super();
 
 		this.showTapToPayAgreement = false;
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ---------------
 	// PROPERTIES
 	// ---------------
 
+	/**
+	 *
+	 * @property {Object} cards Object contains the list of client's card
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof TapToPayLanding
+	 */
 	static get properties() {
 		return {
-			cards: { type: Array },
+			cards: { type: Object },
 
 			showTapToPayAgreement: { attribute: false }
 		};
@@ -33,15 +43,20 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._initialise();
+		this.horizonStore.recoverState();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
+	_initialise() {
+	}
+
 	_updateCards() {
 		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
-		this.cards[index].isContactlessActivated = this.selectedCard.isContactlessActivated;
+		this.cards[index].isContactlessCard = this.selectedCard.isContactlessCard;
 	}
 
 	// --------------
@@ -55,7 +70,6 @@ export class TapToPayLanding extends Component {
 	_toggleTapToPayAgreement(event) {
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
-
 		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
 	}
@@ -217,7 +231,8 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderPrimaryCards() {
-		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && !card.isContactlessCard);
+
+		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && card.isContactlessCard);
 
 		return html`
 			<capitec-label
@@ -252,8 +267,7 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderSupplementaryCards() {
-		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard === true && !card.isContactlessCard);
-
+		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard && card.isContactlessCard);
 		return html`
 			<capitec-label
 				class="supplementary-card-label"
@@ -290,6 +304,8 @@ export class TapToPayLanding extends Component {
 		return this.showTapToPayAgreement
 			? html`
 				<horizon-tap-to-pay-agreement
+					.selectedCard="${this.selectedCard}"
+					@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
 					@cancel="${() => this._cancel()}">
 				</horizon-tap-to-pay-agreement>`
 			: html``;

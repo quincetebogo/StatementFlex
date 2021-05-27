@@ -32,7 +32,6 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-
 		this._initialise();
 		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
