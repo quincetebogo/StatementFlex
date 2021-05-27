@@ -548,6 +548,9 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
+	updateCardLimitsAgreement(cardDetails) {
+		return this._post(`/clientcare/card/${this._version}/limits-agreement`, cardDetails, this._setToken(), `updateAgreement`);
+	}
 
 	// ------------------
 	// tap - to - pay

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 const RENDER_MODE = {
@@ -14,6 +15,12 @@ const UPDATE_LIMIT_STEPS = [
 		title: `Agreement`
 	}
 ];
+
+const TAP_TO_PAY_STATUS = {
+	ACTIVATED: `TapToPayActivated`,
+	DEACTIVATED: `TapToPayDeactivated`,
+	UNCHANGED: `Unchanged`
+};
 
 /**
  * This component implements the modal for update card limits
@@ -36,6 +43,7 @@ export class UpdateCardLimits extends Component {
 		super();
 
 		// private properites
+		this.isBusy = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
 		this.error = {
@@ -51,6 +59,11 @@ export class UpdateCardLimits extends Component {
 			}
 		};
 		this.maxValue = ``;
+		this.cardLimits = {};
+		this.cardLimitsAgreement = ``;
+		this._tapToPayStatus = TAP_TO_PAY_STATUS.UNCHANGED;
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -59,7 +72,7 @@ export class UpdateCardLimits extends Component {
 
 	/**
 	 *
-	 * @property {string} cardLimits Object has the card limits information
+	 * @property {string} cardDetails Object has the card details
 	 * @property {string} updateType Type of update, permament/temporary
 	 *
 	 * @readonly
@@ -68,10 +81,12 @@ export class UpdateCardLimits extends Component {
 	 */
 	static get properties() {
 		return {
-			cardLimits: { type: Object },
+			cardDetails: { type: Object },
 			updateType: { type: String },
 
-			renderMode: { attribute: false }
+			renderMode: { type: Boolean, attribute: false },
+			isBusy: { type: Boolean, attribute: false },
+			_tapToPayStatus: { type: Boolean, attribute: false }
 		};
 	}
 
@@ -81,6 +96,10 @@ export class UpdateCardLimits extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.cardLimits = this.cardDetails.limits;
+		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
+
 		this._initialise();
 	}
 
@@ -116,11 +135,11 @@ export class UpdateCardLimits extends Component {
 		if (this._getErrorsCount() > 0) {
 			return;
 		}
-		this.renderMode = RENDER_MODE.AGGREMENT;
+		this._getLimitsAgreement();
 	}
 
 	_agree() {
-		const accepedToAgreement = this.cardlimitsInfo.tapToPayEnabled 
+		const accepedToAgreement = this._tapToPayStatus
 									? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement 
 									: this.cardlimitsInfo.acceptedLimitsAgreement;
 		if (accepedToAgreement) {
@@ -131,8 +150,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_toggleTapToPay(e) {
-		this.cardlimitsInfo.tapToPayEnabled = e.detail.new;
-		this.requestUpdate();
+		this._tapToPayStatus = e.detail.new;
 	}
 
 	_toggleAgreementsAccept(e) {
@@ -153,7 +171,6 @@ export class UpdateCardLimits extends Component {
 		this.cardlimitsInfo = {
 			credit: {},
 			debit: {},
-			tapToPayEnabled: false,
 			acceptedLimitsAgreement: false,
 			acceptedTapToPayAgreement: false
 		};
@@ -225,6 +242,51 @@ export class UpdateCardLimits extends Component {
 
 	_getFieldError(value) {
 		return !value ? `` : `Max limit - ${formatCurrency(value)}`;
+	}
+
+	async _getLimitsAgreement() {
+		// This can be moved into QuickTransaction service layer when design is ready.
+		const request = {
+			cardDetails: {
+				cardDetails: {
+					cardId: this.cardLimits.cardId,
+					accountId: this.cardLimits.accountId,
+					customerId: this.cardLimits.customerId,
+					cardExpiryYear: this.cardDetails.cardExpiryYear,
+					cardExpiryMonth: this.cardDetails.cardExpiryMonth,
+					cardSequenceNumber: this.cardDetails.cardSequenceNumber
+				},
+				permanentCashAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.cashLimit : 0,
+				permanentPurchaseAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.purchaseLimit : 0,
+				permanentCnpAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.cnpLimit : 0,
+				tempCashAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.cashLimit : 0,
+				tempPurchaseAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.purchaseLimit : 0,
+				tempCnpAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.cnpLimit : 0
+			},
+			tapToPayStatusChange: this._getTapToPayStatus()
+		};
+
+		const returnValue = await this.quickTransactionService.updateCardLimitsAgreement(request);
+		
+		 if (returnValue.succeeded) {
+			this.cardLimitsAgreement = returnValue.result.cardLimitsAgreement.agreementContent.agreementContentData;
+			this.renderMode = RENDER_MODE.AGGREMENT;
+		}
+	}
+
+	_getTapToPayStatus() {
+		if (this._tapToPayStatus === this.cardDetails.isContactlessActivated) {
+			return TAP_TO_PAY_STATUS.UNCHANGED;
+		}
+		return this._tapToPayStatus ? TAP_TO_PAY_STATUS.ACTIVATED : TAP_TO_PAY_STATUS.DEACTIVATED;
+	}
+
+	_errorHandler() {
+		// TODO: Error handler comes here
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
 	}
 
 	// ---------
@@ -421,6 +483,10 @@ export class UpdateCardLimits extends Component {
 					--theme-label-font-weight: 500;
 					--theme-label-font-color: #3A3A3A;
 				}
+				.agreement-viewer {
+					width: 100%;
+					height: 100%;
+				}
 			`
 		];
 	}
@@ -431,7 +497,6 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
-		
 			<capitec-modal type="free" header-align="left" header="Update ${this.updateType} Limits">
 				<div slot="body">
 					<capitec-stepper
@@ -451,6 +516,7 @@ export class UpdateCardLimits extends Component {
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
+			${this._renderLoadingIndicator()}
 		`;
 	}
 
@@ -562,13 +628,13 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label
-						label="${this.cardlimitsInfo.tapToPayEnabled ? `On: Pending` : `Off`}"
+						label="${this._tapToPayStatus ? `On: Pending` : `Off`}"
 						type="default">
 					</capitec-label>
 					<capitec-toggle 
 						label=""
 						@value-change="${(e) => this._toggleTapToPay(e)}"
-						?checked="${this.cardlimitsInfo.tapToPayEnabled}">
+						?checked="${this._tapToPayStatus}">
 					</capitec-toggle>
 				</capitec-group>
 
@@ -596,10 +662,13 @@ export class UpdateCardLimits extends Component {
 					<capitec-expander
 						expandbuttonalignment="left"
 						label="View Agreement">
-							<capitec-content-box class="expander-cb" halign="center" valign="center" gap="none">
-								<capitec-label 
-									label="Placeholder for agreement">
-								</capitec-label>
+							<capitec-content-box
+								class="expander-cb" halign="left" valign="top" gap="none" noPadding>
+									<object
+										class="agreement-viewer"
+										data="data:text/html;base64,${this.cardLimitsAgreement}"
+										type="text/html">
+									</object>
 							</capitec-content-box>
 					</capitec-expander>
 
@@ -610,7 +679,7 @@ export class UpdateCardLimits extends Component {
 							${this._renderTermsAndConditions(`LimitsAgreement`)}
 					</capitec-expander>
 
-					${this.cardlimitsInfo.tapToPayEnabled ? html`
+					${this._tapToPayStatus ? html`
 						<capitec-expander
 							expandbuttonalignment="left"
 							label="Tap To Pay">
@@ -684,6 +753,12 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 			</capitec-group>
 		`;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

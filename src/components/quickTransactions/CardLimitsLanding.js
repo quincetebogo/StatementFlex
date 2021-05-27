@@ -34,6 +34,7 @@ export class CardLimitsLanding extends Component {
 		// private properites
 		this._cardLimits = {};
 		this._updateType = ``;
+		this._selectedCard = {};
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 
 		this.primaryCards = [];
@@ -89,7 +90,9 @@ export class CardLimitsLanding extends Component {
 
 		if (returnValue.succeeded) {
 			this._updateType = type;
-			this._cardLimits = returnValue.result;
+			this._selectedCard = cardDetails;
+			this._selectedCard.limits = returnValue.result.cardLimits;
+			this._selectedCard.isContactlessActivated = returnValue.result.isContactlessActivated;
 			this.renderMode = RENDER_MODE.UPDATE_LIMITS;
 		}
 	}
@@ -461,12 +464,11 @@ export class CardLimitsLanding extends Component {
 			return html`
 				<horizon-update-card-limits
 					.updateType="${this._updateType}"
-					.cardLimits="${this._cardLimits}"
+					.cardDetails="${this._selectedCard}"
 					@cancel="${() => this.renderMode = RENDER_MODE.DISCARD}">
 				</horizon-update-card-limits>
 			`;
 		}
-
 		return html``;
 	}
 	

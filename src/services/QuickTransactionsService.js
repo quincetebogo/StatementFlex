@@ -59,4 +59,8 @@ export class QuickTransactionsService extends ServiceBase {
 	tapToPayAgreement(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.tapToPayAgreement(request), `agreeTapToPay`, errorHandler, autoRetries);
 	}
+
+	updateCardLimitsAgreement(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateCardLimitsAgreement(cardDetails), `updateCardLimitsAgreement`, errorHandler, autoRetries);
+	}
 }
