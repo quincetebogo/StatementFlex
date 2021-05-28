@@ -43,7 +43,8 @@ export const TelemetryScreen = {
 	VERIFY_CALLER: `Verify Caller`,
 
 	SECURITY_QUESTIONS: `Security Questions`,
-
+	FEEDBACK: `Feedback`,
+	ASSIGN_STOP_CARD: `Assign stop card`,
 	END_CALL: `End Call Session`
 };
 
@@ -175,7 +176,22 @@ const TelemetryEvent = {
 	DEBICHECK_OUTCOME_DONE: `horizon.call.fulfill-need.debicheck.outcome.done`,
 	DEBICHECK_OUTCOME_BACK_TO_MANDATES: `horizon.call.fulfill-need.debicheck.outcome.another`,
 	DEBICHECK_OUTCOME_ASSIGN: `horizon.call.fulfill-need.debicheck.outcome.assign`,
-	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`
+	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`,
+
+	//OtherNeed
+	SCR_LD_OTHERNEED: `horizon.call.otherneed.start-span`,
+	SELECT_LAUNCH_STRACK: `horizon.call.otherneed.select-launch-strack`,
+	SCR_UNLD_OTHERNEED: `horizon.call.otherneed.end-span`,
+
+	//Feedback
+	SCR_LD_FEEDBACK: `horizon.call.feedback.start-span`,
+	SCR_UNLD_FEEDBACK: `horizon.call.feedback.end-span`,
+
+	//StopCardAssign
+	SCR_LD_ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.start-span`,
+	SELECT_CANCEL__ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.cancel`,
+	SELECT_ASSIGN__ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.assign`,
+	SCR_UNLD_ASSIGNSTOPCARD: `horizon.call.fulfill-need.stop-card-assign.end-span`,
 };
 
 
@@ -240,7 +256,10 @@ export class HorizonTelemetry extends Telemetry {
 			"ita": null,
 			"xds": null,
 			"statements": null,
-			"debicheck": null
+			"debicheck": null,
+			"otherneed": null,
+			"feedback": null,
+			"assign-stop-card": null
 		};
 
 		this.telemetryStore = new TelemetryStore();
@@ -3250,6 +3269,331 @@ export class HorizonTelemetry extends Telemetry {
 
 
 	// #endregion DEBI CHECK
+
+
+
+	// #region Search Other Need
+
+	/**
+	 * @typedef {Object} ScrLdOtherNeedModel
+	 * @property {String} screen
+	 */
+
+	/** Other Need
+	 * @screen Search Other Need
+	 * @event Screen Load: Search Other Need
+	 * 
+	 * @param {ScrLdOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadOtherNeed(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
+			eventName: TelemetryEvent.SCR_LD_OTHERNEED,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_OTHERNEED),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`otherneed`, spanId);
+		}
+	}
+
+
+/**
+	 * @typedef {Object} NavigateOtherNeedModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Launches Strack
+	 * @screen Strack
+	 * @event Navigate to Strack screen
+	 * 
+	 * @param {NavigateOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 otherNeedLaunchStrack(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`otherneed`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_LAUNCH_STRACK,
+			tags: this._extractTags(TelemetryEvent.SELECT_LAUNCH_STRACK),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+
+	/**
+	 * @typedef {Object} ScrUnldOtherNeedModel 
+	 * @property {String} screen 
+	 * @property {String} clientNeed 
+	 * @property {String} specificNeed 
+	 * @property {String} issueType 
+	 */
+
+	/** Search Other Need Screen Unload
+	 * @screen  Search Other Need 
+	 * @event Screen Unload: Search Other Need
+	 * 
+	 * @param {ScrUnldOtherNeedModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadOtherNeed(baggage) {
+		const spanId = this.currentActiveSpans.get(`otherneed`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_OTHERNEED,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_OTHERNEED),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "client-need": baggage.clientNeed },
+					{ "specific-need": baggage.specificNeed },
+					{ "issue-type": baggage.issueType }
+				]
+			});
+
+			this.currentActiveSpans.set(`otherneed`, null);
+		}
+	}
+
+
+
+	// #endregion Search Other Need
+
+
+
+// #region Assign Stopped card
+
+	/**
+	 * @typedef {Object} ScrLdAssignStoppedCardModel
+	 * @property {String} screen
+	 */
+
+	/** Other Need
+	 * @screen Assign Stop Card
+	 * @event Screen Load: Assign Stop Card
+	 * 
+	 * @param {ScrLdAssignStoppedCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadAssignStopCard(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`stop-card`),
+			eventName: TelemetryEvent.SCR_LD_ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`assign-stop-card`, spanId);
+		}
+	}
+
+
+/**
+	 * @typedef {Object} CancelAssignStopCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/** Cancel assign stop card
+	 * @screen  assign stop card
+	 * @event Navigate to Cancel assign stop card
+	 * 
+	 * @param {CancelAssignStopCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 assignStopCardCancel(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`assign-stop-card`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_CANCEL__ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_CANCEL__ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+	/**
+	 * @typedef {Object} AssignStopCardModel
+	 * @property {String} screen 
+	 * @property {String} nextScreen 
+	 */
+
+	/**  assign stop card
+	 * @screen  assign stop card
+	 * @event Navigate to  assign stop card
+	 * 
+	 * @param {AssignStopCardModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 assignStopCard(baggage) {
+		super.event({
+			traceId: this.traceId,
+			spanId: this.currentActiveSpans.get(`assign-stop-card`),
+			parentSpan: null,
+			eventName: TelemetryEvent.SELECT_ASSIGN__ASSIGNSTOPCARD,
+			tags: this._extractTags(TelemetryEvent.SELECT_ASSIGN__ASSIGNSTOPCARD),
+			eventType: TelemetryEventType.PERSON,
+			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
+
+			baggage: [
+				{ "screen": baggage.screen },
+				{ "next-screen": baggage.nextScreen }
+			]
+		});
+	}
+
+
+
+	/**
+	 * @typedef {Object} ScrUnldAssignStopCard 
+	 * @property {String} screen 
+	 * @property {String} team 
+	 */
+
+	/** assign stop card Unload
+	 * @screen  assign stop card
+	 * @event Screen Unload: assign stop card
+	 * 
+	 * @param {ScrUnldAssignStopCard} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadAssignStopCard(baggage) {
+		const spanId = this.currentActiveSpans.get(`assign-stop-card`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_ASSIGNSTOPCARD,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_ASSIGNSTOPCARD),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "team": baggage.team }
+				]
+			});
+
+			this.currentActiveSpans.set(`assign-stop-card`, null);
+		}
+	}
+
+
+
+	// #endregion Assign stop card
+
+
+
+
+
+// #region Feedback screen 
+
+	/**
+	 * @typedef {Object} ScrLdFeedbackModel
+	 * @property {String} screen
+	 */
+
+	/** Feedback screen
+	 * @screen Feedback screen
+	 * @event Screen Load: Feedback screen
+	 * 
+	 * @param {ScrLdFeedbackModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenLoadFeedbackScreen(baggage) {
+		const spanId = super.spanStart({
+			traceId: this.traceId,
+			parentSpan: this.currentActiveSpans.get(`otherneed`),
+			eventName: TelemetryEvent.SCR_LD_FEEDBACK,
+			tags: this._extractTags(TelemetryEvent.SCR_LD_FEEDBACK),
+			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+			baggage: [{ "screen": baggage.screen }]
+		});
+
+		if (spanId) {
+			this.currentActiveSpans.set(`feedback`, spanId);
+		}
+	}
+
+
+	/**
+	 * @typedef {Object} ScrUnldFeedbackModel 
+	 * @property {String} screen 
+	 * @property {String} strackOutcome 
+	 */
+
+	/** Feedback screen Unload
+	 * @screen  Feedback screen 
+	 * @event Screen Unload: Feedback screen
+	 * 
+	 * @param {ScrUnldFeedbackModel} baggage Information to attach to the telemetry event
+	 * @returns { void } 
+	 */
+	 screenUnloadFeedbackScreen(baggage) {
+		const spanId = this.currentActiveSpans.get(`feedback`);
+
+		if (this.traceId && spanId) {
+			super.spanEnd({
+				traceId: this.traceId,
+				spanId: spanId,
+				parentSpan: null,
+				eventName: TelemetryEvent.SCR_UNLD_FEEDBACK,
+				tags: this._extractTags(TelemetryEvent.SCR_UNLD_FEEDBACK),
+				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
+
+				baggage: [
+					{ "screen": baggage.screen },
+					{ "strack-outcome": baggage.strackOutcome },
+				]
+			});
+
+			this.currentActiveSpans.set(`feedback`, null);
+		}
+	}
+
+
+
+	// #endregion Feedback screen 
+
+
 
 	// #endregion PUBLIC METHODS
 

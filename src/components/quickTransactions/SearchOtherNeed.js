@@ -3,6 +3,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
@@ -89,8 +90,23 @@ export class SearchOtherNeed extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
+		HorizonTelemetry.instance.screenLoadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		});
+
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		await this._getCategories();
+	}
+
+	async disconnectedCallback() {
+		
+		HorizonTelemetry.instance.screenUnloadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			clientNeed: this.category,
+			specificNeed: this.need,
+			issueType: this.issue
+		});
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -137,6 +153,12 @@ export class SearchOtherNeed extends Component {
 	}
 
 	async _onLaunchStrackClick() {
+
+		HorizonTelemetry.instance.otherNeedLaunchStrack({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 
