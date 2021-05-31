@@ -74,7 +74,6 @@ export class VerifyBySecurityQuestions extends Component {
 	 * @property {Object} incomingCallDetails Information about the incoming call (incoming number etc.)
 	 * @property {Object} callerInformation Information on the incoming caller (mini-profile)
 	 * @property {Object} securityQuestions The security questions object retrieved from XDS
-	 * @property {Object} noOfXdsVerificationAttempted Number of verification attempts so far
 	 * 
 	 * @readonly
 	 * @static
@@ -87,7 +86,6 @@ export class VerifyBySecurityQuestions extends Component {
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
 			securityQuestions: { type: Object },
-			noOfXdsVerificationAttempted: { type: Number },
 
 			renderMode: { attribute: false },
 			questionNumber: { attribute: false },
@@ -102,7 +100,6 @@ export class VerifyBySecurityQuestions extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
 		this.questions = this.securityQuestions.questions;
 	}
 
@@ -134,7 +131,6 @@ export class VerifyBySecurityQuestions extends Component {
 			this.questionNumber++;
 			this.checked = false;
 		}
-
 	}
 
 	async _verifyClick() {
@@ -145,39 +141,40 @@ export class VerifyBySecurityQuestions extends Component {
 			this.checked = false;
 
 			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
-
+			
 			if (returnValue.succeeded) {
+				this.logger.log(`warn`, `verifySecurityQuestions returned: ${returnValue.result}`);
 				if (returnValue.result === `Authenticated`) {
 					this.callerInformation.verificationStatus = `verified`;
 					this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-				} else if (returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
+				} else if (returnValue.result !== `Authenticated` && this.callerInformation.verificationAttempts.xdsAttempts < 1) {
+					this.callerInformation.verificationAttempts.xdsAttempts++;
 					this.renderMode = RENDER_MODE.FIRST_FAILURE;
-					this.noOfXdsVerificationAttempted++;
-				} else if (returnValue.succeeded) {
+				} else {
 					this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
-					this.noOfXdsVerificationAttempted++;
 					this.callerInformation.verificationStatus = `failed`;
-					this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+					this.callerInformation.verificationAttempts.xdsAttempts++;
 	
 					this.horizonStore.setCallerInformation(this.callerInformation);
 					this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 	
+					// TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
 					this.horizonRouter.navigateToXdsVerificationFailed();
 				} 
-			} else if (this.noOfXdsVerificationAttempted < 1) {
+			} else if (this.callerInformation.verificationAttempts.xdsAttempts < 1) {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
+				this.callerInformation.verificationAttempts.xdsAttempts++;
 				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.noOfXdsVerificationAttempted++;
 			} else {
-				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treatign this as the final failure.`, `_verifyClick`);
-				this.noOfXdsVerificationAttempted++;
+				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as the final failure.`, `_verifyClick`);
+				this.callerInformation.verificationAttempts.xdsAttempts++;
 				this.callerInformation.verificationStatus = `failed`;
-				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
 
 				this.horizonStore.setCallerInformation(this.callerInformation);
 				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
-				this.horizonRouter.navigateToXdsVerificationFailed();
+					// TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
+					this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -199,7 +196,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_retrySecurityQuestions(e) {
-		if (this.noOfXdsVerificationAttempted < MAX_XDS_ATTEMPTS) {
+		if (this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
 			this.questionNumber = 0;
 			this.securityQuestions = e.detail.securityQuestions;
 			this.questions = e.detail.securityQuestions.questions;
@@ -213,7 +210,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelEndCall() {
-		this.renderMode = this.noOfXdsVerificationAttempted === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
+		this.renderMode = this.callerInformation.verificationAttempts.xdsAttempts === 1 ? RENDER_MODE.FIRST_FAILURE : RENDER_MODE.SECURITY_QUESTIONS;
 	}
 
 	// --------------

@@ -3,7 +3,6 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
-import { navigateToFailedScreen } from 'app/components/dialogs/common/VerifyCaller';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -19,6 +18,7 @@ const ERROR_MESSAGE = {
 };
 
 const HEADER_LABEL = `Verify Caller`;
+const MAX_ITA_ATTEMPTS = 3;
 
 /**
  * The Horizon Verify Caller Details Dialog is used to verify a Capitec Client.
@@ -69,6 +69,7 @@ export class SecurityQuestionsFailed extends Component {
 			incidentDetails: { type: Object },
 			incomingCallDetails: { type: Object },
 			callerInformation: { type: Object },
+
 			renderMode: { attribute: false },
 			xdsMessage: { attribute: false },
 			isBusy: { attribute: false }
@@ -97,9 +98,8 @@ export class SecurityQuestionsFailed extends Component {
 
 			if (!securityQuestions.authenticationPermitted) {
 				this.logger.log(`warning`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
-				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
-				// common code - imported from VerifyCaller
-				navigateToFailedScreen(this);
+				// TODO: If ITA attempts have been exceeded this is the wrong screen to go to
+				this.navigateToXdsVerificationFailed();
 			} else if (securityQuestions.questions && securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
 					detail: { 'securityQuestions': securityQuestions }
@@ -110,10 +110,9 @@ export class SecurityQuestionsFailed extends Component {
 			}
 		} else {
 			this.logger.log(`error`, `Failed to retrieve security questions. This will be treated as a final failure!`, `_retrySecurityQuestions`);
-			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // Treat this as too many attempts
-			// common code - imported from VerifyCaller
-			navigateToFailedScreen(this);
-	}
+				// TODO: If ITA attempts have been exceeded this is the wrong screen to go to
+				this.navigateToXdsVerificationFailed();
+		}
 	}
 
 
@@ -145,10 +144,18 @@ export class SecurityQuestionsFailed extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_xdsErrorHandler(exception) {
+
+	// TODO: Evaluate this screen
+	_navigateToXdsVerificationFailed() {
+		this.callerInformation.verificationStatus = `failed`;
+		this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
+
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonRouter.navigateToSystemError();
+		return this.horizonRouter.navigateToXdsVerificationFailed();
+	};
+
+	_xdsErrorHandler(exception) {
 		return true;
 	}
 
@@ -306,7 +313,7 @@ export class SecurityQuestionsFailed extends Component {
 						icon="system/cellphone-action"
 						iconSize="default"
 						@click="${() => this._verifyUsingMobileApp()}"
-						?hidden="${!this.callerInformation.hasDigitalChannels}">
+						?hidden="${!this.callerInformation.hasDigitalChannels || this.callerInformation.verificationAttempts.itaAttempts >= MAX_ITA_ATTEMPTS}">
 					</horizon-option-button>
 				</capitec-group>
 			</capitec-content-box>
