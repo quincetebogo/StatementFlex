@@ -98,6 +98,7 @@ export class SecurityQuestionsFailed extends Component {
 
 			if (!securityQuestions.authenticationPermitted) {
 				this.logger.log(`warning`, `Maximum attempts at XDS verification exceeded on second retry`, `_retrySecurityQuestions`);
+				// TODO: If ITA attempts have been exceeded this is the wrong screen to go to
 				this.navigateToXdsVerificationFailed();
 			} else if (securityQuestions.questions && securityQuestions.questions.length > 0) {
 				this.dispatchEvent(new CustomEvent(`security-questions`, {
@@ -109,7 +110,8 @@ export class SecurityQuestionsFailed extends Component {
 			}
 		} else {
 			this.logger.log(`error`, `Failed to retrieve security questions. This will be treated as a final failure!`, `_retrySecurityQuestions`);
-			this.navigateToXdsVerificationFailed();
+				// TODO: If ITA attempts have been exceeded this is the wrong screen to go to
+				this.navigateToXdsVerificationFailed();
 		}
 	}
 
@@ -142,6 +144,8 @@ export class SecurityQuestionsFailed extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
+
+	// TODO: Evaluate this screen
 	_navigateToXdsVerificationFailed() {
 		this.callerInformation.verificationStatus = `failed`;
 		this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 

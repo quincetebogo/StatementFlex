@@ -1,17 +1,16 @@
 import { View, css, html } from 'platform/elements';
-import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
+import 'app/components/common/VerifyCaller.js';
 import 'app/components/quickTransactions/FavouriteTransactions';
-import 'app/components/dialogs/common/VerifyBySecurityQuestions';
 
 const RENDER_MODE = {
 	MAIN_PAGE: 0,
-	VERIFY_CALLER: 1,
+	VERIFY_NOW: 1,
 	END_CALL: 2
 };
 
@@ -33,7 +32,6 @@ export class ItaVerificationFailed extends View {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), null);
 	}
 
 	// ---------------
@@ -91,6 +89,26 @@ export class ItaVerificationFailed extends View {
 		this.horizonStore.saveState(state);
 	}
 
+	_skipVerification(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
+	_verificationCancelled(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_clientVerified(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.callerInformation = event.detail.callerInformation;
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
+
 	_onEndCallSession() {
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
@@ -99,47 +117,16 @@ export class ItaVerificationFailed extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	async _verifyUsingSecurityQuestions() {
-
-		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(clientID, null);
-
-		if (returnValue.succeeded) {
-			this.securityQuestions = returnValue.result;
-
-			if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
-				this.renderMode = RENDER_MODE.VERIFY_CALLER;
-			} else {
-				const event = {
-					from: `UI-CS`,
-					status: `error`,
-					message: `Failed to retrieve security questions from XDS`
-				};
-				this.eventAggregator.publish(`horizon-status-bar-update`, event);
-			}
-		} else {
-			this.notVerified = true;
-		}
-	}
-
-	_onCancelVerify() {
-		this.renderMode = -1;
-	}
-
-	_skip() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
-
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_leftClick() {
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+	_continueUnverifiedClick() {
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
 	}
 
-	_rightClick() {
-		this._verifyUsingSecurityQuestions();
+	_verifyViaSecurityQuestionsClick() {
+		this.renderMode = RENDER_MODE.VERIFY_NOW;
 	}
 
 	// ---------
@@ -176,8 +163,8 @@ export class ItaVerificationFailed extends View {
 					right="Verify Via Security Questions" 
 					toast="Your Verification has failed." 
 					image="/images/insure/assign-pay-arrears.svg"
-					@left-click=${() => this._leftClick()}
-					@right-click=${() => this._rightClick()}>
+					@left-click=${() => this._continueUnverifiedClick()}
+					@right-click=${() => this._verifyViaSecurityQuestionsClick()}>
 						<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24
 							hours.</section>
 				</horizon--error-screen>
@@ -186,17 +173,17 @@ export class ItaVerificationFailed extends View {
 		`;
 	}
 
-	_renderVerifySecurityQuestions() {
-		if (this.renderMode === RENDER_MODE.VERIFY_CALLER) {
+	_renderVerifyNowModal() {
+		if (this.renderMode === RENDER_MODE.VERIFY_NOW) {
 			return html`
-					<horizon-security-question
-						.incidentDetails="${this.incidentDetails}"
-						.incomingCallDetails="${this.incomingCallDetails}"
-						.callerInformation="${this.callerInformation}" 
-						.securityQuestions="${this.securityQuestions}"
-						@cancel="${() => this._onCancelVerify()}" 
-						@skip="${() => this._skip()}">
-					</horizon-security-question>`;
+				<horizon-verify-caller
+					.incidentDetails="${this.incidentDetails}"
+					.incomingCallDetails="${this.incomingCallDetails}" 
+					.callerInformation ="${this.callerInformation}"
+					@skip="${(e) => this._skipVerification(e)}"
+					@cancel="${(e) => this._verificationCancelled(e)}"
+					@verified="${(e) => this._clientVerified(e)}">
+				</horizon-verify-caller>`;
 		}
 		return html``;
 	}
