@@ -96,7 +96,16 @@ export class TapToPayAgreement extends Component {
 	// ---------------
 	async _viewAgreement() {
 		const state = this.horizonStore.getCallerInformation();
-		const tapToPayStatus = this.selectedCard.cardStatus;
+		let tapToPayStatus = this.selectedCard.cardStatus;
+
+	
+		if (tapToPayStatus === `ACTIVE`) {
+			tapToPayStatus = 0;
+		} else if (tapToPayStatus === `INACTIVE`) {
+			tapToPayStatus = 1;
+		} else if (tapToPayStatus === `UNCHANGED`) {
+			tapToPayStatus = 2;
+		}
 
 		const agreementInfo = {
 			"cifNumber": state.cifNumber,
@@ -326,8 +335,6 @@ export class TapToPayAgreement extends Component {
 			</capitec-group>
 		`;
 	}
-
-
 }
 
 customElements.define(`horizon-tap-to-pay-agreement`, TapToPayAgreement);
