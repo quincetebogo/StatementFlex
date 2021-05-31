@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator } from 'platform/core';
 
 import 'app/components/common/OptionButton';
 
@@ -26,6 +27,10 @@ export class FavouriteTransactions extends Component {
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
+		
+		this.toastDetail = `Thank you, you have been verified`;
+
+		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------
@@ -64,12 +69,20 @@ export class FavouriteTransactions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
+
 		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
 			this.displayVerificationStatusToast = false;
 			this.displayToast = true;
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
 		}
 		
+	}
+
+	disconnectedCallback() {
+		this.vasToast.dispose();
+
+		super.disconnectedCallback();
 	}
 
 	// ---------------
@@ -82,6 +95,12 @@ export class FavouriteTransactions extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_toastVAS() {
+		this.displayToast = true;
+		this.toastDetail = `Value added services complete, you can update anytime.`;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	// --------------
@@ -207,6 +226,10 @@ export class FavouriteTransactions extends Component {
 				--theme-font-weight: 600;
 				text-decoration: underline;
 			}
+
+			capitec-toast[detail="Value added services complete, you can update anytime."] {
+				width: 560px;
+			}
 			`
 		];
 	}
@@ -217,7 +240,7 @@ export class FavouriteTransactions extends Component {
 
 	_webTemplate() {
 		return html`
-			${this._renderVerifiedToast()}
+			${this._renderToast()}
 			${this._renderFavourites()}
 		`;
 	}
@@ -241,10 +264,15 @@ export class FavouriteTransactions extends Component {
 			`;
 	}
 
-	_renderVerifiedToast() {
+	_renderToast() {
 		if (this.displayToast) {
 			return html`
-				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				<capitec-toast 
+						class="toast" 
+						type="success" 
+						header="Successful" 
+						detail="${this.toastDetail}"
+						closable>
 				</capitec-toast>`;
 		}
 		return html``;
