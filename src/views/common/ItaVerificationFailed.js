@@ -1,10 +1,7 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
-import 'app/components/quickTransactions/FavouriteTransactions';
 
 export class ItaVerificationFailed extends ViewBase {
 	// --------------
@@ -13,20 +10,11 @@ export class ItaVerificationFailed extends ViewBase {
 
 	constructor() {
 		super();
-
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ---------------
 	// PROPERTIES
 	// ---------------
-
-	static get properties() {
-		return {
-
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES

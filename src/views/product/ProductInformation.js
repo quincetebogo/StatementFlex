@@ -1,6 +1,4 @@
-import { Configuration, EventAggregator, NavigationContext } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { Configuration, NavigationContext } from 'platform/core';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -47,27 +45,14 @@ export class ProductInformation extends ViewBase {
 		super();
 		
 		this._config = {};
-		this.isBusy = false;
 
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.configuration = Configuration.getInstance();
-		this.logger = Logger.getInstance();
-
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
-
-	static get properties() {
-		return {
-			renderMode: { attribute: false },
-			isBusy: { attribute: false }
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -76,9 +61,6 @@ export class ProductInformation extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this.eventAggregator.publish(
 			`horizon-update-call_actionbar`,
@@ -158,12 +140,6 @@ export class ProductInformation extends ViewBase {
 				@view-benefits="${() => this._viewBenefits()}"
 				>
 			</horizon-cnet-product-info>`;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 }
 
