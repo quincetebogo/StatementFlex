@@ -29,17 +29,6 @@ export class DebiCheckSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof DebiCheckSuccess
-	 */
-	static get properties() {
-		return {
-
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
