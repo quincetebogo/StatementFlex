@@ -2,8 +2,8 @@ import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'app/components/common/SuccessScreen';
-import { HorizonTelemetry, TelemetryScreen } from '../../services/HorizonTelemetryService';
 
 export class TapToPaySuccess extends ViewBase {
 

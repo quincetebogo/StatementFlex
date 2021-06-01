@@ -1,10 +1,10 @@
 import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
-import { HorizonTelemetry, TelemetryScreen } from '../../services/HorizonTelemetryService';
 
 /**
  * An error/failure screen that will be displayed when Tap To Pay is unsuccessfuil

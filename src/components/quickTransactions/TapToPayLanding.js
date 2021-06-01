@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
-import { HorizonTelemetry, TelemetryScreen } from '../../services/HorizonTelemetryService';
 
 export class TapToPayLanding extends Component {
 
@@ -21,7 +21,7 @@ export class TapToPayLanding extends Component {
 
 	static get properties() {
 		return {
-			cards: { type: Array },
+			cards: { type: Object },
 
 			showTapToPayAgreement: { attribute: false }
 		};
@@ -50,9 +50,8 @@ export class TapToPayLanding extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateCards() {
-		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
-		this.cards[index].isContactlessActivated = this.selectedCard.isContactlessActivated;
+	_updateCards() {		
+		this.dispatchEvent(new CustomEvent(`update-cards`, {detail: { cards: this.cards } }))
 	}
 
 	// --------------
@@ -61,21 +60,6 @@ export class TapToPayLanding extends Component {
 
 	_back() {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
-	}
-
-	_toggleTapToPayAgreement(event) {
-
-		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
-		this.selectedCard.isContactlessActivated = event.detail.new;
-
-		this._updateCards();
-		this.showTapToPayAgreement = !this.showTapToPayAgreement;
-		
-		HorizonTelemetry.instance.selectToggle({
-			screen: TelemetryScreen.TAP_TO_PAY,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			cardId: this.selectedCard.cardId
-		});
 	}
 
 	_cancel() {
