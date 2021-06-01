@@ -355,8 +355,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {IncomingCallModel} baggage Information to attach to the call/span
 	 * @returns {void}
 	 */
-	incomingCall(baggage) {
-		const telemetryCallSpanId = super.spanStart({
+	async incomingCall(baggage) {
+		const telemetryCallSpanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: null,
 			eventName: TelemetryEvent.INCOMING_CALL,
@@ -370,6 +370,8 @@ export class HorizonTelemetry extends Telemetry {
 				{ "ucid": baggage.ucid }
 			]
 		});
+
+		console.log('incomingCall: '+ telemetryCallSpanId);
 
 		// update current active span reference on span-start
 		if (telemetryCallSpanId) {
@@ -391,8 +393,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {IncidentCreatedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	incidentCreated(baggage) {
-		super.event({
+	 async incidentCreated(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`horizon.call`),
 			parentSpan: null,
@@ -416,11 +418,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @event Workflow Completed
 	 * @returns { void }
 	 */
-	workflowCompleted() {
+	 async workflowCompleted() {
 		const spanId = this.currentActiveSpans.get(`horizon.call`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -447,8 +449,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @event Identify Caller Starts
 	 * @returns { void }
 	 */
-	identifyCallerStarts() {
-		const idCallerSpanId = super.spanStart({
+	 async identifyCallerStarts() {
+		const idCallerSpanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.IDENTIFY_CALLER_STARTS,
@@ -456,6 +458,8 @@ export class HorizonTelemetry extends Telemetry {
 			eventType: TelemetryEventType.SYSTEM,
 			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
 		});
+
+		console.log('identifyCallerStarts: '+ idCallerSpanId);
 
 		if (idCallerSpanId) {
 			this.currentActiveSpans.set(`id-caller`, idCallerSpanId);
@@ -468,11 +472,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @event Caller Identified
 	 * @returns { void } 
 	 */
-	callerIdentified() {
+	 async callerIdentified() {
 		const spanId = this.currentActiveSpans.get(`id-caller`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -502,8 +506,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdConfirmCallerModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenLoadConfirmCaller(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadConfirmCaller(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
 			eventName: TelemetryEvent.SCR_LD_CONFIRM_CALLER,
@@ -518,6 +522,8 @@ export class HorizonTelemetry extends Telemetry {
 				{ "initial-client-cif": baggage.initialClientCif }
 			]
 		});
+
+		console.log('screenLoadConfirmCaller: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`confirm-caller`, spanId);
@@ -541,8 +547,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ConfirmCallerModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	selectConfirmCaller(baggage) {
-		super.event({
+	 async selectConfirmCaller(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`confirm-caller`),
 			parentSpan: null,
@@ -574,8 +580,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateSearchClientModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	selectSearchClient(baggage) {
-		super.event({
+	 async selectSearchClient(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`confirm-caller`),
 			parentSpan: null,
@@ -604,8 +610,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateAddCallerDetailsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	selectAddCallerDetails(baggage) {
-		super.event({
+	 async selectAddCallerDetails(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`confirm-caller`),
 			parentSpan: null,
@@ -634,11 +640,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldConfirmCallerModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenUnloadConfirmCaller(baggage) {
+	 async screenUnloadConfirmCaller(baggage) {
 		const spanId = this.currentActiveSpans.get(`confirm-caller`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -671,8 +677,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdAddCallerDetailsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenLoadAddCallerDetails(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadAddCallerDetails(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
 			eventName: TelemetryEvent.SCR_LD_ADD_CALLER_DETAILS,
@@ -682,6 +688,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadAddCallerDetails: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`add-caller`, spanId);
@@ -702,8 +710,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {AddCallerDetailsConfirmModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	addCallerDetailsConfirm(baggage) {
-		super.event({
+	 async addCallerDetailsConfirm(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`add-caller`),
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
@@ -733,8 +741,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {AddCallerDetailsCancelModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	addCallerDetailsCancel(baggage) {
-		super.event({
+	 async addCallerDetailsCancel(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`add-caller`),
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
@@ -763,11 +771,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldAddCallerDetailsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenUnloadAddCallerDetails(baggage) {
+	 async screenUnloadAddCallerDetails(baggage) {
 		const spanId = this.currentActiveSpans.get(`add-caller`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`id-caller`),
@@ -799,8 +807,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {scrLdSearchClientModel} baggage Information to attach to the telemetry event
 	 */
 	
-	screenLoadSearchClient(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadSearchClient(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
 			eventName: TelemetryEvent.SCR_LD_SEARCH_CLIENT,
@@ -810,6 +818,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadSearchClient: '+ spanId);
 
 		if (spanId) { 
 			this.currentActiveSpans.set(`search-client`, spanId);
@@ -835,8 +845,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateConfirmClientModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	selectSearchCapitecClient(baggage) {
-		super.event({
+	 async selectSearchCapitecClient(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`search-client`),
 			parentSpan: this.currentActiveSpans.get(`id-caller`),
@@ -865,11 +875,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldSearchClientModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenUnloadSearchClient(baggage) {
+	 async screenUnloadSearchClient(baggage) {
 		const spanId = this.currentActiveSpans.get(`search-client`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`id-caller`),
@@ -902,8 +912,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdStopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadStopCard(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadStopCard(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_STOP_CARD,
@@ -913,6 +923,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadStopCard: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`stop-card`, spanId);
@@ -940,8 +952,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCard(baggage) {
-		super.event({
+	 async stopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -970,8 +982,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ConfirmCardStopModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	confirmStopCard(baggage) {
-		super.event({
+	 async confirmStopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -997,8 +1009,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CancelCardStopModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	cancelStopCard(baggage) {
-		super.event({
+	 async cancelStopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1024,8 +1036,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ExitCardStopModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	exitStopCard(baggage) {
-		super.event({
+	 async exitStopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1044,11 +1056,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @event Screen Unload: Stop Card
 	 * @returns { void } 
 	 */
-	screenUnloadStopCard() {
+	 async screenUnloadStopCard() {
 		const spanId = this.currentActiveSpans.get(`stop-card`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1082,8 +1094,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardOutcomeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCardOutcome(baggage) {
-		super.event({
+	 async stopCardOutcome(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1112,8 +1124,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardTryAgainModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCardTryAgain(baggage) {
-		super.event({
+	 async stopCardTryAgain(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1139,8 +1151,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardAssignModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCardAssign(baggage) {
-		super.event({
+	 async stopCardAssign(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1166,8 +1178,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardDoneModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCardDone(baggage) {
-		super.event({
+	 async stopCardDone(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1193,8 +1205,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {StopCardAnotherModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	stopCardAnother(baggage) {
-		super.event({
+	 async stopCardAnother(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`stop-card`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1224,8 +1236,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdProofOfAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadProofOfAccount(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadProofOfAccount(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_PROOF_OF_ACCOUNT,
@@ -1235,6 +1247,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadProofOfAccount: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`proof-of-account`, spanId);
@@ -1254,8 +1268,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectCancelProofOfAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectCancelProofOfAccount(baggage) {
-		super.event({
+	 async selectCancelProofOfAccount(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`proof-of-account`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1285,8 +1299,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectProofOfAccountSendModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectProofOfAccountSend(baggage) {
-		super.event({
+	 async selectProofOfAccountSend(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`proof-of-account`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1321,8 +1335,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ProofOfAccountOutcomeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 proofOfAccountOutcome(baggage) {
-			super.event({
+	 async proofOfAccountOutcome(baggage) {
+			await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`proof-of-account`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -1350,11 +1364,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldProofOfAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadProofOfAccount(baggage) {
+	 async screenUnloadProofOfAccount(baggage) {
 		const spanId = this.currentActiveSpans.get(`proof-of-account`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -1385,8 +1399,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdVerifyCallerModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadVerifyCaller(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadVerifyCaller(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_VERIFY_CALLER,
@@ -1396,6 +1410,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadVerifyCaller: '+ spanId);
 
 		if (spanId) {
  		this.currentActiveSpans.set(`verify-caller`, spanId); 
@@ -1415,8 +1431,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerifyCallerViaITAModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verifyCallerViaITA(baggage) {
-		const spanId = super.spanStart({
+	 async verifyCallerViaITA(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.VERIFY_CALLER,
@@ -1426,6 +1442,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('verifyCallerViaITA: '+ spanId);
 
 		if (spanId) {
  		this.currentActiveSpans.set(`ita`, spanId); 
@@ -1444,8 +1462,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationRequestSentModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationRequestSent(baggage) {
-		super.event({
+	 async verificationRequestSent(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1471,8 +1489,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectSecurityQuestionsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectSecurityQuestions(baggage) {
-		super.event({
+	 async selectSecurityQuestions(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: null,
@@ -1501,8 +1519,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SkipVerificationITAModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 skipVerificationITA(baggage) {
-		super.event({
+	 async skipVerificationITA(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: null,
@@ -1530,8 +1548,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {TryVerificationAgainModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 tryVerificationAgain(baggage) {
-		super.event({
+	 async tryVerificationAgain(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1556,8 +1574,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationTimeoutModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationTimeout(baggage) {
-		super.event({
+	 async verificationTimeout(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1582,8 +1600,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationFailedITAModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationFailedITA(baggage) {
-		super.event({
+	 async verificationFailedITA(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1608,8 +1626,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationSuccessITAModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationSuccessITA(baggage) {
-		super.event({
+	 async verificationSuccessITA(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`ita`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1635,11 +1653,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldVerifyCallerModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	screenUnloadVerifyCaller(baggage) {
+	 async screenUnloadVerifyCaller(baggage) {
 		const spanId = this.currentActiveSpans.get(`ita`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -1671,8 +1689,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdEndCallModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadEndCall(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadEndCall(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_END_CALL,
@@ -1682,6 +1700,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadEndCall: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`end-call`, spanId);
@@ -1702,8 +1722,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {EndCallModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 endCall(baggage) {
-		super.event({
+	 async endCall(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`end-call`),
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -1734,8 +1754,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {EndCallCancelModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 endCallCancel(baggage) {
-		super.event({
+	 async endCallCancel(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`end-call`),
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -1763,11 +1783,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldEndCallModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadEndCall(baggage) {
+	 async screenUnloadEndCall(baggage) {
 		const spanId = this.currentActiveSpans.get(`end-call`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -1797,8 +1817,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @returns { void } 
 	 */
 
-	endCallSelected(baggage) {
-		super.event({
+	 async endCallSelected(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`horizon.call`),
 			parentSpan: null,
@@ -1830,8 +1850,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdSecurityQuestionsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadSecurityQuestions(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadSecurityQuestions(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
 			eventName: TelemetryEvent.SCR_LD_SECURITY_QUESTIONS,
@@ -1841,6 +1861,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadSecurityQuestions: '+ spanId);
 
 		if (spanId) {
  		this.currentActiveSpans.set(`xds`, spanId); 
@@ -1860,8 +1882,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {GoToNextQuestionModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 goToNextQuestion(baggage) {
-		super.event({
+	 async goToNextQuestion(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
@@ -1892,38 +1914,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SkipVerificationXDSModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 skipVerificationXDS(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`xds`),
-			parentSpan: null,
-			eventName: TelemetryEvent.XDS_SKIP_VERIFICATION,
-			tags: this._extractTags(TelemetryEvent.XDS_SKIP_VERIFICATION),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "nextScreen": baggage.nextScreen }
-			]
-		});
-	}
-
-	/**
-	 * @typedef {Object} SkipVerificationXDSModel
-	 * @property {String} screen
-	 */
-
-	/** XDS Skip Veriification telemetry event
-	 * @screen Security Questions 
-	 * @nextScreen Favourites Unverified
-	 * @event XDS Skip Verification
-	 * 
-	 * @param {SkipVerificationXDSModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 skipVerificationXDS(baggage) {
-		super.event({
+	 async skipVerificationXDS(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
@@ -1952,8 +1944,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CancelSecurityQuestionsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 cancelSecurityQuestions(baggage) {
-		super.event({
+	 async cancelSecurityQuestions(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: null,
@@ -1981,8 +1973,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SecurityQuestionsTryAgainModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 securityQuestionsTryAgain(baggage) {
-		super.event({
+	 async securityQuestionsTryAgain(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -2008,8 +2000,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationFailedXDSModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationFailedXDS(baggage) {
-		super.event({
+	 async verificationFailedXDS(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -2038,8 +2030,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {VerificationSuccessXDSModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 verificationSuccessXDS(baggage) {
-		super.event({
+	 async verificationSuccessXDS(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`xds`),
 			parentSpan: this.currentActiveSpans.get(`verify-caller`),
@@ -2067,11 +2059,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldSecurityQuestionsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadSecurityQuestions(baggage) {
+	 async screenUnloadSecurityQuestions(baggage) {
 		const spanId = this.currentActiveSpans.get(`xds`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -2103,8 +2095,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdFulfillNeedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadFulfillNeed(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadFulfillNeed(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
 			eventName: TelemetryEvent.SCR_LD_FULFILL_NEED,
@@ -2114,6 +2106,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadFulfillNeed: '+ spanId);
 
 		if (spanId) {
  			this.currentActiveSpans.set(`fulfill-need`, spanId); 
@@ -2137,8 +2131,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {FavouriteTransactionsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	favouriteTransactions(baggage) {
-		super.event({
+	 async favouriteTransactions(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -2170,8 +2164,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckAlert(baggage) {
-		super.event({
+	 async debiCheckAlert(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2200,8 +2194,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckAlertDismiss(baggage) {
-		super.event({
+	 async debiCheckAlertDismiss(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2230,8 +2224,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {DebiCheckAlertModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckAlertAccept(baggage) {
-		super.event({
+	 async debiCheckAlertAccept(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2257,8 +2251,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectDebiCheckModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectDebiCheck(baggage) {
-		super.event({
+	 async selectDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2287,8 +2281,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectStopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectStopCard(baggage) {
-		super.event({
+	 async selectStopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2317,8 +2311,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectUpdateCardLimitsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectUpdateCardLimits(baggage) {
-		super.event({
+	 async selectUpdateCardLimits(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2347,8 +2341,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectTapToPayModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectTapToPay(baggage) {
-		super.event({
+	 async selectTapToPay(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2377,8 +2371,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectStatementsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectStatements(baggage) {
-		super.event({
+	 async selectStatements(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2407,8 +2401,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectTaxCertificateModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectTaxCertificate(baggage) {
-		super.event({
+	 async selectTaxCertificate(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2437,8 +2431,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectProofOfAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectProofOfAccount(baggage) {
-		super.event({
+	 async selectProofOfAccount(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2467,8 +2461,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectSearchOtherNeedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectSearchOtherNeed(baggage) {
-		super.event({
+	 async selectSearchOtherNeed(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`fulfill-need`),
 			parentSpan: null,
@@ -2490,11 +2484,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @event Screen Unload: Favourite Transactions
 	 * @returns { void } 
 	 */
-	 screenUnloadNeedFulfilled() {
+	 async screenUnloadNeedFulfilled() {
 		const spanId = this.currentActiveSpans.get(`fulfill-need`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -2523,8 +2517,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdStatementsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadStatements(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadStatements(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_STATEMENTS,
@@ -2534,6 +2528,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadStatements: '+ spanId);
 
 		if (spanId) {
  			this.currentActiveSpans.set(`statements`, spanId); 
@@ -2553,8 +2549,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectAccountTypeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectAccountType(baggage) {
-		super.event({
+	 async selectAccountType(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2583,8 +2579,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectAccount(baggage) {
-		super.event({
+	 async selectAccount(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2613,8 +2609,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectNextOnAccountModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectNextOnAccount(baggage) {
-		super.event({
+	 async selectNextOnAccount(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2641,8 +2637,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectNextOnPeriodModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectNextOnPeriod(baggage) {
-		super.event({
+	 async selectNextOnPeriod(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2673,8 +2669,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectViewDocumentsModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectViewDocuments(baggage) {
-		super.event({
+	 async selectViewDocuments(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2700,8 +2696,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SendStatementModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 sendStatement(baggage) {
-		super.event({
+	 async sendStatement(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2730,8 +2726,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectSendAnotherStatementModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectSendAnotherStatement(baggage) {
-		super.event({
+	 async selectSendAnotherStatement(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2759,8 +2755,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {SelectBackModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectBack(baggage) {
-		super.event({
+	 async selectBack(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`statements`),
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
@@ -2786,11 +2782,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldStatementsModel} baggage Information to attach to the telemetry event 
 	 * @returns { void } 
 	 */
-	 screenUnloadStatements(baggage) {
+	 async screenUnloadStatements(baggage) {
 		const spanId = this.currentActiveSpans.get(`statements`);
 
 			if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: this.currentActiveSpans.get(`horizon.call`),
@@ -2825,8 +2821,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdDebiCheckModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadDebiCheck(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadDebiCheck(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_DEBICHECK,
@@ -2836,6 +2832,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadDebiCheck: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`debicheck`, spanId);
@@ -2856,8 +2854,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ExitDebiCheckModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 exitDebiCheck(baggage) {
-		super.event({
+	 async exitDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -2886,8 +2884,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ViewDebiCheckMandateModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectViewDebiCheck(baggage) {
-		super.event({
+	 async selectViewDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -2916,8 +2914,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CloseViewDebiCheckModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 closeViewDebiCheck(baggage) {
-		super.event({
+	 async closeViewDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -2946,8 +2944,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {DeclineDebiCheckMandateModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 declineDebiCheckMandate(baggage) {
-		super.event({
+	 async declineDebiCheckMandate(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -2976,8 +2974,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {DeclineDebiCheckConfirmationModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 declineDebiCheckConfirmation(baggage) {
-		super.event({
+	 async declineDebiCheckConfirmation(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3006,8 +3004,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CancelDeclineDebiCheckModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectCancelDeclineDebiCheck(baggage) {
-		super.event({
+	 async selectCancelDeclineDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3037,8 +3035,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * There is no Approve DebiCheck Mandate Dialog / Buttons at this point to add an event.
 	 * @returns { void } 
 	 */
-	 selectApproveDebiCheck(baggage) {
-		super.event({
+	 async selectApproveDebiCheck(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3067,8 +3065,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ApproveDebiCheckMandateConfirmationModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectApproveDebiCheckConfirmation(baggage) {
-		super.event({
+	 async selectApproveDebiCheckConfirmation(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3097,8 +3095,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CancelDebiCheckMandateConfirmationModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 selectCancelDebiCheckConfirmation(baggage) {
-		super.event({
+	 async selectCancelDebiCheckConfirmation(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3127,8 +3125,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateDebiCheckOutcomeModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckOutcome(baggage) {
-		super.event({
+	 async debiCheckOutcome(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3158,8 +3156,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateDebiCheckOutcomeDoneModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckOutcomeDone(baggage) {
-		super.event({
+	 async debiCheckOutcomeDone(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3188,8 +3186,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateDebiCheckOutcomeBackToMandatesModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckOutcomeBackToMandates(baggage) {
-		super.event({
+	 async debiCheckOutcomeBackToMandates(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3218,8 +3216,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateDebiCheckOutcomeAssignModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 debiCheckOutcomeAssign(baggage) {
-		super.event({
+	 async debiCheckOutcomeAssign(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`debicheck`),
 			parentSpan: null,
@@ -3247,11 +3245,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldDebiCheckMandatesModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadDebiCheckMandates(baggage) {
+	 async screenUnloadDebiCheckMandates(baggage) {
 		const spanId = this.currentActiveSpans.get(`debicheck`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -3286,8 +3284,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdOtherNeedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadOtherNeed(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadOtherNeed(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
 			eventName: TelemetryEvent.SCR_LD_OTHERNEED,
@@ -3297,6 +3295,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadOtherNeed: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`otherneed`, spanId);
@@ -3317,8 +3317,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {NavigateOtherNeedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 otherNeedLaunchStrack(baggage) {
-		super.event({
+	 async otherNeedLaunchStrack(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`otherneed`),
 			parentSpan: null,
@@ -3351,11 +3351,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldOtherNeedModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadOtherNeed(baggage) {
+	 async screenUnloadOtherNeed(baggage) {
 		const spanId = this.currentActiveSpans.get(`otherneed`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -3396,8 +3396,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdAssignStoppedCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadAssignStopCard(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadAssignStopCard(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`stop-card`),
 			eventName: TelemetryEvent.SCR_LD_ASSIGNSTOPCARD,
@@ -3407,6 +3407,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadAssignStopCard: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`assign-stop-card`, spanId);
@@ -3427,8 +3429,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {CancelAssignStopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 assignStopCardCancel(baggage) {
-		super.event({
+	 async assignStopCardCancel(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`assign-stop-card`),
 			parentSpan: null,
@@ -3458,8 +3460,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {AssignStopCardModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 assignStopCard(baggage) {
-		super.event({
+	 async assignStopCard(baggage) {
+		await super.event({
 			traceId: this.traceId,
 			spanId: this.currentActiveSpans.get(`assign-stop-card`),
 			parentSpan: null,
@@ -3490,11 +3492,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldAssignStopCard} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadAssignStopCard(baggage) {
+	 async screenUnloadAssignStopCard(baggage) {
 		const spanId = this.currentActiveSpans.get(`assign-stop-card`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
@@ -3535,8 +3537,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrLdFeedbackModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenLoadFeedbackScreen(baggage) {
-		const spanId = super.spanStart({
+	 async screenLoadFeedbackScreen(baggage) {
+		const spanId = await super.spanStart({
 			traceId: this.traceId,
 			parentSpan: this.currentActiveSpans.get(`otherneed`),
 			eventName: TelemetryEvent.SCR_LD_FEEDBACK,
@@ -3546,6 +3548,8 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [{ "screen": baggage.screen }]
 		});
+
+		console.log('screenLoadFeedbackScreen: '+ spanId);
 
 		if (spanId) {
 			this.currentActiveSpans.set(`feedback`, spanId);
@@ -3566,11 +3570,11 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {ScrUnldFeedbackModel} baggage Information to attach to the telemetry event
 	 * @returns { void } 
 	 */
-	 screenUnloadFeedbackScreen(baggage) {
+	 async screenUnloadFeedbackScreen(baggage) {
 		const spanId = this.currentActiveSpans.get(`feedback`);
 
 		if (this.traceId && spanId) {
-			super.spanEnd({
+			await super.spanEnd({
 				traceId: this.traceId,
 				spanId: spanId,
 				parentSpan: null,
