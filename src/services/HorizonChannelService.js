@@ -598,7 +598,37 @@ export class HorizonChannelService extends Service {
 		return this._post(url, model, this._setToken(), `tapToPayAgreement`);
 
 	}
+	
+	updateTapToPay(acceptTapToPay) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+		const model = {
+			"tapToPayUpdate": {
+				"cardDetails": {
+				  "cardId": acceptTapToPay.tapToPayUpdate.cardDetails.cardId,
+				  "cardExpiryYear": acceptTapToPay.tapToPayUpdate.cardDetails.cardExpiryYear,
+				  "cardExpiryMonth": acceptTapToPay.tapToPayUpdate.cardDetails.cardExpiryMonth,
+				  "cardSequenceNumber": acceptTapToPay.tapToPayUpdate.cardDetails.cardSequenceNumber
+				},
+				"tapToPayStatus": acceptTapToPay.tapToPayUpdate.tapToPayStatus,
+				"customerId": acceptTapToPay.tapToPayUpdate.customerId,
+				"voiceRecordingReference": acceptTapToPay.tapToPayUpdate.voiceRecordingReference,
+				"screenRecordingReference": acceptTapToPay.tapToPayUpdate.screenRecordingReference,
+				"agreementAccepted": acceptTapToPay.tapToPayUpdate.agreementAccepted.acceptedTapToPay,
+				"agreementContent": {
+				  "agreementContentData": acceptTapToPay.tapToPayUpdate.agreementContent.agreementContentData,
+				  "documentId": acceptTapToPay.tapToPayUpdate.agreementContent.documentId
+				},
+				"scriptContent": {
+				  "scriptContentData": acceptTapToPay.tapToPayUpdate.scriptContent.scriptContentData,
+				  "documentId": acceptTapToPay.tapToPayUpdate.scriptContent.documentId,
+				  "scriptContentType": acceptTapToPay.tapToPayUpdate.scriptContent.scriptContentType
+				}
+			}
+		};
 
+		return this._post(url, model, this._setToken(), `updateTapToPay`);
+
+	}
 	// --------------------------
 	// card - debi-check mandates
 	// --------------------------

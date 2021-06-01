@@ -26,6 +26,7 @@ export class TapToPayAgreement extends Component {
 		this.selectedCard = {};
 		this.tapToPayInfo = {};
 		this.tapToPayAgreement = ``;
+		this.agreementResult = ``;
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -41,6 +42,10 @@ export class TapToPayAgreement extends Component {
 			tapToPayAgreement: { 
 				type: String,
 				attribute: false 
+			},
+			agreementResult: { 
+				type: String,
+				attribute: false
 			}
 		};
 	}
@@ -73,10 +78,9 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agree() {
-
-		if (this._validateCheckBox()) {
-			this.horizonRouter.navigateToTapToPaySuccess();
-		}
+	// this._viewAgreement();
+			
+	// this.horizonRouter.navigateToTapToPaySuccess();
 	}
 
 	_toggleAgreementsAccept(e) {
@@ -96,9 +100,8 @@ export class TapToPayAgreement extends Component {
 	// ---------------
 	async _viewAgreement() {
 		const state = this.horizonStore.getCallerInformation();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		let tapToPayStatus = this.selectedCard.cardStatus;
-
-	
 		if (tapToPayStatus === `ACTIVE`) {
 			tapToPayStatus = 0;
 		} else if (tapToPayStatus === `INACTIVE`) {
@@ -117,10 +120,45 @@ export class TapToPayAgreement extends Component {
 				"cardSequenceNumber": this.selectedCard.cardSequenceNumber
 			}
 		};
-		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementInfo);
+		let returnValue = await this.quickTransactionService.tapToPayAgreement(agreementInfo);
 
 		if (returnValue.succeeded) {
 			this.tapToPayAgreement = returnValue.result.cardAgreement.agreementContent.agreementContentData;
+			this.agreementResult = returnValue.result.cardAgreement;
+		}
+
+		if (this._validateCheckBox()) {
+			const acceptTapToPay = {
+				"tapToPayUpdate": {
+					"cardDetails": {
+					  "cardId": this.selectedCard.cardId,
+					  "cardExpiryYear": this.selectedCard.cardExpiryYear,
+					  "cardExpiryMonth": this.selectedCard.cardExpiryMonth,
+					  "cardSequenceNumber": this.selectedCard.cardSequenceNumber
+					},
+					"tapToPayStatus": tapToPayStatus,
+					"customerId": state.southAfricanIDNumber,
+					"voiceRecordingReference": incomingCallDetails.voiceReferenceNumber,
+					"screenRecordingReference": null,
+					"agreementAccepted": this.tapToPayInfo,
+					"agreementContent": {
+					  "agreementContentData": this.tapToPayAgreement,
+					  "documentId": this.agreementResult.agreementContent.documentId
+					},
+					"scriptContent": {
+					  "scriptContentData": this.agreementResult.scriptContent.scriptContentData,
+					  "documentId": this.agreementResult.scriptContent.documentId,
+					  "scriptContentType": this.agreementResult.scriptContent.scriptContentType
+					}
+				}
+			};
+			console.log(acceptTapToPay);
+
+			returnValue = await this.quickTransactionService.updateTapToPay(acceptTapToPay);
+			if (returnValue.succeeded) {
+				this.card = resultValue.result;
+				this.horizonRouter.navigateToTapToPaySuccess();
+			}
 		}
 	}
 	// ---------
@@ -329,7 +367,7 @@ export class TapToPayAgreement extends Component {
 					class="next-btn"
 					type="primary" 
 					label="Agree"
-					@click="${() => this._agree()}">
+					@click="${() => this._viewAgreement()}">
 				</capitec-button>
 
 			</capitec-group>
