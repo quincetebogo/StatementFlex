@@ -37,14 +37,9 @@ export class Favourites extends SavingsAccountBase {
 		this.navigationContext = NavigationContext.getInstance();
 		
 		// private properites
-		this.verificationStatus = this.callerInformation.verificationStatus;
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
-		this.displayVerificationStatusToast = this._shouldToastDisplay();
 
 		this.isLoading = true;
-		this.displayToast = false;
-
-		this.toastDetail = `Thank you, you have been verified`;
 
 		// private variables
 		this.landingPageInfo = null;
@@ -52,7 +47,6 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
-		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
@@ -64,10 +58,7 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false },
-			displayVerificationStatusToast: { type: Boolean },
-
-			displayToast: { attribute: false }
+			verificationToastDisplayed: { attribute: false }
 		};
 	}
 
@@ -83,12 +74,6 @@ export class Favourites extends SavingsAccountBase {
 			screen: TelemetryScreen.FAVOURITES
 			// debiChecksOutstanding: this.pendingMandateCount
 		});
-
-		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
-			this.displayVerificationStatusToast = false;
-			this.displayToast = true;
-			window.setTimeout(() => this._toggleToastDisplay(), 3000);
-		}
 
 		this._updateReturnToScreen();
 		this._initialise();
@@ -135,7 +120,6 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.returnToSub.dispose();
-		this.vasToast.dispose();
 
 		super.disconnectedCallback();
 	}
@@ -191,16 +175,6 @@ export class Favourites extends SavingsAccountBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_toggleToastDisplay() {
-		this.displayToast = false;
-	}
-
-	_toastVAS() {
-		this.displayToast = true;
-		this.toastDetail = `Value added services complete, you can update anytime.`;
-		window.setTimeout(() => this._toggleToastDisplay(), 3000);
-	}
 
 	async _initialise() {
 
@@ -428,31 +402,12 @@ export class Favourites extends SavingsAccountBase {
 					width: 100%;
 					height: var(--horizon-panel-height, 888px);
 				}
-
-				.toast {
-					position: absolute;
-					top : 70px;
-					left: 790px;
-					height: 64px;
-					width: 428px;
-					border-radius: 4px;
-					color: #70AF00;
-					z-index: 201;
-					left: calc(50.8% - 200px);
-					justify-content: center;
-					align-items: center;
-				}
-
-				capitec-toast[detail="Value added services complete, you can update anytime."] {
-					width: 560px;
-				}
 			`
 		];
 	}
 
 	_webTemplate() {
 		return html`
-			${this._renderToast()}
 			${this._renderFavouritesLandingPage()}
 			${this._renderUpdateCardLimits()}
 
@@ -463,20 +418,6 @@ export class Favourites extends SavingsAccountBase {
 
 			${super._webTemplate()}
 		`;
-	}
-
-	_renderToast() {
-		if (this.displayToast) {
-			return html`
-				<capitec-toast 
-						class="toast" 
-						type="success" 
-						header="Successful" 
-						detail="${this.toastDetail}"
-						closable>
-				</capitec-toast>`;
-		}
-		return html``;
 	}
 
 	_renderFavouritesLandingPage() {
@@ -494,6 +435,7 @@ export class Favourites extends SavingsAccountBase {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.callerInformation="${this.callerInformation}"
 						.verificationStatus="${this.callerInformation.verificationStatus}"
+						?displayVerificationStatusToast="${this._shouldToastDisplay()}"
 						@verify-click="${() => super._verifyClick()}"
 						@option-click="${(e) => this._onFavouritesOptionClick(e)}">
 					</horizon-favourite-transactions>`;

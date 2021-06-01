@@ -25,6 +25,7 @@ export class FavouriteTransactions extends Component {
 		super();
 
 		this.landingPageInfo = null;
+		this.displayToast = false;
 		this.isBusy = false;
 
 		this.eventAggregator = EventAggregator.getInstance();
@@ -40,6 +41,7 @@ export class FavouriteTransactions extends Component {
 	 * @property {Object} incomingCallDetails Information on the incoming/current call
 	 * @property {Object} landingPageInfo Data for the Favourites Landing Page display
 	 * @property {string} verificationStatus Indicates if the client is verified, unverified, non-client etc.
+	 * @property {Boolean} displayVerificationStatusToast If true, display a toast for the verification status
 	 *
 	 * @readonly
 	 * @static
@@ -51,8 +53,10 @@ export class FavouriteTransactions extends Component {
 			incomingCallDetails: { type: Object },
 			landingPageInfo: { type: Object },
 			verificationStatus: { type: String },
+			displayVerificationStatusToast: { type: Boolean },
 
-			isBusy: { attribute: false }
+			isBusy: { attribute: false },
+			displayToast: { attribute: false }
 		};
 	}
 
@@ -63,11 +67,21 @@ export class FavouriteTransactions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		if (this.verificationStatus === `verified` && this.displayVerificationStatusToast) {
+			this.displayVerificationStatusToast = false;
+			this.displayToast = true;
+			window.setTimeout(() => this._toggleToastDisplay(), 3000);
+		}
+
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	_toggleToastDisplay() {
+		this.displayToast = false;
+	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -144,6 +158,20 @@ export class FavouriteTransactions extends Component {
 				margin-right: 16px;
 			}
 
+			.toast {
+				position: absolute;
+				top : 70px;
+				left: 790px;
+				height: 64px;
+				width: 428px;
+				border-radius: 4px;
+				color: #70AF00;
+				z-index: 201;
+				left: calc(50.8% - 200px);
+				justify-content: center;
+				align-items: center;
+			}
+
 			.banner {
 				--theme-alert-banner-height: 48px;
 				--theme-alert-banner-icon-margin-left: 15px;
@@ -192,6 +220,7 @@ export class FavouriteTransactions extends Component {
 
 	_webTemplate() {
 		return html`
+			${this._renderVerifiedToast()}
 			${this._renderFavourites()}
 		`;
 	}
@@ -213,6 +242,20 @@ export class FavouriteTransactions extends Component {
 					</capitec-group>
 				</capitec-card>
 			`;
+	}
+
+	_renderVerifiedToast() {
+		if (this.displayToast) {
+			return html`
+				<capitec-toast
+					class="toast"
+					type="success"
+					header="Successful"
+					detail="Thank you, you have been verified."
+					closable>
+				</capitec-toast>`;
+		}
+		return html``;
 	}
 
 	_renderUnverifiedAlertBanner() {

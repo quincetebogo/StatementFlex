@@ -122,6 +122,7 @@ export class AccessMenuBar extends Component {
 				}
 				capitec-icon[icon="system/settings-action"] {
 					--theme-icon-size-small: 24px;
+					cursor: pointer;
 				}
 				.insights-group {
 					height: 398px;
