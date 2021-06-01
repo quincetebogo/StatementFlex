@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/core';
 
 import 'app/components/common/OptionButton';
 
@@ -27,8 +26,6 @@ export class FavouriteTransactions extends Component {
 		this.landingPageInfo = null;
 		this.displayToast = false;
 		this.isBusy = false;
-
-		this.eventAggregator = EventAggregator.getInstance();
 	}
 
 	// --------------

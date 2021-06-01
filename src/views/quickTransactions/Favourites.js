@@ -120,7 +120,6 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.returnToSub.dispose();
-
 		super.disconnectedCallback();
 	}
 

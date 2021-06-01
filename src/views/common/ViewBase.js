@@ -1,6 +1,6 @@
 import { EventAggregator, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { css, View, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -156,7 +156,7 @@ export class ViewBase extends View {
 	_toastVAS() {
 		this._toggleToastDisplay();
 		this.toastDetail = `Value added services complete, you can update anytime.`;
-		window.setTimeout(() => this._toggleToastDisplay(), 60000);
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	_toggleToastDisplay() {
