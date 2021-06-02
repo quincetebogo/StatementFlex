@@ -30,17 +30,6 @@ export class StatementsUnsuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof StatementsUnsuccess
-	 */
-	static get properties() {
-		return {
-
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
