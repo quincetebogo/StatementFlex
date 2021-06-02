@@ -29,17 +29,6 @@ export class DebiCheckSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof DebiCheckSuccess
-	 */
-	static get properties() {
-		return {
-
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -50,9 +39,6 @@ export class DebiCheckSuccess extends ViewBase {
 		HorizonTelemetry.instance.debiCheckOutcome({
 			screen: TelemetryScreen.DEBICHECK_OUTCOME
 		});
-
-		// TODO: mandate ID to be obtained from state.
-		this.mandateId = `DISCLIFE 5130111776-21`;
 	}
 
 	disconnectedCallback() {

@@ -21,11 +21,6 @@ export class TapToPaySuccess extends ViewBase {
 	// PROPERTIES
 	// --------------
 
-	static get properties() {
-		return {
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

@@ -21,17 +21,6 @@ export class StatementsSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof StatementsSuccess
-	 */
-	static get properties() {
-		return {
-
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

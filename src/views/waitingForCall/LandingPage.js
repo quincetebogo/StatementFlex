@@ -1,10 +1,9 @@
-import { Configuration, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
@@ -42,9 +41,7 @@ export class LandingPage extends ViewBase {
 		super();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.logger = Logger.getInstance();
 		this._configuration = Configuration.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
