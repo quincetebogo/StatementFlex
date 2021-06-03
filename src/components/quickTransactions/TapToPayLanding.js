@@ -100,11 +100,12 @@ export class TapToPayLanding extends Component {
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
 		// error handling comes here
-		// failure screen
+		 this.horizonRouter._navigateToTapToPayUnsuccessful();
 		}
 	}
 
 	_cancel() {
+		
 		this.selectedCard.isContactlessActivated = !this.selectedCard.isContactlessActivated;
 		
 		this._updateCards();
@@ -136,6 +137,7 @@ export class TapToPayLanding extends Component {
 				  scriptContent: {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
+					// CS getAgreement should return HTML value, currently returning null
 					scriptContentType: `HTML`
 				  }
 				};
@@ -154,7 +156,8 @@ export class TapToPayLanding extends Component {
 				this.horizonRouter.navigateToTapToPaySuccess();
 			} else {
 			// error handling comes here
-			// failure screen
+			// Failure screen
+			this.horizonRouter._navigateToTapToPayUnsuccessful();
 			}
 	}
 

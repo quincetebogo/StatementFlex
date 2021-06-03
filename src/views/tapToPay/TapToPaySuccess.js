@@ -25,7 +25,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	static get properties() {
 		return {
-
+			maskedCardNumber: { type: String }
 		};
 	}
 
@@ -38,7 +38,7 @@ export class TapToPaySuccess extends ViewBase {
 
 		const state = this.horizonStore.recoverState();
 
-		this.tapToPayStatus = state.tapToPayStatus;
+		this.tapToPayStatus = state.request.tapToPayStatus;
 		this.cardMaskedNumber = state.cardMaskeNumber;
 			
 		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
@@ -51,8 +51,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	_doneClick() {
 		// Functionality to navigate to Favourites screen
-		this.selecetedCard.isContactlessActivated = !this.selecetedCard.isContactlessActivated;
-		this.horizonStore.saveState(this.selecetedCard.isContactlessActivated);
+		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus });
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -61,7 +60,7 @@ export class TapToPaySuccess extends ViewBase {
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
+		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus, returnToScreen: state.returnToScreen });
 		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
@@ -107,18 +106,18 @@ export class TapToPaySuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay ${this.selecetedCard.isContactlessActivated ? `activated` : `deactivated`}" 
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}" 
 				image="src/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
-				toast="Tap to pay ${this.selecetedCard.isContactlessActivated ? `activated` : `deactivated`}"
+				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tapToPayClick()}>
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual credit card <b>${this.maskedCardNumber}</b> has been ${this.selecetedCard.isContactlessActivated ? `activated` : `deactivated`} and is now pending.
+							The tap to pay functionality on your dual credit card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
 					</section>
 			</horizon-success-screen>
 		`;

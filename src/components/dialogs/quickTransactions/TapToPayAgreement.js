@@ -91,10 +91,8 @@ export class TapToPayAgreement extends Component {
 
 	_onAgreeClick(event) {
 
-		if (!this._validateCheckBox) {
-		console.log(`agree clicked`);
+		if (this._validateCheckBox) {
 		const state = this.horizonStore.getIncomingCallDetails();
-		const tapToPayStatus = this.selectedCard.isContactlessActivated;
 
 		this.dispatchEvent(new CustomEvent(`on-agree`, {
 			detail: { 
@@ -114,42 +112,6 @@ export class TapToPayAgreement extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	/* async _viewAgreement() {
-
-		if (this._validateCheckBox()) {
-			const acceptTapToPay = {
-				"tapToPayUpdate": {
-					"cardDetails": {
-					  "cardId": this.selectedCard.cardId,
-					  "cardExpiryYear": this.selectedCard.cardExpiryYear,
-					  "cardExpiryMonth": this.selectedCard.cardExpiryMonth,
-					  "cardSequenceNumber": this.selectedCard.cardSequenceNumber
-					},
-					"tapToPayStatus": tapToPayStatus,
-					"customerId": state.southAfricanIDNumber,
-					"voiceRecordingReference": incomingCallDetails.voiceReferenceNumber,
-					"screenRecordingReference": null,
-					"agreementAccepted": this.tapToPayInfo.acceptedTapToPay,
-					"agreementContent": {
-					  "agreementContentData": this.tapToPayAgreement,
-					  "documentId": this.agreementResult.agreementContent.documentId
-					},
-					"scriptContent": {
-					  "scriptContentData": this.agreementResult.scriptContent.scriptContentData,
-					  "documentId": this.agreementResult.scriptContent.documentId,
-					  "scriptContentType": this.agreementResult.scriptContent.scriptContentType
-					}
-				}
-			};
-			console.log(acceptTapToPay);
-
-			const returnValue = await this.quickTransactionService.updateTapToPay(acceptTapToPay);
-			if (returnValue.succeeded) {
-				this.card = resultValue.result;
-				this.horizonRouter.navigateToTapToPaySuccess();
-			}
-		}
-	}*/
 	// ---------
 	// RENDERING
 	// ---------
