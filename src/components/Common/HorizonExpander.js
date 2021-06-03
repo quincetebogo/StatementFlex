@@ -300,14 +300,12 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					//height: var(--theme-expander-header-height, 64px);
 					padding: var(--theme-expander-header-padding, 10px);
 					border-top: var(--theme-expander-border, 1px solid black);
 					cursor: pointer;
-padding: 0px;
-border-radius:4px 4px 0px 4px;
-border-right: 1px solid #E1E1E1;
-
+                    padding: 0px;
+                    border-radius:4px 4px 0px 4px;
+                    border-right: 1px solid #E1E1E1;
 				}
 
 				:host(*.styled) > .header {
@@ -326,7 +324,7 @@ border-right: 1px solid #E1E1E1;
 				:host > .header > .icon {
 					width: var(--theme-expander-icon-width, 24px);
 					height: var(--theme-expander-icon-height, 24px);
-margin:20px;
+                    margin:20px;
 				}
 
 				:host > .header > capitec-label {
@@ -363,9 +361,9 @@ margin:20px;
 				}
 
 				/* CONTENT */
-.content{
-padding: 0px;
-}
+                    .content{
+                    padding: 0px;
+                }
 
 				:host > .content {
 					border-left: var(--theme-expander-border, 1px solid black);
@@ -485,43 +483,28 @@ padding: 0px;
     }
 
     _renderExpanderButton() {
-   //     if (this.icon) {
-   //         return html`
-			//	<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>
-			//	${this.label ? html`<capitec-label type="strong" label="With icon"></capitec-label>` : html`<capitec-spacer></capitec-spacer>`}
-			//	<capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>
-			//`;
-   //     }
         return html`
-
-						<div class="header-icon">
-                            ${this.icon ? html`<img src="${this.icon}">` : html``}
-						</div>
-${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
+				<div class="header-icon">
+                    ${this.icon ? html`<img src="${this.icon}">` : html``}
+				</div>
+                ${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
                 ${this.headers ? this.headers.map((heading, index) => this._renderHeaders(heading, index)) /*this._renderTitle()*/ : html``}
 				${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
 			`;
     }
 
     _renderIcon() {
-                    return html`
-				<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>
-			`;
+        return html`
+			<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>
+		`;
     }
 
     _renderHeaders(headers, index) {
         //return this.subtitles.map(subtitle => html`<bb-multi-line-label label="${headers}" value="${subtitle}"`);
         return html`
-
-
-<horizon-label label=${headers} value="${this.subtitles[index]}">
-</horizon-label>
-              <!--  <bb-multi-line-label label="${headers}" value="${this.subtitles[index]}"></bb-multi-line-label>-->
-`;
-
-//        return html`
-//<capitec-label type="strong" label="No Icon"></capitec-label>
-//`;
+            <horizon-label label=${headers} value="${this.subtitles[index]}">
+            </horizon-label>
+        `;
     }
 
 	/**
