@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'platform/components/inputs/Select';
@@ -67,6 +68,11 @@ export class AssignStopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadAssignStopCard({
+			screen: TelemetryScreen.ASSIGN_STOP_CARD
+		});
+
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
 			incidentRecId: this.incidentDetails.incidentRecId
@@ -90,6 +96,10 @@ export class AssignStopCard extends Component {
 		if (!this.team) {
 			this.errorAlert = true;
 		} else {
+			// Telemetry
+			HorizonTelemetry.instance.assignStopCard({
+				screen: TelemetryScreen.ASSIGN_STOP_CARD
+			});
 
 			const assignRequest =
 			{
@@ -109,6 +119,12 @@ export class AssignStopCard extends Component {
 				this.dispatchEvent(new CustomEvent(`on-handoff`, {
 					detail: {}
 				}));
+
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadAssignStopCard({
+			screen: TelemetryScreen.ASSIGN_STOP_CARD,
+			team: this.team 
+		});
 			};
 		}
 	}
@@ -119,6 +135,14 @@ export class AssignStopCard extends Component {
 	}
 
 	_onCancelClick() {
+		// Telemetry
+		HorizonTelemetry.instance.assignStopCardCancel({
+			screen: TelemetryScreen.ASSIGN_STOP_CARD
+		});
+
+		HorizonTelemetry.instance.screenUnloadAssignStopCard({
+			screen: TelemetryScreen.ASSIGN_STOP_CARD
+		});
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
 

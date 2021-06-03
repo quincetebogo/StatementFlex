@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
+
 import 'app/components/common/SuccessScreen';
 
 export class TapToPaySuccess extends ViewBase {
@@ -16,18 +15,11 @@ export class TapToPaySuccess extends ViewBase {
 		this.card1 = `5284 **** **** 1522`;
 		this.card2 = `5238 **** **** 8907`;
 		this.tapToPayStatus = ``;
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -36,6 +28,11 @@ export class TapToPaySuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -43,16 +40,14 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate to Favourites screen
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		// TODO : Functionality to tap to pay
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		
+		this.horizonStore.setScreenDetails(screenDetails);
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -94,6 +89,14 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderTapToPaySuccess()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
 				header="Tap to pay activated" 

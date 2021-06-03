@@ -1,15 +1,15 @@
-import { Configuration, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { ScreenDetails } from 'app/models/ScreenDetails';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 
@@ -41,9 +41,7 @@ export class LandingPage extends ViewBase {
 		super();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.logger = Logger.getInstance();
 		this._configuration = Configuration.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -143,12 +141,12 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
-		const incident = returnValue.result;
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
+		 const incident = returnValue.result;
 
-		if (!returnValue.succeeded || !incident) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
-		}
+		 if (!returnValue.succeeded || !incident) {
+		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
+		 }
 
 		// Telemetry
 		if (incident) {
@@ -223,9 +221,11 @@ export class LandingPage extends ViewBase {
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
+		const screenDetails = new ScreenDetails();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.horizonStore.setScreenDetails(screenDetails);
 
 		const state = {
 			callStatus: this.callStatus,

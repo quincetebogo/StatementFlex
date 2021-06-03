@@ -35,18 +35,6 @@ export class Favourites extends SavingsAccountBase {
 	constructor() {
 		super();
 
-		this.navigationContext = NavigationContext.getInstance();
-
-		// Recover information from state
-		const state = this.horizonStore.recoverState();
-
-		// When returning from the success screen, check which page we should display
-		if (state.returnTo && state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
-		
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -321,13 +309,12 @@ export class Favourites extends SavingsAccountBase {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-			this.horizonStore.saveState({
-				clientProfileDetails: returnValue.result
-			});
-
+			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToStopCard();
 		} else {

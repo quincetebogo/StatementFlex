@@ -2,6 +2,7 @@ import { EventAggregator, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { View, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -40,6 +41,7 @@ export class ViewBase extends View {
 		super();
 
 		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 
@@ -70,7 +72,7 @@ export class ViewBase extends View {
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			showEndCall: { attribute: false },
-			showAddCallerDetails: { attribute: false}
+			showAddCallerDetails: { attribute: false }
 		};
 	}
 
@@ -178,7 +180,7 @@ export class ViewBase extends View {
 		}
 	}
 
-	_addCallerDetailsCancelled(event) {	
+	_addCallerDetailsCancelled(event) {
 		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
@@ -266,7 +268,7 @@ export class ViewBase extends View {
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`
-		: html ``;
+		: html``;
 	}
 
 	_renderLoadingIndicator() {
