@@ -27,6 +27,7 @@ export class TapToPayAgreement extends Component {
 		this.tapToPayInfo = {};
 		this.tapToPayAgreement = ``;
 		this.agreementResult = ``;
+		this.updateTapToPay = {};
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -39,12 +40,8 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
-			tapToPayAgreement: { 
-				type: String,
-				attribute: false 
-			},
 			agreementResult: { 
-				type: String,
+				type: Object,
 				attribute: false
 			}
 		};
@@ -57,7 +54,8 @@ export class TapToPayAgreement extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.horizonStore.recoverState();
-		this._viewAgreement();
+		this.tapToPayAgreement = this.agreementResult && this.agreementResult.cardAgreement.agreementContent.agreementContentData;
+		const state = this.horizonStore.getIncomingCallDetails();
 	}
 
 	// --------------
@@ -91,6 +89,23 @@ export class TapToPayAgreement extends Component {
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 
+	_onAgreeClick(event) {
+
+		if (!this._validateCheckBox) {
+		console.log(`agree clicked`);
+		const state = this.horizonStore.getIncomingCallDetails();
+		const tapToPayStatus = this.selectedCard.isContactlessActivated;
+
+		this.dispatchEvent(new CustomEvent(`on-agree`, {
+			detail: { 
+				agreementResult: this.agreementResult,
+				tapToPayAccepted: this.tapToPayInfo.acceptedTapToPay,
+				voiceRecordingReference: state.voiceReferenceNumber
+			}
+		}));
+
+		}
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -98,34 +113,8 @@ export class TapToPayAgreement extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-	async _viewAgreement() {
-		const state = this.horizonStore.getCallerInformation();
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		let tapToPayStatus = this.selectedCard.cardStatus;
-		if (tapToPayStatus === `ACTIVE`) {
-			tapToPayStatus = 0;
-		} else if (tapToPayStatus === `INACTIVE`) {
-			tapToPayStatus = 1;
-		} else if (tapToPayStatus === `UNCHANGED`) {
-			tapToPayStatus = 2;
-		}
 
-		const agreementInfo = {
-			"cifNumber": state.cifNumber,
-			"tapToPayStatus": tapToPayStatus,
-			"cardDetails": {
-				"cardId": this.selectedCard.cardId,
-				"cardExpiryYear": this.selectedCard.cardExpiryYear,
-				"cardExpiryMonth": this.selectedCard.cardExpiryMonth,
-				"cardSequenceNumber": this.selectedCard.cardSequenceNumber
-			}
-		};
-		let returnValue = await this.quickTransactionService.tapToPayAgreement(agreementInfo);
-
-		if (returnValue.succeeded) {
-			this.tapToPayAgreement = returnValue.result.cardAgreement.agreementContent.agreementContentData;
-			this.agreementResult = returnValue.result.cardAgreement;
-		}
+	/* async _viewAgreement() {
 
 		if (this._validateCheckBox()) {
 			const acceptTapToPay = {
@@ -140,7 +129,7 @@ export class TapToPayAgreement extends Component {
 					"customerId": state.southAfricanIDNumber,
 					"voiceRecordingReference": incomingCallDetails.voiceReferenceNumber,
 					"screenRecordingReference": null,
-					"agreementAccepted": this.tapToPayInfo,
+					"agreementAccepted": this.tapToPayInfo.acceptedTapToPay,
 					"agreementContent": {
 					  "agreementContentData": this.tapToPayAgreement,
 					  "documentId": this.agreementResult.agreementContent.documentId
@@ -154,13 +143,13 @@ export class TapToPayAgreement extends Component {
 			};
 			console.log(acceptTapToPay);
 
-			returnValue = await this.quickTransactionService.updateTapToPay(acceptTapToPay);
+			const returnValue = await this.quickTransactionService.updateTapToPay(acceptTapToPay);
 			if (returnValue.succeeded) {
 				this.card = resultValue.result;
 				this.horizonRouter.navigateToTapToPaySuccess();
 			}
 		}
-	}
+	}*/
 	// ---------
 	// RENDERING
 	// ---------
@@ -367,7 +356,7 @@ export class TapToPayAgreement extends Component {
 					class="next-btn"
 					type="primary" 
 					label="Agree"
-					@click="${() => this._viewAgreement()}">
+					@click="${(event) => this._onAgreeClick(event)}">
 				</capitec-button>
 
 			</capitec-group>

@@ -604,24 +604,25 @@ export class HorizonChannelService extends Service {
 		const model = {
 			"tapToPayUpdate": {
 				"cardDetails": {
-				  "cardId": acceptTapToPay.tapToPayUpdate.cardDetails.cardId,
-				  "cardExpiryYear": acceptTapToPay.tapToPayUpdate.cardDetails.cardExpiryYear,
-				  "cardExpiryMonth": acceptTapToPay.tapToPayUpdate.cardDetails.cardExpiryMonth,
-				  "cardSequenceNumber": acceptTapToPay.tapToPayUpdate.cardDetails.cardSequenceNumber
+				  "cardId": acceptTapToPay.cardDetails.cardId,
+				  "cardExpiryYear": acceptTapToPay.cardDetails.cardExpiryYear,
+				  "cardExpiryMonth": acceptTapToPay.cardDetails.cardExpiryMonth,
+				  "cardSequenceNumber": acceptTapToPay.cardDetails.cardSequenceNumber
 				},
-				"tapToPayStatus": acceptTapToPay.tapToPayUpdate.tapToPayStatus,
-				"customerId": acceptTapToPay.tapToPayUpdate.customerId,
-				"voiceRecordingReference": acceptTapToPay.tapToPayUpdate.voiceRecordingReference,
-				"screenRecordingReference": acceptTapToPay.tapToPayUpdate.screenRecordingReference,
-				"agreementAccepted": acceptTapToPay.tapToPayUpdate.agreementAccepted.acceptedTapToPay,
+				"tapToPayStatus": acceptTapToPay.tapToPayStatus,
+				"customerId": acceptTapToPay.customerId,
+				"voiceRecordingReference": acceptTapToPay.voiceRecordingReference,
+				"screenRecordingReference": acceptTapToPay.screenRecordingReference,
+				"agreementAccepted": acceptTapToPay.agreementAccepted,
 				"agreementContent": {
-				  "agreementContentData": acceptTapToPay.tapToPayUpdate.agreementContent.agreementContentData,
-				  "documentId": acceptTapToPay.tapToPayUpdate.agreementContent.documentId
+				  "agreementContentData": acceptTapToPay.agreementContent.agreementContentData,
+				  "documentId": acceptTapToPay.agreementContent.documentId,
+				  "agreementContentType": acceptTapToPay.agreementContent.agreementContentType
 				},
 				"scriptContent": {
-				  "scriptContentData": acceptTapToPay.tapToPayUpdate.scriptContent.scriptContentData,
-				  "documentId": acceptTapToPay.tapToPayUpdate.scriptContent.documentId,
-				  "scriptContentType": acceptTapToPay.tapToPayUpdate.scriptContent.scriptContentType
+				  "scriptContentData": acceptTapToPay.scriptContent.scriptContentData,
+				  "documentId": acceptTapToPay.scriptContent.documentId,
+				  "scriptContentType": acceptTapToPay.scriptContent.scriptContentType
 				}
 			}
 		};

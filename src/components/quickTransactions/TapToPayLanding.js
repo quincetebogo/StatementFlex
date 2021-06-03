@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -14,7 +15,9 @@ export class TapToPayLanding extends Component {
 		super();
 
 		this.showTapToPayAgreement = false;
+		this.agreementResult = {};
 		this.horizonStore = HorizonStore.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ---------------
@@ -32,8 +35,9 @@ export class TapToPayLanding extends Component {
 	static get properties() {
 		return {
 			cards: { type: Object },
-
-			showTapToPayAgreement: { attribute: false }
+			showTapToPayAgreement: { attribute: false },
+			getAgreements: { type: Object },
+			updateAgreement: { type: Object }
 		};
 	}
 
@@ -45,6 +49,7 @@ export class TapToPayLanding extends Component {
 		super.connectedCallback();
 		this._initialise();
 		this.horizonStore.recoverState();
+	
 	}
 
 	// ---------------
@@ -59,6 +64,12 @@ export class TapToPayLanding extends Component {
 		this.cards[index].isContactlessCard = this.selectedCard.isContactlessCard;
 	}
 
+	_handlingAgreementsFailure() {
+		// send along with detail
+		// dummy function for now
+		alert(`Failed to call the service`);
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -67,11 +78,30 @@ export class TapToPayLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_toggleTapToPayAgreement(event) {
+	async _toggleTapToPayAgreement(event) {
+
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 		this._updateCards();
-		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+		
+		const request = {
+			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
+			cardDetails: {
+				cardId: this.selectedCard.cardId,
+				cardExpiryYear: this.selectedCard.cardExpiryYear,
+				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+				cardSequenceNumber: this.selectedCard.cardSequenceNumber
+			}
+		};
+		const result = await this.getAgreements(request);
+
+		if (result.succeeded) {
+			this.agreementResult = result.result;
+			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
+		} else {
+		// error handling comes here
+		// failure screen
+		}
 	}
 
 	_cancel() {
@@ -79,6 +109,53 @@ export class TapToPayLanding extends Component {
 		
 		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+	}
+
+	async _onAgreeClicked(event) {
+		const state = this.horizonStore.getIncomingCallDetails();
+		const callerInformation = this.horizonStore.getCallerInformation();
+
+		const tapToPayStatus = this.selectedCard.isContactlessActivated;
+		const request = {
+				cardDetails: {
+					cardId: this.agreementResult.cardAgreement.cardId,
+					cardExpiryYear: this.selectedCard.cardExpiryYear,
+					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+					cardSequenceNumber: this.selectedCard.cardSequenceNumber
+				  },
+				  tapToPayStatus: tapToPayStatus ? `ON` : `OFF`,
+				  customerId: callerInformation.cifNumber,
+				  voiceRecordingReference: event.detail.voiceRecordingReference,
+				  screenRecordingReference: ``,
+				  agreementAccepted: event.detail.tapToPayAccepted,
+				  agreementContent: {
+					agreementContentData: this.agreementResult.cardAgreement.agreementContent.agreementContentData,
+					documentId: this.agreementResult.cardAgreement.agreementContent.documentId,
+					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType
+				  },
+				  scriptContent: {
+					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
+					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
+					scriptContentType: `HTML`
+				  }
+				};
+
+			const result = await this.updateAgreement(request);
+
+			if (result.succeeded) {
+				this.agreementResult = result.result;
+				const cardMaskeNumber = this.selectedCard.maskedCardNumber,
+				tapToPayDetails = {
+					cardMaskeNumber,
+					request
+				};
+				
+				this.horizonStore.saveState(tapToPayDetails);
+				this.horizonRouter.navigateToTapToPaySuccess();
+			} else {
+			// error handling comes here
+			// failure screen
+			}
 	}
 
 	// ---------
@@ -90,7 +167,7 @@ export class TapToPayLanding extends Component {
 			super.styles,
 			css`
 			capitec-card {
-				height: 100%;
+				height: var(--horizon-panel-height, 888px);
 				width: var(--horizon-center-panel-width, 1064px);
 				--theme-card-border-radius: 5px;
 				--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
@@ -305,7 +382,8 @@ export class TapToPayLanding extends Component {
 			? html`
 				<horizon-tap-to-pay-agreement
 					.selectedCard="${this.selectedCard}"
-					@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}"
+					.agreementResult="${this.agreementResult}"
+					@on-agree="${(e) => this._onAgreeClicked(e)}"
 					@cancel="${() => this._cancel()}">
 				</horizon-tap-to-pay-agreement>`
 			: html``;

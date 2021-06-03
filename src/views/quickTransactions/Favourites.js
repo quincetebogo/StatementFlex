@@ -45,7 +45,7 @@ export class Favourites extends SavingsAccountBase {
 		} else {
 			this.renderMode = RENDER_MODE.MAIN_PAGE;
 		}
-		
+		this.agreementResult = ``;
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -343,6 +343,22 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
+	async _getAgreement(request) {
+
+		request.cifNumber = this.callerInformation.cifNumber;
+
+		const returnValue = await this.quickTransactionService.tapToPayAgreement(request);
+		return returnValue;
+
+	}
+
+	async _updateTapToPay(updateRequest) {
+		updateRequest.voiceRecordingReference = this.incomingCallDetails.voiceReferenceNumber;
+		updateRequest.screenRecordingReference = ``;
+		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest);
+		return returnValue;
+	}
+
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 
@@ -491,6 +507,8 @@ export class Favourites extends SavingsAccountBase {
 		? html` 
 			<horizon-tap-to-pay-landing
 				.cards="${this.cards}"
+				.getAgreements="${(renderSet) => this._getAgreement(renderSet)}"
+				.updateAgreement="${(renderRequest) => this._updateTapToPay(renderRequest)}"
 				@back="${() => this._backToLandingPage()}"
 			></horizon-tap-to-pay-landing>
 		` : html``;
