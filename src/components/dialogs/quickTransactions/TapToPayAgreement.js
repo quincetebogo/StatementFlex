@@ -233,7 +233,6 @@ export class TapToPayAgreement extends Component {
 				<capitec-content-box class="main">
 					${this._renderAlertBanner()}
 					${this._renderViewAgreement()}
-					${this._renderLoadingIndicator()}
 				</capitec-content-box>
 			</div>
 			<div slot="footer">
@@ -301,8 +300,7 @@ export class TapToPayAgreement extends Component {
 		`;
 	}
 
-	_renderLoadingIndicator() {}
-	
+		
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">

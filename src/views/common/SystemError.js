@@ -116,7 +116,8 @@ export class SystemError extends View {
 	_webTemplate() {
 		return html`
 			${this._renderSystemError()}
-			${this._renderEndCallSessionModal()}
+
+			${super._webTemplate()}
 		`;
 	}
 

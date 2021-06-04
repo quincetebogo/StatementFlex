@@ -164,6 +164,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 
