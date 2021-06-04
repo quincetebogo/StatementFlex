@@ -346,6 +346,18 @@ export class HorizonChannelService extends Service {
 		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
 		return this._get(url, this._setToken(), `tapToPayLanding`);
 	}
+
+	tapToPayAgreement(agreementInfo) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+
+		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
+	}
+
+	updateTapToPay(acceptTapToPay) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+
+		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
+	}
 	
 	async stopCard(stopCardRequest) {
 		if (await this._mockEnabled(`stopCard`)) {
