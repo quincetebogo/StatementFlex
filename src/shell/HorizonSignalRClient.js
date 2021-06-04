@@ -18,7 +18,7 @@ export class HorizonSignalRClient extends SignalRClient {
 			baseUrlKey: `signalRUrl`,
 			hubName: `itahub`,
 			useAuthentication: true,
-			keepAlive: true
+			keepAlive: false
 		});
 
 		this.version = `v1`;

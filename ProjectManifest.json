@@ -10,8 +10,16 @@
   "resourceSize": "small",
   "redundancySize": "small",
   "port": 6001,
-  "secrets": [],
-  "environmentVariables": [],
+  "secrets": [
+    "telemetrydatabussecret"
+  ],
+  "environmentVariables": [
+    "DatabusSourceSystem",
+    "DatabusResponsibleTeam",
+    "TelemetryApiKeySecretName",
+    "TelemetryApiId",
+    "TelemetryApiUrl"
+  ],
   "client": {
     "clientName": "Platform",
     "clientDescription": null,

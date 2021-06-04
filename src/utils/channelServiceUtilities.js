@@ -74,11 +74,11 @@ export function getMonthName(month) {
 export function formatCurrency(value) {
 	if (value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
-	} else {
+	}
+
 	const amount = parseFloat(value).toFixed(2);
 	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
-	}
 }
 
 /**
@@ -168,4 +168,19 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	const blob = new Blob([view], { type: `application/pdf` });
 
 	return `${URL.createObjectURL(blob)}#toolbar=0&scrollbar=0&navpanes=0&zoom=113.5`;
+}
+
+/**
+ * Convert cents to Rand
+ *
+ * @export
+ * @param {*} value Amount or any numeric value
+ * @returns {*} Numeric value
+ */
+ export function convertCentsToRand(value) {
+	if (!isNaN(value)) {
+		console.log(`${value} is not a number to perform conversion`);
+	}
+
+	return value / 100;
 }

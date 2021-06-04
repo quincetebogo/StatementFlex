@@ -171,22 +171,23 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	async _loadEndCallOptions() {
-		const endCallDetails = {
-			isReassigned: this.isReassigned,
-			CloseIncidentContext: this.endCallContext
-		};
-		const returnValue = await this.incidentManagementService.closeIncidentOptions(endCallDetails);
-
-		if (returnValue.succeeded) {
-			this.endCallReasons = returnValue.result.closeIncidentReasons;
-			this._setDefaultValues();
-		} else {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_loadCallOptions`, returnValue.correlationId);
-
-			// We can't give the user a list of reasons to select so just return to the call waiting page having logged the error
-			this._returnToCallWaitingPage();
-		}
+	_loadEndCallOptions() {
+		this.endCallReasons = [
+			{
+				"key": 0,
+				"value": `Need fulfilled`
+			},
+			{
+				"key": 1,
+				"value": `Need incomplete, bad connection`
+			},
+			{
+				"key": 2,
+				"value": `Need Assigned/ Handed off`
+			}
+		];
+		
+		this._setDefaultValues();
 	}
 
 	_setDefaultValues() {
@@ -274,8 +275,11 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
 		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		const strackIncidentInfo = await this._incidentStatus() || {};
+		// Flag to check, if the incident is already updated outside of Horizon
+		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 
-		if (needAction) {
+		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
@@ -287,12 +291,17 @@ export class EndCallSession extends Component {
 			if (!returnValue.succeeded) {
 				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyAndClose`, returnValue.correlationId);
 			}
+		} 
+		
+		if (!continueUpdate) {
+			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
-		await this._closeIncident();
+		await this._closeIncident(strackIncidentInfo);
 	}
 
-	async _closeIncident() {
+	async _closeIncident(strackIncidentInfo) {
 		let causeCode = ``;
+		const resolution = this._getResolution(strackIncidentInfo.resolution);
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		// Special case, when subsequent need is created on opening a need, if its not required anymore
@@ -304,8 +313,8 @@ export class EndCallSession extends Component {
 		const callToEnd = {
 			incidentRecId: this.incidentRecId,
 			reason: this.endCallReason.key,
-			resolution: this.endCallReason.value,
-			causeCode: causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			resolution: this._formatLineBreaks(resolution),
+			causeCode: strackIncidentInfo.causeCode || causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 
 		const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
@@ -319,17 +328,35 @@ export class EndCallSession extends Component {
 		this._returnToCallWaitingPage();
 	}
 
-	async _stopCardEndCall() {
-		const state = this.horizonStore.recoverState();
+	async _incidentStatus() {
+		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
 
-		if (Object.prototype.hasOwnProperty.call(state, `cardStopAttemptMade`)) {
-			this.cardStopAttemptMade = state.cardStopAttemptMade;
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
+	_getResolution(resolution) {
+		return resolution ? `${resolution || ``}\n${this.endCallReason.value}` : `${this.endCallReason.value}`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
+	}
+
+	async _stopCardEndCall() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		if (Object.prototype.hasOwnProperty.call(screenDetails, `cardStopAttemptMade`)) {
+			this.cardStopAttemptMade = screenDetails.cardStopAttemptMade;
 		} else {
 			this.cardStopAttemptMade = false;
 		}
 
-		if (Object.prototype.hasOwnProperty.call(state, `stoppedCardsFailed`)) {
-			this.stoppedCardsFailed = state.stoppedCardsFailed;
+		if (Object.prototype.hasOwnProperty.call(screenDetails, `stoppedCardsFailed`)) {
+			this.stoppedCardsFailed = screenDetails.stoppedCardsFailed;
 		} else {
 			this.stoppedCardsFailed = false;
 		}
@@ -352,11 +379,14 @@ export class EndCallSession extends Component {
 				return;
 			}
 
+			const strackIncidentInfo = await this._incidentStatus(this.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution);
+
 			const callToEnd = {
 				incidentRecId: this.incidentRecId,
 				reason: this.endCallReason.key,
-				resolution: this.endCallReason.value,
-				causeCode: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+				resolution: this._formatLineBreaks(resolution),
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 			};
 
 			const returnValue = await this.incidentManagementService.closeIncident(callToEnd);

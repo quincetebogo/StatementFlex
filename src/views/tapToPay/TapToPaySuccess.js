@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
+
 import 'app/components/common/SuccessScreen';
 
 export class TapToPaySuccess extends ViewBase {
@@ -15,8 +14,6 @@ export class TapToPaySuccess extends ViewBase {
 		this.selecetedCard = ``;
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -28,7 +25,6 @@ export class TapToPaySuccess extends ViewBase {
 			maskedCardNumber: { type: String }
 		};
 	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -45,6 +41,10 @@ export class TapToPaySuccess extends ViewBase {
 		this._updateIncidentState();
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -57,11 +57,10 @@ export class TapToPaySuccess extends ViewBase {
 
 	_tapToPayClick() {
 		// Functionality to tap to pay
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.returnToOption = this.incidentDetails.currentNeed;
 		
 		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus, returnToScreen: state.returnToScreen });
-		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -105,8 +104,16 @@ export class TapToPaySuccess extends ViewBase {
 
 	_webTemplate() {
 		return html`
+			${this._renderTapToPaySuccess()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderTapToPaySuccess() {
+		return html`
 			<horizon-success-screen 
-				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}" 
+				header="Tap to pay activated" 
 				image="src/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"

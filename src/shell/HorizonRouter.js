@@ -1,5 +1,5 @@
 import { Configuration, EventAggregator } from 'platform/core';
-import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
@@ -174,10 +174,11 @@ export class HorizonRouter {
 
 	navigateToXdsVerificationFailed() {
 		// TODO: This doesn't work when verify dialog is called from the XDS Verification failure screen
-		// if (this.router.currentRoute.title === `XdsVerificationFailed`) {
-		// this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
-		// }
-		this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
+		if (this.router.currentRoute.title === `XdsVerificationFailed`) {
+			this.router.updateNavigation(`${HORIZON_ROUTES.ITA_VERIFICATION_FAILED}`, true);
+		} else {
+			this.router.navigateByPath(`${HORIZON_ROUTES.XDS_VERIFICATION_FAILED}`);
+		}
 	}
 
 	navigateToItaVerificationFailed() {
@@ -269,10 +270,6 @@ export class HorizonRouter {
 
 	_navigateToTapToPayUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL}`);
-	}
-
-	navigateToTapToPaySuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
 	navigateToTapToPaySuccess() {

@@ -4,7 +4,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { formatPhoneNumber } from 'app/utils/channelServiceUtilities';
 import 'platform/components/layouts/Group';
 
-import '../common/HorizonLabel';
+import 'app/components/common/HorizonLabel';
 
 /**
  * The Horizon Action Bar is the top most bar on most Horizon Applications screens. 
