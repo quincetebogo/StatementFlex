@@ -317,10 +317,11 @@ export class LandingPage extends ViewBase {
 
 	async _GetLandingPageData() {
 		const returnValue = await this.initialiseService.initialise();
-		const landingPageData = returnValue.result;
-		this.employeeId = landingPageData.loggedInAgent.employeeId;
 
 		if (returnValue.succeeded) {
+			const landingPageData = returnValue.result;
+			this.employeeId = landingPageData.loggedInAgent.employeeId;
+			
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}

@@ -335,16 +335,16 @@ export class HorizonChannelService extends Service {
 			return this._mock.getCardLimits();
 		}
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
-		return this._get(url, this._setToken(), `cardLimitsLanding`);
+		return this._get(url, this._setToken(), `getCardLimits`);
 	}
 
-	async tapToPayLanding(cifNumber) {
+	async tapToPayLanding(cifNumber, incidentRecId) {
 		if (await this._mockEnabled(`tapToPayLanding`)) {
 			return this._mock.tapToPay(cifNumber);
 		}
 
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?${cifNumber}`;
-		return this._get(url, this._setToken(), `tapToPay`);
+		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
+		return this._get(url, this._setToken(), `tapToPayLanding`);
 	}
 	
 	async stopCard(stopCardRequest) {

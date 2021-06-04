@@ -319,11 +319,13 @@ export class Favourites extends SavingsAccountBase {
 			nextScreen: TelemetryScreen.TAP_TO_PAY
 		});
 
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
+		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			 
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
+		} else {
+			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`);
 		}
 	}
 
