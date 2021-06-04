@@ -46,14 +46,20 @@ export class TapToPayLanding extends Component {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();
+		super.connectedCallback();		
 		this._initialise();
 		this.horizonStore.recoverState();
 	
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY
+		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		// Telemetry
 		HorizonTelemetry.instance.screenUnloadTapToPay({
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
@@ -89,6 +95,13 @@ export class TapToPayLanding extends Component {
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 		this._updateCards();
+
+		//Telemetry
+		HorizonTelemetry.instance.selectToggle({
+			screen: TelemetryScreen.TAP_TO_PAY,
+			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			cardId: this.selectedCard.cardId
+		});
 		
 		const request = {
 			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,

@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -72,16 +73,23 @@ export class TapToPayAgreement extends Component {
 
 	_cancel() {
 
-		// Telemetry
-		HorizonTelemetry.instance.tapToPayCancel({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
-		this.tapToPayInfo.acceptedTapToPay = false;
-		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	// Telemetry
+	HorizonTelemetry.instance.tapToPayCancel({
+		screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+		nextScreen: TelemetryScreen.TAP_TO_PAY
+	});
+	this.tapToPayInfo.acceptedTapToPay = false;
+	this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_agree() {
+
+	// Telemetry
+	HorizonTelemetry.instance.selectAgreeTapToPay({
+		screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+		nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+		tncAccepted: null
+	});
 	// this._viewAgreement();
 			
 	// this.horizonRouter.navigateToTapToPaySuccess();

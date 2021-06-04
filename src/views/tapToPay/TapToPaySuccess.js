@@ -50,12 +50,26 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+
+		// Telemetry
+		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
+
 		// Functionality to navigate to Favourites screen
 		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus });
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
+
+		// Telemetry select Tap to Pay from Success Screen
+		HorizonTelemetry.instance.tapToPaySuccessOutcome({
+			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
+
 		// Functionality to tap to pay
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
