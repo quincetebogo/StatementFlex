@@ -48,15 +48,19 @@ export class QuickTransactionsService extends ServiceBase {
         return this.wrapCall(this.channelService.viewProofOfAccount(clientInfo), `viewProofOfAccount`, errorHandler, autoRetries);
     }
 	
-	tapToPayLanding(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.tapToPayLanding(clientInfo), `tapToPayLanding`, errorHandler, autoRetries);
+	tapToPayLanding(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.tapToPayLanding(cifNumber), `tapToPayLanding`, errorHandler, autoRetries);
 	}
 
 	getClientProducts(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.getClientProducts(request), `getClientProducts`, errorHandler, autoRetries);
 	}
 
-	tapToPayAgreement(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.tapToPayAgreement(request), `agreeTapToPay`, errorHandler, autoRetries);
+	tapToPayAgreement(agreementInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.tapToPayAgreement(agreementInfo), `tapToPayAgreement`, errorHandler, autoRetries);
+	}
+
+	updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateTapToPay(acceptTapToPay), `updateTapToPay`, errorHandler, autoRetries);
 	}
 }

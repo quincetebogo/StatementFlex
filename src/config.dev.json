@@ -1,6 +1,6 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "http://localhost:6001"
 	},
 	"signalRUrl": "",
 	"DesktopAgent": {

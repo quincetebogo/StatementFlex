@@ -175,7 +175,7 @@ export class HorizonChannelServiceMocks {
 
 	// Tap to pay function
 
-	tapToPay() {
+	tapToPay(cifNumber) {
 
 		if (this._mocking.tapToPayLanding.positiveCase) {
 			return this.tapToPayMocks.mockCards;

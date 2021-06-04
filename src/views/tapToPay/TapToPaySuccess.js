@@ -2,7 +2,6 @@ import { css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import 'app/components/common/SuccessScreen';
 
 export class TapToPaySuccess extends ViewBase {
@@ -13,10 +12,9 @@ export class TapToPaySuccess extends ViewBase {
 
 	constructor() {
 		super();
-
-		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
+		this.selecetedCard = ``;
 		this.tapToPayStatus = ``;
+		this.maskedCardNumber = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 	}
@@ -27,6 +25,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	static get properties() {
 		return {
+			maskedCardNumber: { type: String }
 		};
 	}
 
@@ -35,9 +34,15 @@ export class TapToPaySuccess extends ViewBase {
 	// -------------------
 
 	connectedCallback() {
-
-
 		super.connectedCallback();
+
+		const state = this.horizonStore.recoverState();
+
+		this.tapToPayStatus = state.request.tapToPayStatus;
+		this.cardMaskedNumber = state.cardMaskeNumber;
+			
+		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
+		this._updateIncidentState();
 	}
 
 	// --------------
@@ -45,33 +50,19 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		
-		// Telemetry
-		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
+		// Functionality to navigate to Favourites screen
+		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus });
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		
-		// Telemetry
-		HorizonTelemetry.instance.tapToPaySuccessOutcome({
-			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
-		
+		// Functionality to tap to pay
 		const state = this.horizonStore.recoverState();
 		state.returnToScreen.option = this.incidentDetails.currentNeed;
 		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
+		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus, returnToScreen: state.returnToScreen });
 		
 		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
-
-	_tapToPayStatus() {
-
 	}
 
 	// --------------
@@ -82,6 +73,11 @@ export class TapToPaySuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -91,7 +87,7 @@ export class TapToPaySuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-update-msg{
+				#id-update-msg {
 					width: auto;
 				}
 
@@ -110,18 +106,18 @@ export class TapToPaySuccess extends ViewBase {
 	_webTemplate() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay activated" 
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}" 
 				image="src/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
-				toast="Tap to pay activated."
+				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tapToPayClick()}>
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
+							The tap to pay functionality on your dual credit card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
 					</section>
 			</horizon-success-screen>
 		`;

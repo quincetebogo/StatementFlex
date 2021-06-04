@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonTelemetry, TelemetryScreen } from '../../../services/HorizonTelemetryService';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -22,9 +23,14 @@ export class TapToPayAgreement extends Component {
 
 	constructor() {
 		super();
-
+		this.selectedCard = {};
 		this.tapToPayInfo = {};
+		this.tapToPayAgreement = ``;
+		this.agreementResult = ``;
+		this.updateTapToPay = {};
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 
@@ -34,6 +40,10 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
+			agreementResult: { 
+				type: Object,
+				attribute: false
+			}
 		};
 	}
 
@@ -43,11 +53,22 @@ export class TapToPayAgreement extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this.horizonStore.recoverState();
+		this.tapToPayAgreement = this.agreementResult && this.agreementResult.cardAgreement.agreementContent.agreementContentData;
+		const state = this.horizonStore.getIncomingCallDetails();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+    _errorHandler(ex) {
+        return true;
+    }
+
+	_toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
+    }
 
 	_cancel() {
 
@@ -61,16 +82,9 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agree() {
-
-		// Telemetry
-		HorizonTelemetry.instance.selectAgreeTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			tncAccepted: null
-		});
-		if (this._validateCheckBox()) {
-			this.horizonRouter.navigateToTapToPaySuccess();
-		}
+	// this._viewAgreement();
+			
+	// this.horizonRouter.navigateToTapToPaySuccess();
 	}
 
 	_toggleAgreementsAccept(e) {
@@ -83,6 +97,21 @@ export class TapToPayAgreement extends Component {
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 
+	_onAgreeClick(event) {
+
+		if (this._validateCheckBox) {
+		const state = this.horizonStore.getIncomingCallDetails();
+
+		this.dispatchEvent(new CustomEvent(`on-agree`, {
+			detail: { 
+				agreementResult: this.agreementResult,
+				tapToPayAccepted: this.tapToPayInfo.acceptedTapToPay,
+				voiceRecordingReference: state.voiceReferenceNumber
+			}
+		}));
+
+		}
+	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -191,6 +220,11 @@ export class TapToPayAgreement extends Component {
 					--theme-container-padding-right: 16px;
 					--theme-container-padding-bottom: 0px;
 				}
+
+				.agreement-viewer {
+					width: 100%;
+					height: 100%;
+				}
 			`
 		];
 	}
@@ -226,11 +260,7 @@ export class TapToPayAgreement extends Component {
 				<capitec-expander 
 					expandbuttonalignment="left" 
 					label="View Agreement">
-						<capitec-content-box class="expander-cb" halign="center" valign="center" gap="none">
-								<capitec-label 
-									label="Placeholder for agreement">
-								</capitec-label>
-						</capitec-content-box>
+						${this._renderViewContent()}
 				</capitec-expander>
 
 				<capitec-expander 
@@ -243,7 +273,15 @@ export class TapToPayAgreement extends Component {
 			</capitec-expander-group>
 		`;
 	}
-	
+
+	_renderViewContent() {
+		return html`
+			<capitec-content-box class="expander-cb" halign="left" valign="top" gap="none">
+			<object class="agreement-viewer" data="data:text/html;base64,${this.tapToPayAgreement}" type="text/html">
+			</object>
+			</capitec-content-box>`;
+	}
+
 	_renderTapToPayAgreement() {
 		return html`
 			<capitec-content-box class="expander-cb">
@@ -270,6 +308,7 @@ export class TapToPayAgreement extends Component {
 			</capitec-content-box>
 		`;
 	}
+
 	_renderLoadingIndicator() {}
 	
 	_renderFooter() {
@@ -287,14 +326,12 @@ export class TapToPayAgreement extends Component {
 					class="next-btn"
 					type="primary" 
 					label="Agree"
-					@click="${() => this._agree()}">
+					@click="${(event) => this._onAgreeClick(event)}">
 				</capitec-button>
 
 			</capitec-group>
 		`;
 	}
-
-
 }
 
 customElements.define(`horizon-tap-to-pay-agreement`, TapToPayAgreement);
