@@ -1,7 +1,5 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
-import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -34,18 +32,6 @@ export class Favourites extends SavingsAccountBase {
 	constructor() {
 		super();
 
-		this.navigationContext = NavigationContext.getInstance();
-
-		// Recover information from state
-		const state = this.horizonStore.recoverState();
-
-		// When returning from the success screen, check which page we should display
-		if (state.returnTo && state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
-		
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -57,8 +43,6 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
-	
-		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -297,13 +281,12 @@ export class Favourites extends SavingsAccountBase {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-			this.horizonStore.saveState({
-				clientProfileDetails: returnValue.result
-			});
-
+			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToStopCard();
 		} else {

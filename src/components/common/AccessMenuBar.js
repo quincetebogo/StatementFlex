@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { HorizonStore } from '../../store/HorizonStore';
+import { HorizonStore } from 'app/store/HorizonStore';
 import 'platform/components';
-import '../dialogs/AccessChannelError';
+import 'app/components/dialogs/AccessChannelError';
 
 export class AccessMenuBar extends Component {
 
@@ -13,10 +13,10 @@ export class AccessMenuBar extends Component {
 	constructor() {
 		super();
 
-		this.confirmedCaller = null;
-		this.clientProfileDetails = null;
 		this.showAlert = false;
 		this.isBusy = false;
+
+		this.horizonStore = HorizonStore.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
 	}
@@ -28,7 +28,6 @@ export class AccessMenuBar extends Component {
 	static get properties() {
 		return {
 			showAlert: { type: Boolean },
-			clientProfileDetails: { type: Object },
 
 			isBusy: { attribute: false },
 			status: { attribute: false }
@@ -42,10 +41,9 @@ export class AccessMenuBar extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = HorizonStore.getInstance().recoverState();
-		this.confirmedCaller = state.confirmedCaller;
-		this.callerInformation = state.callerInformation;
-		this.cifNumber = this.callerInformation.cifNumber;
+		const callerInformation = this.horizonStore.getCallerInformation();
+		
+		this.cifNumber = callerInformation.cifNumber;
 		this.status = {
 			appAndInternetActive: false,
 			ussdActive: false,
@@ -53,11 +51,6 @@ export class AccessMenuBar extends Component {
 		};
 
 		this._accessChannelService();
-
-		this.clientProfileDetails = this.confirmedCaller && this.confirmedCaller.clientProfileDetails;
-		this.clientAccess = this.clientProfileDetails && this.clientProfileDetails.clientAccess;
-
-		this.accessChannels = this.clientAccess ? Object.keys(this.clientAccess) : [];
 	}
 
 	// --------------

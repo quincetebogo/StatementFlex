@@ -1,8 +1,9 @@
-import { View, css, html } from 'platform/elements';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 
-export class SuccessfulCardLimitUpdate extends View {
+export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -21,6 +22,7 @@ export class SuccessfulCardLimitUpdate extends View {
 
 	static get properties() {
 		return {
+
 		};
 	}
 
@@ -68,14 +70,13 @@ export class SuccessfulCardLimitUpdate extends View {
 		return [
 			super.styles,
 			css`
-				.id-update-msg{
+				.id-update-msg {
 					width: auto;
 				}
 
 				horizon-success-screen {
 					--horizon-button-group-margin-top: 28px;
 				}
-
 			`
 		];
 	}
@@ -85,6 +86,14 @@ export class SuccessfulCardLimitUpdate extends View {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderCardLimitsUpdateSuccess()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderCardLimitsUpdateSuccess() {
 		return html`
 			<horizon-success-screen 
 				header="Permanent card limits updated" 
@@ -109,6 +118,7 @@ export class SuccessfulCardLimitUpdate extends View {
 			</horizon-success-screen>
 		`;
 	}
+
 }
 
 customElements.define(`permanent-card-limit-update-success`, SuccessfulCardLimitUpdate);

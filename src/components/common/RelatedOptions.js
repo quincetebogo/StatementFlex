@@ -51,7 +51,6 @@ export class RelatedOptions extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
 
-		
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -82,9 +81,10 @@ export class RelatedOptions extends Component {
 		super.connectedCallback();
 
 		const state = this.horizonStore.recoverState();
-		this.callerInformation = state.callerInformation;
-		this.incomingCallDetails = state.incomingCallDetails;
-		this.incidentDetails = state.incidentDetails;
+
+		this.callerInformation = this.horizonStore.getCallerInformation();
+		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.landingPageInfo = state.landingPageInfo;
 
 		const currNeed = this.incidentDetails.currentNeed;
@@ -213,12 +213,13 @@ export class RelatedOptions extends Component {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
-			this.horizonStore.saveState({
-				incidentDetails: this.incidentDetails,
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation,
-				clientProfileDetails: returnValue.result
-			});
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setScreenDetails(screenDetails);
+			
 			this.horizonRouter.navigateToStopCard();
 		} else {
 			this.horizonRouter.navigateToSystemError();
@@ -269,11 +270,9 @@ export class RelatedOptions extends Component {
 	}
 
 	_transactionHistory(option) {
-		const returnToScreen = {
-			name: ``,
-			option: option
-		};
-		this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		screenDetails.returnToOption = option || ``;
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
 	}
 

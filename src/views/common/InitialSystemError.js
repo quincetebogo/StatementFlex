@@ -1,5 +1,6 @@
 import { View, css, html } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/common/ErrorScreen';
 
@@ -17,10 +18,10 @@ export class InitialSystemError extends View {
 	// --------------
 
 	constructor() {
-        super();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.incomingCallDetails = this.state.incomingCallDetails;
-        this.incidentRecId = this.incomingCallDetails.incidentRecId;
+		super();
+		
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// ----------
@@ -33,6 +34,9 @@ export class InitialSystemError extends View {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	// --------------

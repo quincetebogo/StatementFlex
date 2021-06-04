@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import '../../common/HorizonSolutionDialog';
+import 'app/components/common/HorizonSolutionDialog';
 
 export class ViewPlan extends Component {
 
