@@ -1,7 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -23,14 +20,9 @@ export class TapToPayAgreement extends Component {
 
 	constructor() {
 		super();
-		this.selectedCard = {};
 		this.tapToPayInfo = {};
 		this.tapToPayAgreement = ``;
-		this.agreementResult = ``;
-		this.updateTapToPay = {};
-		this.horizonRouter = HorizonRouter.getInstance();
-		this.horizonStore = HorizonStore.getInstance();
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.agreementResult = {};
 	}
 
 
@@ -40,10 +32,7 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
-			agreementResult: { 
-				type: Object,
-				attribute: false
-			}
+			agreementResult: { type: Object }
 		};
 	}
 
@@ -53,32 +42,27 @@ export class TapToPayAgreement extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.horizonStore.recoverState();
-		this.tapToPayAgreement = this.agreementResult && this.agreementResult.cardAgreement.agreementContent.agreementContentData;
-		const state = this.horizonStore.getIncomingCallDetails();
+		this.tapToPayAgreement = this.agreementResult.cardAgreement.agreementContent.agreementContentData;
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-    _errorHandler(ex) {
-        return true;
-    }
-
-	_toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
-
-	_cancel() {
+	_cancelClick() {
 		this.tapToPayInfo.acceptedTapToPay = false;
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_agree() {
-	// this._viewAgreement();
-			
-	// this.horizonRouter.navigateToTapToPaySuccess();
+	_agreeClick(event) {
+		if (this._validateCheckBox) {
+			this.dispatchEvent(new CustomEvent(`on-agree`, {
+				detail: { 
+					agreementResult: this.agreementResult,
+					tapToPayAccepted: this.tapToPayInfo.acceptedTapToPay
+				}
+			}));
+		}
 	}
 
 	_toggleAgreementsAccept(e) {
@@ -89,21 +73,6 @@ export class TapToPayAgreement extends Component {
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 
-	_onAgreeClick(event) {
-
-		if (this._validateCheckBox) {
-		const state = this.horizonStore.getIncomingCallDetails();
-
-		this.dispatchEvent(new CustomEvent(`on-agree`, {
-			detail: { 
-				agreementResult: this.agreementResult,
-				tapToPayAccepted: this.tapToPayInfo.acceptedTapToPay,
-				voiceRecordingReference: state.voiceReferenceNumber
-			}
-		}));
-
-		}
-	}
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -309,14 +278,14 @@ export class TapToPayAgreement extends Component {
 					class="back-btn"
 					type="clear" 
 					label="Cancel"
-					@click="${() => this._cancel()}">
+					@click="${() => this._cancelClick()}">
 				</capitec-button>
 
 				<capitec-button
 					class="next-btn"
 					type="primary" 
 					label="Agree"
-					@click="${(event) => this._onAgreeClick(event)}">
+					@click="${(event) => this._agreeClick(event)}">
 				</capitec-button>
 
 			</capitec-group>

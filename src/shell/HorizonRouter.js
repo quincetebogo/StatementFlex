@@ -35,7 +35,7 @@ const HORIZON_ROUTES = Object.freeze({
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
 });
 
 /**

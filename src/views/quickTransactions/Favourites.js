@@ -329,20 +329,38 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	async _getAgreement(request) {
+	async _getAgreement(agreementRequest) {
+		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
 
-		request.cifNumber = this.callerInformation.cifNumber;
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
 
-		const returnValue = await this.quickTransactionService.tapToPayAgreement(request);
-		return returnValue;
-
+		 return null;
 	}
 
 	async _updateTapToPay(updateRequest) {
-		updateRequest.voiceRecordingReference = this.incomingCallDetails.voiceReferenceNumber;
-		updateRequest.screenRecordingReference = ``;
-		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest);
-		return returnValue;
+		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+
+		return null;
+	}
+
+	_tapToPayErrorHandler(ex) {
+		return true;
+	}
+
+	_tapToPayResult(eventData) {
+		if (eventData.detail.success) {
+			this.horizonStore.saveState(eventData.detail.tapToPayDetails);
+			this.horizonRouter.navigateToTapToPaySuccess();
+		} else {
+			this.logger.log(`error`, eventData.detail.failureReason);
+			this.horizonRouter._navigateToTapToPayUnsuccessful();
+		}
 	}
 
 	_taxCertificates() {
@@ -493,9 +511,12 @@ export class Favourites extends SavingsAccountBase {
 		? html` 
 			<horizon-tap-to-pay-landing
 				.cards="${this.cards}"
-				.getAgreements="${(renderSet) => this._getAgreement(renderSet)}"
-				.updateAgreement="${(renderRequest) => this._updateTapToPay(renderRequest)}"
+				cifNumber=${this.callerInformation.cifNumber}
+				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+				.getAgreements="${agreementRequest => this._getAgreement(agreementRequest)}"
+				.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
 				@back="${() => this._backToLandingPage()}"
+				@result=${eventData => this._tapToPayResult(eventData)}
 			></horizon-tap-to-pay-landing>
 		` : html``;
 	}
