@@ -51,6 +51,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	

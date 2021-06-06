@@ -284,10 +284,10 @@ export class Favourites extends SavingsAccountBase {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToStopCard();
 		} else {
@@ -354,11 +354,10 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_tapToPayResult(eventData) {
-		const screenDetails = {
-			tapToPayDetails: eventData.detail.tapToPayDetails
-		};
-
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.tapToPayDetails = eventData.detail.tapToPayDetails;
 		this.horizonStore.setScreenDetails(screenDetails);
+		
 		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tap-to-pay`);
 
 		if (eventData.detail.success) {

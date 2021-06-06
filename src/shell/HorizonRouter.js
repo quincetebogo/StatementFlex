@@ -59,7 +59,6 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction = ``;    
 	}
 
 
@@ -98,8 +97,7 @@ export class HorizonRouter {
 	getRoutingInfo() {
 		return {
 			verificationStatus: this.verificationStatus,
-			callStatus: this.callStatus,
-			returnToFunction: this.returnToFunction
+			callStatus: this.callStatus
 		};
 	}
 

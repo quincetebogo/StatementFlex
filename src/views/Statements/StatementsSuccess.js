@@ -51,9 +51,7 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		
-		this._navigateToScreen(screenDetails.returnToScreen);
+		this.horizonRouter.navigateToReturnPath();
 	}
 
 	_sendAnotherClick() {
@@ -63,11 +61,7 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
-		this._navigateToScreen(screenDetails.returnToScreen);
+		this.horizonRouter.navigateToReturnPath();
 	}
 
 	_navigateToScreen(screenName) {

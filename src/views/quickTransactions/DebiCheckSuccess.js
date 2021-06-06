@@ -54,6 +54,8 @@ export class DebiCheckSuccess extends ViewBase {
 		HorizonTelemetry.instance.debiCheckOutcomeDone({
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
+
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -63,11 +65,7 @@ export class DebiCheckSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------

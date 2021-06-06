@@ -221,11 +221,9 @@ export class LandingPage extends ViewBase {
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
-		const screenDetails = new ScreenDetails();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-		this.horizonStore.setScreenDetails(screenDetails);
 
 		const state = {
 			callStatus: this.callStatus,

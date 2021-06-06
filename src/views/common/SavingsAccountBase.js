@@ -118,9 +118,12 @@ export class SavingsAccountBase extends ViewBase {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.mandateId = event.detail.mandateId;
-
 			this.horizonStore.setScreenDetails(screenDetails);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+
 			this.horizonRouter.navigateToDebiCheckSuccess();
+
 			// Telemetry
 			HorizonTelemetry.instance.debiCheckOutcome({
 				screen: TelemetryScreen.DEBICHECK,

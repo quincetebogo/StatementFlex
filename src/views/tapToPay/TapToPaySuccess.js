@@ -50,18 +50,12 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Functionality to navigate to Favourites screen
-		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus });
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		// Functionality to tap to pay
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.saveState({ tapToPayStatus: this.tapToPayStatus, returnToScreen: state.returnToScreen });
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------

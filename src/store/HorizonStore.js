@@ -130,35 +130,62 @@ export class HorizonStore extends Store {
 		if (this.state && this.state.screenDetails) {
 			return this.state.screenDetails;
 		}
-		return null;
+
+		return {};
 	}
 
 	/**
 	* Persist information about the screen details to state
 	*
 	* @param {Object} screenDetails Screen details
-	* @returns {undefined}
+	* @returns {Object} The state after setting the screen details
 	*/
 	setScreenDetails(screenDetails) {
 		return this.setState({ screenDetails: screenDetails });
 	}
 
+	/**
+	* Clear the screen details object
+	*
+	* @param {Object} screenDetails Screen details
+	* @returns {Object} The state after clearing the screen details object
+	*/
 	clearScreenDetails() {
 		return this.setState({ screenDetails: {} });
 	}
 
+	/**
+	 * Save a route and some optional data to state. The HorizonRouter navigateToReturnPage() will use this
+	 * state object in order to return to a previous a page. 
+	 * 
+	 * @param { Object } route The route the HorizonRouter.navigateToReturnPage() will usie
+	 * @param { Object } optionalData  An optional object that may be retrieved by the page navigated to by HorizopnRouter.navigateToReturnPage()
+	 * @returns  { undefined}
+	 */
 	setReturnScreen(route, optionalData) {
 		return this.setState({ returnToScreen: { route: route, optionalData: optionalData } });
 	}
 
+	/**
+	 * Retrieved the saved route 
+	 * 
+	 * @returns { undefined } An object containing the route and optional information to use when returning to a calling screen
+	 */
 	getReturnToScreen() {
 		if (this.state && this.state.returnToScreen) {
 			return this.state.returnToScreen;
 		}
+
 		return null;
 	}
 
-	clearReturnScreen() {
+	/**
+	 * Clear the saved routed (so that it can't be accidentally used)
+	 * Do this once the saved return route is no longer needed
+	 * 
+	 * @returns { undefined } An object containing the route and optional information to use when returning to a calling screen
+	 */
+	 clearReturnScreen() {
 		return this.setState({ returnToScreen: null });
 	}
 
