@@ -140,7 +140,26 @@ export class HorizonStore extends Store {
 	* @returns {undefined}
 	*/
 	setScreenDetails(screenDetails) {
-		this.setState({ screenDetails: screenDetails });
+		return this.setState({ screenDetails: screenDetails });
+	}
+
+	clearScreenDetails() {
+		return this.setState({ screenDetails: {} });
+	}
+
+	setReturnScreen(route, optionalData) {
+		return this.setState({ returnToScreen: { route: route, optionalData: optionalData } });
+	}
+
+	getReturnToScreen() {
+		if (this.state && this.state.returnToScreen) {
+			return this.state.returnToScreen;
+		}
+		return null;
+	}
+
+	clearReturnScreen() {
+		return this.setState({ returnToScreen: null });
 	}
 
 	/**

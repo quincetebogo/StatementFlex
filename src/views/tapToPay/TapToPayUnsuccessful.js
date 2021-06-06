@@ -15,9 +15,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
-
-		this.card = `5284 **** **** 1522`;
-		this.selectedCard = ``;
 	}
 
 	// --------------
@@ -26,7 +23,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	static get properties() {
 		return {
-			card: { type: String }
+			card: { attribute: false }
 		};
 	}
 	// -------------------
@@ -38,8 +35,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 		this._updateIncidentState();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
+		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
 
-		this.selectedCard = screenDetails && screenDetails.selectedCard;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -63,7 +60,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 		const incidentRecId = this.incidentDetails.incidentRecId;
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------

@@ -238,13 +238,10 @@ export class HorizonRouter {
 		}[ivrOption]();
 	};
 
-	navigateToReturnPage(displayMode) {
+	navigateToReturnPage() {
 		const horizonStore = HorizonStore.getInstance();
-		const state = horizonStore.recoverState();
-		state.returnTo.mode = displayMode;
-		horizonStore.saveState(state);
-
-		this.router.navigateByPath(state.returnTo.route);
+		const returnToPath = horizonStore.getReturnToScreen().route.path;
+		this.router.navigateByPath(returnToPath);
 	}
 
 	navigateToSavingsAccount() {

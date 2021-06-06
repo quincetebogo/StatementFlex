@@ -70,8 +70,8 @@ export class Favourites extends SavingsAccountBase {
 			// debiChecksOutstanding: this.pendingMandateCount
 		});
 
-		this._updateReturnToScreen();
-		this._initialise();
+	this._initialise();
+	
 		this._performAction = async (option) => {
 
 			const stopCard = () => this._stopCard();
@@ -355,12 +355,11 @@ export class Favourites extends SavingsAccountBase {
 
 	_tapToPayResult(eventData) {
 		const screenDetails = {
-			tapToPayDetails: eventData.detail.tapToPayDetails,
-			returnToScreen: this.navigationContext.current.route,
-			returnToOption: `tap-to-pay`
+			tapToPayDetails: eventData.detail.tapToPayDetails
 		};
 
 		this.horizonStore.setScreenDetails(screenDetails);
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tap-to-pay`);
 
 		if (eventData.detail.success) {
 			this.horizonRouter.navigateToTapToPaySuccess();
