@@ -354,8 +354,15 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_tapToPayResult(eventData) {
+		const screenDetails = {
+			tapToPayDetails: eventData.detail.tapToPayDetails,
+			returnToScreen: this.navigationContext.current.route,
+			returnToOption: `tap-to-pay`
+		};
+
+		this.horizonStore.setScreenDetails(screenDetails);
+
 		if (eventData.detail.success) {
-			this.horizonStore.saveState(eventData.detail.tapToPayDetails);
 			this.horizonRouter.navigateToTapToPaySuccess();
 		} else {
 			this.logger.log(`error`, eventData.detail.failureReason);

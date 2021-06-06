@@ -67,25 +67,18 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this._initialise();
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_initialise() {
-	}
-
 	_updateCards() {
 		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
 		this.cards[index].isContactlessCard = this.selectedCard.isContactlessCard;
 	}
 
-	_handlingAgreementsFailure() {
-		// send along with detail
-		// dummy function for now
-		alert(`Failed to call the service`);
+	_result(success, tapToPayDetails, failureReason) {
+		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
 	}
 
 	// --------------
@@ -96,11 +89,7 @@ export class TapToPayLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	_result(success, tapToPayDetails, failureReason) {
-		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
-	}
-
-	async _toggleTapToPayAgreement(event) {
+	async _toggleTapToPayClick(event) {
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 		this._updateCards();
@@ -122,18 +111,18 @@ export class TapToPayLanding extends Component {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
-			this._result(false, null, `Failed to load agreements`);
+			this._result(false, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
 		}
 	}
 
-	_cancel() {
+	_cancelClick() {
 		this.selectedCard.isContactlessActivated = !this.selectedCard.isContactlessActivated;
 		
 		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
 	}
 
-	async _onAgreeClicked(event) {
+	async _agreeClick(event) {
 		const tapToPayStatus = this.selectedCard.isContactlessActivated;
 		const request = {
 				cardDetails: {
@@ -164,15 +153,9 @@ export class TapToPayLanding extends Component {
 
 		if (result) {
 			this.agreementResult = result.result;
-			const cardMaskeNumber = this.selectedCard.maskedCardNumber,
-			tapToPayDetails = {
-				cardMaskeNumber,
-				request
-			};
-
 			this._result(true, tapToPayDetails, null);
 		} else {
-			this._result(false, null, `Failed to update agreement`);
+			this._result(false, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
 		}
 	}
 
@@ -356,7 +339,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
 	}
@@ -390,7 +373,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
 	}
@@ -401,8 +384,8 @@ export class TapToPayLanding extends Component {
 				<horizon-tap-to-pay-agreement
 					.selectedCard="${this.selectedCard}"
 					.agreementResult="${this.agreementResult}"
-					@on-agree="${(e) => this._onAgreeClicked(e)}"
-					@cancel="${() => this._cancel()}">
+					@on-agree="${(e) => this._agreeClick(e)}"
+					@cancel="${() => this._cancelClick()}">
 				</horizon-tap-to-pay-agreement>`
 			: html``;
 	}
