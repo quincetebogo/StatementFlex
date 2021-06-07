@@ -301,8 +301,8 @@ export class SecurityQuestionsFailed extends Component {
 						iconSize="default"
 						@click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button 
-						label="Verify via Banking App" 
+					<horizon-option-button
+						label="Verify via Banking App"
 						icon="system/cellphone-action"
 						iconSize="default"
 						@click="${() => this._verifyUsingMobileApp()}"

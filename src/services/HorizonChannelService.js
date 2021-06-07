@@ -342,7 +342,7 @@ export class HorizonChannelService extends Service {
 	// searchOptionsRequest
 	searchOptions(incomingCallData) {
 		return this._post(
-			`/clientcare/card/${this._version}/search/options`, {
+			`/clientcare-card-${this._version}/search/options`, {
 				"incomingTelephoneNumber": incomingCallData.incomingTelephoneNumber,
 				"voiceReferenceNumber": incomingCallData.voiceReferenceNumber,
 				"ivrOptionCode": incomingCallData.ivrOptionCode,
@@ -356,7 +356,7 @@ export class HorizonChannelService extends Service {
 
 	searchCaller(clientInfo) {
 		return this._get(
-			`/clientcare/call/${this._version}/search-caller?` +
+			`/clientcare-call-${this._version}/search-caller?` +
 				`incomingTelephoneNumber=${clientInfo.incomingTelephoneNumber}&` +
 				`voiceReferenceNumber=${clientInfo.voiceReferenceNumber}&` +
 				`ivrOptionCode=${clientInfo.ivrOption}&` +
@@ -373,7 +373,7 @@ export class HorizonChannelService extends Service {
 	// Initialise Methods
 	// ------------------
 	initialise() {
-		const url = `/clientcare/initialise/${this._version}`;
+		const url = `/clientcare-initialise-${this._version}`;
 
 		return this._get(url, this._setToken(), `initialise`);
 	}
@@ -383,7 +383,7 @@ export class HorizonChannelService extends Service {
 	// ----------------
 
 	createIncident(createIncidentRequest) {
-		const url = `/clientcare/incident/${this._version}/create-incident`;
+		const url = `/clientcare-incident-${this._version}/create-incident`;
 		const model = createIncidentRequest;
 
 		return this._post(url, model, this._setToken(), `createIncident`);
@@ -395,17 +395,17 @@ export class HorizonChannelService extends Service {
 			cif: cifNumber
 		};
 
-		return this._post(`/clientcare/incident/${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
+		return this._post(`/clientcare-incident-${this._version}/UpdateIncidentClientDetails`, request, this._setToken(), `updateIncidentClientDetails`);
 	}
 
 	updateIncidentNonClientDetails(incidentRecId, nonClientDetails) {
 		nonClientDetails.incidentRecId = incidentRecId;
 
-		return this._post(`/clientcare/incident/${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
+		return this._post(`/clientcare-incident-${this._version}/addcaller/nonclient`, nonClientDetails, this._setToken(), `updateIncidentNonClientDetails`);
 	}
 
 	closeIncident(closeIncidentRequest) {
-		const url = `/clientcare/incident/${this._version}/close-incident?` +
+		const url = `/clientcare-incident-${this._version}/close-incident?` +
 						`IncidentRecId=${closeIncidentRequest.incidentRecId}&` +
 						`Reason=${closeIncidentRequest.reason}&` +
 						`Resolution=${closeIncidentRequest.resolution}&` +
@@ -415,13 +415,13 @@ export class HorizonChannelService extends Service {
 	}
 
 	classifyIncident(classifyIncidentRequest) {
-		const url = `/clientcare/incident/${this._version}/classification`;
+		const url = `/clientcare-incident-${this._version}/classification`;
 	
 		return this._post(url, classifyIncidentRequest, this._setToken(), `classifyIncident`);
 	}
 
 	incidentStatus(incidentRecId) {
-		const url = `/clientcare/incident/${this._version}/incident/${incidentRecId}`;
+		const url = `/clientcare-incident-${this._version}/incident/${incidentRecId}`;
 	
 		return this._get(url, this._setToken(), `incidentStatus`);
 	}

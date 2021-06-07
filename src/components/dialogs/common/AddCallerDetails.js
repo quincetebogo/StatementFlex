@@ -1,9 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { TelemetryEvents, TelemetryScreen} from 'app/constants/TelemetryConstants';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -79,6 +80,7 @@ export class AddCallerDetails extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -113,6 +115,10 @@ export class AddCallerDetails extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		
+		this._telemetry.startSpan(TelemetryEvents.ADD_CALLER_DETAILS, {
+			"screen": TelemetryScreen.ADD_CALLER_DETAILS
+		});
 
 		// Short hand references for reaching into the incoming addCallerDialog model
 		this.ivrOption = this.addCallerDialog.ivrOption;
@@ -131,16 +137,11 @@ export class AddCallerDetails extends Component {
 		this.backButton = this.addCallerDialog.backButton;
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadAddCallerDetails({
-			screen: TelemetryScreen.ADD_CALLER_DETAILS
-		});
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadAddCallerDetails({ 
-			screen: TelemetryScreen.ADD_CALLER_DETAILS 
+		this._telemetry.endSpan(TelemetryEvents.ADD_CALLER_DETAILS, {
+			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 	}
 
@@ -166,9 +167,9 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		HorizonTelemetry.instance.addCallerDetailsConfirm({
-			screen: TelemetryScreen.ADD_CALLER_DETAILS,
-			nextScreen: null
+		this._telemetry.logEvent(TelemetryEvents.ADD_CALLER_DETAILS_CONFIRM_CLICK, {
+			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
+			"next-screen": null
 		});
 
 		if (!this._validateData()) {
@@ -203,9 +204,9 @@ export class AddCallerDetails extends Component {
 	}
 
 	_backClick() {
-		HorizonTelemetry.instance.addCallerDetailsCancel({
-			screen: TelemetryScreen.ADD_CALLER_DETAILS,
-			nextScreen: null
+		this._telemetry.logEvent(TelemetryEvents.ADD_CALLER_DETAILS_CANCEL_CLICK, {
+			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
+			"next-screen": null
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {

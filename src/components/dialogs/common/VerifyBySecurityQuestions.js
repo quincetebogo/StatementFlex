@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
+import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 
 import 'app/components/common/HorizonLabel';
@@ -59,6 +61,7 @@ export class VerifyBySecurityQuestions extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
@@ -103,6 +106,9 @@ export class VerifyBySecurityQuestions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(TelemetryEvents.VERIFY_CALLER_XDS, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 		this.questions = this.securityQuestions.questions;
 	}
 
@@ -115,21 +121,57 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelClick() {
-		this.dispatchEvent(new CustomEvent(`cancel`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+		this._telemetry.logEvent(TelemetryEvents.XDS_CANCEL, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": null //Have to determine
+		});
+
+		this.dispatchEvent(new CustomEvent(`cancel`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation
+			}
+		}));
 	}
 
 	_skipClick() {
-		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+		this._telemetry.logEvent(TelemetryEvents.XDS_SKIP, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": null //Have to determine
+		});
+
+		this.dispatchEvent(new CustomEvent(`skip`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation
+			}
+		}));
 	}
 
 	_verifyViaApp() {
-		this.dispatchEvent(new CustomEvent(`verify-via-app`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+		this._telemetry.logEvent(TelemetryEvents.XDS_VERIFY_VIA_APP, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		});
+
+		this.dispatchEvent(new CustomEvent(`verify-via-app`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation
+			}
+		}));
 	}
 
 	_continueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
+			this._telemetry.logEvent(TelemetryEvents.XDS_NEXT_QUESTION, {
+				"screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"question-number": this.questionNumber
+			});
+
 			this.alertBannerMessage = ``;
 			this.questionNumber++;
 			this.checked = false;
@@ -141,6 +183,11 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
+			this._telemetry.logEvent(TelemetryEvents.XDS_VERIFY_ANSWERS, {
+				"screen": TelemetryScreen.SECURITY_QUESTIONS,
+				"next-screen": null, //Have to determine
+			});
+
 			this.alertBannerMessage = ``;
 			this.checked = false;
 
@@ -148,36 +195,16 @@ export class VerifyBySecurityQuestions extends Component {
 
 			if (returnValue.succeeded) {
 				if (returnValue.result === `Authenticated`) {
-					this.callerInformation.verificationStatus = `verified`;
-					this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
-				} else if (returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
-					this.renderMode = RENDER_MODE.FIRST_FAILURE;
-					this.noOfXdsVerificationAttempted++;
-				} else if (returnValue.succeeded) {
-					this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
-					this.noOfXdsVerificationAttempted++;
-					this.callerInformation.verificationStatus = `failed`;
-					this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-	
-					this.horizonStore.setCallerInformation(this.callerInformation);
-					this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-	
-					this.horizonRouter.navigateToXdsVerificationFailed();
-				} 
+					this._xdsAuthenticated();
+				} else {
+					this._xdsNotAuthenticated();
+				}
 			} else if (this.noOfXdsVerificationAttempted < 1) {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
-				this.renderMode = RENDER_MODE.FIRST_FAILURE;
-				this.noOfXdsVerificationAttempted++;
+				this._showSQFailedScreen();
 			} else {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treatign this as the final failure.`, `_verifyClick`);
-				this.noOfXdsVerificationAttempted++;
-				this.callerInformation.verificationStatus = `failed`;
-				this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-
-				this.horizonStore.setCallerInformation(this.callerInformation);
-				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-				this.horizonRouter.navigateToXdsVerificationFailed();
+				this._navigateToXDSFailedVerification();
 			}
 		}
 	}
@@ -235,6 +262,58 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
+	}
+
+	_xdsAuthenticated() {
+		this._telemetry.logEvent(TelemetryEvents.XDS_PASSED, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": null, //Have to determine
+		});
+
+		this.callerInformation.verificationStatus = `verified`;
+		this.dispatchEvent(new CustomEvent(`verified`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				callerInformation: this.callerInformation
+			}
+		}));
+	}
+
+	_xdsNotAuthenticated() {
+		if (this.noOfXdsVerificationAttempted < 1) {
+			this._showSQFailedScreen();
+		} else if (returnValue.succeeded) {
+			this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
+			this._navigateToXDSFailedVerification();
+		}
+	}
+
+	_showSQFailedScreen() {
+		this._telemetry.logEvent(TelemetryEvents.XDS_FAILED, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
+			"xds-failed-attempts": this.noOfXdsVerificationAttempted
+		});
+
+		this.renderMode = RENDER_MODE.FIRST_FAILURE;
+		this.noOfXdsVerificationAttempted++;
+	}
+
+	_navigateToXDSFailedVerification() {
+		this._telemetry.logEvent(TelemetryEvents.XDS_FAILED, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.XDS_FAILED,
+			"xds-failed-attempts": this.noOfXdsVerificationAttempted
+		});
+
+		this.noOfXdsVerificationAttempted++;
+		this.callerInformation.verificationStatus = `failed`;
+		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+
+		this.horizonRouter.navigateToXdsVerificationFailed();
 	}
 
 	// ---------
@@ -419,20 +498,36 @@ export class VerifyBySecurityQuestions extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group class="footer-wrapper" layout="horizontal">
-				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._cancelClick()}">
+				<capitec-button
+					id="id-cancel-button"
+					type="clear"
+					label="Cancel"
+					@click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-spacer></capitec-spacer>
 			
-				<capitec-button id="id-skip-button" type="clear" label="Skip Verification" @click="${() => this._skipClick()}">
+				<capitec-button
+					id="id-skip-button"
+					type="clear"
+					label="Skip Verification"
+					@click="${() => this._skipClick()}">
 				</capitec-button>
 			
-				<capitec-button id="id-continue-button" type="primary" label="Continue"
-					?hidden="${!(this.questionNumber !== this.questions.length - 1)}" @click="${() => this._continueClick()}">
+				<capitec-button
+					id="id-continue-button"
+					type="primary"
+					label="Continue"
+					?hidden="${!(this.questionNumber !== this.questions.length - 1)}"
+					@click="${() => this._continueClick()}">
 				</capitec-button>
 			
-				<capitec-button id="id-verify-button" type="primary" label="Verify"
-					?hidden="${!(this.questionNumber === this.questions.length - 1)}" @click="${() => this._verifyClick()}">
+				<capitec-button
+					id="id-verify-button"
+					type="primary"
+					label="Verify"
+					?hidden="${!(this.questionNumber === this.questions.length - 1)}"
+					@click="${() => this._verifyClick()}">
 				</capitec-button>
 			</capitec-group>
 		`;

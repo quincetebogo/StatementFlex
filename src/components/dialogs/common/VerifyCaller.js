@@ -1,10 +1,13 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, EventAggregator, Logger } from 'platform/core';
+import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
@@ -78,6 +81,7 @@ export class VerifyCaller extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
@@ -118,7 +122,12 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-        this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+		this._telemetry.startSpan(TelemetryEvents.VERIFY_CALLER, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"has-digital-channels": this.callerInformation.hasDigitalChannels,
+			"is-SA-client": this.hasSouthAfricanID
+		});
 
 		// Resetting ITA & XDS attempts
 		if (!this.callerInformation.verificationAttempts) {
@@ -165,6 +174,10 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
 		this._stopTimer();
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(TelemetryEvents.VERIFY_CALLER, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		});
 	}
 
 	// --------------
@@ -172,10 +185,14 @@ export class VerifyCaller extends Component {
 	// --------------
 
 	async _securityQuestionsClick() {
+		this._telemetry.logEvent(TelemetryEvents.VERIFY_CALLER_SQ_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 
 		if (this.itaTimer) {
 			this._stopTimer();
-            this.horizonSignalRClient.deRegisterHandler();            
+			this.horizonSignalRClient.deRegisterHandler();
 		}
 
 		this.xdsMessage = ``;
@@ -186,7 +203,7 @@ export class VerifyCaller extends Component {
 			this.securityQuestions = returnValue.result;
 
 			const authHistory = this.securityQuestions.authenticationHistory;
-            if (authHistory) {                
+			if (authHistory) {
 				this.noOfXdsVerificationAttempted = this._calculateXDSAttempts(authHistory);
 				if (this.noOfXdsVerificationAttempted > 0) {
 					this.logger.log(`warn`, `The caller made ${this.noOfXdsVerificationAttempted} attempts at verifying via XDS in the last 24 hours!`);
@@ -226,6 +243,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_skipClick() {
+		this._telemetry.logEvent(TelemetryEvents.VERIFY_CALLER_SKIP_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": null // TODO: Determin by need and failed verification counts
+		});
+
 		this.callerInformation.verificationAttempts.itaAttempts = this.itaFailedCount;
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
@@ -256,6 +278,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_tryAgain() {
+		this._telemetry.logEvent(TelemetryEvents.VERIFY_CALLER_TRY_AGAIN, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		});
+
 		this.itaVerificationFailed = false;
 		this.appTimedOut = false;
 		this.itaMessage = ``;
