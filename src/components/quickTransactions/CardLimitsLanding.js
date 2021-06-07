@@ -49,23 +49,6 @@ export class CardLimitsLanding extends Component {
         this.expanderSubtitle = [];
         this.expanderHeaders = [this.cardType, 'Cardholder', 'Card expiry date'];
 
-        //this.maxLimits = {
-        //    0: ``,
-        //    1: `max R150 000.00`,
-        //    2: `max R500`,
-        //    3: `max R1500`,
-        //    4: `max R20 000`
-        //};
-
-
-        //this.records = [
-        //    { 0: 'Credit limits', 1: false, 2: false, 3: false, 4: false },
-        //    { 0: 'Permanent limits', 1: 'R1 000.00', 2: 'R8 000.00', 3: 'R10 000.00', 4: true },
-        //    { 0: 'Temporary limits', 1: 'R5 000.00', 2: 'R1 000.00', 3: 'R8 000.00', 4: true },
-        //    { 0: 'Debit limits', 1: '', 2: '', 3: '', 4: false },
-        //    { 0: 'Permanent limits', 1: 'R1 000.00', 2: 'R8 000.00', 3: 'R10 000.00', 4: true },
-        //    { 0: 'Temporary limits', 1: 'R5 000.00', 2: 'R1 000.00', 3: 'R8 000.00', 4: true }
-        //];
 
     }
 
@@ -132,7 +115,7 @@ export class CardLimitsLanding extends Component {
     _updateLimits() {
         this.dispatchEvent(new CustomEvent(`update-limits`, {
             detail: {
-              type:  this.cardType
+                type: this.cardType
 
             }
         }));
@@ -251,7 +234,7 @@ export class CardLimitsLanding extends Component {
                 
                 capitec-hyperlink{
                     text-align: right;
-                    color: #3A3A3A;
+                    color: #009DE0;
                     font-family: "Hind Vadodara";
                     font-size: 16px;
                     font-weight: 500;
@@ -317,7 +300,7 @@ export class CardLimitsLanding extends Component {
 			</capitec-title-bar>
 		`;
     }
- 
+
     _renderHeaders() {
         return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left"  style="margin-bottom:0px;">
@@ -327,9 +310,9 @@ export class CardLimitsLanding extends Component {
 	            <capitec-label row="1" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
 	            <capitec-label row="1" column="5" colspan="1" label="Actions" size="4"></capitec-label>			
 			</capitec-group>
-             `;      
+        `;
     }
-  
+
     _renderCreditLimits() {
         return html`
             <capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
@@ -361,7 +344,7 @@ export class CardLimitsLanding extends Component {
                 <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
                 <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
                 <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <capitec-hyperlink @click="${()=>this._updateLimits()}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
+                <capitec-hyperlink @click="${() => this._updateLimits()}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
 
             <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
@@ -385,13 +368,13 @@ export class CardLimitsLanding extends Component {
 
     _renderPrimaryCards() {
         this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHoldName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardDisplayName]);
-        return this.expanderSubtitle.map((sub, index) =>  html`
+        return this.expanderSubtitle.map((sub, index) => html`
             <horizon-expander class="primary-expander" expandButtonAlignment="right" icon="/images/cardArt/black_front_credit_40px height.svg" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
 					${this._renderCreditLimits()}
 					${this._renderDebitLimits()}
             </horizon-expander>
-`);
+        `);
     }
 
     _renderSupplementaryCardGroup() {
@@ -400,7 +383,6 @@ export class CardLimitsLanding extends Component {
 			<capitec-label label="Supplementary card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderSupplementaryCards()}
-
         `;
     }
 
@@ -411,7 +393,7 @@ export class CardLimitsLanding extends Component {
 					${this._renderHeaders()}
 					${this._renderDebitLimits()}
             </horizon-expander>
-`);
+        `);
     }
 
     _renderVirtualCardGroup() {
@@ -420,7 +402,6 @@ export class CardLimitsLanding extends Component {
 			<capitec-label label="Virtual card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderVirtualCards()}
-
         `;
     }
 
@@ -432,9 +413,8 @@ export class CardLimitsLanding extends Component {
 					${this._renderHeaders()}
 					${this._renderDebitLimits()}
             </horizon-expander>
-`);
+        `);
     }
-
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);
