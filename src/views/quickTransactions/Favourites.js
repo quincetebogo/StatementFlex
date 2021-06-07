@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -44,6 +45,8 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+
+		Object.assign(Favourites.prototype, tapToPayMixin);
 	}
 
 	// --------------
@@ -311,58 +314,6 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	async _tapToPay() {
-
-		// Telemetry select Tap to Pay
-		HorizonTelemetry.instance.selectTapToPay({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
-
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result.cards;
-			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		} else {
-			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`);
-		}
-	}
-
-	async _getAgreement(agreementRequest) {
-		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
-
-		if (returnValue.succeeded) {
-			return returnValue.result;
-		}
-
-		 return null;
-	}
-
-	async _updateTapToPay(updateRequest) {
-		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
-		return returnValue.succeeded;
-	}
-
-	_tapToPayErrorHandler(ex) {
-		return true;
-	}
-
-	_tapToPayResult(eventData) {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.tapToPayDetails = eventData.detail.tapToPayDetails;
-		this.horizonStore.setScreenDetails(screenDetails);
-		
-		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tap-to-pay`);
-
-		if (eventData.detail.success) {
-			this.horizonRouter.navigateToTapToPaySuccess();
-		} else {
-			this.logger.log(`error`, eventData.detail.failureReason);
-			this.horizonRouter._navigateToTapToPayUnsuccessful();
-		}
-	}
-
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 
@@ -499,10 +450,10 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
-					></horizon-proof-of-account>`
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-proof-of-account>`
 			: html``;
     }
 

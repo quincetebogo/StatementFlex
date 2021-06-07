@@ -111,7 +111,7 @@ export class TapToPayLanding extends Component {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
-			this._result(false, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
+			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
 		}
 	}
 
@@ -123,7 +123,8 @@ export class TapToPayLanding extends Component {
 	}
 
 	async _agreeClick(event) {
-		const tapToPayStatus = this.selectedCard.isContactlessActivated;
+		const tapToPayStatus = this.selectedCard.isContactlessActivated ? `ON` : `OFF`;
+
 		const request = {
 			tapToPayUpdate: {
 				cardDetails: {
@@ -132,7 +133,7 @@ export class TapToPayLanding extends Component {
 					cardExpiryYear: this.selectedCard.cardExpiryYear,
 					cardSequenceNumber: this.selectedCard.cardSequenceNumber
 				},
-				tapToPayStatus: tapToPayStatus ? `ON` : `OFF`,
+				tapToPayStatus: tapToPayStatus,
 				customerId: this.cifNumber,
 				voiceRecordingReference: this.voiceRecordingReference,
 				screenRecordingReference: ``,
@@ -153,9 +154,9 @@ export class TapToPayLanding extends Component {
 		const result = await this.updateAgreement(request);
 
 		if (result) {
-			this._result(true, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, null);
+			this._result(true, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, null);
 		} else {
-			this._result(false, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
+			this._result(false, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
 		}
 	}
 

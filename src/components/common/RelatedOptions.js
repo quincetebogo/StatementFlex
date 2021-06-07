@@ -6,6 +6,7 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Logger } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
@@ -55,6 +56,8 @@ export class RelatedOptions extends Component {
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+
+		Object.assign(RelatedOptions.prototype, tapToPayMixin);
 	}
 
 	// --------------
@@ -235,15 +238,6 @@ export class RelatedOptions extends Component {
 		}
 	}
 
-	async _tapToPay() {
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
-			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		}
-	}
-
 	async _Statements() {
 		const clientProductDetails = await this._getClientProducts();
 
@@ -386,7 +380,12 @@ export class RelatedOptions extends Component {
 			? html`
 				<horizon-tap-to-pay-landing
 					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
+					cifNumber=${this.callerInformation.cifNumber}
+					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					.getAgreements="${agreementRequest => this._getAgreement(agreementRequest)}"
+					.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
+					@back="${() => this._mainPage()}"
+					@result=${eventData => this._tapToPayResult(eventData)}>
 				</horizon-tap-to-pay-landing>`
 			: html``;
 	}
@@ -406,7 +405,6 @@ export class RelatedOptions extends Component {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
 					@cancel="${() => this._backToLandingPage()}">

@@ -32,12 +32,11 @@ export class TapToPaySuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		const screenDetails = this.horizonStore.getScreenDetails();
 
-		this.tapToPayStatus = state.request.tapToPayStatus;
-		this.cardMaskedNumber = state.cardMaskeNumber;
+		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayStatus;
+		this.cardMaskedNumber = screenDetails.tapToPayDetails.cardMaskedNumber;
 			
-		this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
 		this._updateIncidentState();
 	}
 

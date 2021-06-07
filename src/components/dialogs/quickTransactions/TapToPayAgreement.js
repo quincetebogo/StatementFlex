@@ -55,7 +55,7 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agreeClick(event) {
-		if (this._validateCheckBox) {
+		if (this._validateCheckBox()) {
 			this.dispatchEvent(new CustomEvent(`on-agree`, {
 				detail: { 
 					agreementResult: this.agreementResult,
