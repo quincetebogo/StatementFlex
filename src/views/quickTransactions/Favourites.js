@@ -341,12 +341,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _updateTapToPay(updateRequest) {
 		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
-
-		if (returnValue.succeeded) {
-			return returnValue.result;
-		}
-
-		return null;
+		return returnValue.succeeded;
 	}
 
 	_tapToPayErrorHandler(ex) {

@@ -125,35 +125,35 @@ export class TapToPayLanding extends Component {
 	async _agreeClick(event) {
 		const tapToPayStatus = this.selectedCard.isContactlessActivated;
 		const request = {
+			tapToPayUpdate: {
 				cardDetails: {
 					cardId: this.selectedCard.cardId,
-					cardExpiryYear: this.selectedCard.cardExpiryYear,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+					cardExpiryYear: this.selectedCard.cardExpiryYear,
 					cardSequenceNumber: this.selectedCard.cardSequenceNumber
-				  },
-				  tapToPayStatus: tapToPayStatus ? `ON` : `OFF`,
-				  customerId: this.cifNumber,
-				  voiceRecordingReference: this.voiceRecordingReference,
-				  screenRecordingReference: ``,
-				  agreementAccepted: event.detail.tapToPayAccepted,
-				  agreementContent: {
+				},
+				tapToPayStatus: tapToPayStatus ? `ON` : `OFF`,
+				customerId: this.cifNumber,
+				voiceRecordingReference: this.voiceRecordingReference,
+				screenRecordingReference: ``,
+				agreementAccepted: event.detail.tapToPayAccepted,
+				agreementContent: {
+					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType,
 					agreementContentData: this.agreementResult.cardAgreement.agreementContent.agreementContentData,
-					documentId: this.agreementResult.cardAgreement.agreementContent.documentId,
-					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType
-				  },
-				  scriptContent: {
+					documentId: this.agreementResult.cardAgreement.agreementContent.documentId
+				},
+				scriptContent: {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
-					// CS getAgreement should return HTML value, currently returning null
 					scriptContentType: `HTML`
-				  }
+				}
+			}
 		};
 
 		const result = await this.updateAgreement(request);
 
 		if (result) {
-			this.agreementResult = result.result;
-			this._result(true, tapToPayDetails, null);
+			this._result(true, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, null);
 		} else {
 			this._result(false, { cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
 		}
