@@ -1,6 +1,6 @@
 {
 	"serviceURIs": {
-		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
+		"channelServiceUrl": "https://horizoncs-dev-v1.platform-dev.int.capinet"
 	},
 	"signalRUrl": "",
 	"DesktopAgent": {
@@ -62,7 +62,7 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -87,7 +87,7 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {

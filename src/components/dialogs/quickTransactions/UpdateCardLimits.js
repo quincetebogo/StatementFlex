@@ -74,7 +74,7 @@ export class UpdateCardLimits extends Component {
 		
 		this.horizonStore = HorizonStore.getInstance();
 		this._getCardImages();
-		this.card = this.horizonStore.state.cardDetails;
+		this.card = {};
 	}
 
 	// ----------
@@ -122,9 +122,12 @@ export class UpdateCardLimits extends Component {
 		super.connectedCallback();
 		this._initialise();
 
-		const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
-		this.type = this.cardArtComponents[this.card.cardArt].type;
-		this.cardArtSVG = frameCardArt(this.card);
+		// const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
+		// this.type = this.cardArtComponents[this.card.cardArt].type;
+		// this.cardArtSVG = frameCardArt(this.card);
+		
+		this.cardArtSVG = "/images/cardArt/black_front_credit.svg"
+
 	}
 
 	// --------------
@@ -248,12 +251,13 @@ export class UpdateCardLimits extends Component {
 			acceptedLimitsAgreement: false,
 			acceptedTapToPayAgreement: false
 		};
+		this.limitLabel = this.updateType === "Credit card" ? "Credit Limits" : "Debit limits" ;
 
-		if (this.card.cardDisplayName === "Credit card") {
-			this.limitLabel = "Credit Limits";
-		} else if (this.card.cardDisplayName === "Debit card" || this.card.cardDisplayName === "Supplementary debit card") {
-			this.limitLabel = "Debit limits";
-		}
+		// if (this.card.cardDisplayName === "Credit card") {
+		// 	this.limitLabel = "Credit Limits";
+		// } else if (this.card.cardDisplayName === "Debit card" || this.card.cardDisplayName === "Supplementary debit card") {
+		// 	this.limitLabel = "Debit limits";
+		// }
 
 		const initUpdatePermanentLimit = (info) => {
 			const obj = {
@@ -645,11 +649,9 @@ export class UpdateCardLimits extends Component {
 			return html`
 			<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
-					${this.card.cardDisplayName === "Credit card" ?
+					${this.updateType === "Credit card" ?
 					this._renderCreditLimits() :
-					this.card.cardDisplayName === "Debit card" || this.card.cardDisplayName === "Supplementary debit card" ?
-					this._renderDebitLimits() : 
-					html ``}
+					this._renderDebitLimits()}
 				</capitec-group>
 				${this._renderTapToPay()}
 			`;
@@ -660,7 +662,7 @@ export class UpdateCardLimits extends Component {
 	_renderCard() {
 		return html`
 		<capitec-content-box class="${this.type}-card-img-cb">
-				${this.cardArtSVG}
+			${this.cardArtSVG}
 		</capitec-content-box>
 		`;
 	}

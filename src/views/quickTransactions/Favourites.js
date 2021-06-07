@@ -175,14 +175,14 @@ export class Favourites extends SavingsAccountBase {
 
     async _updateLimits(e) {
 
-        const returnValue = await this.quickTransactionService.getCardLimits(e.detail.cardDetails);
+        // const returnValue = await this.quickTransactionService.getCardLimits(e.detail.cardDetails);
 
-        if (returnValue.succeeded) {
-            //debugger
-            this._updateType = e.detail.type;
-            this._cardLimits = returnValue.result;
+        // if (returnValue.succeeded) {
+        //     //debugger
+            this._updateType = e.detail.cardType;
+            this._cardLimits = e.detail.cardLimits;
             this._toggleUpdateLimitsModal();
-        }
+        // }
     }
 
     _toggleUpdateLimitsModal() {
@@ -330,10 +330,10 @@ export class Favourites extends SavingsAccountBase {
 			nextScreen: TelemetryScreen.UPDATE_CARD_LIMITS
 		});
 
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
+		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			 
 		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
+			this.cards = returnValue.result.cards;
             this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
 	}

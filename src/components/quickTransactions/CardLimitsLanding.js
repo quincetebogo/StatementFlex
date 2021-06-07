@@ -129,11 +129,11 @@ export class CardLimitsLanding extends Component {
         // TODO: Error handler comes here
     }
 
-    _updateLimits() {
+    _updateLimits(limits, cardType) {
         this.dispatchEvent(new CustomEvent(`update-limits`, {
             detail: {
-              type:  this.cardType
-
+            cardType:  cardType,
+			cardLimits: limits
             }
         }));
     }
@@ -330,7 +330,7 @@ export class CardLimitsLanding extends Component {
              `;      
     }
   
-    _renderCreditLimits() {
+    _renderCreditLimits(limits, cardType) {
         return html`
             <capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label class="headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
@@ -339,10 +339,10 @@ export class CardLimitsLanding extends Component {
 	            <capitec-label row="1" column="4" colspan="1" label="" size="1"></capitec-label>
 	            <capitec-label row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
 			</capitec-group>
-            ${this._renderLimits()}
+            ${this._renderLimits(limits, cardType)}
         `;
     }
-    _renderDebitLimits() {
+    _renderDebitLimits(limits, cardType) {
         return html`
              <capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label class="headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Debit limit" size="4"></capitec-label>
@@ -351,25 +351,25 @@ export class CardLimitsLanding extends Component {
 	            <capitec-label row="1" column="4" colspan="1" label="" size="1"></capitec-label>
 	            <capitec-label row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
 			</capitec-group>
-            ${this._renderLimits()}
+            ${this._renderLimits(limits, cardType)}
         `;
     }
-    _renderLimits() {
+    _renderLimits(limits,cardType) {
         return html`
             <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <capitec-hyperlink @click="${()=>this._updateLimits()}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
+                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${limits.permanentCashAmountLimit}" value="max ${limits.maxPermanentCashAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${limits.permanentPurchaseAmountLimit}" value="max ${limits.maxPermanentPurchaseAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${limits.permanentCnpAmountLimit}" value="max ${limits.maxPermanentCnpAmountLimit}"></bb-multi-line-label>
+                <capitec-hyperlink @click="${()=>this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
 
             <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label row="1" column="1" colspan="1" label="Temporary limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="R10 000.00" value="max R10 000"></bb-multi-line-label>
-                <capitec-hyperlink @click="${() => this._updateLimits()}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
+                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${limits.tempCashAmountLimit}" value="max ${limits.maxTemporaryCashAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${limits.tempPurchaseAmountLimit}" value="max ${limits.maxTemporaryPurchaseAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${limits.tempCnpAmountLimit}" value="max ${limits.maxTemporaryCnpAmountLimit}"></bb-multi-line-label>
+                <capitec-hyperlink @click="${() => this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
         `;
     }
@@ -384,12 +384,13 @@ export class CardLimitsLanding extends Component {
     }
 
     _renderPrimaryCards() {
-        this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHoldName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardDisplayName]);
-        return this.expanderSubtitle.map((sub, index) =>  html`
+        this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardDisplayName]);
+		//this.limits= this.primaryCards.map(card => {cardLimits:card.cardLimits, cardType : card.cardType});
+
+	   return this.expanderSubtitle.map((sub, index) =>  html`
             <horizon-expander class="primary-expander" expandButtonAlignment="right" icon="/images/cardArt/black_front_credit_40px height.svg" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
-					${this._renderCreditLimits()}
-					${this._renderDebitLimits()}
+					${this.primaryCards.map(item => item.cardType === 0 ? this._renderDebitLimits(item.cardLimits, item.cardType) : this._renderCreditLimits(item.cardLimits, item.cardType) )}
             </horizon-expander>
 `);
     }
@@ -405,7 +406,7 @@ export class CardLimitsLanding extends Component {
     }
 
     _renderSupplementaryCards() {
-        this.expanderSubtitle = this.supplementaryCards.map(card => [card.maskedCardNumber, card.cardHoldName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
+        this.expanderSubtitle = this.supplementaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
         return this.expanderSubtitle.map((sub, index) => html`
             <horizon-expander expandButtonAlignment="right" icon="/images/cardArt/black_front_debit_40px height.svg" color="#009DE0" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
@@ -425,7 +426,7 @@ export class CardLimitsLanding extends Component {
     }
 
     _renderVirtualCards() {
-        this.expanderSubtitle = this.virtualCards.map(card => [card.maskedCardNumber, card.cardHoldName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
+        this.expanderSubtitle = this.virtualCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
         return this.expanderSubtitle.map((sub, index) => html`
 
             <horizon-expander expandButtonAlignment="right" icon="/images/cardArt/black_front_debit_40px height.svg" color="#009DE0" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
