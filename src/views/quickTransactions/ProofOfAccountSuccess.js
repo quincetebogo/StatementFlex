@@ -30,16 +30,6 @@ export class ProofOfAccountSuccess extends ViewBase {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof ProofOfAccountSuccess
-	 */
-	static get properties() {
-		return {
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

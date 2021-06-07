@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
@@ -47,6 +48,7 @@ export class Feedback extends Component {
 		// VARIABLES
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
+		this.selectedFeedbackText = ``;
 		this.feedbackOptions = [];
 
 		this.isBusy = false;
@@ -64,7 +66,8 @@ export class Feedback extends Component {
 		return {
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			selectedFeedback: { attribute: false }
+			selectedFeedback: { attribute: false },
+			selectedFeedbackText: { attribute: false }
 		};
 	}
 
@@ -75,6 +78,11 @@ export class Feedback extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.feedbackOptions = FEEDBACK_OPTIONS;
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadFeedbackScreen({
+			screen: TelemetryScreen.FEEDBACK
+		});
 	}
 
 	// --------------
@@ -87,11 +95,43 @@ export class Feedback extends Component {
 		}
 		else{
 			this.dispatchEvent(new CustomEvent(`done`, {detail : this.selectedFeedback}));
+		} else {
+
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
+			screen: TelemetryScreen.FEEDBACK,
+		});
+
+			console.log(this.selectedFeedback);
+			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
+
+			const closeIncidentRequest = {
+				incidentRecId: incidentDetails.incidentRecId,
+				reason: this.selectedFeedback,
+				resolution: this._formatLineBreaks(resolution),
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
+			};
+
+			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
+			
+			if (returnValue.succeeded) {
+				// Navigate to favourites landing page
+				this._updateIncidentState();
+				this.dispatchEvent(new CustomEvent(`done`, {}));
+			} else {
+				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+			}
 		}
 	}
 
 	_onValueChanged(event) {
-		this.selectedFeedback = event.detail.key;
+		this.selectedFeedback = event.detail.key; 
+		this.selectedFeedbackText = event.detail.value; 
 		this.alertBannerMessage = ``;
 	}
 

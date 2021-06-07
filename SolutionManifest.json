@@ -1,0 +1,12 @@
+{
+  "product": "BSC-Horizon",
+  "groupName": "G_PL_HZN_DEV",
+  "projects": [
+    {
+      "name": "Horizon-UI",
+      "location": ".",
+      "platformType": "ocwp",
+      "cliVersion": "1.4.1"
+    }
+  ]
+}

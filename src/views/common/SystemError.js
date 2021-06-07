@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -20,8 +19,6 @@ export class SystemError extends ViewBase {
 	constructor() {
 		super();
 
-		this.eventAggregator = EventAggregator.getInstance();
-
 		this.eventAggregator.publish(`horizon-favorites-bar`, { hasFavourites: true });
 		this.eventAggregator.publish(`horizon-disable-assign-handoff`, { isHidden: true });
 	}
@@ -29,12 +26,6 @@ export class SystemError extends ViewBase {
 	// ----------
 	// PROPERTIES
 	// ----------
-
-	static get properties() {
-		return {
-
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES

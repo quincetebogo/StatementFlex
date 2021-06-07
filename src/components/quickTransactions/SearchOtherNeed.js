@@ -2,6 +2,7 @@ import { Component, css, html, live } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -82,6 +83,24 @@ export class SearchOtherNeed extends Component {
 		this.issuesWithSolution=this.issues;
 		this.issues = this.issues.map(item => item.issue);
 		
+
+		HorizonTelemetry.instance.screenLoadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		});
+
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+		await this._getCategories();
+	}
+
+	async disconnectedCallback() {
+		
+		HorizonTelemetry.instance.screenUnloadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			clientNeed: this.category,
+			specificNeed: this.need,
+			issueType: this.issue
+		});
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -120,7 +139,26 @@ export class SearchOtherNeed extends Component {
 		this.issue = e.currentTarget.value.issue;
 		this.solution = this.issues.find(item => item.issue === this.issue).solution;
 	}
-	
+
+	async _onLaunchStrackClick() {
+
+		HorizonTelemetry.instance.otherNeedLaunchStrack({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+
+		const strackIncidentInfo = await this._incidentStatus() || {};
+		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
+
+		if (continueUpdate) {
+			await this._classifyIncident();
+		} else {
+			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
+
+			this.horizonRouter.navigateToStrack(this.incidentRecId);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		}
+	}
 
 	// ---------------
 	// PRIVATE METHODS
