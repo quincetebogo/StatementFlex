@@ -111,7 +111,7 @@
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"viewStatements": {

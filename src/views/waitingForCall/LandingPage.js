@@ -3,6 +3,7 @@ import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstan
 import { css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
+import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
@@ -42,9 +43,7 @@ export class LandingPage extends ViewBase {
 		super();
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
-		this.logger = Logger.getInstance();
 		this._configuration = Configuration.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 

@@ -1,6 +1,5 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
@@ -40,8 +39,6 @@ export class StopCardFailure extends ViewBase {
 		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
-
-		this.cardService = new CardService(() => this._toggleBusyFlag(), null);
 	}
 
 	// --------------
@@ -51,7 +48,6 @@ export class StopCardFailure extends ViewBase {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			renderMode: { type: Number },
 			renderDialog: { type: Number },
 			retry: { type: Number },
 
@@ -114,7 +110,7 @@ export class StopCardFailure extends ViewBase {
 		// Toggling to InProgress
 		this.renderMode = RENDER_MODE.IN_PROGRESS;
 
-		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler(ex));
+		const returnValue = await this.cardService.stopCards(this.failedCards, this.incomingCallDetails, this.incidentDetails);
 		
 		if (returnValue.succeeded) {
 			const cardStopResults = returnValue.result;

@@ -1,6 +1,4 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -28,11 +26,6 @@ export class StopCardLandingPage extends ViewBase {
 
 		this.isBusy = false;
 
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.callerInformation = this.horizonStore.getCallerInformation(); 
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.cards = this.screenDetails && this.screenDetails.cards;
 	}
@@ -40,12 +33,6 @@ export class StopCardLandingPage extends ViewBase {
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { attribute: false }
-		};
-	}
 
 	// ------------------
 	// LIFCYCLE OVERRIDES
