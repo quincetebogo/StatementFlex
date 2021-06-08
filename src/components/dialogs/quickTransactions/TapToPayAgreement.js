@@ -51,27 +51,23 @@ export class TapToPayAgreement extends Component {
 	// --------------
 
 	_cancelClick() {
+		// Telemetry
+		HorizonTelemetry.instance.tapToPayCancel({
+			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
 
-	// Telemetry
-	HorizonTelemetry.instance.tapToPayCancel({
-		screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-		nextScreen: TelemetryScreen.TAP_TO_PAY
-	});
-	this.tapToPayInfo.acceptedTapToPay = false;
-	this.dispatchEvent(new CustomEvent(`cancel`, {}));
+		this.tapToPayInfo.acceptedTapToPay = false;
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-
-
-
-	_agreeClick(event) {
-  
-	// Telemetry
-	HorizonTelemetry.instance.selectAgreeTapToPay({
-		screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-		nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-		tncAccepted: null
-	});
+	_agreeClick(event) {  
+		// Telemetry
+		HorizonTelemetry.instance.selectAgreeTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			tncAccepted: null
+		});
   
 		if (this._validateCheckBox()) {
 			this.dispatchEvent(new CustomEvent(`on-agree`, {
