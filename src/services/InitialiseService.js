@@ -37,7 +37,7 @@ export class InitialiseService extends ServiceBase {
 	 *
 	 * @param {initialiseCallback} [errorHandler=null] An optional error handler 
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {ReturnValue} An object containing a success flag and the result of the channel service call
+	 * @returns {Promise<ReturnValue>} A promise for an object containing a success flag and the result of the channel service call
 	 * @memberof InitialiseService
 	 */
 	initialise(errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {

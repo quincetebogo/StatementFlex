@@ -1,9 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
-
 
 export class TapToPayLanding extends Component {
 
@@ -16,8 +13,6 @@ export class TapToPayLanding extends Component {
 
 		this.showTapToPayAgreement = false;
 		this.agreementResult = {};
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// ---------------
@@ -25,19 +20,44 @@ export class TapToPayLanding extends Component {
 	// ---------------
 
 	/**
-	 *
-	 * @property {Object} cards Object contains the list of client's card
-	 *
-	 * @readonly
-	 * @static
-	 * @memberof TapToPayLanding
+	 *  @typedef {Object} getAgreementsResponse Agreements to display or null if there was an error
+	 */
+
+	/**
+	 *  @typedef {Object} updateAgreementResponse updated agreement or null if there was an error
+	 */
+	
+	
+	/**
+	 * @callback getAgreementsCallback
+	 * @returns {getAgreementsResponse}
+	 */
+
+	/**
+	 * @callback updateAgreementCallback
+	 * @returns {updateAgreementResponse}
+	 */
+
+
+	/**
+	 * @property {Object} cards Object contains the list of client's cards
+	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
+	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
 	 */
 	static get properties() {
 		return {
+			// Input properties
 			cards: { type: Object },
-			showTapToPayAgreement: { attribute: false },
-			getAgreements: { type: Object },
-			updateAgreement: { type: Object }
+			cifNumber: { type: String },
+			voiceRecordingReference: { type: String },
+
+			getAgreements: { type: Object, attribute: false },
+			updateAgreement: { type: Object, attribute: false },
+
+			// Private internal properties
+			showTapToPayAgreement: { attribute: false }
 		};
 	}
 
@@ -47,9 +67,6 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();		
-		this._initialise();
-		this.horizonStore.recoverState();
-	
 		// Telemetry
 		HorizonTelemetry.instance.screenLoadTapToPay({
 			screen: TelemetryScreen.TAP_TO_PAY
@@ -67,19 +84,13 @@ export class TapToPayLanding extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_initialise() {
-	}
-
 	_updateCards() {
 		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
 		this.cards[index].isContactlessCard = this.selectedCard.isContactlessCard;
 	}
 
-	_handlingAgreementsFailure() {
-		// send along with detail
-		// dummy function for now
-		alert(`Failed to call the service`);
+	_result(success, tapToPayDetails, failureReason) {
+		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
 	}
 
 	// --------------
@@ -90,8 +101,7 @@ export class TapToPayLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	async _toggleTapToPayAgreement(event) {
-
+	async _toggleTapToPayClick(event) {
 		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
 		this.selectedCard.isContactlessActivated = event.detail.new;
 		this._updateCards();
@@ -104,6 +114,7 @@ export class TapToPayLanding extends Component {
 		});
 		
 		const request = {
+			cifNumber: this.cifNumber,
 			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
 			cardDetails: {
 				cardId: this.selectedCard.cardId,
@@ -112,72 +123,60 @@ export class TapToPayLanding extends Component {
 				cardSequenceNumber: this.selectedCard.cardSequenceNumber
 			}
 		};
+
 		const result = await this.getAgreements(request);
 
-		if (result.succeeded) {
-			this.agreementResult = result.result;
+		if (result) {
+			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
-		// error handling comes here
-		 this.horizonRouter._navigateToTapToPayUnsuccessful();
+			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
 		}
 	}
 
-	_cancel() {
-		
+	_cancelClick() {
 		this.selectedCard.isContactlessActivated = !this.selectedCard.isContactlessActivated;
 		
 		this._updateCards();
 		this.showTapToPayAgreement = !this.showTapToPayAgreement;
 	}
 
-	async _onAgreeClicked(event) {
-		const state = this.horizonStore.getIncomingCallDetails();
-		const callerInformation = this.horizonStore.getCallerInformation();
+	async _agreeClick(event) {
+		const tapToPayStatus = this.selectedCard.isContactlessActivated ? `ON` : `OFF`;
 
-		const tapToPayStatus = this.selectedCard.isContactlessActivated;
 		const request = {
+			tapToPayUpdate: {
 				cardDetails: {
-					cardId: this.agreementResult.cardAgreement.cardId,
-					cardExpiryYear: this.selectedCard.cardExpiryYear,
+					cardId: this.selectedCard.cardId,
 					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+					cardExpiryYear: this.selectedCard.cardExpiryYear,
 					cardSequenceNumber: this.selectedCard.cardSequenceNumber
-				  },
-				  tapToPayStatus: tapToPayStatus ? `ON` : `OFF`,
-				  customerId: callerInformation.cifNumber,
-				  voiceRecordingReference: event.detail.voiceRecordingReference,
-				  screenRecordingReference: ``,
-				  agreementAccepted: event.detail.tapToPayAccepted,
-				  agreementContent: {
+				},
+				tapToPayStatus: tapToPayStatus,
+				customerId: this.cifNumber,
+				voiceRecordingReference: this.voiceRecordingReference,
+				screenRecordingReference: ``,
+				agreementAccepted: event.detail.tapToPayAccepted,
+				agreementContent: {
+					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType,
 					agreementContentData: this.agreementResult.cardAgreement.agreementContent.agreementContentData,
-					documentId: this.agreementResult.cardAgreement.agreementContent.documentId,
-					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType
-				  },
-				  scriptContent: {
+					documentId: this.agreementResult.cardAgreement.agreementContent.documentId
+				},
+				scriptContent: {
 					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
 					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
-					// CS getAgreement should return HTML value, currently returning null
 					scriptContentType: `HTML`
-				  }
-				};
-
-			const result = await this.updateAgreement(request);
-
-			if (result.succeeded) {
-				this.agreementResult = result.result;
-				const cardMaskeNumber = this.selectedCard.maskedCardNumber,
-				tapToPayDetails = {
-					cardMaskeNumber,
-					request
-				};
-				
-				this.horizonStore.saveState(tapToPayDetails);
-				this.horizonRouter.navigateToTapToPaySuccess();
-			} else {
-			// error handling comes here
-			// Failure screen
-			this.horizonRouter._navigateToTapToPayUnsuccessful();
+				}
 			}
+		};
+
+		const result = await this.updateAgreement(request);
+
+		if (result) {
+			this._result(true, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, null);
+		} else {
+			this._result(false, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
+		}
 	}
 
 	// ---------
@@ -360,7 +359,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
 	}
@@ -394,7 +393,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				@toggle-agreement="${(event) => this._toggleTapToPayAgreement(event)}">
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
 	}
@@ -405,8 +404,8 @@ export class TapToPayLanding extends Component {
 				<horizon-tap-to-pay-agreement
 					.selectedCard="${this.selectedCard}"
 					.agreementResult="${this.agreementResult}"
-					@on-agree="${(e) => this._onAgreeClicked(e)}"
-					@cancel="${() => this._cancel()}">
+					@on-agree="${(e) => this._agreeClick(e)}"
+					@cancel="${() => this._cancelClick()}">
 				</horizon-tap-to-pay-agreement>`
 			: html``;
 	}

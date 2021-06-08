@@ -1,5 +1,4 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
@@ -17,9 +16,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
-		this.card = `5284 **** **** 1522`;
-		this.selectedCard = ``;
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 	// --------------
@@ -28,7 +24,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	static get properties() {
 		return {
-			card: { type: String }
+			card: { attribute: false }
 		};
 	}
 	// -------------------
@@ -39,17 +35,16 @@ export class TapToPayUnsuccessful extends ViewBase {
 		super.connectedCallback();
 		this._updateIncidentState();
 
-		const state = this.horizonStore.recoverState();
+		const screenDetails = this.horizonStore.getScreenDetails();
+		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
 
-		if (state) {
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			this.selectedCard = state.selectedCard;
-			this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-			this.horizonStore.setIncidentDetails(this.incidentDetails);
-		}
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -57,26 +52,17 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// --------------
 
 	_doneClick() {
-
 		//Telemetry
 		HorizonTelemetry.instance.selectDoneTapToPayFailure({
 			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state && state.returnToScreen;
-		
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		
-		const landingScreens = {
-			'Favourites': transactLP
-		};
-		landingScreens[returnToScreen.name]();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_handoffClick() {
-
 		// Incident must stay active until a team lead closes it, Save store & Launch STRACK
 
 		//Telemetry
@@ -85,8 +71,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 		});
 
 		const incidentRecId = this.incidentDetails.incidentRecId;
+
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -126,6 +113,15 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	_webTemplate() {
 		return html`
+			${this._renderTapToPayFailure()}
+			${this._renderRelatedOptions()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderTapToPayFailure() {
+		return html`
 			<horizon--error-screen 
 				header="Tap to pay not activated" 
 				image="src/images/tap-to-pay-error.svg"
@@ -141,17 +137,15 @@ export class TapToPayUnsuccessful extends ViewBase {
 						Tap to Pay for debit card ${this.card} was not activated.
 					</section>
 			</horizon--error-screen >
-
-			${this._renderRelatedOptions()}
 		`;
 	}
 
 	_renderRelatedOptions() {
-        return html`
-            <horizon-related-options
+		return html`
+			<horizon-related-options
 				context="Failure">
-            </horizon-related-options>
-        `;
-    }
-}   
+			</horizon-related-options>
+		`;
+	}
+}
 customElements.define(`horizon-tap-to-pay-unsuccessful`, TapToPayUnsuccessful);

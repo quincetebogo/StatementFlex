@@ -1,11 +1,8 @@
 {
-	"version": "1.3.2",
 	"framework": "web-components",
 	"type": "desktop",
 	"application": {
-		"name": "horizon",
 		"title": "horizon",
-		"version": "1.3.0",
 		"idp": {
 			"client": "Horizon"
 		},
@@ -20,8 +17,8 @@
 			"child-src": [
 				"blob:",
 				"data:"
-            ]
-        }
+			]
+		}
 	},
 	"app": "standalone"
 }

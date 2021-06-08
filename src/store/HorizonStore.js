@@ -43,7 +43,7 @@ export class HorizonStore extends Store {
 	// --------------
 
 	/**
-	 *  Retrieve information about the incoming/present call from state
+	 * Retrieve information about the incoming/present call from state
 	 * @returns {Object} An object containing information abut the incoming call
 	 */
 	getIncomingCallDetails() {
@@ -64,6 +64,10 @@ export class HorizonStore extends Store {
 		this.setState({ incomingCallDetails: incomingCallDetails });
 	}
 
+	/**
+	 * Retrieve information about the incident details from state
+	 * @returns {Object} An object containing information abut the incident
+	 */
 	getIncidentDetails() {
 		if (this.state && this.state.incidentDetails) {
 			return this.state.incidentDetails;
@@ -72,6 +76,12 @@ export class HorizonStore extends Store {
 		return null;
 	}
 
+	/**
+	 * Persist information about the iincident details to state
+	 * 
+	 * @param {Object}  incidentDetails Information about the incidents details
+	 * @returns {undefined} 
+	 */
 	setIncidentDetails(incidentDetails) {
 		this.setState({ incidentDetails: incidentDetails });
 	}
@@ -88,6 +98,11 @@ export class HorizonStore extends Store {
 		this.setState({ isReassigned: isReassigned });
 	}
 
+	/**
+	* Retrieve information about the caller information from state
+	*
+	* @returns {Object} Caller information
+	*/
 	getCallerInformation() {
 		if (this.state && this.state.callerInformation) {
 			return this.state.callerInformation;
@@ -96,8 +111,82 @@ export class HorizonStore extends Store {
 		return null;
 	}
 
+	/**
+	* Persist information about the caller information to state
+	*
+	* @param {Object}  callerInformation Caller information
+	* @returns {undefined}
+	*/
 	setCallerInformation(callerInformation) {
 		this.setState({ callerInformation: callerInformation });
+	}
+
+	/**
+	* Retrieve screen details from state
+	*
+	* @returns {Object} Screen details
+	*/
+	getScreenDetails() {
+		if (this.state && this.state.screenDetails) {
+			return this.state.screenDetails;
+		}
+
+		return {};
+	}
+
+	/**
+	* Persist information about the screen details to state
+	*
+	* @param {Object} screenDetails Screen details
+	* @returns {Object} The state after setting the screen details
+	*/
+	setScreenDetails(screenDetails) {
+		return this.setState({ screenDetails: screenDetails });
+	}
+
+	/**
+	* Clear the screen details object
+	*
+	* @param {Object} screenDetails Screen details
+	* @returns {Object} The state after clearing the screen details object
+	*/
+	clearScreenDetails() {
+		return this.setState({ screenDetails: {} });
+	}
+
+	/**
+	 * Save a route and some optional data to state. The HorizonRouter navigateToReturnPage() will use this
+	 * state object in order to return to a previous a page. 
+	 * 
+	 * @param { Object } route The route the HorizonRouter.navigateToReturnPage() will usie
+	 * @param { Object } optionalData  An optional object that may be retrieved by the page navigated to by HorizopnRouter.navigateToReturnPage()
+	 * @returns  { undefined}
+	 */
+	setReturnScreen(route, optionalData) {
+		return this.setState({ returnToScreen: { route: route, optionalData: optionalData } });
+	}
+
+	/**
+	 * Retrieved the saved route 
+	 * 
+	 * @returns { undefined } An object containing the route and optional information to use when returning to a calling screen
+	 */
+	getReturnToScreen() {
+		if (this.state && this.state.returnToScreen) {
+			return this.state.returnToScreen;
+		}
+
+		return null;
+	}
+
+	/**
+	 * Clear the saved routed (so that it can't be accidentally used)
+	 * Do this once the saved return route is no longer needed
+	 * 
+	 * @returns { undefined } An object containing the route and optional information to use when returning to a calling screen
+	 */
+	 clearReturnScreen() {
+		return this.setState({ returnToScreen: null });
 	}
 
 	/**

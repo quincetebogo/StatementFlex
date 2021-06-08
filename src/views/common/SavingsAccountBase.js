@@ -1,6 +1,5 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -35,9 +34,6 @@ export class SavingsAccountBase extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.eventAggregator = EventAggregator.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -120,14 +116,14 @@ export class SavingsAccountBase extends ViewBase {
 				nextScreen: TelemetryScreen.DEBICHECK
 			});
 
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.mandateId = event.detail.mandateId;
+			this.horizonStore.setScreenDetails(screenDetails);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+
 			this.horizonRouter.navigateToDebiCheckSuccess();
+
 			// Telemetry
 			HorizonTelemetry.instance.debiCheckOutcome({
 				screen: TelemetryScreen.DEBICHECK,
@@ -164,6 +160,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 
@@ -197,26 +194,14 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_updateReturnToScreen() {
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = {
-			name: this.navigationContext.current.route.title,
-			option: state.returnToScreen ? state.returnToScreen.option : null
-		};
-		this.horizonStore.saveState({ returnToScreen: returnToScreen });
-	}
-
 	_performReturnToScreen() {
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state.returnToScreen;
+		const returnToScreen = this.horizonStore.getReturnToScreen();
 		
-		if (returnToScreen && returnToScreen.option) {
-			
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.option });
-
-			returnToScreen.option = null;
-			this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
 		}
+
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------

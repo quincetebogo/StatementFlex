@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
@@ -48,6 +49,7 @@ export class Feedback extends Component {
 		// VARIABLES
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
+		this.selectedFeedbackText = ``;
 		this.feedbackOptions = [];
 
 		this.isBusy = false;
@@ -66,7 +68,8 @@ export class Feedback extends Component {
 		return {
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			selectedFeedback: { attribute: false }
+			selectedFeedback: { attribute: false },
+			selectedFeedbackText: { attribute: false }
 		};
 	}
 
@@ -77,6 +80,11 @@ export class Feedback extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.feedbackOptions = FEEDBACK_OPTIONS;
+
+		// Telemetry
+		HorizonTelemetry.instance.screenLoadFeedbackScreen({
+			screen: TelemetryScreen.FEEDBACK
+		});
 	}
 
 	// --------------
@@ -87,18 +95,25 @@ export class Feedback extends Component {
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
-			console.log(this.selectedFeedback);
 
+		// Telemetry
+		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
+			screen: TelemetryScreen.FEEDBACK,
+		});
+
+			console.log(this.selectedFeedback);
 			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			const incidentDetails = this.horizonStore.getIncidentDetails();
 			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-			const resolution = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
+			const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
 
 			const closeIncidentRequest = {
 				incidentRecId: incidentDetails.incidentRecId,
 				reason: this.selectedFeedback,
-				resolution: resolution.value,
-				causeCode: this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, resolution.value)
+				resolution: this._formatLineBreaks(resolution),
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
 			};
 
 			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
@@ -115,6 +130,7 @@ export class Feedback extends Component {
 
 	_onValueChanged(event) {
 		this.selectedFeedback = event.detail.key; 
+		this.selectedFeedbackText = event.detail.value; 
 		this.alertBannerMessage = ``;
 	}
 
@@ -136,6 +152,24 @@ export class Feedback extends Component {
 		incidentDetails.feedback = this.selectedFeedback;
 
 		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
+	async _incidentStatus(incidentRecId) {
+		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
+	_getResolution(resolution, selectedOption) {
+		return resolution ? `${resolution || ``}\n${selectedOption.value}` : `${selectedOption.value}`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
 	}
 
 	// ---------

@@ -74,7 +74,6 @@ export class HorizonViewManager {
 	constructor() {
 		this.currentView = HORIZON_VIEW_SET.LANDING_PAGES;
 		this.eventAggregator = EventAggregator.getInstance();
-		this.state = null;
 
 		this.shellComponents = [
 			{

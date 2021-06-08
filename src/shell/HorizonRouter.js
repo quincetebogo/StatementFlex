@@ -1,5 +1,5 @@
 import { Configuration, EventAggregator } from 'platform/core';
-import { HORIZON_VIEW_SET, HorizonViewManager } from './HorizonViewManager';
+import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { Router } from 'platform/Router';
 
@@ -35,7 +35,7 @@ const HORIZON_ROUTES = Object.freeze({
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
 });
 
 /**
@@ -59,7 +59,6 @@ export class HorizonRouter {
 
 		this.verificationStatus = ``;
 		this.callStatus = ``;
-		this.returnToFunction = ``;    
 	}
 
 
@@ -98,8 +97,7 @@ export class HorizonRouter {
 	getRoutingInfo() {
 		return {
 			verificationStatus: this.verificationStatus,
-			callStatus: this.callStatus,
-			returnToFunction: this.returnToFunction
+			callStatus: this.callStatus
 		};
 	}
 
@@ -238,13 +236,10 @@ export class HorizonRouter {
 		}[ivrOption]();
 	};
 
-	navigateToReturnPage(displayMode) {
+	navigateToReturnPage() {
 		const horizonStore = HorizonStore.getInstance();
-		const state = horizonStore.recoverState();
-		state.returnTo.mode = displayMode;
-		horizonStore.saveState(state);
-
-		this.router.navigateByPath(state.returnTo.route);
+		const returnToPath = horizonStore.getReturnToScreen().route.path;
+		this.router.navigateByPath(returnToPath);
 	}
 
 	navigateToSavingsAccount() {
@@ -270,10 +265,6 @@ export class HorizonRouter {
 
 	_navigateToTapToPayUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL}`);
-	}
-
-	navigateToTapToPaySuccess() {
-		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
 	}
 
 	navigateToTapToPaySuccess() {

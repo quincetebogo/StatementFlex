@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
@@ -28,8 +29,12 @@ export class ProofOfAccount extends Component {
 
 	constructor() {
 		super();
+		this.navigationContext = NavigationContext.getInstance();
+
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.isBusy = false;
@@ -43,8 +48,6 @@ export class ProofOfAccount extends Component {
 			idEmailAddress: ``,
 			idConfirmEmail: ``
 		};
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -100,10 +103,7 @@ export class ProofOfAccount extends Component {
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
 			// saving 'emailAddress' and 'accountNumber' in state.
-			this.horizonStore.saveState({
-				emailAddress: this.idEmailAddress,
-				accountNumber: this.landingPageInfo.accountNumber
-			});
+			this._updateScreenDetails();
 
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -125,6 +125,8 @@ export class ProofOfAccount extends Component {
 			});
 
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
 
 			if (returnValue.succeeded) {
 				this.horizonRouter.navigateToProofOfAccountSuccess();
@@ -201,13 +203,11 @@ export class ProofOfAccount extends Component {
 		this._clearErrors(e);
 	}
 
-
 	_clearErrors(e) {
         this.errMessage.idEmailAddress = ``;
         this.errMessage.idConfirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.emailText = `Email address`;
-
 	}
 
 	_valueChanged(e) {
@@ -218,6 +218,15 @@ export class ProofOfAccount extends Component {
 
 	_isNullorEmpty(fieldValue) {
 		return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.emailAddress = this.idEmailAddress;
+		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------------
@@ -307,7 +316,6 @@ export class ProofOfAccount extends Component {
 		return _webTemplate();
 	}
 
-
 	_webTemplate() {
 		return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
@@ -326,13 +334,19 @@ export class ProofOfAccount extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-		<capitec-alert-banner type="unsuccessful-red">
-			<capitec-group layout="horizontal">
-				<capitec-label type="subtitle" label="Notify: " class="label-err-message"></capitec-label>
-				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
-			</capitec-group>
-		
-		</capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red">
+					<capitec-group layout="horizontal">
+						<capitec-label
+							type="subtitle"
+							label="Notify: "
+							class="label-err-message">
+						</capitec-label>
+						<capitec-label
+							label="${this.alertBannerMessage}"
+							class="label-err-message">
+						</capitec-label>
+					</capitec-group>
+				</capitec-alert-banner>
 			`;
 		}
 		return html``;

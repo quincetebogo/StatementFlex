@@ -1,10 +1,9 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
-import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -34,17 +33,6 @@ export class Favourites extends SavingsAccountBase {
 	constructor() {
 		super();
 
-		this.navigationContext = NavigationContext.getInstance();
-
-		// Recover information from state
-		const state = this.horizonStore.recoverState();
-
-		// When returning from the success screen, check which page we should display
-		if (state.returnTo && state.returnTo.mode === `mandate`) {
-			this._debiCheck();
-		} else {
-			this.renderMode = RENDER_MODE.MAIN_PAGE;
-		}
 		this.agreementResult = ``;
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
@@ -57,8 +45,8 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
-	
-		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+
+		Object.assign(Favourites.prototype, tapToPayMixin);
 	}
 
 	// --------------
@@ -85,8 +73,8 @@ export class Favourites extends SavingsAccountBase {
 			// debiChecksOutstanding: this.pendingMandateCount
 		});
 
-		this._updateReturnToScreen();
-		this._initialise();
+	this._initialise();
+	
 		this._performAction = async (option) => {
 
 			const stopCard = () => this._stopCard();
@@ -297,13 +285,12 @@ export class Favourites extends SavingsAccountBase {
 			this.incomingCallDetails.ivrOptionCode = `StopCard`;
 			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
+
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-			this.horizonStore.saveState({
-				clientProfileDetails: returnValue.result
-			});
-
 
 			this.horizonRouter.navigateToStopCard();
 		} else {
@@ -325,38 +312,6 @@ export class Favourites extends SavingsAccountBase {
 			this.cards = returnValue.result;
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
-	}
-
-	async _tapToPay() {
-
-		// Telemetry select Tap to Pay
-		HorizonTelemetry.instance.selectTapToPay({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
-
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result.cards;
-			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		}
-	}
-
-	async _getAgreement(request) {
-
-		request.cifNumber = this.callerInformation.cifNumber;
-
-		const returnValue = await this.quickTransactionService.tapToPayAgreement(request);
-		return returnValue;
-
-	}
-
-	async _updateTapToPay(updateRequest) {
-		updateRequest.voiceRecordingReference = this.incomingCallDetails.voiceReferenceNumber;
-		updateRequest.screenRecordingReference = ``;
-		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest);
-		return returnValue;
 	}
 
 	_taxCertificates() {
@@ -495,24 +450,12 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
-					></horizon-proof-of-account>`
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-proof-of-account>`
 			: html``;
     }
-
-	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
-		? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				.getAgreements="${(renderSet) => this._getAgreement(renderSet)}"
-				.updateAgreement="${(renderRequest) => this._updateTapToPay(renderRequest)}"
-				@back="${() => this._backToLandingPage()}"
-			></horizon-tap-to-pay-landing>
-		` : html``;
-	}
   
 	_renderSearchOtherNeed() {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED

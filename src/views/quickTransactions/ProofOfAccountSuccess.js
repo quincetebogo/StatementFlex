@@ -1,26 +1,18 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, css, html } from 'platform/elements';
-import { EventAggregator } from 'platform/EventAggregator';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { css, html } from 'platform/elements';
+import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
-import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/common/RelatedOptions';
-
-const RENDER_MODE = {
-	PROOFOFACCOUNT_SUCCESS: 0,
-	END_CALLSESSION: 1
-};
 
 /**
  * Display an confirmation/success screen indicating the proof of account statement has been successfully sent.
  *
  * @export
  * @class ProofOfAccountSuccess
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class ProofOfAccountSuccess extends View {
+export class ProofOfAccountSuccess extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -29,13 +21,8 @@ export class ProofOfAccountSuccess extends View {
 	constructor() {
 		super();
 
-		this.renderMode = RENDER_MODE.PROOFOFACCOUNT_SUCCESS;
 		this.acNumber = ``;
 		this.mailId = ``;
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.eventAggregator = EventAggregator.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
 	}
 
 
@@ -43,19 +30,6 @@ export class ProofOfAccountSuccess extends View {
 	// PROPERTIES
 	// ----------
 	
-	/**
-	 * @readonly
-	 * @static
-	 * @memberof ProofOfAccountSuccess
-	 */
-	static get properties() {
-		return {
-			renderMode: { attribute: false },
-
-			list: { type: Array }
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -63,35 +37,21 @@ export class ProofOfAccountSuccess extends View {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const state = this.horizonStore.recoverState();
+		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		if (state) {
-			this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			this.incidentDetails = this.horizonStore.getIncidentDetails();
-
-			this.mailId = state.emailAddress;
-            this.acNumber = state.accountNumber;
-			
-		    this.endCallSub = this.eventAggregator.subscribe(`horizon-end-callsession`, () => this._endCall());
-		}
+		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
+		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
+		
 		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
-		if (this.endCallSub) {
-			this.endCallSub.dispose();
-		}
-		
 		super.disconnectedCallback();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_endCall() {
-		this.renderMode = RENDER_MODE.END_CALLSESSION;
-	}
 
 	_doneClick() {
 
@@ -101,6 +61,7 @@ export class ProofOfAccountSuccess extends View {
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 	
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -112,12 +73,7 @@ export class ProofOfAccountSuccess extends View {
 			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
-		const state = this.horizonStore.recoverState();
-		state.returnToScreen.option = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.saveState({ returnToScreen: state.returnToScreen });
-		
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------------
@@ -138,7 +94,7 @@ export class ProofOfAccountSuccess extends View {
 		return [
 			super.styles,
 			css`
-				#id-error-msg{
+				#id-error-msg {
 					width: auto;
 				}
 			`
@@ -152,42 +108,28 @@ export class ProofOfAccountSuccess extends View {
 	_webTemplate() {
 		return html`
 			${this._renderSuccessScreen()}
-			${this._renderEndCallModal()}
+
+			${super._webTemplate()}
 		`;
 	}
 
 	_renderSuccessScreen() {
-		if (this.renderMode === RENDER_MODE.PROOFOFACCOUNT_SUCCESS) {
-			return html`
-				<horizon-success-screen 
-					header="Proof of account sent" 
-					image="/images/statements/senddocuments.svg"
-					left="Done"
-					right="Send Another"
-					toast="Proof of Account Sent"
-					@left-click=${() => this._doneClick()}
-					@right-click=${() => this._sendAnotherClick()}>
-						<section id="id-error-msg" slot="detail">
-							Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
-						</section>
-				</horizon-success-screen>
-			`;
-		}
-		return html``;
+		return html`
+			<horizon-success-screen 
+				header="Proof of account sent" 
+				image="/images/statements/senddocuments.svg"
+				left="Done"
+				right="Send Another"
+				toast="Proof of Account Sent"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._sendAnotherClick()}>
+					<section id="id-error-msg" slot="detail">
+						Your proof of account document for account <b>${this.acNumber}</b> has been emailed to <b>${this.mailId}</b>.
+					</section>
+			</horizon-success-screen>
+		`;
 	}
 
-	_renderEndCallModal() {
-		if (this.renderMode === RENDER_MODE.END_CALLSESSION) {
-			return html`
-			<horizon-end-call-session
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				endCallContext="LandingPage"
-				@cancel="${() => this.renderMode = RENDER_MODE.CARD_STOP_SUCCESS}">
-			</horizon-end-call-session>`;
-		}
-		return html``;
-	}
 }
 
 customElements.define(`horizon-proof-of-account-success`, ProofOfAccountSuccess);
