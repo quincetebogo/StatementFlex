@@ -1,6 +1,5 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
@@ -23,7 +22,6 @@ export class StopCardSuccess extends ViewBase {
 		super();
 		
 		this.displayNotification = false;
-		this.isBusy = false;
 		this.stoppedCards = [];
 		this.showAlertModal = false;
 	}
@@ -36,7 +34,6 @@ export class StopCardSuccess extends ViewBase {
 	static get properties() {
 		return {
 			displayNotification: { type: Boolean },
-			isBusy: { attribute: false },
 			showAlertModal: { attribute: false }
 		};
 	}
@@ -50,11 +47,6 @@ export class StopCardSuccess extends ViewBase {
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
-
-		this.cardService = new CardService(
-			() => this._toggleBusyFlag(),
-			(ex) => this._stopCardErrorHandler(ex)
-		);
 
 		window.setTimeout(() => this._onToastDisplayTimeout(), 5000);
 		this._updateIncidentState();
@@ -74,10 +66,6 @@ export class StopCardSuccess extends ViewBase {
 		this.displayNotification = true;
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-  
 	_updateIncidentState() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
@@ -108,7 +96,7 @@ export class StopCardSuccess extends ViewBase {
 			nonClientRelationship: this.callerInformation.nonClientRelationship
 		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+		const returnValue = await this.cardService.identifyCaller(confirmedCaller, (ex) => this._stopCardErrorHandler());
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
@@ -261,7 +249,6 @@ export class StopCardSuccess extends ViewBase {
 					<p class="stop-card-text">Please visit a branch to get a new card.</p>
 					${this._renderButtons()}
 					${this._renderRelatedOptions()}
-					${this._renderLoadingIndicator()}
 					${this._renderAlertModal()}
 				</capitec-group>
 			</capitec-card>
@@ -351,12 +338,6 @@ export class StopCardSuccess extends ViewBase {
 			`;
 		}
 		return html``;
-	}
-
-	_renderLoadingIndicator() {
-		return this.isBusy 
-			? html`<capitec-loading-indicator></capitec-loading-indicator>`
-			: html``;
 	}
 
 	_renderAlertModal() {

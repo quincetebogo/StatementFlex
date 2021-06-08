@@ -22,23 +22,11 @@ export class XdsVerificationFailed extends ViewBase {
 
 	constructor() {
 		super();
-		
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		this.callerInformation = this.horizonStore.getCallerInformation();
 	}
 
 	// ----------
 	// PROPERTIES
 	// ----------
-
-	static get properties() {
-		return {
-
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES

@@ -30,16 +30,6 @@ import 'app/components/common/RelatedOptions';
 	// ----------
 	// PROPERTIES
 	// ----------
-/**
-	 * @readonly
-	 * @static
-	 * @memberof ProofOfAccountSuccess
-	 */
-	static get properties() {
-		return {
-
-		};
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES

@@ -1,6 +1,5 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
@@ -35,9 +34,6 @@ export class SavingsAccountBase extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.eventAggregator = EventAggregator.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
