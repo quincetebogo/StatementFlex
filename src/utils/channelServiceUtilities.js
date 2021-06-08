@@ -178,8 +178,9 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
  * @returns {*} Numeric value
  */
  export function convertCentsToRand(value) {
-	if (!isNaN(value)) {
+	if (isNaN(value)) {
 		console.log(`${value} is not a number to perform conversion`);
+		return value;
 	}
 
 	return value / 100;
