@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+// import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * Renders card art layout and corresponding card action for stopcard/update card limits
@@ -32,7 +33,6 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-
 		this._initialise();
 		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));

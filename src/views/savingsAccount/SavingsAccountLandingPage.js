@@ -1,10 +1,7 @@
 import { css, html } from 'platform/elements';
 import { Configuration } from 'platform/core';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
-import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
 import 'app/components/savingsAccount/SavingAccount';
 import 'app/components/savingsAccount/TransactionHistory';
@@ -61,7 +58,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._updateReturnToScreen();
 		this._initialise();
 
 		this._optionClick = async (option) => {

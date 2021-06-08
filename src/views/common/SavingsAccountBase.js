@@ -118,9 +118,12 @@ export class SavingsAccountBase extends ViewBase {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.mandateId = event.detail.mandateId;
-
 			this.horizonStore.setScreenDetails(screenDetails);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+
 			this.horizonRouter.navigateToDebiCheckSuccess();
+
 			// Telemetry
 			HorizonTelemetry.instance.debiCheckOutcome({
 				screen: TelemetryScreen.DEBICHECK,
@@ -157,6 +160,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 
@@ -190,24 +194,14 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_updateReturnToScreen() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		
-		screenDetails.returnToScreen = this.navigationContext.current.route.title;
-		screenDetails.returnToOption = screenDetails.returnToOption || ``;
-
-		this.horizonStore.setScreenDetails(screenDetails);
-	}
-
 	_performReturnToScreen() {
-		const screenDetails = this.horizonStore.getScreenDetails();
+		const returnToScreen = this.horizonStore.getReturnToScreen();
 		
-		if (screenDetails.returnToOption) {
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: screenDetails.returnToOption });
-
-			screenDetails.returnToOption = ``;
-			this.horizonStore.setScreenDetails(screenDetails);
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
 		}
+
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
