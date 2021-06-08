@@ -1,18 +1,18 @@
-import { Configuration, Logger } from 'platform/core';
-import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
 import { css, html } from 'platform/elements';
+import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ScreenDetails } from 'app/models/ScreenDetails';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'platform/components/buttons/Button';
@@ -94,7 +94,7 @@ export class LandingPage extends ViewBase {
 	disconnectedCallback() {
 		// Telemetry
 		// TODO: This should probably move since this point will also mark the end of the caller verification.
-		this._telemetry.endSpan(TelemetryEvents.IDENTIFY_CALLER);
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
 		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
@@ -144,7 +144,7 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, () => this._incidentErrorHandler());
 		 const incident = returnValue.result;
 
 		 if (!returnValue.succeeded || !incident) {
@@ -153,7 +153,7 @@ export class LandingPage extends ViewBase {
 
 		// Telemetry
 		if (incident) {
-			this._telemetry.logEvent(TelemetryEvents.INCIDENT_CREATED, {
+			this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
 				"incident-reference": incident.incidentNumber,
 				"incident-rec-id": incident.incidentRecId
 			});
@@ -171,7 +171,7 @@ export class LandingPage extends ViewBase {
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// Telemetry
-		this._telemetry.startSpan(TelemetryEvents.IDENTIFY_CALLER);
+		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -193,7 +193,7 @@ export class LandingPage extends ViewBase {
 			// The mapped need will be logged later.
 
 			// this._telemetry.newTrace();
-			this._telemetry.startSpan(TelemetryEvents.INCOMING_CALL, {
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
 				"screen": TelemetryScreen.WAIT_FOR_CALL,
 				"ivr": ``,
 				"ucid": ``
@@ -338,6 +338,10 @@ export class LandingPage extends ViewBase {
 
 		// Since we can proceed whatever the channel service error on this page, return true to indicate that the error was handled.
 		// The Channel Service call wrappers will log the failed calls.
+		return true;
+	}
+
+	_incidentErrorHandler() {
 		return true;
 	}
 

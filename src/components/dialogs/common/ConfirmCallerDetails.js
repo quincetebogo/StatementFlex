@@ -1,14 +1,15 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
-import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { InsureService } from 'app/services/InsureService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'platform/components/data/Table';
@@ -111,7 +112,7 @@ export class ConfirmCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(TelemetryEvents.CONFIRM_CALLER, {
+		this._telemetry.startSpan(IDCallerEvents.CONFIRM_CALLER, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"initial-primary-need": null,
 			"initial-specific-need": this.incomingCallDetails.ivrOption.value,
@@ -121,7 +122,7 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(TelemetryEvents.CONFIRM_CALLER, {
+		this._telemetry.endSpan(IDCallerEvents.CONFIRM_CALLER, {
 			"screen": TelemetryScreen.CONFIRM_CALLER
 		});
 	}
@@ -131,8 +132,9 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 	async _addCallerDetailsClick() {
-		this._telemetry.logEvent(TelemetryEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
-			"screen": TelemetryScreen.CONFIRM_CALLER
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
 		const callDetails = {
@@ -186,9 +188,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		this._telemetry.logEvent(TelemetryEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
-			"next-screen": null,
+			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
 			"confirmed-primary-need": null,
 			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
 			"confirmed-client-cif": this.callerInformation.cifNumber
@@ -272,8 +274,9 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_searchClick() {
-		this._telemetry.logEvent(TelemetryEvents.CONFIRM_CALLER_SEARCH_CLICK, {
-			"screen": TelemetryScreen.CONFIRM_CALLER
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_SEARCH_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.SEARCH_CLIENT
 		});
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
@@ -303,6 +306,11 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_onEndCall() {
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_END_CALL_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 

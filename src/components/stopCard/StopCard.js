@@ -1,11 +1,13 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger } from 'platform/core';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { Utilities } from '@cb/platform-web-core';
 
 import 'platform/components';
@@ -80,6 +82,7 @@ export class StopCard extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
@@ -139,7 +142,9 @@ export class StopCard extends Component {
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._onAssignIncident());
 		this._updateLeftBar();
 		
-		HorizonTelemetry.instance.screenLoadStopCard({ screen: TelemetryScreen.STOP_CARD });
+		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD
+		});
 	}
 
 	disconnectedCallback() {
@@ -219,10 +224,9 @@ export class StopCard extends Component {
 
 		this.renderMode = RENDER_MODE.CARD_STOP_MODAL;
 
-		// Telemetry
-		HorizonTelemetry.instance.stopCard({
-			screen: TelemetryScreen.STOP_CARD,
-			cards: this.cardsToStop.map(card => (
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARDS_CLICK, {
+			"screen": TelemetryScreen.STOP_CARD,
+			"cards": this.cardsToStop.map(card => (
 				{
 					cardId: card.cardNumber,
 					maskedCardNr: card.maskedCardNumber,
@@ -233,8 +237,6 @@ export class StopCard extends Component {
 	}
 
 	_confirmedStoppingCardsClick(event) {
-		HorizonTelemetry.instance.confirmStopCard({ screen: TelemetryScreen.STOP_CARD });
-
 		this.dispatchEvent(new CustomEvent(
 			`cards-stopped`,
 			{
@@ -602,10 +604,7 @@ export class StopCard extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.cardsToStop="${this.cardsToStop}"
 					@on-confirm="${(event) => this._confirmedStoppingCardsClick(event)}"
-					@on-cancel="${() => { 
-						this.renderMode = RENDER_MODE.MAIN_PAGE; 
-						HorizonTelemetry.instance.cancelStopCard({ screen: TelemetryScreen.STOP_CARD }); 
-					}}">
+					@on-cancel="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 				</horizon-stop-card-confirm>
 			`;
 		}

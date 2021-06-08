@@ -1,13 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
-import { TelemetryEvents, TelemetryScreen} from 'app/constants/TelemetryConstants';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/CallerDialog';
@@ -201,7 +202,7 @@ export class SearchCaller extends Component {
 		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		
-		this._telemetry.startSpan(TelemetryEvents.SEARCH_CLIENT, {
+		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
 		});
 	}
@@ -209,7 +210,7 @@ export class SearchCaller extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 			
-		this._telemetry.endSpan(TelemetryEvents.SEARCH_CLIENT, {
+		this._telemetry.endSpan(IDCallerEvents.SEARCH_CLIENT, {
 			"screen": TelemetryScreen.SEARCH_CLIENT
 		});
 	}
@@ -237,9 +238,11 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		this._telemetry.logEvent(TelemetryEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
-			"next-screen": TelemetryScreen.CONFIRM_CALLER
+			"next-screen": TelemetryScreen.CONFIRM_CALLER,
+			"id-method": this.searchType.value,
+			"id-data": this.searchValue
 		});
 
 		if (this._validateFields()) {
@@ -292,7 +295,7 @@ export class SearchCaller extends Component {
 
 	async _onContinue() {
 
-		this._telemetry.logEvent(TelemetryEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
 			"screen": TelemetryScreen.SEARCH_CLIENT,
 			"next-screen": TelemetryScreen.PRODUCT_INFO
 		});
@@ -344,6 +347,11 @@ export class SearchCaller extends Component {
 	}
 
 	_onEndCall() {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_END_CALL_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 

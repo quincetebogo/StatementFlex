@@ -1,11 +1,12 @@
 import { Component, css, html } from 'platform/elements';
-import { TelemetryEvents, TelemetryScreen} from 'app/constants/TelemetryConstants';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/CallerInfoBar';
@@ -116,7 +117,7 @@ export class AddCallerDetails extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._telemetry.startSpan(TelemetryEvents.ADD_CALLER_DETAILS, {
+		this._telemetry.startSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
@@ -140,7 +141,7 @@ export class AddCallerDetails extends Component {
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(TelemetryEvents.ADD_CALLER_DETAILS, {
+		this._telemetry.endSpan(IDCallerEvents.ADD_CALLER, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 	}
@@ -167,9 +168,13 @@ export class AddCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-		this._telemetry.logEvent(TelemetryEvents.ADD_CALLER_DETAILS_CONFIRM_CLICK, {
+		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
-			"next-screen": null
+			"next-screen": null,
+			"name": this.firstNameTextField.value,
+			"surname": this.surnameTextField.value,
+			"relation": this.nonClientRelationship.value,
+			"telephone": this.cellPhoneTextField.value
 		});
 
 		if (!this._validateData()) {
@@ -204,9 +209,9 @@ export class AddCallerDetails extends Component {
 	}
 
 	_backClick() {
-		this._telemetry.logEvent(TelemetryEvents.ADD_CALLER_DETAILS_CANCEL_CLICK, {
+		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CANCEL_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
-			"next-screen": null
+			"next-screen": TelemetryScreen.CONFIRM_CALLER
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {
@@ -217,6 +222,11 @@ export class AddCallerDetails extends Component {
 	};
 
 	_endCall() {
+		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_END_CALL_CLICK, {
+			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 

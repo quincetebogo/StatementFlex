@@ -1,4 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryStore } from 'app/store/TelemetryStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -28,6 +31,9 @@ export class StopCardLandingPage extends ViewBase {
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		this.cards = this.screenDetails && this.screenDetails.cards;
+
+		this._telemetry = HorizonTelemetry.instance;
+		this._telemetryStore = TelemetryStore.getInstance();
 	}
 
 	// --------------
@@ -41,6 +47,10 @@ export class StopCardLandingPage extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+
+		this._telemetry.logEvent(QuickTransactionEvents.FULFILL_NEED, { 
+			"screen": TelemetryScreen.STOP_CARD
+		});
 	}
 
 	disconnectedCallback() {
@@ -52,11 +62,6 @@ export class StopCardLandingPage extends ViewBase {
 	// --------------
 
 	_stoppedCards(event) {
-		HorizonTelemetry.instance.stopCardOutcome({ 
-			screen: TelemetryScreen.STOP_CARD_OUTCOME, 
-			cards: event.detail.stoppedCards
-		});
-		
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
 
 		// The stop card incident can be closed if all cards were stopped successfully.
@@ -68,6 +73,10 @@ export class StopCardLandingPage extends ViewBase {
 		screenDetails.stoppedCardsFailed = stoppedCardsFailed;
 
 		this.horizonStore.setScreenDetails(screenDetails);
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
+			"nex-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
+		});
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();

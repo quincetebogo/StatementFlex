@@ -1,10 +1,11 @@
-import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext, Telemetry } from 'platform/core';
+import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
+import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
 import { validate } from 'app/utils/channelServiceUtilities';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -169,7 +170,7 @@ export class DesktopAgentService {
 			// If the call was initiated through desktop agent, we log telemetry here
 			// since we have the IVR selection before it gets mapped to a need.
 			this._telemetry.newTrace();
-			this._telemetry.startSpan(TelemetryEvents.INCOMING_CALL, {
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
 				"screen": TelemetryScreen.WAIT_FOR_CALL,
 				"ivr": eventData.IVROptionCode,
 				"ucid": newCallEvent.voiceReferenceNumber

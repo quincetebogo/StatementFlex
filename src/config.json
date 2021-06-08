@@ -100,7 +100,7 @@
 		},
 		"stopCard": {
 			"enabled": true,
-			"positiveCase": true
+			"positiveCase": false
 		},
 		"transactionHistory": {
 			"enabled": false,

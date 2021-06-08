@@ -1,11 +1,12 @@
 import { Component, css, html } from 'platform/elements';
-import { TelemetryEvents, TelemetryScreen } from 'app/constants/TelemetryConstants';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/Telemetry/Events/VerifyCaller';
 
 import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
@@ -106,10 +107,18 @@ export class VerifyBySecurityQuestions extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(TelemetryEvents.VERIFY_CALLER_XDS, {
+		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
 		this.questions = this.securityQuestions.questions;
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_XDS, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 	}
 
 	// --------------
@@ -121,9 +130,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_cancelClick() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_CANCEL, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_CANCEL, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null //Have to determine
+			"next-screen": null // Have to determine
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {
@@ -135,9 +144,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_skipClick() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_SKIP, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_SKIP, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null //Have to determine
+			"next-screen": null // Have to determine
 		});
 
 		this.dispatchEvent(new CustomEvent(`skip`, {
@@ -149,7 +158,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_verifyViaApp() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_VERIFY_VIA_APP, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_VIA_APP, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
@@ -166,24 +175,22 @@ export class VerifyBySecurityQuestions extends Component {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
-			this._telemetry.logEvent(TelemetryEvents.XDS_NEXT_QUESTION, {
+			this._telemetry.logEvent(VerifyCallerEvents.XDS_NEXT_QUESTION, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"question-number": this.questionNumber
+				"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 			});
 
 			this.alertBannerMessage = ``;
 			this.questionNumber++;
 			this.checked = false;
 		}
-
 	}
 
 	async _verifyClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		} else {
-			this._telemetry.logEvent(TelemetryEvents.XDS_VERIFY_ANSWERS, {
+			this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
 				"next-screen": null, //Have to determine
 			});
@@ -236,6 +243,11 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_endCallClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_END_CALL, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -265,7 +277,7 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_xdsAuthenticated() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_PASSED, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null, //Have to determine
 		});
@@ -289,10 +301,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_showSQFailedScreen() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_FAILED, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE,
-			"xds-failed-attempts": this.noOfXdsVerificationAttempted
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
 		});
 
 		this.renderMode = RENDER_MODE.FIRST_FAILURE;
@@ -300,10 +311,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_navigateToXDSFailedVerification() {
-		this._telemetry.logEvent(TelemetryEvents.XDS_FAILED, {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.XDS_FAILED,
-			"xds-failed-attempts": this.noOfXdsVerificationAttempted
+			"next-screen": TelemetryScreen.XDS_FAILED
 		});
 
 		this.noOfXdsVerificationAttempted++;

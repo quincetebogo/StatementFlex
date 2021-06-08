@@ -37,39 +37,12 @@ const TelemetryEvent = {
 	SCR_UNLD_END_CALL: `horizon.call.end-call.end-span`,
 	END_CALL_SELECTED: `horizon.call.end-call-selected`,
 
-	// Security Questions
-	SCR_LD_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.start-span`,
-	GO_TO_NEXT_QUESTION: `horizon.call.verify-caller.xds.next`,
-	XDS_SKIP_VERIFICATION: `horizon.call.verify-caller.xds.skip-verification`,
-	CANCEL_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.cancel`,
-	SECURITY_QUESTIONS_PASSED: `horizon.call.verify-caller.xds.success`,
-	SECURITY_QUESTIONS_FAILED: `horizon.call.verify-caller.xds.failed`,
-	SECURITY_QUESTIONS_TRY_AGAIN: `horizon.call.verify-caller.xds.try-again`,
-	SCR_UNLD_SECURITY_QUESTIONS: `horizon.call.verify-caller.xds.end-span`,
-	CALLER_VERIFIED: `horizon.call.verify-caller.end-span`,
-
 	// Proof of Account
 	SCR_LD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.start-span`,
 	SELECT_CANCEL_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.cancel`,
 	SELECT_SEND_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.send`,
 	PROOF_OF_ACCOUNT_OUTCOME: `horizon.call.fulfill-need.proof-of-account.outcome`,
 	SCR_UNLD_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.proof-of-account.stop-span`,
-
-	// Favourite Transactions
-	SCR_LD_FULFILL_NEED: `horizon.call.fulfill-need.start-span`,
-	SCR_LD_FAVOURITES: `horizon.call.fulfill-need.favourites`,
-	DEBI_CHECK_ALERT: `horizon.call.fulfill-need.debicheck-alert`,
-	DEBI_CHECK_ALERT_DISMISS: `horizon.call.fulfill-need.debicheck-alert.dismiss`,
-	DEBI_CHECK_ALERT_ACCEPT: `horizon.call.fulfill-need.debicheck-alert.accept`,
-	SELECT_DEBI_CHECK: `horizon.call.fulfill-need.select-debicheck`,
-	SELECT_STOP_CARD: `horizon.call.fulfill-need.select-stop-card`,
-	SELECT_UPDATE_CARD_LIMITS: `horizon.call.fulfill-need.select-card-limits`,
-	SELECT_TAP_TO_PAY: `horizon.call.fulfill-need.select-tap-to-pay`,
-	SELECT_STATEMENTS: `horizon.call.fulfill-need.select-statements`,
-	SELECT_TAX_CERTIFICATE: `horizon.call.fulfill-need.select-tax-certificate`,
-	SELECT_PROOF_OF_ACCOUNT: `horizon.call.fulfill-need.select-proof-of-account`,
-	SELECT_SEARCH_OTHER_NEED: `horizon.call.fulfill-need.select-other-need`,
-	SCR_UNLD_NEED_FULFILLED: `horizon.call.fulfill-need.end-span`,
 
 	// Statements
 	SCR_LD_STATEMENTS: `horizon.call.statements.start-span`,
@@ -169,9 +142,9 @@ const TelemetryEventType = {
 
 /** Workflow outcome text
  * @readonly
- * @enum {String} TelemetryOutcome
+ * @enum {Object} OutcomeScreen
  */
-const TelemetryOutcome = {
+export const OutcomeScreen = {
 	SUCCESS: `success`,
 	FAIL: `fail`
 };
@@ -210,16 +183,19 @@ export class HorizonTelemetry extends TelemetryMocks {
 			"confirm-caller": null,
 			"search-client": null,
 			"add-caller": null,
-			"fulfill-need": null,
-			"proof-of-account": null,
-			"stop-card": null,
-			"end-call": null,
 			"verify-caller": null,
 			"ita": null,
 			"xds": null,
-			"statements": null,
+			"fulfill-need": null,
 			"debicheck": null,
+			"stop-card": null,
+			"update-card-limits": null,
+			"tap-to-pay": null,
+			"statements": null,
+			"proof-of-account": null,
+			"tax-certificate": null,
 			"otherneed": null,
+			"end-call": null,
 			"feedback": null,
 			"assign-stop-card": null
 		};
@@ -261,15 +237,15 @@ export class HorizonTelemetry extends TelemetryMocks {
 
 	initialise() {
 		this.currentActiveSpans.get = (prop) => {
-			if (!Object.prototype.hasOwnProperty.call(this.currentActiveSpans, prop)) {
-				return null;
+			if (Object.prototype.hasOwnProperty.call(this.currentActiveSpans, prop)) {
+				return this.currentActiveSpans[prop];
 			}
 
-			if (!this.currentActiveSpans[prop]) {
-				const telemetryDetails = this.telemetryStore.getTelemetryDetails();
+			const telemetryDetails = this.telemetryStore.getTelemetryDetails();
+			if (Object.prototype.hasOwnProperty.call(telemetryDetails.currentActiveSpans, prop)) {
 				return telemetryDetails.currentActiveSpans[prop];
 			}
-			return this.currentActiveSpans[prop];
+			return null;
 		};
 
 		this.currentActiveSpans.set = (prop, val) => {
@@ -280,6 +256,11 @@ export class HorizonTelemetry extends TelemetryMocks {
 
 			this.telemetryStore.setTelemetryDetails(telemetryDetails);
 		};
+
+		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
+		if (telemetryDetails && telemetryDetails.currentActiveSpans) {
+			Object.assign(this.currentActiveSpans, telemetryDetails.currentActiveSpans);
+		}
 	}
 
 	// #region PUBLIC METHODS
@@ -314,6 +295,11 @@ export class HorizonTelemetry extends TelemetryMocks {
 		 */
 		const events = this._extractTags(eventName);
 		const currentSpan = events[events.length - 1];
+
+		// If the specific span got intialized already, do nothing and return
+		if (this.currentActiveSpans.get(currentSpan)) {
+			return;
+		}
 
 		const spanID = await this._telemetry.spanStart(
 			{

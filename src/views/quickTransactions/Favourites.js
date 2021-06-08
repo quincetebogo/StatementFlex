@@ -1,7 +1,8 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -63,10 +64,8 @@ export class Favourites extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Telemetry 
-		HorizonTelemetry.instance.screenLoadFulfillNeed({
-			screen: TelemetryScreen.FAVOURITES
-			// debiChecksOutstanding: this.pendingMandateCount
+		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
+			"screen": TelemetryScreen.FAVOURITES
 		});
 
 		this._updateReturnToScreen();
@@ -108,10 +107,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	disconnectedCallback() {
-		// Telemetry unload Favourites
-		HorizonTelemetry.instance.screenUnloadNeedFulfilled({
-			screen: TelemetryScreen.FAVOURITES
-		});
+		this._telemetry.endSpan(QuickTransactionEvents.FAVOURITES);
 		
 		this.returnToSub.dispose();
 		super.disconnectedCallback();
@@ -254,11 +250,9 @@ export class Favourites extends SavingsAccountBase {
 
 
 	async _stopCard() {
-
-		// Telemetry for selecting Stop Card button
-		HorizonTelemetry.instance.selectStopCard({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.STOP_CARD
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STOP_CARD, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
 		const confirmedCaller = {
@@ -295,11 +289,9 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _updateCardLimits() {
-
-		// Telemetry select Update Card Limits
-		HorizonTelemetry.instance.selectUpdateCardLimits({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.UPDATE_CARD_LIMITS
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_UPDATE_CARD_LIMITS, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
 		});
 
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
@@ -311,11 +303,9 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _tapToPay() {
-
-		// Telemetry select Tap to Pay
-		HorizonTelemetry.instance.selectTapToPay({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAP_TO_PAY, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
@@ -329,18 +319,16 @@ export class Favourites extends SavingsAccountBase {
 	_taxCertificates() {
 		// TODO: Functionality to generate tax certificate comes here
 
-		// Telemetry Tax Certificate
-		HorizonTelemetry.instance.selectTaxCertificate({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAX_CERTIFICATE
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	}
 
 	async _proofOfAccount() {
-		// Telemetry
-		HorizonTelemetry.instance.selectProofOfAccount({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 		
 		// Temporary fix to get the account number using statements CS call as the account number field 
@@ -362,13 +350,12 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	_searchOtherNeed() {
-		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
-
-		// Telemetry Search Other need
-		HorizonTelemetry.instance.selectSearchOtherNeed({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.SEARCH_OTHER_NEED
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_SEARCH_OTHER_NEED, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
+
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
 	}
 
 	// ---------

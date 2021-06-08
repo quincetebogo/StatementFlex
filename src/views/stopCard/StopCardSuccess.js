@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/RelatedOptions';
@@ -24,6 +26,8 @@ export class StopCardSuccess extends ViewBase {
 		this.displayNotification = false;
 		this.stoppedCards = [];
 		this.showAlertModal = false;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -44,6 +48,10 @@ export class StopCardSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_SUCCESS, {
+			"screen": TelemetryScreen.STOP_CARD_SUCCESS
+		});
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
@@ -53,9 +61,11 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadStopCard();
-
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_SUCCESS, {
+			"screen": TelemetryScreen.STOP_CARD_SUCCESS
+		});
 	}
 
 	// --------------
@@ -73,6 +83,11 @@ export class StopCardSuccess extends ViewBase {
 	}  
 
 	_doneClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_SUCCESS_DONE, {
+			"screen": TelemetryScreen.STOP_CARD_SUCCESS,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -82,6 +97,11 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	async _returnToStopCardClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_SUCCESS_ANOTHER, {
+			"screen": TelemetryScreen.STOP_CARD_SUCCESS,
+			"next-screen": TelemetryScreen.STOP_CARD
+		});
+
 		const confirmedCaller = {
 			idNumber: this.callerInformation.southAfricanIDNumber,
 			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,

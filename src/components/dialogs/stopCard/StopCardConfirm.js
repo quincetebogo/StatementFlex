@@ -2,6 +2,9 @@ import { Component, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 /**
  * Displays the list of cards that will be stopped and prompts for confirmation.
@@ -23,6 +26,7 @@ export class StopCardConfirm extends Component {
 		this.isBusy = false;
 
 		this.horizonRouter = HorizonRouter.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -69,15 +73,22 @@ export class StopCardConfirm extends Component {
 	// --------------
 
 	async _onConfirmClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.CONFIRM_STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD
+		});
+
 		const returnValue = await this.cardService.stopCards(this.cardsToStop, this.incomingCallDetails, this.incidentDetails);
 		const cardStopResults = returnValue.result;
 
 		if (returnValue.succeeded) {
 			this.dispatchEvent(new CustomEvent(`on-confirm`, { detail: { stoppedCards: cardStopResults } }));
-		} 
+		}
 	}
 
 	_onCancelClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.CANCEL_STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD
+		});
 
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
