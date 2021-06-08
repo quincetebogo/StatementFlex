@@ -63,7 +63,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 		const incidentRecId = this.incidentDetails.incidentRecId;
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// --------------

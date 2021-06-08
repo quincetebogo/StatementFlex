@@ -73,7 +73,9 @@ import 'app/components/common/RelatedOptions';
 			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 
-		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
+		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 		// TODO: might make service call over here to resend or navigate to Proof of account model again
 	}
 
