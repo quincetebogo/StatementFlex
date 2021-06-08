@@ -463,6 +463,12 @@ export class Expander extends Component {
                     margin: 12px 16px;
                 }
 
+                .vertical-line{
+                    height: 24px;
+                    width: 1px;
+                    background-color: #3A3A3A;
+                }
+
 				@keyframes expand {
 					0% {
 						max-height: var(--theme-expander-header-height, 50px);
@@ -510,10 +516,14 @@ export class Expander extends Component {
     }
 
     _renderHeaders(headers, index) {
-        return html`
+        return index == 0 ? html`
             <horizon-label label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
-        `;
+            <div class="vertical-line"></div>
+        ` : html`
+            <horizon-label label=${headers} value="${this.subtitles[index]}">
+            </horizon-label>
+        ` ;
     }
 
 	/**

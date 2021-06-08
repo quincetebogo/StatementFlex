@@ -451,7 +451,6 @@ export class Favourites extends SavingsAccountBase {
 
     _renderUpdateLimitsModal() {
         if (this.showUpdateLimitsModal) {
-            debugger
             return html`
                 <horizon-update-card-limits
                     .updateType="${this._updateType}"
