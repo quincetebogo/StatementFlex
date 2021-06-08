@@ -470,6 +470,10 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onLaunchStrackClick(event) {
+		HorizonTelemetry.instance.otherNeedLaunchStrack({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
 		const incidentRecId=this.incidentDetails.incidentRecId;
 		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
