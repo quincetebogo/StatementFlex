@@ -6,7 +6,7 @@ import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/UpdateCardLimits';
 import 'app/components/dialogs/common/DiscardChanges';
 import 'app/components/common/MultiLineLabel';
-import { getMonthName } from 'app/utils/channelServiceUtilities';
+import { getMonthName, formatCurrency } from 'app/utils/channelServiceUtilities';
 
 const RENDER_MODE = {
     MAIN_PAGE: 0,
@@ -36,36 +36,15 @@ export class CardLimitsLanding extends Component {
 
         // private properites
         this.cardType = "Credit card";
-        this._cardLimits = {};
-        this._updateType = ``;
         this.renderMode = RENDER_MODE.MAIN_PAGE;
 
         this.primaryCards = [];
         this.supplementaryCards = [];
         this.virtualCards = [];
-        this.cardLimits = {};
-
 
         this.expanderSubtitle = [];
         this.expanderHeaders = [this.cardType, 'Cardholder', 'Card expiry date'];
 
-        //this.maxLimits = {
-        //    0: ``,
-        //    1: `max R150 000.00`,
-        //    2: `max R500`,
-        //    3: `max R1500`,
-        //    4: `max R20 000`
-        //};
-
-
-        //this.records = [
-        //    { 0: 'Credit limits', 1: false, 2: false, 3: false, 4: false },
-        //    { 0: 'Permanent limits', 1: 'R1 000.00', 2: 'R8 000.00', 3: 'R10 000.00', 4: true },
-        //    { 0: 'Temporary limits', 1: 'R5 000.00', 2: 'R1 000.00', 3: 'R8 000.00', 4: true },
-        //    { 0: 'Debit limits', 1: '', 2: '', 3: '', 4: false },
-        //    { 0: 'Permanent limits', 1: 'R1 000.00', 2: 'R8 000.00', 3: 'R10 000.00', 4: true },
-        //    { 0: 'Temporary limits', 1: 'R5 000.00', 2: 'R1 000.00', 3: 'R8 000.00', 4: true }
-        //];
 
     }
 
@@ -84,8 +63,6 @@ export class CardLimitsLanding extends Component {
     static get properties() {
         return {
             cards: { type: Object },
-            cardLimits: { type: Object },
-            updateType: { type: String },
             renderMode: { attribute: false }
         };
     }
@@ -110,11 +87,6 @@ export class CardLimitsLanding extends Component {
         this.dispatchEvent(new CustomEvent(`back`, {}));
     }
 
-
-
-    _discardChanges() {
-        this.renderMode = RENDER_MODE.DISCARD;
-    }
     // --------------
     // PUBLIC METHODS
     // --------------
@@ -132,17 +104,11 @@ export class CardLimitsLanding extends Component {
     _updateLimits(limits, cardType) {
         this.dispatchEvent(new CustomEvent(`update-limits`, {
             detail: {
-            cardType:  cardType,
+            cardType: cardType,
 			cardLimits: limits
             }
         }));
     }
-
-
-    _toggleBusyFlag() {
-        // TODO: Toggle busy indicator comes here
-    }
-
 
     // ---------
     // RENDERING
@@ -193,7 +159,6 @@ export class CardLimitsLanding extends Component {
 					--theme-layout-gap-spacing: 16px;
 				}
 
-				
 				/* Hide / Show */
 				.hide {
 					display: none;
@@ -292,7 +257,7 @@ export class CardLimitsLanding extends Component {
 
     _renderContent() {
         return html`
-			<capitec-card class="center-section">               
+			<capitec-card class="center-section">
 				${this._renderTitleBar()}
                 <capitec-content-box>
                     <capitec-expander-group modeset="multiple">
@@ -358,17 +323,17 @@ export class CardLimitsLanding extends Component {
         return html`
             <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${limits.permanentCashAmountLimit}" value="max ${limits.maxPermanentCashAmountLimit}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${limits.permanentPurchaseAmountLimit}" value="max ${limits.maxPermanentPurchaseAmountLimit}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${limits.permanentCnpAmountLimit}" value="max ${limits.maxPermanentCnpAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCashAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCashAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCnpAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit)}"></bb-multi-line-label>
                 <capitec-hyperlink @click="${()=>this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
 
             <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 	            <capitec-label row="1" column="1" colspan="1" label="Temporary limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${limits.tempCashAmountLimit}" value="max ${limits.maxTemporaryCashAmountLimit}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${limits.tempPurchaseAmountLimit}" value="max ${limits.maxTemporaryPurchaseAmountLimit}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${limits.tempCnpAmountLimit}" value="max ${limits.maxTemporaryCnpAmountLimit}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCashAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCnpAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit)}"></bb-multi-line-label>
                 <capitec-hyperlink @click="${() => this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
         `;
@@ -385,19 +350,19 @@ export class CardLimitsLanding extends Component {
 
     _renderPrimaryCards() {
         this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardDisplayName]);
-		//this.limits= this.primaryCards.map(card => {cardLimits:card.cardLimits, cardType : card.cardType});
-
+		
 	   return this.expanderSubtitle.map((sub, index) =>  html`
             <horizon-expander class="primary-expander" expandButtonAlignment="right" icon="/images/cardArt/black_front_credit_40px height.svg" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
-					${this.primaryCards.map(item => item.cardType === 0 ? this._renderDebitLimits(item.cardLimits, item.cardType) : this._renderCreditLimits(item.cardLimits, item.cardType) )}
+		<!-- card type need to cleaned up based on how we can differentiate credit and debit cards -->
+					${this.primaryCards.map(item => item.cardType === 0 ? this._renderDebitLimits(item.cardLimits, "Debit card") : this._renderCreditLimits(item.cardLimits, "Credit card") )}
             </horizon-expander>
 `);
     }
 
     _renderSupplementaryCardGroup() {
         return html`
-			<!-- Primary Card title -->
+			<!-- Supplementary Card title -->
 			<capitec-label label="Supplementary card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderSupplementaryCards()}
@@ -417,7 +382,7 @@ export class CardLimitsLanding extends Component {
 
     _renderVirtualCardGroup() {
         return html`
-			<!-- Primary Card title -->
+			<!-- Virtual Card title -->
 			<capitec-label label="Virtual card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderVirtualCards()}

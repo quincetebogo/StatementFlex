@@ -45,6 +45,7 @@ export class Favourites extends SavingsAccountBase {
 		this.curOptionEvent = null;
 		this.cards = [];
 
+		this.showDiscardChangesModal = false;
         this.showUpdateLimitsModal = false;
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -60,7 +61,8 @@ export class Favourites extends SavingsAccountBase {
 		return {
 			isLoading: { attribute: false },
             verificationToastDisplayed: { attribute: false },
-            showUpdateLimitsModal: {attribute: false}
+            showUpdateLimitsModal: {attribute: false},
+			showDiscardChangesModal: {attribute: false}
 		};
 	}
 
@@ -174,11 +176,6 @@ export class Favourites extends SavingsAccountBase {
     }
 
     async _updateLimits(e) {
-
-        // const returnValue = await this.quickTransactionService.getCardLimits(e.detail.cardDetails);
-
-        // if (returnValue.succeeded) {
-        //     //debugger
             this._updateType = e.detail.cardType;
             this._cardLimits = e.detail.cardLimits;
             this._toggleUpdateLimitsModal();
@@ -334,7 +331,7 @@ export class Favourites extends SavingsAccountBase {
 			 
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
-            this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
+			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
 	}
 
@@ -519,10 +516,7 @@ export class Favourites extends SavingsAccountBase {
 			? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
-					.updateType="${this._updateType}"
-					.cardLimits="${this._cardLimits}"
 					@back="${() => this._backToLandingPage()}"
-                    @click="${() => this._onUpdateClick()}"
                     @update-limits="${(e) => this._updateLimits(e)}">
 				</horizon-card-limits-landing>`
 			: html``;

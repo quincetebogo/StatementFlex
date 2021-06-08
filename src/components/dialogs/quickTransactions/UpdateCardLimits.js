@@ -23,7 +23,7 @@ const UPDATE_LIMIT_STEPS = [
  *
  * Events Raised 
  * -------------
- * -
+ * cancel
  * 
  * @export
  * @class UpdateCardLimits
@@ -44,20 +44,17 @@ export class UpdateCardLimits extends Component {
 
 		this.error = {
 			credit: {
-				cashLimit: ``,
-				purchaseLimit: ``,
-				cnpLimit: ``
+				permanentCashAmountLimit: ``,
+				permanentPurchaseAmountLimit: ``,
+				permanentCnpAmountLimit: ``
 			},
 			debit: {
-				cashLimit: ``,
-				purchaseLimit: ``,
-				cnpLimit: ``
+				permanentCashAmountLimit: ``,
+				permanentPurchaseAmountLimit: ``,
+				permanentCnpAmountLimit: ``
 			}
 		};
 		this.maxValue = ``;
-
-		this.type = ``;
-		this.cardArtSVG = ``;
 
 		this.primaryPermanentLimits;
 		this.primaryTemporaryLimits;
@@ -73,8 +70,7 @@ export class UpdateCardLimits extends Component {
 		this.tapToPayAgreementExpanded = false;
 		
 		this.horizonStore = HorizonStore.getInstance();
-		this._getCardImages();
-		this.card = {};
+		
 	}
 
 	// ----------
@@ -94,7 +90,6 @@ export class UpdateCardLimits extends Component {
 		return {
 			cardLimits: { type: Object },
 			updateType: { type: String },
-			card: { type: Object },
 
 			primaryPermanentLimits: { type: Number },
 			primaryTemporaryLimits: { type: Number },
@@ -110,7 +105,6 @@ export class UpdateCardLimits extends Component {
 			tapToPayAgreementExpanded: { type: Boolean },
 
 			renderMode: { attribute: false },
-			cardArtSVG: { attribute: false }
 		};
 	}
 
@@ -121,67 +115,16 @@ export class UpdateCardLimits extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 		this._initialise();
-
-		// const { frameCardArt } = await this.cardArtComponents[this.card.cardArt].load();
-		// this.type = this.cardArtComponents[this.card.cardArt].type;
-		// this.cardArtSVG = frameCardArt(this.card);
-		
-		this.cardArtSVG = "/images/cardArt/black_front_credit.svg"
-
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_getCardImages() {
-		this.cardArtComponents = {
-			DEBIT_MASTERCARD_20190608: {
-				load: () => import(`app/images/cardArt/New-DebitCard`),
-				type: `new`
-			},
-			DEBIT_MASTERCARD_20191118: {
-				load: () => import(`app/images/cardArt/New-DebitCard`),
-				type: `new`
-			},
-			MASTERCARD_CREDIT_20181101: {
-				load: () => import(`app/images/cardArt/New-CreditCard`),
-				type: `new`
-			},
-			MASTERCARD_CREDIT_20190605: {
-				load: () => import(`app/images/cardArt/New-CreditCard`),
-				type: `new`
-			},
-			DEBIT_MASTERCARD_VIRTUAL_20200701: {
-				load: () => import(`app/images/cardArt/VirtualCard`),
-				type: `new`
-			},
-			DEBIT_MASTERCARD_20150511: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: `old`
-			},
-			DEBIT_MASTERCARD_20160406: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: `old`
-			},
-			DEBIT_MASTERCARD_20170804: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: `old`
-			},
-			DEBIT_MASTERCARD_20190102: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: `old`
-			},
-			MASTERCARD_CREDIT_20181101: {
-				load: () => import(`app/images/cardArt/Old-DebitCard`),
-				type: `old`
-			}
-		};
-	}
 
 	_limitChanged(e, transactionType, maxLimit) {
 
 		if (e.detail.new) {
-			this.cardlimitsInfo[transactionType][e.currentTarget.id] = e.detail.new;
+			this.cardLimits[e.currentTarget.id] = this._formatAmount(e.detail.new);
 
 			if (Number(e.detail.new) > Number(maxLimit)) {
 				this.error[transactionType][e.currentTarget.id] = maxLimit;
@@ -245,48 +188,13 @@ export class UpdateCardLimits extends Component {
 
 	_initialise() {
 		this.cardlimitsInfo = {
-			credit: {},
-			debit: {},
 			tapToPayEnabled: false,
 			acceptedLimitsAgreement: false,
 			acceptedTapToPayAgreement: false
 		};
+
+		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
 		this.limitLabel = this.updateType === "Credit card" ? "Credit Limits" : "Debit limits" ;
-
-		// if (this.card.cardDisplayName === "Credit card") {
-		// 	this.limitLabel = "Credit Limits";
-		// } else if (this.card.cardDisplayName === "Debit card" || this.card.cardDisplayName === "Supplementary debit card") {
-		// 	this.limitLabel = "Debit limits";
-		// }
-
-		const initUpdatePermanentLimit = (info) => {
-			const obj = {
-				cashLimit: info.permanentCashAmountLimit,
-				maxCashLimit: info.maxPermanentCashAmountLimit,
-				purchaseLimit: info.permanentPurchaseAmountLimit,
-				maxPurchaseLimit: info.maxPermanentPurchaseAmountLimit,
-				cnpLimit: info.permanentCnpAmountLimit,
-				maxCnpLimit: info.maxPermanentCnpAmountLimit
-			};
-
-			Object.assign(this.cardlimitsInfo.credit, obj);
-			Object.assign(this.cardlimitsInfo.debit, obj);
-
-		};
-
-		const initUpdateTemporaryLimit = (info) => {
-			const obj = {
-				cashLimit: info.tempCashAmountLimit,
-				maxCashLimit: info.maxTemporaryCashAmountLimit,
-				purchaseLimit: info.tempPurchaseAmountLimit,
-				maxPurchaseLimit: info.maxTemporaryPurchaseAmountLimit,
-				cnpLimit: info.tempCnpAmountLimit,
-				maxCnpLimit: info.maxTemporaryCnpAmountLimit
-			};
-
-			Object.assign(this.cardlimitsInfo.credit, obj);
-			Object.assign(this.cardlimitsInfo.debit, obj);
-		};
 
 		let limitObj = this.cardLimits;
 
@@ -298,14 +206,6 @@ export class UpdateCardLimits extends Component {
 		this.supplementaryTemporaryLimits = limitObj.tempCashAmountLimit + limitObj.tempCnpAmountLimit + limitObj.tempPurchaseAmountLimit;
 		this.totalTemporaryLimits = this.primaryTemporaryLimits + this.supplementaryTemporaryLimits;
 
-		return {
-			'Permanent': initUpdatePermanentLimit,
-			'Temporary': initUpdateTemporaryLimit
-		}[this.updateType](this.cardLimits);
-	}
-
-	_getHint(value) {
-		return `Max limit - ${formatCurrency(value)}`;
 	}
 
 	_getErrorsCount() {
@@ -339,6 +239,10 @@ export class UpdateCardLimits extends Component {
 		return !value ? `` : `Max limit - ${formatCurrency(value)}`;
 	}
 
+	_formatAmount(value) {
+		const amount = parseFloat(value).toFixed(2);
+		return `${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
+	}
 	// ---------
 	// RENDERING
 	// ---------
@@ -362,27 +266,9 @@ export class UpdateCardLimits extends Component {
 				--theme-card-border: 1px solid #E1E1E1;
 				--theme-card-border-radius: 4px;
 			}
-			.new-card-img-cb {
-				width: 385px;
-				height: 303px;
-				margin-bottom: 0px;
-				padding: 0px;
-				justify-content: center;
-				align-items: center;
-				float: left;
-			}
-			.old-card-img-cb {
-				width: 385px;
-				height: 303px;
-				margin-bottom: 0px;
-				padding: 0px;
-				justify-content: center;
-				align-items: center;
-				float: left;
-			}
 			.dailyLimitsEx {
 				--theme-titlebar-padding: 0px;
-				height: 110px;
+				height: 99px;
 			}
 			.dailyExTitle {
 				--theme-label-font-color: #3A3A3A;
@@ -394,10 +280,12 @@ export class UpdateCardLimits extends Component {
 			.limitTitle {
 				--theme-label-font-color: #3A3A3A;
 				--theme-label-font-size: 14px;
+				height: 20px;
 			}
 			.limitSubtitle {
 				--theme-label-font-color: #3A3A3A;
 				--theme-label-subtitle-font-size: 12px;
+				height: 12px;
 			}
 			.dailyLimits {
 				height: 34px; 
@@ -410,190 +298,216 @@ export class UpdateCardLimits extends Component {
 				--theme-label-subtitle-line-height: 12px;
 				--theme-label-subtitle-font-size: 12px;
 				width: 150px;
+				margin-bottom: 14px;
 			}
-				capitec-modal {
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 15px 15px 16px 24px;
-				}
-				capitec-stepper {
-					--theme-stepper-step-title-font-color: #3A3A3A;
-					--theme-font-weight: 600;
-				}
-				.main-cb {
-					height: 657px;
+			capitec-modal {
+				--theme-modal-header-background-color: #F7F7F7;
+				--theme-modal-header-color: #3A3A3A;
+				--theme-modal-header-padding-top: 20px;
+				--theme-modal-header-padding-bottom: 20px;
+				--theme-modal-footer-padding: 15px 15px 16px 24px;
+			}
+			capitec-stepper {
+				--theme-stepper-step-title-font-color: #3A3A3A;
+				--theme-font-weight: 600;
+			}
+			.main-cb {
+				height: 657px;
 
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 0px;
-				}
-				capitec-alert-banner {
-					--theme-alert-banner-height: 48px;
-					--theme-layout-gap-spacing: 16px;
-					--theme-alert-banner-icon-margin-left: 16px;
-					--theme-alert-banner-icon-margin-right: 8px;
-				}
-				.alert-banner > capitec-label {
-					--theme-label-default-font-size: 14px;
-					--theme-label-font-color: #AC282F;
-				}
-				.alert-banner > capitec-label[type="default"] {
-					--theme-label-default-font-weight: 600;
-					--theme-label-font-color: #AC282F;
-				}
-				.main-cb > capitec-group {
-					--theme-layout-gap-spacing: 32px;
-				}
-				capitec-group > capitec-card {
-					width: 780px;
-					--theme-layout-gap-spacing: 24px;
-				}
-				.limits-cb {
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 16px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 16px;
-					--theme-layout-gap-spacing: 8px;
-					width: 380px;
-					float: right;
-				}
-				.limits-cb > capitec-label {
-					--theme-label-strong-font-size: 16px;
-					--theme-label-strong-font-weight: 600;
-					--theme-label-strong-font-color: #3A3A3A;
-					--theme-layout-gap-spacing: 16px;
-				}
-				.limits-cb > capitec-text-field {
-					height: 72px;
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 0px;
+			}
+			capitec-alert-banner {
+				--theme-alert-banner-height: 48px;
+				--theme-layout-gap-spacing: 16px;
+				--theme-alert-banner-icon-margin-left: 16px;
+				--theme-alert-banner-icon-margin-right: 8px;
+			}
+			.alert-banner > capitec-label {
+				--theme-label-default-font-size: 14px;
+				--theme-label-font-color: #AC282F;
+			}
+			.alert-banner > capitec-label[type="default"] {
+				--theme-label-default-font-weight: 600;
+				--theme-label-font-color: #AC282F;
+			}
+			.main-cb > capitec-group {
+				--theme-layout-gap-spacing: 32px;
+			}
+			capitec-group > capitec-card {
+				width: 780px;
+				--theme-layout-gap-spacing: 24px;
+			}
+			.limits-cb {
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 32px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 0px;
+				--theme-layout-gap-spacing: 8px;
+				width: 380px;
+				float: right;
+			}
+			.limits-cb > capitec-label {
+				--theme-label-strong-font-size: 16px;
+				--theme-label-strong-font-weight: 600;
+				--theme-label-strong-font-color: #3A3A3A;
+				--theme-layout-gap-spacing: 16px;
+			}
+			.limits-cb > capitec-text-field {
+				height: 72px;
 
-					--theme-input-hint-font-color: #3A3A3A;
-					--theme-input-label-font-color: #7C7C7C;
-				}
-				capitec-label[type="title"] {
-					--theme-label-title-font-size: 18px;
-					--theme-label-title-font-weight: 600;
-					--theme-label-strong-font-color: #3A3A3A;
-					--theme-layout-gap-spacing: 16px;
-					--theme-label-title-line-height: 24px;
-					margin-bottom: 0px;
-				}
-				.main-cb > capitec-card {
-					--theme-layout-gap-spacing: 0px;
-					--theme-card-min-height: 80px;
-				}
-				capitec-card > capitec-group {
-					height: 48px;
-					width: 100%;
-					padding: 0px 16px 0px 16px;
-				}
-				capitec-label[type="default"] {
-					--theme-label-default-font-size: 15px;
-					--theme-label-default-font-weight: 600;
-					--theme-label-font-color: #3A3A3A;
-				}
-				capitec-toggle {
-					margin-left: 8px;
-				}
-				capitec-title-bar {
-					height: 32px;
-					order: 5;
-					border-top: 1px solid #E1E1E1;
-					margin-bottom: 0px;
+				--theme-input-hint-font-color: #3A3A3A;
+				--theme-input-label-font-color: #7C7C7C;
+			}
+			capitec-label[type="title"] {
+				--theme-label-title-font-size: 18px;
+				--theme-label-title-font-weight: 600;
+				--theme-label-strong-font-color: #3A3A3A;
+				padding-bottom: 16px;
+				--theme-label-title-line-height: 24px;
+				margin-bottom: 0px;
+			}
+			capitec-label[type="default"] {
+				--theme-label-default-font-size: 15px;
+				--theme-label-default-font-weight: 600;
+				--theme-label-font-color: #3A3A3A;
+			}
+			.main-cb > capitec-card {
+				--theme-layout-gap-spacing: 0px;
+				--theme-card-min-height: 80px;
+			}
+			capitec-card > capitec-group {
+				width: 100%;
+				padding: 0px 16px 0px 16px;
+			}
+			capitec-toggle {
+				margin-left: 8px;
+			}
+			capitec-title-bar {
+				height: 32px;
+				order: 5;
+				border-top: 1px solid #E1E1E1;
+				margin-bottom: 0px;
 
-					--theme-type-clear-background: #F7F7F7;
-					--theme-titlebar-min-height: 32px;
-					--theme-label-font-color: #08A6B5;
-					--theme-titlebar-padding: 10px;
-					--theme-titlebar-item-gap: 0px;
-					--theme-titlebar-shadow: none;
-				}
-				capitec-title-bar > capitec-icon {
-					margin-right: 7.5px;
+				--theme-type-clear-background: #F7F7F7;
+				--theme-titlebar-min-height: 32px;
+				--theme-label-font-color: #08A6B5;
+				--theme-titlebar-padding: 10px;
+				--theme-titlebar-item-gap: 0px;
+				--theme-titlebar-shadow: none;
+			}
+			capitec-title-bar > capitec-icon {
+				margin-right: 7.5px;
 
-					--theme-icon-size-default: 14px;
-				}
-				capitec-title-bar > capitec-label[type="subtitle"] {
-					--theme-label-subtitle-font-size: 12px;
-					--theme-label-subtitle-font-weight: normal;
-				}
-				.label-bold {
-					--theme-label-subtitle-font-weight: 600;
-				}
-				div[slot="footer"] > capitec-group {
-					--theme-layout-gap-spacing: 7px;
-				}
-				.back-btn {
-					width: 65px;
-				}
-				.cancel-btn {
-					width: 80px;
-				}
-				.next-btn {
-					width: 90px;
-				}
-				capitec-expander-group {
-					width: 776px;
-					
-					--theme-expander-border: none;
-					--theme-expander-group-container-margin-bottom: 8px;
-					--theme-expander-header-height: 48px;
-					/*--theme-expander-background-color: #F7F7F7;*/
-				}
-				capitec-expander-group > capitec-expander {
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
+				--theme-icon-size-default: 14px;
+			}
+			capitec-title-bar > capitec-label[type="subtitle"] {
+				--theme-label-subtitle-font-size: 12px;
+				--theme-label-subtitle-font-weight: normal;
+				--theme-label-font-color: #3A3A3A;
+			}
+			.label-bold {
+				--theme-label-subtitle-font-weight: 600;
+			}
+			div[slot="footer"] > capitec-group {
+				--theme-layout-gap-spacing: 7px;
+			}
+			.back-btn {
+				width: 65px;
+			}
+			.cancel-btn {
+				width: 80px;
+			}
+			.next-btn {
+				width: 90px;
+			}
+			capitec-expander-group {
+				width: 776px;
+				
+				--theme-expander-border: none;
+				--theme-expander-group-container-margin-bottom: 8px;
+				--theme-expander-header-height: 48px;
+			}
+			capitec-expander-group > capitec-expander {
+				border: 1px solid #E1E1E1;
+				border-radius: 4px;
 
-					--theme-expander-indicator-width: 12px;
-					--theme-expander-indicator-height: 7px;
-					--theme-expander-header-font-size: 16px;
-					--theme-expander-header-font-weight: 600;
-					--theme-container-padding-left: 0px;
-					--theme-container-padding-top: 0px;
-					--theme-container-padding-right: 0px;
-					--theme-container-padding-bottom: 0px;
-					--theme-expander-height: 525px;
-				}
-				capitec-expander-group > capitec-expander:last-child {
-					margin-bottom: 0px;
-				}
-				.expander-cb {
-					background-color: #FFFFFF;
-					border-top: 1px solid #E1E1E1;
+				--theme-expander-indicator-width: 12px;
+				--theme-expander-indicator-height: 7px;
+				--theme-expander-header-font-size: 16px;
+				--theme-expander-header-font-weight: 600;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-right: 0px;
+				--theme-container-padding-bottom: 0px;
+				--theme-expander-height: 525px;
+			}
+			capitec-expander-group > capitec-expander:last-child {
+				margin-bottom: 0px;
+			}
+			.expander-cb {
+				background-color: #FFFFFF;
+				border-top: 1px solid #E1E1E1;
 
-					--theme-container-padding-left: 16px;
-					--theme-container-padding-top: 9px;
-					--theme-container-padding-right: 16px;
-					--theme-container-padding-bottom: 0px;
-					--theme-layout-gap-spacing: 18px;
-				}
-				.agreement-lb {
-					color: #3A3A3A;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-				}
-				.agreement-lb > ol {
-					margin: 0px;
-					padding-left: 20px;
-				}
-				.agreement-lb > ol > li {
-					padding-left: 10px;
-				}
-				.agreement-terms {
-					justify-content: center;
-					margin-top: 17px;
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 9px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 0px;
+				--theme-layout-gap-spacing: 18px;
+			}
+			.agreement-lb {
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 16px;
+			}
+			.agreement-lb > ol {
+				margin: 0px;
+				padding-left: 20px;
+			}
+			.agreement-lb > ol > li {
+				padding-left: 10px;
+			}
+			.agreement-terms {
+				justify-content: center;
+				margin-top: 17px;
 
-					--theme-card-min-height: 48px;
-				}
-				capitec-check {
-					padding-left: 16px;
+				--theme-card-min-height: 48px;
+			}
+			capitec-check {
+				padding-left: 16px;
 
-					--theme-label-font-size: 15px;
-					--theme-label-font-weight: 500;
-					--theme-label-font-color: #3A3A3A;
-				}
+				--theme-label-font-size: 15px;
+				--theme-label-font-weight: 500;
+				--theme-label-font-color: #3A3A3A;
+			}
+			.card-img {
+				height: 202px;
+				width: 126px;
+				margin-left: 110px;
+			}
+			.card-img-cb {
+				width: 356px;
+				padding-top: 31px;
+			}
+			.tapToPayTitle {
+				height: 24px;
+				width: 85px;
+				font-size: 18px;
+				margin: 0px;
+			}
+			.toggleText {
+				height: 48px;
+			}
+			.toggleText > capitec-label {
+				height: 20px;
+				color: #3A3A3A;
+				font-family: "Hind Vadodara";
+				font-size: 15px;
+				font-weight: 500;
+				line-height: 20px;
+			}
 			`
 		];
 	}
@@ -661,8 +575,8 @@ export class UpdateCardLimits extends Component {
 
 	_renderCard() {
 		return html`
-		<capitec-content-box class="${this.type}-card-img-cb">
-			${this.cardArtSVG}
+		<capitec-content-box class="card-img-cb">
+		    <img class= "card-img" src="/images/cardArt/black_front_debit_40px height.svg"/>
 		</capitec-content-box>
 		`;
 	}
@@ -670,14 +584,13 @@ export class UpdateCardLimits extends Component {
 	_renderCreditLimits() {
 		return html`
 			<capitec-card style="display: inline">
+			<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
 				${this._renderCard()}
 				<capitec-content-box class="limits-cb">
-					<capitec-label
-						type="strong"
-						label="Credit limits">
-					</capitec-label>
 					${this._renderLimits(`credit`)}
 				</capitec-content-box>
+			</capitec-group>
+
 				${this._renderAllLimits()}
 			</capitec-card>
 		`;
@@ -686,14 +599,13 @@ export class UpdateCardLimits extends Component {
 	_renderDebitLimits() {
 		return html`
 			<capitec-card style="display: inline">
-				${this._renderCard()}
-				<capitec-content-box class="limits-cb">
-					<capitec-label
-						type="strong"
-						label="Set debit limits">
-					</capitec-label>
-					${this._renderLimits(`debit`)}
-				</capitec-content-box>
+				<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
+					${this._renderCard()}
+					<capitec-content-box class="limits-cb">
+						${this._renderLimits(`debit`)}
+					</capitec-content-box>
+				</capitec-group>
+				
 				${this._renderAllLimits()}
 			</capitec-card>
 		`;
@@ -701,25 +613,24 @@ export class UpdateCardLimits extends Component {
 
 	_renderAllLimits () {
 		return html`
-						<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
+				<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
 					<capitec-label
 						label="Total daily limit exposure"
-						type="title"
 						class="dailyExTitle">
 					</capitec-label>
 					<div class="dailyLimits">
-					<div style="display: inline-block; width: 245px; height: 34px">
-						<capitec-label type="title" label="Primary card limits" class="limitTitle"></capitec-label>
-						<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.primaryPermanentLimits)}/Temporary ${formatCurrency(this.primaryTemporaryLimits)}" class="limitSubtitle"></capitec-label>
-					</div>
-					<div style="display: inline-block; width: 245px; height: 34px">
-						<capitec-label type="title" label="Supplementary card limits" class="limitTitle"></capitec-label>
-						<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.supplementaryPermanentLimits)}/Temporary ${formatCurrency(this.supplementaryTemporaryLimits)}" class="limitSubtitle"></capitec-label>
-					</div>
-					<div style="display: inline-block; width: 245px; height: 34px">
-						<capitec-label type="title" label="Total limits" class="limitTitle"></capitec-label>
-						<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPermanentLimits)}/Temporary ${formatCurrency(this.totalTemporaryLimits)}" class="limitSubtitle"></capitec-label>
-					</div>
+						<div style="display: inline-block; width: 245px; height: 32px">
+							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.primaryPermanentLimits)}/Temporary ${formatCurrency(this.primaryTemporaryLimits)}" class="limitSubtitle"></capitec-label>
+						</div>
+						<div style="display: inline-block; width: 245px; height: 32px">
+							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.supplementaryPermanentLimits)}/Temporary ${formatCurrency(this.supplementaryTemporaryLimits)}" class="limitSubtitle"></capitec-label>
+						</div>
+						<div style="display: inline-block; width: 245px; height: 32px">
+							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPermanentLimits)}/Temporary ${formatCurrency(this.totalTemporaryLimits)}" class="limitSubtitle"></capitec-label>
+						</div>
 					</div>
 				</capitec-title-bar>
 		`;
@@ -728,31 +639,31 @@ export class UpdateCardLimits extends Component {
 	_renderLimits(transactionType) {
 		return html`
 			<capitec-text-field
-				id="cashLimit"
-				label="Cash withdrawal (max R5 000)"
+				id="permanentCashAmountLimit"
+				label="Cash withdrawal (max ${formatCurrency(this.cardLimits.maxPermanentCashAmountLimit)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${this.cardlimitsInfo[transactionType].cashLimit}"
-				error="${this._getFieldError(this.error[transactionType].cashLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCashLimit)}">
+				value="${this.cardLimits.permanentCashAmountLimit}"
+				error="${this._getFieldError(this.error[transactionType].permanentCashAmountLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardLimits.maxPermanentCashAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
-				id="purchaseLimit"
-				label="Card machine purchases (max R50 000)"
+				id="permanentPurchaseAmountLimit"
+				label="Card machine purchases (max ${formatCurrency(this.cardLimits.maxPermanentPurchaseAmountLimit)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${this.cardlimitsInfo[transactionType].purchaseLimit}"
-				error="${this._getFieldError(this.error[transactionType].purchaseLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxPurchaseLimit)}">
+				value="${this.cardLimits.permanentPurchaseAmountLimit}"
+				error="${this._getFieldError(this.error[transactionType].permanentPurchaseAmountLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardLimits.maxPermanentPurchaseAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
-				id="cnpLimit"
-				label="Online/telephone/mail purchases (max R50 000)"
+				id="permanentCnpAmountLimit"
+				label="Online/telephone/mail purchases (max ${formatCurrency(this.cardLimits.maxPermanentCnpAmountLimit)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${this.cardlimitsInfo[transactionType].cnpLimit}"
-				error="${this._getFieldError(this.error[transactionType].cnpLimit)}"
-				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardlimitsInfo[transactionType].maxCnpLimit)}">
+				value="${this.cardLimits.permanentCnpAmountLimit}"
+				error="${this._getFieldError(this.error[transactionType].permanentCnpAmountLimit)}"
+				@value-changed="${(e) => this._limitChanged(e, transactionType, this.cardLimits.maxPermanentCnpAmountLimit)}">
 			</capitec-text-field>
 		`;
 	}
@@ -761,7 +672,7 @@ export class UpdateCardLimits extends Component {
 		return html`
 			<capitec-label
 				label="Tap to Pay"
-				type="title">
+				class="tapToPayTitle">
 			</capitec-label>
 			<capitec-label
 				label="Total daily No-PIN limit R500"
@@ -770,7 +681,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-label>
 
 			<capitec-card>
-				<capitec-group layout="horizontal" halign="left" valign="center" gap="none">
+				<capitec-group layout="horizontal" class="toggleText" halign="left" valign="center" gap="none">
 					<capitec-label
 						label="Would you like to activate your Tap to Pay"
 						type="default">
@@ -791,7 +702,7 @@ export class UpdateCardLimits extends Component {
 					<capitec-icon icon="status/info"></capitec-icon>
 					<capitec-label
 						label="Notify client: "
-						type="subtitle"
+						type="strong"
 						class="label-bold">
 					</capitec-label>
 					<capitec-label

@@ -488,7 +488,7 @@ export class Expander extends Component {
                     ${this.icon ? html`<img src="${this.icon}">` : html``}
 				</div>
                 ${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
-                ${this.headers ? this.headers.map((heading, index) => this._renderHeaders(heading, index)) /*this._renderTitle()*/ : html``}
+                ${this.headers ? this.headers.map((heading, index) => this._renderHeaders(heading, index)) : html``}
 				${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
 			`;
     }
@@ -500,7 +500,6 @@ export class Expander extends Component {
     }
 
     _renderHeaders(headers, index) {
-        //return this.subtitles.map(subtitle => html`<bb-multi-line-label label="${headers}" value="${subtitle}"`);
         return html`
             <horizon-label label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
