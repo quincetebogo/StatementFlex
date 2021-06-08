@@ -70,7 +70,7 @@ export class SystemError extends ViewBase {
 		return html`
 			${this._renderSystemError()}
 
-			${super._webTemplate}
+			${super._webTemplate()}
 		`;
 	}
 

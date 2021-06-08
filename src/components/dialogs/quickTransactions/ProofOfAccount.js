@@ -2,6 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { NavigationContext } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
@@ -28,8 +29,12 @@ export class ProofOfAccount extends Component {
 
 	constructor() {
 		super();
+		this.navigationContext = NavigationContext.getInstance();
+
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.isBusy = false;
@@ -43,8 +48,6 @@ export class ProofOfAccount extends Component {
 			idEmailAddress: ``,
 			idConfirmEmail: ``
 		};
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -122,6 +125,8 @@ export class ProofOfAccount extends Component {
 			});
 
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
 
 			if (returnValue.succeeded) {
 				this.horizonRouter.navigateToProofOfAccountSuccess();

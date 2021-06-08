@@ -3,6 +3,7 @@ import { css, html } from 'platform/elements';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -32,6 +33,7 @@ export class Favourites extends SavingsAccountBase {
 	constructor() {
 		super();
 
+		this.agreementResult = ``;
 		// private properites
 		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
@@ -43,6 +45,8 @@ export class Favourites extends SavingsAccountBase {
 		this.cards = [];
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+
+		Object.assign(Favourites.prototype, tapToPayMixin);
 	}
 
 	// --------------
@@ -69,8 +73,8 @@ export class Favourites extends SavingsAccountBase {
 			// debiChecksOutstanding: this.pendingMandateCount
 		});
 
-		this._updateReturnToScreen();
-		this._initialise();
+	this._initialise();
+	
 		this._performAction = async (option) => {
 
 			const stopCard = () => this._stopCard();
@@ -283,10 +287,10 @@ export class Favourites extends SavingsAccountBase {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonStore.setCallerInformation(this.callerInformation);
 			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-			this.horizonStore.setScreenDetails(screenDetails);
 
 			this.horizonRouter.navigateToStopCard();
 		} else {
@@ -307,22 +311,6 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result;
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
-		}
-	}
-
-	async _tapToPay() {
-
-		// Telemetry select Tap to Pay
-		HorizonTelemetry.instance.selectTapToPay({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
-		});
-
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
-			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		}
 	}
 
@@ -462,22 +450,12 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
-					></horizon-proof-of-account>`
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-proof-of-account>`
 			: html``;
     }
-
-	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
-		? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				@back="${() => this._backToLandingPage()}"
-			></horizon-tap-to-pay-landing>
-		` : html``;
-	}
   
 	_renderSearchOtherNeed() {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
