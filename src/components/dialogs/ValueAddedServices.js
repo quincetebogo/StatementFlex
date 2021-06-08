@@ -242,7 +242,7 @@ export class ValueAddedServices extends Component {
 		return html`
 			<capitec-group layout="vertical">
 				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may analise the type of transactions you perform to give you benefit in using your account to your best interest <strong>(Insights and Next Best Actions)</strong></p>
+					<p class="permission-message">We may analyse the type of transactions you perform to give you benefit in using your account to your best interest <strong>(Insights and Next Best Actions)</strong></p>
 
 					<capitec-toggle
 							id="insights" 
@@ -268,7 +268,7 @@ export class ValueAddedServices extends Component {
 		return html`
 			<capitec-group layout="vertical">
 				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may analise your information to provide you with personalised information relating to products and services that will benefit your needs based on how you use your account. <strong>(Behavioural/Marketing)</strong> </p>
+					<p class="permission-message">We may analyse your information to provide you with personalised information relating to products and services that will benefit your needs based on how you use your account. <strong>(Behavioural/Marketing)</strong> </p>
 
 					<capitec-toggle 
 							id="behavioural"
@@ -285,7 +285,7 @@ export class ValueAddedServices extends Component {
 		return this.showBehavioralAlert
 		? html`
 			<capitec-alert-banner type="warning">
-				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on products and service that may help you to improve your financial life.</strong></p>
+				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.</strong></p>
 			</capitec-alert-banner>`
 		: html``;
 	}
@@ -337,7 +337,7 @@ export class ValueAddedServices extends Component {
 		return this.showAnalysisAlert
 		? html`
 			<capitec-alert-banner type="warning">
-				<p class="permission-alert"><strong>Notify client: We will no longer use your personalised information to improve our products  to suit your needs and to help you to improve your financial life.</strong></p>
+				<p class="permission-alert"><strong>Notify client: We will no longer use your personalised information to improve our products to suit your needs and to help you to improve your financial life.</strong></p>
 			</capitec-alert-banner>`
 		: html``;
 	}
