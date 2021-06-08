@@ -62,7 +62,7 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"xdsQuestions": {
@@ -87,7 +87,7 @@
 			"positiveCase": true
 		},
 		"cardLimits": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
