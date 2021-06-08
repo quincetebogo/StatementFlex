@@ -366,8 +366,8 @@ export class Expander extends Component {
                 }
 
 				:host > .content {
-					border-left: var(--theme-expander-border, 1px solid black);
-					border-right: var(--theme-expander-border, 1px solid black);
+					//border-left: var(--theme-expander-border, 1px solid black);
+					//border-right: var(--theme-expander-border, 1px solid black);
 					border-top: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
 				}
