@@ -1,10 +1,9 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -23,7 +22,7 @@ const RENDER_MODE = Object.freeze({
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 /**
- * Common componet, renders related options based on the need and context of success/ failure.
+ * Common component, renders related options based on the need and context of success/ failure.
  * Invoked by different success and failure screens
  * 
  * @exports
@@ -50,6 +49,7 @@ export class RelatedOptions extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.logger = Logger.getInstance();
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
@@ -107,10 +107,6 @@ export class RelatedOptions extends Component {
 
 	_errorHandler(ex) {
 		return true;
-	}
-
-	_mainPage() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_onCancel() {
@@ -370,23 +366,8 @@ export class RelatedOptions extends Component {
 			? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
+					@back="${() => this._backToLandingPage()}">
 				</horizon-card-limits-landing>`
-			: html``;
-	}
-
-	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY
-			? html`
-				<horizon-tap-to-pay-landing
-					.cards="${this.cards}"
-					cifNumber=${this.callerInformation.cifNumber}
-					voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-					.getAgreements="${agreementRequest => this._getAgreement(agreementRequest)}"
-					.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
-					@back="${() => this._mainPage()}"
-					@result=${eventData => this._tapToPayResult(eventData)}>
-				</horizon-tap-to-pay-landing>`
 			: html``;
 	}
 

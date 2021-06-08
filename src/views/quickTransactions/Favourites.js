@@ -456,21 +456,6 @@ export class Favourites extends SavingsAccountBase {
 				</horizon-proof-of-account>`
 			: html``;
     }
-
-	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY 
-		? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				cifNumber=${this.callerInformation.cifNumber}
-				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
-				.getAgreements="${agreementRequest => this._getAgreement(agreementRequest)}"
-				.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
-				@back="${() => this._backToLandingPage()}"
-				@result=${eventData => this._tapToPayResult(eventData)}
-			></horizon-tap-to-pay-landing>
-		` : html``;
-	}
   
 	_renderSearchOtherNeed() {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
