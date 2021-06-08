@@ -41,7 +41,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
@@ -51,9 +50,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	
 		// private properites
 		this.loading = true;
-
-		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		
 		this.returnToScreen = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._optionClick(e.option));
 	}
