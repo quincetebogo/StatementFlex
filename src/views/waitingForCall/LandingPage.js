@@ -141,7 +141,7 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo);
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, () => this._incidentErrorHandler());
 		 const incident = returnValue.result;
 
 		 if (!returnValue.succeeded || !incident) {
@@ -335,6 +335,10 @@ export class LandingPage extends ViewBase {
 
 		// Since we can proceed whatever the channel service error on this page, return true to indicate that the error was handled.
 		// The Channel Service call wrappers will log the failed calls.
+		return true;
+	}
+
+	_incidentErrorHandler() {
 		return true;
 	}
 

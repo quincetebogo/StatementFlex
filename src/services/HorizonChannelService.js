@@ -115,7 +115,11 @@ export class HorizonChannelService extends Service {
 				caller: caller
 			});
 	
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+			let stringifiedRes = JSON.stringify(response);
+			if (stringifiedRes.length > 20000) {
+				stringifiedRes = stringifiedRes.substring(0, 20000);
+			}
+			this._logger.log(`debug`, `result: ${stringifiedRes}`, caller, correlationId);
 	
 			return response;
 		} catch (exception) {
@@ -336,6 +340,10 @@ export class HorizonChannelService extends Service {
 		}
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
+	}
+
+	updateCardLimitsAgreement(cardDetails) {
+		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `updateAgreement`);
 	}
 
 	async tapToPayLanding(cifNumber) {
