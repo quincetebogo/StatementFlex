@@ -348,11 +348,11 @@ export class CardLimitsLanding extends Component {
     _renderPrimaryCards() {
         this.expanderHeaders = this.primaryCards.map(card => [card.cardDisplayName, "Cardholder", "Card expiry date"]);
 
-        this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);        
+        this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardLimits]);        
         return this.expanderSubtitle.map((sub, index) => html`
             <horizon-expander class="primary-expander" expandButtonAlignment="right" icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] == `Debit MasterCard` ? `debit` : `credit`}_40px height.svg" color="${this.expanderHeaders[index][0] == `Debit MasterCard` ? `#009DE0` : `#E61414`}" .headers="${this.expanderHeaders[index]}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}                        
-					${this.primaryCards.map(card => (this._renderDebitLimits(card.cardLimits, "Debit card")))}
+					${this._renderDebitLimits(sub[3], "Debit card")}
 		<!-- card type need to cleaned up based on how we can differentiate credit and debit cards -->			
 					${this.primaryCards.map(card => (card.linkedCardId == null ? `` :  this._renderCreditLimits(card.linkedCardLimits, "Credit card")))}
             </horizon-expander>
@@ -370,11 +370,11 @@ export class CardLimitsLanding extends Component {
 
     _renderSupplementaryCards() {
         this.expanderHeaders = this.supplementaryCards.map(card => [card.cardDisplayName, "Cardholder", "Card expiry date"]);
-        this.expanderSubtitle = this.supplementaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
+        this.expanderSubtitle = this.supplementaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardLimits]);
         return this.expanderSubtitle.map((sub, index) => html`
             <horizon-expander expandButtonAlignment="right" icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] == `Debit MasterCard` ? `debit` : `credit`}_40px height.svg" color="${this.expanderHeaders[index][0] == `Debit MasterCard` ? `#009DE0` : `#E61414`}" .headers="${this.expanderHeaders[index]}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
-					${this.supplementaryCards.map(card => (this._renderDebitLimits(card.cardLimits, "Debit card")))}
+					${this._renderDebitLimits(sub[3], "Debit card")}
             </horizon-expander>
         `);
     }
@@ -390,11 +390,11 @@ export class CardLimitsLanding extends Component {
 
     _renderVirtualCards() {         
         this.expanderHeaders = this.virtualCards.map(card => [card.cardDisplayName, "Cardholder", "Card expiry date"]);
-        this.expanderSubtitle = this.virtualCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight")]);
+        this.expanderSubtitle = this.virtualCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardLimits]);
         return this.expanderSubtitle.map((sub, index) => html`
             <horizon-expander expandButtonAlignment="right" icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] == `Debit MasterCard` ? `debit` : `credit`}_40px height.svg" color="${this.expanderHeaders[index][0] == `Debit MasterCard` ? `#009DE0` : `#E61414`}" .headers="${this.expanderHeaders[index]}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
-					${this.virtualCards.map(card => (this._renderDebitLimits(card.cardLimits, "Debit card")))}
+					${this._renderDebitLimits(sub[3], "Debit card")}
             </horizon-expander>
         `);
     }
