@@ -280,8 +280,8 @@ export class CardLimitsLanding extends Component {
                 <capitec-content-box>
                     <capitec-expander-group modeset="multiple">
                         ${this._renderPrimaryCardGroup()}
-                        ${this._renderSupplementaryCardGroup()}
-                        ${this._renderVirtualCardGroup()}
+                        ${this.supplementaryCards.length  > 0 ? this._renderSupplementaryCardGroup() : ``}
+                        ${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
                     </capitec-expander-group>
                 </capitec-content-box>
 			</capitec-card>
@@ -369,7 +369,7 @@ export class CardLimitsLanding extends Component {
     _renderPrimaryCards() {
         this.expanderSubtitle = this.primaryCards.map(card => [card.maskedCardNumber, card.cardHolderName, ("30 " + getMonthName(card.cardExpiryMonth - 1) + " 20" + card.cardExpiryYear + " at midnight"), card.cardDisplayName]);
 		//this.limits= this.primaryCards.map(card => {cardLimits:card.cardLimits, cardType : card.cardType});
-
+         
 	   return this.expanderSubtitle.map((sub, index) =>  html`
             <horizon-expander class="primary-expander" expandButtonAlignment="right" icon="/images/cardArt/black_front_credit_40px height.svg" .headers="${this.expanderHeaders}" .subtitles="${this.expanderSubtitle[index]}">
 					${this._renderHeaders()}
