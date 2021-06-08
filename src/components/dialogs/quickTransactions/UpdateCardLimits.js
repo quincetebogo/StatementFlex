@@ -54,7 +54,9 @@ export class UpdateCardLimits extends Component {
 				permanentCnpAmountLimit: ``
 			}
 		};
+
 		this.maxValue = ``;
+		this.displayCard = ``;
 
 		this.primaryPermanentLimits;
 		this.primaryTemporaryLimits;
@@ -90,6 +92,7 @@ export class UpdateCardLimits extends Component {
 		return {
 			cardLimits: { type: Object },
 			updateType: { type: String },
+			displayCard: { type: String },
 
 			primaryPermanentLimits: { type: Number },
 			primaryTemporaryLimits: { type: Number },
@@ -195,6 +198,12 @@ export class UpdateCardLimits extends Component {
 
 		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
 		this.limitLabel = this.updateType === "Credit card" ? "Credit Limits" : "Debit limits" ;
+		
+		if (this.updateType === "Credit card") {
+			this.displayCard = "credit"
+		} else {
+			this.displayCard = "debit";
+		}
 
 		let limitObj = this.cardLimits;
 
@@ -267,6 +276,7 @@ export class UpdateCardLimits extends Component {
 				--theme-card-border-radius: 4px;
 			}
 			.dailyLimitsEx {
+				--theme-type-background: #E1E1E1;
 				--theme-titlebar-padding: 0px;
 				height: 99px;
 			}
@@ -409,7 +419,7 @@ export class UpdateCardLimits extends Component {
 				--theme-label-font-color: #3A3A3A;
 			}
 			.label-bold {
-				--theme-label-subtitle-font-weight: 600;
+				--theme-label-strong-font-weight: 600;
 			}
 			div[slot="footer"] > capitec-group {
 				--theme-layout-gap-spacing: 7px;
@@ -576,7 +586,7 @@ export class UpdateCardLimits extends Component {
 	_renderCard() {
 		return html`
 		<capitec-content-box class="card-img-cb">
-		    <img class= "card-img" src="/images/cardArt/black_front_debit_40px height.svg"/>
+		    <img class= "card-img" src="/images/cardArt/black_front_${this.displayCard}_40px height.svg"/>
 		</capitec-content-box>
 		`;
 	}
@@ -703,11 +713,13 @@ export class UpdateCardLimits extends Component {
 					<capitec-label
 						label="Notify client: "
 						type="strong"
-						class="label-bold">
+						class="label-bold"
+						style="color: #3A3A3A">
 					</capitec-label>
 					<capitec-label
 						label="Upon activating tap to pay you will need to place the physical card inside a card machine or atm."
-						type="subtitle">
+						type="subtitle"
+						style="color: #3A3A3A">
 					</capitec-label>
 				</capitec-title-bar>
 			</capitec-card>

@@ -300,7 +300,7 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					padding: var(--theme-expander-header-padding, 10px);
+					/*padding: var(--theme-expander-header-padding, 10px);*/
 					border-top: var(--theme-expander-border, 1px solid black);
 					cursor: pointer;
                     padding: 0px;
@@ -551,7 +551,7 @@ export class Expander extends Component {
 	 */
     _webTemplate() {
         return html`
-			<capitec-group class="header" style="border-left: 4px solid ${this.color};" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
+			<capitec-group class="header" style="border-left: 4px solid ${this.color}; height: 64px" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
 				${this._renderExpanderButton()}
 			</capitec-group>
 
