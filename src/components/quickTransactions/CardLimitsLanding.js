@@ -216,7 +216,7 @@ export class CardLimitsLanding extends Component {
                 
                 capitec-hyperlink{
                     text-align: right;
-                    color: #3A3A3A;
+                    color: #009DE0;
                     font-family: "Hind Vadodara";
                     font-size: 16px;
                     font-weight: 500;
@@ -262,8 +262,8 @@ export class CardLimitsLanding extends Component {
                 <capitec-content-box>
                     <capitec-expander-group modeset="multiple">
                         ${this._renderPrimaryCardGroup()}
-                        ${this._renderSupplementaryCardGroup()}
-                        ${this._renderVirtualCardGroup()}
+                        ${this.supplementaryCards.length  > 0 ? this._renderSupplementaryCardGroup() : ``}
+                        ${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
                     </capitec-expander-group>
                 </capitec-content-box>
 			</capitec-card>
@@ -282,7 +282,7 @@ export class CardLimitsLanding extends Component {
 			</capitec-title-bar>
 		`;
     }
- 
+
     _renderHeaders() {
         return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left"  style="margin-bottom:0px;">
@@ -292,7 +292,7 @@ export class CardLimitsLanding extends Component {
 	            <capitec-label row="1" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
 	            <capitec-label row="1" column="5" colspan="1" label="Actions" size="4"></capitec-label>			
 			</capitec-group>
-             `;      
+        `;
     }
   
     _renderCreditLimits(limits, cardType) {
@@ -357,7 +357,7 @@ export class CardLimitsLanding extends Component {
 		<!-- card type need to cleaned up based on how we can differentiate credit and debit cards -->
 					${this.primaryCards.map(item => item.cardType === 0 ? this._renderDebitLimits(item.cardLimits, "Debit card") : this._renderCreditLimits(item.cardLimits, "Credit card") )}
             </horizon-expander>
-`);
+        `);
     }
 
     _renderSupplementaryCardGroup() {
@@ -366,7 +366,6 @@ export class CardLimitsLanding extends Component {
 			<capitec-label label="Supplementary card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderSupplementaryCards()}
-
         `;
     }
 
@@ -377,7 +376,7 @@ export class CardLimitsLanding extends Component {
 					${this._renderHeaders()}
 					${this._renderDebitLimits()}
             </horizon-expander>
-`);
+        `);
     }
 
     _renderVirtualCardGroup() {
@@ -386,7 +385,6 @@ export class CardLimitsLanding extends Component {
 			<capitec-label label="Virtual card(s)" type="strong" class="card-title">
 			</capitec-label>
             ${this._renderVirtualCards()}
-
         `;
     }
 
@@ -398,9 +396,8 @@ export class CardLimitsLanding extends Component {
 					${this._renderHeaders()}
 					${this._renderDebitLimits()}
             </horizon-expander>
-`);
+        `);
     }
-
 }
 
 customElements.define(`horizon-card-limits-landing`, CardLimitsLanding);

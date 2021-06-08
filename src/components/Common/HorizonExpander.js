@@ -445,6 +445,16 @@ export class Expander extends Component {
                 }                
                 horizon-label{
                     width: 182px;
+
+                    --horizon-label-text-height: 20px;
+                    --horizon-label-text-color: #3A3A3A;
+                    --horizon-label-text-font-size: 14px;
+                    --horizon-label-text-line-height: 20px;
+                    
+                    --horizon-label-value-height: 20px;
+                    --horizon-label-value-color: #3A3A3A;
+                    --horizon-label-value-font-size: 16px;
+                    --horizon-label-value-line-height: 20px;
                 }                
                 horizon-label[label="Card expiry date"]{
                     width: 200px;
