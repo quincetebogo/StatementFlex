@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { EventAggregator } from 'platform/core';
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
+import 'app/components/dialogs/ValueAddedServices';
 
 export class AccessMenuBar extends Component {
 
@@ -15,8 +17,10 @@ export class AccessMenuBar extends Component {
 
 		this.showAlert = false;
 		this.isBusy = false;
+		this.showValueAddedServicesModal = false;
 
 		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
 	}
@@ -30,7 +34,8 @@ export class AccessMenuBar extends Component {
 			showAlert: { type: Boolean },
 
 			isBusy: { attribute: false },
-			status: { attribute: false }
+			status: { attribute: false },
+			showValueAddedServicesModal: { attribute: false }
 		};
 	}
 
@@ -57,6 +62,18 @@ export class AccessMenuBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_showVASModal() {
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
+
+	_onCancel() {
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
+
+	_onAccept() {
+		this.eventAggregator.publish(`horizon-accepted-vas`, {});
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -103,8 +120,9 @@ export class AccessMenuBar extends Component {
 					--theme-card-border-radius: 0px 4px 0 0;
 					--theme-titlebar-shadow: 1px solid #E1E1E1;
 				}
-				capitec-icon[icon="system/notify"] {
-					--theme-icon-size-small: 26px;
+				capitec-icon[icon="system/settings-action"] {
+					--theme-icon-size-small: 24px;
+					cursor: pointer;
 				}
 				.insights-group {
 					height: 398px;
@@ -150,7 +168,8 @@ export class AccessMenuBar extends Component {
 				${this.renderAccessChannelTabs()}
 			</section>
 			${this.renderAccessChannelError()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderValueAddedServicesModal()}`;
 	}
 
 	renderClientInsights() {
@@ -162,7 +181,8 @@ export class AccessMenuBar extends Component {
 						<capitec-spacer></capitec-spacer>
 						<capitec-icon
 							size="small"
-							icon="system/notify">
+							icon="system/settings-action"
+							@click = "${() => this._showVASModal()}">
 						</capitec-icon>
 				</capitec-title-bar>
 
@@ -224,6 +244,17 @@ export class AccessMenuBar extends Component {
 
 		return html``;
 	}
+
+	_renderValueAddedServicesModal() {
+		return this.showValueAddedServicesModal
+		? html`
+			<horizon-value-added-services
+				@on-cancel="${() => this._onCancel()}"
+				@accept="${() => this._onAccept()}">
+			</horizon-value-added-services>`
+		: html``;
+	}
+
 }
 
 window.customElements.define(`access-component`, AccessMenuBar);

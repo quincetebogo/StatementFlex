@@ -1,6 +1,6 @@
 import { EventAggregator, Logger } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
@@ -57,6 +57,8 @@ export class ViewBase extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showEndCall = false;
 		this.showAddCallerDetails = false;
+		this.displayToast = false;
+		this.toastDetail = ``;
 	}
 
 	// --------------
@@ -66,13 +68,15 @@ export class ViewBase extends View {
 	static get properties() {
 		return {
 			callerInformation: { attribute: false },
-		    incomingCallDetails: { attribute: false },
+			incomingCallDetails: { attribute: false },
+			incidentDetails: { attribute: false },
 			verificationStatus: { attribute: false },
 
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			showEndCall: { attribute: false },
-			showAddCallerDetails: { attribute: false }
+			showAddCallerDetails: { attribute: false },
+			displayToast: { attribute: false }
 		};
 	}
 
@@ -85,6 +89,7 @@ export class ViewBase extends View {
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
+		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
 
 		super.connectedCallback();
 	}
@@ -94,6 +99,7 @@ export class ViewBase extends View {
 		this.verifySub.dispose();
 		this.assignSub.dispose();
 		this.addCallerDetailsSub.dispose();
+		this.vasToast.dispose();
 	
 		super.disconnectedCallback();
 	}
@@ -146,6 +152,16 @@ export class ViewBase extends View {
 	_handleChannelServiceError() {
 		this.horizonRouter.navigateToSystemError();
 		return true;
+	}
+
+	_toastVAS() {
+		this._toggleToastDisplay();
+		this.toastDetail = `Value added services complete, you can update anytime.`;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = !this.displayToast;
 	}
 
 	// ---------------
@@ -213,6 +229,24 @@ export class ViewBase extends View {
 	// RENDERING
 	// ---------
 
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				capitec-toast {
+					position: absolute;
+					justify-content: center;
+					align-items: center;
+					top: var(--horizon-toast-top);
+					left: calc(50% - 200px);
+					z-index: 809;
+					
+					--theme-toast-min-width: 560px;
+				}
+			`
+		];
+	}
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -227,6 +261,7 @@ export class ViewBase extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
 			${this._renderAddCallerDetailsModal()}
+			${this._renderToast()}
 		`; 
 	}
 
@@ -275,5 +310,17 @@ export class ViewBase extends View {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
+	}
+
+	_renderToast() {
+		return this.displayToast
+			? html`
+				<capitec-toast
+					type="success"
+					header="Successful"
+					detail="${this.toastDetail}"
+					closable>
+				</capitec-toast>`
+		 	: html``;
 	}
 }
