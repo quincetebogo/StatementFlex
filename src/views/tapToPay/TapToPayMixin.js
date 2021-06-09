@@ -19,7 +19,6 @@ import { html } from 'platform/elements';
  *   this.renderMode 
  *   this.callerInformation
  *   this.incidentDetails
- *   this.selectedCard
  *
  *   this.cards
  */
