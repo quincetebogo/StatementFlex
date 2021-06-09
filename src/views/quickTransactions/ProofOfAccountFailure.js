@@ -68,6 +68,7 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -77,8 +78,7 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
-		// TODO: might make service call over here to resend or navigate to Proof of account model again
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------

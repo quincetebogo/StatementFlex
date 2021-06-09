@@ -67,6 +67,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 	
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
@@ -76,11 +77,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 		
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------------

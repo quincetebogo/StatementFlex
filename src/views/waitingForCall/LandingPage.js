@@ -11,7 +11,6 @@ import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { ScreenDetails } from 'app/models/ScreenDetails';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
@@ -144,7 +143,7 @@ export class LandingPage extends ViewBase {
 	}
 
 	async _createIncident(newCallInfo) {
-		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, () => this._incidentErrorHandler());
+		 const returnValue = await this.incidentManagementService.createIncident(newCallInfo, (ex) => this._landingPageErrorHandler(ex));
 		 const incident = returnValue.result;
 
 		 if (!returnValue.succeeded || !incident) {
@@ -224,11 +223,9 @@ export class LandingPage extends ViewBase {
 			newCallInfo.agentTelephoneNumber,
 			newCallInfo.ivrOptionCode
 		);
-		const screenDetails = new ScreenDetails();
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-		this.horizonStore.setScreenDetails(screenDetails);
 
 		const state = {
 			callStatus: this.callStatus,
@@ -320,10 +317,11 @@ export class LandingPage extends ViewBase {
 
 	async _GetLandingPageData() {
 		const returnValue = await this.initialiseService.initialise();
-		const landingPageData = returnValue.result;
-		this.employeeId = landingPageData.loggedInAgent.employeeId;
 
 		if (returnValue.succeeded) {
+			const landingPageData = returnValue.result;
+			this.employeeId = landingPageData.loggedInAgent.employeeId;
+			
 			this.horizonViewManager.UpdateLoggedInUser({ agentFullName: landingPageData.agentFullName, employeeId: landingPageData.loggedInAgent.employeeId });
 			this.eventAggregator.publish(`horizon-update-welcome-bar`, { fullname: landingPageData.agentFullName });
 		}
