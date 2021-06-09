@@ -88,11 +88,7 @@ export class Favourites extends SavingsAccountBase {
 	static get properties() {
 		return {
 			isLoading: { attribute: false },
-			verificationToastDisplayed: { attribute: false },
-			incidentDetails: { type: Object },
-			incomingCallDetails: { type: Object },
-			alertBannerMessage: { attribute: false },
-			selectedFeedback: { attribute: false }
+			verificationToastDisplayed: { attribute: false }
 		};
 	}
 
