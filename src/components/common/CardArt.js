@@ -300,12 +300,17 @@ export class CardArt extends Component {
 	}
 
 	_webTemplate() {
-		return html`
-			<capitec-card class="cardArt">
-				${this._renderCard()}
-				<slot id="cardAction" name="cardAction"></slot>
-			</capitec-card>
-		`;
+		switch(this.context) {
+			case 'cardArt':
+				return html`${this.cardArtSVG}`;
+			default:
+				return html`
+					<capitec-card class="cardArt">
+						${this._renderCard()}
+						<slot id="cardAction" name="cardAction"></slot>
+					</capitec-card>
+				`;
+		}
 	}
 
 	_renderCard() {
