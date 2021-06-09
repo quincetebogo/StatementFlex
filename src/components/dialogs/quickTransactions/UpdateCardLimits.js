@@ -100,6 +100,7 @@ export class UpdateCardLimits extends Component {
 	 */
 	static get properties() {
 		return {
+			limitType: { type: String },
 			cardDetails: { type: Object },
 			updateType: { type: String },
 			getAgreement: { type: String },
@@ -133,15 +134,12 @@ export class UpdateCardLimits extends Component {
 		super.connectedCallback();
 
 		this.cardLimits = this.cardDetails.cardLimits;
+		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
 		this.cardArtDetails = {
 			cardArt: this.cardDetails.cardArt,
 			cardHoldName: this.cardDetails.cardHolderName,
-			primaryAccountId: this.cardDetails.primaryAccountId
+			primaryAccountId: this.cardDetails.primarySavingsAccountId || this.cardDetails.primaryCreditAccountId
 		};
-
-		//this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
-		this.cardLimits = this.cardDetails.cardLimits;
-		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
 
 		this._initialise();
 	}
@@ -181,7 +179,7 @@ export class UpdateCardLimits extends Component {
 		
 		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus())
 
-		if(this.getAgreement) {
+		if (this.getAgreement) {
 			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
 			this.renderMode = RENDER_MODE.AGGREMENT;
 		}
@@ -192,9 +190,18 @@ export class UpdateCardLimits extends Component {
 									? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement 
 									: this.cardlimitsInfo.acceptedLimitsAgreement;
 		if (accepedToAgreement) {
-			// TODO: Navigate to successful screen
-			// Harwired to show landing page at the moment
-			this.dispatchEvent(new CustomEvent(`cancel`, {}));
+			const _tapToPayStatusChange = this._getTapToPayStatus();
+
+			this.dispatchEvent(new CustomEvent(`on-accepted`, {
+				detail: {
+					agreements: this.getAgreement,
+					agreementAccepted: accepedToAgreement,
+					card: this.cardDetails,
+					istapToPayUnChanged: _tapToPayStatusChange === TAP_TO_PAY_STATUS.UNCHANGED,
+					tapToPayStatusChange: _tapToPayStatusChange,
+					tapToPayStatus: this._tapToPayStatus
+				}
+			}));
 		}
 	}
 
@@ -271,15 +278,6 @@ export class UpdateCardLimits extends Component {
 
 	_getFieldError(value) {
 		return !value ? `` : `Max limit - ${formatCurrency(value)}`;
-	}
-
-	async _getLimitsAgreement() {
-		//this.cardDetails.isContactlessActivated =  this._getTapToPayStatus();
-		// this.dispatchEvent(new CustomEvent(`on-next`, {
-		// 	detail: { 
-		// 		selectedCardDetails : this.cardDetails
-		// 	}
-		// }));
 	}
 
 	_getTapToPayStatus() {
@@ -577,7 +575,7 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Update ${this.updateType} Limits">
+			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} ${this.updateType} Limits">
 				<div slot="body">
 					<capitec-stepper
 						layout="horizontal"
@@ -622,7 +620,7 @@ export class UpdateCardLimits extends Component {
 			? html`
 				<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
-					${this.updateType === `Credit card`
+					${this.updateType === `Credit`
 						? this._renderCreditLimits()
 						: this._renderDebitLimits()
 					}

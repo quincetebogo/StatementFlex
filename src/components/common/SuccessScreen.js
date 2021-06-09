@@ -115,7 +115,6 @@ export class SuccessScreen extends Component {
 				}
 
 				#id-successful-img {
-					margin-top: 174px;
 					width: auto;
 				}
 				#id-successful-header {

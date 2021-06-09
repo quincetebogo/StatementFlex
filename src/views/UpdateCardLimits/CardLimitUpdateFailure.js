@@ -13,9 +13,12 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	constructor() {
 		super();
 
-		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
-
+		this.displayToast = false;
+		this.limitType = ``;
+		this.cardCategory = ``;
+		this.maskedCardNumber = ``;
+		this.limitExpiryDate = ``;
+		this.istapToPayUnChanged = false;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
@@ -25,7 +28,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-
+			displayToast: { type: Boolean, attibute: false }
 		};
 	}
 
@@ -35,6 +38,20 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._updateIncidentState();
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const limitDetails = screenDetails.limitDetails;
+
+		this.maskedCardNumber = limitDetails.cardMaskedNumber;
+		this.limitType = limitDetails.limitType;
+		this.cardCategory = limitDetails.cardCategory;
+		this.limitExpiryDate = limitDetails.limitExpiryDate;
+		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
+
+		this._toggleToastDisplay();
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	disconnectedCallback() {
@@ -46,12 +63,16 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate after card limit successfully updated
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_onHandoff() {
 		this.horizonRouter.navigateToStrack(this.incidentRecId);
-		// TODO : Functionality to update card limits
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = !this.displayToast;
 	}
 
 	// --------------
@@ -61,6 +82,12 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -74,7 +101,11 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 				.id-update-msg {
 					width: auto;
 				}
-
+				#id-failure-toast {
+					position: absolute;
+					top : var(--toast-top, 130px);
+					margin-left: var(--toast-margin-left, 382px);
+				}
 				.card {
 					height: 112px;
 					width: auto;
@@ -90,25 +121,57 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderCardLimitsUpdateFailure()}
+			${this._renderTapToPayToast()}
 			${this._renderRelatedOptions()}
 
 			${super._webTemplate()}
 		`;
 	}
 
+	_renderTapToPayToast() {
+		return !this.istapToPayUnChanged && this.displayToast
+			? html`
+				<capitec-toast 
+					id="id-failure-toast"
+					type="error"
+					header="Unsuccessful"
+					detail="Tap to pay not updated"
+					closable
+					@click="${() => this.displayToast = false}">
+				</capitec-toast>`
+			: html``;
+	}
+
 	_renderCardLimitsUpdateFailure() {
 		return html`
 			<horizon--error-screen 
-					header="Permanent card limits not updated" 
-					left="Done"
-					right="Handoff"
-					toast="Permanent card limit updated."
-					image="/images/cards-unsuccesful-limit-update.svg"
-					@left-click=${() => this._doneClick()}
-					@right-click=${() => this._onHandoff()}>
-					<section id="id-error-msg" slot="detail"><b>The permanent card limits for debit card 5284 **** **** 1522 was not updated.</b></section>
+				header="${this.limitType} card limits not updated" 
+				left="Done"
+				right="Handoff"
+				toast="${this.limitType} card limit updated."
+				image="/images/cards-unsuccesful-limit-update.svg"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._onHandoff()}>
+					<section
+						id="id-error-msg"
+						slot="detail">
+							The ${this.limitType.toLowerCase()} card limits for ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not updated.
+					</section>
+
+					${this._renderTapToPayInfo()}
 			</horizon--error-screen>
 		`;
+	}
+
+	_renderTapToPayInfo() {
+		return !this.istapToPayUnChanged
+			? html`
+				<section 
+					class="id-update-msg" 
+					slot="sub-detail">
+						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not activated.
+				</section>`
+			: html``;
 	}
 
 	_renderRelatedOptions() {
@@ -120,4 +183,4 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	}
 }
 
-customElements.define(`permanent-card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
+customElements.define(`card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
