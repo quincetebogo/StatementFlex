@@ -306,7 +306,7 @@ export class FavouriteTransactions extends Component {
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
 	                    style="visibility: visible;"
-						>
+>
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
