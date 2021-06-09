@@ -340,7 +340,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.getCardLimits();
 		}
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
-		return this._get(url, this._setToken(), `cardLimitsLanding`);
+		return this._get(url, this._setToken(), `getCardLimits`);
 	}
 
 	updateCardLimitsAgreement(cardDetails) {
@@ -352,8 +352,20 @@ export class HorizonChannelService extends Service {
 			return this._mock.tapToPay(cifNumber);
 		}
 
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?${cifNumber}`;
-		return this._get(url, this._setToken(), `tapToPay`);
+		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
+		return this._get(url, this._setToken(), `tapToPayLanding`);
+	}
+
+	tapToPayAgreement(agreementInfo) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+
+		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
+	}
+
+	updateTapToPay(acceptTapToPay) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+
+		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
 	}
 	
 	async stopCard(stopCardRequest) {

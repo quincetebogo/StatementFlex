@@ -19,11 +19,6 @@
 	 * and the same are cleared when toggling between needs or no longer needed
 	 */
 
-	constructor(
-		returnToScreen = ``,
-		returnToOption = ``
-	) {
-		this.returnToScreen = returnToScreen;
-		this.returnToOption = returnToOption;
+	constructor() {
 	}
 };

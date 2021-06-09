@@ -6,6 +6,7 @@ import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -35,8 +36,9 @@ export class Favourites extends SavingsAccountBase {
     constructor() {
         super();
 
-        // private properites
-        this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+		this.agreementResult = ``;
+		// private properites
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
         this.isLoading = true;
 
@@ -52,6 +54,9 @@ export class Favourites extends SavingsAccountBase {
 
         this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
     }
+		
+		Object.assign(Favourites.prototype, tapToPayMixin);
+	}
 
     // --------------
     // PROPERTIES
@@ -79,9 +84,9 @@ export class Favourites extends SavingsAccountBase {
             // debiChecksOutstanding: this.pendingMandateCount
         });
 
-        this._updateReturnToScreen();
-        this._initialise();
-        this._performAction = async (option) => {
+	this._initialise();
+	
+		this._performAction = async (option) => {
 
             const stopCard = () => this._stopCard();
             const debiCheck = () => this._debiCheck();
@@ -306,12 +311,12 @@ export class Favourites extends SavingsAccountBase {
             this.incomingCallDetails.ivrOptionCode = `StopCard`;
             this.incomingCallDetails.ivrOption.value = `StopCard`;
 
-            const screenDetails = this.horizonStore.getScreenDetails();
-            screenDetails.cards = returnValue.result && returnValue.result.cards;
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
 
-            this.horizonStore.setCallerInformation(this.callerInformation);
-            this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-            this.horizonStore.setScreenDetails(screenDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
             this.horizonRouter.navigateToStopCard();
         } else {
@@ -335,24 +340,8 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-    async _tapToPay() {
-
-        // Telemetry select Tap to Pay
-        HorizonTelemetry.instance.selectTapToPay({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.TAP_TO_PAY
-        });
-
-        const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-
-        if (returnValue.succeeded) {
-            this.cards = returnValue.result;
-            this.renderMode = RENDER_MODE.TAP_TO_PAY;
-        }
-    }
-
-    _taxCertificates() {
-        // TODO: Functionality to generate tax certificate comes here
+	_taxCertificates() {
+		// TODO: Functionality to generate tax certificate comes here
 
         // Telemetry Tax Certificate
         HorizonTelemetry.instance.selectTaxCertificate({
@@ -525,26 +514,16 @@ export class Favourites extends SavingsAccountBase {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
-					></horizon-proof-of-account>`
-            : html``;
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-proof-of-account>`
+			: html``;
     }
-
-    _renderTapToPay() {
-        return this.renderMode === RENDER_MODE.TAP_TO_PAY
-            ? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				@back="${() => this._backToLandingPage()}"
-			></horizon-tap-to-pay-landing>
-		` : html``;
-    }
-
-    _renderSearchOtherNeed() {
-        return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
-            ? html`
+  
+	_renderSearchOtherNeed() {
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+			? html`
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
