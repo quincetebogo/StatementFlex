@@ -180,7 +180,6 @@ export class CardLimitsLanding extends Component {
                   text-align:right;
                   justify-content: center;
                   padding:0px 16px;
-                  width:206px;
                   height: 33px;
                   color: #3A3A3A;
                   font-family: "Hind Vadodara";
@@ -190,18 +189,16 @@ export class CardLimitsLanding extends Component {
                   line-height: 20px;
                 }
                 .columnGroup{
-                    height:48px;
+                    height:49px;
                     margin-bottom:0px;
                 }                
                 .columnGroup > bb-multi-line-label{
                     padding:6px ;
-                    width:206px;
                     height:49px;
                 }
                 .columnGroup > capitec-label{
                     justify-content:center;
                     padding:0px 16px;
-                    width:206px;
                     height:49px;
                     color: #3A3A3A;
                     font-family: "Hind Vadodara";
@@ -219,7 +216,6 @@ export class CardLimitsLanding extends Component {
                     font-weight: 500;
                     letter-spacing: 0;
                     line-height: 20px;
-                    width:206px;
                 }
                 .primary-expander{
                     margin:16px;
@@ -237,6 +233,21 @@ export class CardLimitsLanding extends Component {
                 }                
                 capitec-card > capitec-content-box{
                     padding: 0px;
+                }
+                .col1{
+                    width:224px;
+                }
+                .col2{
+                    width: 204px;
+                }
+                .col3{
+                    width:207px;
+                }
+                .col4{
+                    width:246px;
+                }
+                .col5{
+                    width:155px;
                 }
 `
         ];
@@ -283,11 +294,11 @@ export class CardLimitsLanding extends Component {
     _renderHeaders() {
         return html`
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left"  style="margin-bottom:0px;">
-	            <capitec-label row="1" column="1" colspan="1" rowspan="1" label="" size="4"></capitec-label>
-	            <capitec-label row="1" column="2" colspan="1" rowspan="1" label="Cash Withdrawals" size="4"></capitec-label>
-	            <capitec-label row="1" column="3" colspan="1" label="Card Machine Purchases" size="4"></capitec-label>
-	            <capitec-label row="1" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
-	            <capitec-label row="1" column="5" colspan="1" label="Actions" size="4"></capitec-label>			
+	            <capitec-label row="1" class="col1" column="1" colspan="1" rowspan="1" label="" size="4"></capitec-label>
+	            <capitec-label row="1" class="col2" column="2" colspan="1" rowspan="1" label="Cash Withdrawals" size="4"></capitec-label>
+	            <capitec-label row="1" class="col3" column="3" colspan="1" label="Card Machine Purchases" size="4"></capitec-label>
+	            <capitec-label row="1" class="col4" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
+	            <capitec-label row="1" class="col5" column="5" colspan="1" label="Actions" size="4"></capitec-label>			
 			</capitec-group>
         `;
     }
@@ -295,11 +306,11 @@ export class CardLimitsLanding extends Component {
     _renderCreditLimits(limits, cardType) {
         return html`
             <capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
-	            <capitec-label class="headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
-	            <capitec-label row="1" column="2" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="3" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="4" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
+	            <capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
+	            <capitec-label class="col2" row="1" column="2" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col3" row="1" column="3" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col4" row="1" column="4" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col5" row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
 			</capitec-group>
             ${this._renderLimits(limits, cardType)}
         `;
@@ -307,31 +318,31 @@ export class CardLimitsLanding extends Component {
     _renderDebitLimits(limits, cardType) {
         return html`
              <capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
-	            <capitec-label class="headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Debit limit" size="4"></capitec-label>
-	            <capitec-label row="1" column="2" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="3" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="4" colspan="1" label="" size="1"></capitec-label>
-	            <capitec-label row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
+	            <capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Debit limit" size="4"></capitec-label>
+	            <capitec-label class="col2" row="1" column="2" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col3" row="1" column="3" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col4" row="1" column="4" colspan="1" label="" size="1"></capitec-label>
+	            <capitec-label class="col5" row="1" column="5" colspan="1" label="" size="1"></capitec-label>			
 			</capitec-group>
             ${this._renderLimits(limits, cardType)}
         `;
     }
     _renderLimits(limits,cardType) {
         return html`
-            <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
-	            <capitec-label row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCashAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCashAmountLimit)}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit)}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCnpAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit)}"></bb-multi-line-label>
-                <capitec-hyperlink @click="${()=>this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
+            <capitec-group @click="${() => this._updateLimits(limits, cardType)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
+	            <capitec-label class="col1" row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
+                <bb-multi-line-label class="col2" row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCashAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCashAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label class="col3" row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label class="col4" row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.permanentCnpAmountLimit)}" value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit)}"></bb-multi-line-label>
+                <capitec-hyperlink class="col5" @click="${()=>this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
 
-            <capitec-group class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
-	            <capitec-label row="1" column="1" colspan="1" label="Temporary limit" size="4"></capitec-label>
-                <bb-multi-line-label row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCashAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit)}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit)}"></bb-multi-line-label>
-                <bb-multi-line-label row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCnpAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit)}"></bb-multi-line-label>
-                <capitec-hyperlink @click="${() => this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
+            <capitec-group @click="${() => this._updateLimits(limits, cardType)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
+	            <capitec-label class="col1" row="1" column="1" colspan="1" label="Temporary limit" size="4"></capitec-label>
+                <bb-multi-line-label class="col2" row="1" column="2" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCashAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label class="col3" row="1" column="3" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempPurchaseAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit)}"></bb-multi-line-label>
+                <bb-multi-line-label class="col4" row="1" column="4" colspan="1" size="4" rowspan="1" label="${formatCurrency(limits.tempCnpAmountLimit)}" value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit)}"></bb-multi-line-label>
+                <capitec-hyperlink class="col5" @click="${() => this._updateLimits(limits,cardType)}" row="1" column="5" colspan="1" size="4" rowspan="1" label="Update"></capitec-hyperlink></capitec-placeholder>                
 			</capitec-group>
         `;
     }
