@@ -47,13 +47,10 @@ export class Favourites extends SavingsAccountBase {
         this.curOptionEvent = null;
         this.cards = [];
 
-		this.showDiscardChangesModal = false;
-        this.showUpdateLimitsModal = false;
         this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
         this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
         this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-    }
 		
 		Object.assign(Favourites.prototype, tapToPayMixin);
 	}
@@ -65,9 +62,7 @@ export class Favourites extends SavingsAccountBase {
     static get properties() {
         return {
             isLoading: { attribute: false },
-            verificationToastDisplayed: { attribute: false },
-            showUpdateLimitsModal: {attribute: false},
-			showDiscardChangesModal: {attribute: false}
+            verificationToastDisplayed: { attribute: false }
 		};
 	}
 
@@ -180,20 +175,14 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
-    async _updateLimits(e) {
-            this._updateType = e.detail.cardType;
-            this._cardLimits = e.detail.cardLimits;
-            this._toggleUpdateLimitsModal();
-        // }
-    }
+	async _getCardLimitsAgreement(agreementRequest) {
+		const returnValue = await this.quickTransactionService.updateCardLimitsAgreement(agreementRequest);
 
-    _toggleUpdateLimitsModal() {
-        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-    }
-
-    _discardChanges() {
-        this.showDiscardChangesModal = !this.showDiscardChangesModal;
-    }
+		if (returnValue.succeeded) {
+			return returnValue;
+		}
+		return null;
+	}
 
     // ---------------
     // PRIVATE METHODS
@@ -385,14 +374,6 @@ export class Favourites extends SavingsAccountBase {
         });
     }
 
-    _onUpdateClick() {
-        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
-    }
-
-    _discardCancel() {
-
-    }
-
     // ---------
     // RENDERING
     // ---------
@@ -430,38 +411,9 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
-            ${this._renderUpdateLimitsModal()}
-            ${this._renderDiscardChangesModal()}
 
 			${super._webTemplate()}
 		`;
-    }
-
-
-    _renderUpdateLimitsModal() {
-        if (this.showUpdateLimitsModal) {
-            return html`
-                <horizon-update-card-limits
-                    .updateType="${this._updateType}"
-                    .cardLimits="${this._cardLimits}"
-                    @cancel="${() => {
-                    this._toggleUpdateLimitsModal(),
-                    this._discardChanges()}}">
-                </horizon-update-card-limits>`
-        }
-        return  html``;
-    }
-
-    _renderDiscardChangesModal() {
-        return this.showDiscardChangesModal
-            ? html`
-                <horizon-discard-changes
-                    @on-cancel="${() => {
-                    this._discardChanges(),
-                    this._toggleUpdateLimitsModal()}}"
-                    @click="${() => this._discardChanges()}">
-                </horizon-discard-changes>`
-            : html``;
     }
 
     _renderFavouritesLandingPage() {
@@ -504,6 +456,7 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"
                     @update-limits="${(e) => this._updateLimits(e)}">
 				</horizon-card-limits-landing>`

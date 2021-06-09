@@ -49,6 +49,7 @@ export class UpdateCardLimits extends Component {
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.LIMITS;
 		this.cardlimitsInfo = {};
+		this.getAgreement = {};
 
 		this.error = {
 			credit: {
@@ -80,9 +81,8 @@ export class UpdateCardLimits extends Component {
 		this.tapToPayAgreementExpanded = false;
 		
 		this.horizonStore = HorizonStore.getInstance();
-		
+
 		this.cardLimits = {};
-		this.cardLimitsAgreement = ``;
 		this._tapToPayStatus = TAP_TO_PAY_STATUS.UNCHANGED;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -94,7 +94,7 @@ export class UpdateCardLimits extends Component {
 
 	/**
 	 *
-	 * @property {string} cardDetails Object has the card details
+	 * @property {string} cardLimits Object has the card details
 	 * @property {string} updateType Type of update, permament/temporary
 	 *
 	 * @readonly
@@ -105,7 +105,9 @@ export class UpdateCardLimits extends Component {
 		return {
 			cardDetails: { type: Object },
 			updateType: { type: String },
+			getAgreement: { type: String },
 			displayCard: { type: String },
+			getCardLimitsAgreement: { type: Object, attribute: false },
 
 			primaryPermanentLimits: { type: Number },
 			primaryTemporaryLimits: { type: Number },
@@ -133,7 +135,8 @@ export class UpdateCardLimits extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		this.cardLimits = this.cardDetails.limits;
+		//this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
+		this.cardLimits = this.cardDetails.cardLimits;
 		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
 
 		this._initialise();
@@ -146,7 +149,7 @@ export class UpdateCardLimits extends Component {
 	_limitChanged(e, transactionType, maxLimit) {
 
 		if (e.detail.new) {
-			this.cardLimits[e.currentTarget.id] = this._formatAmount(e.detail.new);
+			this.cardLimits[e.currentTarget.id] = e.detail.new;
 
 			if (Number(e.detail.new) > Number(maxLimit)) {
 				this.error[transactionType][e.currentTarget.id] = maxLimit;
@@ -267,33 +270,19 @@ export class UpdateCardLimits extends Component {
 	}
 
 	async _getLimitsAgreement() {
-		// This can be moved into QuickTransaction service layer when design is ready.
-		const request = {
-			cardDetails: {
-				cardDetails: {
-					cardId: this.cardLimits.cardId,
-					accountId: this.cardLimits.accountId,
-					customerId: this.cardLimits.customerId,
-					cardExpiryYear: this.cardDetails.cardExpiryYear,
-					cardExpiryMonth: this.cardDetails.cardExpiryMonth,
-					cardSequenceNumber: this.cardDetails.cardSequenceNumber
-				},
-				permanentCashAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.cashLimit : 0,
-				permanentPurchaseAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.purchaseLimit : 0,
-				permanentCnpAmountLimit: this.updateType === `Permanent` ? this.cardlimitsInfo.credit.cnpLimit : 0,
-				tempCashAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.cashLimit : 0,
-				tempPurchaseAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.purchaseLimit : 0,
-				tempCnpAmountLimit: this.updateType === `Temporary` ? this.cardlimitsInfo.credit.cnpLimit : 0
-			},
-			tapToPayStatusChange: this._getTapToPayStatus()
-		};
+		//this.cardDetails.isContactlessActivated =  this._getTapToPayStatus();
 
-		const returnValue = await this.quickTransactionService.updateCardLimitsAgreement(request);
-		
-		 if (returnValue.succeeded) {
-			this.cardLimitsAgreement = returnValue.result.cardLimitsAgreement.agreementContent.agreementContentData;
+		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus())
+
+		if(this.getAgreement) {
+			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
 			this.renderMode = RENDER_MODE.AGGREMENT;
 		}
+		// this.dispatchEvent(new CustomEvent(`on-next`, {
+		// 	detail: { 
+		// 		selectedCardDetails : this.cardDetails
+		// 	}
+		// }));
 	}
 
 	_getTapToPayStatus() {
