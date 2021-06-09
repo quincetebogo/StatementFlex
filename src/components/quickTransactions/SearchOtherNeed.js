@@ -72,21 +72,14 @@ export class SearchOtherNeed extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._loading();
 		this.issuesWithSolution = this.issues;
 		this.issues = this.issues.map(item => item.issue);
 
-		HorizonTelemetry.instance.screenLoadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED
-		});
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			clientNeed: this.category,
-			specificNeed: this.need,
-			issueType: this.issue
-		});
+		this._unloading();
 		super.disconnectedCallback();
 	}
 
@@ -129,6 +122,14 @@ export class SearchOtherNeed extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_loading() {
+		this.dispatchEvent(new CustomEvent(`loading`));
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
 
 	_launchStrack() {
 		this.dispatchEvent(new CustomEvent(`launch-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));

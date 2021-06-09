@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
@@ -20,7 +19,7 @@ const FEEDBACK_OPTIONS = [
 ];
 
 const ERROR_LIST = {
-	VALIDATION_ERROR: `Please choose an option:`,
+	VALIDATION_ERROR: `Please choose an option:`
 };
 
 /**
@@ -87,16 +86,15 @@ export class Feedback extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _doneClick() {
+	_doneClick() {
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
-		}
-		else{		
+		} else {
 		// Telemetry
 		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK,
+			screen: TelemetryScreen.FEEDBACK
 		});
-		this.dispatchEvent(new CustomEvent(`done`, {detail : this.selectedFeedback}));
+		this.dispatchEvent(new CustomEvent(`done`, { detail: this.selectedFeedback }));
 		}
 	}
 

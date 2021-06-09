@@ -255,6 +255,21 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
+	_loadingSearchOtherNeed() {
+		HorizonTelemetry.instance.screenLoadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		});
+	}
+
+	_unloadingSearchOtherNeed() {
+		HorizonTelemetry.instance.screenUnloadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			clientNeed: this.category,
+			specificNeed: this.need,
+			issueType: this.issue
+		});
+	}
+
     // ---------------
     // PRIVATE METHODS
     // ---------------
@@ -637,6 +652,8 @@ export class Favourites extends SavingsAccountBase {
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
+					@loading="${() => this._loadingSearchOtherNeed()}"
+					@unloading="${() => this._unloadingSearchOtherNeed()}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
