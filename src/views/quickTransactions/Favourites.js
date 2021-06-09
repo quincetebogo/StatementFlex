@@ -6,6 +6,7 @@ import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -35,8 +36,9 @@ export class Favourites extends SavingsAccountBase {
     constructor() {
         super();
 
-        // private properites
-        this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
+		this.agreementResult = ``;
+		// private properites
+		this.verificationToastDisplayed = this.callerInformation.verificationToastDisplayed;
 
         this.isLoading = true;
 
@@ -45,6 +47,9 @@ export class Favourites extends SavingsAccountBase {
         this.curOptionEvent = null;
         this.cards = [];
 
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
+
+		Object.assign(Favourites.prototype, tapToPayMixin);	
 		this.showDiscardChangesModal = false;
         this.showUpdateLimitsModal = false;
         this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
@@ -306,8 +311,9 @@ export class Favourites extends SavingsAccountBase {
             this.incomingCallDetails.ivrOptionCode = `StopCard`;
             this.incomingCallDetails.ivrOption.value = `StopCard`;
 
-            const screenDetails = this.horizonStore.getScreenDetails();
-            screenDetails.cards = returnValue.result && returnValue.result.cards;
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
 
             this.horizonStore.setCallerInformation(this.callerInformation);
             this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
@@ -525,11 +531,11 @@ export class Favourites extends SavingsAccountBase {
         return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
             ? html`
 				<horizon-proof-of-account
-					@cancel="${() => this._backToLandingPage()}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
-					></horizon-proof-of-account>`
-            : html``;
+					@cancel="${() => this._backToLandingPage()}">
+				</horizon-proof-of-account>`
+			: html``;
     }
 
     _renderTapToPay() {

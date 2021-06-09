@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
+import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -121,6 +121,8 @@ export class StatementsDialog extends Component {
 
 	constructor() {
 		super();
+
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.EMAIL;
@@ -424,6 +426,7 @@ export class StatementsDialog extends Component {
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
 		this._updateScreenDetails();
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();

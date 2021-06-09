@@ -59,17 +59,8 @@ export class StatementsUnsuccess extends ViewBase {
 			screen: TelemetryScreen.STATEMENTS_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const returnToScreen = screenDetails && screenDetails.returnToScreen;
 
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
-
-		const landingScreens = {
-			'Favourites': transactLP,
-			'SavingsAccount': savingsAccountLP
-		};
-		landingScreens[returnToScreen]();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_handoffClick() {
@@ -81,7 +72,7 @@ export class StatementsUnsuccess extends ViewBase {
 		const incidentRecId = this.incidentDetails.incidentRecId;
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------

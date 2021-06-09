@@ -2,7 +2,6 @@ import { Component, View } from 'platform/elements';
 import { Configuration, Logger } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { ScreenDetails } from 'app/models/ScreenDetails';
 
 const HORIZON_NEED_STATUS = {
 	INPROGRESS: `InProgress`,
@@ -250,7 +249,6 @@ export class HorizonIncidentManager {
 		} else {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);
 		}
-		this._resetScreenDetails();
 	}
 
 	/**
@@ -305,14 +303,5 @@ export class HorizonIncidentManager {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Unable to update client details on incident due to a system error`, `_updateSubsequentNeedNonClientDetails`, returnValue.correlationId);
 		}
-	}
-
-	_resetScreenDetails() {
-		const newObj = new ScreenDetails();
-		const screenDetail = this.horizonStore.getScreenDetails();
-
-		newObj.returnToScreen = screenDetail.returnToScreen;
-		newObj.returnToOption = screenDetail.returnToOption;
-		this.horizonStore.setScreenDetails(newObj);
 	}
 }
