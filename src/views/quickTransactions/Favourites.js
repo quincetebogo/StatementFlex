@@ -559,15 +559,15 @@ export class Favourites extends SavingsAccountBase {
         return [
             super.styles,
             css`
-			.favourites{
-				width: 100%;
-				height: 100%;
-			}
+				.favourites{
+					width: 100%;
+					height: 100%;
+				}
 
-			capitec-content-box {
-				width: 100%;
-				height: var(--horizon-panel-height, 888px);
-			}
+				capitec-content-box {
+					width: 100%;
+					height: var(--horizon-panel-height, 888px);
+				}
 			`
         ];
     }
