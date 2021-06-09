@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -49,8 +50,6 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-
-		// Telemetry
 		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
 			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
 			nextScreen: TelemetryScreen.TAP_TO_PAY
@@ -61,8 +60,6 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_tapToPayClick() {
-
-		// Telemetry select Tap to Pay from Success Screen
 		HorizonTelemetry.instance.tapToPaySuccessOutcome({
 			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			nextScreen: TelemetryScreen.TAP_TO_PAY
@@ -120,7 +117,7 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay activated" 
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				image="src/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
