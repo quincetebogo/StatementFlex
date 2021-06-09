@@ -54,34 +54,24 @@ export class StatementsUnsuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
 		HorizonTelemetry.instance.screenUnloadStatements({
 			screen: TelemetryScreen.STATEMENTS_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const returnToScreen = screenDetails && screenDetails.returnToScreen;
 
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
-
-		const landingScreens = {
-			'Favourites': transactLP,
-			'SavingsAccount': savingsAccountLP
-		};
-		landingScreens[returnToScreen]();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_handoffClick() {
-		// Telemetry
 		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: null
+			screen: TelemetryScreen.STATEMENTS_OUTCOME
 		});
-		const incidentRecId = this.incidentDetails.incidentRecId;
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------

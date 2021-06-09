@@ -51,6 +51,7 @@ export class HorizonChannelServiceMocks {
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
 		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
+		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -98,7 +99,7 @@ export class HorizonChannelServiceMocks {
 
 	cardLimitsLanding() {
 		if (this._mocking.cardLimitsLanding.positiveCase) {
-			return this.cardLimitsMocks.mockCards;
+			return this.cardLimitsMocks;
 		}
 
 		// Code for a negative case could come here
@@ -190,10 +191,10 @@ export class HorizonChannelServiceMocks {
 
 	// Tap to pay function
 
-	tapToPay() {
+	tapToPay(cifNumber) {
 
 		if (this._mocking.tapToPayLanding.positiveCase) {
-			return this.cardLimitsMocks.mockCards;
+			return this.tapToPayMocks.mockCards;
 		}
 		return null;
 	}

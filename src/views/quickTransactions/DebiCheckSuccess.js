@@ -35,7 +35,6 @@ export class DebiCheckSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		// Telemetry 
 		HorizonTelemetry.instance.debiCheckOutcome({
 			screen: TelemetryScreen.DEBICHECK_OUTCOME
 		});
@@ -50,24 +49,20 @@ export class DebiCheckSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
 		HorizonTelemetry.instance.debiCheckOutcomeDone({
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
+
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_debiCheckMandatesClick() {
-		// Telemetry
 		HorizonTelemetry.instance.debiCheckOutcomeBackToMandates({
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------

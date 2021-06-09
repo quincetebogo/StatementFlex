@@ -69,6 +69,7 @@ export class ViewBase extends View {
 		return {
 			callerInformation: { attribute: false },
 			incomingCallDetails: { attribute: false },
+			incidentDetails: { attribute: false },
 			verificationStatus: { attribute: false },
 
 			renderMode: { attribute: false },

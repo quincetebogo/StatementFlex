@@ -1,3 +1,4 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -11,16 +12,21 @@ export class TapToPaySuccess extends ViewBase {
 
 	constructor() {
 		super();
-
-		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
+		this.selecetedCard = ``;
 		this.tapToPayStatus = ``;
+		this.maskedCardNumber = ``;
+		this.cardType = ``;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
 
+	static get properties() {
+		return {
+			maskedCardNumber: { type: String }
+		};
+	}
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -28,7 +34,12 @@ export class TapToPaySuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayStatus;
+		this.cardMaskedNumber = screenDetails.tapToPayDetails.cardMaskedNumber;
+		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
+		this._updateIncidentState();
 	}
 
 	disconnectedCallback() {
@@ -40,19 +51,22 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
+		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
+			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
+
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_tapToPayClick() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
+		HorizonTelemetry.instance.tapToPaySuccessOutcome({
+			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			nextScreen: TelemetryScreen.TAP_TO_PAY
+		});
 
-	_tapToPayStatus() {
-
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -63,6 +77,11 @@ export class TapToPaySuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
 
 	// ---------
 	// RENDERING
@@ -99,18 +118,18 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay activated" 
-				image="src/images/cards-successful-tap-to-pay.svg"
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
+				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
-				toast="Tap to pay activated."
+				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._tapToPayClick()}>
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
+							The tap to pay functionality on your dual ${this.cardType} card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
 					</section>
 			</horizon-success-screen>
 		`;

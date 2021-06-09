@@ -55,26 +55,25 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
-		
-		// Telemetry
 		HorizonTelemetry.instance.proofOfAccountOutcome({
 			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_assignClick() {
-
-		// Telemetry
 		HorizonTelemetry.instance.proofOfAccountOutcome({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
 		});
 
-		this.horizonRouter.navigateToReturnPage(`proofofaccount`);
-		// TODO: might make service call over here to resend or navigate to Proof of account model again
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
