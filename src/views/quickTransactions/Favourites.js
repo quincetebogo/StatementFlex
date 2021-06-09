@@ -1,12 +1,10 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { CardService } from 'app/services/CardService';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
-import { isWellFormedSouthAfricanID,isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 
 import 'app/components/dialogs/common/ClientNotVerified';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
@@ -81,9 +79,6 @@ export class Favourites extends SavingsAccountBase {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);
-	
-		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 	}
 
 	// --------------
@@ -181,8 +176,8 @@ export class Favourites extends SavingsAccountBase {
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 			const incidentDetails = this.horizonStore.getIncidentDetails();
 			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key ===  event.detail);
-			const strackIncidentInfo =await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+			const strackIncidentInfo = await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
 			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
 
 			const closeIncidentRequest = {
@@ -192,14 +187,13 @@ export class Favourites extends SavingsAccountBase {
 				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
 			};
 
-			const returnValue =await this.incidentManagementService.closeIncident(closeIncidentRequest);
+			const returnValue = await this.incidentManagementService.closeIncident(closeIncidentRequest);
 			
 			if (returnValue.succeeded) {
 				// Navigate to favourites landing page
 				this._updateIncidentState();
 				this._searchOtherNeedDone();
-			}
-			else {
+			} else {
 				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
 			}
 
@@ -463,11 +457,11 @@ export class Favourites extends SavingsAccountBase {
 			screen: TelemetryScreen.SEARCH_OTHER_NEED,
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
-		const incidentRecId=this.incidentDetails.incidentRecId;
+		const incidentRecId = this.incidentDetails.incidentRecId;
 		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
 		if (continueUpdate) {
-			await this._classifyIncident(event,incidentRecId);
+			await this._classifyIncident(event, incidentRecId);
 		} else {
 			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
 
@@ -498,8 +492,6 @@ export class Favourites extends SavingsAccountBase {
 		this.requestUpdate();
 	}
 
-	
-
 	async _getIssues(event) {
 		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, event.detail.category, event.detail.need);
 
@@ -511,7 +503,7 @@ export class Favourites extends SavingsAccountBase {
 		this.requestUpdate();
 	}
 
-	async _classifyIncident(event,incidentRecId) {
+	async _classifyIncident(event, incidentRecId) {
 		const request = {
 			incidentRecId: incidentRecId,
 			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
@@ -645,18 +637,16 @@ export class Favourites extends SavingsAccountBase {
 		
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
 			? html`
-				<search-other-need
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
+				<horizon-search-other-need
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
-					@launch-strack="${(event)=>this._onLaunchStrackClick(event)}"
-					@get-sub-categories="${(event)=>this._getSubCategories(event)}"
-					@get-issues="${(event)=>this._getIssues(event)}"
+					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
+					@get-sub-categories="${(event) => this._getSubCategories(event)}"
+					@get-issues="${(event) => this._getIssues(event)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
-				</search-other-need>`
+				</horizon-search-other-need>`
 			: html``; 
 	}
 

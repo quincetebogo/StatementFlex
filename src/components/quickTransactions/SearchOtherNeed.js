@@ -1,8 +1,6 @@
 import { Component, css, html, live } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { Logger } from 'platform/core';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -28,10 +26,6 @@ export class SearchOtherNeed extends Component {
 	constructor() {
 		super();
 
-		// Create Instances
-		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-
 		// Private properties
 		this.isBusy = false;
 		this.renderMode = -1;
@@ -52,8 +46,6 @@ export class SearchOtherNeed extends Component {
 
 	/**
 	 *
-	 * @property {Object} incidentDetails Incident details
-	 * @property {Object} incomingCallDetails Incoming call details
 	 *
 	 * @readonly
 	 * @static
@@ -68,9 +60,9 @@ export class SearchOtherNeed extends Component {
 			need: { attribute: false },
 			issue: { attribute: false },
 			solution: { attribute: false },
-			categories:{type: Array},
-			needs:{type: Array},
-			issues:{type: Array}
+			categories: { type: Array },
+			needs: { type: Array },
+			issues: { type: Array }
 		};
 	}
 
@@ -78,9 +70,9 @@ export class SearchOtherNeed extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-		this.issuesWithSolution=this.issues;
+		this.issuesWithSolution = this.issues;
 		this.issues = this.issues.map(item => item.issue);
 
 		HorizonTelemetry.instance.screenLoadOtherNeed({
@@ -88,8 +80,7 @@ export class SearchOtherNeed extends Component {
 		});
 	}
 
-	async disconnectedCallback() {
-		
+	disconnectedCallback() {
 		HorizonTelemetry.instance.screenUnloadOtherNeed({
 			screen: TelemetryScreen.SEARCH_OTHER_NEED,
 			clientNeed: this.category,
@@ -109,25 +100,24 @@ export class SearchOtherNeed extends Component {
 	}
 	
 
-	async _categoryChanged(e) {
+	_categoryChanged(e) {
 		if (e.detail.new !== null) {
 			this.category = e.detail.new;
 			this.need = ``;
 			this.issue = ``;
 			this.solution = ``;
 			
-			this.dispatchEvent(new CustomEvent(`get-sub-categories`, {detail: {category:this.category}}));
-			
+			this.dispatchEvent(new CustomEvent(`get-sub-categories`, { detail: { category: this.category } }));
 		}
 	}
 
-	async _subCategoryChanged(e) {
+	_subCategoryChanged(e) {
 		if (e.detail.new !== null) {
 			this.need = e.detail.new;
 			this.issue = ``;
 			this.solutionDisplay = false;
 
-			this.dispatchEvent(new CustomEvent(`get-issues`, {detail: {category:this.category,need:this.need}}));
+			this.dispatchEvent(new CustomEvent(`get-issues`, { detail: { category: this.category, need: this.need } }));
 		}
 	}
 
@@ -141,7 +131,7 @@ export class SearchOtherNeed extends Component {
 	// ---------------
 
 	_launchStrack() {
-		this.dispatchEvent(new CustomEvent(`launch-strack`, {detail: {category:this.category,need:this.need,issue:this.issue}}));
+		this.dispatchEvent(new CustomEvent(`launch-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------
@@ -256,7 +246,7 @@ export class SearchOtherNeed extends Component {
 
 	_webTemplate() {
 		return html`
-			${this._renderOtherNeeds()}	
+			${this._renderOtherNeeds()}
 			${this._renderLoadingIndicator()}
 		`;
 	}
@@ -396,8 +386,6 @@ export class SearchOtherNeed extends Component {
 				</capitec-group>`
 			: html``;
 	}
-
-	
 }
 
-customElements.define(`search-other-need`, SearchOtherNeed);
+customElements.define(`horizon-search-other-need`, SearchOtherNeed);
