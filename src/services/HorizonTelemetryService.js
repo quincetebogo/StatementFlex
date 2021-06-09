@@ -3650,7 +3650,6 @@ export class HorizonTelemetry extends Telemetry {
 	 * @typedef {Object} SelectTapToPayCardModel
 	 * @property {String} screen 
 	 * @property {String} nextScreen
-	 * @property {String} cardId
 	 */
 
 	/** Select Tap To Pay Card Toggle telemetry event
@@ -3672,8 +3671,7 @@ export class HorizonTelemetry extends Telemetry {
 
 			baggage: [
 				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen },
-				{ "cardId": baggage.cardId }
+				{ "next-screen": baggage.nextScreen }
 			]
 		});
 	}
