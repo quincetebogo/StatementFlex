@@ -121,7 +121,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 		return html`
 			<horizon--error-screen 
 				header="Tap to pay not activated" 
-				image="src/images/tap-to-pay-error.svg"
+				image="/images/tap-to-pay-error.svg"
 				left="Done"
 				right="Handoff"
 				toast="Tap to pay not activated."
