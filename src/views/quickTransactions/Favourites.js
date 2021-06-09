@@ -1,8 +1,5 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -47,12 +44,9 @@ export class Favourites extends SavingsAccountBase {
         this.curOptionEvent = null;
         this.cards = [];
 
-        this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
-        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
-        this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		
-		Object.assign(Favourites.prototype, tapToPayMixin);
+		Object.assign(Favourites.prototype, tapToPayMixin);	
 	}
 
     // --------------
@@ -79,9 +73,8 @@ export class Favourites extends SavingsAccountBase {
             // debiChecksOutstanding: this.pendingMandateCount
         });
 
-	this._initialise();
-	
-		this._performAction = async (option) => {
+        this._initialise();
+        this._performAction = async (option) => {
 
             const stopCard = () => this._stopCard();
             const debiCheck = () => this._debiCheck();
@@ -304,8 +297,8 @@ export class Favourites extends SavingsAccountBase {
 			screenDetails.cards = returnValue.result && returnValue.result.cards;
 			this.horizonStore.setScreenDetails(screenDetails);
 
-			this.horizonStore.setCallerInformation(this.callerInformation);
-			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+            this.horizonStore.setCallerInformation(this.callerInformation);
+            this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
             this.horizonRouter.navigateToStopCard();
         } else {
@@ -329,8 +322,8 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-	_taxCertificates() {
-		// TODO: Functionality to generate tax certificate comes here
+    _taxCertificates() {
+        // TODO: Functionality to generate tax certificate comes here
 
         // Telemetry Tax Certificate
         HorizonTelemetry.instance.selectTaxCertificate({
@@ -456,6 +449,7 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.cifNumber="${this.callerInformation.cifNumber}"
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"
                     @update-limits="${(e) => this._updateLimits(e)}">
@@ -473,10 +467,10 @@ export class Favourites extends SavingsAccountBase {
 				</horizon-proof-of-account>`
 			: html``;
     }
-  
-	_renderSearchOtherNeed() {
-		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
-			? html`
+
+    _renderSearchOtherNeed() {
+        return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+            ? html`
 				<search-other-need
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"

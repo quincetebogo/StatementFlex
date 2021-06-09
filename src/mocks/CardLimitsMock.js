@@ -2,7 +2,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0W6QZ8B0w7S2PFTis04kR1XJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8646",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Primary_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,
@@ -55,7 +55,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0ePN8Wm9o9ka4Y99UsvMxkvJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8828",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Supplementary_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,
@@ -94,7 +94,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0ePN8Wm9o9ka4Y99UsvMxkvJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8828",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Virtual_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,

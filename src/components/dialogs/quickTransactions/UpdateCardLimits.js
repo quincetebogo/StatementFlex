@@ -1,7 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
@@ -65,16 +64,15 @@ export class UpdateCardLimits extends Component {
 		};
 
 		this.maxValue = ``;
-		this.displayCard = ``;
 
-		this.primaryPermanentLimits;
-		this.primaryTemporaryLimits;
+		this.primaryPermanentLimits = 0;
+		this.primaryTemporaryLimits = 0;
 
-		this.supplementaryPermanentLimits;
-		this.supplemtaryTemporaryLimits;
+		this.supplementaryPermanentLimits = 0;
+		this.supplemtaryTemporaryLimits = 0;
 
-		this.totalPermanentLimits;
-		this.totalTemporaryLimits;
+		this.totalPermanentLimits = 0;
+		this.totalTemporaryLimits = 0;
 
 		this.limitLabel = ``;
 		this.limitsAgreementExpanded = true;
@@ -85,7 +83,6 @@ export class UpdateCardLimits extends Component {
 		this.cardLimits = {};
 		this._tapToPayStatus = TAP_TO_PAY_STATUS.UNCHANGED;
 
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// ----------
@@ -132,8 +129,15 @@ export class UpdateCardLimits extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
+
+		this.cardLimits = this.cardDetails.cardLimits;
+		this.cardArtDetails = {
+			cardArt: this.cardDetails.cardArt,
+			cardHoldName: this.cardDetails.cardHolderName,
+			primaryAccountId: this.cardDetails.primaryAccountId
+		};
 
 		//this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
 		this.cardLimits = this.cardDetails.cardLimits;
@@ -170,11 +174,17 @@ export class UpdateCardLimits extends Component {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_next() {
+	async _next() {
 		if (this._getErrorsCount() > 0) {
 			return;
 		}
-		this._getLimitsAgreement();
+		
+		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus())
+
+		if(this.getAgreement) {
+			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
+			this.renderMode = RENDER_MODE.AGGREMENT;
+		}
 	}
 
 	_agree() {
@@ -218,15 +228,9 @@ export class UpdateCardLimits extends Component {
 		};
 
 		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
-		this.limitLabel = this.updateType === "Credit card" ? "Credit Limits" : "Debit limits" ;
-		
-		if (this.updateType === "Credit card") {
-			this.displayCard = "credit"
-		} else {
-			this.displayCard = "debit";
-		}
+		this.limitLabel = `${this.updateType} Limits`;
 
-		let limitObj = this.cardLimits;
+		const limitObj = this.cardLimits;
 
 		this.primaryPermanentLimits = limitObj.permanentCashAmountLimit + limitObj.permanentCnpAmountLimit + limitObj.permanentPurchaseAmountLimit;
 		this.supplementaryPermanentLimits = limitObj.permanentCashAmountLimit + limitObj.permanentCnpAmountLimit + limitObj.permanentPurchaseAmountLimit;
@@ -271,13 +275,6 @@ export class UpdateCardLimits extends Component {
 
 	async _getLimitsAgreement() {
 		//this.cardDetails.isContactlessActivated =  this._getTapToPayStatus();
-
-		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus())
-
-		if(this.getAgreement) {
-			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
-			this.renderMode = RENDER_MODE.AGGREMENT;
-		}
 		// this.dispatchEvent(new CustomEvent(`on-next`, {
 		// 	detail: { 
 		// 		selectedCardDetails : this.cardDetails
@@ -621,24 +618,27 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_renderSetLimits() {
-		if (this.renderMode === RENDER_MODE.LIMITS) {
-			return html`
-			<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
+		return this.renderMode === RENDER_MODE.LIMITS
+			? html`
+				<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
-					${this.updateType === "Credit card" ?
-					this._renderCreditLimits() :
-					this._renderDebitLimits()}
+					${this.updateType === `Credit card`
+						? this._renderCreditLimits()
+						: this._renderDebitLimits()
+					}
 				</capitec-group>
-				${this._renderTapToPay()}
-			`;
-		}
-		return html``;
+				${this._renderTapToPay()}`
+			: html``;
 	}
 
 	_renderCard() {
 		return html`
-		<capitec-content-box class="card-img-cb">
-		    <img class= "card-img" src="/images/cardArt/black_front_${this.displayCard}_40px height.svg"/>
+		<capitec-content-box class="card-img-cb" halign="center" valign="Center">
+			<horizon-card-art
+				.card="${this.cardArtDetails}"
+				disable-hover="${true}"
+				context="cardArt">
+			</horizon-card-art>
 		</capitec-content-box>
 		`;
 	}
@@ -673,7 +673,7 @@ export class UpdateCardLimits extends Component {
 		`;
 	}
 
-	_renderAllLimits () {
+	_renderAllLimits() {
 		return html`
 				<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
 					<capitec-label

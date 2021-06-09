@@ -300,7 +300,6 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					/*padding: var(--theme-expander-header-padding, 10px);*/
 					border-top: var(--theme-expander-border, 1px solid black);
 					cursor: pointer;
                     padding: 0px;
@@ -408,8 +407,8 @@ export class Expander extends Component {
 
 				:host([expanding]) > .content {
 					transition: padding linear 0.2s;
-					padding-top: var(--theme-container-padding-top, 10px);
-					padding-bottom: var(--theme-container-padding-bottom, 10px);
+					//padding-top: var(--theme-container-padding-top, 10px);
+					//padding-bottom: var(--theme-container-padding-bottom, 10px);
 				}
 
 				:host([expanding],[noPadding]) > .content {
@@ -445,7 +444,6 @@ export class Expander extends Component {
                 }                
                 horizon-label{
                     width: 182px;
-
                     --horizon-label-text-height: 20px;
                     --horizon-label-text-color: #3A3A3A;
                     --horizon-label-text-font-size: 14px;
@@ -466,7 +464,8 @@ export class Expander extends Component {
                 .vertical-line{
                     height: 24px;
                     width: 1px;
-                    background-color: #3A3A3A;
+                    background-color: #E1E1E1;
+                    margin-right: 16px;
                 }
 
 				@keyframes expand {
@@ -517,7 +516,7 @@ export class Expander extends Component {
 
     _renderHeaders(headers, index) {
         return index == 0 ? html`
-            <horizon-label label=${headers} value="${this.subtitles[index]}">
+            <horizon-label style="width: 151px;" label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
             <div class="vertical-line"></div>
         ` : html`
