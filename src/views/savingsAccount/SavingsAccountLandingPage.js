@@ -58,7 +58,6 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._updateReturnToScreen();
 		this._initialise();
 
 		this._optionClick = async (option) => {
