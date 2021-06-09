@@ -1,8 +1,8 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { CardService } from 'app/services/CardService';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
-import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 import { isWellFormedSouthAfricanID,isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
