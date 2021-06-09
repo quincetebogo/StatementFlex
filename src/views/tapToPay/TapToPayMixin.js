@@ -1,5 +1,6 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { html } from 'platform/elements';
 
 /**
  * This mixin allows common tap to pay code to be mixed into different views. 

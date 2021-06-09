@@ -51,7 +51,7 @@ export class DebiCheckMandates extends Component {
 
 	/**
 	 *
-	 * @property {Object} debiCheckMandates Contains list of active/pending/expired mandates
+	 * @property {Array} debiCheckMandates Contains list of active/pending/expired mandates
 	 *
 	 * @readonly
 	 * @static
@@ -59,7 +59,7 @@ export class DebiCheckMandates extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckMandates: { type: Object },
+			debiCheckMandates: { type: Array },
 			
 			filterBy: { attribute: false }
 		};
