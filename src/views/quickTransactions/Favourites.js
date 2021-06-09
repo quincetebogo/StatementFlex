@@ -1,8 +1,5 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
-import { CardService } from 'app/services/CardService';
-import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { NavigationContext } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
@@ -50,10 +47,7 @@ export class Favourites extends SavingsAccountBase {
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
 		Object.assign(Favourites.prototype, tapToPayMixin);	
-		
-        this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-        this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-    }
+	}
 
     // --------------
     // PROPERTIES
@@ -79,7 +73,6 @@ export class Favourites extends SavingsAccountBase {
             // debiChecksOutstanding: this.pendingMandateCount
         });
 
-       // this._updateReturnToScreen();
         this._initialise();
         this._performAction = async (option) => {
 
@@ -297,7 +290,6 @@ export class Favourites extends SavingsAccountBase {
 
             this.horizonStore.setCallerInformation(this.callerInformation);
             this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-            this.horizonStore.setScreenDetails(screenDetails);
 
             this.horizonRouter.navigateToStopCard();
         } else {
@@ -320,22 +312,6 @@ export class Favourites extends SavingsAccountBase {
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
 	}
-
-    async _tapToPay() {
-
-        // Telemetry select Tap to Pay
-        HorizonTelemetry.instance.selectTapToPay({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.TAP_TO_PAY
-        });
-
-        const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-
-        if (returnValue.succeeded) {
-            this.cards = returnValue.result;
-            this.renderMode = RENDER_MODE.TAP_TO_PAY;
-        }
-    }
 
     _taxCertificates() {
         // TODO: Functionality to generate tax certificate comes here
@@ -479,16 +455,6 @@ export class Favourites extends SavingsAccountBase {
 					@cancel="${() => this._backToLandingPage()}">
 				</horizon-proof-of-account>`
 			: html``;
-    }
-
-    _renderTapToPay() {
-        return this.renderMode === RENDER_MODE.TAP_TO_PAY
-            ? html` 
-			<horizon-tap-to-pay-landing
-				.cards="${this.cards}"
-				@back="${() => this._backToLandingPage()}"
-			></horizon-tap-to-pay-landing>
-		` : html``;
     }
 
     _renderSearchOtherNeed() {
