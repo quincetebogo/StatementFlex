@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay

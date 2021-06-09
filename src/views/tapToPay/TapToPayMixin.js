@@ -19,6 +19,7 @@ import { html } from 'platform/elements';
  *   this.renderMode 
  *   this.callerInformation
  *   this.incidentDetails
+ *   this.selectedCard
  *
  *   this.cards
  */
@@ -60,7 +61,7 @@ export const tapToPayMixin = {
 		HorizonTelemetry.instance.selectToggle({
 			screen: TelemetryScreen.TAP_TO_PAY,
 			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			cardId: this.selectedCard.cardId
+			cardId: agreementRequest.cardDetails.cardId
 		});
 		
 		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
