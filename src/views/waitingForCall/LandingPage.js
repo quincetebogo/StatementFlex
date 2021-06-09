@@ -339,10 +339,6 @@ export class LandingPage extends ViewBase {
 		return true;
 	}
 
-	_incidentErrorHandler() {
-		return true;
-	}
-
 	// ---------
 	// RENDERING
 	// ---------

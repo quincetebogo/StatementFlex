@@ -33,7 +33,6 @@ export class StopCardLandingPage extends ViewBase {
 		this.cards = this.screenDetails && this.screenDetails.cards;
 
 		this._telemetry = HorizonTelemetry.instance;
-		this._telemetryStore = TelemetryStore.getInstance();
 	}
 
 	// --------------
