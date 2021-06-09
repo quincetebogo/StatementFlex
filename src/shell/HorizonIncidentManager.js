@@ -126,7 +126,7 @@ export class HorizonIncidentManager {
 
 				this.incidentRecID = incidentDetails.incidentRecId;
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-				this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+				this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
 
 				await this._classifyIncident(clientNeed);
 				return true;
@@ -144,7 +144,7 @@ export class HorizonIncidentManager {
 
 			this.incidentRecID = incidentDetails.incidentRecId;
 			this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-			this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+			this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
 
 			await this._createSubsequentIncident(clientNeed);
 			return true;

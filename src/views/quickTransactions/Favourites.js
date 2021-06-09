@@ -1,8 +1,9 @@
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
-import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -14,8 +15,31 @@ import 'app/components/quickTransactions/SearchOtherNeed';
 import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
+import 'app/components/dialogs/common/Feedback';
+
 
 const SAVINGS_ACCOUNT_TYPE = 300;
+const orgUnit = `Client Care`;
+
+const ERROR_LIST = {
+	SYSTEM_ERROR: `System error. Please try again`
+};
+
+const FEEDBACK_OPTIONS = [
+	{
+		key: 0,
+		value: `Need fulfilled`
+	},
+	{
+		key: 2,
+		value: `Need was assigned/handed off`
+	},
+	{
+		key: 1,
+		value: `Need incomplete`
+	}
+];
+
 
 /**
  * The Quick Transactions Favourites Landing Page View
@@ -40,9 +64,17 @@ export class Favourites extends SavingsAccountBase {
         this.isLoading = true;
 
         // private variables
+		this.alertBannerMessage = ``;
+		this.category = ``;
+		this.need = ``;
+		this.issue = ``;
         this.landingPageInfo = null;
         this.curOptionEvent = null;
         this.cards = [];
+		this.selectedFeedback = [];
+		this.feedbackOptions = [];
+
+		this.endCallCauseCode = EndCallCauseCode.getInstance();
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
@@ -66,6 +98,9 @@ export class Favourites extends SavingsAccountBase {
 
     connectedCallback() {
         super.connectedCallback();
+		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.feedbackOptions = FEEDBACK_OPTIONS;
+		 
 
         // Telemetry 
         HorizonTelemetry.instance.screenLoadFulfillNeed({
@@ -124,6 +159,58 @@ export class Favourites extends SavingsAccountBase {
     // EVENT HANDLERS
     // --------------
 
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_handleChannelServiceError() {
+		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+	}
+
+	async _done(event) {
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+			const strackIncidentInfo = await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
+			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
+
+			const closeIncidentRequest = {
+				incidentRecId: incidentDetails.incidentRecId,
+				reason: event.detail,
+				resolution: this._formatLineBreaks(resolution),
+				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
+			};
+
+			const returnValue = await this.incidentManagementService.closeIncident(closeIncidentRequest);
+			
+			if (returnValue.succeeded) {
+				// Navigate to favourites landing page
+				this._updateIncidentState();
+				this._searchOtherNeedDone();
+			} else {
+				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+			}
+
+	}
+
+	_getResolution(resolution, selectedOption) {
+		return resolution ? `${resolution || ``}\n${selectedOption.value}` : `${selectedOption.value}`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
+	}
+
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+		incidentDetails.feedback = this.selectedFeedback;
+
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+	
+
     async _clientVerified(event) {
         super._clientVerified(event);
 
@@ -167,6 +254,21 @@ export class Favourites extends SavingsAccountBase {
         this._refreshIncidentDetails();
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
+
+	_loadingSearchOtherNeed() {
+		HorizonTelemetry.instance.screenLoadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		});
+	}
+
+	_unloadingSearchOtherNeed() {
+		HorizonTelemetry.instance.screenUnloadOtherNeed({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			clientNeed: this.category,
+			specificNeed: this.need,
+			issueType: this.issue
+		});
+	}
 
     // ---------------
     // PRIVATE METHODS
@@ -343,6 +445,7 @@ export class Favourites extends SavingsAccountBase {
             this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
         }
     }
+	
 
     _unavailableOption() {
         this.renderMode = RENDER_MODE.ALERT_MODAL;
@@ -356,9 +459,92 @@ export class Favourites extends SavingsAccountBase {
             screen: TelemetryScreen.FAVOURITES,
             nextScreen: TelemetryScreen.SEARCH_OTHER_NEED
         });
+		this._getCategories();
     }
 
-    // ---------
+	async _onLaunchStrackClick(event) {
+		HorizonTelemetry.instance.otherNeedLaunchStrack({
+			screen: TelemetryScreen.SEARCH_OTHER_NEED,
+			nextScreen: TelemetryScreen.FAVOURITES
+		});
+		const incidentRecId = this.incidentDetails.incidentRecId;
+		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
+		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
+		if (continueUpdate) {
+			await this._classifyIncident(event, incidentRecId);
+		} else {
+			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
+
+			this.horizonRouter.navigateToStrack(incidentRecId);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		}
+	}
+
+	async _getCategories() {
+		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.categories = returnValue.result.categories.map(item => item.category);
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
+		}
+		this.requestUpdate();
+	}
+
+	async _getSubCategories(event) {
+		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, event.detail.category);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.needs = returnValue.result.needs.map(item => item.need);
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+		}
+		this.requestUpdate();
+	}
+
+	async _getIssues(event) {
+		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, event.detail.category, event.detail.need);
+
+		if (returnValue.succeeded && returnValue.result) {
+			this.issues = returnValue.result.issues;
+		} else {
+			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
+		}
+		this.requestUpdate();
+	}
+
+	async _classifyIncident(event, incidentRecId) {
+		const request = {
+			incidentRecId: incidentRecId,
+			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+			needAction: `SEARCH_OTHER_NEED`,
+			incidentCategorization: {
+				category: `${event.detail.category}`,
+				need: `${event.detail.need}`,
+				issue: `${event.detail.issue}`
+			}
+		};
+		const result = await this.incidentManagementService.classifyIncident(request);
+
+		if (result.succeeded) {
+			this.horizonRouter.navigateToStrack(incidentRecId);
+			this.renderMode = RENDER_MODE.FEEDBACK;
+		} else {
+			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
+		}
+	}
+
+	async _incidentStatus(incidentRecId) {
+		const returnValue = await this.incidentManagementService.incidentStatus(incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
+	// ---------
     // RENDERING
     // ---------
 
@@ -395,6 +581,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderTapToPay()}
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
+			${this._renderFeedback()}
 
 			${super._webTemplate()}
 		`;
@@ -458,16 +645,32 @@ export class Favourites extends SavingsAccountBase {
     }
 
     _renderSearchOtherNeed() {
-        return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED
+		
+		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
             ? html`
-				<search-other-need
-					.incidentDetails="${this.incidentDetails}"
-					.incomingCallDetails="${this.incomingCallDetails}"
+				<horizon-search-other-need
+					.categories="${this.categories || []}"
+					.needs="${this.needs || []}"
+					.issues="${this.issues || []}"
+					@loading="${() => this._loadingSearchOtherNeed()}"
+					@unloading="${() => this._unloadingSearchOtherNeed()}"
+					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
+					@get-sub-categories="${(event) => this._getSubCategories(event)}"
+					@get-issues="${(event) => this._getIssues(event)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
-				</search-other-need>`
+				</horizon-search-other-need>`
             : html``;
     }
+
+	_renderFeedback() {
+		return this.renderMode === RENDER_MODE.FEEDBACK
+			? html`
+				<horizon-feedback 
+					@done="${(event) => this._done(event)}">
+				</horizon-feedback>`
+			: html``;
+	}
 }
 
 customElements.define(`horizon-favourites`, Favourites);

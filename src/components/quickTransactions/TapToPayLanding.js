@@ -67,9 +67,11 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._loading();
 	}
 
 	disconnectedCallback() {
+		this._unloading();
 		super.disconnectedCallback();
 	}
 
