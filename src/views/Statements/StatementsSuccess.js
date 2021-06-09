@@ -51,9 +51,7 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		
-		this._navigateToScreen(screenDetails.returnToScreen);
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_sendAnotherClick() {
@@ -63,22 +61,7 @@ export class StatementsSuccess extends ViewBase {
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
 
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
-		this._navigateToScreen(screenDetails.returnToScreen);
-	}
-
-	_navigateToScreen(screenName) {
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
-
-		const landingScreens = {
-			'Favourites': transactLP,
-			'SavingsAccount': savingsAccountLP
-		};
-		landingScreens[screenName]();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------------
