@@ -84,7 +84,7 @@ export class Favourites extends SavingsAccountBase {
             // debiChecksOutstanding: this.pendingMandateCount
         });
 
-        this._updateReturnToScreen();
+       // this._updateReturnToScreen();
         this._initialise();
         this._performAction = async (option) => {
 
