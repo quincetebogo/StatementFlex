@@ -119,7 +119,7 @@ export class TapToPaySuccess extends ViewBase {
 		return html`
 			<horizon-success-screen 
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				image="src/images/cards-successful-tap-to-pay.svg"
+				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
