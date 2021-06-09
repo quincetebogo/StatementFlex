@@ -58,8 +58,7 @@ export const tapToPayMixin = {
 		// Telemetry
 		HorizonTelemetry.instance.selectToggle({
 			screen: TelemetryScreen.TAP_TO_PAY,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			cardId: this.selectedCard.cardId
+			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT
 		});
 		
 		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
