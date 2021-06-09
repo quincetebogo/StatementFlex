@@ -54,7 +54,6 @@ export class StatementsUnsuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
 		HorizonTelemetry.instance.screenUnloadStatements({
 			screen: TelemetryScreen.STATEMENTS_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
@@ -64,15 +63,15 @@ export class StatementsUnsuccess extends ViewBase {
 	}
 
 	_handoffClick() {
-		// Telemetry
 		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: null
+			screen: TelemetryScreen.STATEMENTS_OUTCOME
 		});
-		const incidentRecId = this.incidentDetails.incidentRecId;
+
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
