@@ -98,7 +98,7 @@ export class HorizonChannelServiceMocks {
 
 	cardLimitsLanding() {
 		if (this._mocking.cardLimitsLanding.positiveCase) {
-			return this.cardLimitsMocks.mockCards;
+			return this.cardLimitsMocks;
 		}
 
 		// Code for a negative case could come here

@@ -325,12 +325,13 @@ export class HorizonChannelService extends Service {
 	// card
 	// ----
 
-	async cardLimitsLanding(cifNumber) {
+	async cardLimitsLanding(cifNumber, incidentRecId) {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
 		const url = `/clientcare-card-${this._version}/limits-landing?` +
-					`cifNumber=${cifNumber}`;
+					`cifNumber=${cifNumber}&` +
+					`incidentRecId=${incidentRecId}`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
