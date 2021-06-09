@@ -1,9 +1,11 @@
 import { Component, css, html, live } from 'platform/elements';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { Logger } from 'platform/core';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/Feedback';
@@ -39,6 +41,7 @@ export class SearchOtherNeed extends Component {
 		// Create Instances
 		this.logger = Logger.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		// Private properties
 		this.isBusy = false;
@@ -90,21 +93,18 @@ export class SearchOtherNeed extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		HorizonTelemetry.instance.screenLoadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		this._telemetry.startSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 
 		this.incidentRecId = this.incidentDetails.incidentRecId;
 		await this._getCategories();
 	}
 
-	async disconnectedCallback() {
+	 disconnectedCallback() {
 		
-		HorizonTelemetry.instance.screenUnloadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			clientNeed: this.category,
-			specificNeed: this.need,
-			issueType: this.issue
+		this._telemetry.endSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 		super.disconnectedCallback();
 	}
@@ -154,9 +154,12 @@ export class SearchOtherNeed extends Component {
 
 	async _onLaunchStrackClick() {
 
-		HorizonTelemetry.instance.otherNeedLaunchStrack({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHERNEED_LAUNCH_STRACK, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
+			"next-screen": TelemetryScreen.FEEDBACK,
+			"client-need": this.category,
+			"specific-need": this.need,
+			"issue-type": this.issue
 		});
 
 		const strackIncidentInfo = await this._incidentStatus() || {};

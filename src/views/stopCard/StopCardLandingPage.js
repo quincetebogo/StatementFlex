@@ -48,7 +48,7 @@ export class StopCardLandingPage extends ViewBase {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
 
-		this._telemetry.logEvent(QuickTransactionEvents.FULFILL_NEED, { 
+		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
 			"screen": TelemetryScreen.STOP_CARD
 		});
 	}

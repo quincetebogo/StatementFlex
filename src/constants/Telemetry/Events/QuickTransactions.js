@@ -30,16 +30,30 @@
 	CONFIRM_STOP_CARD: `call.fulfill-need.stop-card.confirm`,
 	CANCEL_STOP_CARD: `call.fulfill-need.stop-card.cancel`,
 	STOP_CARD_OUTCOME: `call.fulfill-need.stop-card.outcome`,
-	// Stop card success
-	STOP_CARD_SUCCESS: `call.fulfill-need.stop-card.success`,
-	STOP_CARD_SUCCESS_DONE: `call.fulfill-need.stop-card.success.done`,
-	STOP_CARD_SUCCESS_ANOTHER: `call.fulfill-need.stop-card.success.another`,
-	// Stop card failure
-	STOP_CARD_FAILURE: `call.fulfill-need.stop-card.failure`,
-	STOP_CARD_TRY_AGAIN: `call.fulfill-need.stop-card.failure.try-again`,
-	STOP_CARD_FAILURE_ASSIGN: `call.fulfill-need.stop-card.failure.assign`,
+	// Stop card Outcome
+	STOP_CARD_OUTCOME_DONE: `call.fulfill-need.stop-card.outcome.done`,
+	STOP_CARD_OUTCOME_ANOTHER: `call.fulfill-need.stop-card.outcome.another`,
+	STOP_CARD_OUTCOME_TRY_AGAIN: `call.fulfill-need.stop-card.outcome.try-again`,
+	STOP_CARD_OUTCOME_ASSIGN: `call.fulfill-need.stop-card.outcome.assign`,
 	// Stop card Assign
-	STOP_CARD_ASSIGN: `call.fulfill-need.stop-card.failure.assign`,
-	STOP_CARD_ASSIGN_CONFIRM: `call.fulfill-need.stop-card.failure.assign.confirm`,
-	STOP_CARD_ASSIGN_CANCEL: `call.fulfill-need.stop-card.failure.assign.cancel`,
+	STOP_CARD_ASSIGN: `call.fulfill-need.stop-card.assign`,
+	STOP_CARD_ASSIGN_CONFIRM: `call.fulfill-need.stop-card.assign.confirm`,
+	STOP_CARD_ASSIGN_CANCEL: `call.fulfill-need.stop-card.assign.cancel`,
+
+	// Proof of Account
+	PROOF_OF_ACCOUNT: `call.fulfill-need.proof-of-account`,
+	PROOF_OF_ACCOUNT_CANCEL: `call.fulfill-need.proof-of-account.cancel`,
+	PROOF_OF_ACCOUNT_SEND: `call.fulfill-need.proof-of-account.send`,
+	PROOF_OF_ACCOUNT_OUTCOME: `call.fulfill-need.proof-of-account.outcome`,
+	// Proof of Account - Outcome
+	PROOF_OF_ACCOUNT_OUTCOME_DONE: `call.fulfill-need.proof-of-account.outcome.done`,
+	PROOF_OF_ACCOUNT_OUTCOME_ANOTHER: `call.fulfill-need.proof-of-account.outcome.another`,
+	PROOF_OF_ACCOUNT_OUTCOME_HANDOFF: `call.fulfill-need.proof-of-account.outcome.handoff`,
+
+	// Search OtherNeed
+	SEARCH_OTHERNEED: `call.fulfill-need.otherneed`,
+	SEARCH_OTHERNEED_LAUNCH_STRACK: `call.fulfill-need.otherneed.launch-strack`,
+	// Launch-STrack Feedback
+	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
+	LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`
  };

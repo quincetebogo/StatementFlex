@@ -107,8 +107,6 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	disconnectedCallback() {
-		this._telemetry.endSpan(QuickTransactionEvents.FAVOURITES);
-		
 		this.returnToSub.dispose();
 		super.disconnectedCallback();
 	}

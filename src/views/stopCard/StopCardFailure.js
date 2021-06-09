@@ -66,10 +66,6 @@ export class StopCardFailure extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_FAILURE, {
-			"screen": TelemetryScreen.STOP_CARD_FAILURE
-		});
-
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
@@ -83,8 +79,8 @@ export class StopCardFailure extends ViewBase {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_FAILURE, {
-			"screen": TelemetryScreen.STOP_CARD_FAILURE
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME
 		});
 	}
 
@@ -107,7 +103,7 @@ export class StopCardFailure extends ViewBase {
 
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_TRY_AGAIN, {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
 			"screen": TelemetryScreen.STOP_CARD_FAILURE
 		});
 
@@ -159,8 +155,8 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_onAssign() {
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_FAILURE_ASSIGN, {
-			"screen": TelemetryScreen.STOP_CARD_FAILURE,
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
 		});
 

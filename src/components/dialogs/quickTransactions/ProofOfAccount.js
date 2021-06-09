@@ -1,8 +1,10 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
 const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
@@ -28,8 +30,10 @@ export class ProofOfAccount extends Component {
 
 	constructor() {
 		super();
+
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		// private properites
 		this.isBusy = false;
@@ -72,17 +76,14 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT
+		
+		this._telemetry.startSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT
-		});
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -99,6 +100,12 @@ export class ProofOfAccount extends Component {
 
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
+
+			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
+				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+				"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+			});
+
 			// saving 'emailAddress' and 'accountNumber' in state.
 			this._updateScreenDetails();
 
@@ -109,19 +116,12 @@ export class ProofOfAccount extends Component {
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE
 			};
-
-			// Telemetry
-			HorizonTelemetry.instance.selectProofOfAccountSend({
-				screen: TelemetryScreen.PROOF_OF_ACCOUNT,
-				nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
-			});
-
-			HorizonTelemetry.instance.proofOfAccountOutcome({
-				screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-				nextScreen: null
-			});
-
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
+				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
+			});
 
 			if (returnValue.succeeded) {
 				this.horizonRouter.navigateToProofOfAccountSuccess();
@@ -138,11 +138,11 @@ export class ProofOfAccount extends Component {
 	}
 
 	_cancelClick(e) {
-
-		HorizonTelemetry.instance.selectCancelProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_CANCEL, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
+		this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, { "screen": TelemetryScreen.PROOF_OF_ACCOUNT });
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}

@@ -48,10 +48,6 @@ export class StopCardSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_SUCCESS, {
-			"screen": TelemetryScreen.STOP_CARD_SUCCESS
-		});
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
@@ -63,8 +59,8 @@ export class StopCardSuccess extends ViewBase {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_SUCCESS, {
-			"screen": TelemetryScreen.STOP_CARD_SUCCESS
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME
 		});
 	}
 
@@ -83,8 +79,8 @@ export class StopCardSuccess extends ViewBase {
 	}  
 
 	_doneClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_SUCCESS_DONE, {
-			"screen": TelemetryScreen.STOP_CARD_SUCCESS,
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_DONE, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
@@ -97,8 +93,8 @@ export class StopCardSuccess extends ViewBase {
 	}
 
 	async _returnToStopCardClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_SUCCESS_ANOTHER, {
-			"screen": TelemetryScreen.STOP_CARD_SUCCESS,
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ANOTHER, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 

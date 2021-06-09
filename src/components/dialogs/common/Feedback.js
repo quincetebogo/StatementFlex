@@ -2,8 +2,10 @@ import { Component, css, html } from 'platform/elements';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 const FEEDBACK_OPTIONS = [
 	{
@@ -56,6 +58,8 @@ export class Feedback extends Component {
 
 		this.horizonStore = HorizonStore.getInstance();
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
+
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		
 	}
@@ -81,9 +85,16 @@ export class Feedback extends Component {
 		super.connectedCallback();
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK
+		this._telemetry.startSpan(QuickTransactionEvents.LAUNCH_STRACK_FEEDBACK, {
+			"screen": TelemetryScreen.FEEDBACK
+		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.LAUNCH_STRACK_FEEDBACK, {
+			"screen": TelemetryScreen.FEEDBACK
 		});
 	}
 
@@ -96,10 +107,10 @@ export class Feedback extends Component {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
 
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK,
-		});
+			this._telemetry.logEvent(QuickTransactionEvents.LAUNCH_STRACK_FEEDBACK_DONE, {
+				"screen": TelemetryScreen.FEEDBACK,
+				"feedback": this.selectedFeedback
+			});
 
 			console.log(this.selectedFeedback);
 			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
