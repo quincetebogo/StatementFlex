@@ -51,9 +51,20 @@
 	PROOF_OF_ACCOUNT_OUTCOME_HANDOFF: `call.fulfill-need.proof-of-account.outcome.handoff`,
 
 	// Search OtherNeed
-	SEARCH_OTHERNEED: `call.fulfill-need.otherneed`,
-	SEARCH_OTHERNEED_LAUNCH_STRACK: `call.fulfill-need.otherneed.launch-strack`,
+	SEARCH_OTHER_NEED: `call.fulfill-need.other-needs`,
+	SEARCH_OTHER_NEED_LAUNCH_STRACK: `call.fulfill-need.other-needs.launch-strack`,
 	// Launch-STrack Feedback
+	SEARCH_OTHER_NEED_DONE: `call.fulfill-need.other-needs.done`,
+
+	// Tap to pay
+	TAP_TO_PAY: `call.fulfill-need.tap-to-pay`,
+	TAP_TO_PAY_TOGGLE: `call.fulfill-need.tap-to-pay.get-agreements`,
+	TAP_TO_PAY_UPDATE_CANCEL: `call.fulfill-need.tap-to-pay.update.cancel`,
+	TAP_TO_PAY_UPDATE: `call.fulfill-need.tap-to-pay.update.agree`,
+	TAP_TO_PAY_OUTCOME: `call.fulfill-need.tap-to-pay.outcome`,
+	TAP_TO_PAY_OUTCOME_DONE: `call.fulfill-need.tap-to-pay.outcome.done`,
+	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
+	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
      LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 

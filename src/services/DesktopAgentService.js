@@ -4,8 +4,8 @@ import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { validate } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -307,6 +307,15 @@ export class DesktopAgentService {
 	
 			this.nextCall = newCallEvent;
 	
+			// Telemetry: If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			this._telemetry.newTrace();
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
+				"screen": TelemetryScreen.WAIT_FOR_CALL,
+				"ivr": ``,
+				"ucid": newCallEvent.voiceReferenceNumber
+			});
+
 			this._handleIncomingCall();
 		}
 	}
