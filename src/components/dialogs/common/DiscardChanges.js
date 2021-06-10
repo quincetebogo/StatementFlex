@@ -44,7 +44,7 @@ export class DiscardChanges extends Component {
 
         this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CONFIRM, {
             "screen": TelemetryScreen.DISCARD_CHANGES,
-            "next-screen": TelemetryScreen.CARD_LIMITS
+            "next-screen": TelemetryScreen.CARD_LIMITS_LANDING
         });
 	}
 
