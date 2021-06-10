@@ -268,7 +268,7 @@ export class TapToPayAgreement extends Component {
 						<li>This call recording forms the agreement between us and you as to the amendment of your Tap to Pay Status and is effective at the date of concluding this call.</li>
 						<li>You’re aware that you must keep your Tap to Pay enabled card safe and immediately report it if stolen, as you will remain liable for any transactions performed if your card gets lost, stolen or misused.</li>
 						<li>You declare that you’re aware that the Tap to Pay functionality means your card can be used without a PIN, even when lost, stolen or misused.</li>
-						<li>When you deactivated Tap to Pay, the card will function like a normal card and pin for all transactions, until such a time that you choose to reactivate the Tap to Pay functionality.</li>
+						${!this.selectedCard.isContactlessActivated ? html`<li>When you deactivated Tap to Pay, the card will function like a normal card and pin for all transactions, until such a time that you choose to reactivate the Tap to Pay functionality.</li>` : ``}
 						<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
 						<li>You declare that all the information you’ve given us on this call is true and correct, and that we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
 					</ol>
