@@ -16,14 +16,6 @@ import { v4 } from 'uuid';
  */
 const TelemetryEvent = {
 
-	// End Call
-	SCR_LD_END_CALL: `horizon.call.end-call.start-span`,
-	END_CALL: `horizon.call.end-call.end-call`,
-	END_CALL_CANCEL: `horizon.call.end-call.cancel`,
-	SCR_UNLD_END_CALL: `horizon.call.end-call.end-span`,
-	END_CALL_SELECTED: `horizon.call.end-call-selected`,
-
-
 	// Statements
 	SCR_LD_STATEMENTS: `horizon.call.statements.start-span`,
 	SELECT_ACCOUNT_TYPE: `horizon.call.statements.select-acc-type`,
@@ -253,7 +245,13 @@ export class HorizonTelemetry extends TelemetryMocks {
 		return this.traceId;
 	}
 
-	async startSpan(eventName, baggage = null, singleChildParent = null) {
+	/**
+	 * Starts a span for the requested event and added to active span tree.
+	 * 
+	 * @param {string} eventName Event name to start a span
+	 * @param {object} baggage Options, this generally holds details of event
+	 */
+	async startSpan(eventName, baggage = null) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -283,10 +281,16 @@ export class HorizonTelemetry extends TelemetryMocks {
 			/**
 			 * Assigning the sapnd id to current active span tree('call'/ 'id-caller'/ 'confirm-caller')
 			 */
-			this._addToActiveSpanTree(currentSpan, spanID, this._getParentSpanName(eventName), singleChildParent);
+			this._addToActiveSpanTree(currentSpan, spanID, this._getParentSpanName(eventName));
 		}
 	}
 
+	/**
+	 * Ends the span for requested event and removed from active span tree.
+	 * 
+	 * @param {string} eventName Event name to start a span
+	 * @param {object} baggage Options, this generally holds details of event
+	 */
 	async endSpan(eventName, baggage = null) {
 
 		/**
@@ -316,6 +320,12 @@ export class HorizonTelemetry extends TelemetryMocks {
 		}
 	}
 
+	/**
+	 * Logs an event for the current span, these are generally buttons clicks on the screen
+	 * 
+	 * @param {string} eventName Event name to start a span
+	 * @param {object} baggage Options, this generally holds details of event
+	 */
 	async logEvent(eventName, baggage = null) {
 
 		/**
@@ -337,35 +347,6 @@ export class HorizonTelemetry extends TelemetryMocks {
 		});
 		// event, thus no new span reference to update
 	}
-
-	// #region ACCEPT CALL
-	/** Workflow completed telemetry event
-	 * @screen N/A
-	 * @event Workflow Completed
-	 * @returns { void }
-	 */
-	workflowCompleted() {
-		const spanId = this.currentActiveSpans.get(`horizon.call`);
-
-		if (this.traceId && spanId) {
-			super.spanEnd({
-				traceId: this.traceId,
-				spanId: spanId,
-				parentSpan: null,
-				eventName: TelemetryEvent.WORKFLOW_COMPLETED,
-				tags: this._extractTags(TelemetryEvent.WORKFLOW_COMPLETED),
-				eventType: TelemetryEventType.SYSTEM,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM)
-			});
-	
-			// clear span reference
-			this.currentActiveSpans.set(`horizon.call`, null);
-		} else {
-			// TODO: Log that there was a telemetry failure (missing trace ID or span ID)
-		}
-	}
-
-	// #endregion ACCEPT CALL
 
 	// #region CONFIRM CALLER
 
@@ -400,326 +381,6 @@ export class HorizonTelemetry extends TelemetryMocks {
 	}
 
 	// #endregion CONFIRM CALLER
-	
-	// #region PROOF OF ACCOUNT
-	
-	/**
-	 * @typedef {Object} ScrLdProofOfAccountModel
-	 * @property {String} screen 
-	 */
-
-	/** Proof of Account screen loaded telemetry event
-	 * @screen Proof of Account
-	 * @event Screen Load: Proof of Account
-	 * 
-	 * @param {ScrLdProofOfAccountModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenLoadProofOfAccount(baggage) {
-		const spanId = super.spanStart({
-			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SCR_LD_PROOF_OF_ACCOUNT,
-			tags: this._extractTags(TelemetryEvent.SCR_LD_PROOF_OF_ACCOUNT),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-			baggage: [{ "screen": baggage.screen }]
-		});
-
-		if (spanId) {
-			this.currentActiveSpans.set(`proof-of-account`, spanId);
-		}
-	}
-	
-	/**
-	 * @typedef {Object} SelectCancelProofOfAccountModel
-	 * @property {String} screen 
-	 * @property {String} nextScreen 
-	 */
-
-	/** Navigate to Favourites Screen from Proof of Account Cancel
-	 * @screen Proof of Account
-	 * @event Cancel Proof of Account
-	 * 
-	 * @param {SelectCancelProofOfAccountModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 selectCancelProofOfAccount(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`proof-of-account`),
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SELECT_CANCEL_PROOF_OF_ACCOUNT,
-			tags: this._extractTags(TelemetryEvent.SELECT_CANCEL_PROOF_OF_ACCOUNT),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
-			]
-		});
-	}
-
-	
-	/**
-	 * @typedef {Object} SelectProofOfAccountSendModel
-	 * @property {String} screen 
-	 * @property {String} nextScreen
-	 */
-
-	/** Select Proof of Account Send telemetry event
-	 * @screen Proof Of Account
-	 * @event Send Proof of Account
-	 * 
-	 * @param {SelectProofOfAccountSendModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 selectProofOfAccountSend(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`proof-of-account`),
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SELECT_SEND_PROOF_OF_ACCOUNT,
-			tags: this._extractTags(TelemetryEvent.SELECT_SEND_PROOF_OF_ACCOUNT),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
-			]
-		});
-	}
-	
-	/** 
-	 * @typedef {Object} ProofOfAccountOutcome
-	 * @property {String} proofId
-	 * @property {TelemetryOutcome} outcome
-	 */
-
-	/**
-	 * @typedef {Object} ProofOfAccountOutcomeModel
-	 * @property {String} screen
-	 * @property {String} nextScreen
-	 */
-
-	/** Proof Of Account outcome to be recorded to telemetry
-	 * @screen Proof of Account Outcome
-	 * @event Proof of Account Outcome
-	 * 
-	 * @param {ProofOfAccountOutcomeModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 proofOfAccountOutcome(baggage) {
-			super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`proof-of-account`),
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.PROOF_OF_ACCOUNT_OUTCOME,
-			tags: this._extractTags(TelemetryEvent.PROOF_OF_ACCOUNT_OUTCOME),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "nextScreen": baggage.nextScreen }
-			]
-		});
-	}
-
-	/**
-	 * @typedef  {Object} ScrUnldProofOfAccountModel 
-	 * @property {String} screen 
-	 */
-
-	/** Proof Of Account Screen Unload
-	 * @screen Proof of Account
-	 * @event Screen Unload: Proof of Account
-	 * 
-	 * @param {ScrUnldProofOfAccountModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenUnloadProofOfAccount(baggage) {
-		const spanId = this.currentActiveSpans.get(`proof-of-account`);
-
-		if (this.traceId && spanId) {
-			super.spanEnd({
-				traceId: this.traceId,
-				spanId: spanId,
-				parentSpan: null,
-				eventName: TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT,
-				tags: this._extractTags(TelemetryEvent.SCR_UNLD_PROOF_OF_ACCOUNT),
-				eventType: TelemetryEventType.SYSTEM,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-				baggage: [{ "screen": baggage.screen }]
-			});
-
-			this.currentActiveSpans.set(`proof-of-account`, null);
-		}
-	}
-
-	// #endregion PROOF OF ACCOUNT
-
-	// #region END CALL SELECTED
-	
-	/**
-	 * @typedef {Object} ScrLdEndCallModel
-	 * @property {String} screen 
-	 */
-
-	/** End Call screen loaded telemetry event
-	 * @screen End Call
-	 * @event Screen Load: End Call
-	 * 
-	 * @param {ScrLdEndCallModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenLoadEndCall(baggage) {
-		const spanId = super.spanStart({
-			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.SCR_LD_END_CALL,
-			tags: this._extractTags(TelemetryEvent.SCR_LD_END_CALL),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-			baggage: [{ "screen": baggage.screen }]
-		});
-
-		if (spanId) {
-			this.currentActiveSpans.set(`end-call`, spanId);
-		}
-	}
-	
-	/**
-	 * @typedef {Object} EndCallModel
-	 * @property {String} screen 
-	 * @property {String} nextScreen 
-	 * @property {String} reason
-	 */
-
-	/** End Call telemetry event
-	 * @screen End Call
-	 * @event End Call
-	 * 
-	 * @param {EndCallModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 endCall(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`end-call`),
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.END_CALL,
-			tags: this._extractTags(TelemetryEvent.END_CALL),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen },
-				{ "reason": baggage.reason }
-			]
-		});
-	}
-	
-	/**
-	 * @typedef {Object} EndCallCancelModel
-	 * @property {String} screen 
-	 * @property {String} nextScreen 
-	 * @property {String} reason
-	 */
-
-	/** End Call Cancel telemetry event
-	 * @screen End Call
-	 * @event Cancel End Call 
-	 * 
-	 * @param {EndCallCancelModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 endCallCancel(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`end-call`),
-			parentSpan: this.currentActiveSpans.get(`horizon.call`),
-			eventName: TelemetryEvent.END_CALL,
-			tags: this._extractTags(TelemetryEvent.END_CALL),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
-			]
-		});
-	}
-
-	/**
-	 * @typedef  {Object} ScrUnldEndCallModel 
-	 * @property {String} screen 
-	 */
-
-	/** End Call Screen Unload
-	 * @screen End Call
-	 * @event Screen Unload: End Call
-	 * 
-	 * @param {ScrUnldEndCallModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenUnloadEndCall(baggage) {
-		const spanId = this.currentActiveSpans.get(`end-call`);
-
-		if (this.traceId && spanId) {
-			super.spanEnd({
-				traceId: this.traceId,
-				spanId: spanId,
-				parentSpan: this.currentActiveSpans.get(`horizon.call`),
-				eventName: TelemetryEvent.SCR_UNLD_END_CALL,
-				tags: this._extractTags(TelemetryEvent.SCR_UNLD_END_CALL),
-				eventType: TelemetryEventType.SYSTEM,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-				baggage: [{ "screen": baggage.screen }]
-			});
-
-			this.currentActiveSpans.set(`end-call`, null);
-		}
-	}
-
-	/**
-	 * @typedef {Object} EndCallSelected
-	 * @property {String} screen
-	 * @property {String} nextScreen
-	 */
-
-	/** End Call Outcome: End Call button clicked
-	 * @screen End Call Outcome
-	 * @event End Call Selected
-	 * 
-	 * @param {EndCallSelectedModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-
-	endCallSelected(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`horizon.call`),
-			parentSpan: null,
-			eventName: TelemetryEvent.END_CALL_SELECTED,
-			tags: this._extractTags(TelemetryEvent.END_CALL_SELECTED),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-					{ "screen": baggage.screen },
-					{ "nextScreen": baggage.nextScreen }
-				]
-		});
-	}
-	// #endregion END CALL SELECTED
 
 	// #region FULFILL NEED
 
@@ -1546,114 +1207,6 @@ export class HorizonTelemetry extends TelemetryMocks {
 
 	// #endregion DEBI CHECK
 
-	// #region Search Other Need
-
-	/**
-	 * @typedef {Object} ScrLdOtherNeedModel
-	 * @property {String} screen
-	 */
-
-	/** Other Need
-	 * @screen Search Other Need
-	 * @event Screen Load: Search Other Need
-	 * 
-	 * @param {ScrLdOtherNeedModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenLoadOtherNeed(baggage) {
-		const spanId = super.spanStart({
-			traceId: this.traceId,
-			parentSpan: this.currentActiveSpans.get(`fulfill-need`),
-			eventName: TelemetryEvent.SCR_LD_OTHERNEED,
-			tags: this._extractTags(TelemetryEvent.SCR_LD_OTHERNEED),
-			eventType: TelemetryEventType.SYSTEM,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-			baggage: [{ "screen": baggage.screen }]
-		});
-
-		if (spanId) {
-			this.currentActiveSpans.set(`otherneed`, spanId);
-		}
-	}
-
-
-/**
-	 * @typedef {Object} NavigateOtherNeedModel
-	 * @property {String} screen 
-	 * @property {String} nextScreen 
-	 */
-
-	/** Launches Strack
-	 * @screen Strack
-	 * @event Navigate to Strack screen
-	 * 
-	 * @param {NavigateOtherNeedModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 otherNeedLaunchStrack(baggage) {
-		super.event({
-			traceId: this.traceId,
-			spanId: this.currentActiveSpans.get(`otherneed`),
-			parentSpan: null,
-			eventName: TelemetryEvent.SELECT_LAUNCH_STRACK,
-			tags: this._extractTags(TelemetryEvent.SELECT_LAUNCH_STRACK),
-			eventType: TelemetryEventType.PERSON,
-			eventOriginator: this._eventOriginator(TelemetryEventType.PERSON),
-
-			baggage: [
-				{ "screen": baggage.screen },
-				{ "next-screen": baggage.nextScreen }
-			]
-		});
-	}
-
-
-
-	/**
-	 * @typedef {Object} ScrUnldOtherNeedModel 
-	 * @property {String} screen 
-	 * @property {String} clientNeed 
-	 * @property {String} specificNeed 
-	 * @property {String} issueType 
-	 */
-
-	/** Search Other Need Screen Unload
-	 * @screen  Search Other Need 
-	 * @event Screen Unload: Search Other Need
-	 * 
-	 * @param {ScrUnldOtherNeedModel} baggage Information to attach to the telemetry event
-	 * @returns { void } 
-	 */
-	 screenUnloadOtherNeed(baggage) {
-		const spanId = this.currentActiveSpans.get(`otherneed`);
-
-		if (this.traceId && spanId) {
-			super.spanEnd({
-				traceId: this.traceId,
-				spanId: spanId,
-				parentSpan: null,
-				eventName: TelemetryEvent.SCR_UNLD_OTHERNEED,
-				tags: this._extractTags(TelemetryEvent.SCR_UNLD_OTHERNEED),
-				eventType: TelemetryEventType.SYSTEM,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-
-				baggage: [
-					{ "screen": baggage.screen },
-					{ "client-need": baggage.clientNeed },
-					{ "specific-need": baggage.specificNeed },
-					{ "issue-type": baggage.issueType }
-				]
-			});
-
-			this.currentActiveSpans.set(`otherneed`, null);
-		}
-	}
-
-
-
-	// #endregion Search Other Need
-
 	// #region Feedback screen 
 
 	/**
@@ -1729,9 +1282,17 @@ export class HorizonTelemetry extends TelemetryMocks {
 	// #endregion PUBLIC METHODS
 
 	// #region PRIVATE METHODS
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	/**
+	 * Extract tags from event name by (.)
+	 * 
+	 * @param {string} eventName Event name(horizon.call.incident-created)
+	 * @returns {Array}
+	 */
 	_extractTags(eventName) {
 		return eventName && eventName.split(`.`);
 	}
@@ -1749,6 +1310,13 @@ export class HorizonTelemetry extends TelemetryMocks {
 		}
 	}
 
+	/**
+	 * Determines the current span for the log event requested.
+	 * E.g: horizon.call.fulfill-need.stop-card-outcome -> stop-card is the current span for 'outcome' event
+	 * 
+	 * @param {string} events 
+	 * @returns {string} Current span name
+	 */
 	_getCurrentSpanofEvent(events) {
 		const event = events[events.length - 1];
 		let eventIndex = events.length - 1;
@@ -1766,6 +1334,12 @@ export class HorizonTelemetry extends TelemetryMocks {
 		return currSpan;
 	}
 
+	/**
+	 * Retrieves the span id from active span tree for the requested event/span
+	 * 
+	 * @param {string} eventName Event name (call/ stop-card/ confirm-caller)
+	 * @returns {string} Span ID
+	 */
 	_getParentSpanID(eventName) {
 		const eventsArr = this._extractTags(eventName);
 		const curSpanIndex = eventsArr.length - 1;
@@ -1774,6 +1348,12 @@ export class HorizonTelemetry extends TelemetryMocks {
 		return this._getSpanID(parentSpan);
 	}
 
+	/**
+	 * Retrieves the parent span name from active span tree for the requested event/span
+	 * 
+	 * @param {string} eventName Event name (call/ stop-card/ confirm-caller)
+	 * @returns {string} Parent span name
+	 */
 	_getParentSpanName(eventName) {
 		const eventsArr = this._extractTags(eventName);
 		const curEventIndex = eventsArr.length - 1;
@@ -1782,6 +1362,12 @@ export class HorizonTelemetry extends TelemetryMocks {
 		return parentEvent;
 	}
 
+	/**
+	 * Formats baggage object to array
+	 * 
+	 * @param {object} baggage Object holds event details
+	 * @returns {Array} 
+	 */
 	_formatBaggaeDetails(baggage) {
 		let array = [];
 
@@ -1793,12 +1379,27 @@ export class HorizonTelemetry extends TelemetryMocks {
 		return array;
 	}
 
+	/**
+	 * On starting a span for an event, this function is used to maintain active spans
+	 * with parent span mapping
+	 * 
+	 * @param {string} span Event name (call/ stop-card/ confirm-caller)
+	 * @param {string} spanID Span ID, returned by startSpan telemetry
+	 * @param {string} parentSpan Current span's parent span name
+	 * @returns {void}
+	 */
 	_addToActiveSpanTree(span, spanID, parentSpan) {
 		const node = this._generateNode(span, spanID, parentSpan);
 		this.activeSpanTree.push(node);
 		this._updateTelemetryStore();
 	}
 
+	/**
+	 * This deletes or splice the requested event node from active span tree
+	 * 
+	 * @param {string} span Event name
+	 * @returns {void}
+	 */
 	_deleteFromActiveSpanTree(span) {
 		if (this.activeSpanTree.length === 0) {
 			return;
