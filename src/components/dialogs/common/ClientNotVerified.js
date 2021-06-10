@@ -11,6 +11,7 @@ import 'app/components/dialogs/common/VerifyCaller';
  * @class ClientNotVerified
  * @extends {Component}
  */
+
 export class ClientNotVerified extends Component {
 
 	// --------------
@@ -62,60 +63,45 @@ export class ClientNotVerified extends Component {
 			css`
 				capitec-modal {
 					height: 326px;
-					width: 375;
+					width: 375px;
 					border-radius: 5px;
 					--theme-modal-header-padding-top: 32px;
 					--theme-modal-header-padding-bottom: 32px;
 					--theme-modal-header-padding-right: 31px;
 					--theme-modal-header-padding-left: 31px;
 					--theme-modal-header-background-color: #F9EBDD;
-					--theme-modal-footer-padding: 0px 16px 17px 0px;
+					--theme-modal-footer-padding: 8px 13px 10px 0px;
 				}
 			
 				div[slot="header"] {
-					width: 375px;
 					--theme-modal-header-height: 64px;
 					position: absolute;
 					display: flex;
 					align-items: center;
 					left: -352px;
-					top: -15px;
+					top: -12px;
 				}
 
 				div[slot="header"] > span {
-					height: 24px;
-					width: 300px;
-					color: #FFFFFF;
-					font-family: "Hind Vadodara";
-					font-size: 18px;
-					font-weight: 600;
-					letter-spacing: 0;
-					line-height: 24px;
 					padding-left: 15px;
 				}
 
-				div[slot="body"] {
-					width: 375px;
-					height: 198px;
-				}
-
-				.body-box {
-					height: 198px;
+				capitec-content-box {
+					height: 190px;
+					border-bottom: 1px solid #E1E1E1;
 					--theme-container-padding-top: 16px;
 					--theme-container-padding-bottom: 0px;
 					--theme-container-padding-left: 16px;
-					--theme-container-padding-right: 17px;
+					--theme-container-padding-right: 16px;
 				}
 
-				.header-text {
+				capitec-label {
 					padding-left: 8px;
 					height: 24px;
 					width: auto;
-					color: #D4781C;
 					font-family: "Hind Vadodara";
 					font-size: 18px;
 					font-weight: 600;
-					letter-spacing: 0;
 					line-height: 24px;
 				}
 
@@ -138,7 +124,6 @@ export class ClientNotVerified extends Component {
 
 				#id-cancel-button {
 					width : 98px;
-					--theme-button-clear-border-width: 0px;
 				}
 
 				#id-verify-button {
@@ -149,19 +134,10 @@ export class ClientNotVerified extends Component {
 				capitec-button {
 					height: 48px;
 					border-radius: 5px;
-					--theme-button-height: 20px;
-					--theme-button-width: 41px;
-					--theme-button-color: #FFFFFF;
 					--theme-button-font-family: "Hind Vadodara";
 					--theme-button-font-size: 16px;
 					--theme-button-font-weight: 600;
-					--theme-button-letter-spacing: 0;
 					--theme-button-line-height: 20px;
-					--theme-button-text-align: center;
-					--theme-button-padding-top: 14px;
-					--theme-button-padding-right: 22px;
-					--theme-button-padding-bottom: 14px;
-					--theme-button-padding-left: 22px;
 				}`
 		];
 	}
@@ -172,13 +148,13 @@ export class ClientNotVerified extends Component {
 				<div slot="header">
 					<span>
 						<capitec-group layout="horizontal">
-							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg" />
-							<capitec-label class="header-text" label="Client Not Verified"></capitec-label>
+							<img class="status-icon" src="/images/statusIcons/horizon-warning-trans.svg"/>
+							<capitec-label label="Client Not Verified"></capitec-label>
 						</capitec-group>
 					</span>
 				</div>
 				<div slot="body">
-					<capitec-content-box class="body-box">
+					<capitec-content-box>
 						<p>In order to process the transaction, you need to be verified. <br /> <br /> Do you want to continue?</p>
 					</capitec-content-box>
 				</div>
@@ -191,9 +167,17 @@ export class ClientNotVerified extends Component {
 	_renderFooter() {
 		return html`
 			<capitec-group layout="horizontal">
-				<capitec-button id="id-cancel-button" type="clear" label="Cancel" @click="${() => this._onCancelClick()}">
+				<capitec-button 
+						id="id-cancel-button" 
+						label="Cancel" 
+						@click="${() => this._onCancelClick()}">
 				</capitec-button>
-				<capitec-button id="id-verify-button" type="primary" label="Verify Now" @click="${() => this._onVerifyNowClick()}">
+
+				<capitec-button 
+						id="id-verify-button" 
+						type="primary" 
+						label="Verify Now" 
+						@click="${() => this._onVerifyNowClick()}">
 				</capitec-button>
 			</capitec-group>
 			`;
