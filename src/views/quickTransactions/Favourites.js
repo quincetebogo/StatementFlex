@@ -253,6 +253,64 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
+	async _getCardLimitsAgreement(agreementRequest) {
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+		return null;
+	}
+
+	async _updatePermanentLimits(updateRequest) {
+		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
+		}
+		return null;
+	}
+
+	async _updateTemporaryLimits(updateRequest) {
+		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
+		}
+		return null;
+	}
+	
+	_updateLimitsResult(eventData) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.limitDetails = eventData.detail.limitDetails;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-limits`);
+
+		if (eventData.detail.success) {
+			this.horizonRouter.navigateToCardLimitUpdateSuccess();
+		} else {
+			this.logger.log(`error`, eventData.detail.failureReason);
+			this.horizonRouter.navigateToCardLimitUpdateFailed();
+		}
+	}
+	
+
+	_loadingSearchOtherNeed() {
+		this._telemetry.startSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED
+		});
+	}
+
+	_unloadingSearchOtherNeed() {
+		this._telemetry.endSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
+			"client-need": this.category,
+			"specific-need": this.need,
+			"issue-type": this.issue
+		});
+	}
+
     // ---------------
     // PRIVATE METHODS
     // ---------------
@@ -617,8 +675,13 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
+					.updatePremanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
+					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"
-                    @update-limits="${(e) => this._updateLimits(e)}">
+					@result=${eventData => this._updateLimitsResult(eventData)}>
 				</horizon-card-limits-landing>`
             : html``;
     }

@@ -99,7 +99,7 @@ export class HorizonChannelService extends Service {
 	async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
 		const correlationId = v4();
 		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
 		try {
 			const response = await super.httpClient.request({
@@ -115,7 +115,7 @@ export class HorizonChannelService extends Service {
 				caller: caller
 			});
 	
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
 	
 			return response;
 		} catch (exception) {
@@ -178,7 +178,7 @@ export class HorizonChannelService extends Service {
 	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
 		const correlationId = v4();
 		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
 		try {
 			const response = await super.httpClient.request({
@@ -194,7 +194,7 @@ export class HorizonChannelService extends Service {
 				caller: caller
 			});
 
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
 
 			return response;
 		} catch (exception) {
@@ -337,6 +337,22 @@ export class HorizonChannelService extends Service {
 		}
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 		return this._get(url, this._setToken(), `getCardLimits`);
+	}
+
+	getCardLimitsAgreement(cardDetails) {
+		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
+	}
+
+	updatePermanentLimits(request) {
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this._put(url, request, this._setToken(), `updatePermanentLimits`);
+	}
+
+	updateTemporaryLimits(request) {
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
 	}
 
 	async tapToPayLanding(cifNumber, incidentRecId) {

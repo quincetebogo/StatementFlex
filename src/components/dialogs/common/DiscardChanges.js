@@ -22,7 +22,7 @@ export class DiscardChanges extends Component {
 
 	_onConfirmClick() {
 		console.log(`dispatch new event`);
-		this.dispatchEvent(new CustomEvent(`click`, {
+		this.dispatchEvent(new CustomEvent(`on-confirm`, {
 			detail: {}
 		}));
 	}
