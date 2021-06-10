@@ -424,7 +424,7 @@ export class Favourites extends SavingsAccountBase {
 	async _updateCardLimits() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_UPDATE_CARD_LIMITS, {
 			"screen": TelemetryScreen.FAVOURITES,
-			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+            "next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);

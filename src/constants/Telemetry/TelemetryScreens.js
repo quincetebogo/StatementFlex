@@ -45,5 +45,11 @@
 	ASSIGN_STOP_CARD: `Assign stop card`,
 	END_CALL: `End Call Session`,
 	
-	PRODUCT_INFO: `Product Info`
+    PRODUCT_INFO: `Product Info`,
+
+    CARD_LIMITS_LANDING: `Card limits`,
+    DISCARD_CHANGES: `Discard changes`,
+    LIMITS_AGREEMENT: `Update Limits Agreement`,
+    UPDATE_LIMITS_OUTCOME: `Update limits outcome`
+
 };
