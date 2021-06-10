@@ -233,7 +233,7 @@ export class SavingsAccountBase extends ViewBase {
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
+					.debiCheckMandates = "${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._setIncidentDone()}">
 				</debi-check-mandates>`

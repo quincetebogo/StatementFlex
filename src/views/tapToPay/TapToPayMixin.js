@@ -41,15 +41,13 @@ export const tapToPayMixin = {
 		}
 	},
 
-	_loadingTapToPAy() {
-		// Telemetry
+	_loadingTapToPay() {
 		HorizonTelemetry.instance.screenLoadTapToPay({
 			screen: TelemetryScreen.TAP_TO_PAY
 		});
 	},
 
 	_unloadingTapToPay() {
-		// Telemetry
 		HorizonTelemetry.instance.screenUnloadTapToPay({
 			nextScreen: TelemetryScreen.FAVOURITES
 		});
@@ -59,8 +57,7 @@ export const tapToPayMixin = {
 		// Telemetry
 		HorizonTelemetry.instance.selectToggle({
 			screen: TelemetryScreen.TAP_TO_PAY,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			cardId: agreementRequest.cardDetails.cardId
+			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT
 		});
 		
 		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
@@ -105,7 +102,7 @@ export const tapToPayMixin = {
 				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 				.getAgreements="${agreementRequest => this._getTapToPayAgreement(agreementRequest)}"
 				.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
-				@loading="${() => this._loadingTapToPAy()}"
+				@loading="${() => this._loadingTapToPay()}"
 				@unloading="${() => this._unloadingTapToPay()}"
 				@back="${() => this._backToLandingPage()}"
 				@result=${eventData => this._tapToPayResult(eventData)}

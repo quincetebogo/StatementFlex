@@ -1,8 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
@@ -21,8 +19,7 @@ const FEEDBACK_OPTIONS = [
 ];
 
 const ERROR_LIST = {
-	VALIDATION_ERROR: `Please choose an option:`,
-	SYSTEM_ERROR: `System error. Please try again`
+	VALIDATION_ERROR: `Please choose an option:`
 };
 
 /**
@@ -55,8 +52,6 @@ export class Feedback extends Component {
 		this.isBusy = false;
 
 		this.horizonStore = HorizonStore.getInstance();
-		this.endCallCauseCode = EndCallCauseCode.getInstance();
-		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		
 	}
 
@@ -91,40 +86,15 @@ export class Feedback extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _doneClick() {
+	_doneClick() {
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
-
 		// Telemetry
 		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK,
+			screen: TelemetryScreen.FEEDBACK
 		});
-
-			console.log(this.selectedFeedback);
-			const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === this.selectedFeedback);
-			const strackIncidentInfo = await this._incidentStatus(incidentDetails.incidentRecId) || {};
-			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
-
-			const closeIncidentRequest = {
-				incidentRecId: incidentDetails.incidentRecId,
-				reason: this.selectedFeedback,
-				resolution: this._formatLineBreaks(resolution),
-				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
-			};
-
-			const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
-			
-			if (returnValue.succeeded) {
-				// Navigate to favourites landing page
-				this._updateIncidentState();
-				this.dispatchEvent(new CustomEvent(`done`, {}));
-			} else {
-				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-			}
+		this.dispatchEvent(new CustomEvent(`done`, { detail: this.selectedFeedback }));
 		}
 	}
 
@@ -134,43 +104,10 @@ export class Feedback extends Component {
 		this.alertBannerMessage = ``;
 	}
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
-	_handleChannelServiceError() {
-		this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-	}
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-		incidentDetails.feedback = this.selectedFeedback;
-
-		this.horizonStore.setIncidentDetails(incidentDetails);
-	}
-
-	async _incidentStatus(incidentRecId) {
-		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return null;
-		}
-		return returnValue.result;
-	}
-
-	_getResolution(resolution, selectedOption) {
-		return resolution ? `${resolution || ``}\n${selectedOption.value}` : `${selectedOption.value}`;
-	}
-
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
-	}
 
 	// ---------
 	// RENDERING
