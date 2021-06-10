@@ -1,6 +1,6 @@
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
@@ -52,7 +52,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		//Telemetry
 		HorizonTelemetry.instance.selectDoneTapToPayFailure({
 			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			nextScreen: TelemetryScreen.FAVOURITES
@@ -63,17 +62,15 @@ export class TapToPayUnsuccessful extends ViewBase {
 	}
 	
 	_handoffClick() {
-		// Incident must stay active until a team lead closes it, Save store & Launch STRACK
-
-		//Telemetry
 		HorizonTelemetry.instance.tapToPayHandoff({
 			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME
 		});
 
-		const incidentRecId = this.incidentDetails.incidentRecId;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// --------------
@@ -124,7 +121,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 		return html`
 			<horizon--error-screen 
 				header="Tap to pay not activated" 
-				image="src/images/tap-to-pay-error.svg"
+				image="/images/tap-to-pay-error.svg"
 				left="Done"
 				right="Handoff"
 				toast="Tap to pay not activated."

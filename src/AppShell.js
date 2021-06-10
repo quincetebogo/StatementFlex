@@ -226,6 +226,7 @@ export class AppShell extends Shell {
 					--horizon-left-panel-width: 440px;
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
+					--horizon-toast-top: 68px;
 				}
 
 				.screen-size {

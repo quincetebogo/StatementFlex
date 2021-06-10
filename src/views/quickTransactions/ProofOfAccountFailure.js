@@ -78,7 +78,11 @@ import 'app/components/common/RelatedOptions';
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this.horizonRouter.navigateToReturnPage();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------

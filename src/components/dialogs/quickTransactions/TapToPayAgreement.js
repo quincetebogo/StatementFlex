@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -24,6 +24,7 @@ export class TapToPayAgreement extends Component {
 		this.tapToPayInfo = {};
 		this.tapToPayAgreement = ``;
 		this.agreementResult = {};
+		this.selectedCard = {};
 	}
 
 
@@ -211,7 +212,7 @@ export class TapToPayAgreement extends Component {
 
 	_webTemplate() {
 		return html`
-		<capitec-modal type="free" header-align="left" header="Activate Tap To Pay">
+		<capitec-modal type="free" header-align="left" header="${this.selectedCard.isContactlessActivated ? `Activate Tap To Pay` : `Deactivate Tap To Pay`}">
 			<div slot="body">
 				<capitec-content-box class="main">
 					${this._renderAlertBanner()}
