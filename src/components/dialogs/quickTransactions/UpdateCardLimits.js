@@ -141,7 +141,7 @@ export class UpdateCardLimits extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-        this.cardLimits = this.cardDetails.cardLimits;
+        this.cardLimits =  this.cardDetails.cardLimits;
         this.linkedCardLimits = this.cardDetails.linkedCardLimits;
 		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
 		this.cardArtDetails = {
@@ -210,15 +210,25 @@ export class UpdateCardLimits extends Component {
 			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
 			this.renderMode = RENDER_MODE.AGGREMENT;
 
+            let limits = this.linkedCardLimits && this.updateType == "Debit" ? {
+                cashAmountLimit: this.limitType === 'Permanent' ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
+                purchaseAmountLimit: this.limitType === 'Permanent' ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
+                cnpAmountLimit: this.limitType === 'Permanent' ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit
+            } : {
+                    cashAmountLimit: this.limitType === 'Permanent' ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+                    purchaseAmountLimit: this.limitType === 'Permanent' ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+                    cnpAmountLimit: this.limitType === 'Permanent' ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit
+                };
+
+
 			this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_NEXT, {
 			    "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
-			    "next-screen": TelemetryScreen.LIMITS_AGREEMENT,
-			    "permanentCashAmountLimit": this.cardLimits.permanentCashAmountLimit,
-			    "permanentPurchaseAmountLimit": this.cardLimits.permanentPurchaseAmountLimit,
-			    "permanentCnpAmountLimit": this.cardLimits.permanentCnpAmountLimit,
-			    "tempCashAmountLimit": this.cardLimits.tempCashAmountLimit,
-			    "tempPurchaseAmountLimit": this.cardLimits.tempPurchaseAmountLimit,
-			    "tempCnpAmountLimit": this.cardLimits.tempCnpAmountLimit
+                "next-screen": TelemetryScreen.LIMITS_AGREEMENT,
+                "update-type": this.updateType,
+                "limit-type": this.limitType,
+                "cash-amount-limit": limits.cashAmountLimit,
+                "purchase-amount-limit" :limits.purchaseAmountLimit,
+                "cnp-amount-limit": limits.cnpAmountLimit
 			});
 		}
 		else {
