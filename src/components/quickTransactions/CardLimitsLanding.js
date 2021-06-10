@@ -162,12 +162,12 @@ export class CardLimitsLanding extends Component {
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
 				},
-				permanentCashAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentCashAmountLimit : 0,
-				permanentPurchaseAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentPurchaseAmountLimit : 0,
-				permanentCnpAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentCnpAmountLimit : 0,
-				tempCashAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempCashAmountLimit : 0,
-				tempPurchaseAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempPurchaseAmountLimit : 0,
-				tempCnpAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempCnpAmountLimit : 0
+				permanentCashAmountLimit:  card.cardLimits.permanentCashAmountLimit ,
+				permanentPurchaseAmountLimit: card.cardLimits.permanentPurchaseAmountLimit,
+				permanentCnpAmountLimit:  card.cardLimits.permanentCnpAmountLimit,
+				tempCashAmountLimit:  card.cardLimits.tempCashAmountLimit,
+				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit ,
+				tempCnpAmountLimit:  card.cardLimits.tempCnpAmountLimit
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
@@ -247,7 +247,7 @@ export class CardLimitsLanding extends Component {
 				limitExpiryDate: this._calculateLimitExpiry()
 			}, null);
 		} else {
-			this._result(true, {
+			this._result(false, {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
