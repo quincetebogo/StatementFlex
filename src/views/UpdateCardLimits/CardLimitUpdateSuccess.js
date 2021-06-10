@@ -12,8 +12,11 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	constructor() {
 		super();
 
-		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
+		this.limitType = ``;
+		this.cardCategory = ``;
+		this.maskedCardNumber = ``;
+		this.limitExpiryDate = ``;
+		this.istapToPayUnChanged = false;
 	}
 
 	// --------------
@@ -22,7 +25,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-
+			
 		};
 	}
 
@@ -34,6 +37,14 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 		super.connectedCallback();
 
 		this._updateIncidentState();
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const limitDetails = screenDetails.limitDetails;
+
+		this.maskedCardNumber = limitDetails.cardMaskedNumber;
+		this.limitType = limitDetails.limitType;
+		this.cardCategory = limitDetails.cardCategory;
+		this.limitExpiryDate = limitDetails.limitExpiryDate;
+		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
 	}
 
 	// --------------
@@ -41,11 +52,12 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate after card limit successfully updated
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_updateCardLimitsClick() {
-		// TODO : Functionality to update card limits
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// --------------
@@ -73,7 +85,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				.id-update-msg {
 					width: auto;
 				}
-
 				horizon-success-screen {
 					--horizon-button-group-margin-top: 28px;
 				}
@@ -96,29 +107,36 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_renderCardLimitsUpdateSuccess() {
 		return html`
 			<horizon-success-screen 
-				header="Permanent card limits updated" 
+				header="${this.limitType} card limits updated" 
 				image="/images/cards-successful-limit-update.svg"
 				left="Done"
 				right="Update Card Limits"
-				toast="Permanent card limit updated."
-				sub_detail="true"
+				toast="${this.limitType} card limit updated."
+				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay updated`}"
+				subDetail="${this.istapToPayUnChanged ? `` : true }"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._updateCardLimitsClick()}>
 					<section 
 						class="id-update-msg" 
 						slot="detail">
-							The permanent card limits for dual card <b>${this.card1}</b> have been updated.
+							The ${this.limitType.toLowerCase()} card limits for ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was updated.
 					</section>
 
-					<section 
-						class="id-update-msg" 
-						slot="sub-detail">
-							The tap to pay functionality on your dual credit card <b>${this.card2}</b> has been activated and is now pending.
-					</section>
+					${this._renderTapToPayInfo()}
 			</horizon-success-screen>
 		`;
 	}
 
+	_renderTapToPayInfo() {
+		return !this.istapToPayUnChanged
+			? html`
+				<section 
+					class="id-update-msg" 
+					slot="sub-detail">
+						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was activated and is now pending.
+				</section>`
+			: html``;
+	}
 }
 
-customElements.define(`permanent-card-limit-update-success`, SuccessfulCardLimitUpdate);
+customElements.define(`card-limit-update-success`, SuccessfulCardLimitUpdate);

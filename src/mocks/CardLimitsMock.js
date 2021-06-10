@@ -2,7 +2,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0W6QZ8B0w7S2PFTis04kR1XJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8646",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Primary_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,
@@ -55,7 +55,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0ePN8Wm9o9ka4Y99UsvMxkvJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8828",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Supplementary_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,
@@ -94,7 +94,7 @@ export const cards = [
 	  {
 		"cardId": "ZlzKsDcQcrFVCN6sZT/q0ePN8Wm9o9ka4Y99UsvMxkvJQ6WY0c6483T19z7LMc+7",
 		"maskedCardNumber": "5284 **** **** 8828",
-		"cardDisplayType": 0,
+		"cardDisplayType": "Virtual_Card",
 		"cardLimits": {
 		  "permanentCashAmountLimit": 0,
 		  "maxPermanentCashAmountLimit": 500000,
@@ -134,35 +134,23 @@ export const cards = [
 
 export const mockCardLimits = {
 	"cardLimits": {
-		"cardId": `5238146537118907`,
-		"permanentCashAmountLimit": 2500,
-		"maxPermanentCashAmountLimit": 5500,
-		"permanentPurchaseAmountLimit": 8500,
-		"maxPermanentPurchaseAmountLimit": 8500,
-		"permanentCnpAmountLimit": 10000,
-		"maxPermanentCnpAmountLimit": 250000,
-		"tempCashAmountLimit": 0,
-		"maxTemporaryCashAmountLimit": 6500,
-		"tempPurchaseAmountLimit": 0,
-		"maxTemporaryPurchaseAmountLimit": 9000,
-		"tempCnpAmountLimit": 250000,
-		"maxTemporaryCnpAmountLimit": 300000,
-		"tempLimitExpiryDate": `2021-02-12T09:16:49.148Z`
-	},
-	"linkedCardLimits": {
-		"cardId": `string`,
+		"cardId": `GXzTOaH0EjmAr2c8oG9jeaBW2vfB5bGYIciokZHeOQS2sm87pvun8gQNmTouLBgH`,
+		"accountId": `1733222705`,
+		"customerId": `323191037`,
 		"permanentCashAmountLimit": 0,
-		"maxPermanentCashAmountLimit": 0,
+		"maxPermanentCashAmountLimit": 50000,
 		"permanentPurchaseAmountLimit": 0,
-		"maxPermanentPurchaseAmountLimit": 0,
+		"maxPermanentPurchaseAmountLimit": 50000,
 		"permanentCnpAmountLimit": 0,
-		"maxPermanentCnpAmountLimit": 0,
+		"maxPermanentCnpAmountLimit": 50000,
 		"tempCashAmountLimit": 0,
-		"maxTemporaryCashAmountLimit": 0,
+		"maxTemporaryCashAmountLimit": 1000000,
 		"tempPurchaseAmountLimit": 0,
-		"maxTemporaryPurchaseAmountLimit": 0,
+		"maxTemporaryPurchaseAmountLimit": 1000000,
 		"tempCnpAmountLimit": 0,
-		"maxTemporaryCnpAmountLimit": 0,
-		"tempLimitExpiryDate": `2021-02-12T09:16:49.148Z`
-	}
-  };
+		"maxTemporaryCnpAmountLimit": 1000000,
+		"tempLimitExpiryDate": `2021-06-12T09:16:49.148Z`
+	},
+	"isContactlessCard": true,
+	"isContactlessActivated": false
+};
