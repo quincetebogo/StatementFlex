@@ -116,7 +116,7 @@ export class CardLimitsLanding extends Component {
     static get properties() {
         return {
             cards: { type: Object },
-			cifNumber: { type: String},
+			cifNumber: { type: String },
 			voiceRecordingReference: { type: String },
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
@@ -659,19 +659,19 @@ export class CardLimitsLanding extends Component {
 					class="col2"
 					row="1" column="2" colspan="1" size="4" rowspan="1"
 					label="${formatCurrency(limits.permanentCashAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentCashAmountLimit)}">
+					value="max ${formatCurrency(limits.maxPermanentCashAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col3"
 					row="1" column="3" colspan="1" size="4" rowspan="1"
 					label="${formatCurrency(limits.permanentPurchaseAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit)}">
+					value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col4"
 					row="1" column="4" colspan="1" size="4" rowspan="1"
 					label="${formatCurrency(limits.permanentCnpAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit)}">
+					value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<capitec-label
 					class="col5"
@@ -694,19 +694,19 @@ export class CardLimitsLanding extends Component {
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
 						label="${formatCurrency(limits.tempCashAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit)}">
+						value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col3"
 						row="1"column="3" colspan="1" size="4" rowspan="1"
 						label="${formatCurrency(limits.tempPurchaseAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit)}">
+						value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col4"
 						row="1" column="4" colspan="1" size="4" rowspan="1"
 						label="${formatCurrency(limits.tempCnpAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit)}">
+						value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<capitec-label
 						class="col5"
