@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 

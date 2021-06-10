@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
@@ -681,20 +681,20 @@ export class CardLimitsLanding extends Component {
 				<bb-multi-line-label
 					class="col2"
 					row="1" column="2" colspan="1" size="4" rowspan="1"
-					label="${linkedLimits && updateType==`Debit` ? formatCurrency(linkedLimits.permanentCashAmountLimit) : formatCurrency(limits.permanentCashAmountLimit)}"
-					value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxPermanentCashAmountLimit, 0) : formatCurrency(limits.maxPermanentCashAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentCashAmountLimit) : formatCurrency(limits.permanentCashAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentCashAmountLimit, 0) : formatCurrency(limits.maxPermanentCashAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col3"
 					row="1" column="3" colspan="1" size="4" rowspan="1"
-					label="${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.permanentPurchaseAmountLimit) : formatCurrency(limits.permanentPurchaseAmountLimit)}"
-					value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxPermanentPurchaseAmountLimit, 0) : formatCurrency(limits.maxPermanentPurchaseAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentPurchaseAmountLimit) : formatCurrency(limits.permanentPurchaseAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentPurchaseAmountLimit, 0) : formatCurrency(limits.maxPermanentPurchaseAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col4"
 					row="1" column="4" colspan="1" size="4" rowspan="1"
-					label="${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.permanentCnpAmountLimit) : formatCurrency(limits.permanentCnpAmountLimit)}"
-					value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxPermanentCnpAmountLimit, 0) : formatCurrency(limits.maxPermanentCnpAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentCnpAmountLimit) : formatCurrency(limits.permanentCnpAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentCnpAmountLimit, 0) : formatCurrency(limits.maxPermanentCnpAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<capitec-label
 					class="col5"
@@ -716,20 +716,20 @@ export class CardLimitsLanding extends Component {
 					<bb-multi-line-label
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.tempCashAmountLimit) : formatCurrency(limits.tempCashAmountLimit)}"
-						value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxTemporaryCashAmountLimit, 0) : formatCurrency(limits.maxTemporaryCashAmountLimit, 0)}">
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempCashAmountLimit) : formatCurrency(limits.tempCashAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryCashAmountLimit, 0) : formatCurrency(limits.maxTemporaryCashAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col3"
 						row="1" column="3" colspan="1" size="4" rowspan="1"
-						label="${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.tempPurchaseAmountLimit) : formatCurrency(limits.tempPurchaseAmountLimit)}"
-						value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxTemporaryPurchaseAmountLimit, 0) : formatCurrency(limits.maxTemporaryPurchaseAmountLimit, 0)}">
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempPurchaseAmountLimit) : formatCurrency(limits.tempPurchaseAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryPurchaseAmountLimit, 0) : formatCurrency(limits.maxTemporaryPurchaseAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col4"
 						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.tempCnpAmountLimit) : formatCurrency(limits.tempCnpAmountLimit)}"
-						value="max ${linkedLimits && updateType == `Debit` ? formatCurrency(linkedLimits.maxTemporaryCnpAmountLimit, 0) : formatCurrency(limits.maxTemporaryCnpAmountLimit, 0)}">
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempCnpAmountLimit) : formatCurrency(limits.tempCnpAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryCnpAmountLimit, 0) : formatCurrency(limits.maxTemporaryCnpAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<capitec-label
 						class="col5"

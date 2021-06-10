@@ -1272,7 +1272,7 @@ export class HorizonTelemetry extends Telemetry{
 
 				baggage: [
 					{ "screen": baggage.screen },
-					{ "strack-outcome": baggage.strackOutcome },
+					{ "strack-outcome": baggage.strackOutcome }
 				]
 			});
 

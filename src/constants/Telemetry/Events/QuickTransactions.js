@@ -68,18 +68,18 @@
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
      LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 
-     //Update card limits 
+     // Update card limits 
      CARD_LIMITS: `call.fulfill-need.card-limits`,
      CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
 
-     //Update card limits modal
+     // Update card limits modal
      UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
      UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
      UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
      UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
      UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
 
-     //Discard changes modal
+     // Discard changes modal
      DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
      DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
      DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`
