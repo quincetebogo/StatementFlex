@@ -58,7 +58,7 @@
 			"positiveCase": true
 		},
 		"favouritesLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
@@ -100,7 +100,7 @@
 		},
 		"stopCard": {
 			"enabled": true,
-			"positiveCase": true
+			"positiveCase": false
 		},
 		"transactionHistory": {
 			"enabled": true,
