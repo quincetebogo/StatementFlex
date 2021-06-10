@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 
 
@@ -8,7 +10,8 @@ export class DiscardChanges extends Component {
 	// INITIALISATION
 	// --------------
 	constructor() {
-		super();
+        super();
+        this._telemetry = HorizonTelemetry.instance;
     }
 
     connectedCallback() {
@@ -35,7 +38,7 @@ export class DiscardChanges extends Component {
 
 	_onConfirmClick() {
 		console.log(`dispatch new event`);
-		this.dispatchEvent(new CustomEvent(`click`, {
+		this.dispatchEvent(new CustomEvent(`on-confirm`, {
 			detail: {}
         }));
 

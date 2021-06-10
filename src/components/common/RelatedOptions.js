@@ -123,7 +123,7 @@ export class RelatedOptions extends Component {
 		}
 	
 		const stopCard = () => this._stopCard();
-		const updateCardLimits = () => this._updateCardLimits();
+		const updateCardLimits = (option) => this._updateCardLimits(option);
 		const tapToPay = () => this._tapToPay();
 		const statements = () => this._Statements();
 		const taxCertificate = () => this._taxCertificate();
@@ -225,15 +225,6 @@ export class RelatedOptions extends Component {
 		}
 	}
 
-	async _updateCardLimits() {
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
-			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
-		}
-	}
-
 	async _Statements() {
 		const clientProductDetails = await this._getClientProducts();
 
@@ -264,6 +255,11 @@ export class RelatedOptions extends Component {
 		
 		screenDetails.returnToOption = option || ``;
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
+	}
+
+	_updateCardLimits(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------
@@ -359,16 +355,6 @@ export class RelatedOptions extends Component {
 				@click="${() => this._navigateToOption(item)}">
 			</horizon-option-button>
 		`;
-	}
-
-	_renderUpdateCardLimits() {
-		return this.renderMode === RENDER_MODE.UPDATE_LIMITS
-			? html`
-				<horizon-card-limits-landing
-					.cards="${this.cards}"
-					@back="${() => this._backToLandingPage()}">
-				</horizon-card-limits-landing>`
-			: html``;
 	}
 
 	_renderStatements() {
