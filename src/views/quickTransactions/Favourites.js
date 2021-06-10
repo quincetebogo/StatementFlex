@@ -294,22 +294,6 @@ export class Favourites extends SavingsAccountBase {
 			this.horizonRouter.navigateToCardLimitUpdateFailed();
 		}
 	}
-	
-
-	_loadingSearchOtherNeed() {
-		this._telemetry.startSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
-			"screen": TelemetryScreen.SEARCH_OTHER_NEED
-		});
-	}
-
-	_unloadingSearchOtherNeed() {
-		this._telemetry.endSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
-			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
-			"client-need": this.category,
-			"specific-need": this.need,
-			"issue-type": this.issue
-		});
-	}
 
     // ---------------
     // PRIVATE METHODS

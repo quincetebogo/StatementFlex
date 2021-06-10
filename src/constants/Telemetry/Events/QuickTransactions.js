@@ -54,5 +54,15 @@
 	SEARCH_OTHER_NEED: `call.fulfill-need.other-needs`,
 	SEARCH_OTHER_NEED_LAUNCH_STRACK: `call.fulfill-need.other-needs.launch-strack`,
 	// Launch-STrack Feedback
-	SEARCH_OTHER_NEED_DONE: `call.fulfill-need.other-needs.done`
+	SEARCH_OTHER_NEED_DONE: `call.fulfill-need.other-needs.done`,
+
+	// Tap to pay
+	TAP_TO_PAY: `call.fulfill-need.tap-to-pay`,
+	TAP_TO_PAY_TOGGLE: `call.fulfill-need.tap-to-pay.get-agreements`,
+	TAP_TO_PAY_UPDATE_CANCEL: `call.fulfill-need.tap-to-pay.update.cancel`,
+	TAP_TO_PAY_UPDATE: `call.fulfill-need.tap-to-pay.update.agree`,
+	TAP_TO_PAY_OUTCOME: `call.fulfill-need.tap-to-pay.outcome`,
+	TAP_TO_PAY_OUTCOME_DONE: `call.fulfill-need.tap-to-pay.outcome.done`,
+	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
+	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`
  };
