@@ -355,6 +355,18 @@ export class HorizonChannelService extends Service {
 		return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
 	}
 
+	getPermanentLimits(request) {
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this._post(url, request, this._setToken(), `getPermanentLimits`);
+	}
+
+	getTemporaryLimits(request) {
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
+	}
+
 	async tapToPayLanding(cifNumber, incidentRecId) {
 		if (await this._mockEnabled(`tapToPayLanding`)) {
 			return this._mock.tapToPay(cifNumber);

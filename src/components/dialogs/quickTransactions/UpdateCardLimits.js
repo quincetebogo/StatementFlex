@@ -254,6 +254,8 @@ export class UpdateCardLimits extends Component {
 		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
 		this.limitLabel = `${this.updateType} Limits`;
 
+		console.log(this.cardDetails)
+
 		const limitObj = this.cardLimits;
 
 		this.primaryPermanentLimits = limitObj.permanentCashAmountLimit + limitObj.permanentCnpAmountLimit + limitObj.permanentPurchaseAmountLimit;
@@ -417,7 +419,7 @@ export class UpdateCardLimits extends Component {
 			.limits-cb {
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 32px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 8px;
 				width: 380px;

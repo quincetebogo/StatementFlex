@@ -123,6 +123,8 @@ export class CardLimitsLanding extends Component {
 			updatePremanentLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
 			getAgreement: { type: String },
+			/*permanentLimits: { type: Object },
+			temporaryLimits: { type: Object },*/
 
 			renderMode: { attribute: false },
 			showUpdateLimitsModal: { attribute: false },
@@ -280,10 +282,11 @@ export class CardLimitsLanding extends Component {
 		// TODO: Error handler comes here
 	}
 
-	_updateLimits(card, limitType, updateType) {
+	_updateLimits(card, limitType, updateType, permanentLimits, temporaryLimits) {
 		this._updateType = updateType;
 		this._limitType = limitType;
 		this._cardDetails = card;
+
 
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
 	}
@@ -653,7 +656,7 @@ export class CardLimitsLanding extends Component {
 		const limits = card && card.cardLimits;
 
 		return html`
-			<capitec-group @click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
+			<capitec-group @click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType, this.permanentLimits, this.temporaryLimits)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1" row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
 				<bb-multi-line-label
 					class="col2"
@@ -684,7 +687,7 @@ export class CardLimitsLanding extends Component {
 				class="columnGroup"
 				layout="grid" gap="line" halign="left" valign="center"
 				columns="5" rows="1"
-				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
+				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType, this.permanentLimits, this.temporaryLimits)}">
 					<capitec-label
 						class="col1"
 						row="1" column="1" colspan="1" size="4"
@@ -723,6 +726,7 @@ export class CardLimitsLanding extends Component {
 				<horizon-update-card-limits
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
+
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, tapToPayStatus) => this._getLimitsAgreement(card, tapToPayStatus)}"
 					@cancel="${() => this._cancelUpdateLimits()}"

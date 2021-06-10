@@ -73,6 +73,8 @@ export class Favourites extends SavingsAccountBase {
         this.landingPageInfo = null;
         this.curOptionEvent = null;
         this.cards = [];
+		this.permanentLimits;
+		this.temporaryLimits;
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 
@@ -253,6 +255,26 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
+	async _getPermanentLimits() {
+		const returnValue = await this.quickTransactionService.getPermanentLimits();
+
+		if (returnValue.succeeded) {
+			console.log(returnValue.result)
+			this.permanentLimits = returnValue.result;
+		}
+		return null;
+	}
+
+	async _getTemporaryLimits() {
+		const returnValue = await this.quickTransactionService.getTemporaryLimits();
+
+		if (returnValue.succeeded) {
+			console.log(returnValue.result)
+			this.temporaryLimits = returnValue.result;
+		}
+		return null;
+	}
+
 	async _getCardLimitsAgreement(agreementRequest) {
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest);
 
@@ -427,6 +449,8 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
 		});
 
+		this._getPermanentLimits();
+		this._getTemporaryLimits();
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			 
 		if (returnValue.succeeded) {
@@ -659,6 +683,8 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.permanentLimits="${this.permanentLimits}"
+					.temporaryLimits="${this.temporaryLimits}"
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
