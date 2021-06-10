@@ -124,11 +124,14 @@ export class CardLimitsLanding extends Component {
 			voiceRecordingReference: { type: String },
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
+
+			getPermanentLimits: { type: Object, attribute: false },			
 			updatePremanentLimits: { type: Object, attribute: false },
+
+			getTemporaryLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
+
 			getAgreement: { type: String },
-			/*permanentLimits: { type: Object },
-			temporaryLimits: { type: Object },*/
 
 			renderMode: { attribute: false },
 			showUpdateLimitsModal: { attribute: false },
