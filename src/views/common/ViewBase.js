@@ -1,5 +1,5 @@
 import { EventAggregator, Logger } from 'platform/core';
-import { css, View, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';

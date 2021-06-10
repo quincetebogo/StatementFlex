@@ -150,14 +150,13 @@ export class LandingPage extends ViewBase {
 		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		 }
 
-		// Telemetry
 		if (incident) {
-			this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
 				"incident-reference": incident.incidentNumber,
 				"incident-rec-id": incident.incidentRecId
 			});
 		}
-
+	
 		return incident;
 	}
 

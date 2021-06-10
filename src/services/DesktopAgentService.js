@@ -4,8 +4,8 @@ import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { validate } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
