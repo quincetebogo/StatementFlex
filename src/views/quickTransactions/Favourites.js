@@ -449,8 +449,6 @@ export class Favourites extends SavingsAccountBase {
             "next-screen": TelemetryScreen.CARD_LIMITS_LANDING
 		});
 
-		this._getPermanentLimits();
-		this._getTemporaryLimits();
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			 
 		if (returnValue.succeeded) {
