@@ -63,4 +63,16 @@ export class QuickTransactionsService extends ServiceBase {
 	updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.updateTapToPay(acceptTapToPay), `updateTapToPay`, errorHandler, autoRetries);
 	}
+
+	getCardLimitsAgreement(cardDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getCardLimitsAgreement(cardDetails), `getCardLimitsAgreement`, errorHandler, autoRetries);
+	}
+
+	updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updatePermanentLimits(request), `updatePermanentLimits`, errorHandler, autoRetries);
+	}
+
+	updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.updateTemporaryLimits(request), `updateTemporaryLimits`, errorHandler, autoRetries);
+	}
 }

@@ -1,9 +1,11 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountBase } from 'app/views/common/SavingsAccountBase';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/common/ClientNotVerified';
@@ -75,10 +77,11 @@ export class Favourites extends SavingsAccountBase {
 		this.feedbackOptions = [];
 
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-return-to-screen`, (e) => this._performAction(e.option));
 
-		Object.assign(Favourites.prototype, tapToPayMixin);	
+		Object.assign(Favourites.prototype, tapToPayMixin);
 	}
 
     // --------------
@@ -102,11 +105,9 @@ export class Favourites extends SavingsAccountBase {
 		this.feedbackOptions = FEEDBACK_OPTIONS;
 		 
 
-        // Telemetry 
-        HorizonTelemetry.instance.screenLoadFulfillNeed({
-            screen: TelemetryScreen.FAVOURITES
-            // debiChecksOutstanding: this.pendingMandateCount
-        });
+		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, {
+			"screen": TelemetryScreen.FAVOURITES
+		});
 
         this._initialise();
         this._performAction = async (option) => {
@@ -145,15 +146,10 @@ export class Favourites extends SavingsAccountBase {
         };
     }
 
-    disconnectedCallback() {
-        // Telemetry unload Favourites
-        HorizonTelemetry.instance.screenUnloadNeedFulfilled({
-            screen: TelemetryScreen.FAVOURITES
-        });
-
-        this.returnToSub.dispose();
-        super.disconnectedCallback();
-    }
+	disconnectedCallback() {
+		this.returnToSub.dispose();
+		super.disconnectedCallback();
+	}
 
     // --------------
     // EVENT HANDLERS
@@ -169,29 +165,28 @@ export class Favourites extends SavingsAccountBase {
 
 	async _done(event) {
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-			const incidentDetails = this.horizonStore.getIncidentDetails();
-			const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-			const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
-			const strackIncidentInfo = await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
-			const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const ivrOptionCode = incomingCallDetails.ivrOptionCode;
+		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+		const strackIncidentInfo = await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
+		const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
 
-			const closeIncidentRequest = {
-				incidentRecId: incidentDetails.incidentRecId,
-				reason: event.detail,
-				resolution: this._formatLineBreaks(resolution),
-				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
-			};
+		const closeIncidentRequest = {
+			incidentRecId: incidentDetails.incidentRecId,
+			reason: event.detail,
+			resolution: this._formatLineBreaks(resolution),
+			causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
+		};
 
-			const returnValue = await this.incidentManagementService.closeIncident(closeIncidentRequest);
-			
-			if (returnValue.succeeded) {
-				// Navigate to favourites landing page
-				this._updateIncidentState();
-				this._searchOtherNeedDone();
-			} else {
-				this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
-			}
-
+		const returnValue = await this.incidentManagementService.closeIncident(closeIncidentRequest);
+		
+		if (returnValue.succeeded) {
+			// Navigate to favourites landing page
+			this._updateIncidentState();
+			this._searchOtherNeedDone();
+		} else {
+			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
+		}
 	}
 
 	_getResolution(resolution, selectedOption) {
@@ -255,18 +250,61 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
+	async _getCardLimitsAgreement(agreementRequest) {
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+		return null;
+	}
+
+	async _updatePermanentLimits(updateRequest) {
+		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
+		}
+		return null;
+	}
+
+	async _updateTemporaryLimits(updateRequest) {
+		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
+		}
+		return null;
+	}
+	
+	_updateLimitsResult(eventData) {
+		const screenDetails = this.horizonStore.getScreenDetails();
+		screenDetails.limitDetails = eventData.detail.limitDetails;
+		this.horizonStore.setScreenDetails(screenDetails);
+		
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `update-card-limits`);
+
+		if (eventData.detail.success) {
+			this.horizonRouter.navigateToCardLimitUpdateSuccess();
+		} else {
+			this.logger.log(`error`, eventData.detail.failureReason);
+			this.horizonRouter.navigateToCardLimitUpdateFailed();
+		}
+	}
+	
+
 	_loadingSearchOtherNeed() {
-		HorizonTelemetry.instance.screenLoadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED
+		this._telemetry.startSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED
 		});
 	}
 
 	_unloadingSearchOtherNeed() {
-		HorizonTelemetry.instance.screenUnloadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			clientNeed: this.category,
-			specificNeed: this.need,
-			issueType: this.issue
+		this._telemetry.endSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
+			"client-need": this.category,
+			"specific-need": this.need,
+			"issue-type": this.issue
 		});
 	}
 
@@ -358,13 +396,11 @@ export class Favourites extends SavingsAccountBase {
     }
 
 
-    async _stopCard() {
-
-        // Telemetry for selecting Stop Card button
-        HorizonTelemetry.instance.selectStopCard({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.STOP_CARD
-        });
+	async _stopCard() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STOP_CARD, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.STOP_CARD
+		});
 
         const confirmedCaller = {
             idNumber: this.callerInformation.southAfricanIDNumber,
@@ -399,13 +435,11 @@ export class Favourites extends SavingsAccountBase {
         }
     }
 
-    async _updateCardLimits() {
-
-        // Telemetry select Update Card Limits
-        HorizonTelemetry.instance.selectUpdateCardLimits({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.UPDATE_CARD_LIMITS
-        });
+	async _updateCardLimits() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_UPDATE_CARD_LIMITS, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+		});
 
 		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
 			 
@@ -418,27 +452,25 @@ export class Favourites extends SavingsAccountBase {
     _taxCertificates() {
         // TODO: Functionality to generate tax certificate comes here
 
-        // Telemetry Tax Certificate
-        HorizonTelemetry.instance.selectTaxCertificate({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.TAX_CERTIFICATE
-        });
-    }
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.TAX_CERTIFICATE
+		});
+	}
 
-    async _proofOfAccount() {
-        // Telemetry
-        HorizonTelemetry.instance.selectProofOfAccount({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
-        });
-
-        // Temporary fix to get the account number using statements CS call as the account number field 
-        // for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
-        // TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
-        const clientProductDetails = await this._getClientProducts();
-
-        if (clientProductDetails) {
-            const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
+	async _proofOfAccount() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT
+		});
+		
+		// Temporary fix to get the account number using statements CS call as the account number field 
+		// for Favourites landing page(landingPageInfo) is returned as null which is required on Proof of Account screen.
+		// TODO : The function _getClientProducts() and filtering should be removed once the Account Number on landingPageInfo is received Properly.
+		const clientProductDetails = await this._getClientProducts();
+		
+		if (clientProductDetails) {
+			const primarySavingsProduct = clientProductDetails.find(item => item.accountType === SAVINGS_ACCOUNT_TYPE);
 
             this.landingPageInfo.accountNumber = primarySavingsProduct.accountNumber;
             this.landingPageInfo.accountOpenedDate = primarySavingsProduct.accountOpenDate;
@@ -451,21 +483,19 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.ALERT_MODAL;
     }
 
-    _searchOtherNeed() {
-        this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+	_searchOtherNeed() {
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_SEARCH_OTHER_NEED, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.SEARCH_OTHER_NEED
+		});
 
-        // Telemetry Search Other need
-        HorizonTelemetry.instance.selectSearchOtherNeed({
-            screen: TelemetryScreen.FAVOURITES,
-            nextScreen: TelemetryScreen.SEARCH_OTHER_NEED
-        });
-		this._getCategories();
-    }
+		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+	}
 
 	async _onLaunchStrackClick(event) {
-		HorizonTelemetry.instance.otherNeedLaunchStrack({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHERNEED_LAUNCH_STRACK, {
+			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 		const incidentRecId = this.incidentDetails.incidentRecId;
 		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
@@ -627,8 +657,13 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.cifNumber="${this.callerInformation.cifNumber}"
+					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
+					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
+					.updatePremanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
+					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"
-                    @update-limits="${(e) => this._updateLimits(e)}">
+					@result=${eventData => this._updateLimitsResult(eventData)}>
 				</horizon-card-limits-landing>`
             : html``;
     }

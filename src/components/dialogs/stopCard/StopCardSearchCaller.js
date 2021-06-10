@@ -1,15 +1,15 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-
 import { CallHandleService } from 'app/services/CallHandleService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
-
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
 
@@ -105,6 +105,7 @@ export class StopCardSearchCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		RegExp();
 
@@ -154,10 +155,9 @@ export class StopCardSearchCaller extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadSearchClient({
-			screen: TelemetryScreen.SEARCH_CLIENT
-		}); 
+		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
 
 		// We can enter this dialog in two ways
 		//    1. From the Confirm Caller Dialog that the caller is not associated with the verified phone number
@@ -184,10 +184,9 @@ export class StopCardSearchCaller extends Component {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadSearchClient({
-			screen: TelemetryScreen.SEARCH_CLIENT
-		}); 
+		this._telemetry.endSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
 	}
 
 	// --------------
@@ -212,11 +211,11 @@ export class StopCardSearchCaller extends Component {
 
 	async _onSearchClick(e) {
 
-		// Telemetry
-
-		HorizonTelemetry.instance.selectSearchCapitecClient({
-			screen: TelemetryScreen.SEARCH_CLIENT,
-			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.CONFIRM_CALLER,
+			"id-method": this.identificationMethods.value,
+			"id-data": this.searchFieldText
 		});
 
 		if (this.validateFields()) {
@@ -267,12 +266,11 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	_onEndCall() {
-		
-		// Telemetry
-		HorizonTelemetry.instance.endCallSelected({
-			screen: TelemetryScreen.SEARCH_CLIENT,
-			nextScreen: null
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_END_CALL_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.END_CALL
 		});
+		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
