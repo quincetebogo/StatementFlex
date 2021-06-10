@@ -164,6 +164,10 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _done(event) {
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
+			"launch-strack- feedback": event.detail.selectedFeedback
+		});
+		
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrOptionCode = incomingCallDetails.ivrOptionCode;
@@ -204,7 +208,6 @@ export class Favourites extends SavingsAccountBase {
 
 		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
-	
 
     async _clientVerified(event) {
         super._clientVerified(event);
@@ -290,22 +293,6 @@ export class Favourites extends SavingsAccountBase {
 			this.logger.log(`error`, eventData.detail.failureReason);
 			this.horizonRouter.navigateToCardLimitUpdateFailed();
 		}
-	}
-	
-
-	_loadingSearchOtherNeed() {
-		this._telemetry.startSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
-			"screen": TelemetryScreen.SEARCH_OTHER_NEED
-		});
-	}
-
-	_unloadingSearchOtherNeed() {
-		this._telemetry.endSpan(QuickTransactionEvents.SEARCH_OTHERNEED, {
-			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
-			"client-need": this.category,
-			"specific-need": this.need,
-			"issue-type": this.issue
-		});
 	}
 
     // ---------------
@@ -395,7 +382,6 @@ export class Favourites extends SavingsAccountBase {
         return true;
     }
 
-
 	async _stopCard() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STOP_CARD, {
 			"screen": TelemetryScreen.FAVOURITES,
@@ -477,7 +463,6 @@ export class Favourites extends SavingsAccountBase {
             this.renderMode = RENDER_MODE.PROOF_OF_ACCOUNT;
         }
     }
-	
 
     _unavailableOption() {
         this.renderMode = RENDER_MODE.ALERT_MODAL;
@@ -493,13 +478,18 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _onLaunchStrackClick(event) {
-		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHERNEED_LAUNCH_STRACK, {
+		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_LAUNCH_STRACK, {
 			"screen": TelemetryScreen.SEARCH_OTHER_NEED,
-			"next-screen": TelemetryScreen.FAVOURITES
+			"next-screen": TelemetryScreen.FAVOURITES,
+			"client-need": event.detail.category,
+			"specific-need": event.detail.need,
+			"issue-type": event.detail.issue
 		});
+
 		const incidentRecId = this.incidentDetails.incidentRecId;
 		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
+		
 		if (continueUpdate) {
 			await this._classifyIncident(event, incidentRecId);
 		} else {
@@ -572,6 +562,18 @@ export class Favourites extends SavingsAccountBase {
 			return null;
 		}
 		return returnValue.result;
+	}
+
+	_telemetryStartSpan(eventName, screenName) {
+		this._telemetry.startSpan(eventName, {
+			"screen": screenName
+		});
+	}
+
+	_telemetryEndSpan(eventName, screenName) {
+		this._telemetry.endSpan(eventName, {
+			"screen": screenName
+		});
 	}
 
 	// ---------
@@ -679,24 +681,23 @@ export class Favourites extends SavingsAccountBase {
 			: html``;
     }
 
-    _renderSearchOtherNeed() {
-		
+	_renderSearchOtherNeed() {
 		return this.renderMode === RENDER_MODE.SEARCH_OTHER_NEED || this.renderMode === RENDER_MODE.FEEDBACK
-            ? html`
+			? html`
 				<horizon-search-other-need
 					.categories="${this.categories || []}"
 					.needs="${this.needs || []}"
 					.issues="${this.issues || []}"
-					@loading="${() => this._loadingSearchOtherNeed()}"
-					@unloading="${() => this._unloadingSearchOtherNeed()}"
+					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
+					@unloading="${() => this._telemetryEndSpan(QuickTransactionEvents.SEARCH_OTHER_NEED, TelemetryScreen.SEARCH_OTHER_NEED)}"
 					@launch-strack="${(event) => this._onLaunchStrackClick(event)}"
 					@get-sub-categories="${(event) => this._getSubCategories(event)}"
 					@get-issues="${(event) => this._getIssues(event)}"
 					@back="${() => this._backToLandingPage()}"
 					@done="${() => this._searchOtherNeedDone()}">
 				</horizon-search-other-need>`
-            : html``;
-    }
+			: html``;
+	}
 
 	_renderFeedback() {
 		return this.renderMode === RENDER_MODE.FEEDBACK

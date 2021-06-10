@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -25,6 +27,8 @@ export class TapToPayAgreement extends Component {
 		this.tapToPayAgreement = ``;
 		this.agreementResult = {};
 		this.selectedCard = {};
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -52,10 +56,9 @@ export class TapToPayAgreement extends Component {
 	// --------------
 
 	_cancelClick() {
-		// Telemetry
-		HorizonTelemetry.instance.tapToPayCancel({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE_CANCEL, {
+			"screen": TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		this.tapToPayInfo.acceptedTapToPay = false;
@@ -63,11 +66,11 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agreeClick(event) {  
-		// Telemetry
-		HorizonTelemetry.instance.selectAgreeTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			tncAccepted: null
+		
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE, {
+			"screen": TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			"next-screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"tnc-accepted": null
 		});
   
 		if (this._validateCheckBox()) {

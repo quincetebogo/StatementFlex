@@ -5,9 +5,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/Telemetry/Events/VerifyCaller';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -183,8 +183,7 @@ export class VerifyCaller extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	async _securityQuestionsClick() {
+	_securityQuestionsClick() {
 		this._telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
@@ -195,7 +194,6 @@ export class VerifyCaller extends Component {
 	async _launchSecurityQuestions() {
 		if (this.itaTimer) {
 			this._stopTimer();
-			this.horizonSignalRClient.deRegisterHandler();
 		}
 
 		this.xdsMessage = ``;
