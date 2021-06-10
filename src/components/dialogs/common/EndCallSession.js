@@ -16,7 +16,6 @@ import 'app/components/common/HorizonLabel';
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
-import { AccessChannelService } from '../../../services/AccessChannelService';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `Choose an option to end call`;
