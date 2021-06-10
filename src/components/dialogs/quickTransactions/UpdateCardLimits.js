@@ -90,9 +90,10 @@ export class UpdateCardLimits extends Component {
 	// ----------
 
 	/**
-	 *
-	 * @property {string} cardLimits Object has the card details
-	 * @property {string} updateType Type of update, permament/temporary
+	 * 
+	 * @property {string} limitType Flag to indicate Temporary/ Permanent
+	 * @property {Object} cardDetails Object has the card details
+	 * @property {string} updateType Flag to indicate Debit/ Credit
 	 *
 	 * @readonly
 	 * @static
@@ -177,7 +178,7 @@ export class UpdateCardLimits extends Component {
 			return;
 		}
 		
-		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus())
+		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
 
 		if (this.getAgreement) {
 			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;

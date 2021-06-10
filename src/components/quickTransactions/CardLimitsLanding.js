@@ -74,9 +74,40 @@ export class CardLimitsLanding extends Component {
 	// ----------
 
 	/**
+	 *  @typedef {Object} getCardLimitsAgreement Card limits agreements to display or null if there was an error
+	 */
+
+	/**
+	 *  @typedef {Object} updatePremanentLimits updated permanent limits & agreement or null if there was an error
+	 */
+
+	/**
+	 *  @typedef {Object} updateTemporaryLimits updated temporary limits & agreement or null if there was an error
+	 */
+
+	/**
+	 * @callback getCardLimitsAgreementsCallback
+	 * @returns {getCardLimitsAgreement}
+	 */
+
+	/**
+	 * @callback updatePemanentLimitsCallback
+	 * @returns {updatePremanentLimits}
+	 */
+
+	/**
+	 * @callback updateTemporaryLimitsCallback
+	 * @returns {updateTemporaryLimits}
+	 */
+
+	/**
 	 *
 	 * @property {Object} cards Object contains the list of client's card
-	 * @property {getAgreementsCallback} getCardLimitsAgreement Callback function to load agreements for displaying
+	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
+	 * @property {updatePemanentLimitsCallback} updatePremanentLimits Callback function to update permanent limits & agreements
+	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
 	 *
 	 * @readonly
 	 * @static
@@ -93,15 +124,15 @@ export class CardLimitsLanding extends Component {
 			updateTemporaryLimits: { type: Object, attribute: false },
 			getAgreement: { type: String },
 
-            renderMode: { attribute: false },
-            showUpdateLimitsModal: { attribute: false },
+			renderMode: { attribute: false },
+			showUpdateLimitsModal: { attribute: false },
 			showDiscardChangesModal: { attribute: false }
-        };
-    }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
 	connectedCallback() {
 		super.connectedCallback();
@@ -126,7 +157,7 @@ export class CardLimitsLanding extends Component {
 				cardDetails: {
 					cardId: card.cardId,
 					accountId: card.primarySavingsAccountId || card.primaryCreditAccountId,
-					customerId: this.cifNumber, // get it from favourites
+					customerId: this.cifNumber,
 					cardExpiryYear: card.cardExpiryYear,
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber

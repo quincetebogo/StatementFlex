@@ -12,7 +12,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	constructor() {
 		super();
 
-		this.displayToast = false;
 		this.limitType = ``;
 		this.cardCategory = ``;
 		this.maskedCardNumber = ``;
@@ -26,7 +25,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-			displayToast: { type: Boolean, attibute: false }
+			
 		};
 	}
 
@@ -46,9 +45,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 		this.cardCategory = limitDetails.cardCategory;
 		this.limitExpiryDate = limitDetails.limitExpiryDate;
 		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
-
-		this._toggleToastDisplay();
-		window.setTimeout(() => this._toggleToastDisplay(), 3000);
 	}
 
 	// --------------
@@ -62,10 +58,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 
 	_updateCardLimitsClick() {
 		this.horizonRouter.navigateToReturnPage();
-	}
-
-	_toggleToastDisplay() {
-		this.displayToast = !this.displayToast;
 	}
 
 	// --------------
@@ -93,12 +85,6 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				.id-update-msg {
 					width: auto;
 				}
-				#id-success-toast {
-					width: 406px;
-					position: absolute;
-					top : var(--toast-top, 130px);
-					margin-left: var(--toast-margin-left, 382px);
-				}
 				horizon-success-screen {
 					--horizon-button-group-margin-top: 28px;
 				}
@@ -113,24 +99,9 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_webTemplate() {
 		return html`
 			${this._renderCardLimitsUpdateSuccess()}
-			${this._renderTapToPayToast()}
 
 			${super._webTemplate()}
 		`;
-	}
-
-	_renderTapToPayToast() {
-		return !this.istapToPayUnChanged && this.displayToast
-			? html`
-				<capitec-toast 
-					id="id-success-toast"
-					type="success"
-					header="Successful"
-					detail="Tap to pay updated"
-					closable
-					@click="${() => this.displayToast = false}">
-				</capitec-toast>`
-			: html``;
 	}
 
 	_renderCardLimitsUpdateSuccess() {
@@ -141,7 +112,8 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				left="Done"
 				right="Update Card Limits"
 				toast="${this.limitType} card limit updated."
-				subDetail="${true}"
+				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay updated`}"
+				subDetail="${this.istapToPayUnChanged ? `` : true }"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._updateCardLimitsClick()}>
 					<section 
