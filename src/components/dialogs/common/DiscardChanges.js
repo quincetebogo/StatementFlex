@@ -1,4 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 
 
@@ -7,8 +10,21 @@ export class DiscardChanges extends Component {
 	// INITIALISATION
 	// --------------
 	constructor() {
-		super();
-	}
+        super();
+        this._telemetry = HorizonTelemetry.instance;
+    }
+
+    connectedCallback() {
+        this._telemetry.startSpan(QuickTransactionEvents.DISCARD_CHANGES, {
+            "screen": TelemetryScreen.DISCARD_CHANGES
+        });
+    }
+
+    disconnectedCallback() {
+        this._telemetry.endSpan(QuickTransactionEvents.DISCARD_CHANGES, {
+            "screen": TelemetryScreen.DISCARD_CHANGES
+        });
+    }
 
 	// --------------
 	// EVENT HANDLERS
@@ -24,7 +40,12 @@ export class DiscardChanges extends Component {
 		console.log(`dispatch new event`);
 		this.dispatchEvent(new CustomEvent(`on-confirm`, {
 			detail: {}
-		}));
+        }));
+
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CONFIRM, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.CARD_LIMITS
+        });
 	}
 
 	// ---------

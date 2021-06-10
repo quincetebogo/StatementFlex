@@ -1,5 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
@@ -66,7 +69,8 @@ export class CardLimitsLanding extends Component {
 		this.virtualCards = [];
 
 		this.expanderSubtitle = [];
-		this.expanderHeaders = [];
+        this.expanderHeaders = [];
+        this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -138,12 +142,21 @@ export class CardLimitsLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+        this._telemetry.startSpan(QuickTransactionEvents.CARD_LIMITS, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING
+        });
 
 		this._initialise();
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
 	}
+
+    disconnectedCallback() {
+        this._telemetry.endSpan(QuickTransactionEvents.CARD_LIMITS, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING
+        });
+    }
 
 	// --------------
 	// EVENT HANDLERS
@@ -164,12 +177,12 @@ export class CardLimitsLanding extends Component {
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
 				},
-				permanentCashAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentCashAmountLimit : 0,
-				permanentPurchaseAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentPurchaseAmountLimit : 0,
-				permanentCnpAmountLimit: this._limitType === LIMIT_TYPES.PERMANENT ? card.cardLimits.permanentCnpAmountLimit : 0,
-				tempCashAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempCashAmountLimit : 0,
-				tempPurchaseAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempPurchaseAmountLimit : 0,
-				tempCnpAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? card.cardLimits.tempCnpAmountLimit : 0
+				permanentCashAmountLimit:  card.cardLimits.permanentCashAmountLimit ,
+				permanentPurchaseAmountLimit: card.cardLimits.permanentPurchaseAmountLimit,
+				permanentCnpAmountLimit:  card.cardLimits.permanentCnpAmountLimit,
+				tempCashAmountLimit:  card.cardLimits.tempCashAmountLimit,
+				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit ,
+				tempCnpAmountLimit:  card.cardLimits.tempCnpAmountLimit
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
@@ -249,7 +262,7 @@ export class CardLimitsLanding extends Component {
 				limitExpiryDate: this._calculateLimitExpiry()
 			}, null);
 		} else {
-			this._result(true, {
+			this._result(false, {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
@@ -293,12 +306,20 @@ export class CardLimitsLanding extends Component {
 
 	_cancelUpdateLimits() {
 		this.showDiscardChangesModal = !this.showDiscardChangesModal;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_CANCEL, {
+            "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+            "next-screen": TelemetryScreen.CARD_LIMITS
+        });
 	}
 
 	_cancelDiscardModal() {
 		this.showDiscardChangesModal = !this.showDiscardChangesModal;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CANCEL, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+        });
 	}
 
 	_calculateLimitExpiry() {
@@ -605,16 +626,19 @@ export class CardLimitsLanding extends Component {
 			case CARD_TYPES.DEBIT:
 				return html`
 					<div class="limits-group">
+			            ${this._renderHeaders()}
 						${this._renderDebitLimits(card)}
 					</div>`;
 			case CARD_TYPES.CREDIT:
 				return html`
 					<div class="limits-group">
+			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 					</div>`;
 			case CARD_TYPES.DUAL:
 				return html`
 					<div class="limits-group dual">
+			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 						${this._renderDebitLimits(card)}
 					</div>
@@ -626,7 +650,6 @@ export class CardLimitsLanding extends Component {
   
 	_renderCreditLimits(card) {
 		return html`
-			${this._renderHeaders()}
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Credit limit" size="4"></capitec-label>
 				<capitec-label class="col2" row="1" column="2" colspan="1" label="" size="1"></capitec-label>
@@ -640,7 +663,6 @@ export class CardLimitsLanding extends Component {
 
 	_renderDebitLimits(card) {
 		return html`
-			${this._renderHeaders()}
 			<capitec-group class="headerGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1 headerRow" style="text-align:left;" row="1" column="1" colspan="1" label="Debit limit" size="4"></capitec-label>
 				<capitec-label class="col2" row="1" column="2" colspan="1" label="" size="1"></capitec-label>
@@ -653,7 +675,8 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderLimitsRow(card, updateType) {
-		const limits = card && card.cardLimits;
+        const limits = card && card.cardLimits;
+        const linkedLimits = card.linkedCardLimits;
 
 		return html`
 			<capitec-group @click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType, this.permanentLimits, this.temporaryLimits)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
@@ -661,20 +684,20 @@ export class CardLimitsLanding extends Component {
 				<bb-multi-line-label
 					class="col2"
 					row="1" column="2" colspan="1" size="4" rowspan="1"
-					label="${formatCurrency(limits.permanentCashAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentCashAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentCashAmountLimit) : formatCurrency(limits.permanentCashAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentCashAmountLimit, 0) : formatCurrency(limits.maxPermanentCashAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col3"
 					row="1" column="3" colspan="1" size="4" rowspan="1"
-					label="${formatCurrency(limits.permanentPurchaseAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentPurchaseAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentPurchaseAmountLimit) : formatCurrency(limits.permanentPurchaseAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentPurchaseAmountLimit, 0) : formatCurrency(limits.maxPermanentPurchaseAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col4"
 					row="1" column="4" colspan="1" size="4" rowspan="1"
-					label="${formatCurrency(limits.permanentCnpAmountLimit)}"
-					value="max ${formatCurrency(limits.maxPermanentCnpAmountLimit, 0)}">
+					label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.permanentCnpAmountLimit) : formatCurrency(limits.permanentCnpAmountLimit)}"
+					value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxPermanentCnpAmountLimit, 0) : formatCurrency(limits.maxPermanentCnpAmountLimit, 0)}">
 				</bb-multi-line-label>
 				<capitec-label
 					class="col5"
@@ -696,20 +719,20 @@ export class CardLimitsLanding extends Component {
 					<bb-multi-line-label
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${formatCurrency(limits.tempCashAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryCashAmountLimit, 0)}">
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempCashAmountLimit) : formatCurrency(limits.tempCashAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryCashAmountLimit, 0) : formatCurrency(limits.maxTemporaryCashAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col3"
-						row="1"column="3" colspan="1" size="4" rowspan="1"
-						label="${formatCurrency(limits.tempPurchaseAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit, 0)}">
+						row="1" column="3" colspan="1" size="4" rowspan="1"
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempPurchaseAmountLimit) : formatCurrency(limits.tempPurchaseAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryPurchaseAmountLimit, 0) : formatCurrency(limits.maxTemporaryPurchaseAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
 						class="col4"
 						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${formatCurrency(limits.tempCnpAmountLimit)}"
-						value="max ${formatCurrency(limits.maxTemporaryCnpAmountLimit, 0)}">
+						label="${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.tempCnpAmountLimit) : formatCurrency(limits.tempCnpAmountLimit)}"
+						value="max ${linkedLimits && updateType === `Debit` ? formatCurrency(linkedLimits.maxTemporaryCnpAmountLimit, 0) : formatCurrency(limits.maxTemporaryCnpAmountLimit, 0)}">
 					</bb-multi-line-label>
 					<capitec-label
 						class="col5"
