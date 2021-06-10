@@ -185,17 +185,6 @@ export class LandingPage extends ViewBase {
 			}
 		} else {
 			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
-
-			// Telemetry
-			// If the call was created manually, we log telemetry without any IVR selection.
-			// The mapped need will be logged later.
-
-			// this._telemetry.newTrace();
-			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
-				"screen": TelemetryScreen.WAIT_FOR_CALL,
-				"ivr": ``,
-				"ucid": ``
-			});
 		}
 
 		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);

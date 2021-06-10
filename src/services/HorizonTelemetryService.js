@@ -1314,7 +1314,7 @@ export class HorizonTelemetry extends TelemetryMocks {
 	 * Determines the current span for the log event requested.
 	 * E.g: horizon.call.fulfill-need.stop-card-outcome -> stop-card is the current span for 'outcome' event
 	 * 
-	 * @param {string} events 
+	 * @param {string} events Events
 	 * @returns {string} Current span name
 	 */
 	_getCurrentSpanofEvent(events) {
@@ -1322,7 +1322,7 @@ export class HorizonTelemetry extends TelemetryMocks {
 		let eventIndex = events.length - 1;
 		let currSpan = ``;
 
-		while (!currSpan) {
+		while (!currSpan && eventIndex > 0) {
 			currSpan = events[eventIndex - 1];
 			const currSpanID = this._getSpanID(currSpan);
 

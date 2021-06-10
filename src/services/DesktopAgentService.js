@@ -307,6 +307,15 @@ export class DesktopAgentService {
 	
 			this.nextCall = newCallEvent;
 	
+			// Telemetry: If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			this._telemetry.newTrace();
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
+				"screen": TelemetryScreen.WAIT_FOR_CALL,
+				"ivr": ``,
+				"ucid": newCallEvent.voiceReferenceNumber
+			});
+
 			this._handleIncomingCall();
 		}
 	}
