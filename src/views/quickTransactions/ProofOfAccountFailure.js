@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -24,6 +26,8 @@ import 'app/components/common/RelatedOptions';
 
 		this.mailId = ``;
 		this.acNumber = ``;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	
@@ -48,6 +52,10 @@ import 'app/components/common/RelatedOptions';
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+		});
 	}
 
 	// --------------
@@ -55,9 +63,9 @@ import 'app/components/common/RelatedOptions';
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.proofOfAccountOutcome({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
 		this.horizonStore.clearReturnScreen();
@@ -65,8 +73,9 @@ import 'app/components/common/RelatedOptions';
 	}
 
 	_assignClick() {
-		HorizonTelemetry.instance.proofOfAccountOutcome({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
