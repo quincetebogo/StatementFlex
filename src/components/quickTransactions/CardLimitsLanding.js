@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonExpander';
@@ -93,11 +94,21 @@ export class CardLimitsLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+        this._telemetry.startSpan(QuickTransactionEvents.CARD_LIMITS, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING
+        });
+
 		this._initialise();
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
 		this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
 	}
+
+    disconnectedCallback() {
+        this._telemetry.endSpan(QuickTransactionEvents.CARD_LIMITS, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING
+        });
+    }
 
 	// --------------
 	// EVENT HANDLERS
@@ -109,12 +120,22 @@ export class CardLimitsLanding extends Component {
 
 	_cancelUpdateLimits() {
 		this.showDiscardChangesModal = !this.showDiscardChangesModal;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+
+        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_CANCEL, {
+            "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+            "next-screen": TelemetryScreen.CARD_LIMITS
+        });
 	}
 
 	_cancelDiscardModal() {
 		this.showDiscardChangesModal = !this.showDiscardChangesModal;
-		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+        this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CANCEL, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+        });
 	}
 
 	// --------------
@@ -149,6 +170,13 @@ export class CardLimitsLanding extends Component {
 			cardArt: card.cardArt,
 			cardLimits: card.cardLimits
 		};
+
+        this._telemetry.logEvent(QuickTransactionEvents.CARD_LIMITS_SELECT_CARD, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING,
+            "next-screen": TelemetryScreen.UPDATE_LIMITS,
+            "primary-account-id": card.primarySavingsAccountId || card.primaryCreditAccountId,
+            "card-type": card.cardDisplayName
+        });
 
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
 	}
@@ -532,7 +560,7 @@ export class CardLimitsLanding extends Component {
 				</bb-multi-line-label>
 				<bb-multi-line-label
 					class="col3"
-					row="1"column="3" colspan="1" size="4" rowspan="1"
+					row="1" column="3" colspan="1" size="4" rowspan="1"
 					label="${formatCurrency(limits.tempPurchaseAmountLimit)}"
 					value="max ${formatCurrency(limits.maxTemporaryPurchaseAmountLimit)}">
 				</bb-multi-line-label>

@@ -1,5 +1,5 @@
-import { SecurityContext, Telemetry } from 'platform/core';
-import { TelemetryMocks } from 'app/mocks/Telemetry';
+import { SecurityContext } from 'platform/core';
+import { Telemetry } from 'platform/Telemetry';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { v4 } from 'uuid';
 
@@ -101,8 +101,13 @@ const TelemetryEventType = {
 	FEEDBACK: `Feedback`,
 	ASSIGN_STOP_CARD: `Assign stop card`,
 	END_CALL: `End Call Session`,
-	PRODUCT_INFO: `Product Info`
-};
+    PRODUCT_INFO: `Product Info`,
+
+    CARD_LIMITS_LANDING: `Card limits`,
+    DISCARD_CHANGES: `Discard changes`,
+    LIMITS_AGREEMENT: `Update Limits Agreement`,
+    UPDATE_LIMITS_OUTCOME: `Update limits outcome`
+};  
 
 
 /** Workflow outcome text
@@ -121,9 +126,9 @@ export const OutcomeScreen = {
  *
  * @export
  * @class TelemetryService
- * @extends TelemetryMocks
+ * @extends Telemetry
  */
-export class HorizonTelemetry extends TelemetryMocks {
+export class HorizonTelemetry extends Telemetry{
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
 	// #region INITIALISATION
@@ -277,7 +282,7 @@ export class HorizonTelemetry extends TelemetryMocks {
 			tags: this._extractTags(`horizon.${eventName}.start-span`),
 			traceId: this.traceId
 		});
-
+        console.log('startSpan: ' + spanID);
 		if (spanID) {
 
 			/**

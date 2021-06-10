@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
@@ -121,9 +122,21 @@ export class UpdateCardLimits extends Component {
 			cardArt: this.cardDetails.cardArt,
 			cardHoldName: this.cardDetails.cardHolderName,
 			primaryAccountId: this.cardDetails.primaryAccountId
-		};
+        };
+
+        this._telemetry.startSpan(QuickTransactionEvents.UPDATE_LIMITS, {
+            "screen": TelemetryScreen.UPDATE_CARD_LIMITS
+        });
+
+
 		this._initialise();
-	}
+    }
+
+    disconnectedCallback() {
+        this._telemetry.endSpan(QuickTransactionEvents.UPDATE_LIMITS, {
+            "screen": TelemetryScreen.UPDATE_CARD_LIMITS
+        });
+    }
 
 	// --------------
 	// EVENT HANDLERS
@@ -146,10 +159,15 @@ export class UpdateCardLimits extends Component {
 	_back() {
 		this.cardlimitsInfo.acceptedLimitsAgreement = false;
 		this.cardlimitsInfo.acceptedTapToPayAgreement = false;
-		this.renderMode = RENDER_MODE.LIMITS;
+        this.renderMode = RENDER_MODE.LIMITS;
+
+        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_BACK, {
+            "screen": TelemetryScreen.LIMITS_AGREEMENT,
+            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+        });
 	}
 
-	_cancel() {
+    _cancel() {
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -157,7 +175,18 @@ export class UpdateCardLimits extends Component {
 		if (this._getErrorsCount() > 0) {
 			return;
 		}
-		this.renderMode = RENDER_MODE.AGGREMENT;
+        this.renderMode = RENDER_MODE.AGGREMENT;
+
+        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_NEXT, {
+            "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+            "next-screen": TelemetryScreen.LIMITS_AGREEMENT,
+            "permanentCashAmountLimit": this.cardLimits.permanentCashAmountLimit,
+            "permanentPurchaseAmountLimit": this.cardLimits.permanentPurchaseAmountLimit,
+            "permanentCnpAmountLimit": this.cardLimits.permanentCnpAmountLimit,
+            "tempCashAmountLimit": this.cardLimits.tempCashAmountLimit,
+            "tempPurchaseAmountLimit": this.cardLimits.tempPurchaseAmountLimit,
+            "tempCnpAmountLimit": this.cardLimits.tempCnpAmountLimit
+        });
 	}
 
 	_agree() {
@@ -168,7 +197,13 @@ export class UpdateCardLimits extends Component {
 			// TODO: Navigate to successful screen
 			// Harwired to show landing page at the moment
 			this.dispatchEvent(new CustomEvent(`cancel`, {}));
-		}
+        }
+
+        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_AGREE, {
+            "screen": TelemetryScreen.LIMITS_AGREEMENT,
+            "next-screen": TelemetryScreen.UPDATE_LIMITS_OUTCOME,
+            "tap-to-pay-enabled": accepedToAgreement
+        });
 	}
 
 	_toggleTapToPay(e) {

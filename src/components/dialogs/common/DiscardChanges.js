@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import 'platform/components/popups/Modal';
 
 
@@ -8,7 +9,19 @@ export class DiscardChanges extends Component {
 	// --------------
 	constructor() {
 		super();
-	}
+    }
+
+    connectedCallback() {
+        this._telemetry.startSpan(QuickTransactionEvents.DISCARD_CHANGES, {
+            "screen": TelemetryScreen.DISCARD_CHANGES
+        });
+    }
+
+    disconnectedCallback() {
+        this._telemetry.endSpan(QuickTransactionEvents.DISCARD_CHANGES, {
+            "screen": TelemetryScreen.DISCARD_CHANGES
+        });
+    }
 
 	// --------------
 	// EVENT HANDLERS
@@ -24,7 +37,12 @@ export class DiscardChanges extends Component {
 		console.log(`dispatch new event`);
 		this.dispatchEvent(new CustomEvent(`click`, {
 			detail: {}
-		}));
+        }));
+
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CONFIRM, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.CARD_LIMITS
+        });
 	}
 
 	// ---------
