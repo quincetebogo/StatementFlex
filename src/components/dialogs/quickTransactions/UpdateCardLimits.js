@@ -829,7 +829,6 @@ export class UpdateCardLimits extends Component {
 	}
 
     _renderTapToPay() {
-        if (this.cardDetails.isContactlessCard) {
             return html`
 			<capitec-label
 				label="Tap to Pay"
@@ -875,7 +874,6 @@ export class UpdateCardLimits extends Component {
 				</capitec-title-bar>
 			</capitec-card>
 		`;
-        }
         return html``;
 	}
 
