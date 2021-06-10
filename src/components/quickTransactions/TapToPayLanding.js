@@ -67,9 +67,11 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+		this._loading();
 	}
 
 	disconnectedCallback() {
+		this._unloading();
 		super.disconnectedCallback();
 	}
 
@@ -167,9 +169,11 @@ export class TapToPayLanding extends Component {
 		const result = await this.updateAgreement(request);
 
 		if (result) {
-			this._result(true, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, null);
+			this._result(true, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
+							cardType: this.selectedCard.cardType }, null);
 		} else {
-			this._result(false, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to update agreement`);
+			this._result(false, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
+							cardType: this.selectedCard.cardType }, `Failed to update agreement`);
 		}
 	}
 

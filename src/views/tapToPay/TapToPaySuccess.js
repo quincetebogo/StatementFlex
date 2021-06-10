@@ -15,6 +15,7 @@ export class TapToPaySuccess extends ViewBase {
 		this.selecetedCard = ``;
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
+		this.cardType = ``;
 	}
 
 	// --------------
@@ -37,7 +38,7 @@ export class TapToPaySuccess extends ViewBase {
 
 		this.tapToPayStatus = screenDetails.tapToPayDetails.tapToPayStatus;
 		this.cardMaskedNumber = screenDetails.tapToPayDetails.cardMaskedNumber;
-			
+		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 		this._updateIncidentState();
 	}
 
@@ -118,7 +119,7 @@ export class TapToPaySuccess extends ViewBase {
 		return html`
 			<horizon-success-screen 
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
-				image="src/images/cards-successful-tap-to-pay.svg"
+				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
 				toast="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
@@ -128,7 +129,7 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual credit card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
+							The tap to pay functionality on your dual ${this.cardType} card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
 					</section>
 			</horizon-success-screen>
 		`;

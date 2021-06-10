@@ -1,9 +1,10 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { NavigationContext } from 'platform/core';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -66,13 +67,7 @@ export class SavingsAccountBase extends ViewBase {
 	// --------------
 	
 	async _debiCheck() {
-		// Telemetry for Alert Checks
-		HorizonTelemetry.instance.debiCheckAlert({
-			screen: TelemetryScreen.FAVOURITES
-		});
-
-		// Telemetry
-		HorizonTelemetry.instance.selectDebiCheck({
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_DEBI_CHECK, {
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.DEBICHECK
 		});
@@ -89,9 +84,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-
-		// Telemetry Statements
-		HorizonTelemetry.instance.selectStatements({
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
@@ -233,7 +226,7 @@ export class SavingsAccountBase extends ViewBase {
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
+					.debiCheckMandates = "${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._setIncidentDone()}">
 				</debi-check-mandates>`

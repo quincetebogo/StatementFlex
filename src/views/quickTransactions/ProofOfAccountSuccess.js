@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -23,6 +25,8 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 		this.acNumber = ``;
 		this.mailId = ``;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -47,6 +51,10 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
+		});
 	}
 
 	// --------------
@@ -54,11 +62,9 @@ export class ProofOfAccountSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-
-		// Telemetry
-		HorizonTelemetry.instance.proofOfAccountOutcome({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 	
 		this.horizonStore.clearReturnScreen();
@@ -66,11 +72,9 @@ export class ProofOfAccountSuccess extends ViewBase {
 	}
 
 	_sendAnotherClick() {
-		
-		// Telemetry
-		HorizonTelemetry.instance.proofOfAccountOutcome({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_ANOTHER, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 		
 		this.horizonRouter.navigateToReturnPage();
