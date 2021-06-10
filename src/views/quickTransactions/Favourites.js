@@ -301,6 +301,7 @@ export class Favourites extends SavingsAccountBase {
 	async _updateCardLimits() {
 
 		// Telemetry select Update Card Limits
+        //replace with new 
 		HorizonTelemetry.instance.selectUpdateCardLimits({
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.UPDATE_CARD_LIMITS
