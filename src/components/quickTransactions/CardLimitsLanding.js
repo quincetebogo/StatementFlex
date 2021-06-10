@@ -306,7 +306,7 @@ export class CardLimitsLanding extends Component {
         this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
         this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_CANCEL, {
             "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
-            "next-screen": TelemetryScreen.CARD_LIMITS
+            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
         });
 	}
 

@@ -147,7 +147,7 @@ export class UpdateCardLimits extends Component {
 		this.cardArtDetails = {
 			cardArt: this.cardDetails.cardArt,
 			cardHoldName: this.cardDetails.cardHolderName,
-			primaryAccountId: this.cardDetails.primaryAccountId
+			primaryAccountId: this.cardDetails.primaryAccountId || this.cardDetails.primaryCreditAccountId
         };
 
         this._telemetry.startSpan(QuickTransactionEvents.UPDATE_LIMITS, {
@@ -277,13 +277,6 @@ export class UpdateCardLimits extends Component {
 		if (e.detail.new && this._tapToPayStatus) {
 			this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
 			this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
-		}
-
-		if (e.detail.new) {
-			const banner = this._tapToPayStatus
-										? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement 
-										: this.cardlimitsInfo.acceptedLimitsAgreement;
-			this.alertBannerText = banner ? `` : `Please confirm to agree terms and conditions`;
 		}
 	}
 
@@ -788,21 +781,25 @@ export class UpdateCardLimits extends Component {
 	}
 
     _renderLimits(transactionType) {
-        const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
-            cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
-            purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
-            cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit,
-            maxCashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCashAmountLimit : this.linkedCardLimits.maxTemporaryCashAmountLimit,
-            maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentPurchaseAmountLimit : this.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
-            maxcnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCnpAmountLimit : this.linkedCardLimits.maxTemporaryCnpAmountLimit
-        } : {
-                cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
-                purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
-                cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
-                maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
-                maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
-                maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
-            };
+		const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
+			cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
+			purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
+			cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit,
+			maxCashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCashAmountLimit : this.linkedCardLimits.maxTemporaryCashAmountLimit,
+			maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentPurchaseAmountLimit : this.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
+			maxcnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCnpAmountLimit : this.linkedCardLimits.maxTemporaryCnpAmountLimit
+		} : {
+				cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+				purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+				cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
+				maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
+				maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
+				maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
+			};
+
+		const cashAmountLimit = this.limitType === 'Permanent' ? 'permanentCashAmountLimit' : 'tempCashAmountLimit';
+		const purchaseAmountLimit = this.limitType === 'Permanent' ? 'permanentPurchaseAmountLimit' : 'tempPurchaseAmountLimit';
+		const cnpAmountLimit = this.limitType === 'Permanent' ? 'permanentCnpAmountLimit' : 'tempCnpAmountLimit' ;
 
 		return html`
 			<capitec-text-field
