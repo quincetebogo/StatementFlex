@@ -1,16 +1,18 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
-
 
 import 'platform/components/buttons/Button';
 
@@ -42,6 +44,7 @@ export class LandingPage extends ViewBase {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -90,7 +93,7 @@ export class LandingPage extends ViewBase {
 	disconnectedCallback() {
 		// Telemetry
 		// TODO: This should probably move since this point will also mark the end of the caller verification.
-		HorizonTelemetry.instance.callerIdentified();
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
 		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
@@ -147,14 +150,13 @@ export class LandingPage extends ViewBase {
 		 	this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createIncident`, returnValue.correlationId);
 		 }
 
-		// Telemetry
 		if (incident) {
-			HorizonTelemetry.instance.incidentCreated({
-				incidentRecId: incident.incidentRecId,
-				incidentReference: incident.incidentNumber
+			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+				"incident-reference": incident.incidentNumber,
+				"incident-rec-id": incident.incidentRecId
 			});
 		}
-
+	
 		return incident;
 	}
 
@@ -167,7 +169,7 @@ export class LandingPage extends ViewBase {
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// Telemetry
-		HorizonTelemetry.instance.identifyCallerStarts();
+		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -183,17 +185,6 @@ export class LandingPage extends ViewBase {
 			}
 		} else {
 			this.logger.log(`info`, `accepting manually created call`, `_acceptCall`);
-
-			// Telemetry
-			// If the call was created manually, we log telemetry without any IVR selection.
-			// The mapped need will be logged later.
-
-			// HorizonTelemetry.instance.newTrace();
-			HorizonTelemetry.instance.incomingCall({
-				screen: TelemetryScreen.WAIT_FOR_CALL,
-				ivr: ``,
-				ucid: ``
-			});
 		}
 
 		this._dispatchCall(callerDetails, newCallInfo, forceSearchDialog);
@@ -284,7 +275,7 @@ export class LandingPage extends ViewBase {
 		if (callerInformation.verificationStatus === `non-client`) {
 			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
 		} else {
-		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
+			this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 		}
 	}
 

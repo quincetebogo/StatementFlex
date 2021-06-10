@@ -1,11 +1,11 @@
 import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
-
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { validate } from 'app/utils/channelServiceUtilities';
-
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -61,6 +61,7 @@ export class DesktopAgentService {
 		this._navigationContext = NavigationContext.getInstance();
 		this._security = Security.getInstance();
 		this._securityContext = SecurityContext.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.HorizonRouter = HorizonRouter.getInstance();
@@ -168,11 +169,11 @@ export class DesktopAgentService {
 			// Telemetry
 			// If the call was initiated through desktop agent, we log telemetry here
 			// since we have the IVR selection before it gets mapped to a need.
-			HorizonTelemetry.instance.newTrace();
-			HorizonTelemetry.instance.incomingCall({
-				screen: TelemetryScreen.WAIT_FOR_CALL,
-				ivr: eventData.IVROptionCode,
-				ucid: newCallEvent.voiceReferenceNumber
+			this._telemetry.newTrace();
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
+				"screen": TelemetryScreen.WAIT_FOR_CALL,
+				"ivr": eventData.IVROptionCode,
+				"ucid": newCallEvent.voiceReferenceNumber
 			});
 			
 			this._handleIncomingCall();
@@ -306,6 +307,15 @@ export class DesktopAgentService {
 	
 			this.nextCall = newCallEvent;
 	
+			// Telemetry: If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			this._telemetry.newTrace();
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
+				"screen": TelemetryScreen.WAIT_FOR_CALL,
+				"ivr": ``,
+				"ucid": newCallEvent.voiceReferenceNumber
+			});
+
 			this._handleIncomingCall();
 		}
 	}

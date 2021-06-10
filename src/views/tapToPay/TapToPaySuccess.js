@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -16,6 +18,8 @@ export class TapToPaySuccess extends ViewBase {
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
 		this.cardType = ``;
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -44,6 +48,11 @@ export class TapToPaySuccess extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.TAP_TO_PAY, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": null
+		});
 	}
 
 	// --------------
@@ -51,9 +60,9 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_DONE, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
 		this.horizonStore.clearReturnScreen();
@@ -61,9 +70,9 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_tapToPayClick() {
-		HorizonTelemetry.instance.tapToPaySuccessOutcome({
-			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_ANOTHER, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		this.horizonRouter.navigateToReturnPage();
