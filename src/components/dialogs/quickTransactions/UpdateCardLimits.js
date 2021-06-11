@@ -72,6 +72,7 @@ export class UpdateCardLimits extends Component {
         this.alertBannerText = ``;
         this.cardLimits = {};
         this._tapToPayStatus = false;
+		this.cardToDisplay = ``;
 
         this._telemetry = HorizonTelemetry.instance;
     }
@@ -119,7 +120,8 @@ export class UpdateCardLimits extends Component {
 
         this.cardLimits = this.cardDetails.cardLimits;
         this.linkedCardLimits = this.cardDetails.linkedCardLimits;
-        this._tapToPayStatus = this.cardDetails.isContactlessActivated;
+		this.cardToDisplay = this._getCardName();
+		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
         this.cardArtDetails = {
             cardArt: this.cardDetails.cardArt,
             cardHoldName: this.cardDetails.cardHolderName,
@@ -148,9 +150,9 @@ export class UpdateCardLimits extends Component {
 
         if (e.detail.new) {
             if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
+                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new)*100;
             } else {
-                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
+                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new)*100;
                 if (Number(e.detail.new) > Number(maxLimit)) {
                     this.error[transactionType][e.currentTarget.id] = maxLimit;
                 } else {
@@ -330,6 +332,14 @@ export class UpdateCardLimits extends Component {
         this.isBusy = !this.isBusy;
     }
 
+	_getCardName() {
+        if (cardDetails.cardDisplayType === `Virtual_Card`) {
+            return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
+        } else {
+            return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
+        }
+    }
+
     // ---------
     // RENDERING
     // ---------
@@ -354,7 +364,7 @@ export class UpdateCardLimits extends Component {
 				--theme-card-border-radius: 4px;
 			}
 			.dailyLimitsEx {
-				height: 99px;
+				height: auto;
 				--theme-titlebar-padding: 0px;
 				--theme-type-clear-background: rgba(0,157,224,0.1)
 			}
@@ -371,9 +381,10 @@ export class UpdateCardLimits extends Component {
 				height: 20px;
 			}
 			.limitSubtitle {
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-subtitle-font-size: 12px;
-				height: 12px;
+				color: #3A3A3A;
+				font-size: 12px;
+				padding-bottom: 10px;
+				margin-top: 7px;
 			}
 			.dailyLimits {
 				height: 34px; 
@@ -734,15 +745,15 @@ export class UpdateCardLimits extends Component {
 					<div class="dailyLimits">
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 						 <div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 					</div>
 				</capitec-title-bar>
@@ -773,7 +784,7 @@ export class UpdateCardLimits extends Component {
         return html`
 			<capitec-text-field
 				id="${cashAmountLimit}"
-				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
+				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit/100, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cashAmountLimit}"
@@ -782,7 +793,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${purchaseAmountLimit}"
-				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
+				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit/100, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.purchaseAmountLimit}"
@@ -791,7 +802,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${cnpAmountLimit}"
-				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
+				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit/100, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cnpAmountLimit}"
@@ -902,11 +913,11 @@ export class UpdateCardLimits extends Component {
         return html`
 			<capitec-content-box class="expander-cb">
 				<div class="agreement-lb">
-					You acknowledge and agree that you understand and accept the terms and conditions of updating your <strong>${this.updateType} Card</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
+					You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
 				</div>
 				<div class="agreement-lb">
 					<ol>
-						<li>This call recording forms the agreement between us and you as to the amendment of your original <strong>${this.updateType} Card</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+						<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
 						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being[Virtual Card: compromised][Plastic Card: lost, stolen or misused].</li>
 						<li>You agree that you shall have no claim or right of action arising fromany undertaking, representation or warranty not included, and agreed during this call.</li>
 						<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
