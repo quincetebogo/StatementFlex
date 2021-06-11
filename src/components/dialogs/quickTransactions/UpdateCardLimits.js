@@ -802,7 +802,8 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderTapToPay() {
-        return html`
+        if (this.cardDetails.isContactlessCard) {
+            return html`
 			<capitec-label
 				label="Tap to Pay"
 				class="tapToPayTitle">
@@ -847,6 +848,7 @@ export class UpdateCardLimits extends Component {
 				</capitec-title-bar>
 			</capitec-card>
 		`;
+        }
         return html``;
     }
 
@@ -900,11 +902,11 @@ export class UpdateCardLimits extends Component {
         return html`
 			<capitec-content-box class="expander-cb">
 				<div class="agreement-lb">
-					You acknowledge and agree that you understand and accept the terms and conditions of updating your <strong>Credit Card</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
+					You acknowledge and agree that you understand and accept the terms and conditions of updating your <strong>${this.updateType} Card</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
 				</div>
 				<div class="agreement-lb">
 					<ol>
-						<li>This call recording forms the agreement between us and you as to the amendment of your original <strong>Credit Card</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+						<li>This call recording forms the agreement between us and you as to the amendment of your original <strong>${this.updateType} Card</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
 						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being[Virtual Card: compromised][Plastic Card: lost, stolen or misused].</li>
 						<li>You agree that you shall have no claim or right of action arising fromany undertaking, representation or warranty not included, and agreed during this call.</li>
 						<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
