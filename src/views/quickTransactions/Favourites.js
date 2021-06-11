@@ -256,11 +256,10 @@ export class Favourites extends SavingsAccountBase {
     }
 
 	async _getPermanentLimits(request) {
-				const returnValue = await this.quickTransactionService.getPermanentLimits(request);
+		const returnValue = await this.quickTransactionService.getPermanentLimits(request);
 
 		if (returnValue.succeeded) {
-			console.log(returnValue.result)
-			this.permanentLimits = returnValue.result;
+			return returnValue.result;
 		}
 		return null;
 	}
@@ -269,8 +268,7 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getTemporaryLimits(request);
 
 		if (returnValue.succeeded) {
-			console.log(returnValue.result)
-			this.temporaryLimits = returnValue.result;
+			return returnValue.result;
 		}
 		return null;
 	}

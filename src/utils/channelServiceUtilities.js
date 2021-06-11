@@ -75,7 +75,7 @@ export function getMonthName(month) {
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
 export function formatCurrency(value, fractionDigits = 2) {
-	if (value.toString().includes(`R`)) {
+	if (value && value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 

@@ -125,10 +125,7 @@ export class CardLimitsLanding extends Component {
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
 
-			getPermanentLimits: { type: Object, attribute: false },			
 			updatePremanentLimits: { type: Object, attribute: false },
-
-			getTemporaryLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
 
 			getAgreement: { type: String },
@@ -298,13 +295,42 @@ export class CardLimitsLanding extends Component {
 		// TODO: Error handler comes here
 	}
 
-	_updateLimits(card, limitType, updateType, permanentLimits, temporaryLimits) {
+	async _updateLimits(card, limitType, updateType) {
 		this._updateType = updateType;
 		this._limitType = limitType;
 		this._cardDetails = card;
 
-
+		const limitsReq = {
+			"cardDetails": {
+				"cardId": this._cardDetails.cardId,
+				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
+				"customerId": this.cifNumber,
+				"cardExpiryYear": this._cardDetails.cardExpiryYear,
+				"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
+				"cardSequenceNumber": this._cardDetails.cardSequenceNumber
+			}
+		};
+		
+		await this._getTemporaryLimits(limitsReq);
+		await this._getPermanentLimits(limitsReq);
+		
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
+
+	async _getPermanentLimits (request) {
+		const requestValue = await this.getPermanentLimits(request);
+
+		if (requestValue) {
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+		} 
+	}
+
+	async _getTemporaryLimits (request) {
+		const requestValue = await this.getTemporaryLimits(request);
+
+		if (requestValue) {
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+		} 
 	}
 
 	_cancelUpdateLimits() {
@@ -682,7 +708,7 @@ export class CardLimitsLanding extends Component {
         const linkedLimits = card.linkedCardLimits;
 
 		return html`
-			<capitec-group @click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType, this.permanentLimits, this.temporaryLimits)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
+			<capitec-group @click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType)}" class="columnGroup" layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center">
 				<capitec-label class="col1" row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
 				<bb-multi-line-label
 					class="col2"
@@ -713,7 +739,7 @@ export class CardLimitsLanding extends Component {
 				class="columnGroup"
 				layout="grid" gap="line" halign="left" valign="center"
 				columns="5" rows="1"
-				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType, this.permanentLimits, this.temporaryLimits)}">
+				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
 					<capitec-label
 						class="col1"
 						row="1" column="1" colspan="1" size="4"
@@ -752,7 +778,7 @@ export class CardLimitsLanding extends Component {
 				<horizon-update-card-limits
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
-
+					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, tapToPayStatus) => this._getLimitsAgreement(card, tapToPayStatus)}"
 					@cancel="${() => this._cancelUpdateLimits()}"
