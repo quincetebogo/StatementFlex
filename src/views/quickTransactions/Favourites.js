@@ -257,7 +257,38 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getPermanentLimits(request);
 
 		if (returnValue.succeeded) {
+			const cardLimits = returnValue.result.cardLimits;
+
+			cardLimits.permanentCashAmountLimit /= 100;
+			cardLimits.maxPermanentCashAmountLimit /= 100;
+			cardLimits.permanentPurchaseAmountLimit /= 100;
+			cardLimits.maxPermanentPurchaseAmountLimit /= 100;
+			cardLimits.permanentCnpAmountLimit /= 100;
+			cardLimits.maxPermanentCnpAmountLimit /= 100;
+			cardLimits.tempCashAmountLimit /= 100;
+			cardLimits.maxTemporaryCashAmountLimit /= 100;
+			cardLimits.tempPurchaseAmountLimit /= 100;
+			cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
+			cardLimits.tempCnpAmountLimit /= 100;
+			cardLimits.maxTemporaryCnpAmountLimit /= 100;
+	
 			return returnValue.result;
+		}
+		return null;
+	}
+
+	async _updatePermanentLimits(updateRequest) {
+		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
+		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
+		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
+		updateRequest.cardLimits.tempCashAmountLimit *= 100;
+		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
+		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+
+		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
 		}
 		return null;
 	}
@@ -265,8 +296,40 @@ export class Favourites extends SavingsAccountBase {
 	async _getTemporaryLimits(request) {
 		const returnValue = await this.quickTransactionService.getTemporaryLimits(request);
 
+		const cardLimits = returnValue.result.cardLimits;
+
+		cardLimits.permanentCashAmountLimit /= 100;
+		cardLimits.maxPermanentCashAmountLimit /= 100;
+		cardLimits.permanentPurchaseAmountLimit /= 100;
+		cardLimits.maxPermanentPurchaseAmountLimit /= 100;
+		cardLimits.permanentCnpAmountLimit /= 100;
+		cardLimits.maxPermanentCnpAmountLimit /= 100;
+		cardLimits.tempCashAmountLimit /= 100;
+		cardLimits.maxTemporaryCashAmountLimit /= 100;
+		cardLimits.tempPurchaseAmountLimit /= 100;
+		cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
+		cardLimits.tempCnpAmountLimit /= 100;
+		cardLimits.maxTemporaryCnpAmountLimit /= 100;
+
 		if (returnValue.succeeded) {
 			return returnValue.result;
+		}
+
+		return null;
+	}
+
+	async _updateTemporaryLimits(updateRequest) {
+		updateRequest.cardLimits.permanentCashAmountLimit *= 100;
+		updateRequest.cardLimits.permanentPurchaseAmountLimit *= 100;
+		updateRequest.cardLimits.permanentCnpAmountLimit *= 100;
+		updateRequest.cardLimits.tempCashAmountLimit *= 100;
+		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
+		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
+
+		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest);
+
+		if (returnValue.succeeded) {
+			return true;
 		}
 		return null;
 	}
@@ -280,24 +343,6 @@ export class Favourites extends SavingsAccountBase {
 		return null;
 	}
 
-	async _updatePermanentLimits(updateRequest) {
-		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest);
-
-		if (returnValue.succeeded) {
-			return true;
-		}
-		return null;
-	}
-
-	async _updateTemporaryLimits(updateRequest) {
-		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest);
-
-		if (returnValue.succeeded) {
-			return true;
-		}
-		return null;
-	}
-	
 	_updateLimitsResult(eventData) {
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.limitDetails = eventData.detail.limitDetails;
