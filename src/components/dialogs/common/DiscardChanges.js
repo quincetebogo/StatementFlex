@@ -15,12 +15,14 @@ export class DiscardChanges extends Component {
     }
 
     connectedCallback() {
+		super.connectedCallback();
         this._telemetry.startSpan(QuickTransactionEvents.DISCARD_CHANGES, {
             "screen": TelemetryScreen.DISCARD_CHANGES
         });
     }
 
     disconnectedCallback() {
+		super.disconnectedCallback();
         this._telemetry.endSpan(QuickTransactionEvents.DISCARD_CHANGES, {
             "screen": TelemetryScreen.DISCARD_CHANGES
         });
