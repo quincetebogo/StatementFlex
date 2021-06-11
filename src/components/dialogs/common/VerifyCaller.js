@@ -802,7 +802,6 @@ export class VerifyCaller extends Component {
 	}
 
     _renderOtherOptions() {
-		const disableTryAgain = !this.callerInformation.hasDigitalChannels || this.itaFailedCount >= MAX_ITA_ATTEMPTS || this.appTimedOut || this.itaMessage == "" ? true : false;
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">

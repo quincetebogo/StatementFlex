@@ -1,5 +1,4 @@
 import { SecurityContext, Telemetry } from 'platform/core';
-import { TelemetryMocks } from 'app/mocks/Telemetry';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { v4 } from 'uuid';
 
