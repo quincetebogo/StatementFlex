@@ -545,7 +545,7 @@ export class UpdateCardLimits extends Component {
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 9px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 18px;
 			}
