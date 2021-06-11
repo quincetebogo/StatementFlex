@@ -257,20 +257,6 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getPermanentLimits(request);
 
 		if (returnValue.succeeded) {
-			const cardLimits = returnValue.result.cardLimits;
-
-			cardLimits.permanentCashAmountLimit /= 100;
-			cardLimits.maxPermanentCashAmountLimit /= 100;
-			cardLimits.permanentPurchaseAmountLimit /= 100;
-			cardLimits.maxPermanentPurchaseAmountLimit /= 100;
-			cardLimits.permanentCnpAmountLimit /= 100;
-			cardLimits.maxPermanentCnpAmountLimit /= 100;
-			cardLimits.tempCashAmountLimit /= 100;
-			cardLimits.maxTemporaryCashAmountLimit /= 100;
-			cardLimits.tempPurchaseAmountLimit /= 100;
-			cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-			cardLimits.tempCnpAmountLimit /= 100;
-			cardLimits.maxTemporaryCnpAmountLimit /= 100;
 	
 			return returnValue.result;
 		}
@@ -295,21 +281,6 @@ export class Favourites extends SavingsAccountBase {
 
 	async _getTemporaryLimits(request) {
 		const returnValue = await this.quickTransactionService.getTemporaryLimits(request);
-
-		const cardLimits = returnValue.result.cardLimits;
-
-		cardLimits.permanentCashAmountLimit /= 100;
-		cardLimits.maxPermanentCashAmountLimit /= 100;
-		cardLimits.permanentPurchaseAmountLimit /= 100;
-		cardLimits.maxPermanentPurchaseAmountLimit /= 100;
-		cardLimits.permanentCnpAmountLimit /= 100;
-		cardLimits.maxPermanentCnpAmountLimit /= 100;
-		cardLimits.tempCashAmountLimit /= 100;
-		cardLimits.maxTemporaryCashAmountLimit /= 100;
-		cardLimits.tempPurchaseAmountLimit /= 100;
-		cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
-		cardLimits.tempCnpAmountLimit /= 100;
-		cardLimits.maxTemporaryCnpAmountLimit /= 100;
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -494,6 +465,37 @@ export class Favourites extends SavingsAccountBase {
 			 
 		if (returnValue.succeeded) {
 			this.cards = returnValue.result.cards;
+
+			this.cards.forEach(card => {
+				card.cardLimits.permanentCashAmountLimit /= 100;
+				card.cardLimits.maxPermanentCashAmountLimit /= 100;
+				card.cardLimits.permanentPurchaseAmountLimit /= 100;
+				card.cardLimits.maxPermanentPurchaseAmountLimit /= 100;
+				card.cardLimits.permanentCnpAmountLimit /= 100;
+				card.cardLimits.maxPermanentCnpAmountLimit /= 100;
+				card.cardLimits.tempCashAmountLimit /= 100;
+				card.cardLimits.maxTemporaryCashAmountLimit /= 100;
+				card.cardLimits.tempPurchaseAmountLimit /= 100;
+				card.cardLimits.maxTemporaryPurchaseAmountLimit /= 100;
+				card.cardLimits.tempCnpAmountLimit /= 100;
+				card.cardLimits.maxTemporaryCnpAmountLimit /= 100;
+
+				if (card.linkedCardLimits) {
+					card.linkedCardLimits.permanentCashAmountLimit /= 100;
+					card.linkedCardLimits.maxPermanentCashAmountLimit /= 100;
+					card.linkedCardLimits.permanentPurchaseAmountLimit /= 100;
+					card.linkedCardLimits.maxPermanentPurchaseAmountLimit /= 100;
+					card.linkedCardLimits.permanentCnpAmountLimit /= 100;
+					card.linkedCardLimits.maxPermanentCnpAmountLimit /= 100;
+					card.linkedCardLimits.tempCashAmountLimit /= 100;
+					card.linkedCardLimits.maxTemporaryCashAmountLimit /= 100;
+					card.linkedCardLimits.tempPurchaseAmountLimit /= 100;
+					card.linkedCardLimits.maxTemporaryPurchaseAmountLimit /= 100;
+					card.linkedCardLimits.tempCnpAmountLimit /= 100;
+					card.linkedCardLimits.maxTemporaryCnpAmountLimit /= 100;
+				} 
+			});
+
 			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
 		}
 	}

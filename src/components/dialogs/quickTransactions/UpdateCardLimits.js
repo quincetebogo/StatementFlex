@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { base64toHTML, formatCurrency } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
@@ -153,7 +153,7 @@ export class UpdateCardLimits extends Component {
                 this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
                 this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-                if (Number(e.detail.new) > Number(maxLimit) / 100) {
+                if (Number(e.detail.new) > Number(maxLimit)) {
                     this.error[transactionType][e.currentTarget.id] = maxLimit;
                 } else {
                     this.error[transactionType][e.currentTarget.id] = ``;
@@ -333,9 +333,8 @@ export class UpdateCardLimits extends Component {
 	_getCardName() {
         if (this.cardDetails.cardDisplayType === `Virtual_Card`) {
             return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
-        } else {
-            return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
         }
+        return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
     }
 
     // ---------
@@ -782,7 +781,7 @@ export class UpdateCardLimits extends Component {
         return html`
 			<capitec-text-field
 				id="${cashAmountLimit}"
-				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit/100, 0)})"
+				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cashAmountLimit}"
@@ -791,7 +790,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${purchaseAmountLimit}"
-				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit/100, 0)})"
+				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.purchaseAmountLimit}"
@@ -800,7 +799,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${cnpAmountLimit}"
-				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit/100, 0)})"
+				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cnpAmountLimit}"
