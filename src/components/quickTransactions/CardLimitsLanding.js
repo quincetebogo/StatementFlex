@@ -82,6 +82,14 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
+	 *  @typedef {Object} getPermanentLimits Get permanent limits to display or null if there was an error
+	 */
+
+	/**
+	 *  @typedef {Object} getTemporaryLimits Get temporary limits to display or null if there was an error
+	 */
+
+	/**
 	 *  @typedef {Object} updatePremanentLimits updated permanent limits & agreement or null if there was an error
 	 */
 
@@ -92,6 +100,16 @@ export class CardLimitsLanding extends Component {
 	/**
 	 * @callback getCardLimitsAgreementsCallback
 	 * @returns {getCardLimitsAgreement}
+	 */
+
+	/**
+	 * @callback getPermanentLimitsCallback
+	 * @returns {getPermanentLimits}
+	 */
+
+	/**
+	 * @callback getTemporaryLimitsCallback
+	 * @returns {getTemporaryLimits}
 	 */
 
 	/**
@@ -110,6 +128,8 @@ export class CardLimitsLanding extends Component {
 	 * @property {String} cifNumber The client's account/cifNumber
 	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
+	 * @property {getPermanentLimitsCallback} getPermanentLimits Callback function to get permanent limits
+	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
 	 * @property {updatePemanentLimitsCallback} updatePremanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
 	 *
@@ -124,8 +144,11 @@ export class CardLimitsLanding extends Component {
 			voiceRecordingReference: { type: String },
 
 			getCardLimitsAgreement: { type: Object, attribute: false },
+			getPermanentLimits: { type: Object, attribute: false },
+			getTemporaryLimits: { type: Object, attribute: false },
 			updatePremanentLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
+
 			getAgreement: { type: String },
 
 			renderMode: { attribute: false },
@@ -175,12 +198,12 @@ export class CardLimitsLanding extends Component {
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
 				},
-				permanentCashAmountLimit:  card.cardLimits.permanentCashAmountLimit ,
+				permanentCashAmountLimit: card.cardLimits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: card.cardLimits.permanentPurchaseAmountLimit,
-				permanentCnpAmountLimit:  card.cardLimits.permanentCnpAmountLimit,
-				tempCashAmountLimit:  card.cardLimits.tempCashAmountLimit,
-				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit ,
-				tempCnpAmountLimit:  card.cardLimits.tempCnpAmountLimit
+				permanentCnpAmountLimit: card.cardLimits.permanentCnpAmountLimit,
+				tempCashAmountLimit: card.cardLimits.tempCashAmountLimit,
+				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit,
+				tempCnpAmountLimit: card.cardLimits.tempCnpAmountLimit
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
@@ -237,7 +260,7 @@ export class CardLimitsLanding extends Component {
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-                    cardId: (cardDetails.linkedCardLimits && this._updateType == "Debit" ) ? cardDetails.linkedCardId : cardDetails.cardId,
+                    cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit` ) ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber, // get it from favourites
 					cardExpiryYear: cardDetails.cardExpiryYear,
@@ -309,12 +332,45 @@ export class CardLimitsLanding extends Component {
 		// TODO: Error handler comes here
 	}
 
-	_updateLimits(card, limitType, updateType) {
+	async _updateLimits(card, limitType, updateType) {
 		this._updateType = updateType;
 		this._limitType = limitType;
 		this._cardDetails = card;
 
+		const limitsReq = {
+			"cardDetails": {
+				"cardId": this._cardDetails.cardId,
+				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
+				"customerId": this.cifNumber,
+				"cardExpiryYear": this._cardDetails.cardExpiryYear,
+				"cardExpiryMonth": this._cardDetails.cardExpiryMonth,
+				"cardSequenceNumber": this._cardDetails.cardSequenceNumber
+			}
+		};
+		
+		if (this._limitType === LIMIT_TYPES.PERMANENT) {
+			await this._getPermanentLimits(limitsReq);
+		} else {
+			await this._getTemporaryLimits(limitsReq);
+		}
+		
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
+	}
+
+	async _getPermanentLimits(request) {
+		const requestValue = await this.getPermanentLimits(request);
+
+		if (requestValue) {
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+		} 
+	}
+
+	async _getTemporaryLimits(request) {
+		const requestValue = await this.getTemporaryLimits(request);
+
+		if (requestValue) {
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+		} 
 	}
 
 	_cancelUpdateLimits() {
@@ -762,6 +818,7 @@ export class CardLimitsLanding extends Component {
 				<horizon-update-card-limits
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
+					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, tapToPayStatus) => this._getLimitsAgreement(card, tapToPayStatus)}"
 					@cancel="${() => this._cancelUpdateLimits()}"

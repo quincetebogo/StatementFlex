@@ -1,6 +1,5 @@
 import { Component, css, html } from 'platform/elements';
 import { base64toHTML, formatCurrency } from 'app/utils/channelServiceUtilities';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
@@ -67,28 +66,14 @@ export class UpdateCardLimits extends Component {
         };
 
         this.maxValue = ``;
-
-        this.primaryPermanentLimits = 0;
-        this.primaryTemporaryLimits = 0;
-
-        this.supplementaryPermanentLimits = 0;
-        this.supplemtaryTemporaryLimits = 0;
-
-        this.totalPermanentLimits = 0;
-        this.totalTemporaryLimits = 0;
-
         this.limitLabel = ``;
         this.limitsAgreementExpanded = true;
         this.tapToPayAgreementExpanded = false;
         this.alertBannerText = ``;
-
-        this.horizonStore = HorizonStore.getInstance();
-
         this.cardLimits = {};
         this._tapToPayStatus = false;
 
         this._telemetry = HorizonTelemetry.instance;
-
     }
 
     // ----------
@@ -114,19 +99,10 @@ export class UpdateCardLimits extends Component {
             displayCard: { type: String },
             getCardLimitsAgreement: { type: Object, attribute: false },
 
-            primaryPermanentLimits: { type: Number },
-            primaryTemporaryLimits: { type: Number },
-
-            supplementaryPermanentLimits: { type: Number },
-            supplemtaryTemporaryLimits: { type: Number },
-
-            totalPermanentLimits: { type: Number },
-            totalTemporaryLimits: { stype: Number },
-
-            limitLabel: { type: String },
-            limitsAgreementExpanded: { type: Boolean },
-            tapToPayAgreementExpanded: { type: Boolean },
-            alertBannerText: { type: String },
+			limitLabel: { type: String },
+			limitsAgreementExpanded: { type: Boolean },
+			tapToPayAgreementExpanded: { type: Boolean },
+			alertBannerText: { type: String },
 
             renderMode: { type: Boolean, attribute: false },
             isBusy: { type: Boolean, attribute: false },
@@ -171,7 +147,7 @@ export class UpdateCardLimits extends Component {
     _limitChanged(e, transactionType, maxLimit) {
 
         if (e.detail.new) {
-            if (this.updateType == `Debit` && this.cardDetails.linkedCardLimits) {
+            if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
                 this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
                 this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
@@ -303,16 +279,9 @@ export class UpdateCardLimits extends Component {
         // TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
         this.limitLabel = `${this.updateType} Limits`;
 
-        const limitObj = this.cardLimits;
-
-        this.primaryPermanentLimits = limitObj.permanentCashAmountLimit + limitObj.permanentCnpAmountLimit + limitObj.permanentPurchaseAmountLimit;
-        this.supplementaryPermanentLimits = limitObj.permanentCashAmountLimit + limitObj.permanentCnpAmountLimit + limitObj.permanentPurchaseAmountLimit;
-        this.totalPermanentLimits = this.primaryPermanentLimits + this.supplementaryPermanentLimits;
-
-        this.primaryTemporaryLimits = limitObj.tempCashAmountLimit + limitObj.tempCnpAmountLimit + limitObj.tempPurchaseAmountLimit;
-        this.supplementaryTemporaryLimits = limitObj.tempCashAmountLimit + limitObj.tempCnpAmountLimit + limitObj.tempPurchaseAmountLimit;
-        this.totalTemporaryLimits = this.primaryTemporaryLimits + this.supplementaryTemporaryLimits;
-
+		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
+		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
+		this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Total limits`);
     }
 
     _getErrorsCount() {
@@ -466,7 +435,7 @@ export class UpdateCardLimits extends Component {
 			.limits-cb {
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 32px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 8px;
 				width: 380px;
@@ -576,7 +545,7 @@ export class UpdateCardLimits extends Component {
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 9px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 				--theme-layout-gap-spacing: 18px;
 			}
@@ -631,13 +600,10 @@ export class UpdateCardLimits extends Component {
 				font-weight: 500;
 				line-height: 20px;
 			}
-			.agreement-viewer {
-				width: 100%;
-				height: 100%;
-			}
-			.agreement-header {
-				padding: 16px 8px;
-			}
+				.agreement-viewer {
+					width: 100%;
+					height: 100%;
+				}
 			`
         ];
     }
@@ -768,15 +734,15 @@ export class UpdateCardLimits extends Component {
 					<div class="dailyLimits">
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.primaryPermanentLimits, 0)}/Temporary ${formatCurrency(this.primaryTemporaryLimits, 0)}" class="limitSubtitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
 						</div>
-						<div style="display: inline-block; width: 245px; height: 32px">
+						 <div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.supplementaryPermanentLimits, 0)}/Temporary ${formatCurrency(this.supplementaryTemporaryLimits, 0)}" class="limitSubtitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
 						</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPermanentLimits, 0)}/Temporary ${formatCurrency(this.totalTemporaryLimits, 0)}" class="limitSubtitle"></capitec-label>
+							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
 						</div>
 					</div>
 				</capitec-title-bar>
@@ -800,9 +766,9 @@ export class UpdateCardLimits extends Component {
                 maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
             };
 
-        const cashAmountLimit = this.limitType === 'Permanent' ? 'permanentCashAmountLimit' : 'tempCashAmountLimit';
-        const purchaseAmountLimit = this.limitType === 'Permanent' ? 'permanentPurchaseAmountLimit' : 'tempPurchaseAmountLimit';
-        const cnpAmountLimit = this.limitType === 'Permanent' ? 'permanentCnpAmountLimit' : 'tempCnpAmountLimit';
+        const cashAmountLimit = this.limitType === `Permanent` ? `permanentCashAmountLimit` : `tempCashAmountLimit`;
+        const purchaseAmountLimit = this.limitType === `Permanent` ? `permanentPurchaseAmountLimit` : `tempPurchaseAmountLimit`;
+        const cnpAmountLimit = this.limitType === `Permanent` ? `permanentCnpAmountLimit` : `tempCnpAmountLimit`;
 
         return html`
 			<capitec-text-field
@@ -811,7 +777,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cashAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType].cashAmountLimit)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
@@ -820,7 +786,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.purchaseAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType].purchaseAmountLimit)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxPurchaseAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
@@ -829,7 +795,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${limits.cnpAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
+				error="${this._getFieldError(this.error[transactionType].cnpAmountLimit)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxcnpAmountLimit)}">
 			</capitec-text-field>
 		`;
@@ -896,13 +862,13 @@ export class UpdateCardLimits extends Component {
 						label="View Agreement">
 							<capitec-content-box
 								class="expander-cb" halign="left" valign="top" gap="none">
-								<capitec-label
-									class="agreement-header"
-									label="Card Limits Agreement"
-									type="title">
-								</capitec-label>
-								<div> ${this.cardLimitsAgreement}</div>
-								${this._renderAgreementContent(this.tapToPayAgreement)}
+									<capitec-label
+										class="agreement-header"
+										label="Card Limits Agreement"
+										type="title">
+									</capitec-label>
+									<div> ${this.cardLimitsAgreement}</div>
+									${this._renderAgreementContent(this.tapToPayAgreement)}
 							</capitec-content-box>
 					</capitec-expander>
 
