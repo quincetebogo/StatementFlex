@@ -333,7 +333,7 @@ export class UpdateCardLimits extends Component {
     }
 
 	_getCardName() {
-        if (cardDetails.cardDisplayType === `Virtual_Card`) {
+        if (this.cardDetails.cardDisplayType === `Virtual_Card`) {
             return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
         } else {
             return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
