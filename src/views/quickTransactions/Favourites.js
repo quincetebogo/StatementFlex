@@ -493,6 +493,8 @@ export class Favourites extends SavingsAccountBase {
 		});
 
 		this.renderMode = RENDER_MODE.SEARCH_OTHER_NEED;
+		this._getCategories();
+		
 	}
 
 	async _onLaunchStrackClick(event) {
