@@ -253,6 +253,24 @@ export class Favourites extends SavingsAccountBase {
         this.renderMode = RENDER_MODE.MAIN_PAGE;
     }
 
+	async _getPermanentLimits(request) {
+		const returnValue = await this.quickTransactionService.getPermanentLimits(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+		return null;
+	}
+
+	async _getTemporaryLimits(request) {
+		const returnValue = await this.quickTransactionService.getTemporaryLimits(request);
+
+		if (returnValue.succeeded) {
+			return returnValue.result;
+		}
+		return null;
+	}
+
 	async _getCardLimitsAgreement(agreementRequest) {
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest);
 
@@ -659,9 +677,12 @@ export class Favourites extends SavingsAccountBase {
             ? html`
 				<horizon-card-limits-landing
 					.cards="${this.cards}"
+					.getPermanentLimits="${request => this._getPermanentLimits(request)}"
+					.getTemporaryLimits="${request => this._getTemporaryLimits(request)}"
 					.cifNumber="${this.callerInformation.cifNumber}"
 					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
+
 					.updatePremanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"

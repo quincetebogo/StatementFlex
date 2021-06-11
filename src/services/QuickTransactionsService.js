@@ -75,4 +75,12 @@ export class QuickTransactionsService extends ServiceBase {
 	updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.updateTemporaryLimits(request), `updateTemporaryLimits`, errorHandler, autoRetries);
 	}
+
+	getPermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getPermanentLimits(request), `getPermanentLimits`, errorHandler, autoRetries);
+	}
+
+	getTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.getTemporaryLimits(request), `getTemporaryLimits`, errorHandler, autoRetries);
+	}
 }
