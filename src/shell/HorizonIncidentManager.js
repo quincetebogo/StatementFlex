@@ -126,7 +126,7 @@ export class HorizonIncidentManager {
 
 				this.incidentRecID = incidentDetails.incidentRecId;
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-				this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+				this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
 
 				await this._classifyIncident(clientNeed);
 				return true;
@@ -144,7 +144,7 @@ export class HorizonIncidentManager {
 
 			this.incidentRecID = incidentDetails.incidentRecId;
 			this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-			this.incidentService = new IncidentManagementService(toggleBusyFlag, null);
+			this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
 
 			await this._createSubsequentIncident(clientNeed);
 			return true;
@@ -244,16 +244,17 @@ export class HorizonIncidentManager {
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
 	
-        if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
 			this._updateSubsequentNeedClientDetails(callDetails, callerInfo, newIncident);
-        } else {
+		} else {
 			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);
-        }
+		}
 	}
 
 	/**
 	 * Updating client details to newly created subsequent incident
 	 * 
+	 * @param {object} callDetails - incoming call details object retrieved from state
 	 * @param {object} callerInfo - Caller information object retrieved from state
 	 * @param {object} newIncident - Newly created subsequent incident details
 	 * @returns {void}

@@ -3,6 +3,9 @@ import { CardService } from 'app/services/CardService';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
@@ -32,10 +35,10 @@ export class AssignStopCard extends Component {
 		this.errorAlert = false;
 		this.errorMessage = ``; // "Please select a team to assign";
 
-
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._assignErrorHandler(ex));
 		
@@ -67,6 +70,10 @@ export class AssignStopCard extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
+			"screen": TelemetryScreen.ASSIGN_STOP_CARD
+		});
+
 		const cardsAndIncident = {
 			cardIds: this.cards.map(card => card.cardNumber),
 			incidentRecId: this.incidentDetails.incidentRecId
@@ -81,6 +88,12 @@ export class AssignStopCard extends Component {
 		});
 	}
 
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_ASSIGN, {
+			"screen": TelemetryScreen.ASSIGN_STOP_CARD
+		});
+	}
 
 	// --------------
 	// EVENT HANDLERS
@@ -90,6 +103,11 @@ export class AssignStopCard extends Component {
 		if (!this.team) {
 			this.errorAlert = true;
 		} else {
+			this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_ASSIGN_CONFIRM, {
+				"screen": TelemetryScreen.ASSIGN_STOP_CARD,
+				"next-screen": TelemetryScreen.FAVOURITES,
+				"team": this.team
+			});
 
 			const assignRequest =
 			{
@@ -119,6 +137,10 @@ export class AssignStopCard extends Component {
 	}
 
 	_onCancelClick() {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_ASSIGN_CANCEL, {
+			"screen": TelemetryScreen.ASSIGN_STOP_CARD
+		});
+
 		this.dispatchEvent(new CustomEvent(`on-cancel`));
 	}
 

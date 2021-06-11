@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
-
 import 'app/components/common/CardArt';
+import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
 export class TapToPayLanding extends Component {
 
@@ -11,17 +11,53 @@ export class TapToPayLanding extends Component {
 	constructor() {
 		super();
 
-		this.primaryCards = [];
-		this.supplementaryCards = [];
+		this.showTapToPayAgreement = false;
+		this.agreementResult = {};
 	}
 
 	// ---------------
 	// PROPERTIES
 	// ---------------
 
+	/**
+	 *  @typedef {Object} getAgreementsResponse Agreements to display or null if there was an error
+	 */
+
+	/**
+	 *  @typedef {Object} updateAgreementResponse updated agreement or null if there was an error
+	 */
+	
+	
+	/**
+	 * @callback getAgreementsCallback
+	 * @returns {getAgreementsResponse}
+	 */
+
+	/**
+	 * @callback updateAgreementCallback
+	 * @returns {updateAgreementResponse}
+	 */
+
+
+	/**
+	 * @property {Object} cards Object contains the list of client's cards
+	 * @property {String} cifNumber The client's account/cifNumber
+	 * @property {String} voiceRecordingReference The Avaya/Presence Voice Recording ID
+	 * @property {getAgreementsCallback} getAgreements Callback function to load agreements for displaying
+	 * @property {updateAgreementCallback} updateAgreement Callback function to update agreement
+	 */
 	static get properties() {
 		return {
-			cards: { type: Array }
+			// Input properties
+			cards: { type: Object },
+			cifNumber: { type: String },
+			voiceRecordingReference: { type: String },
+
+			getAgreements: { type: Object, attribute: false },
+			updateAgreement: { type: Object, attribute: false },
+
+			// Private internal properties
+			showTapToPayAgreement: { attribute: false }
 		};
 	}
 
@@ -31,36 +67,126 @@ export class TapToPayLanding extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		this.supplementaryCards = this.cards.filter(card => card.isSupplementaryCard !== true && card.isContactlessCard === false);
-		this.primaryCards = this.cards.filter(card => card.isContactlessActivated === true && card.isContactlessCard === false);
-		
+		this._loading();
 	}
 
-	// -------------
-	// PRIVATE METHODS
-	// -------------
+	disconnectedCallback() {
+		this._unloading();
+		super.disconnectedCallback();
+	}
 
-	_back() {
-		this.dispatchEvent(new CustomEvent(`back`, {}));
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_loading() {
+		this.dispatchEvent(new CustomEvent(`loading`));
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
+
+	_updateCards() {
+		const index = this.cards.findIndex(card => card.cardId === this.selectedCard.cardId);
+		this.cards[index].isContactlessCard = this.selectedCard.isContactlessCard;
+	}
+
+	_result(success, tapToPayDetails, failureReason) {
+		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
+	async _toggleTapToPayClick(event) {
+		this.selectedCard = this.cards.find(card => card.cardId === event.currentTarget.card.cardId);
+		this.selectedCard.isContactlessActivated = event.detail.new;
+		this._updateCards();
+
+		const request = {
+			cifNumber: this.cifNumber,
+			tapToPayStatus: event.detail.new ? `TapToPayActivated` : `TapToPayDeactivated`,
+			cardDetails: {
+				cardId: this.selectedCard.cardId,
+				cardExpiryYear: this.selectedCard.cardExpiryYear,
+				cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+				cardSequenceNumber: this.selectedCard.cardSequenceNumber
+			}
+		};
+
+		const result = await this.getAgreements(request);
+
+		if (result) {
+			this.agreementResult = result;
+			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
+		} else {
+			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
+		}
+	}
+
+	_cancelClick() {
+		this.selectedCard.isContactlessActivated = !this.selectedCard.isContactlessActivated;
+		
+		this._updateCards();
+		this.showTapToPayAgreement = !this.showTapToPayAgreement;
+	}
+
+	async _agreeClick(event) {
+		const tapToPayStatus = this.selectedCard.isContactlessActivated ? `ON` : `OFF`;
+
+		const request = {
+			tapToPayUpdate: {
+				cardDetails: {
+					cardId: this.selectedCard.cardId,
+					cardExpiryMonth: this.selectedCard.cardExpiryMonth,
+					cardExpiryYear: this.selectedCard.cardExpiryYear,
+					cardSequenceNumber: this.selectedCard.cardSequenceNumber
+				},
+				tapToPayStatus: tapToPayStatus,
+				customerId: this.cifNumber,
+				voiceRecordingReference: this.voiceRecordingReference,
+				screenRecordingReference: ``,
+				agreementAccepted: event.detail.tapToPayAccepted,
+				agreementContent: {
+					agreementContentType: this.agreementResult.cardAgreement.agreementContent.agreementContentType,
+					agreementContentData: this.agreementResult.cardAgreement.agreementContent.agreementContentData,
+					documentId: this.agreementResult.cardAgreement.agreementContent.documentId
+				},
+				scriptContent: {
+					scriptContentData: this.agreementResult.cardAgreement.scriptContent.scriptContentData,
+					documentId: this.agreementResult.cardAgreement.scriptContent.documentId,
+					scriptContentType: `HTML`
+				}
+			}
+		};
+
+		const result = await this.updateAgreement(request);
+
+		if (result) {
+			this._result(true, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
+							cardType: this.selectedCard.cardType }, null);
+		} else {
+			this._result(false, { tapToPayStatus: tapToPayStatus, cardMaskedNumber: this.selectedCard.maskedCardNumber,
+							cardType: this.selectedCard.cardType }, `Failed to update agreement`);
+		}
+	}
 
 	// ---------
 	// RENDERING
 	// ---------
-
 	
 	static get styles() {
 		return [
 			super.styles,
 			css`
 			capitec-card {
-				height: 100%;
+				height: var(--horizon-panel-height, 888px);
 				width: var(--horizon-center-panel-width, 1064px);
 				--theme-card-border-radius: 5px;
 				--theme-card-box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
@@ -159,8 +285,9 @@ export class TapToPayLanding extends Component {
 
 	_webTemplate() {
 		return html`
-				${this._renderContainer()}
-			`;
+			${this._renderContainer()}
+			${this._renderTapToPayAgreement()}
+		`;
 	}
 
 	_renderContainer() {
@@ -185,56 +312,101 @@ export class TapToPayLanding extends Component {
 
 	_renderTapToPayBody() {
 		return html`
-			<capitec-alert-banner class="alert-banner" type="info" label="Notify Client:">
-				<p class="alert-banner-paragraph">After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.</p>
+			<capitec-alert-banner
+				class="alert-banner"
+				type="info"
+				label="Notify Client:">
+					<p class="alert-banner-paragraph">
+						After you switch tap to pay on, you first have to insert your card and PIN at a card machine or ATM to make it active on your card.
+					</p>
 			</capitec-alert-banner>
 
 			${this._renderPrimaryCards()}
-
 			${this._renderSupplementaryCards()}
 		`;
 	}
 
 	_renderPrimaryCards() {
-		return html`
-			<capitec-label class="primary-card-label" type="title" label="Primary cards"></capitec-label>
 
-			<capitec-group class="primary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
-				${this._renderPrimaryCardArt()}
+		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && card.isContactlessCard);
+
+		return html`
+			<capitec-label
+				class="primary-card-label"
+				type="title"
+				label="Primary cards">
+			</capitec-label>
+
+			<capitec-group
+				class="primary-cards"
+				valign="top"
+				halign="left"
+				gap="clear"
+				layout="horizontal"
+				grow="horizontal">
+					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
 	}
 
-	_renderPrimaryCardArt() {
-		return this.primaryCards.map((card, index) => html`
-		<horizon-card-art
-			id="primaryCard-widget-${index}"
-			.card="${card}"
-			.disableHover="${true}"
-			context="tap-to-pay"
-		></horizon-card-art>
-		`);
+	_renderPrimaryCardArt(card, index) {
+		return html`
+			<horizon-card-art
+				id="primaryCard-widget-${index}"
+				.card="${card}"
+				disable-hover="${true}"
+				context="tap-to-pay"
+				.tapToPayStatus="${card.isContactlessActivated}"
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
+			</horizon-card-art>
+		`;
 	}
 
 	_renderSupplementaryCards() {
+		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard && card.isContactlessCard);
 		return html`
-			<capitec-label class="supplementary-card-label" type="title" label="Supplementary cards"></capitec-label>
+			<capitec-label
+				class="supplementary-card-label"
+				type="title"
+				label="Supplementary cards">
+			</capitec-label>
 
-			<capitec-group class="supplementary-cards" valign="top" halign="left" gap="clear" layout="horizontal" grow="horizontal">
-				${this._renderSupplementaryCardsArt()}
+			<capitec-group
+				class="supplementary-cards"
+				valign="top"
+				halign="left"
+				gap="clear"
+				layout="horizontal"
+				grow="horizontal">
+					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
 	}
 
-	_renderSupplementaryCardsArt() {
-		return this.primaryCards.map((card, index) => html`
-		<horizon-card-art
-			id="supplementaryCard-widget-${index}"
-			.card="${card}"
-			.disableHover="${true}"
-			context="tap-to-pay"
-		></horizon-card-art>
-		`);
+	_renderSupplementaryCardArt(card, index) {
+		return html`
+			<horizon-card-art
+				id="supplementaryCard-widget-${index}"
+				.card="${card}"
+				disable-hover="${true}"
+				context="tap-to-pay"
+				.tapToPayStatus="${card.isContactlessActivated}"
+				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
+			</horizon-card-art>
+		`;
+	}
+
+	_renderTapToPayAgreement() {
+		return this.showTapToPayAgreement
+			? html`
+				<horizon-tap-to-pay-agreement
+					.selectedCard="${this.selectedCard}"
+					.agreementResult="${this.agreementResult}"
+					@on-agree="${(e) => this._agreeClick(e)}"
+					@cancel="${() => this._cancelClick()}">
+				</horizon-tap-to-pay-agreement>`
+			: html``;
 	}
 }
+
 window.customElements.define(`horizon-tap-to-pay-landing`, TapToPayLanding);

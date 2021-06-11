@@ -1,13 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerDetails } from 'app/models/CallerDetails';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/CallerDialog';
@@ -161,6 +162,7 @@ export class SearchCaller extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
 		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
@@ -200,19 +202,17 @@ export class SearchCaller extends Component {
 		this._loadSearchOptions();
 		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 		
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadSearchClient({
-			screen: TelemetryScreen.SEARCH_CLIENT
-		}); 
+		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 			
-		// Telemetry
-			HorizonTelemetry.instance.screenUnloadSearchClient({
-				screen: TelemetryScreen.SEARCH_CLIENT
-			}); 
+		this._telemetry.endSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
 	}
 
 	// --------------
@@ -238,11 +238,11 @@ export class SearchCaller extends Component {
 
 	async _onSearchClient() {
 
-		// Telemetry 
-
-		HorizonTelemetry.instance.selectSearchCapitecClient({
-			screen: TelemetryScreen.SEARCH_CLIENT,
-			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.CONFIRM_CALLER,
+			"id-method": this.searchType.value,
+			"id-data": this.searchValue
 		});
 
 		if (this._validateFields()) {
@@ -266,10 +266,10 @@ export class SearchCaller extends Component {
 				this.alertBannerMessage = errMessages.ALERT_BANNER;
 				this.errMessage.searchValue = errMessages.FIELD_ERROR;
 			} else if (this.incidentDetails.incidentReferenceNumber === null) {
-					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-				} else {
-					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-				}
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+			}
 		}
 	}
 
@@ -295,11 +295,9 @@ export class SearchCaller extends Component {
 
 	async _onContinue() {
 
-		// Telemetry 
-
-		HorizonTelemetry.instance.selectSearchCapitecClient({
-			screen: TelemetryScreen.SEARCH_CLIENT,
-			nextScreen: TelemetryScreen.CONFIRM_CALLER
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.PRODUCT_INFO
 		});
 
 		if (this._validateNonClientFields()) {
@@ -340,15 +338,20 @@ export class SearchCaller extends Component {
 					}
 				}));
 			} else if (this.incomingCallDetails.incidentRecId === null) {
-					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-				} else {
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else {
 				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
 				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-				} 
+			}
 		}
 	}
 
 	_onEndCall() {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_END_CALL_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 

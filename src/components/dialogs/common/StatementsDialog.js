@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, Logger } from 'platform/core';
+import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -7,7 +7,7 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 
 import 'platform/components/popups/Modal';
-import 'app/components/Common/StepperModal';
+import 'app/components/common/StepperModal';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -121,6 +121,8 @@ export class StatementsDialog extends Component {
 
 	constructor() {
 		super();
+
+		this.navigationContext = NavigationContext.getInstance();
 
 		this.isBusy = false;
 		this.renderMode = RENDER_MODE.EMAIL;
@@ -423,11 +425,8 @@ export class StatementsDialog extends Component {
 		}
 
 		const returnValue = await this.quickTransactionService.sendStatement(statement);
-
-		this.horizonStore.saveState({
-			emailAddress: this.email,
-			accountNumber: this.productSelected.accountNumber
-		});
+		this._updateScreenDetails();
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, `statements`);
 
 		if (returnValue.succeeded) {
 			this.horizonRouter.navigateToStatementSuccessful();
@@ -437,9 +436,8 @@ export class StatementsDialog extends Component {
 				screen: TelemetryScreen.STATEMENTS,
 				nextScreen: TelemetryScreen.STATEMENTS_OUTCOME
 			});
-
 		} else {
-				this.horizonRouter.navigateToStatementUnsuccessful();
+			this.horizonRouter.navigateToStatementUnsuccessful();
 		}
 	}
 
@@ -592,6 +590,15 @@ export class StatementsDialog extends Component {
 		// Rounding off the decimal value
 		totalAmount = Math.round((availableBalance + currentBalance) * 100) / 100;
 		return formatCurrency(totalAmount);
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.emailAddress = this.email;
+		screenDetails.accountNumber = this.productSelected.accountNumber;
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------

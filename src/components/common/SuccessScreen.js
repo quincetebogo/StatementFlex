@@ -26,6 +26,7 @@ export class SuccessScreen extends Component {
 		this.image = null;
 		this.secondaryImage = ``;
 		this.subDetail = ``;
+		this.secondaryToast = ``;
 	}
 
 	// ----------
@@ -39,6 +40,7 @@ export class SuccessScreen extends Component {
 	* @property {String} [toast] The text for the tost message
 	* @property {String} [displayToast=true] Enables/Disables the toast message
 	* @property {String} image The image to be displayed on center of the page
+	* @property {String} secondaryToast Secondary toast details
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -52,7 +54,8 @@ export class SuccessScreen extends Component {
 			displayToast: { type: Boolean },
 			image: { type: String },
 			secondaryImage: { type: String }, 
-			subDetail: { type: String }
+			subDetail: { type: String },
+			secondaryToast: { type: String }
 		};
 	}
 
@@ -115,7 +118,6 @@ export class SuccessScreen extends Component {
 				}
 
 				#id-successful-img {
-					margin-top: 174px;
 					width: auto;
 				}
 				#id-successful-header {
@@ -186,6 +188,12 @@ export class SuccessScreen extends Component {
 					top : var(--toast-top, 56px);
 					margin-left: var(--toast-margin-left, 382px);
 				}
+				.secondary-toast {
+					width: 406px;
+					position: absolute;
+					top : var(--toast-top, 130px);
+					margin-left: var(--toast-margin-left, 382px);
+				}
 				
 				slot[name=detail]::slotted(*){
 					height: 24px;
@@ -220,6 +228,7 @@ export class SuccessScreen extends Component {
 		return html`
 			<capitec-card class="card">
 				${this._renderToast()}
+				${this._renderSecondaryToast()}
 
 				<capitec-group
 					layout="vertical"
@@ -237,13 +246,29 @@ export class SuccessScreen extends Component {
 		return html`
 			<capitec-toast 
 				?hidden="${!this.displayToast}" 
-				id="id-success-toast" type="success"
+				id="id-success-toast"
+				type="success"
 				header="Successful"
 				detail="${this.toast}" 
 				closable
 				@click="${() => this.displayToast = false}">
 			</capitec-toast>
 		`;
+	}
+
+	_renderSecondaryToast() {
+		return this.secondaryToast
+			? html`
+				<capitec-toast 
+					?hidden="${!this.displayToast}"
+					class="secondary-toast"
+					type="success" 
+					header="Succesful" 
+					detail="${this.secondaryToast}"
+					closable 
+					@click="${() => this.displayToast = false}">
+				</capitec-toast>`
+		: html``;
 	}
 
 	_renderContent() {

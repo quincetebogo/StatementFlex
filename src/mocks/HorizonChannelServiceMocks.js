@@ -46,11 +46,12 @@ export class HorizonChannelServiceMocks {
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
-		this.stopCardMocks = await this._loadMockModule(this.stopCardMocks, `stopCard`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
+		this.stopCardLandingMocks = await this._loadMockModule(this.stopCardLandingMocks, `stopCardLanding`, () => import(`../mocks/StopCardMockData`).catch(err => logError(err)));
 		this.hasInsuranceProductsMock = await this._loadMockModule(this.hasInsuranceProductsMock, `hasInsuranceProducts`, () => import(`../mocks/HasInsuranceProductsMock`).catch(err => logError(err)));
 		this.transactionHistoryMocks = await this._loadMockModule(this.transactionHistoryMocks, `transactionHistory`, () => import(`../mocks/TransactionHistoryMockData`).catch(err => logError(err)));   
 		this.savingsAccountDetails = await this._loadMockModule(this.savingsAccountDetails, `savingsAccountLanding`, () => import(`../mocks/SavingsAccountMocks`).catch(err => logError(err)));
 		this.viewStatementsMock = await this._loadMockModule(this.viewStatementsMock, `viewStatements`, () => import(`../mocks/ViewStatementMock`).catch(err => logError(err)));
+		this.tapToPayMocks = await this._loadMockModule(this.tapToPayMocks, `tapToPayLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 	}
 
 	// ===============================
@@ -98,7 +99,7 @@ export class HorizonChannelServiceMocks {
 
 	cardLimitsLanding() {
 		if (this._mocking.cardLimitsLanding.positiveCase) {
-			return this.cardLimitsMocks.mockCards;
+			return this.cardLimitsMocks;
 		}
 
 		// Code for a negative case could come here
@@ -124,7 +125,8 @@ export class HorizonChannelServiceMocks {
 
 		return null;
 	}
-	savingsAccountLanding(cifNumber, mandateId, registerId){
+
+	savingsAccountLanding(cifNumber, mandateId, registerId) {
 		if (this._mocking.savingsAccountLanding.positiveCase) {
 			return this.savingsAccountDetails.savingsAccountDetails;
 		}
@@ -135,8 +137,8 @@ export class HorizonChannelServiceMocks {
 
 	transactionHistory(transactionHistoryRequest) {
 		if (this._mocking.transactionHistory.positiveCase) {
-			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex+transactionHistoryRequest.maxResults);
-			return{transactions}
+			const transactions = this.transactionHistoryMocks.transactionHistoryMockData.transactionHistoryList.slice(transactionHistoryRequest.startAtIndex, transactionHistoryRequest.startAtIndex + transactionHistoryRequest.maxResults);
+			return transactions;
 		}
 
 		// Code for a negative case could come here
@@ -145,22 +147,37 @@ export class HorizonChannelServiceMocks {
 
 	getCardLimits() {
 		if (this._mocking.cardLimits.positiveCase) {
-			return this.cardLimitsMocks.mockCardLimits.cardLimits;
+			return this.cardLimitsMocks.mockCardLimits;
 		}
 
 		// Code for a negative case could come here
 		return null;
 	}
 
-	stopCard() {
-		if (this._mocking.stopCard.positiveCase) {
-			const mockResponse = this.stopCardMocks.stopCardMockResponse;
+	stopCardLanding() {
+		if (this._mocking.stopCardLanding.positiveCase) {
+			const mockResponse = this.stopCardLandingMocks.stopCardMockResponse;
 
 			return mockResponse;
 		}
 
 		// Code for a negative case could come here
 		return null;
+	}
+
+	stopCard(stopCardRequest) {
+		const cardStopResponse = {
+			cardResponses: stopCardRequest.cards.map((card) => (
+				{
+					maskedCardNumber: card.maskedCardNumber,
+					result: {
+						statusCode: this._mocking.stopCard.positiveCase ? 200 : 400
+					}
+				}
+			))
+		};
+
+		return cardStopResponse;
 	}
 
 	hasInsuranceProducts() {
@@ -174,11 +191,12 @@ export class HorizonChannelServiceMocks {
 
 	// Tap to pay function
 
-	tapToPay() {
+	tapToPay(cifNumber) {
 
 		if (this._mocking.tapToPayLanding.positiveCase) {
-			return this.cardLimitsMocks.mockCards;
+			return this.tapToPayMocks.mockCards;
 		}
+		return null;
 	}
 
 	viewStatements() {

@@ -197,9 +197,9 @@ export class AppShell extends Shell {
 	_stateChanged() {
 		const callerInfo = HorizonStore.getInstance().getCallerInformation();
 		
-		if (callerInfo && callerInfo.verificationStatus == `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
+		if (callerInfo && callerInfo.verificationStatus === `verified` && this.currentView == HORIZON_VIEW_SET.UNVERIFIED_PAGES) {
 			this.horizonViewManager.transitionToView(HORIZON_VIEW_SET.VERIFIED_PAGES);
-			this.currentView=this.horizonViewManager.getCurrentView();
+			this.currentView = this.horizonViewManager.getCurrentView();
 		}
 	};
 
@@ -226,6 +226,7 @@ export class AppShell extends Shell {
 					--horizon-left-panel-width: 440px;
 					--horizon-right-panel-width: 320px;
 					--horizon-panel-height: 888px;
+					--horizon-toast-top: 68px;
 				}
 
 				.screen-size {

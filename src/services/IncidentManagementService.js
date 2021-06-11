@@ -1,6 +1,10 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
 import { SecurityContext } from 'platform/SecurityContext';
 
+const STRACK_URGENCY = `Medium`;
+const STRACK_IMPACT = `Medium`;
+const STARCK_SOURCE = `RealConnect`;
+
 /**
  * The IncidentManagementService is used to create an incident for recording information
  * about the handling of a call.
@@ -52,9 +56,9 @@ export class IncidentManagementService extends ServiceBase {
 			"issue": ``,
 			"vdn": incidentData.VDN,
 			"networkUserName": SecurityContext.getInstance().username,
-			"source": ``,
-			"impact": ``,
-			"urgency": ``,
+			"source": `${STARCK_SOURCE}`,
+			"impact": `${STRACK_IMPACT}`,
+			"urgency": `${STRACK_URGENCY}`,
 			"branchID": ``,
 			"summary": ``,
 			"description": ``,
@@ -144,18 +148,6 @@ export class IncidentManagementService extends ServiceBase {
 		}
 
 	/**
-	 * Loads the list of end call reasons to display on the end call dialog
-	 * 
-	 * @param {Object} request Request to pull options to close incident
-	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
-	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
-	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
-	 */
-	closeIncidentOptions(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.closeIncidentOptions(request), `closeIncidentOptions`, errorHandler, autoRetries);
-	}
-
-	/**
 	 * Closing current incident.
 	 *
 	 * @param {object} closeIncidentRequest The incoming all information to record against the incident
@@ -179,5 +171,18 @@ export class IncidentManagementService extends ServiceBase {
 	 */
 	classifyIncident(classifyIncidentRequest, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.classifyIncident(classifyIncidentRequest), `classifyIncident`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Retrieving incident status.
+	 *
+	 * @param {object} incidentRecId IncidentRecID to get status
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 * @memberof IncidentManagementService
+	 */
+	 incidentStatus(incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.incidentStatus(incidentRecId), `incidentStatus`, errorHandler, autoRetries);
 	}
 }

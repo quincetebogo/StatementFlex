@@ -1,14 +1,14 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, html } from 'platform/elements';
-
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryStore } from 'app/store/TelemetryStore';
+import { ViewBase } from 'app/views/common/ViewBase';
+import { html } from 'platform/elements';
 
 import 'platform/components/buttons/Button';
 import 'app/components/stopCard/StopCard';
 import 'app/components/common/AccessMenuBar';
 import 'app/components/common/ProfileAndProductSummaryBar';
-
 
 /**
  * The Stop Card Landing Page. This view is currently based on the v1 Stop Card designs and will be completely redone
@@ -16,9 +16,9 @@ import 'app/components/common/ProfileAndProductSummaryBar';
  *
  * @export
  * @class StopCardLandingPage
- * @extends {View}
+ * @extends {ViewBase}
  */
-export class StopCardLandingPage extends View {
+export class StopCardLandingPage extends ViewBase {
 
 	// --------------
 	// INITIALISATION
@@ -29,26 +29,15 @@ export class StopCardLandingPage extends View {
 
 		this.isBusy = false;
 
-		this.horizonStore = HorizonStore.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
+		this.screenDetails = this.horizonStore.getScreenDetails();
+		this.cards = this.screenDetails && this.screenDetails.cards;
 
-		const state = this.horizonStore.recoverState();
-
-		this.clientProfileDetails = state.clientProfileDetails;
-
-		this.callerInformation = this.horizonStore.getCallerInformation(); 
-		this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
 	// PROPERTIES
 	// --------------
-
-	static get properties() {
-		return {
-			isBusy: { attribute: false }
-		};
-	}
 
 	// ------------------
 	// LIFCYCLE OVERRIDES
@@ -57,6 +46,14 @@ export class StopCardLandingPage extends View {
 	connectedCallback() {
 		super.connectedCallback();
 		super._inicidentManager_(`stop-card`, () => this._toggleBusyFlag());
+
+		this._telemetry.startSpan(QuickTransactionEvents.FULFILL_NEED, { 
+			"screen": TelemetryScreen.STOP_CARD
+		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -64,16 +61,21 @@ export class StopCardLandingPage extends View {
 	// --------------
 
 	_stoppedCards(event) {
-		HorizonTelemetry.instance.stopCardOutcome({ 
-			screen: TelemetryScreen.STOP_CARD_OUTCOME, 
-			cards: event.detail.stoppedCards
-		});
-		
 		const stoppedCardsFailed = event.detail.stoppedCards.some(cards => !cards.cardStopped);
 
 		// The stop card incident can be closed if all cards were stopped successfully.
 		// Otherwise we go to the failure screen where a retry can be attempted or an assignment done
-		this.horizonStore.saveState({ stoppedCards: event.detail.stoppedCards, cardStopAttemptMade: true, stoppedCardsFailed: stoppedCardsFailed });
+		const screenDetails = this.horizonStore.getScreenDetails();
+		
+		screenDetails.stoppedCards = event.detail.stoppedCards;
+		screenDetails.cardStopAttemptMade = true;
+		screenDetails.stoppedCardsFailed = stoppedCardsFailed;
+
+		this.horizonStore.setScreenDetails(screenDetails);
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
+			"nex-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
+		});
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();
@@ -100,8 +102,16 @@ export class StopCardLandingPage extends View {
 
 	_webTemplate() {
 		return html`
+			${this._renderStopCardComponent()}
+
+			${super._webTemplate()}
+		`;
+	}
+
+	_renderStopCardComponent() {
+		return html`
 			<horizon-stop-card
-				.clientProfileDetails="${this.clientProfileDetails}"
+				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">
 			</horizon-stop-card>

@@ -15,12 +15,15 @@ export class ErrorScreen extends Component {
 
 	constructor() {
 		super();
+
 		this.header = ``;
 		this.left = ``;
 		this.right = ``;
 		this.toast = ``;
 		this.displayToast = true;
 		this.image = null;
+		this.subDetail = ``;
+		this.secondaryToast = ``;
 	}
 
 	// -------------------
@@ -42,6 +45,8 @@ export class ErrorScreen extends Component {
 	* @property {String} right The text for the right hand button
 	* @property {String} [toast] The text for the tost message
 	* @property {String} [displayToast=true] Enables/Disables the toast message
+	* @property {String} [subDetail] Sub detail
+	* @property {String} [secondaryToast] Secondary toast details
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -53,7 +58,9 @@ export class ErrorScreen extends Component {
 			right: { type: String },
 			toast: { type: String },
 			displayToast: { type: Boolean },
-			image: { type: String }
+			image: { type: String },
+			subDetail: { type: String },
+			secondaryToast: { type: String }
 		};
 	}
 
@@ -71,11 +78,8 @@ export class ErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: var(--horizon-error-screen-height, 876px);
+					height: var(--horizon-error-screen-height, 768px);
 					width: var(--horizon-center-panel-width, 1064px);
-				}
-				#id-unsuccessful-img {
-					margin-top: 174px;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
@@ -88,12 +92,10 @@ export class ErrorScreen extends Component {
 					height: var(--horizon-error-screen-size, 768px);
 				}
 				#id-unsuccessful-img {
-					margin-top: 270px;
           			width: auto;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
-					width: 312px;
 					margin: 0px auto 0px auto;
 					margin-top: 51px;
 					color: #3E4547;
@@ -106,6 +108,11 @@ export class ErrorScreen extends Component {
 				}
 				#id-msg-group{
 					justify-content: center;
+					margin-top: 16px;
+				}
+				#id-sub-detail {
+					justify-content: center;
+					margin-top: 13px;
 				}
 				#id-visit-branch-msg{
 					height: 24px;
@@ -119,7 +126,7 @@ export class ErrorScreen extends Component {
 				}
 				#id-button-group {
 					justify-content: center;
-					margin-top: 64px;
+					margin-top: 35px;
 				}
 				.button{
 					height: 48px;
@@ -128,7 +135,6 @@ export class ErrorScreen extends Component {
 					--theme-button-font-family: "Hind Vadodara";
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
-					margin-bottom: 168px;
 				}
 				#button-left {
 					margin-right: 16px;
@@ -143,16 +149,31 @@ export class ErrorScreen extends Component {
 					--theme-button-padding-right: 22px;
 				}
 				#id-error-toast {
-						position: absolute;
-						top : var(--toast-top, 56px);
-						margin-left: var(--toast-margin-left, 382px);
+					position: absolute;
+					top : var(--toast-top, 56px);
+					margin-left: var(--toast-margin-left, 382px);
+				}
+
+				.secondary-toast {
+					position: absolute;
+					top : var(--toast-top, 130px);
+					margin-left: var(--toast-margin-left, 382px);
 				}
 				
 				slot[name=detail]::slotted(*){
 					height: 26px;
 					color: #545D60;
 					font-family: "Hind Vadodara";
-					font-weight: 600;
+					font-size: 16px;
+					letter-spacing: 0;
+					line-height: 24px;
+					text-align: center;
+				}
+				slot[name=sub-detail] {
+					height: 24px;
+					width: 543px;
+					color: #3E4547;
+					font-family: "Hind Vadodara";
 					font-size: 16px;
 					letter-spacing: 0;
 					line-height: 24px;
@@ -182,14 +203,17 @@ export class ErrorScreen extends Component {
 		return html`
 			<capitec-card class="card">
 				<capitec-toast 
-					?hidden="${!this.displayToast}" 
-					id="id-error-toast" 
+					?hidden="${!this.displayToast}"
+					id="id-error-toast"
 					type="error" 
 					header="Unsuccesful" 
 					detail="${this.toast}" 
 					closable 
 					@click="${() => this.displayToast = false}">
 				</capitec-toast>
+
+				${this._renderSecondaryToast()}
+
 				<capitec-group
 					layout="vertical"
 					gap="none"
@@ -201,6 +225,9 @@ export class ErrorScreen extends Component {
 						<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
 						<slot name="detail"></slot>
 					</capitec-group>
+
+					${this._renderSubTitle()}
+
 					<capitec-group id="id-button-group" layout="horizontal">
 						${this.left
 							? html`<capitec-button class="button" label="${this.left}" @click="${() => this._leftClick()}"></capitec-button>`
@@ -214,6 +241,31 @@ export class ErrorScreen extends Component {
 				</capitec-group>
 			</capitec-card>
 		`;
+	}
+
+	_renderSecondaryToast() {
+		return this.secondaryToast
+			? html`
+				<capitec-toast 
+					?hidden="${!this.displayToast}"
+					class="secondary-toast"
+					type="error" 
+					header="Unsuccesful" 
+					detail="${this.secondaryToast}"
+					closable 
+					@click="${() => this.displayToast = false}">
+				</capitec-toast>`
+		: html``;
+	}
+
+	_renderSubTitle() {
+		return this.subDetail
+			? html`
+				<capitec-group id = "id-sub-detail" layout="horizontal">
+					<capitec-icon size="default" icon="status/error-trans"></capitec-icon>
+					<slot name="sub-detail"></slot>
+				</capitec-group>`
+			: html``;
 	}
 }
 

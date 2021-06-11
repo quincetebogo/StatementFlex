@@ -1,5 +1,5 @@
 import { Configuration, EventAggregator, Logger } from 'platform/core';
-import { HorizonChannelService } from './HorizonChannelService';
+import { HorizonChannelService } from 'app/services/HorizonChannelService';
 import { HttpStatusError } from 'platform/errors/HttpStatusError';
 
 export const DEFAULT_AUTO_RETRIES = 3;
@@ -98,6 +98,7 @@ export class ServiceBase {
 						case 401: // Unauthorized
 						case 403: // Forbidden 
 						case 404: // Not Found
+						case 424: // Dependency error
 						case 501: // Not implemented
 							tryCount = maxAttempts; // Fail immediately, no retries
 							break;

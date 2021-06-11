@@ -1,10 +1,10 @@
-import { EventAggregator, NavigationContext } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
+import { NavigationContext } from 'platform/core';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
@@ -35,9 +35,6 @@ export class SavingsAccountBase extends ViewBase {
 	constructor() {
 		super();
 
-		this.horizonRouter = HorizonRouter.getInstance();
-
-		this.eventAggregator = EventAggregator.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
@@ -70,16 +67,9 @@ export class SavingsAccountBase extends ViewBase {
 	// --------------
 	
 	async _debiCheck() {
-		// Telemetry for Alert Checks
-		HorizonTelemetry.instance.debiCheckAlert({
-			screen: TelemetryScreen.FAVOURITES
-		});
-
-		// Telemetry
-		HorizonTelemetry.instance.selectDebiCheck({
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_DEBI_CHECK, {
 			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: null /** TelemetryScreen.DEBI_CHECK */,
-			selectedOption: this.selectedOption
+			nextScreen: TelemetryScreen.DEBICHECK
 		});
 
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
@@ -94,9 +84,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _getStatements() {
-
-		// Telemetry Statements
-		HorizonTelemetry.instance.selectStatements({
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_STATEMENTS, {
 			screen: TelemetryScreen.FAVOURITES,
 			nextScreen: TelemetryScreen.STATEMENTS
 		});
@@ -117,17 +105,23 @@ export class SavingsAccountBase extends ViewBase {
 
 			// Telemetry for accepting DebiCheck
 			HorizonTelemetry.instance.debiCheckAlertAccept({
-				screen: TelemetryScreen.FAVOURITES
+				screen: TelemetryScreen.FAVOURITES,
+				nextScreen: TelemetryScreen.DEBICHECK
 			});
 
-			const state = {
-				returnTo: {
-					route: this.navigationContext.current.route.path,
-					mode: ``
-				}
-			};
-			this.horizonStore.saveState(state);
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.mandateId = event.detail.mandateId;
+			this.horizonStore.setScreenDetails(screenDetails);
+
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+
 			this.horizonRouter.navigateToDebiCheckSuccess();
+
+			// Telemetry
+			HorizonTelemetry.instance.debiCheckOutcome({
+				screen: TelemetryScreen.DEBICHECK,
+				nextScreen: TelemetryScreen.DEBICHECK_OUTCOME
+			});
 		} else if (event.detail.action === `viewInfo`) {
 			const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateId, event.detail.registerId);
 			
@@ -159,6 +153,7 @@ export class SavingsAccountBase extends ViewBase {
 
 	_errorHandler(exception) {
 		this.horizonRouter.navigateToSystemError();
+		return true;
 	}
 
 
@@ -192,26 +187,14 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
-	_updateReturnToScreen() {
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = {
-			name: this.navigationContext.current.route.title,
-			option: state.returnToScreen ? state.returnToScreen.option : null
-		};
-		this.horizonStore.saveState({ returnToScreen: returnToScreen });
-	}
-
 	_performReturnToScreen() {
-		const state = this.horizonStore.recoverState();
-		const returnToScreen = state.returnToScreen;
+		const returnToScreen = this.horizonStore.getReturnToScreen();
 		
-		if (returnToScreen && returnToScreen.option) {
-			
-			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.option });
-
-			returnToScreen.option = null;
-			this.horizonStore.saveState({ returnToScreen: returnToScreen });
+		if (returnToScreen && returnToScreen.optionalData) {
+			this.eventAggregator.publish(`horizon-return-to-screen`, { option: returnToScreen.optionalData });
 		}
+
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------
@@ -243,7 +226,7 @@ export class SavingsAccountBase extends ViewBase {
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
-					.debiCheckMandates="${this.debiCheckMandates}"
+					.debiCheckMandates = "${this.debiCheckMandates}"
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._setIncidentDone()}">
 				</debi-check-mandates>`
