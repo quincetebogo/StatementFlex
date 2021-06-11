@@ -198,12 +198,12 @@ export class CardLimitsLanding extends Component {
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
 				},
-				permanentCashAmountLimit:  card.cardLimits.permanentCashAmountLimit ,
+				permanentCashAmountLimit: card.cardLimits.permanentCashAmountLimit,
 				permanentPurchaseAmountLimit: card.cardLimits.permanentPurchaseAmountLimit,
-				permanentCnpAmountLimit:  card.cardLimits.permanentCnpAmountLimit,
-				tempCashAmountLimit:  card.cardLimits.tempCashAmountLimit,
-				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit ,
-				tempCnpAmountLimit:  card.cardLimits.tempCnpAmountLimit
+				permanentCnpAmountLimit: card.cardLimits.permanentCnpAmountLimit,
+				tempCashAmountLimit: card.cardLimits.tempCashAmountLimit,
+				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit,
+				tempCnpAmountLimit: card.cardLimits.tempCnpAmountLimit
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
@@ -239,14 +239,14 @@ export class CardLimitsLanding extends Component {
 			};
         }
 
-        let limits = cardDetails.linkedCardLimits && this._updateType == "Debit" ? {
-            cashAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentCashAmountLimit : cardDetails.linkedCardLimits.tempCashAmountLimit,
-            purchaseAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentPurchaseAmountLimit : cardDetails.linkedCardLimits.tempPurchaseAmountLimit,
-            cnpAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentCnpAmountLimit : cardDetails.linkedCardLimits.tempCnpAmountLimit,
+        const limits = cardDetails.linkedCardLimits && this._updateType === `Debit` ? {
+            cashAmountLimit: this._limitType === `Permanent` ? cardDetails.linkedCardLimits.permanentCashAmountLimit : cardDetails.linkedCardLimits.tempCashAmountLimit,
+            purchaseAmountLimit: this._limitType === `Permanent` ? cardDetails.linkedCardLimits.permanentPurchaseAmountLimit : cardDetails.linkedCardLimits.tempPurchaseAmountLimit,
+            cnpAmountLimit: this._limitType === `Permanent` ? cardDetails.linkedCardLimits.permanentCnpAmountLimit : cardDetails.linkedCardLimits.tempCnpAmountLimit
         } : {
-                cashAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentCashAmountLimit : cardDetails.cardLimits.tempCashAmountLimit,
-                purchaseAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentPurchaseAmountLimit : cardDetails.cardLimits.tempPurchaseAmountLimit,
-                cnpAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentCnpAmountLimit : cardDetails.cardLimits.tempCnpAmountLimit,
+                cashAmountLimit: this._limitType === `Permanent` ? cardDetails.cardLimits.permanentCashAmountLimit : cardDetails.cardLimits.tempCashAmountLimit,
+                purchaseAmountLimit: this._limitType === `Permanent` ? cardDetails.cardLimits.permanentPurchaseAmountLimit : cardDetails.cardLimits.tempPurchaseAmountLimit,
+                cnpAmountLimit: this._limitType === `Permanent` ? cardDetails.cardLimits.permanentCnpAmountLimit : cardDetails.cardLimits.tempCnpAmountLimit
             };
 
 		const request = {
@@ -254,7 +254,7 @@ export class CardLimitsLanding extends Component {
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-                    cardId: (cardDetails.linkedCardLimits && this._updateType == "Debit" ) ? cardDetails.linkedCardId : cardDetails.cardId,
+                    cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit` ) ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber, // get it from favourites
 					cardExpiryYear: cardDetails.cardExpiryYear,
