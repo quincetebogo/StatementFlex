@@ -194,7 +194,7 @@ export class CardLimitsLanding extends Component {
 	}
 
 	async _updateLimitsAgreement(event) {
-		const cardDetails = event.detail.card;
+        const cardDetails = event.detail.card;        
 		let _tapToPayDetails = {};
 		let _updateResult = {};
 
@@ -214,27 +214,37 @@ export class CardLimitsLanding extends Component {
 				agreementContent: event.detail.agreements.tapToPayAgreement.agreementContent,
 				scriptContent: event.detail.agreements.tapToPayAgreement.scriptContent
 			};
-		}
+        }
+
+        let limits = cardDetails.linkedCardLimits && this._updateType == "Debit" ? {
+            cashAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentCashAmountLimit : cardDetails.linkedCardLimits.tempCashAmountLimit,
+            purchaseAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentPurchaseAmountLimit : cardDetails.linkedCardLimits.tempPurchaseAmountLimit,
+            cnpAmountLimit: this._limitType === 'Permanent' ? cardDetails.linkedCardLimits.permanentCnpAmountLimit : cardDetails.linkedCardLimits.tempCnpAmountLimit,
+        } : {
+                cashAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentCashAmountLimit : cardDetails.cardLimits.tempCashAmountLimit,
+                purchaseAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentPurchaseAmountLimit : cardDetails.cardLimits.tempPurchaseAmountLimit,
+                cnpAmountLimit: this._limitType === 'Permanent' ? cardDetails.cardLimits.permanentCnpAmountLimit : cardDetails.cardLimits.tempCnpAmountLimit,
+            };
 
 		const request = {
 			voiceRecordingReference: this.voiceRecordingReference,
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-					cardId: cardDetails.cardId,
+                    cardId: (cardDetails.linkedCardLimits && this._updateType == "Debit" ) ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber, // get it from favourites
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardSequenceNumber: cardDetails.cardSequenceNumber
-				},
-				permanentCashAmountLimit: cardDetails.cardLimits.permanentCashAmountLimit,
-				permanentPurchaseAmountLimit: cardDetails.cardLimits.permanentPurchaseAmountLimit,
-				permanentCnpAmountLimit: cardDetails.cardLimits.permanentCnpAmountLimit,
+                },
+                permanentCashAmountLimit: limits.cashAmountLimit,
+                permanentPurchaseAmountLimit: limits.purchaseAmountLimit,
+                permanentCnpAmountLimit: limits.cnpAmountLimit,
 				
-				tempCashAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? cardDetails.cardLimits.tempCashAmountLimit : undefined,
-				tempPurchaseAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? cardDetails.cardLimits.tempPurchaseAmountLimit : undefined,
-				tempCnpAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? cardDetails.cardLimits.tempCnpAmountLimit : undefined,
+                tempCashAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? limits.cashAmountLimit : undefined,
+				tempPurchaseAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? limits.purchaseAmountLimit: undefined,
+				tempCnpAmountLimit: this._limitType === LIMIT_TYPES.TEMPORARY ? limits.cnpAmountLimit : undefined,
 				limitExpiryDate: this._limitType === LIMIT_TYPES.TEMPORARY ? this._calculateLimitExpiry() : undefined,
 				
 				agreementAccepted: event.detail.agreementAccepted,
