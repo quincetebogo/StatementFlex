@@ -147,7 +147,7 @@ export class UpdateCardLimits extends Component {
     _limitChanged(e, transactionType, maxLimit) {
 
         if (e.detail.new) {
-            if (this.updateType == `Debit` && this.cardDetails.linkedCardLimits) {
+            if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
                 this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
                 this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
@@ -279,9 +279,9 @@ export class UpdateCardLimits extends Component {
         // TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
         this.limitLabel = `${this.updateType} Limits`;
 
-		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === "Primary card limits");
-		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === "Supplementary card limits");
-		this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === "Total limits");
+		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
+		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
+		this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Total limits`);
     }
 
     _getErrorsCount() {
@@ -766,9 +766,9 @@ export class UpdateCardLimits extends Component {
                 maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
             };
 
-        const cashAmountLimit = this.limitType === 'Permanent' ? 'permanentCashAmountLimit' : 'tempCashAmountLimit';
-        const purchaseAmountLimit = this.limitType === 'Permanent' ? 'permanentPurchaseAmountLimit' : 'tempPurchaseAmountLimit';
-        const cnpAmountLimit = this.limitType === 'Permanent' ? 'permanentCnpAmountLimit' : 'tempCnpAmountLimit';
+        const cashAmountLimit = this.limitType === `Permanent` ? `permanentCashAmountLimit` : `tempCashAmountLimit`;
+        const purchaseAmountLimit = this.limitType === `Permanent` ? `permanentPurchaseAmountLimit` : `tempPurchaseAmountLimit`;
+        const cnpAmountLimit = this.limitType === `Permanent` ? `permanentCnpAmountLimit` : `tempCnpAmountLimit`;
 
         return html`
 			<capitec-text-field
@@ -859,7 +859,7 @@ export class UpdateCardLimits extends Component {
 						expandbuttonalignment="left"
 						label="View Agreement">
 							<capitec-content-box
-								class="expander-cb" halign="left" valign="top" gap="none" noPadding>
+								class="expander-cb" halign="left" valign="top" gap="none">
 									<capitec-label
 										class="agreement-header"
 										label="Card Limits Agreement"

@@ -342,13 +342,16 @@ export class CardLimitsLanding extends Component {
 			}
 		};
 		
-		await this._getTemporaryLimits(limitsReq);
-		await this._getPermanentLimits(limitsReq);
+		if (this._limitType === LIMIT_TYPES.PERMANENT) {
+			await this._getPermanentLimits(limitsReq);
+		} else {
+			await this._getTemporaryLimits(limitsReq);
+		}
 		
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
 	}
 
-	async _getPermanentLimits (request) {
+	async _getPermanentLimits(request) {
 		const requestValue = await this.getPermanentLimits(request);
 
 		if (requestValue) {
@@ -356,7 +359,7 @@ export class CardLimitsLanding extends Component {
 		} 
 	}
 
-	async _getTemporaryLimits (request) {
+	async _getTemporaryLimits(request) {
 		const requestValue = await this.getTemporaryLimits(request);
 
 		if (requestValue) {

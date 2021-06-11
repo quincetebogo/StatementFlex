@@ -73,8 +73,6 @@ export class Favourites extends SavingsAccountBase {
         this.landingPageInfo = null;
         this.curOptionEvent = null;
         this.cards = [];
-		this.permanentLimits;
-		this.temporaryLimits;
 		this.selectedFeedback = [];
 		this.feedbackOptions = [];
 
