@@ -150,10 +150,10 @@ export class UpdateCardLimits extends Component {
 
         if (e.detail.new) {
             if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new)*100;
+                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
-                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new)*100;
-                if (Number(e.detail.new) > Number(maxLimit)) {
+                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
+                if (Number(e.detail.new) > Number(maxLimit) / 100) {
                     this.error[transactionType][e.currentTarget.id] = maxLimit;
                 } else {
                     this.error[transactionType][e.currentTarget.id] = ``;
@@ -188,9 +188,7 @@ export class UpdateCardLimits extends Component {
         this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
 
         if (this.getAgreement) {
-            const cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
-
-            this.cardLimitsAgreement = base64toHTML(cardLimitsAgreement);
+            this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
             this.tapToPayAgreement = this.getAgreement.tapToPayAgreement && this.getAgreement.tapToPayAgreement.agreementContent.agreementContentData;
             this.renderMode = RENDER_MODE.AGGREMENT;
 
@@ -873,7 +871,11 @@ export class UpdateCardLimits extends Component {
 						label="View Agreement">
 							<capitec-content-box
 								class="expander-cb" halign="left" valign="top" gap="none">
-									<div> ${this.cardLimitsAgreement}</div>
+									<object
+										class="agreement-viewer"
+										data="data:text/html;base64,${this.cardLimitsAgreement}"
+										type="text/html">
+									</object>
 									${this._renderAgreementContent(this.tapToPayAgreement)}
 							</capitec-content-box>
 					</capitec-expander>
@@ -901,11 +903,11 @@ export class UpdateCardLimits extends Component {
     _renderAgreementContent(agreement) {
         return agreement
             ? html`
-			<object
-				class="agreement-viewer"
-				data="data:text/html;base64,${agreement}"
-				type="text/html">
-			</object>`
+				<object
+					class="agreement-viewer"
+					data="data:text/html;base64,${agreement}"
+					type="text/html">
+				</object>`
             : html``;
     }
 
