@@ -656,7 +656,7 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderAgreementsAlertBanner() {
-        return this.alertBannerText && this.renderMode === RENDER_MODE.AGGREMENT
+        return this.alertBannerText
             ? html`
 				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
@@ -862,11 +862,6 @@ export class UpdateCardLimits extends Component {
 						label="View Agreement">
 							<capitec-content-box
 								class="expander-cb" halign="left" valign="top" gap="none">
-									<capitec-label
-										class="agreement-header"
-										label="Card Limits Agreement"
-										type="title">
-									</capitec-label>
 									<div> ${this.cardLimitsAgreement}</div>
 									${this._renderAgreementContent(this.tapToPayAgreement)}
 							</capitec-content-box>
@@ -895,11 +890,6 @@ export class UpdateCardLimits extends Component {
     _renderAgreementContent(agreement) {
         return agreement
             ? html`
-			<capitec-label
-				class="agreement-header"
-				label="Tap to Pay Agreement"
-				type="title">
-			</capitec-label>
 			<object
 				class="agreement-viewer"
 				data="data:text/html;base64,${agreement}"

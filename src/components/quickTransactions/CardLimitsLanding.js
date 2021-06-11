@@ -212,12 +212,13 @@ export class CardLimitsLanding extends Component {
 		
 		if (result) {
 			 return result;
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	async _updateLimitsAgreement(event) {
-        const cardDetails = event.detail.card;        
+        const cardDetails = event.detail.card;
 		let _tapToPayDetails = {};
 		let _updateResult = {};
 

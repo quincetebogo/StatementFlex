@@ -272,7 +272,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest);
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._cardLimitsErrorHandler());
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -594,6 +594,9 @@ export class Favourites extends SavingsAccountBase {
 		});
 	}
 
+	_cardLimitsErrorHandler() {
+		return true;
+	}
 	// ---------
     // RENDERING
     // ---------
