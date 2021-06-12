@@ -8,7 +8,7 @@ import 'app/components/common/CardArt';
 
 const RENDER_MODE = {
     LIMITS: 1,
-    AGGREMENT: 2
+    AGREEMENT: 2
 };
 
 const UPDATE_LIMIT_STEPS = [
@@ -186,11 +186,18 @@ export class UpdateCardLimits extends Component {
         this.alertBannerText = ``;
 
         this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
+		const tapToPayAgreement = this.getAgreement.tapToPayAgreement;
 
         if (this.getAgreement) {
             this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
-            this.tapToPayAgreement = this.getAgreement.tapToPayAgreement && this.getAgreement.tapToPayAgreement.agreementContent.agreementContentData;
-            this.renderMode = RENDER_MODE.AGGREMENT;
+
+			if (tapToPayAgreement) {
+				this.tapToPayAgreementData = tapToPayAgreement.agreementContent.agreementContentData;
+				// Set the script type as it is null at this stage and must be set
+				tapToPayAgreement.scriptContent.scriptContentType = `HTML`;
+			}
+			
+            this.renderMode = RENDER_MODE.AGREEMENT;
 
             const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
                 cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
@@ -224,7 +231,7 @@ export class UpdateCardLimits extends Component {
         if (accepedToAgreement) {
             const _tapToPayStatusChange = this._getTapToPayStatus();
             this.cardDetails.linkedCardLimits = this.linkedCardLimits;
-            this.dispatchEvent(new CustomEvent(`on-accepted`, {
+            this.dispatchEvent(new CustomEvent(`accepted`, {
                 detail: {
                     agreements: this.getAgreement,
                     agreementAccepted: accepedToAgreement,
@@ -322,11 +329,7 @@ export class UpdateCardLimits extends Component {
         return this._tapToPayStatus ? TAP_TO_PAY_STATUS.ACTIVATED : TAP_TO_PAY_STATUS.DEACTIVATED;
     }
 
-    _errorHandler() {
-        // TODO: Error handler comes here
-    }
-
-    _toggleBusyFlag() {
+	_toggleBusyFlag() {
         this.isBusy = !this.isBusy;
     }
 
@@ -861,7 +864,7 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderAgreement() {
-        if (this.renderMode === RENDER_MODE.AGGREMENT) {
+        if (this.renderMode === RENDER_MODE.AGREEMENT) {
             return html`
 				<capitec-expander-group modeset="single">
 
@@ -875,7 +878,7 @@ export class UpdateCardLimits extends Component {
 										data="data:text/html;base64,${this.cardLimitsAgreement}"
 										type="text/html">
 									</object>
-									${this._renderAgreementContent(this.tapToPayAgreement)}
+									${this._renderAgreementContent(this.tapToPayAgreementData)}
 							</capitec-content-box>
 					</capitec-expander>
 
@@ -960,7 +963,7 @@ export class UpdateCardLimits extends Component {
 					type="primary" 
 					label="Next"
 					@click="${() => this._next()}"
-					?hidden=${this.renderMode === RENDER_MODE.AGGREMENT}>
+					?hidden=${this.renderMode === RENDER_MODE.AGREEMENT}>
 				</capitec-button>
 
 				<capitec-button

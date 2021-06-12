@@ -90,7 +90,7 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
-	 *  @typedef {Object} updatePremanentLimits updated permanent limits & agreement or null if there was an error
+	 *  @typedef {Object} updatePermanentLimits updated permanent limits & agreement or null if there was an error
 	 */
 
 	/**
@@ -113,8 +113,8 @@ export class CardLimitsLanding extends Component {
 	 */
 
 	/**
-	 * @callback updatePemanentLimitsCallback
-	 * @returns {updatePremanentLimits}
+	 * @callback updatePermanentLimitsCallback
+	 * @returns {updaterermanentLimits}
 	 */
 
 	/**
@@ -130,7 +130,7 @@ export class CardLimitsLanding extends Component {
 	 * @property {getCardLimitsAgreementsCallback} getCardLimitsAgreement Callback function to load limits agreements for displaying
 	 * @property {getPermanentLimitsCallback} getPermanentLimits Callback function to get permanent limits
 	 * @property {getTemporaryLimitsCallback} getTemporaryLimits Callback function to get temporary limits
-	 * @property {updatePemanentLimitsCallback} updatePremanentLimits Callback function to update permanent limits & agreements
+	 * @property {updatePermanentLimitsCallback} updatePermanentLimits Callback function to update permanent limits & agreements
 	 * @property {updateTemporaryLimitsCallback} updateTemporaryLimits Callback function to update temporary limits & agreements
 	 *
 	 * @readonly
@@ -146,7 +146,7 @@ export class CardLimitsLanding extends Component {
 			getCardLimitsAgreement: { type: Object, attribute: false },
 			getPermanentLimits: { type: Object, attribute: false },
 			getTemporaryLimits: { type: Object, attribute: false },
-			updatePremanentLimits: { type: Object, attribute: false },
+			updatePermanentLimits: { type: Object, attribute: false },
 			updateTemporaryLimits: { type: Object, attribute: false },
 
 			getAgreement: { type: String },
@@ -212,9 +212,9 @@ export class CardLimitsLanding extends Component {
 		
 		if (result) {
 			 return result;
-		} else {
-			return null;
 		}
+
+		return null;
 	}
 
 	async _updateLimitsAgreement(event) {
@@ -225,7 +225,7 @@ export class CardLimitsLanding extends Component {
 		if (!event.detail.istapToPayUnChanged) {
 			_tapToPayDetails = {
 				cardDetails: {
-                    cardId: (cardDetails.linkedCardLimits && this._updateType == "Debit") ? cardDetails.linkedCardId : cardDetails.cardId,
+                    cardId: cardDetails.linkedCardLimits && this._updateType === `Debit` ? cardDetails.linkedCardId : cardDetails.cardId,
 					cardExpiryMonth: cardDetails.cardExpiryMonth,
 					cardExpiryYear: cardDetails.cardExpiryYear,
 					cardSequenceNumber: cardDetails.cardSequenceNumber
@@ -240,7 +240,7 @@ export class CardLimitsLanding extends Component {
 			};
         }
 
-        let limits = cardDetails.linkedCardLimits && this._updateType == "Debit" ? {
+        const limits = cardDetails.linkedCardLimits && this._updateType === `Debit` ? {
             permanentCashAmountLimit: cardDetails.linkedCardLimits.permanentCashAmountLimit,
             permanentPurchaseAmountLimit: cardDetails.linkedCardLimits.permanentPurchaseAmountLimit,
             permanentCnpAmountLimit: cardDetails.linkedCardLimits.permanentCnpAmountLimit,
@@ -272,7 +272,7 @@ export class CardLimitsLanding extends Component {
                 permanentPurchaseAmountLimit: limits.permanentPurchaseAmountLimit,
                 permanentCnpAmountLimit: limits.permanentCnpAmountLimit,
 				
-                tempCashAmountLimit:  limits.tempCashAmountLimit,
+                tempCashAmountLimit: limits.tempCashAmountLimit,
 				tempPurchaseAmountLimit: limits.tempPurchaseAmountLimit,
 				tempCnpAmountLimit: limits.tempCnpAmountLimit,
 				limitExpiryDate: this._calculateLimitExpiry(),
@@ -286,7 +286,7 @@ export class CardLimitsLanding extends Component {
 		};
 
 		if (this._limitType === LIMIT_TYPES.PERMANENT) {
-			_updateResult = await this.updatePremanentLimits(request);
+			_updateResult = await this.updatePermanentLimits(request);
 		} else {
 			_updateResult = await this.updateTemporaryLimits(request);
 		}
@@ -823,7 +823,7 @@ export class CardLimitsLanding extends Component {
 					.updateType="${this._updateType}"
 					.getCardLimitsAgreement="${(card, tapToPayStatus) => this._getLimitsAgreement(card, tapToPayStatus)}"
 					@cancel="${() => this._cancelUpdateLimits()}"
-					@on-accepted="${(event) => this._updateLimitsAgreement(event)}">
+					@accepted="${(event) => this._updateLimitsAgreement(event)}">
 				</horizon-update-card-limits>`
 			: html``;
 	}
