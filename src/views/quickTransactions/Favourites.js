@@ -254,7 +254,7 @@ export class Favourites extends SavingsAccountBase {
     }
 
 	async _getPermanentLimits(request) {
-		const returnValue = await this.quickTransactionService.getPermanentLimits(request);
+		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 	
@@ -271,7 +271,7 @@ export class Favourites extends SavingsAccountBase {
 		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
 		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
 
-		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest);
+		const returnValue = await this.quickTransactionService.updatePermanentLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -280,7 +280,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getTemporaryLimits(request) {
-		const returnValue = await this.quickTransactionService.getTemporaryLimits(request);
+		const returnValue = await this.quickTransactionService.getTemporaryLimits(request, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -297,7 +297,7 @@ export class Favourites extends SavingsAccountBase {
 		updateRequest.cardLimits.tempPurchaseAmountLimit *= 100;
 		updateRequest.cardLimits.tempCnpAmountLimit *= 100;
 
-		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest);
+		const returnValue = await this.quickTransactionService.updateTemporaryLimits(updateRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return true;
@@ -306,7 +306,7 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._cardLimitsErrorHandler());
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -643,9 +643,6 @@ export class Favourites extends SavingsAccountBase {
 		});
 	}
 
-	_cardLimitsErrorHandler() {
-		return true;
-	}
 	// ---------
     // RENDERING
     // ---------
@@ -735,7 +732,7 @@ export class Favourites extends SavingsAccountBase {
 					.voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 					.getCardLimitsAgreement ="${renderRequest => this._getCardLimitsAgreement(renderRequest)}"
 
-					.updatePremanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
+					.updatePermanentLimits ="${renderRequest => this._updatePermanentLimits(renderRequest)}"
 					.updateTemporaryLimits ="${renderRequest => this._updateTemporaryLimits(renderRequest)}"
 					@back="${() => this._backToLandingPage()}"
 					@result=${eventData => this._updateLimitsResult(eventData)}>
