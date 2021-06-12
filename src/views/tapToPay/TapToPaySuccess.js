@@ -127,7 +127,7 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activation pending` : `deactivated`}"
 				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
@@ -138,7 +138,7 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual ${this.cardType} card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
+							Your ${this.cardType} card <b>${this.cardMaskedNumber}</b> is ${this.tapToPayStatus === `ON` ? `pending tap to pay activation. To complete activation, insert card into card machine or ATM` : `deactivated`}.
 					</section>
 			</horizon-success-screen>
 		`;

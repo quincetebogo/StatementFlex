@@ -1,14 +1,14 @@
 import { Component, css, html } from 'platform/elements';
-import { base64toHTML, formatCurrency } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
 const RENDER_MODE = {
     LIMITS: 1,
-    AGGREMENT: 2
+    AGREEMENT: 2
 };
 
 const UPDATE_LIMIT_STEPS = [
@@ -72,6 +72,7 @@ export class UpdateCardLimits extends Component {
         this.alertBannerText = ``;
         this.cardLimits = {};
         this._tapToPayStatus = false;
+		this.cardToDisplay = ``;
 
         this._telemetry = HorizonTelemetry.instance;
     }
@@ -119,7 +120,8 @@ export class UpdateCardLimits extends Component {
 
         this.cardLimits = this.cardDetails.cardLimits;
         this.linkedCardLimits = this.cardDetails.linkedCardLimits;
-        this._tapToPayStatus = this.cardDetails.isContactlessActivated;
+		this.cardToDisplay = this._getCardName();
+		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
         this.cardArtDetails = {
             cardArt: this.cardDetails.cardArt,
             cardHoldName: this.cardDetails.cardHolderName,
@@ -184,13 +186,18 @@ export class UpdateCardLimits extends Component {
         this.alertBannerText = ``;
 
         this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
+		const tapToPayAgreement = this.getAgreement.tapToPayAgreement;
 
         if (this.getAgreement) {
-            const cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
+            this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
 
-            this.cardLimitsAgreement = base64toHTML(cardLimitsAgreement);
-            this.tapToPayAgreement = this.getAgreement.tapToPayAgreement && this.getAgreement.tapToPayAgreement.agreementContent.agreementContentData;
-            this.renderMode = RENDER_MODE.AGGREMENT;
+			if (tapToPayAgreement) {
+				this.tapToPayAgreementData = tapToPayAgreement.agreementContent.agreementContentData;
+				// Set the script type as it is null at this stage and must be set
+				tapToPayAgreement.scriptContent.scriptContentType = `HTML`;
+			}
+			
+            this.renderMode = RENDER_MODE.AGREEMENT;
 
             const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
                 cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
@@ -224,7 +231,7 @@ export class UpdateCardLimits extends Component {
         if (accepedToAgreement) {
             const _tapToPayStatusChange = this._getTapToPayStatus();
             this.cardDetails.linkedCardLimits = this.linkedCardLimits;
-            this.dispatchEvent(new CustomEvent(`on-accepted`, {
+            this.dispatchEvent(new CustomEvent(`accepted`, {
                 detail: {
                     agreements: this.getAgreement,
                     agreementAccepted: accepedToAgreement,
@@ -322,12 +329,15 @@ export class UpdateCardLimits extends Component {
         return this._tapToPayStatus ? TAP_TO_PAY_STATUS.ACTIVATED : TAP_TO_PAY_STATUS.DEACTIVATED;
     }
 
-    _errorHandler() {
-        // TODO: Error handler comes here
+	_toggleBusyFlag() {
+        this.isBusy = !this.isBusy;
     }
 
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
+	_getCardName() {
+        if (this.cardDetails.cardDisplayType === `Virtual_Card`) {
+            return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
+        }
+        return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
     }
 
     // ---------
@@ -354,7 +364,7 @@ export class UpdateCardLimits extends Component {
 				--theme-card-border-radius: 4px;
 			}
 			.dailyLimitsEx {
-				height: 99px;
+				height: auto;
 				--theme-titlebar-padding: 0px;
 				--theme-type-clear-background: rgba(0,157,224,0.1)
 			}
@@ -371,9 +381,10 @@ export class UpdateCardLimits extends Component {
 				height: 20px;
 			}
 			.limitSubtitle {
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-subtitle-font-size: 12px;
-				height: 12px;
+				color: #3A3A3A;
+				font-size: 12px;
+				padding-bottom: 10px;
+				margin-top: 7px;
 			}
 			.dailyLimits {
 				height: 34px; 
@@ -734,15 +745,15 @@ export class UpdateCardLimits extends Component {
 					<div class="dailyLimits">
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 						 <div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-							<capitec-label type="subtitle" label="Permanent ${formatCurrency(this.totalCardLimits.permanentLimit, 0)}/Temporary ${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}" class="limitSubtitle"></capitec-label>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}</b></p>
 						</div>
 					</div>
 				</capitec-title-bar>
@@ -853,7 +864,7 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderAgreement() {
-        if (this.renderMode === RENDER_MODE.AGGREMENT) {
+        if (this.renderMode === RENDER_MODE.AGREEMENT) {
             return html`
 				<capitec-expander-group modeset="single">
 
@@ -862,8 +873,12 @@ export class UpdateCardLimits extends Component {
 						label="View Agreement">
 							<capitec-content-box
 								class="expander-cb" halign="left" valign="top" gap="none">
-									<div> ${this.cardLimitsAgreement}</div>
-									${this._renderAgreementContent(this.tapToPayAgreement)}
+									<object
+										class="agreement-viewer"
+										data="data:text/html;base64,${this.cardLimitsAgreement}"
+										type="text/html">
+									</object>
+									${this._renderAgreementContent(this.tapToPayAgreementData)}
 							</capitec-content-box>
 					</capitec-expander>
 
@@ -890,11 +905,11 @@ export class UpdateCardLimits extends Component {
     _renderAgreementContent(agreement) {
         return agreement
             ? html`
-			<object
-				class="agreement-viewer"
-				data="data:text/html;base64,${agreement}"
-				type="text/html">
-			</object>`
+				<object
+					class="agreement-viewer"
+					data="data:text/html;base64,${agreement}"
+					type="text/html">
+				</object>`
             : html``;
     }
 
@@ -902,11 +917,11 @@ export class UpdateCardLimits extends Component {
         return html`
 			<capitec-content-box class="expander-cb">
 				<div class="agreement-lb">
-					You acknowledge and agree that you understand and accept the terms and conditions of updating your <strong>${this.updateType} Card</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
+					You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
 				</div>
 				<div class="agreement-lb">
 					<ol>
-						<li>This call recording forms the agreement between us and you as to the amendment of your original <strong>${this.updateType} Card</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+						<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
 						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being[Virtual Card: compromised][Plastic Card: lost, stolen or misused].</li>
 						<li>You agree that you shall have no claim or right of action arising fromany undertaking, representation or warranty not included, and agreed during this call.</li>
 						<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
@@ -948,7 +963,7 @@ export class UpdateCardLimits extends Component {
 					type="primary" 
 					label="Next"
 					@click="${() => this._next()}"
-					?hidden=${this.renderMode === RENDER_MODE.AGGREMENT}>
+					?hidden=${this.renderMode === RENDER_MODE.AGREEMENT}>
 				</capitec-button>
 
 				<capitec-button

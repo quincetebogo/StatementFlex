@@ -113,6 +113,7 @@ export class ServiceBase {
 
 				if (tryCount >= maxAttempts) {
 					returnValue.correlationId = exception.correlationId;
+					returnValue.exception = exception;
 					this._handleException(errorHandlerFunc, exception);
 				}
 			} finally {
