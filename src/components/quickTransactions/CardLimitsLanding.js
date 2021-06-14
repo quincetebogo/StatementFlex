@@ -261,7 +261,7 @@ export class CardLimitsLanding extends Component {
 			screenRecordingReference: ``,
 			cardLimits: {
 				cardDetails: {
-                    cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit` ) ? cardDetails.linkedCardId : cardDetails.cardId,
+                    cardId: (cardDetails.linkedCardLimits && this._updateType === `Debit`) ? cardDetails.linkedCardId : cardDetails.cardId,
 					accountId: cardDetails.primarySavingsAccountId || cardDetails.primaryCreditAccountId,
 					customerId: this.cifNumber, // get it from favourites
 					cardExpiryYear: cardDetails.cardExpiryYear,
@@ -327,10 +327,6 @@ export class CardLimitsLanding extends Component {
 				card.category = CARD_TYPE_MAPPING[card.cardType];
 			}
 		});
-	}
-
-	_errorHandler() {
-		// TODO: Error handler comes here
 	}
 
 	async _updateLimits(card, limitType, updateType) {
