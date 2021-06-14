@@ -358,7 +358,7 @@ export class CardLimitsLanding extends Component {
 		const requestValue = await this.getPermanentLimits(request);
 
 		if (requestValue) {
-			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures / 100;
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
 		} 
 	}
 
@@ -366,7 +366,7 @@ export class CardLimitsLanding extends Component {
 		const requestValue = await this.getTemporaryLimits(request);
 
 		if (requestValue) {
-			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures / 100;
+			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
 		} 
 	}
 
