@@ -257,9 +257,10 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
-	
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to retrieve permanent card limits`, `_getPermanentLimits`, returnValue.correlationId);
 		return null;
 	}
 
@@ -276,6 +277,8 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update permanent card limits`, `_updatePermanentLimits`, returnValue.correlationId);
 		return null;
 	}
 
@@ -285,6 +288,8 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
 
 		return null;
 	}
@@ -302,6 +307,9 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update temporary card limits`, `_updateTemporaryLimits`, returnValue.correlationId);
+
 		return null;
 	}
 
@@ -311,6 +319,9 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get card limits agreement`, `_getCardLimitsAgreement`, returnValue.correlationId);
+
 		return null;
 	}
 
