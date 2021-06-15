@@ -785,7 +785,7 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderCreditLimits() {
-        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `` : `padding-bottom:24px`;
+        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `padding-bottom:24px` : ``;
 
         return html`
 			<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
@@ -800,7 +800,7 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderDebitLimits() {
-        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `` : `padding-bottom:24px`;
+        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `padding-bottom:24px` : ``;
         return html`
 				<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
 					${this._renderCard()}
