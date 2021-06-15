@@ -231,6 +231,20 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `accessChannels`);
 	}
 
+	// --------------------
+	// Value Added Services
+	// --------------------
+
+	getValueAddedService(cifNumber) {
+		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		return this._get(url, this._setToken(), `valueAddedServices`);
+	}
+
+	putValueAddedService(cifNumber) {
+		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		return this._put(url, cifNumber, this._setToken(), `valueAddedServices`);
+	}
+
 	// -----------
 	// Call Methods
 	// -----------

@@ -21,11 +21,11 @@ export class ValueAddedServices extends Component {
 	constructor() {
 		super();
 
-		this.showInsightsAlert = false;
-		this.showBehavioralAlert = false;
-		this.showPreAssessmentAlert = false;
-		this.showAnalysisAlert = false;
-		this.showThirdPartyAlert = false;
+		this.showInsightsAlert = this.insightsStatus ? false : true;
+		this.showBehavioralAlert = this.behavioralStatus ? false : true;
+		this.showPreAssessmentAlert = this.preAssessmentStatus ? false : true;
+		this.showAnalysisAlert = this.analysisStatus ? false : true;
+		this.showThirdPartyAlert = this.thirdPartyStatus ? false: true;
 	}
 
 	// -----------
@@ -34,11 +34,21 @@ export class ValueAddedServices extends Component {
 
 	static get properties() {
 		return {
+			statusVAS: { type: Object },
+
 			showInsightsAlert: { attribute: false },
 			showBehavioralAlert: { attribute: false },
 			showPreAssessmentAlert: { attribute: false },
 			showAnalysisAlert: { attribute: false },
-			showThirdPartyAlert: { attribute: false }
+			showThirdPartyAlert: { attribute: false },
+
+			capitecEntityId: { type: String, attribute: false },
+			insightsStatus: { type: Boolean, attribute: false },
+			behavioralStatus: { type: Boolean, attribute: false },
+			preAssessmentStatus: { type: Boolean, attribute: false },
+			analysisStatus: { type: Boolean, attribute: false },
+			thirdPartyStatus: { type: Boolean, attribute: false }
+
 		}
 	}
 
@@ -48,6 +58,13 @@ export class ValueAddedServices extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this.capitecEntityId = this.statusVAS.capitecEntityId;
+		this.insightsStatus = this.statusVAS.optOutInsights;
+		this.behavioralStatus = this.statusVAS.optOutBehaviouralMarketing;
+		this.preAssessmentStatus = this.statusVAS.optOutPreAssesments;
+		this.analysisStatus = this.statusVAS.optOutAnalysis;
+		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
 	}
 
 	// --------------
@@ -59,7 +76,16 @@ export class ValueAddedServices extends Component {
 	}
 
 	_accept() {
-		this.dispatchEvent(new CustomEvent(`accept`, {}));
+		this.dispatchEvent(new CustomEvent(`accept`, {
+			detail: {
+				capitecEntityId: this.capitecEntityId,
+				insightsStatus: this.insightsStatus,
+				behavioralStatus: this.behavioralStatus,
+				preAssessmentStatus: this.preAssessmentStatus,
+				analysisStatus: this.analysisStatus,
+				thirdPartyStatus: this.thirdPartyStatus,
+			}
+		}));
 	}
 
 	_toggleValue(e) {
@@ -247,7 +273,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle
 							id="insights" 
 							@value-change=${(e) => this._toggleValue(e)}
-							checked>
+							?checked="${this.insightsStatus}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderInsightsAlert()}
@@ -273,7 +299,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="behavioural"
 							@value-change=${(e) => this._toggleValue(e)}
-							checked>
+							?checked="${this.behavioralStatus}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderBehavioralAlert()}
@@ -299,7 +325,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="preAssessment"
 							@value-change=${(e) => this._toggleValue(e)}
-							checked>
+							?checked="${this.preAssessmentStatus}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderPreAssessmentAlert()}
@@ -325,7 +351,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="analysis"
 							@value-change=${(e) => this._toggleValue(e)}
-							checked>
+							?checked="${this.analysisStatus}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderAnalysisAlert()}
@@ -353,7 +379,7 @@ export class ValueAddedServices extends Component {
 				<capitec-toggle
 						id="thirdParty"
 						@value-change=${(e) => this._toggleValue(e)}
-						checked>
+						?checked="${this.thirdPartyStatus}">
 				</capitec-toggle>
 			</capitec-group>
 			${this._renderThirdPartyAlert()}

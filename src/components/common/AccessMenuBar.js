@@ -1,5 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
+import { ValueAddedService } from 'app/services/ValueAddedService';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { EventAggregator } from 'platform/core';
 import 'platform/components';
@@ -23,6 +24,7 @@ export class AccessMenuBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 
 		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), (ex) => this._valueAddedServiceErrorHandler(ex));
 	}
 
 	// ----------
@@ -35,6 +37,7 @@ export class AccessMenuBar extends Component {
 
 			isBusy: { attribute: false },
 			status: { attribute: false },
+			statusVAS: { attribute: false },
 			showValueAddedServicesModal: { attribute: false }
 		};
 	}
@@ -63,6 +66,7 @@ export class AccessMenuBar extends Component {
 	// --------------
 
 	_showVASModal() {
+		this._valueAddedService();
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
@@ -70,9 +74,20 @@ export class AccessMenuBar extends Component {
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
-	_onAccept() {
+	async _onAccept(e) {
 		this.eventAggregator.publish(`horizon-accepted-vas`, {});
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+
+		const request = {
+			capitecEntityId: e.detail.capitecEntityId,
+			optOutInsights: e.detail.insightsStatus,
+			optOutBehaviouralMarketing: e.detail.behavioralStatus,
+			optOutPreAssesments: e.detail.preAssessmentStatus,
+			optOutAnalysis: e.detail.analysisStatus,
+			optOutThirdParties: e.detail.thirdPartyStatus,
+		}
+
+		await this.valueAddedService.putValueAddedServiceStatus(request);
 	}
 
 	// --------------
@@ -88,6 +103,10 @@ export class AccessMenuBar extends Component {
 		return true;
 	}
 
+	_valueAddedServiceErrorHandler(ex){
+		return true;
+	}
+
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -97,6 +116,14 @@ export class AccessMenuBar extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+		}
+	}
+
+	async _valueAddedService() {
+		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
+
+		if (returnValue.succeeded) {
+			this.statusVAS = returnValue.result;
 		}
 	}
 
@@ -249,8 +276,9 @@ export class AccessMenuBar extends Component {
 		return this.showValueAddedServicesModal
 		? html`
 			<horizon-value-added-services
+				.statusVAS="${this.statusVAS}"
 				@on-cancel="${() => this._onCancel()}"
-				@accept="${() => this._onAccept()}">
+				@accept="${(e) => this._onAccept(e)}">
 			</horizon-value-added-services>`
 		: html``;
 	}
