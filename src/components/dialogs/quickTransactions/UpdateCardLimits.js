@@ -118,8 +118,40 @@ export class UpdateCardLimits extends Component {
     connectedCallback() {
         super.connectedCallback();
 
-        this.cardLimits = this.cardDetails.cardLimits;
-        this.linkedCardLimits = this.cardDetails.linkedCardLimits;
+		this.cardLimits = {
+			maxPermanentCashAmountLimit: this.cardDetails.cardLimits.maxPermanentCashAmountLimit,
+			maxPermanentCnpAmountLimit: this.cardDetails.cardLimits.maxPermanentCnpAmountLimit,
+			maxPermanentPurchaseAmountLimit: this.cardDetails.cardLimits.maxPermanentPurchaseAmountLimit,
+			maxTemporaryCashAmountLimit: this.cardDetails.cardLimits.maxTemporaryCashAmountLimit,
+			maxTemporaryCnpAmountLimit: this.cardDetails.cardLimits.maxTemporaryCnpAmountLimit,
+			maxTemporaryPurchaseAmountLimit: this.cardDetails.cardLimits.maxTemporaryPurchaseAmountLimit,
+			permanentCashAmountLimit: this.cardDetails.cardLimits.permanentCashAmountLimit,
+			permanentCnpAmountLimit: this.cardDetails.cardLimits.permanentCnpAmountLimit,
+			permanentPurchaseAmountLimit: this.cardDetails.cardLimits.permanentPurchaseAmountLimit,
+			tempCashAmountLimit: this.cardDetails.cardLimits.tempCashAmountLimit,
+			tempCnpAmountLimit: this.cardDetails.cardLimits.tempCnpAmountLimit,
+			tempLimitExpiryDate: this.cardDetails.cardLimits.tempLimitExpiryDate,
+			tempPurchaseAmountLimit: this.cardDetails.cardLimits.tempPurchaseAmountLimit
+		};
+
+		this.linkedCardLimits = this.cardDetails.linkedCardLimits 
+			? {
+				maxPermanentCashAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCashAmountLimit,
+				maxPermanentCnpAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCnpAmountLimit,
+				maxPermanentPurchaseAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentPurchaseAmountLimit,
+				maxTemporaryCashAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryCashAmountLimit,
+				maxTemporaryCnpAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryCnpAmountLimit,
+				maxTemporaryPurchaseAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
+				permanentCashAmountLimit: this.cardDetails.linkedCardLimits.permanentCashAmountLimit,
+				permanentCnpAmountLimit: this.cardDetails.linkedCardLimits.permanentCnpAmountLimit,
+				permanentPurchaseAmountLimit: this.cardDetails.linkedCardLimits.permanentPurchaseAmountLimit,
+				tempCashAmountLimit: this.cardDetails.linkedCardLimits.tempCashAmountLimit,
+				tempCnpAmountLimit: this.cardDetails.linkedCardLimits.tempCnpAmountLimit,
+				tempLimitExpiryDate: this.cardDetails.linkedCardLimits.tempLimitExpiryDate,
+				tempPurchaseAmountLimit: this.cardDetails.linkedCardLimits.tempPurchaseAmountLimit
+			}
+			: '';
+
 		this.cardToDisplay = this._getCardName();
 		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
         this.cardArtDetails = {
@@ -131,7 +163,6 @@ export class UpdateCardLimits extends Component {
         this._telemetry.startSpan(QuickTransactionEvents.UPDATE_LIMITS, {
             "screen": TelemetryScreen.UPDATE_CARD_LIMITS
         });
-
 
         this._initialise();
     }
@@ -153,13 +184,10 @@ export class UpdateCardLimits extends Component {
                 this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
                 this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-                if (Number(e.detail.new) > Number(maxLimit)) {
-                    this.error[transactionType][e.currentTarget.id] = maxLimit;
-                } else {
-                    this.error[transactionType][e.currentTarget.id] = ``;
-                }
-                this.requestUpdate();
             }
+
+			this.error[transactionType][e.currentTarget.id] = (Number(e.detail.new) > Number(maxLimit)) ? maxLimit : ``;
+            this.requestUpdate();
         }
     }
 
@@ -230,6 +258,7 @@ export class UpdateCardLimits extends Component {
             : this.cardlimitsInfo.acceptedLimitsAgreement;
         if (accepedToAgreement) {
             const _tapToPayStatusChange = this._getTapToPayStatus();
+			this.cardDetails.cardLimits = this.cardLimits;
             this.cardDetails.linkedCardLimits = this.linkedCardLimits;
             this.dispatchEvent(new CustomEvent(`accepted`, {
                 detail: {
