@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+import { ValueAddedService } from 'app/services/ValueAddedService';
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access their data.
@@ -21,11 +22,17 @@ export class ValueAddedServices extends Component {
 	constructor() {
 		super();
 
+		this.isBusy = false;
+
 		this.showInsightsAlert = this.insightsStatus ? false : true;
 		this.showBehavioralAlert = this.behavioralStatus ? false : true;
 		this.showPreAssessmentAlert = this.preAssessmentStatus ? false : true;
 		this.showAnalysisAlert = this.analysisStatus ? false : true;
 		this.showThirdPartyAlert = this.thirdPartyStatus ? false: true;
+
+		this.alertBannerMessage = ``;
+
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), (ex) => this._valueAddedServiceErrorHandler(ex));
 	}
 
 	// -----------
@@ -36,11 +43,13 @@ export class ValueAddedServices extends Component {
 		return {
 			statusVAS: { type: Object },
 
+			isBusy: { attribute: false },
 			showInsightsAlert: { attribute: false },
 			showBehavioralAlert: { attribute: false },
 			showPreAssessmentAlert: { attribute: false },
 			showAnalysisAlert: { attribute: false },
 			showThirdPartyAlert: { attribute: false },
+			alertBannerMessage: { attribute: false },
 
 			capitecEntityId: { type: String, attribute: false },
 			insightsStatus: { type: Boolean, attribute: false },
@@ -75,26 +84,31 @@ export class ValueAddedServices extends Component {
 		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
 	}
 
-	_accept() {
-		this.dispatchEvent(new CustomEvent(`accept`, {
-			detail: {
-				capitecEntityId: this.capitecEntityId,
-				insightsStatus: this.insightsStatus,
-				behavioralStatus: this.behavioralStatus,
-				preAssessmentStatus: this.preAssessmentStatus,
-				analysisStatus: this.analysisStatus,
-				thirdPartyStatus: this.thirdPartyStatus,
-			}
-		}));
+	async _accept() {
+
+		const request = {
+			capitecEntityId: this.capitecEntityId,
+			optOutInsights: this.insightsStatus,
+			optOutBehaviouralMarketing: this.behavioralStatus,
+			optOutPreAssesments: this.preAssessmentStatus,
+			optOutAnalysis: this.analysisStatus,
+			optOutThirdParties: this.thirdPartyStatus,
+		}
+		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(request);
+
+		if (returnValue.succeeded) {
+			this.dispatchEvent(new CustomEvent(`accept`, {}));
+		}
 	}
 
 	_toggleValue(e) {
+		this.alertBannerMessage = ``;
 
-		const insights = () => this.showInsightsAlert = !this.showInsightsAlert;
-		const behavioural = () => this.showBehavioralAlert = !this.showBehavioralAlert;
-		const preAssessment = () => this.showPreAssessmentAlert = !this.showPreAssessmentAlert;
-		const analysis = () => this.showAnalysisAlert = !this.showAnalysisAlert;
-		const thirdParty = () => this.showThirdPartyAlert = !this.showThirdPartyAlert;
+		const insights = () => this._insightsStatusChanged();
+		const behavioural = () => this._behavioralStatusChanged();
+		const preAssessment = () => this._preAssessmentStatusChanged();
+		const analysis = () => this._analysisStatusChanged();
+		const thirdParty = () => this._thirdPartyStatusChanged();
 
 		const toggleSwitched = {
 			'insights' : insights,
@@ -114,6 +128,39 @@ export class ValueAddedServices extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_valueAddedServiceErrorHandler(ex){
+		this.alertBannerMessage = `System error. Please try again.`;
+	}
+
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
+
+	_insightsStatusChanged(){
+		this.insightsStatus = !this.insightsStatus;
+		this.showInsightsAlert = !this.showInsightsAlert;
+	}
+
+	_behavioralStatusChanged() {
+		this.behavioralStatus = !this.behavioralStatus;
+		this.showBehavioralAlert = !this.showBehavioralAlert;
+	}
+
+	_preAssessmentStatusChanged() {
+		this.preAssessmentStatus = !this.preAssessmentStatus;
+		this.showPreAssessmentAlert = !this.showPreAssessmentAlert;
+	}
+
+	_analysisStatusChanged() {
+		this.analysisStatus = !this.analysisStatus;
+		this.showAnalysisAlert = !this.showAnalysisAlert;
+	}
+
+	_thirdPartyStatusChanged() {
+		this.thirdPartyStatus = !this.thirdPartyStatus;
+		this.showThirdPartyAlert = !this.showThirdPartyAlert;
+	}
 
 	// ---------
 	// RENDERING
@@ -145,6 +192,14 @@ export class ValueAddedServices extends Component {
 					--theme-alert-banner-height: 63px;
 				}
 
+				capitec-alert-banner[type="unsuccessful-red"] {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-icon-margin-left: 15px;
+					--theme-alert-banner-icon-margin-right: 15px;
+					--theme-layout-gap-spacing: 16px;
+					--theme-alert-banner-font-weight: 600;
+				}
+
 				capitec-label[type="title"] {
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
@@ -173,7 +228,7 @@ export class ValueAddedServices extends Component {
 				}
 
 				.header-label {
-					margin-top: 32px;
+					margin-top: 16px;
 					font-size: 18px;
 					font-weight: 600;
 				}
@@ -225,9 +280,11 @@ export class ValueAddedServices extends Component {
 			<capitec-modal type="free" header-align="left" header="Value Added Services">
 				<div slot="body">
 					<capitec-content-box class="main-container">
+						${this._renderErrorAlertBanner()}
 						${this._renderAlertBanner()}
 						${this._renderPermissions()}
 						${this._renderThirdParty()}
+						${this._renderLoadingIndicator()}
 					</capitec-content-box>
 				</div>
 				<div slot="footer" class="footer-class">
@@ -235,6 +292,12 @@ export class ValueAddedServices extends Component {
 				</div>
 			</capitec-modal>
 		`;
+	}
+
+	_renderErrorAlertBanner() {
+		return this.alertBannerMessage
+			? html`<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>`
+			: html``;
 	}
 
 	_renderAlertBanner() {
@@ -394,6 +457,12 @@ export class ValueAddedServices extends Component {
 				<p class="permission-alert"><strong>Notify client: We will no longer share your information with Third Parties or within the Capitec Group to provide you with new/improved products and services, and/or personalised offers that may help you to improve your financial life</strong></p>
 			</capitec-alert-banner>`
 		: html``;
+	}
+
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 
 	_renderFooter() {

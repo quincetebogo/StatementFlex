@@ -1,6 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { AccessChannelService } from 'app/services/AccessChannelService';
 import { ValueAddedService } from 'app/services/ValueAddedService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { EventAggregator } from 'platform/core';
 import 'platform/components';
@@ -20,6 +21,7 @@ export class AccessMenuBar extends Component {
 		this.isBusy = false;
 		this.showValueAddedServicesModal = false;
 
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 
@@ -67,27 +69,15 @@ export class AccessMenuBar extends Component {
 
 	_showVASModal() {
 		this._valueAddedService();
-		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
 	_onCancel() {
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
-	async _onAccept(e) {
+	async _onAccept() {
 		this.eventAggregator.publish(`horizon-accepted-vas`, {});
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-
-		const request = {
-			capitecEntityId: e.detail.capitecEntityId,
-			optOutInsights: e.detail.insightsStatus,
-			optOutBehaviouralMarketing: e.detail.behavioralStatus,
-			optOutPreAssesments: e.detail.preAssessmentStatus,
-			optOutAnalysis: e.detail.analysisStatus,
-			optOutThirdParties: e.detail.thirdPartyStatus,
-		}
-
-		await this.valueAddedService.putValueAddedServiceStatus(request);
 	}
 
 	// --------------
@@ -124,6 +114,9 @@ export class AccessMenuBar extends Component {
 
 		if (returnValue.succeeded) {
 			this.statusVAS = returnValue.result;
+			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+		} else {
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -278,7 +271,7 @@ export class AccessMenuBar extends Component {
 			<horizon-value-added-services
 				.statusVAS="${this.statusVAS}"
 				@on-cancel="${() => this._onCancel()}"
-				@accept="${(e) => this._onAccept(e)}">
+				@accept="${() => this._onAccept()}">
 			</horizon-value-added-services>`
 		: html``;
 	}
