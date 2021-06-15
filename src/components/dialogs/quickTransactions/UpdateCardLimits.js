@@ -687,6 +687,9 @@ export class UpdateCardLimits extends Component {
 					width: 100%;
 					height: 100%;
 				}
+                .fieldHidden{
+                    margin-bottom:24px;
+                }
 			`
         ];
     }
@@ -782,8 +785,10 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderCreditLimits() {
+        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `` : `padding-bottom:24px`;
+
         return html`
-			<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
+			<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
 				${this._renderCard()}
 				<capitec-content-box class="limits-cb">
 					${this._renderLimits(`credit`)}
@@ -795,8 +800,9 @@ export class UpdateCardLimits extends Component {
     }
 
     _renderDebitLimits() {
+        const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `` : `padding-bottom:24px`;
         return html`
-				<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
+				<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
 					${this._renderCard()}
 					<capitec-content-box class="limits-cb">
 						${this._renderLimits(`debit`)}
