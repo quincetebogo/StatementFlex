@@ -74,6 +74,11 @@ export class UpdateCardLimits extends Component {
         this._tapToPayStatus = false;
         this.cardToDisplay = ``;
         this.totalPrimaryPermanentLimits = 0;
+        this.totalPrimaryTemporaryLimits = 0;
+        this.totalSuplementaryPermanentLimits = 0;
+        this.totalSuplementaryTemporaryLimits = 0;
+        this.totalPermanentLimits = 0;
+        this.totalTemporaryLimits = 0;
 
         this._telemetry = HorizonTelemetry.instance;
     }
@@ -109,7 +114,12 @@ export class UpdateCardLimits extends Component {
             renderMode: { type: Boolean, attribute: false },
             isBusy: { type: Boolean, attribute: false },
             _tapToPayStatus: { type: Boolean, attribute: false },
-            totalPrimaryPermanentLimits: { type: Number, attribute:false}
+            totalPrimaryPermanentLimits: { type: Number, attribute:false},
+            totalPrimaryTemporaryLimits: { type: Number, attribute:false},
+            totalSuplementaryPermanentLimits: { type: Number, attribute:false},
+            totalSuplementaryTemporaryLimits: { type: Number, attribute: false },
+            totalPermanentLimits: { type: Number, attribute: false },
+            totalTemporaryLimits: { type: Number, attribute: false }
         };
     }
 
@@ -179,43 +189,41 @@ export class UpdateCardLimits extends Component {
     // EVENT HANDLERS
     // --------------
 
-    _limitChanged(e, transactionType, maxLimit) {
-        let oldVal; // = 5;
+    _limitChanged(e, transactionType, maxLimit) {        
+        let oldVal = e.detail.old;
         let newVal = e.detail.new;
-        let limit;
         if (e.detail.new) {
             if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {                
                 this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-                oldVal = this.cardDetails.linkedCardLimits[e.currentTarget.id];
             } else {
                 this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-                oldVal = this.cardDetails.cardLimits[e.currentTarget.id];
             }
-            const diff = newVal - oldVal;
+            const diff = parseFloat(newVal) - parseFloat(oldVal);
 
             if (this.cardDetails.cardDisplayType === `Primary_Card`) {
                 if (this.limitType === `Permanent`) {
-                    this.totalPrimaryPermanentLimits = this._randToInt(this.totalPrimaryCardLimits.permanentLimit) + diff;
-                    console.log(this.totalPrimaryPermanentLimits);
-                    //this.totalPrimaryCardLimits.permanentLimit = this._randToInt(this.totalPrimaryCardLimits.permanentLimit) + diff;
+                    this.totalPrimaryPermanentLimits = this.totalPrimaryPermanentLimits + diff;
                 } else {
-                    this.totalPrimaryCardLimits.temporaryLimit = this._randToInt(this.totalPrimaryCardLimits.temporaryLimit) + diff;
+                    this.totalPrimaryTemporaryLimits = this.totalPrimaryTemporaryLimits + diff;
                 }
             } else if (this.cardDetails.cardDisplayType === `Supplementary_Card`) {
                 if (this.limitType === `Permanent`) {
-                    this.totalSupplementaryCardLimits.permanentLimit = this._randToInt(this.totalSupplementaryCardLimits.permanentLimit) + diff;
+                    this.totalSuplementaryPermanentLimits = this.totalSuplementaryPermanentLimits + diff;
                 } else {
-                    this.totalSupplementaryCardLimits.temporaryLimit = this._randToInt(this.totalSupplementaryCardLimits.temporaryLimit) + diff;
+                    this.totalSuplementaryTemporaryLimits = this.totalSuplementaryTemporaryLimits + diff;
                 }
             }
+
+            this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
+            this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
 			this.error[transactionType][e.currentTarget.id] = (Number(e.detail.new) > Number(maxLimit)) ? maxLimit : ``;
             this.requestUpdate();
         }
     }
 
     _randToInt(value) {
-        if (value.contains(`R`)) {
-            return value.substring(1);
+        if (value.startsWith(`R`)) {
+            return parseFloat(value.substring(1));
         }
         return parseFloat(value);
     }
@@ -344,12 +352,15 @@ export class UpdateCardLimits extends Component {
         this.limitLabel = `${this.updateType} Limits`;
 
     
-		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
-		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
-    this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Total limits`);
-    this.totalPrimaryPermanentLimits = this._randToInt(this.totalPrimaryCardLimits.permanentLimit);
-        console.log("init  " + this.totalPrimaryPermanentLimits);
-        console.log("randToInt  " + this.totalPrimaryPermanentLimits.permanentLimit);
+        this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
+        this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
+        this.totalPrimaryPermanentLimits = this._randToInt(this.totalPrimaryCardLimits.permanentLimit);
+        this.totalPrimaryTemporaryLimits = this._randToInt(this.totalPrimaryCardLimits.temporaryLimit);
+        this.totalSuplementaryPermanentLimits = this._randToInt(this.totalSupplementaryCardLimits.permanentLimit);
+        this.totalSuplementaryTemporaryLimits = this._randToInt(this.totalSupplementaryCardLimits.temporaryLimit);
+        this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
+        this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
+
     }
     
     _getErrorsCount() {
@@ -806,15 +817,15 @@ export class UpdateCardLimits extends Component {
 					<div class="dailyLimits">
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}</b></p>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryTemporaryLimits, 0)}</b></p>
 						</div>
 						 <div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}</b></p>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSuplementaryPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalSuplementaryTemporaryLimits, 0)}</b></p>
 						</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
 							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}</b></p>
+							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalTemporaryLimits, 0)}</b></p>
 						</div>
 					</div>
 				</capitec-title-bar>
@@ -850,7 +861,6 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${limits.cashAmountLimit}"
 				error="${this._getFieldError(this.error[transactionType].cashAmountLimit)}"
-                ?hidden="${this.cardDetails.cardDisplayType === `Supplementary_Card`}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
@@ -869,6 +879,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${limits.cnpAmountLimit}"
 				error="${this._getFieldError(this.error[transactionType].cnpAmountLimit)}"
+                ?hidden="${this.cardDetails.cardDisplayType === `Supplementary_Card`}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxcnpAmountLimit)}">
 			</capitec-text-field>
 		`;
