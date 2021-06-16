@@ -314,7 +314,7 @@ export class UpdateCardLimits extends Component {
 
         // TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
         this.limitLabel = `${this.updateType} Limits`;
-console.log(this.cardDetails)
+
 		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
 		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
 		this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Total limits`);
@@ -893,6 +893,8 @@ console.log(this.cardDetails)
     }
 
     _renderAgreement() {
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+
         if (this.renderMode === RENDER_MODE.AGREEMENT) {
             return html`
 				<capitec-expander-group modeset="single">
@@ -918,7 +920,7 @@ console.log(this.cardDetails)
 							${this._renderTermsAndConditions(`LimitsAgreement`)}
 					</capitec-expander>
 
-					${this._tapToPayStatus ? html`
+					${_tapToPayStatusChange !== TAP_TO_PAY_STATUS.UNCHANGED ? html`
 						<capitec-expander
 							expandbuttonalignment="left"
 							label="Tap To Pay"
@@ -945,19 +947,8 @@ console.log(this.cardDetails)
     _renderTermsAndConditions(type) {
         return html`
 			<capitec-content-box class="expander-cb">
-				<div class="agreement-lb">
-					You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <br><strong>${this.cardToDisplay}</strong>, as well as your rights as a client as confirmed on this call with you. 
-				</div>
-				<div class="agreement-lb">
-					<ol>
-					<li>This call recording forms the agreement between us and you as to the amendment of your Tap to Pay Status and is effective at the date of concluding this call.</li>
-						<li>You’re aware that you must keep your Tap to Pay enabled card safe and immediately report it if stolen, as you will remain liable for any transactions performed if your card gets lost, stolen or misused.</li>
-						<li>You declare that you’re aware that the Tap to Pay functionality means your card can be used without a PIN, even when lost, stolen or misused.</li>
-						${!this.cardDetails.isContactlessActivated ? html`<li>When you deactivated Tap to Pay, the card will function like a normal card and pin for all transactions, until such a time that you choose to reactivate the Tap to Pay functionality.</li>` : ``}
-						<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
-						<li>You declare that all the information you’ve given us on this call is true and correct, and that we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
-					</ol>
-				</div>
+				${type === `LimitsAgreement` ? this._renderCardLimitsScript() : ``}
+				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
 						id="accepted${type}"
@@ -968,6 +959,42 @@ console.log(this.cardDetails)
 			</capitec-content-box>
 		`;
     }
+
+	_renderCardLimitsScript() {
+		return html`
+			<div class="agreement-lb">
+				You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
+			</div>
+			<div class="agreement-lb">
+				<ol>
+					<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+					<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
+					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
+					<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
+				</ol>
+			</div>
+		`;
+	}
+
+	_renderTapToPayScript() {
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+
+		return html`
+			<div class="agreement-lb">
+				You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <strong>${this.cardToDisplay}</strong>, as well as your rights as a client as confirmed on this call with you.
+			</div>
+			<div class="agreement-lb">
+				<ol>
+					<li>This call recording forms the agreement between us and you as to the amendment of your Tap to Pay Status and is effective at the date of concluding this call.</li>
+					<li>You’re aware that you must keep your Tap to Pay enabled card safe and immediately report it if stolen, as you will remain liable for any transactions performed if your card gets lost, stolen or misused.</li>
+					<li>You declare that you’re aware that the Tap to Pay functionality means your card can be used without a PIN, even when lost, stolen or misused.</li>
+					${_tapToPayStatusChange === TAP_TO_PAY_STATUS.DEACTIVATED ? html`<li>When you deactivated Tap to Pay, the card will function like a normal card and pin for all transactions, until such a time that you choose to reactivate the Tap to Pay functionality.</li>` : ``}
+					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
+					<li>You declare that all the information you’ve given us on this call is true and correct, and that we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
+				</ol>
+			</div>
+		`;
+	}
 
     _renderFooter() {
         return html`

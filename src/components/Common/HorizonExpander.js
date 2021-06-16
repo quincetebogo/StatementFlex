@@ -46,7 +46,7 @@ export class Expander extends Component {
         this.label = null;
         this.icon = null;
 
-        this.expanded = true;
+        this.expanded = false;
         this.disabled = false;
 
         this.layout = `vertical`;

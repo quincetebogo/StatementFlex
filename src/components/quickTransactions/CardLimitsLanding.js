@@ -326,6 +326,7 @@ export class CardLimitsLanding extends Component {
 			} else {
 				card.category = CARD_TYPE_MAPPING[card.cardType];
 			}
+			card.isVirtualCard = card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD;
 		});
 	}
 
@@ -359,6 +360,7 @@ export class CardLimitsLanding extends Component {
 
 		if (requestValue) {
 			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+			this._cardDetails.isContactlessActivated = requestValue.isContactlessActivated;
 		} 
 	}
 
@@ -367,6 +369,7 @@ export class CardLimitsLanding extends Component {
 
 		if (requestValue) {
 			this._cardDetails.totalDailyLimitExposures = requestValue.totalDailyLimitExposures;
+			this._cardDetails.isContactlessActivated = requestValue.isContactlessActivated;
 		} 
 	}
 
@@ -613,6 +616,7 @@ export class CardLimitsLanding extends Component {
 				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
 				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
 				.headers="${this.expanderHeaders[index]}"
+				.expanded="${true}"
 				.subtitles="${this.expanderSubtitle[index]}">
 					${this._renderLimits(sub[3])}
 			</horizon-expander>
@@ -641,6 +645,7 @@ export class CardLimitsLanding extends Component {
 				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
 				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
 				.headers="${this.expanderHeaders[index]}"
+				.expanded="${true}"
 				.subtitles="${this.expanderSubtitle[index]}">
 					${this._renderLimits(sub[3])}
 			</horizon-expander>
@@ -669,6 +674,7 @@ export class CardLimitsLanding extends Component {
 				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
 				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
 				.headers="${this.expanderHeaders[index]}"
+				.expanded="${true}"
 				.subtitles="${this.expanderSubtitle[index]}">
 					${this._renderLimits(sub[3])}
 			</horizon-expander>
