@@ -170,7 +170,7 @@ export class CardLimitsLanding extends Component {
 		this._initialise();
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
-        this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);      
+        this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
 	}
 
     disconnectedCallback() {
@@ -187,7 +187,7 @@ export class CardLimitsLanding extends Component {
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
-	async _getLimitsAgreement(card, tapToPayStatus) {
+	async _getLimitsAgreement(card, newLimits, tapToPayStatus) {
 		const request = {
 			cardDetails: {
 				cardDetails: {
@@ -198,12 +198,12 @@ export class CardLimitsLanding extends Component {
 					cardExpiryMonth: card.cardExpiryMonth,
 					cardSequenceNumber: card.cardSequenceNumber
 				},
-				permanentCashAmountLimit: card.cardLimits.permanentCashAmountLimit,
-				permanentPurchaseAmountLimit: card.cardLimits.permanentPurchaseAmountLimit,
-				permanentCnpAmountLimit: card.cardLimits.permanentCnpAmountLimit,
-				tempCashAmountLimit: card.cardLimits.tempCashAmountLimit,
-				tempPurchaseAmountLimit: card.cardLimits.tempPurchaseAmountLimit,
-				tempCnpAmountLimit: card.cardLimits.tempCnpAmountLimit
+				permanentCashAmountLimit: newLimits.permanentCashAmountLimit,
+				permanentPurchaseAmountLimit: newLimits.permanentPurchaseAmountLimit,
+				permanentCnpAmountLimit: newLimits.permanentCnpAmountLimit,
+				tempCashAmountLimit: newLimits.tempCashAmountLimit,
+				tempPurchaseAmountLimit: newLimits.tempPurchaseAmountLimit,
+				tempCnpAmountLimit: newLimits.tempCnpAmountLimit
 			},
 			tapToPayStatusChange: tapToPayStatus
 		};
@@ -274,7 +274,7 @@ export class CardLimitsLanding extends Component {
 				
                 tempCashAmountLimit: limits.tempCashAmountLimit,
 				tempPurchaseAmountLimit: limits.tempPurchaseAmountLimit,
-				tempCnpAmountLimit: limits.tempCnpAmountLimit,
+                tempCnpAmountLimit: limits.tempCnpAmountLimit,
 				limitExpiryDate: this._calculateLimitExpiry(),
 				
 				agreementAccepted: event.detail.agreementAccepted,

@@ -1,7 +1,6 @@
 import { css, html } from 'platform/elements';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -18,8 +17,6 @@ export class TapToPaySuccess extends ViewBase {
 		this.tapToPayStatus = ``;
 		this.maskedCardNumber = ``;
 		this.cardType = ``;
-
-		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -48,11 +45,6 @@ export class TapToPaySuccess extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(QuickTransactionEvents.TAP_TO_PAY, {
-			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			"next-screen": null
-		});
 	}
 
 	// --------------
@@ -101,7 +93,8 @@ export class TapToPaySuccess extends ViewBase {
 			super.styles,
 			css`
 				#id-update-msg {
-					width: auto;
+					width: 690%;
+					height: auto;
 				}
 
 				horizon-success-screen {
@@ -127,7 +120,7 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
-				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activation pending` : `deactivated`}"
+				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"
 				right="Tap to Pay"
@@ -138,7 +131,9 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							Your ${this.cardType} card <b>${this.cardMaskedNumber}</b> is ${this.tapToPayStatus === `ON` ? `pending tap to pay activation. To complete activation, insert card into card machine or ATM` : `deactivated`}.
+							The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON` 
+							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+							: `is deactivated`}.
 					</section>
 			</horizon-success-screen>
 		`;
