@@ -181,9 +181,9 @@ export class UpdateCardLimits extends Component {
 
         if (e.detail.new) {
             if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new).toFixed(0);
+                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             } else {
-                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new).toFixed(0);
+                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
             }
 
 			this.error[transactionType][e.currentTarget.id] = (Number(e.detail.new) > Number(maxLimit)) ? maxLimit : ``;
