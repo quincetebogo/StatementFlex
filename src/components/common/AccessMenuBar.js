@@ -1,13 +1,17 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
-import { ValueAddedService } from 'app/services/ValueAddedService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { EventAggregator } from 'platform/core';
+import { ValueAddedService } from 'app/services/ValueAddedService';
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
 import 'app/components/dialogs/ValueAddedServices';
 
+/**
+ * The AccessMenuBar is the right hand menu bar / area in Horizon. This component currently houses
+ * Client Insights and Access Channels
+ */
 export class AccessMenuBar extends Component {
 
 	// --------------
@@ -24,9 +28,10 @@ export class AccessMenuBar extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
-		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
-		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), (ex) => this._valueAddedServiceErrorHandler(ex));
+		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -71,11 +76,11 @@ export class AccessMenuBar extends Component {
 		this._valueAddedService();
 	}
 
-	_onCancel() {
+	_cancelVasClick() {
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
-	async _onAccept() {
+	_acceptVasClick() {
 		this.eventAggregator.publish(`horizon-accepted-vas`, {});
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
@@ -89,14 +94,6 @@ export class AccessMenuBar extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_accessChannelErrorHandler(ex) {
-		return true;
-	}
-
-	_valueAddedServiceErrorHandler(ex){
-		return true;
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -106,16 +103,19 @@ export class AccessMenuBar extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+		} else {
+			this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
 		}
 	}
 
 	async _valueAddedService() {
 		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
 
-		if (returnValue.succeeded) {
+		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS = returnValue.result;
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 		} else {
+			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
 			this.horizonRouter.navigateToSystemError();
 		}
 	}
@@ -270,8 +270,8 @@ export class AccessMenuBar extends Component {
 		? html`
 			<horizon-value-added-services
 				.statusVAS="${this.statusVAS}"
-				@on-cancel="${() => this._onCancel()}"
-				@accept="${() => this._onAccept()}">
+				@cancel="${() => this._cancelVasClick()}"
+				@accept="${() => this._acceptVasClick()}">
 			</horizon-value-added-services>`
 		: html``;
 	}

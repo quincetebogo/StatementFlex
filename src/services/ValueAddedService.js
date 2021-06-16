@@ -23,11 +23,11 @@ export class ValueAddedService extends ServiceBase {
 	// --------------
 
 	getValueAddedServiceStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.getValueAddedService(cifNumber), `valueAddedServiceStatus`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.getValueAddedService(cifNumber), `getValueAddedServiceStatus`, errorHandler, autoRetries);
 	}
 
 	putValueAddedServiceStatus(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.putValueAddedService(request), `valueAddedServiceStatus`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.putValueAddedService(request), `putValueAddedServiceStatus`, errorHandler, autoRetries);
 	}
 
 }

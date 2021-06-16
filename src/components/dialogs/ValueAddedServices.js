@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
 /**
- * The Horizon Value Added Services dialog is used to seek permission to access their data.
+ * The Horizon Value Added Services dialog is used to seek permission to access client data.
  * 
  * Events Raised 
  * -------------
@@ -76,11 +76,11 @@ export class ValueAddedServices extends Component {
 		this.analysisStatus = this.statusVAS.optOutAnalysis;
 		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
 
-		this.showInsightsAlert = this.insightsStatus ? false : true;
-		this.showBehavioralAlert = this.behavioralStatus ? false : true;
-		this.showPreAssessmentAlert = this.preAssessmentStatus ? false : true;
-		this.showAnalysisAlert = this.analysisStatus ? false : true;
-		this.showThirdPartyAlert = this.thirdPartyStatus ? false: true;
+		this.showInsightsAlert = !this.insightsStatus;
+		this.showBehavioralAlert = !this.behavioralStatus;
+		this.showPreAssessmentAlert = !this.preAssessmentStatus;
+		this.showAnalysisAlert = !this.analysisStatus;
+		this.showThirdPartyAlert = !this.thirdPartyStatus;
 	}
 
 	// --------------
@@ -88,7 +88,7 @@ export class ValueAddedServices extends Component {
 	// --------------
 
 	_cancel() {
-		this.dispatchEvent(new CustomEvent(`on-cancel`, {}));
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	async _accept() {
@@ -99,7 +99,7 @@ export class ValueAddedServices extends Component {
 			optOutBehaviouralMarketing: this.behavioralStatus,
 			optOutPreAssesments: this.preAssessmentStatus,
 			optOutAnalysis: this.analysisStatus,
-			optOutThirdParties: this.thirdPartyStatus,
+			optOutThirdParties: this.thirdPartyStatus
 		}
 		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(request);
 
@@ -136,7 +136,7 @@ export class ValueAddedServices extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_valueAddedServiceErrorHandler(ex){
+	_valueAddedServiceErrorHandler(ex) {
 		this.alertBannerMessage = `System error. Please try again.`;
 	}
 
@@ -144,7 +144,7 @@ export class ValueAddedServices extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
-	_insightsStatusChanged(){
+	_insightsStatusChanged() {
 		this.insightsStatus = !this.insightsStatus;
 		this.showInsightsAlert = !this.showInsightsAlert;
 	}
