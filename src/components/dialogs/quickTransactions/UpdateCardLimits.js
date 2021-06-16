@@ -202,36 +202,34 @@ export class UpdateCardLimits extends Component {
     // --------------
 
     _limitChanged(e, transactionType, maxLimit) {
-		const oldVal = e.detail.old;
-		const newVal = e.detail.new;
+		const oldVal = e.detail.old || 0;
+		const newVal = e.detail.new || 0;
 
-        if (e.detail.new) {
-            if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseInt(e.detail.new);
-            } else {
-                this.cardLimits[e.currentTarget.id] = parseInt(e.detail.new);
-            }
-			const diff = parseFloat(newVal) - parseFloat(oldVal);
+        if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
+			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal);
+		} else {
+			this.cardLimits[e.currentTarget.id] = parseInt(newVal);
+		}
+		const diff = parseFloat(newVal) - parseFloat(oldVal);
 
-            if (this.cardDetails.cardDisplayType === `Primary_Card`) {
-                if (this.limitType === `Permanent`) {
-                    this.totalPrimaryPermanentLimits += diff;
-                } else {
-                    this.totalPrimaryTemporaryLimits += diff;
-                }
-            } else if (this.cardDetails.cardDisplayType === `Supplementary_Card`) {
-                if (this.limitType === `Permanent`) {
-                    this.totalSuplementaryPermanentLimits += diff;
-                } else {
-                    this.totalSuplementaryTemporaryLimits += diff;
-                }
-            }
+		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
+			if (this.limitType === `Permanent`) {
+				this.totalPrimaryPermanentLimits += diff;
+			} else {
+				this.totalPrimaryTemporaryLimits += diff;
+			}
+		} else if (this.cardDetails.cardDisplayType === `Supplementary_Card`) {
+			if (this.limitType === `Permanent`) {
+				this.totalSuplementaryPermanentLimits += diff;
+			} else {
+				this.totalSuplementaryTemporaryLimits += diff;
+			}
+		}
 
-            this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
-            this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
-			this.error[transactionType][e.currentTarget.id] = (Number(e.detail.new) > Number(maxLimit)) ? maxLimit : ``;
-            this.requestUpdate();
-        }
+		this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
+		this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
+		this.error[transactionType][e.currentTarget.id] = (Number(newVal) > Number(maxLimit)) ? maxLimit : ``;
+		this.requestUpdate();
     }
 
 	_randToInt(value) {
@@ -265,7 +263,7 @@ export class UpdateCardLimits extends Component {
 		const newLimits = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.linkedCardLimits : this.cardLimits;
 
         this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, newLimits, this._getTapToPayStatus());
-		const tapToPayAgreement = this.getAgreement.tapToPayAgreement;
+		const tapToPayAgreement = this.getAgreement && this.getAgreement.tapToPayAgreement;
 
         if (this.getAgreement) {
             this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
@@ -304,11 +302,11 @@ export class UpdateCardLimits extends Component {
     }
 
     _agree() {
-        const accepedToAgreement = this._tapToPayStatus
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+        const accepedToAgreement = _tapToPayStatusChange !== TAP_TO_PAY_STATUS.UNCHANGED
             ? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement
             : this.cardlimitsInfo.acceptedLimitsAgreement;
         if (accepedToAgreement) {
-            const _tapToPayStatusChange = this._getTapToPayStatus();
 			this.cardDetails.cardLimits = this.cardLimits;
             this.cardDetails.linkedCardLimits = this.linkedCardLimits;
             this.dispatchEvent(new CustomEvent(`accepted`, {
@@ -654,8 +652,8 @@ export class UpdateCardLimits extends Component {
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 9px;
-				--theme-container-padding-right: 0px;
-				--theme-container-padding-bottom: 0px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 16px;
 				--theme-layout-gap-spacing: 18px;
 			}
 			.agreement-lb {
@@ -715,6 +713,9 @@ export class UpdateCardLimits extends Component {
 			}
 			.fieldHidden{
 				margin-bottom:24px;
+			}
+			.zeroPaddingRight {
+				--theme-container-padding-right: 0px;
 			}
 			`
         ];
@@ -985,7 +986,7 @@ export class UpdateCardLimits extends Component {
 						expandbuttonalignment="left"
 						label="View Agreement">
 							<capitec-content-box
-								class="expander-cb" halign="left" valign="top" gap="none">
+								class="expander-cb zeroPaddingRight" halign="left" valign="top" gap="none">
 									<object
 										class="agreement-viewer"
 										data="data:text/html;base64,${this.cardLimitsAgreement}"
@@ -1034,7 +1035,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-card class="agreement-terms">
 					<capitec-check 
 						id="accepted${type}"
-						label="Please confirm that you agree to these terms and conditions and that your are bound by them?"
+						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
