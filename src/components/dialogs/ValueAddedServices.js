@@ -24,11 +24,11 @@ export class ValueAddedServices extends Component {
 
 		this.isBusy = false;
 
-		this.showInsightsAlert = this.insightsStatus ? false : true;
-		this.showBehavioralAlert = this.behavioralStatus ? false : true;
-		this.showPreAssessmentAlert = this.preAssessmentStatus ? false : true;
-		this.showAnalysisAlert = this.analysisStatus ? false : true;
-		this.showThirdPartyAlert = this.thirdPartyStatus ? false: true;
+		this.showInsightsAlert = false;
+		this.showBehavioralAlert = false;
+		this.showPreAssessmentAlert = false;
+		this.showAnalysisAlert = false;
+		this.showThirdPartyAlert = false;
 
 		this.alertBannerMessage = ``;
 
@@ -49,7 +49,8 @@ export class ValueAddedServices extends Component {
 			showPreAssessmentAlert: { attribute: false },
 			showAnalysisAlert: { attribute: false },
 			showThirdPartyAlert: { attribute: false },
-			alertBannerMessage: { attribute: false },
+
+			alertBannerMessage: { type: String },
 
 			capitecEntityId: { type: String, attribute: false },
 			insightsStatus: { type: Boolean, attribute: false },
@@ -74,6 +75,12 @@ export class ValueAddedServices extends Component {
 		this.preAssessmentStatus = this.statusVAS.optOutPreAssesments;
 		this.analysisStatus = this.statusVAS.optOutAnalysis;
 		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
+
+		this.showInsightsAlert = this.insightsStatus ? false : true;
+		this.showBehavioralAlert = this.behavioralStatus ? false : true;
+		this.showPreAssessmentAlert = this.preAssessmentStatus ? false : true;
+		this.showAnalysisAlert = this.analysisStatus ? false : true;
+		this.showThirdPartyAlert = this.thirdPartyStatus ? false: true;
 	}
 
 	// --------------

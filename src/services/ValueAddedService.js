@@ -26,8 +26,8 @@ export class ValueAddedService extends ServiceBase {
 		return this.wrapCall(this.channelService.getValueAddedService(cifNumber), `valueAddedServiceStatus`, errorHandler, autoRetries);
 	}
 
-	putValueAddedServiceStatus(cifNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.putValueAddedService(cifNumber), `valueAddedServiceStatus`, errorHandler, autoRetries);
+	putValueAddedServiceStatus(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.putValueAddedService(request), `valueAddedServiceStatus`, errorHandler, autoRetries);
 	}
 
 }

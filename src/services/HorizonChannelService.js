@@ -240,9 +240,16 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `valueAddedServices`);
 	}
 
-	putValueAddedService(cifNumber) {
-		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
-		return this._put(url, cifNumber, this._setToken(), `valueAddedServices`);
+	putValueAddedService(request) {
+		const url = `/clientcare-client-${this._version}/value-added-services?`+
+						`CapitecEntityId=${request.capitecEntityId}&` +
+						`OptOutInsights=${request.optOutInsights}&` +
+						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
+						`optOutPreAssesments=${request.optOutPreAssesments}&`+
+						`optOutAnalysis=${request.optOutAnalysis}&`+
+						`optOutThirdParties=${request.optOutThirdParties}&`;
+
+		return this._put(url, request, this._setToken(), `valueAddedServices`);
 	}
 
 	// -----------
