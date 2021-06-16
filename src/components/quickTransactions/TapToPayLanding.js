@@ -126,7 +126,7 @@ export class TapToPayLanding extends Component {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
-			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
+			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber, cardType: this.selectedCard.cardType  }, `Failed to load agreements`);
 		}
 	}
 
@@ -343,7 +343,7 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
+				wrap>
 					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
@@ -364,7 +364,8 @@ export class TapToPayLanding extends Component {
 
 	_renderSupplementaryCards() {
 		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard && card.isContactlessCard);
-		return html`
+		return !supplementaryCards 
+		? html`
 			<capitec-label
 				class="supplementary-card-label"
 				type="title"
@@ -377,10 +378,10 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
+				wrap>
 					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
-			</capitec-group>
-		`;
+			</capitec-group>`
+		: html``;
 	}
 
 	_renderSupplementaryCardArt(card, index) {
