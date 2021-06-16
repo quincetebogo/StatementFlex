@@ -574,7 +574,7 @@ export class CardLimitsLanding extends Component {
 				${this._renderTitleBar()}
 				<capitec-content-box>
 					<capitec-expander-group modeset="multiple">
-						${this._renderPrimaryCardGroup()}
+						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
 					</capitec-expander-group>
@@ -823,7 +823,7 @@ export class CardLimitsLanding extends Component {
 					.limitType="${this._limitType}"
 					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
 					.updateType="${this._updateType}"
-					.getCardLimitsAgreement="${(card, tapToPayStatus) => this._getLimitsAgreement(card, tapToPayStatus)}"
+					.getCardLimitsAgreement="${(card, newLimits, tapToPayStatus) => this._getLimitsAgreement(card, newLimits, tapToPayStatus)}"
 					@cancel="${() => this._cancelUpdateLimits()}"
 					@accepted="${(event) => this._updateLimitsAgreement(event)}">
 				</horizon-update-card-limits>`
