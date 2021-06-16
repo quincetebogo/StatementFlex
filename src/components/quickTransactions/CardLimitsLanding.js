@@ -170,7 +170,7 @@ export class CardLimitsLanding extends Component {
 		this._initialise();
 		this.primaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.PRIMARY_CARD);
 		this.supplementaryCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD);
-        this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);      
+        this.virtualCards = this.cards.filter(card => card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD);
 	}
 
     disconnectedCallback() {
@@ -326,6 +326,7 @@ export class CardLimitsLanding extends Component {
 			} else {
 				card.category = CARD_TYPE_MAPPING[card.cardType];
 			}
+			card.isVirtualCard = card.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD;
 		});
 	}
 
