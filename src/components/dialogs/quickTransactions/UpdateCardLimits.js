@@ -207,9 +207,9 @@ export class UpdateCardLimits extends Component {
 
         if (e.detail.new) {
             if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
+                this.linkedCardLimits[e.currentTarget.id] = parseInt(e.detail.new);
             } else {
-                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
+                this.cardLimits[e.currentTarget.id] = parseInt(e.detail.new);
             }
 			const diff = parseFloat(newVal) - parseFloat(oldVal);
 
@@ -351,7 +351,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldValue(id, value) {
-		return this.fieldFocused === id ? value : parseFloat(value).toFixed(2);  
+		return this.fieldFocused === id ? value : parseInt(value).toFixed(2);  
 	}
 
     // --------------
