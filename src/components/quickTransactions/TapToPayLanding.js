@@ -343,7 +343,7 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
+				wrap>
 					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
 			</capitec-group>
 		`;
@@ -378,7 +378,7 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
+				wrap>
 					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
 			</capitec-group>`
 		: html``;
