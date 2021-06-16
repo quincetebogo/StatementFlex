@@ -262,8 +262,9 @@ export class UpdateCardLimits extends Component {
         }
 
         this.alertBannerText = ``;
+		const newLimits = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.linkedCardLimits : this.cardLimits;
 
-        this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
+        this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, newLimits, this._getTapToPayStatus());
 		const tapToPayAgreement = this.getAgreement.tapToPayAgreement;
 
         if (this.getAgreement) {
@@ -1032,7 +1033,7 @@ export class UpdateCardLimits extends Component {
 				<div class="agreement-lb">
 					<ol>
 						<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
-						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
+						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being [Virtual Card: compromised][Plastic Card: lost, stolen or misused].</li>
 						<li>You agree that you shall have no claim or right of action arising fromany undertaking, representation or warranty not included, and agreed during this call.</li>
 						<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
 					</ol>

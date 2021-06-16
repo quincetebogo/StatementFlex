@@ -314,6 +314,14 @@ export class Favourites extends SavingsAccountBase {
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
+
+		agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCashAmountLimit *= 100;
+		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
+
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded) {
