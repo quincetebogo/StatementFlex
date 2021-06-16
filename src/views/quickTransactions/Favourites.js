@@ -279,6 +279,8 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.logger.log(`error`, `Unable to update permanent card limits`, `_updatePermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
+
 		return null;
 	}
 
@@ -290,6 +292,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 
 		return null;
 	}
