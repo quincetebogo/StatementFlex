@@ -7,6 +7,8 @@ import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTran
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
+import 'app/components/common/HorizonExpander';
+
 const RENDER_MODE = {
     TAX_CERTIFICATE: 1,
     EMAIL: 2
@@ -51,7 +53,7 @@ export class TaxCertificate extends Component {
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		this.certType = ``;
+		this.certType = {};
 		this.showChoosePeriod = false;
 	}
 
@@ -68,6 +70,8 @@ export class TaxCertificate extends Component {
 		return {
 			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
+
+			showChoosePeriod: { type: Boolean },
 
 			isBusy: { attribut: false },
 			alertBannerMessage: { attribute: false },
@@ -101,11 +105,14 @@ export class TaxCertificate extends Component {
 
 	_certChange(e) {
 		if(e.detail.new) {
-			this.certType = e.target.id;
+			this.certType.name = e.target.id;
+			if (this.certType.name === "taxable savings") {
+				this.certType.detail = "IT3(b)"
+			} else {
+				this.certType.detail = "IT3(s)"
+			}
+			this.showChoosePeriod = e.detail.new;
 		}
-		this.showChoosePeriod = true;
-
-		console.log(this.certType, this.showChoosePeriod)
 	}
 
 
@@ -157,6 +164,10 @@ export class TaxCertificate extends Component {
 		// this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, { "screen": TelemetryScreen.PROOF_OF_ACCOUNT });
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
+
+	_nextClick() {
+		
 	}
 
 	// ---------------
@@ -296,9 +307,8 @@ export class TaxCertificate extends Component {
  		</capitec-stepper>
 
 		 <capitec-content-box class="main-cb">
-			<!-- ${this._renderAlertBanner()} -->
 			${this._renderChooseCerificate()}
-			<!-- ${this._renderEmailFields()} -->
+			${this._renderChoosePeriod()}
 		</capitec-content-box>
 		</div>
 		<div slot="footer" class="footer-class">
@@ -358,20 +368,27 @@ export class TaxCertificate extends Component {
 					@value-changed="${(e) => this._certChange(e)}"
 					column="3"></capitec-radio>
 			</capitec-group>
-			</capitec-radio-group>
-
-			${this._renderChoosePeriod()}`
+			</capitec-radio-group>`
 			: html``;
 
 	}
 
 	_renderChoosePeriod() {
-		return this.showChoosePeriod ? html`
+		this.years = ["2017", "2018", "2019", "2020"];
+
+		if (this.showChoosePeriod) {
+		return html`
 		<capitec-label
-			label="Choose Period (${this.certType})"
+			label="Choose Period (${this.certType.name})"
 			type="title">
 		</capitec-label>
-		` : html ``;
+		<capitec-check-group>
+			<!-- ${this.years.map(() => html `
+				code for expander goes here
+			`)} -->
+		</capitec-check-group>
+		`;
+		}
 	}
 
 	_renderEmailFields() {
@@ -379,7 +396,23 @@ export class TaxCertificate extends Component {
 	}
 
 	_renderFooter() {
-		return html``;
+		return html`
+		<capitec-group>
+			<capitec-spacer></capitec-spacer>
+			<capitec-button
+			class="cancel-button"
+			type="clear"
+			label="Cancel"
+			@click="${() => this._cancelClick()}">
+			</capitec-button>
+			<capitec-button
+			class="next-btn"
+			type="primary" 
+			label="Next"
+			@click="${() => this._nextClick()}">
+			</capitec-button>
+		</capitec-group>
+		`;
 	}
 
 	_renderLoadingIndicator() {
