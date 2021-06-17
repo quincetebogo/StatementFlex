@@ -31,8 +31,8 @@ const FIELDS = {
 	tempCashAmountLimit: `cash withdrawals`,
 	permanentPurchaseAmountLimit: `card machine purchases`,
 	tempPurchaseAmountLimit: `card machine purchases`,
-	permanentCnpAmountLimit: `online/ telephone/ mail purchases`,
-	tempCnpAmountLimit: `online/ telephone/ mail purchases`
+	permanentCnpAmountLimit: `online/scan to pay/phone`,
+	tempCnpAmountLimit: `online/scan to pay/phone`
 };
 
 /**
@@ -206,9 +206,9 @@ export class UpdateCardLimits extends Component {
 		const newVal = e.detail.new || 0;
 
         if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal);
+			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal, 10);
 		} else {
-			this.cardLimits[e.currentTarget.id] = parseInt(newVal);
+			this.cardLimits[e.currentTarget.id] = parseInt(newVal, 10);
 		}
 		const diff = parseFloat(newVal) - parseFloat(oldVal);
 
@@ -228,7 +228,7 @@ export class UpdateCardLimits extends Component {
 
 		this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
 		this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
-		this.error[transactionType][e.currentTarget.id] = (Number(newVal) > Number(maxLimit)) ? maxLimit : ``;
+		this.error[transactionType][e.currentTarget.id] = Number(newVal) > Number(maxLimit) ? maxLimit : ``;
 		this.requestUpdate();
     }
 
@@ -349,7 +349,7 @@ export class UpdateCardLimits extends Component {
 	}
 
 	_getTextFieldValue(id, value) {
-		return this.fieldFocused === id ? value : parseInt(value).toFixed(2);  
+		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
 	}
 
     // --------------
@@ -911,7 +911,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${cnpAmountLimit}"
-				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
+				label="Online/scan to pay/phone (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
@@ -1051,7 +1051,7 @@ export class UpdateCardLimits extends Component {
 			<div class="agreement-lb">
 				<ol>
 					<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
-					<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
+					<li>You are aware that it's safer to transfer funds electronically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
 					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
 					<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
 				</ol>
