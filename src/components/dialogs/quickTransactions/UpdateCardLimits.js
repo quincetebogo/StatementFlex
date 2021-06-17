@@ -31,8 +31,8 @@ const FIELDS = {
 	tempCashAmountLimit: `cash withdrawals`,
 	permanentPurchaseAmountLimit: `card machine purchases`,
 	tempPurchaseAmountLimit: `card machine purchases`,
-	permanentCnpAmountLimit: `online/ telephone/ mail purchases`,
-	tempCnpAmountLimit: `online/ telephone/ mail purchases`
+	permanentCnpAmountLimit: `online/scan to pay/phone`,
+	tempCnpAmountLimit: `online/scan to pay/phone`
 };
 
 /**
