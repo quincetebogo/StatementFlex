@@ -298,14 +298,16 @@ export class CardLimitsLanding extends Component {
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
 				cardCategory: this._updateType,
-				limitExpiryDate: this._calculateLimitExpiry()
+				limitExpiryDate: this._calculateLimitExpiry(),
+				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		} else {
 			this._result(false, {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType
+				cardCategory: this._updateType,
+				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		}
 	}
