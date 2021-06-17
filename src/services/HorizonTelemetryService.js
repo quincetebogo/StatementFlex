@@ -1,5 +1,5 @@
 import { SecurityContext /* , Telemetry */ } from 'platform/core';
-import { Telemetry } from 'app/mocks/Telemetry';
+import { TelemetryMock } from 'app/mocks/Telemetry';
 import { TelemetryStore } from 'app/store/TelemetryStore';
 import { v4 } from 'uuid';
 
@@ -120,7 +120,7 @@ export const OutcomeScreen = {
  * @class TelemetryService
  * @extends Telemetry
  */
-export class HorizonTelemetry extends Telemetry {
+export class HorizonTelemetry extends TelemetryMock {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
 	// #region INITIALISATION
@@ -164,7 +164,7 @@ export class HorizonTelemetry extends Telemetry {
 
 		this.activeSpanTree = [];
 		this.telemetryStore = new TelemetryStore();
-		this._telemetry = Telemetry.getInstance();
+		this._telemetry = this;
 
 		this.initialise();
 	}

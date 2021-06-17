@@ -261,6 +261,7 @@ export class Favourites extends SavingsAccountBase {
 		}
 
 		this.logger.log(`error`, `Unable to retrieve permanent card limits`, `_getPermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 		return null;
 	}
 
