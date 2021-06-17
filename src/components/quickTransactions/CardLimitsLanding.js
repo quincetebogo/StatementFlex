@@ -188,10 +188,11 @@ export class CardLimitsLanding extends Component {
 	}
 
 	async _getLimitsAgreement(card, newLimits, tapToPayStatus) {
+		const cardId = this._updateType === `Debit` && card.linkedCardLimits ? card.linkedCardId : card.cardId;
 		const request = {
 			cardDetails: {
 				cardDetails: {
-					cardId: card.cardId,
+					cardId: cardId,
 					accountId: card.primarySavingsAccountId || card.primaryCreditAccountId,
 					customerId: this.cifNumber,
 					cardExpiryYear: card.cardExpiryYear,
@@ -297,14 +298,16 @@ export class CardLimitsLanding extends Component {
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
 				cardCategory: this._updateType,
-				limitExpiryDate: this._calculateLimitExpiry()
+				limitExpiryDate: this._calculateLimitExpiry(),
+				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		} else {
 			this._result(false, {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType
+				cardCategory: this._updateType,
+				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		}
 	}
@@ -335,9 +338,10 @@ export class CardLimitsLanding extends Component {
 		this._limitType = limitType;
 		this._cardDetails = card;
 
+		const cardId = this._updateType === `Debit` && this._cardDetails.linkedCardLimits ? this._cardDetails.linkedCardId : this._cardDetails.cardId;
 		const limitsReq = {
 			"cardDetails": {
-				"cardId": this._cardDetails.cardId,
+				"cardId": cardId,
 				"accountId": this._cardDetails.primarySavingsAccountId || this._cardDetails.primaryCreditAccountId,
 				"customerId": this.cifNumber,
 				"cardExpiryYear": this._cardDetails.cardExpiryYear,
