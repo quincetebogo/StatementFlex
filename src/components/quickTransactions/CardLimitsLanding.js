@@ -350,7 +350,18 @@ export class CardLimitsLanding extends Component {
 			await this._getPermanentLimits(limitsReq);
 		} else {
 			await this._getTemporaryLimits(limitsReq);
-		}
+        }
+
+        //update-type - credit/debit
+        //limit-type - Permanent/Temporary
+        //card-display-type - Primary, Supplementary or Virtual
+        this._telemetry.logEvent(QuickTransactionEvents.CARD_LIMITS_SELECT_CARD, {
+            "screen": TelemetryScreen.CARD_LIMITS_LANDING,
+            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+            "update-type": this._updateType,
+            "limit-type":this._limitType,
+            "card-display-type":this._cardDetails.cardDisplayName
+        });
 		
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
 	}
