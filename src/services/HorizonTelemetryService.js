@@ -1424,16 +1424,16 @@ export class HorizonTelemetry extends Telemetry {
 	 */
 	async _endUnClosedChildSpans() {
 		const unClosedSpans = this.activeSpanTree.filter(span => !isNullorEmpty(span.parentSpan));
-		const endUnclosedSpans = async _ => {
-			
-			for (let index = unClosedSpans.length; index > 0; index--) {
-				await this.endSpan(unClosedSpans[index - 1].event, {
-					"info": `Parent span closing child span`
-				});
-			}
-		};
 
-		await endUnclosedSpans();
+		await unClosedSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, {
+				"info": `Parent span closing child span`
+			});
+		}, Promise.resolve());
 	}
 
 	_generateNode(span, spanID, event) {
