@@ -184,7 +184,7 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 	_securityQuestionsClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 		});

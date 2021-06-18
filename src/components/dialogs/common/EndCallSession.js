@@ -201,8 +201,9 @@ export class EndCallSession extends Component {
 		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
-	_returnToCallWaitingPage() {
-		this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
+	async _returnToCallWaitingPage() {
+		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
+		await this._telemetry._endUnClosedChildSpans();
 		this._telemetry.endSpan(AcceptCallEvents.INCOMING_CALL);
 
 		const state = { callStatus: `CALL-ENDED` };
