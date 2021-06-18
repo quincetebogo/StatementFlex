@@ -200,6 +200,7 @@ export class AccessMenuBar extends Component {
 					label="Client Insights">
 						<capitec-spacer></capitec-spacer>
 						<capitec-icon
+							style="display:none;"
 							size="small"
 							icon="system/settings-action"
 							@click = "${() => this._showVASModal()}">
