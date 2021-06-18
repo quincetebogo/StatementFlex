@@ -210,7 +210,7 @@ export class UpdateCardLimits extends Component {
 		} else {
 			this.cardLimits[e.currentTarget.id] = parseInt(newVal, 10);
 		}
-		const diff = parseFloat(newVal) - parseFloat(oldVal);
+		const diff = parseInt(newVal) - parseInt(oldVal);
 
 		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
 			if (this.limitType === `Permanent`) {
@@ -234,9 +234,9 @@ export class UpdateCardLimits extends Component {
 
 	_randToInt(value) {
         if (value.startsWith(`R`)) {
-            return parseFloat(value.substring(1));
+            return parseInt(value.substring(1));
         }
-        return parseFloat(value);
+        return parseInt(value);
     }
 
     _back() {
@@ -507,7 +507,7 @@ export class UpdateCardLimits extends Component {
 				--theme-font-weight: 600;
 			}
 			.main-cb {
-				height: 657px;
+				height: 661px;
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 16px;
@@ -579,6 +579,7 @@ export class UpdateCardLimits extends Component {
 			}
 			capitec-card > capitec-group {
 				width: 100%;
+				height: 268px;
 				padding: 0px 16px 0px 16px;
 			}
 			capitec-toggle {
@@ -688,7 +689,6 @@ export class UpdateCardLimits extends Component {
 			}
 			.card-img-cb {
 				width: 356px;
-				padding-top: 31px;
 			}
 			.tapToPayTitle {
 				height: 24px;
@@ -801,7 +801,7 @@ export class UpdateCardLimits extends Component {
 
     _renderCard() {
         return html`
-		<capitec-content-box class="card-img-cb" halign="center" valign="Center">
+		<capitec-content-box class="card-img-cb" halign="center" valign="center">
 			<horizon-card-art
 				.card="${this.cardArtDetails}"
 				disable-hover="${true}"
@@ -893,7 +893,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType].cashAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
@@ -904,7 +904,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType].purchaseAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxPurchaseAmountLimit)}">
@@ -915,7 +915,7 @@ export class UpdateCardLimits extends Component {
 				keyboardMode="numeric"
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
-				error="${this._getFieldError(this.error[transactionType].cnpAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
 				?hidden="${this.cardDetails.cardDisplayType === `Supplementary_Card`}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
