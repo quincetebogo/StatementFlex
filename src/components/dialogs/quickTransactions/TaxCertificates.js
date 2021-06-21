@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { NavigationContext } from 'platform/core';
+import { NavigationContext, EventAggregator } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
@@ -49,12 +49,15 @@ export class TaxCertificate extends Component {
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		this.certType = {};
 		this.showChoosePeriod = false;
+		this.currentStep = 0;
 	}
 
 	// --------------
@@ -167,7 +170,7 @@ export class TaxCertificate extends Component {
 	}
 
 	_nextClick() {
-		
+
 	}
 
 	// ---------------
@@ -262,16 +265,29 @@ export class TaxCertificate extends Component {
 		return [
 			super.styles,
 			css `
-			capitec-modal {
-				--theme-modal-header-background-color: #F7F7F7;
+			bb-stepper-modal {
+				--theme-modal-header-height: 64px;
+				--theme-modal-header-font-size: 18px;
+				--theme-modal-header-padding-left: 16px;
 				--theme-modal-header-color: #3A3A3A;
-				--theme-modal-header-padding-top: 20px;
-				--theme-modal-header-padding-bottom: 20px;
-				--theme-modal-footer-padding: 15px 15px 16px 24px;
+				--theme-modal-header-background-color: #F7F7F7;
+				--theme-stepper-inner-step-container-width: 448px;
+				--theme-wizard-modal-max-width: 896px;
+				--theme-wizard-modal-max-height: 953px;
+
 			}
 			.main-cb {
-				height: 890px;
-				width: 896px;
+				height: 100%;
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 0px;
+			}
+			div[slot="step"]{
+				height: 100%;
+				max-height: var(--theme-wizard-modal-max-height, 826px);
+
+				--theme-layout-gap-spacing: 0px;
 			}
 			capitec-stepper {
 				--theme-stepper-step-title-font-color: #3A3A3A;
@@ -288,6 +304,13 @@ export class TaxCertificate extends Component {
 				margin-top: 10px;
 				margin-bottom: 10px;
 			}
+			capitec-button {
+				margin-right: 16px;
+			}
+			.footer {
+				width: 896px;
+				height: 64px;
+			}
 			`
 		]
 	}
@@ -298,23 +321,18 @@ export class TaxCertificate extends Component {
 
 	_webTemplate() {
 		return html`
-		<capitec-modal type="free" header-align="left" header="Tax Certificate">
-		<div slot="body">
-		<capitec-stepper
-			layout="horizontal"
-			.steps="${TAX_CERTIFICATE_STEPS}"
-			active-step-number="${this.renderMode}">
- 		</capitec-stepper>
-
-		 <capitec-content-box class="main-cb">
-			${this._renderChooseCerificate()}
-			${this._renderChoosePeriod()}
-		</capitec-content-box>
+		<bb-stepper-modal
+				header="Tax Certificate"
+				.steps="${TAX_CERTIFICATE_STEPS}"
+				current-active-step="${this.renderMode}">
+			<div slot="step">
+				${this._renderContent()}
+			</div>
 		</div>
-		<div slot="footer" class="footer-class">
+		<div slot="footer">
 			${this._renderFooter()}
 		</div>
-		</capitec-modal>
+	</bb-stepper-modal>
 			${this._renderLoadingIndicator()}
 		`
 	}
@@ -340,9 +358,20 @@ export class TaxCertificate extends Component {
 		return html``;
 	}
 
+	_renderContent() {
+		return html`
+			<capitec-content-box
+				class="main-cb"
+				layout="vertical"
+				gap="clear"
+				?noScroll="${true}">
+			${this._renderChoosePeriod()}
+			${this._renderEmailFields()}
+			</capitec-content-box>`
+	}
+
 	_renderChooseCerificate() {
-		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE ?
-			html`
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE ? html`
 			<capitec-label 
 				type="title"
 				label="Choose a certificate type"
@@ -368,9 +397,8 @@ export class TaxCertificate extends Component {
 					@value-changed="${(e) => this._certChange(e)}"
 					column="3"></capitec-radio>
 			</capitec-group>
-			</capitec-radio-group>`
-			: html``;
-
+			</capitec-radio-group>
+		` : html ``;
 	}
 
 	_renderChoosePeriod() {
@@ -397,21 +425,32 @@ export class TaxCertificate extends Component {
 
 	_renderFooter() {
 		return html`
-		<capitec-group>
+		<capitec-content-box 
+		class="footer"
+		layout="horizontal"
+		gap="clear">
+			<capitec-group style="display: inline; border-top: 1px solid grey;">
+			<capitec-button
+				type="clear"
+				label="Back"
+				@click="${() => this._back()}"
+				?hidden="${this.currentStep === 0}">
+			</capitec-button>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button
-			class="cancel-button"
-			type="clear"
-			label="Cancel"
-			@click="${() => this._cancelClick()}">
-			</capitec-button>
-			<capitec-button
-			class="next-btn"
-			type="primary" 
-			label="Next"
-			@click="${() => this._nextClick()}">
-			</capitec-button>
-		</capitec-group>
+				class="cancel-button"
+				type="secondary"
+				label="Cancel"
+				@click="${() => this._cancelClick()}">
+				</capitec-button>
+				<capitec-button
+				class="next-btn"
+				type="primary" 
+				label="Next"
+				@click="${() => this._nextClick()}">
+				</capitec-button>
+			</capitec-group>
+		</capitec-content-box>
 		`;
 	}
 
