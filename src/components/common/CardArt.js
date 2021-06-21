@@ -33,6 +33,7 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
+		this.displayName = ``;
 		this._initialise();
 		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
@@ -60,7 +61,6 @@ export class CardArt extends Component {
 			},
 			context: { type: String },
 			tapToPayStatus: { type: Boolean },
-
 			cardArtSVG: { attribute: false }
 		};
 	}
@@ -380,7 +380,7 @@ export class CardArt extends Component {
 				halign="left"
 				valign="top">
 					<capitec-label
-						label="${this.card.cardDisplayName}"
+						label="${this.displayName}"
 						type="default">
 					</capitec-label>
 					<capitec-label

@@ -126,7 +126,7 @@ export class TapToPayLanding extends Component {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
 		} else {
-			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber, cardType: this.selectedCard.cardType  }, `Failed to load agreements`);
+			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber, cardType: this.selectedCard.cardType }, `Failed to load agreements`);
 		}
 	}
 
@@ -329,7 +329,6 @@ export class TapToPayLanding extends Component {
 	_renderPrimaryCards() {
 
 		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && card.isContactlessCard);
-
 		return html`
 			<capitec-label
 				class="primary-card-label"
@@ -350,6 +349,7 @@ export class TapToPayLanding extends Component {
 	}
 
 	_renderPrimaryCardArt(card, index) {
+	
 		return html`
 			<horizon-card-art
 				id="primaryCard-widget-${index}"
@@ -357,6 +357,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
+				.displayName=${card.cardDisplayName === `MasterCard Credit` ? `Credit card ` : `Debit card`}
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
@@ -392,6 +393,7 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
+				.displayName=${card.cardDisplayName === ` Supplementary Debit MasterCard` ? `Supplementary debit card`: ` Supplementary credit card`}
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;

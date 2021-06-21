@@ -940,7 +940,7 @@ export class UpdateCardLimits extends Component {
 			<capitec-card>
 				<capitec-group layout="horizontal" class="toggleText" halign="left" valign="center" gap="none">
 					<capitec-label
-						label="Would you like to activate your Tap to Pay"
+						label="Would you like to activate your Tap to Pay?"
 						type="default">
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
