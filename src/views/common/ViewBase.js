@@ -181,7 +181,7 @@ export class ViewBase extends View {
 	}
 
 	async _addCallerDetails() {
-		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+		// HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
 
 		const callDetails = {
 			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
