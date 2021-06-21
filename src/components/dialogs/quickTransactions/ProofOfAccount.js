@@ -1,8 +1,11 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { NavigationContext } from 'platform/core';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
 const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
@@ -28,8 +31,13 @@ export class ProofOfAccount extends Component {
 
 	constructor() {
 		super();
+		this.navigationContext = NavigationContext.getInstance();
+
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
+
+		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
 		// private properites
 		this.isBusy = false;
@@ -43,8 +51,6 @@ export class ProofOfAccount extends Component {
 			idEmailAddress: ``,
 			idConfirmEmail: ``
 		};
-
-		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 	}
 
 	// --------------
@@ -72,17 +78,14 @@ export class ProofOfAccount extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT
+		
+		this._telemetry.startSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT
 		});
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT
-		});
+		super.disconnectedCallback();
 	}
 
 	// --------------
@@ -99,11 +102,14 @@ export class ProofOfAccount extends Component {
 
 	async _sendClick(e) {
 		if (this._validateEmail(e)) {
-			// saving 'emailAddress' and 'accountNumber' in state.
-			this.horizonStore.saveState({
-				emailAddress: this.idEmailAddress,
-				accountNumber: this.landingPageInfo.accountNumber
+
+			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_SEND, {
+				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+				"next-screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
 			});
+
+			// saving 'emailAddress' and 'accountNumber' in state.
+			this._updateScreenDetails();
 
 			const clientInfo = {
 				"cifNumber": this.callerInformation.cifNumber,
@@ -112,19 +118,13 @@ export class ProofOfAccount extends Component {
 				"emailAddress": this.idEmailAddress,
 				"accountType": ACCOUNT_TYPE
 			};
-
-			// Telemetry
-			HorizonTelemetry.instance.selectProofOfAccountSend({
-				screen: TelemetryScreen.PROOF_OF_ACCOUNT,
-				nextScreen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
-			});
-
-			HorizonTelemetry.instance.proofOfAccountOutcome({
-				screen: TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-				nextScreen: null
-			});
-
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+
+			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
+				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
+			});
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
 
 			if (returnValue.succeeded) {
 				this.horizonRouter.navigateToProofOfAccountSuccess();
@@ -141,11 +141,11 @@ export class ProofOfAccount extends Component {
 	}
 
 	_cancelClick(e) {
-
-		HorizonTelemetry.instance.selectCancelProofOfAccount({
-			screen: TelemetryScreen.PROOF_OF_ACCOUNT,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_CANCEL, {
+			"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
+		this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, { "screen": TelemetryScreen.PROOF_OF_ACCOUNT });
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
@@ -201,13 +201,11 @@ export class ProofOfAccount extends Component {
 		this._clearErrors(e);
 	}
 
-
 	_clearErrors(e) {
         this.errMessage.idEmailAddress = ``;
         this.errMessage.idConfirmEmail = ``;
 		this.alertBannerMessage = ``;
 		this.emailText = `Email address`;
-
 	}
 
 	_valueChanged(e) {
@@ -218,6 +216,15 @@ export class ProofOfAccount extends Component {
 
 	_isNullorEmpty(fieldValue) {
 		return fieldValue === `` || fieldValue === null || fieldValue === undefined;
+	}
+
+	_updateScreenDetails() {
+		const screenDetails = this.horizonStore.getScreenDetails();
+
+		screenDetails.emailAddress = this.idEmailAddress;
+		screenDetails.accountNumber = this.landingPageInfo.accountNumber;
+		
+		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	// ---------------
@@ -307,7 +314,6 @@ export class ProofOfAccount extends Component {
 		return _webTemplate();
 	}
 
-
 	_webTemplate() {
 		return html`
 		<capitec-modal type="free" header-align="left" header="Proof Of Account">
@@ -326,13 +332,19 @@ export class ProofOfAccount extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-		<capitec-alert-banner type="unsuccessful-red">
-			<capitec-group layout="horizontal">
-				<capitec-label type="subtitle" label="Notify: " class="label-err-message"></capitec-label>
-				<capitec-label label="${this.alertBannerMessage}" class="label-err-message"></capitec-label>
-			</capitec-group>
-		
-		</capitec-alert-banner>
+				<capitec-alert-banner type="unsuccessful-red">
+					<capitec-group layout="horizontal">
+						<capitec-label
+							type="subtitle"
+							label="Notify: "
+							class="label-err-message">
+						</capitec-label>
+						<capitec-label
+							label="${this.alertBannerMessage}"
+							class="label-err-message">
+						</capitec-label>
+					</capitec-group>
+				</capitec-alert-banner>
 			`;
 		}
 		return html``;

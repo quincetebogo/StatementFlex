@@ -69,13 +69,13 @@ export class FavouriteTransactions extends Component {
 			this.displayToast = true;
 			window.setTimeout(() => this._toggleToastDisplay(), 3000);
 		}
-		
+
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
+	
 	_toggleToastDisplay() {
 		this.displayToast = false;
 	}
@@ -154,7 +154,7 @@ export class FavouriteTransactions extends Component {
 				width: 188px;
 				margin-right: 16px;
 			}
-			
+
 			.toast {
 				position: absolute;
 				top : 70px;
@@ -244,7 +244,12 @@ export class FavouriteTransactions extends Component {
 	_renderVerifiedToast() {
 		if (this.displayToast) {
 			return html`
-				<capitec-toast class="toast" type="success" header="Successful" detail="Thank you, you have been verified." closable>
+				<capitec-toast
+					class="toast"
+					type="success"
+					header="Successful"
+					detail="Thank you, you have been verified."
+					closable>
 				</capitec-toast>`;
 		}
 		return html``;
@@ -302,16 +307,16 @@ export class FavouriteTransactions extends Component {
 						@click="${() => this._optionSelectedClick(`stop-card`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
-					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
+					<horizon-option-button style="display:none;" label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: hidden;"
-						>
+	                    style="visibility: visible;"
+>
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: hidden;"
+						style="visibility: visible;"
 						>
 					</horizon-option-button>
 				</capitec-button-bar>
