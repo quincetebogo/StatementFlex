@@ -38,9 +38,9 @@ const TAX_CERTIFICATE_STEPS = [
 
 export class TaxCertificate extends Component {
 
-	//-----------------
+	// -----------------
 	// INITIALISATION
-	//-----------------
+	// -----------------
 
 	constructor() {
 		super();
@@ -55,6 +55,11 @@ export class TaxCertificate extends Component {
 
 		this.certType = {};
 		this.showChoosePeriod = false;
+
+		this.tableRecords = [
+			{ columnOne: `Savings account`, columnTwo: `Balance`, columnThree: `Interest Recieved`, columnFour: `Status` },
+			{ columnOne: `Savings account`, columnTwo: `Balance`, columnThree: `Interest Recieved`, columnFour: `Status` }
+		];
 	}
 
 	// --------------
@@ -76,7 +81,7 @@ export class TaxCertificate extends Component {
 			isBusy: { attribut: false },
 			alertBannerMessage: { attribute: false },
 			emailText: { attribute: false }
-		}
+		};
 	}
 
 	// -------------------
@@ -261,7 +266,7 @@ export class TaxCertificate extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css `
+			css`
 			capitec-modal {
 				--theme-modal-header-background-color: #F7F7F7;
 				--theme-modal-header-color: #3A3A3A;
@@ -288,8 +293,66 @@ export class TaxCertificate extends Component {
 				margin-top: 10px;
 				margin-bottom: 10px;
 			}
+			horizon-label > .label-text {
+				font-weight: 600;
+			}
+			horizon-label > {
+				font-weight: 500;
+			}
+			.expander-header > horizon-label {
+				width: 156px;
+				height: 100%;
+				font-weight: 300;
+				justify-content: left;
+				padding: 0px 0px 0px 0px;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-font-size: 16px;
+				--horizon-label-text-line-height: 20px;
+				--horizon-label-text-font-weight: 600;
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-font-size: 14px;
+				--horizon-label-value-font-weight: 500;
+				--horizon-label-value-line-height: 20px;
+				--horizon-label-text-color:#3A3A3A;
+			}
+
+			.expander{
+				width: 50px;
+			}
+
+			.tax-certificate-bar > capitec-group {
+				width: 100%;
+				z-index: 10;
+				padding-top: 12px;
+				padding-bottom: 12px;
+				border-right: 1px solid #dfdfdf;
+			}
+
+			.tax-certificate-bar {
+				display: flex;
+				position: relative;
+			}
+
+			.tax-certificate-bar > capitec-expander {
+				position: absolute;
+				border-bottom: 1px solid #E1E1E1;
+				border-radius:4px;
+				--theme-container-padding-right: 0px;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-bottom: 0px;
+				--theme-expander-header-height: 64px;
+				--theme-expander-height: 210px;
+				--theme-expander-indicator-width: 11.5px;
+				--theme-expander-indicator-height: 6.5px;
+				box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
+			}
+
+			.check-details {
+				margin-left: 8px; 
+			}
 			`
-		]
+		];
 	}
 
 	_mobileTemplate() {
@@ -375,20 +438,42 @@ export class TaxCertificate extends Component {
 
 	_renderChoosePeriod() {
 		this.years = ["2017", "2018", "2019", "2020"];
-
+		const status = `Available`;
 		if (this.showChoosePeriod) {
 		return html`
 		<capitec-label
 			label="Choose Period (${this.certType.name})"
-			type="title">
+			type="default">
 		</capitec-label>
-		<capitec-check-group>
-			<!-- ${this.years.map(() => html `
-				code for expander goes here
-			`)} -->
-		</capitec-check-group>
+
+		<div class="tax-certificate-bar">
+			<!-- ${this.years.map(() => html`
+				code for expander goes here `)}
+	-->
+			<capitec-expander label="" ?expanded="${true}" expandable>
+				${this._renderOptions()}
+			</capitec-expander>
+			<capitec-group class="expander-header" layout="horizontal" gap="none" halign="left" valign="center">
+					<capitec-check class="check-details"></capitec-check>
+					<horizon-label
+						label="2020"
+						value="${this.certType.detail} ${status}">
+					</horizon-label>
+			</capitec-group>
+		</div>
 		`;
 		}
+	}
+
+	_renderOptions() {
+		return html`
+			<capitec-table .items="${this.tableRecords}">
+				<capitec-table-column label="Overview(4 accounts)" field="columnOne" value="1457065930"></capitec-table-column>
+				<capitec-table-column label="" field="columnTwo"></capitec-table-column>
+				<capitec-table-column label="" field="columnThree"></capitec-table-column>
+				<capitec-table-column label="" field="columnFour"></capitec-table-column>
+			</capitec-table>
+		`;
 	}
 
 	_renderEmailFields() {
