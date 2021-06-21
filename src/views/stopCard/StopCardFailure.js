@@ -155,7 +155,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_onAssign() {
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
 		});
