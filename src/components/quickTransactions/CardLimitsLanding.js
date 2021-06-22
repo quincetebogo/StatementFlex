@@ -360,15 +360,15 @@ export class CardLimitsLanding extends Component {
 			await this._getTemporaryLimits(limitsReq);
         }
 
-        //update-type - credit/debit
-        //limit-type - Permanent/Temporary
-        //card-display-type - Primary, Supplementary or Virtual
+        // update-type - credit/debit
+        // limit-type - Permanent/Temporary
+        // card-display-type - Primary, Supplementary or Virtual
         this._telemetry.logEvent(QuickTransactionEvents.CARD_LIMITS_SELECT_CARD, {
             "screen": TelemetryScreen.CARD_LIMITS_LANDING,
             "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS,
             "update-type": this._updateType,
-            "limit-type":this._limitType,
-            "card-display-type":this._cardDetails.cardDisplayName
+            "limit-type": this._limitType,
+            "card-display-type": this._cardDetails.cardDisplayName
         });
 		
 		this.showUpdateLimitsModal = !this.showUpdateLimitsModal;
@@ -836,9 +836,9 @@ export class CardLimitsLanding extends Component {
 			return `N/A`;
 		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && id !== `permOnlineLimit`) {
 			return `N/A`;
-		} else {
-			return formatCurrency(value);
-		}
+		} 
+
+		return formatCurrency(value);
 	}
 
 	_getMaxLimitValue(value, card, id) {
@@ -848,9 +848,9 @@ export class CardLimitsLanding extends Component {
 			return ``;
 		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD) {
 			return ``;
-		} else {
-			return `max` + formatCurrency(value);
 		}
+
+		return `max` + formatCurrency(value);
 	}
 
 	_renderUpdateButton(type, card) {
