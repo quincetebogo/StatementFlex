@@ -854,14 +854,14 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderUpdateButton(type, card) {
-		return type === LIMIT_TYPES.TEMPORARY && card.isVirtualCard
-			? html``
-			: html`
-				<capitec-label
-					class="col5"
-					row="1" column="5" colspan="1" size="4"
-					label="Update">
-				</capitec-label>
+		const label = type === LIMIT_TYPES.TEMPORARY && card.isVirtualCard ? `` : `Update`;
+
+		return html`
+			<capitec-label
+				class="col5"
+				row="1" column="5" colspan="1" size="4"
+				label="${label}">
+			</capitec-label>
 		`;
 	}
 
