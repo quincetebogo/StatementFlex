@@ -136,7 +136,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 					class="id-update-msg" 
 					slot="sub-detail">
 						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
-							? `was activated and is now pending.`
+							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
 							: `is deactivated`}.
 				</section>`
 			: html``;
