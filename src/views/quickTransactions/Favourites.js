@@ -257,9 +257,11 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
-	
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to retrieve permanent card limits`, `_getPermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 		return null;
 	}
 
@@ -276,6 +278,10 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update permanent card limits`, `_updatePermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
+
 		return null;
 	}
 
@@ -285,6 +291,9 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 
 		return null;
 	}
@@ -302,15 +311,28 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update temporary card limits`, `_updateTemporaryLimits`, returnValue.correlationId);
+
 		return null;
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
+		agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCashAmountLimit *= 100;
+		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
+
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => true);
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get card limits agreement`, `_getCardLimitsAgreement`, returnValue.correlationId);
+
 		return null;
 	}
 

@@ -28,7 +28,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	static get properties() {
 		return {
-			card: { attribute: false }
+			card: { attribute: false },
+			cardType: { attribute: String }
 		};
 	}
 	// -------------------
@@ -41,7 +42,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
-
+		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -142,7 +143,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 					<section
 						id="id-error-msg" 
 						slot="detail">
-						Tap to Pay for debit card ${this.card} was not activated.
+						Tap to Pay for ${this.cardType} card ${this.card} was not activated.
 					</section>
 			</horizon--error-screen >
 		`;

@@ -231,6 +231,27 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `accessChannels`);
 	}
 
+	// --------------------
+	// Value Added Services
+	// --------------------
+
+	getValueAddedService(cifNumber) {
+		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		return this._get(url, this._setToken(), `getValueAddedService`);
+	}
+
+	putValueAddedService(request) {
+		const url = `/clientcare-client-${this._version}/value-added-services?` +
+						`CapitecEntityId=${request.capitecEntityId}&` +
+						`OptOutInsights=${request.optOutInsights}&` +
+						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
+						`optOutPreAssesments=${request.optOutPreAssesments}&` +
+						`optOutAnalysis=${request.optOutAnalysis}&` +
+						`optOutThirdParties=${request.optOutThirdParties}&`;
+
+		return this._put(url, request, this._setToken(), `putValueAddedService`);
+	}
+
 	// -----------
 	// Call Methods
 	// -----------
@@ -305,7 +326,7 @@ export class HorizonChannelService extends Service {
 
 	// addCallerDetailsRequest
 	addCallerDetails(callerData) {
-		const url = `/clientcare-call-${this._version}/caller/add-caller-details`;
+		const url = `/clientcare-card-${this._version}/caller/addcallerdetails`;
 		const model = {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
