@@ -35,6 +35,12 @@ const FIELDS = {
 	tempCnpAmountLimit: `online/scan to pay/phone`
 };
 
+const CARD_DISPLAY_TYPES = {
+	PRIMARY_CARD: `Primary_Card`,
+	SUPPLEMENTARY_CARD: `Supplementary_Card`,
+	VIRTUAL_CARD: `Virtual_Card`
+};
+
 /**
  * This component implements the modal for update card limits
  *
@@ -894,6 +900,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
@@ -906,6 +913,7 @@ export class UpdateCardLimits extends Component {
 				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
 				@blur="${() => this.fieldFocused = ``}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxPurchaseAmountLimit)}">
 			</capitec-text-field>
@@ -916,7 +924,7 @@ export class UpdateCardLimits extends Component {
 				type="currency"
 				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
 				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
-				?hidden="${this.cardDetails.cardDisplayType === `Supplementary_Card`}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
 				@blur="${() => this.fieldFocused = ``}"
 				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxcnpAmountLimit)}">
