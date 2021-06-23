@@ -19,6 +19,48 @@ import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `Choose an option to end call`;
+const END_CALL_REASONS = [
+	{
+		key: 0,
+		value: `Need fulfilled`
+	},
+	{
+		key: 1,
+		value: `Need assigned`
+	},
+	{
+		key: 2,
+		value: `Need handed off`
+	},
+	{
+		key: 3,
+		value: `Language transfer`
+	},
+	{
+		key: 4,
+		value: `Call transferred`
+	},
+	{
+		key: 5,
+		value: `Need incomplete - bad connection`
+	},
+	{
+		key: 6,
+		value: `Balance enquiry`
+	},
+	{
+		key: 7,
+		value: `Product enquiry`
+	},
+	{
+		key: 8,
+		value: `Client failed verification`
+	},
+	{
+		key: 9,
+		value: `Follow up required`
+	}
+];
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -43,7 +85,7 @@ export class EndCallSession extends Component {
 		super();
 
 		this.incomingCallDetails = {};
-		this.endCallReasons = [];
+		this.endCallReasons=[];
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
@@ -91,6 +133,7 @@ export class EndCallSession extends Component {
 	// -------------------
 	async connectedCallback() {
 		super.connectedCallback();
+		this.endCallReasons=END_CALL_REASONS;
 
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
 			"screen": TelemetryScreen.END_CALL
@@ -105,7 +148,7 @@ export class EndCallSession extends Component {
 		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
 		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
 
-		await this._loadEndCallOptions();
+		
 	}
 
 	disconnectedCallback() {
@@ -136,12 +179,13 @@ export class EndCallSession extends Component {
 	}
 
 	_endCallClick() {
+		if(this.endCallReason){
 		this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
 			"screen": TelemetryScreen.END_CALL,
 			"reason": this.endCallReason.value,
 			"next-screen": TelemetryScreen.WAIT_FOR_CALL
 		});
-
+	}
 		const isValid = this._validateCloseIncidentReason();
 
 		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
@@ -154,12 +198,13 @@ export class EndCallSession extends Component {
 			}
 			this._classifyAndClose();
 		}
+	 
 	}
 
 	_valueChanged(e) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
-			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
+			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
 		}
 	}
 
@@ -171,24 +216,7 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_loadEndCallOptions() {
-		this.endCallReasons = [
-			{
-				"key": 0,
-				"value": `Need fulfilled`
-			},
-			{
-				"key": 1,
-				"value": `Need incomplete, bad connection`
-			},
-			{
-				"key": 2,
-				"value": `Need Assigned/ Handed off`
-			}
-		];
-		
-		this._setDefaultValues();
-	}
+	
 
 	_setDefaultValues() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
@@ -462,12 +490,12 @@ export class EndCallSession extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: 322px;
+				height: 503px;
 				border-radius: 5px;
 			}
 
 			.body-box {
-				height: 322px;
+				height: 395px;
 				--theme-container-padding-bottom: 0px;
 			}
 
@@ -482,6 +510,10 @@ export class EndCallSession extends Component {
 				line-height: 24px;
 				margin: 0px 0px 8px 0px;
 			  }
+
+			  .id-options{
+				margin-top: 17px;
+			}
 
 			#id-cancel-button {
 				height: 48px;
@@ -506,11 +538,6 @@ export class EndCallSession extends Component {
 				--theme-button-padding-right: 12px;
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 12px;
-			}
-
-			.radio-button {
-				margin-top: 0px;
-				padding-bottom: 8px;
 			}
 			
 			capitec-alert-banner {
@@ -553,12 +580,19 @@ export class EndCallSession extends Component {
 				class="end-reason-label"
 				label="Choose reason">
 			</capitec-label>
-			<horizon-radio-button-group
-				class="radio-button"
-				.radioButtonsAvailable="${this.endCallReasons}"
-				@value-change="${(e) => this._valueChanged(e)}"
-				.selectedItem="${this.endCallReason && this.endCallReason.value}">
-			</horizon-radio-button-group>
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
+			<div class="end-call-reason">
+			<capitec-select
+				label="Choose reason"
+				class="id-options" 
+				id-field="key"
+ 				display-field="value"
+				.items=${this.endCallReasons}
+				@value-changed="${(e) => this._valueChanged(e)}"
+				tabindex=3>
+				</capitec-select>
+			</div>
+			</capitec-group>
 		`;
 	}
 
@@ -567,7 +601,6 @@ export class EndCallSession extends Component {
 			<capitec-group layout="horizontal">
 				<capitec-button
 					id="id-cancel-button"
-					type="clear"
 					label="Cancel"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>
