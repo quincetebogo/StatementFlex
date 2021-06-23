@@ -17,20 +17,7 @@ import { v4 } from 'uuid';
  */
 const TelemetryEvent = {
 
-	// Statements
-	SCR_LD_STATEMENTS: `horizon.call.statements.start-span`,
-	SELECT_ACCOUNT_TYPE: `horizon.call.statements.select-acc-type`,
-	SELECT_ACCOUNT: `horizon.call.statements.select-account`,
-	SELECT_ACCOUNT_NEXT: `horizon.call.statements.account.next`,
-	SELECT_PERIOD: `horizon.call.statements.period.next`,
-	VIEW_DOCUMENT: `horizon.call.statements.view-document`,
-	STATEMENTS_SEND: `horizon.call.statements.send`,
-	SELECT_BACK: `horizon.call.statements.back`,
-	STATEMENTS_SEND_ANOTHER: `horizon.call.statements.send-another`,
-	SCR_UNLD_STATEMENTS: `horizon.call.statements.end-span`,
-	STATEMENTS_CANCEL_BACK: ``,
-
-	SCR_LD_DEBICHECK: `horizon.call.fulfill-need.debicheck.start-span`,
+	/* SCR_LD_DEBICHECK: `horizon.call.fulfill-need.debicheck.start-span`,
 	EXIT_DEBICHECK: `horizon.call.fulfill-need.debicheck.exit`,
 	VIEW_DEBICHECK_MANDATE: `horizon.call.fulfill-need.debicheck.view-mandate`,
 	CLOSE_VIEW_DEBICHECK: `horizon.call.fulfill-need.debicheck.view-mandate.back`,
@@ -44,7 +31,7 @@ const TelemetryEvent = {
 	DEBICHECK_OUTCOME_DONE: `horizon.call.fulfill-need.debicheck.outcome.done`,
 	DEBICHECK_OUTCOME_BACK_TO_MANDATES: `horizon.call.fulfill-need.debicheck.outcome.another`,
 	DEBICHECK_OUTCOME_ASSIGN: `horizon.call.fulfill-need.debicheck.outcome.assign`,
-	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`
+	SCR_UNLD_DEBICHECK: `horizon.call.fulfill-need.debicheck.end-span`*/
 };
 
 

@@ -82,5 +82,24 @@
      // Discard changes modal
      DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
      DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
-     DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`
+     DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
+
+	 // Satements
+	 STATEMENTS: `call.fulfill-need.statements`,
+	 STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
+
+	 STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
+	 STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
+	 STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
+	 STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
+	 STATEMENTS_BACK: `call.fulfill-need.statements.back`,
+	 STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
+	 STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
+
+	SELECT_STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.view-document`,
+	SELECT_STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.close-document`,
+	STATEMENTS_SEND: `call.fulfill-need.statements.send`,
+	STATEMENTS_SEND_ANOTHER: `call.statements.send-another`,
+	SELECT_STATEMENTS_DONE: `call.fulfill-need.statements.done`,
+	SELECT_STATEMENTS_HANDOFF: `call.fulfill-need.statements.hand-off`
  };
