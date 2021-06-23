@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -23,6 +25,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -54,19 +57,19 @@ export class StatementsUnsuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		// Telemetry
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.FAVOURITES
 		});
-
 		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_handoffClick() {
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME
+		// Telemetry
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
-
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
