@@ -1,6 +1,7 @@
-import { SecurityContext /* , Telemetry */ } from 'platform/core';
-import { TelemetryMock } from 'app/mocks/Telemetry';
+import { SecurityContext, Telemetry } from 'platform/core';
+// import { TelemetryMock } from 'app/mocks/Telemetry';
 import { TelemetryStore } from 'app/store/TelemetryStore';
+import { isNullorEmpty } from '../utils/channelServiceUtilities';
 import { v4 } from 'uuid';
 
 /*
@@ -120,7 +121,7 @@ export const OutcomeScreen = {
  * @class TelemetryService
  * @extends Telemetry
  */
-export class HorizonTelemetry extends TelemetryMock {
+export class HorizonTelemetry extends Telemetry {
 	// TODO: add logic to close all child spans when parent span gets closed. Log a warning if this happens.
 	
 	// #region INITIALISATION
@@ -255,6 +256,7 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @returns {void}
 	 */
 	async startSpan(eventName, baggage = null) {
 
@@ -286,7 +288,7 @@ export class HorizonTelemetry extends TelemetryMock {
 			/**
 			 * Assigning the sapnd id to current active span tree('call'/ 'id-caller'/ 'confirm-caller')
 			 */
-			this._addToActiveSpanTree(currentSpan, spanID, this._getParentSpanName(eventName));
+			this._addToActiveSpanTree(currentSpan, spanID, eventName);
 		}
 	}
 
@@ -295,6 +297,7 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @returns {void}
 	 */
 	async endSpan(eventName, baggage = null) {
 
@@ -330,6 +333,7 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @returns {void}
 	 */
 	async logEvent(eventName, baggage = null) {
 
@@ -1280,8 +1284,6 @@ export class HorizonTelemetry extends TelemetryMock {
 		}
 	}
 
-
-
 	// #endregion Feedback screen 
 
 	// #endregion PUBLIC METHODS
@@ -1296,7 +1298,7 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * Extract tags from event name by (.)
 	 * 
 	 * @param {string} eventName Event name(horizon.call.incident-created)
-	 * @returns {Array}
+	 * @returns {Array} Array of tags
 	 */
 	_extractTags(eventName) {
 		return eventName && eventName.split(`.`);
@@ -1371,10 +1373,10 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * Formats baggage object to array
 	 * 
 	 * @param {object} baggage Object holds event details
-	 * @returns {Array} 
+	 * @returns {Array} Baggage array
 	 */
 	_formatBaggaeDetails(baggage) {
-		let array = [];
+		const array = [];
 
 		Object.entries(baggage).map(item => {
 			array.push({
@@ -1390,11 +1392,12 @@ export class HorizonTelemetry extends TelemetryMock {
 	 * 
 	 * @param {string} span Event name (call/ stop-card/ confirm-caller)
 	 * @param {string} spanID Span ID, returned by startSpan telemetry
-	 * @param {string} parentSpan Current span's parent span name
+	 * @param {string} event Current event
 	 * @returns {void}
 	 */
-	_addToActiveSpanTree(span, spanID, parentSpan) {
-		const node = this._generateNode(span, spanID, parentSpan);
+	_addToActiveSpanTree(span, spanID, event) {
+		const node = this._generateNode(span, spanID, event);
+
 		this.activeSpanTree.push(node);
 		this._updateTelemetryStore();
 	}
@@ -1415,11 +1418,33 @@ export class HorizonTelemetry extends TelemetryMock {
 		this._updateTelemetryStore();
 	}
 
-	_generateNode(span, spanID, parentSpan) {
+	/**
+	 * If the childspans are still active for root span, this function
+	 * will close those child spans saying parent span closing child span
+	 * @returns {void}
+	 */
+	async _endUnClosedChildSpans() {
+		const unClosedSpans = this.activeSpanTree.filter(span => !isNullorEmpty(span.parentSpan));
+
+		await unClosedSpans.reduceRight(async (promise, span) => {
+			// This line will wait for the last async function to finish.
+			// The first iteration uses an already resolved Promise
+			// so, it will immediately continue.
+			await promise;
+			await this.endSpan(span.event, {
+				"info": `Parent span closing child span`
+			});
+		}, Promise.resolve());
+	}
+
+	_generateNode(span, spanID, event) {
+		const parentSpan = this._getParentSpanName(event);
+
 		return {
 			"span": span,
 			"spanID": spanID,
-			"parentSpan": parentSpan
+			"parentSpan": parentSpan,
+			"event": event
 		};
 	}
 
