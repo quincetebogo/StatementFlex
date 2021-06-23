@@ -58,7 +58,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_doneClick() {
 		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_DONE, {
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
@@ -67,7 +67,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_handoffClick() {
 		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_HANDOFF, {
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;

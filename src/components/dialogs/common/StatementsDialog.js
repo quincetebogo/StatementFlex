@@ -242,7 +242,7 @@ export class StatementsDialog extends Component {
 	_close() {
 		this.renderMode = RENDER_MODE.EMAIL;
 		
-		this._telemetry.startSpan(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
+		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
             "screen": TelemetryScreen.STATEMENTS
         });
 
@@ -252,7 +252,7 @@ export class StatementsDialog extends Component {
 	_back() {
 
 		// Telemetry
-		this._telemetry.startSpan(QuickTransactionEvents.STATEMENTS_BACK, {
+		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
             "screen": TelemetryScreen.STATEMENTS
         });
 

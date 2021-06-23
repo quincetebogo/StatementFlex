@@ -98,8 +98,5 @@
 
 	SELECT_STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.view-document`,
 	SELECT_STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.close-document`,
-	STATEMENTS_SEND: `call.fulfill-need.statements.send`,
-	STATEMENTS_SEND_ANOTHER: `call.statements.send-another`,
-	SELECT_STATEMENTS_DONE: `call.fulfill-need.statements.done`,
-	SELECT_STATEMENTS_HANDOFF: `call.fulfill-need.statements.hand-off`
+	STATEMENTS_SEND: `call.fulfill-need.statements.send`
  };

@@ -50,7 +50,7 @@ export class StatementsSuccess extends ViewBase {
 
 	_doneClick() {
 		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_DONE, {
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
             "screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
         });
@@ -59,7 +59,7 @@ export class StatementsSuccess extends ViewBase {
 
 	_sendAnotherClick() {
 	// Telemetry
-	this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND_ANOTHER, {
+	this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
 		"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 		"nextScreen": TelemetryScreen.STATEMENTS
 	});
