@@ -18,6 +18,15 @@
     "extraScopes": "",
     "roles": null
   },
-  "secrets": [],
-  "environmentVariables": []
-}
+  "secrets": [
+    "telemetrydatabussecret"
+  ],
+  "environmentVariables": [
+    "LogLevel",
+    "DatabusSourceSystem",
+    "DatabusResponsibleTeam",
+    "TelemetryApiKeySecretName",
+    "TelemetryApiId",
+    "TelemetryApiUrl"
+  ]
+  }
