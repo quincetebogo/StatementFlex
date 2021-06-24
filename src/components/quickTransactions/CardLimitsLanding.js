@@ -311,6 +311,16 @@ export class CardLimitsLanding extends Component {
 			}, null);
 		}
 	}
+	
+	_onScroll(e) {
+		const expandersList = e.currentTarget.querySelectorAll('horizon-expander');
+
+		expandersList.forEach((expander, index) => {
+			if(e.target.scrollTop > 100*index) {
+				expander.expanded = false;
+			} 
+		})
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -508,6 +518,7 @@ export class CardLimitsLanding extends Component {
                 .columnGroup > bb-multi-line-label{
                     padding: 6px;
                     height: 48px;
+					--horizon-multi-line-label-font-weight: 600;
 					cursor: pointer;
                 }
                 .columnGroup > capitec-label{
@@ -534,7 +545,7 @@ export class CardLimitsLanding extends Component {
                 }
                 horizon-expander{
                     margin: 16px;
-                    width: 1032px;
+                    width: 1031px;
                     border: 1px solid E1E1E1;
                     border-radius: 4px;
                     height: auto;
@@ -543,7 +554,7 @@ export class CardLimitsLanding extends Component {
                     padding: 0px;
                 }
                 .col1{
-                    width:224px;
+                    width:222px;
                 }
                 .col2{
                     width: 204px;
@@ -587,7 +598,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
-				<capitec-content-box>
+				<capitec-content-box @scroll = "${(e) => this._onScroll(e)}">
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
@@ -760,7 +771,7 @@ export class CardLimitsLanding extends Component {
 			${this._renderLimitsRow(card, `Debit`)}
 		`;
 	}
-
+	
 	_renderLimitsRow(card, updateType) {
         const limits = card && card.cardLimits;
         const linkedLimits = card.linkedCardLimits;

@@ -458,8 +458,12 @@ export class Expander extends Component {
                     width: 200px;
                 }                
                 .header-icon{
-                    margin: 12px 16px;
+					height: 40px;
+                    margin: 12px 23px;
                 }
+				.header-icon > img {
+					height: 40px;
+				}
 
                 .vertical-line{
                     height: 24px;
