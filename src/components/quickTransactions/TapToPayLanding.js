@@ -2,6 +2,11 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
+const CARD_TYPE_MAPPING = {
+	DEBIT_MASTERCARD: `Debit card`,
+	MASTERCARD_CREDIT: `Credit card`
+};
+
 export class TapToPayLanding extends Component {
 
 	// --------------
@@ -68,6 +73,7 @@ export class TapToPayLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._loading();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -78,6 +84,15 @@ export class TapToPayLanding extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_initialise() {
+		this.cards.forEach(card => {
+			if (card.isSupplementaryCard) {
+				card.cardDisplayName = `Supplementary ${CARD_TYPE_MAPPING[card.cardType].toLowerCase()}`;
+			} 
+			card.cardDisplayName = CARD_TYPE_MAPPING[card.cardType];
+		});
+	}
 
 	_loading() {
 		this.dispatchEvent(new CustomEvent(`loading`));
@@ -95,6 +110,7 @@ export class TapToPayLanding extends Component {
 	_result(success, tapToPayDetails, failureReason) {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
 	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -357,7 +373,6 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				.displayName=${card.cardDisplayName === `MasterCard Credit` ? `Credit card ` : `Debit card`}
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
@@ -393,7 +408,6 @@ export class TapToPayLanding extends Component {
 				disable-hover="${true}"
 				context="tap-to-pay"
 				.tapToPayStatus="${card.isContactlessActivated}"
-				.displayName=${card.cardDisplayName === ` Supplementary Debit MasterCard` ? `Supplementary debit card`: ` Supplementary credit card`}
 				@toggle-agreement="${(event) => this._toggleTapToPayClick(event)}">
 			</horizon-card-art>
 		`;
