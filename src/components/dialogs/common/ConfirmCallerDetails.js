@@ -498,6 +498,25 @@ export class ConfirmCallerDetails extends Component {
 		} 
 	}
 
+    async _getConsultantDetails(cpNumber) {
+
+        const returnValue = await this.incidentService.GetConsultantInformation(cpNumber);
+        if (returnValue.succeeded) {
+
+            //return consultantInfo = {consultantName: returnValue.result.consultantName, branchCode: returnValue.result.branchCode}
+            return returnValue.result;
+        }
+        return null;
+    }
+
+    async _updateIncidentBranchDetails(branchCode) {
+        //on confirm click, update incident details to be branch incident and not client incident
+        let incidentRecID = this.incidentDetails.incidentRecId;
+        const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode);
+        if (!returnValue.succeeded) {            
+            this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
+        }
+    }
 	// ---------
 	// RENDERING
 	// ---------
@@ -701,6 +720,8 @@ export class ConfirmCallerDetails extends Component {
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				.addCallerDialog="${this.addCallerDetails}"
+                .getConsultantDetails="${(cpNumber) => this._getConsultantDetails(cpNumber)}"
+                .updateIncidentBranchDetails="${(branchCode) => this._updateIncidentBranchDetails(branchCode)}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;

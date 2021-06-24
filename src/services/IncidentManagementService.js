@@ -184,5 +184,30 @@ export class IncidentManagementService extends ServiceBase {
 	 */
 	 incidentStatus(incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.incidentStatus(incidentRecId), `incidentStatus`, errorHandler, autoRetries);
-	}
+    }
+
+    /**
+    * Adding branch details for consultant phoning on behalf of client
+    * @param {object} branchDetails IncidentRecID & BranchCode to classify branch
+    * @param {errorHandlerCallback} [errorHandler=null] and optional error handler
+    * @param {Number} [autoRetries] The amount of times the call should be retried if it fails
+    * @memberof IncidentManagementService
+    */
+    UpdateIncidentBranchDetailsRequest(branchDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+        return this.wrapCall(this.channelService.UpdateIncidentBranchDetailsRequest(branchDetails), `UpdateIncidentBranchDetailsRequest`, errorHandler, autoRetries);
+    }
+
+    /**
+     * Retrieving consultant information
+     * @param {String} cpNumber The CP number of the consultant phoning on behalf of a client
+     * @param {errorHandlerCallback} [errorHandler=null] and optional error handler
+     * @param {Number} [autoRetries] The amount of times the call should be retried if it fails
+     * @returns { Consultant<ReturnValue> } An object of the consultant information
+     * @memberof IncidentManagementService
+     */
+    GetConsultantInformation(cpNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+        return this.wrapCall(this.channelService.GetConsultantInformation(cpNumber), `GetConsultantInformation`, errorHandler, autoRetries);
+    }
+
+
 }

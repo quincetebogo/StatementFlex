@@ -710,8 +710,8 @@ export class HorizonChannelService extends Service {
 			return this._mock.transactionHistory(transactionHistoryRequest);
 		}
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` + 
-		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+        const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
+        `CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +
 		`StartDate=${transactionHistoryRequest.startDate}&` +
@@ -721,7 +721,22 @@ export class HorizonChannelService extends Service {
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
-	}
+    }
+
+    UpdateIncidentBranchDetailsRequest(branchDetails) {
+        //IncidentRecId String
+        //BranchCode String
+        const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+        return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
+    }
+
+    GetConsultantInformation(cpNumber) {
+        //cpNumber = userID
+        //CpNumber String
+        const url = `/clientcare-incident-${this._version}/user-details`;
+        return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
+    }
+
 
 	// ----------------
 	// call - ITA & XDS
