@@ -583,7 +583,6 @@ export class VerifyCaller extends Component {
 				}
 				.timer-bold {
 					font-weight: 700;
-					color: #0083BB;
 				}
 				capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -712,7 +711,7 @@ export class VerifyCaller extends Component {
 									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
-								There is <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
+								You have <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
 							</div>
 							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
 							</capitec-label>
