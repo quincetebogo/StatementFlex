@@ -229,7 +229,7 @@ export class HorizonTelemetry extends Telemetry {
 
 	_initialise() {
 		const telemetryDetails = this.telemetryStore.getTelemetryDetails();
-		const _activeSpans = telemetryDetails.activeSpanTree || [];
+		const _activeSpans = (telemetryDetails && telemetryDetails.activeSpanTree) || [];
 
 		this.activeSpanTree = [..._activeSpans, ...this.activeSpanTree];
 	}
