@@ -33,7 +33,7 @@ export class SystemError extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-
+		super.createSubsequentIncident();
 	}
 
 	// --------------

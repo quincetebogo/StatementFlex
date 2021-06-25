@@ -40,6 +40,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super.createSubsequentIncident();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 

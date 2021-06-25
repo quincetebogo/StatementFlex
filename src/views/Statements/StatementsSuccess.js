@@ -27,6 +27,7 @@ export class StatementsSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super.createSubsequentIncident();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 

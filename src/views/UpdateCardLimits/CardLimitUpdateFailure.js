@@ -38,6 +38,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super.createSubsequentIncident();
 
 		this._updateIncidentState();
 

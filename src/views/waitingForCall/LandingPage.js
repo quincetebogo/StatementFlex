@@ -135,6 +135,7 @@ export class LandingPage extends ViewBase {
 		this.incidentDetails = new IncidentDetails(
 			incident ? incident.incidentNumber : `0`,
 			incident ? incident.incidentRecId : `0`,
+			incident ? incident.incidentNumber : `0`,
 			``,
 			newCallInfo.ivrOptionCode,
 			``

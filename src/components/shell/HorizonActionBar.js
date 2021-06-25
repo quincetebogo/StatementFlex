@@ -75,7 +75,7 @@ export class HorizonActionBar extends Component {
 
 	_stateChanged(state) {
 		if (state) {
-			this.referenceNo = state && state.incidentDetails && state.incidentDetails.incidentReferenceNumber;
+			this.referenceNo = state && state.incidentDetails && state.incidentDetails.primaryIncidentRef;
 			this.phoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
 			this.clientNeed = this._getNeedDisplayValue(this.incomingCallDetails.ivrOptionCode);
 			this.isUnverifiedNumber = typeof this.isUnverifiedNumber === `undefined` ? false : this.isUnverifiedNumber;

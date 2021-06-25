@@ -62,17 +62,12 @@ export class HorizonIncidentManager {
 
 	initialise() {
 		Component.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
-
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		View.prototype.createSubsequentIncident = () => this._createSubsequentIncident();
 	}
-
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
 
 	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
 
@@ -151,6 +146,53 @@ export class HorizonIncidentManager {
 		}
 	}
 
+	/**
+	 * Creating a subsequent incident for other than primary need
+	 * 
+	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * @returns {void}
+	 */
+	 async _createSubsequentIncident() {
+		const callerInfo = this.horizonStore.getCallerInformation();
+		const callDetails = this.horizonStore.getIncomingCallDetails();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		if (!incidentDetails.primaryIncidentRecID) {
+			return;
+		}
+
+		const createSubsequentIncidentRequest = {
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			VDN: incomingCallDetails.VDN,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			primaryIncidentRecID: incidentDetails.primaryIncidentRecID
+		};
+
+		const returnValue = await this.incidentService.createIncident(createSubsequentIncidentRequest);
+		const subsequentIncident = returnValue.result;
+
+		if (!returnValue.succeeded || !subsequentIncident) {
+			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createSubsequentIncident`, returnValue.correlationId);
+		}
+		
+		// this._updateIncidentState(clientNeed, subsequentIncident);
+		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+			this._updateSubsequentNeedClientDetails(callDetails, callerInfo, subsequentIncident);
+		} else {
+			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, subsequentIncident);
+		}
+
+		incidentDetails.incidentReferenceNumber = subsequentIncident.incidentNumber;
+		incidentDetails.incidentRecId = subsequentIncident.incidentRecId;
+
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
 	async _getNeedActions() {
 		const ivrActionMapping = await this._configuration.getSetting(`ivrActionMapping`);
 		return ivrActionMapping;
@@ -200,42 +242,17 @@ export class HorizonIncidentManager {
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
 		}
-		await this._createSubsequentIncident(clientNeed);
+		// await this._createSubsequentIncident(clientNeed);
+		this._updateIncidentState(clientNeed);
 	}
 
-	/**
-	 * Creating a subsequent incident for other than primary need
-	 * 
-	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
-	 * @returns {void}
-	 */
-	async _createSubsequentIncident(clientNeed) {
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-
-		const createSubsequentIncidentRequest = {
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			VDN: incomingCallDetails.VDN,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			primaryIncidentRecID: this.primaryNeedIncidentRecId
-		};
-
-		const returnValue = await this.incidentService.createIncident(createSubsequentIncidentRequest);
-		const subsequentIncident = returnValue.result;
-
-		if (!returnValue.succeeded || !subsequentIncident) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createSubsequentIncident`, returnValue.correlationId);
-		}
-		this._updateIncidentState(clientNeed, subsequentIncident);
-	}
-
-	_updateIncidentState(clientNeed, newIncident) {
-		const callerInfo = this.horizonStore.getCallerInformation();
-		const callDetails = this.horizonStore.getIncomingCallDetails();
+	_updateIncidentState(clientNeed) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		
 		const curIncidentDetails = {
-			incidentReferenceNumber: newIncident ? newIncident.incidentNumber : `0`,
-			incidentRecId: newIncident ? newIncident.incidentRecId : `0`,
+			incidentReferenceNumber: ``,
+			incidentRecId: ``,
+			primaryIncidentRef: incidentDetails.primaryIncidentRef,
 			primaryIncidentRecID: this.primaryNeedIncidentRecId,
 			previousNeed: incidentDetails.currentNeed,
 			currentNeed: clientNeed,
@@ -243,12 +260,6 @@ export class HorizonIncidentManager {
 		};
 
 		this.horizonStore.setIncidentDetails(curIncidentDetails);
-	
-		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
-			this._updateSubsequentNeedClientDetails(callDetails, callerInfo, newIncident);
-		} else {
-			this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo, newIncident);
-		}
 	}
 
 	/**

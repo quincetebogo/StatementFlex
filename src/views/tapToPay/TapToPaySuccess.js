@@ -34,6 +34,7 @@ export class TapToPaySuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super.createSubsequentIncident();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 

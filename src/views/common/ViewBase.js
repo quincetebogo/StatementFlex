@@ -227,6 +227,14 @@ export class ViewBase extends View {
 		}
 	}
 
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	createSubsequentIncident() {
+		super.createSubsequentIncident();
+	}
+
 	// ---------
 	// RENDERING
 	// ---------

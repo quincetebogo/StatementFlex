@@ -142,9 +142,15 @@ export class EndCallSession extends Component {
 			"next-screen": TelemetryScreen.WAIT_FOR_CALL
 		});
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const isValid = this._validateCloseIncidentReason();
 
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+		// Ignoring the abandon or not started incident
+		if (!incidentDetails.incidentRecId && !incidentDetails.incidentReferenceNumber) {
+			this._returnToCallWaitingPage();
+			return;
+		}
+		else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._stopCardEndCall();
 		} else if (isValid) {
 			if (this._preventCloseOfIncident()) {

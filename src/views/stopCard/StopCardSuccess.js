@@ -48,6 +48,7 @@ export class StopCardSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+		super.createSubsequentIncident();
 		
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.stoppedCards = (screenDetails && screenDetails.stoppedCards) || [];
