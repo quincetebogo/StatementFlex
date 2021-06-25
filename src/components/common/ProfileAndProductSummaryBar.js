@@ -2,6 +2,8 @@ import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { LandingPageEvents } from 'app/constants/Telemetry/Events/LandingPage';
 
 import 'app/components/common/MiniProfile';
 import 'app/components/common/FavouritesTile';
@@ -46,6 +48,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.stateChangeSub = this.horizonStore.stateChanged.subscribe(state => this._stateChanged(state));
 
@@ -160,6 +163,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_productButtonClick(event) {
 		this.product = event.detail.productButton;
+		this._telemetry.logEvent(LandingPageEvents[`PRODUCT_BUTTON_${this.product}`], {});
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
@@ -174,6 +178,8 @@ export class ProfileAndProductSummaryBar extends Component {
 
 	_favouritesClicked() {
 		this.product = ``;
+		this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
+
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
