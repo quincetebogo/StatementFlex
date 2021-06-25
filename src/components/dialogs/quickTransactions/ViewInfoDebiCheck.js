@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+
 import 'platform/components/popups/Modal';
 
 /**
@@ -48,11 +48,6 @@ export class ViewInfoDebiCheck extends Component {
 	// --------------
 
 	_gotItClick() {
-		// Telemetry
-		HorizonTelemetry.instance.closeViewDebiCheck({
-			screen: TelemetryScreen.VIEWINFO,
-			nextScreen: TelemetryScreen.DEBICHECK
-		});
 		this.dispatchEvent(new CustomEvent(`viewed`));
 	}
 

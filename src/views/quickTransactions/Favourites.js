@@ -165,7 +165,7 @@ export class Favourites extends SavingsAccountBase {
 
 	async _done(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack- feedback": event.detail.selectedFeedback
+			"launch-strack-feedback": event.detail.selectedFeedback
 		});
 		
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
@@ -651,18 +651,6 @@ export class Favourites extends SavingsAccountBase {
 			return null;
 		}
 		return returnValue.result;
-	}
-
-	_telemetryStartSpan(eventName, screenName) {
-		this._telemetry.startSpan(eventName, {
-			"screen": screenName
-		});
-	}
-
-	_telemetryEndSpan(eventName, screenName) {
-		this._telemetry.endSpan(eventName, {
-			"screen": screenName
-		});
 	}
 
 	// ---------
