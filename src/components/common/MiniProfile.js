@@ -65,10 +65,16 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-via-security-questions`, {});
 	}
 
-	// _displayTooltip(e) {
-	// 	const tooltip = this.shadowRoot.getElementById(`long-name`);
-	// 	tooltip.style.display = e.target.scrollWidth > e.target.offsetWidth	? `flex` : `none`;
-	// }
+	// Tooltip is displayed only for a long client's name where the overflowing text is hidden
+	_displayTooltip(e) {
+		const tooltip = this.shadowRoot.getElementById(`long-name`);
+		const clientName = this.shadowRoot.getElementById(`client-name`);
+
+		if(e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			clientName.style.display = `none`;
+		}
+	}
 
 	// --------- 
 	// PRIVATE
@@ -216,11 +222,12 @@ export class MiniProfile extends Component {
 					text-decoration: underline;
 				}
 				capitec-tooltip {
-					--theme-tooltip-font-family: Hind Vadodara Regular;
+					display: none;
+					--theme-tooltip-font-family: 'Hind Vadodara';
 					--theme-tooltip-font-size: 14px;
 					--theme-tooltip-line-height: 20px;
 					--theme-tooltip-border-radius: 2px;
-					--theme-layout-gap-spacing: 0px;
+					--theme-layout-gap-spacing: 4px;
 				}
 			`
 		];
@@ -260,10 +267,14 @@ export class MiniProfile extends Component {
 				halign="left"
 				valign="top"
 				gap="clear">
+					<capitec-label id="client-name" class="client-name"
+						label="${this.miniProfile.name}"
+						@mouseover="${(e) => this._displayTooltip(e)}"
+						type="title">
+					</capitec-label>
 					<capitec-tooltip id="long-name" message="${this.miniProfile.name}" position="bottom">
 						<capitec-label class="client-name"
 							label="${this.miniProfile.name}"
-							@mouseover="${(e) => this._displayTooltip(e)}"
 							type="title">
 						</capitec-label>
 					</capitec-tooltip>

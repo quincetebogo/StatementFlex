@@ -316,7 +316,7 @@ export class CardLimitsLanding extends Component {
 		const expandersList = e.currentTarget.querySelectorAll('horizon-expander');
 
 		expandersList.forEach((expander, index) => {
-			if(e.target.scrollTop > 100*index) {
+			if(e.target.scrollTop > 110 * (index + 1)) {
 				expander.expanded = false;
 			} 
 		})
@@ -549,6 +549,7 @@ export class CardLimitsLanding extends Component {
                     border: 1px solid E1E1E1;
                     border-radius: 4px;
                     height: auto;
+					animation-timing-function: linear;
                 }
                 capitec-card > capitec-content-box{
                     padding: 0px;
@@ -573,7 +574,7 @@ export class CardLimitsLanding extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.dual{
-					height: 324px;
+					height: auto;
 				}
 				capitec-label[label="Update"] {
 					text-align: end;
