@@ -1,29 +1,9 @@
 import { Component, View } from 'platform/elements';
 import { Configuration, Logger } from 'platform/core';
+import { CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS} from 'app/constants/IncidentManager';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-
-const HORIZON_NEED_STATUS = {
-	INPROGRESS: `InProgress`,
-	COMPLETED: `Completed`,
-	ASSIGNED: `Assigned`,
-	FAILED: `Failed`,
-	NOT_STARTED: `Not Started`,
-	CLOSED: `Closed`
-};
-
-// temporary solution
-const CLOSE_REASONS = {
-	'Completed': `NeedFulfilled`,
-	'Failed': `NeedIncomplete`,
-	'Assigned': `ClientAssigned`
-};
-
-const REASON_RESOLUTIONS = {
-	'NeedFulfilled': `Need Fulfilled`,
-	'NeedIncomplete': `Need Incomplete`,
-	'ClientAssigned': `Client Assigned`
-};
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 /**
  * This manager class is responsible to handle the current need and subsequent needs.
@@ -54,6 +34,8 @@ export class HorizonIncidentManager {
 		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+
+		this.incidentService = new IncidentManagementService(null, () => true);
 	}
 
 	// --------------
@@ -66,7 +48,7 @@ export class HorizonIncidentManager {
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		View.prototype.createSubsequentIncident = () => this._createSubsequentIncident();
+		View.prototype.createSubsequentIncident = (toggleBusyFlag) => this._createSubsequentIncident(toggleBusyFlag);
 	}
 
 	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
@@ -121,7 +103,8 @@ export class HorizonIncidentManager {
 
 				this.incidentRecID = incidentDetails.incidentRecId;
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-				this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
+
+				this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
 				await this._classifyIncident(clientNeed);
 				return true;
@@ -139,7 +122,8 @@ export class HorizonIncidentManager {
 
 			this.incidentRecID = incidentDetails.incidentRecId;
 			this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-			this.incidentService = new IncidentManagementService(toggleBusyFlag, () => true);
+			
+			this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
 			await this._createSubsequentIncident(clientNeed);
 			return true;
@@ -149,18 +133,25 @@ export class HorizonIncidentManager {
 	/**
 	 * Creating a subsequent incident for other than primary need
 	 * 
-	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
+	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @returns {void}
 	 */
-	 async _createSubsequentIncident() {
+	 async _createSubsequentIncident(toggleBusyFlag) {
 		const callerInfo = this.horizonStore.getCallerInformation();
 		const callDetails = this.horizonStore.getIncomingCallDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
-		if (!incidentDetails.primaryIncidentRecID) {
+		/**
+		 * Stopping creation of subsequent incident when
+		 * 1. This is being trigerred for primary incident
+		 * 2. State has an unclosed incident i.e., incident ref number not equals null
+		 */
+		if (!incidentDetails.primaryIncidentRecID || !isNullorEmpty(incidentDetails.incidentReferenceNumber)) {
 			return;
 		}
+
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
 		const createSubsequentIncidentRequest = {
 			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
@@ -198,21 +189,36 @@ export class HorizonIncidentManager {
 		return ivrActionMapping;
 	}
 
+	async _incidentStatus(incidentRecId) {
+		const returnValue = await this.incidentService.incidentStatus(incidentRecId);
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
+			return null;
+		}
+		return returnValue.result;
+	}
+
 	async _classifyIncident(clientNeed) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const ivrActionMapping = await this._getNeedActions();
-		
-		const request = {
-			incidentRecId: this.incidentRecID,
-			ivrOptionCode: incomingCallDetails.ivrOptionCode,
-			needAction: ivrActionMapping[incidentDetails.currentNeed],
-			incidentCategorization: null
-		};
-		const returnValue = await this.incidentService.classifyIncident(request);
 
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyIncident`, returnValue.correlationId);
+		const incidentInfo = await this._incidentStatus(this.incidentRecID);
+		const canClassify = isNullorEmpty(incidentInfo.category) && isNullorEmpty(incidentInfo.subCategory) && isNullorEmpty(incidentInfo.issue);
+
+		if (canClassify) {
+			const request = {
+				incidentRecId: this.incidentRecID,
+				ivrOptionCode: incomingCallDetails.ivrOptionCode,
+				needAction: ivrActionMapping[incidentDetails.currentNeed],
+				incidentCategorization: null
+			};
+			const returnValue = await this.incidentService.classifyIncident(request);
+	
+			if (!returnValue.succeeded) {
+				this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_classifyIncident`, returnValue.correlationId);
+			}
 		}
 		await this._closePrimaryIncident(clientNeed, incidentDetails.needStatus);
 	}

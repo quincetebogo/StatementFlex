@@ -251,8 +251,8 @@ export class ViewBase extends View {
 	// PUBLIC METHODS
 	// --------------
 
-	createSubsequentIncident() {
-		super.createSubsequentIncident();
+	async createSubsequentIncident() {
+		await super.createSubsequentIncident(() => this._toggleBusyFlag());
 	}
 
 	// ---------
