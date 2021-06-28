@@ -338,7 +338,7 @@ export class UpdateCardLimits extends Component {
         this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
         this.alertBannerText = ``;
 
-        if (e.detail.new && this._tapToPayStatus) {
+        if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED ) {
             this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
             this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
         }
@@ -646,6 +646,9 @@ export class UpdateCardLimits extends Component {
 			}
 			capitec-expander-group > capitec-expander:last-child {
 				margin-bottom: 0px;
+			}
+			capitec-expander-group > capitec-expander[expanded] {
+			--theme-expander-background-color: #F7F7F7;
 			}
 			.expander-cb {
 				background-color: #FFFFFF;

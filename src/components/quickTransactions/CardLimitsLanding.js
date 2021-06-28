@@ -318,7 +318,9 @@ export class CardLimitsLanding extends Component {
 		expandersList.forEach((expander, index) => {
 			if(e.target.scrollTop > 110 * (index + 1)) {
 				expander.expanded = false;
-			} 
+			} else {
+				expander.expanded = true;
+			}
 		})
 	}
 
@@ -509,6 +511,7 @@ export class CardLimitsLanding extends Component {
                   font-weight: 600;
                   letter-spacing: 0;
                   line-height: 20px;
+				  border-top: 0px;
                 }
                 .columnGroup{
                     height: 48px;
@@ -516,10 +519,11 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
                 }
                 .columnGroup > bb-multi-line-label{
-                    padding: 6px;
+                    padding: 6px 16px;
                     height: 48px;
 					--horizon-multi-line-label-font-weight: 600;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 .columnGroup > capitec-label{
                     justify-content:center;
@@ -532,6 +536,7 @@ export class CardLimitsLanding extends Component {
                     letter-spacing: 0;
                     line-height: 20px;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 
                 capitec-hyperlink{
@@ -559,6 +564,7 @@ export class CardLimitsLanding extends Component {
                 }
                 .col2{
                     width: 204px;
+					border-right: 0px;
                 }
                 .col3{
                     width:207px;
