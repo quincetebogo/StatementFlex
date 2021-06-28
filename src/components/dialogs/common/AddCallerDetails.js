@@ -42,6 +42,14 @@ const REGEX_SURNAME = {
 	ERR_MESSAGE: `Name and surname must be completed`
 };
 
+const POSSIBLE_RELATIONSHIPS = [ 
+	{ key: 0, value: `Spouse` },
+	{ key: 1, value: `Sibling` },
+	{ key: 2, value: `Child` },
+	{ key: 3, value: `Friend` },
+	{ key: 4, value: `Branch Consultant` },
+	{ key: 5, value: `Other` }
+];
 
 /**
 /**
@@ -72,7 +80,6 @@ export class AddCallerDetails extends Component {
 
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
-		this.addCallerDialog = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 
 		this.validationFailed = false;
@@ -92,7 +99,7 @@ export class AddCallerDetails extends Component {
 	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * @property {Object} incidentDetails Incident details
-	 * @property {Object} addCallerDialog - model from addCallerDetails Channel service call for loading this dialog
+	 * @property {Object} callerInformation - information on incoming caller
 	 *
 	 * @readonly
 	 * @static
@@ -103,8 +110,7 @@ export class AddCallerDetails extends Component {
 			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			addCallerDialog: { type: Object },
-
+			callerInformation: { type: Object },
 			renderMode: { attribute: false },
 			validationFailed: { attribute: false }
 		};
@@ -122,20 +128,14 @@ export class AddCallerDetails extends Component {
 		});
 
 		// Short hand references for reaching into the incoming addCallerDialog model
-		this.ivrOption = this.addCallerDialog.ivrOption;
+		this.ivrOption = this.incomingCallDetails.ivrOption;
 
-		this.incomingTelephoneNumber = this.addCallerDialog.incomingTelephoneNumber;
-
-		this.nonClientInformation = this.addCallerDialog.nonClientInformation;
+		/* this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
 		this.surnameTextField = this.nonClientInformation.surnameTextField;
 		this.cellPhoneTextField = this.nonClientInformation.cellPhoneTextField;
 		this.nonClientRelationship = this.nonClientInformation.nonClientRelationship;
-		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.
-
-		this.endCallSessionButton = this.addCallerDialog.endCallSessionButton;
-		this.confirmButton = this.addCallerDialog.confirmButton;
-		this.backButton = this.addCallerDialog.backButton;
+		this.nonClientRelationship.value = ``; // Initialise the value. The contract returns the label here.*/
 
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 	}
@@ -171,10 +171,10 @@ export class AddCallerDetails extends Component {
 		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
 			"screen": TelemetryScreen.ADD_CALLER_DETAILS,
 			"next-screen": null,
-			"name": this.firstNameTextField.value,
-			"surname": this.surnameTextField.value,
-			"relation": this.nonClientRelationship.value,
-			"telephone": this.cellPhoneTextField.value
+			"name": this.callerInformation.nonClientFirstName,
+			"surname": this.callerInformation.nonClientSurName,
+			"relation": this.callerInformation.nonClientRelationship,
+			"telephone": this.callerInformation.nonClientCellPhone
 		});
 
 		if (!this._validateData()) {
@@ -189,12 +189,12 @@ export class AddCallerDetails extends Component {
 						this.confirmedCaller.name,
 						this.confirmedCaller.southAfricanIDNumber,
 						this.confirmedCaller.verifiedTelephoneNumber,
-						this.firstNameTextField.value,
-						this.surnameTextField.value,
-						`${this.firstNameTextField.value} ${this.surnameTextField.value}`,
-						this.cellPhoneTextField.value,
+						this.callerInformation.nonClientFirstName,
+						this.callerInformation.nonClientSurName,
+						`${this.callerInformation.nonClientFirstName} ${this.callerInformation.nonClientSurName}`,
+						this.callerInformation.nonClientCellPhone,
 						``,
-						this.nonClientRelationship.value,
+						this.callerInformation.nonClientRelationship,
 						true,
 						this.confirmedCaller.verificationStatus || `unverified`,
 						false,
@@ -389,8 +389,7 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
-										value="${this.firstNameTextField.value}"
-										error="${this._getErrorMessage(this.firstNameTextField)}"
+										value="${this.callerInformation.nonClientFirstName}"
 										tabindex="1"
 										@value-changed="${(e) => this._valueChanged(e)}" 
 										@key-input="${(e) => this._keyPress(e)}">
@@ -399,8 +398,7 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field label="Surname"
 										id="surnameTextField"
-										value="${this.surnameTextField.value}"
-										error="${this._getErrorMessage(this.surnameTextField)}"
+										value="${this.callerInformation.nonClientSurName}"
 										tabindex="2"
 										@value-changed="${(e) => this._valueChanged(e)}"
 										@key-input="${(e) => this._keyPress(e)}">
@@ -409,8 +407,7 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
-										value="${this.cellPhoneTextField.value}"
-										error="${this._getErrorMessage(this.cellPhoneTextField)}"
+										value="${this.callerInformation.nonClientCellPhone}"
 										label="Cellphone Number (Optional)"
 										tabindex="3"
 										@key-input="${(e) => this._keyPress(e)}"
@@ -420,8 +417,8 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
                                     label="Choose relationship type (Optional)"
-						            value="${this.nonClientRelationship.value}"
-                                    .items="${this.nonClientRelationship.possibleValues}"
+						            value="${this.callerInformation.nonClientRelationship}"
+                                    .items="${POSSIBLE_RELATIONSHIPS}"
 						            @value-changed="${(e) => this._valueChanged(e)}"
                                     tabindex="4"
 						            id-field="key"
