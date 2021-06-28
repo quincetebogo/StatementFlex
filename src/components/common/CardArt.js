@@ -60,7 +60,6 @@ export class CardArt extends Component {
 			},
 			context: { type: String },
 			tapToPayStatus: { type: Boolean },
-
 			cardArtSVG: { attribute: false }
 		};
 	}
