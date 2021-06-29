@@ -484,9 +484,10 @@ export class UpdateCardLimits extends Component {
 			}
 			.limitSubtitle {
 				color: #3A3A3A;
+				line-height: 12px;
 				font-size: 12px;
 				padding-bottom: 10px;
-				margin-top: 7px;
+				margin-top: 2px;
 			}
 			.dailyLimits {
 				height: 34px; 
@@ -506,7 +507,7 @@ export class UpdateCardLimits extends Component {
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-padding-top: 20px;
 				--theme-modal-header-padding-bottom: 20px;
-				--theme-modal-footer-padding: 15px 15px 16px 24px;
+				--theme-modal-footer-padding : 16px 0px 0px 0px;
 			}
 			capitec-stepper {
 				--theme-stepper-step-title-font-color: #3A3A3A;
@@ -569,7 +570,6 @@ export class UpdateCardLimits extends Component {
 			capitec-label[type="title"] {
 				--theme-label-title-font-size: 18px;
 				--theme-label-title-font-weight: 600;
-				--theme-label-strong-font-color: #3A3A3A;
 				padding-bottom: 16px;
 				--theme-label-title-line-height: 24px;
 				margin-bottom: 0px;
@@ -578,6 +578,10 @@ export class UpdateCardLimits extends Component {
 				--theme-label-default-font-size: 15px;
 				--theme-label-default-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
+			}
+			.limitLabel {
+				--theme-label-strong-font-color: #3A3A3A;
+				width: 400px;
 			}
 			.main-cb > capitec-card {
 				--theme-layout-gap-spacing: 0px;
@@ -618,7 +622,8 @@ export class UpdateCardLimits extends Component {
 				--theme-label-strong-font-weight: 600;
 			}
 			div[slot="footer"] > capitec-group {
-				--theme-layout-gap-spacing: 7px;
+				width: 812px;
+				margin: 16px 0px 16px 0px; 
 			}
 			.back-btn {
 				width: 65px;
@@ -749,7 +754,7 @@ export class UpdateCardLimits extends Component {
 					 </capitec-content-box>
 				</div>
 
-				<div slot="footer">
+				<div style="border-top: 1px solid #e1e1e1" slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
@@ -791,7 +796,7 @@ export class UpdateCardLimits extends Component {
     _renderSetLimits() {
         return this.renderMode === RENDER_MODE.LIMITS
             ? html`
-				<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
+				<capitec-label type="title" label="${this.limitLabel}" class="limitLabel"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
@@ -953,6 +958,7 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label
+						style="font-weight: 600"
 						label="${this._tapToPayStatus ? `On: Pending` : `Off`}"
 						type="default">
 					</capitec-label>
@@ -1089,7 +1095,10 @@ export class UpdateCardLimits extends Component {
 
     _renderFooter() {
         return html`
-			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" style="width: 776px;">
+			<capitec-group 
+			class="footer" 
+			layout="horizontal"  
+			style="width: 812px; padding-right: 16px; padding-left: 16px;">
 				<capitec-button
 					class="back-btn"
 					type="clear" 
