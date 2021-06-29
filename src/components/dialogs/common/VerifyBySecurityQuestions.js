@@ -200,25 +200,59 @@ export class VerifyBySecurityQuestions extends Component {
 			if (returnValue.succeeded) {
 				this.logger.log(`warn`, `verifySecurityQuestions returned: ${returnValue.result}`);
 				if (returnValue.result === `Authenticated`) {
-					this._xdsAuthenticated();        
-				} else if (returnValue.result !== `Authenticated` && this.noOfXdsVerificationAttempted < 1) {
+      		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
+			      "screen": TelemetryScreen.SECURITY_QUESTIONS,
+			      "next-screen": null, //Have to determine
+      		});
+          this.callerInformation.verificationStatus = `verified`;
+      		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+
+				} else if (returnValue.result !== `Authenticated` && this.callerInformation.verificationAttempts.xdsAttempts < 1) {
+		        this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+      			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			      "next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
+        	});        
 					this.callerInformation.verificationAttempts.xdsAttempts++;
-					this.noOfXdsVerificationAttempted++;
-				} else if (returnValue.succeeded) {
-					this._xdsNotAuthenticated();
-					this.noOfXdsVerificationAttempted++;
-					this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-					// TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
+					this.renderMode = RENDER_MODE.FIRST_FAILURE;
+				} else {
+      			this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
+            
+					  this.callerInformation.verificationAttempts.xdsAttempts++;
+            this.callerInformation.verificationStatus = `failed`; // TODO - CHECK THIS AFTER MERGE
+					  this.horizonStore.setCallerInformation(this.callerInformation);
+					  this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+            
+					  // TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
+  	        this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+        			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+        			"next-screen": TelemetryScreen.XDS_FAILED
+            });
+
+        		this.horizonRouter.navigateToXdsVerificationFailed();
 				}
 			} else if (this.callerInformation.verificationAttempts.xdsAttempts < 1) {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts++;
-				this._showSQFailedScreen();
+    		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+			    "screen": TelemetryScreen.SECURITY_QUESTIONS,
+			    "next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
+		    });
+		    this.renderMode = RENDER_MODE.FIRST_FAILURE;
 			} else {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as the final failure.`, `_verifyClick`);
-				this.noOfXdsVerificationAttempted++;
-					// TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
-				this._navigateToXDSFailedVerification();
+				this.callerInformation.verificationAttempts.xdsAttempts++;
+				this.callerInformation.verificationStatus = `failed`;
+        
+      	this.horizonStore.setCallerInformation(this.callerInformation);
+				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+  
+      	this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+			    "screen": TelemetryScreen.SECURITY_QUESTIONS,
+			    "next-screen": TelemetryScreen.XDS_FAILED
+    		});
+        
+	      // TODO: If ITA attempts have been exceeded, this is the wrong thing to do
+      this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -281,56 +315,6 @@ export class VerifyBySecurityQuestions extends Component {
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
-	}
-
-	_xdsAuthenticated() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null, //Have to determine
-		});
-
-		this.callerInformation.verificationStatus = `verified`;
-		this.dispatchEvent(new CustomEvent(`verified`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
-	}
-
-	_xdsNotAuthenticated() {
-		if (this.noOfXdsVerificationAttempted < 1) {
-			this._showSQFailedScreen();
-		} else if (returnValue.succeeded) {
-			this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
-			this._navigateToXDSFailedVerification();
-		}
-	}
-
-	_showSQFailedScreen() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-		});
-
-		this.renderMode = RENDER_MODE.FIRST_FAILURE;
-		this.noOfXdsVerificationAttempted++;
-	}
-
-	_navigateToXDSFailedVerification() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.XDS_FAILED
-		});
-
-		this.noOfXdsVerificationAttempted++;
-		this.callerInformation.verificationStatus = `failed`;
-		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-
-		this.horizonStore.setCallerInformation(this.callerInformation);
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-
-		this.horizonRouter.navigateToXdsVerificationFailed();
 	}
 
 	// ---------

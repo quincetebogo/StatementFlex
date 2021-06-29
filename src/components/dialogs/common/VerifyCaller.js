@@ -53,9 +53,9 @@ export class VerifyCaller extends Component {
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-        this.timeLeft = `70`;		
-		this.seconds = ITA_TIMEOUT_SECS;
-		this.isBusy = false;
+    this.timeLeft = `70`;		
+    this.seconds = ITA_TIMEOUT_SECS;
+    this.isBusy = false;
 		this.loading = true;
 
 		this.xdsMessage = ``;
@@ -326,35 +326,6 @@ export class VerifyCaller extends Component {
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
-
-	_startTimer() {
-		const startTimer = setInterval(() => {
-			this.seconds--;
-
-			if (this.seconds <= 0) {
-				this._telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
-					"screen": TelemetryScreen.VERIFY_CALLER,
-					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-				});
-
-				this._stopTimer();
-				
-				this.itaTimer = null;
-				this.itaTimeout = true;
-
-				// What happens when both ITA & XDS attempts are exaaused
-				if (this._itaAttemptsExceeded()) {
-					this._navigateToItaVerificationFailed();
-				} else {
-					this._updateApplicationState(`unverified`);
-				}
-			}
-
-            this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
-		}, 1000);
-
-		return startTimer;
-	}
   
 	_navigateToItaVerificationFailed() {
 		this._updateApplicationState(`failed`);
@@ -452,7 +423,36 @@ export class VerifyCaller extends Component {
 		return false;
 	}
 	
+	_startTimer() {
+		const startTimer = setInterval(() => {
 
+			this.seconds--;
+
+			if (this.seconds <= 0) {
+				this._telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
+					"screen": TelemetryScreen.VERIFY_CALLER,
+					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
+				});
+
+				this._stopTimer();
+				
+				this.itaTimer = null;
+				this.itaTimeout = true;
+
+				// What happens when both ITA & XDS attempts are exaaused
+				if (this._itaAttemptsExceeded()) {
+					this._navigateToItaVerificationFailed();
+				} else {
+					this._updateApplicationState(`unverified`);
+				}
+			}
+
+      this.timeLeft = `${this.seconds <= 0 ? `0` : this.seconds.toString()}`;
+		}, 1000);
+
+		return startTimer;
+	}
+	
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
 
@@ -815,44 +815,6 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-    _renderOtherOptions() {
-		return html`
-			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
-			<capitec-content-box id="relation-options-btn">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
-					<horizon-option-button 
-						label="Security Questions" 
-						icon="system/apply-now-action"
-						iconSize="default"
-						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded()}
-						@click="${() => this._securityQuestionsClick()}">
-					</horizon-option-button>
-					<horizon-option-button 
-						label="Skip"
-						icon="system/arrow-right-action" 
-						iconSize="default"
-					    @click="${() => this._skipClick()}">
-					</horizon-option-button>
-					<horizon-option-button
-					class="btnTryAgain"
-						label="Try Again" 
-						img-src="/images/insure/refresh.svg"
-						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded()}
-						@click="${() => this._tryAgain()}">
-					</horizon-option-button>
-				</capitec-group>
-			</capitec-content-box>
-		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (this.isBusy || this.loading) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-		};
-
-		return html``;
-	}
 	_renderClientCannotBeVerified() {
 		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && this.maxItaAttempts <= MAX_ITA_ATTEMPTS;
 		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
@@ -877,6 +839,45 @@ export class VerifyCaller extends Component {
 					</capitec-group>
 				</capitec-content-box>`;
 		}
+		return html``;
+	}
+
+    _renderOtherOptions() {
+		return html`
+			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
+			<capitec-content-box id="relation-options-btn">
+				<capitec-group layout="horizontal" halign="left" valign="top" gap="clear">
+					<horizon-option-button 
+						label="Security Questions" 
+						icon="system/apply-now-action"
+						iconSize="default"
+						?hidden=${!this.hasSouthAfricanID || this._xdsAttemptsExceeded()}
+						@click="${() => this._securityQuestionsClick()}">
+					</horizon-option-button>
+					<horizon-option-button 
+						label="Skip"
+						icon="system/arrow-right-action" 
+						iconSize="default"
+					    @click="${() => this._skipClick()}">
+					</horizon-option-button>
+					<horizon-option-button
+					  class="btnTryAgain"
+						label="Try Again" 
+						img-src="/images/insure/refresh.svg"
+						iconSize="default"
+						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded()}
+						@click="${() => this._tryAgain()}">
+					</horizon-option-button>
+				</capitec-group>
+			</capitec-content-box>
+		`;
+	}
+
+	_renderLoadingIndicator() {
+		if (this.isBusy || this.loading) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
+
 		return html``;
 	}
 }
