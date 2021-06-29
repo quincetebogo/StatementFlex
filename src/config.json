@@ -74,15 +74,15 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"cardLimits": {
@@ -90,23 +90,23 @@
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCardLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": false
 		},
 		"transactionHistory": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -114,7 +114,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": false,
+			"enabled": true,
 			"positiveCase": true
 		}
 	}

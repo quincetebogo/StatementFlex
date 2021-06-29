@@ -145,12 +145,11 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const isValid = this._validateCloseIncidentReason();
 
-		// Ignoring the abandon or not started incident
-		if (!incidentDetails.incidentRecId && !incidentDetails.incidentReferenceNumber) {
+		// Ignoring the abandon or not started need action
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber !== `0`) {
 			this._returnToCallWaitingPage();
 			return;
-		}
-		else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._stopCardEndCall();
 		} else if (isValid) {
 			if (this._preventCloseOfIncident()) {

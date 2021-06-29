@@ -38,7 +38,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		
 		this._updateIncidentState();
 
 		const screenDetails = this.horizonStore.getScreenDetails();
