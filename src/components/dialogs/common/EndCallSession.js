@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
-import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { END_CALL_REASONS } from 'app/constants/EndCallReasons';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -19,48 +20,6 @@ import 'app/components/common/CallerDialog';
 
 const HEADER_LABEL = `End Call Session`;
 const ERROR_MESSAGE = `Choose an option to end call`;
-const END_CALL_REASONS = [
-	{
-		key: 0,
-		value: `Need fulfilled`
-	},
-	{
-		key: 1,
-		value: `Need assigned`
-	},
-	{
-		key: 2,
-		value: `Need handed off`
-	},
-	{
-		key: 3,
-		value: `Language transfer`
-	},
-	{
-		key: 4,
-		value: `Call transferred`
-	},
-	{
-		key: 5,
-		value: `Need incomplete - bad connection`
-	},
-	{
-		key: 6,
-		value: `Balance enquiry`
-	},
-	{
-		key: 7,
-		value: `Product enquiry`
-	},
-	{
-		key: 8,
-		value: `Client failed verification`
-	},
-	{
-		key: 9,
-		value: `Follow up required`
-	}
-];
 
 /**
  * The end call dialog allows the client care agent to select a reason/cause code when ending the call.
@@ -311,7 +270,7 @@ export class EndCallSession extends Component {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction,
+				needAction: needAction ? needAction : END_CALL_REASONS.value,
 				incidentCategorization: null
 			};
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
