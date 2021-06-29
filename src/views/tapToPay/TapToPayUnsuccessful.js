@@ -38,7 +38,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super.createSubsequentIncident();
 		
 		this._updateIncidentState();
 

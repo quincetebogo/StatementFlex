@@ -39,7 +39,6 @@ export class StatementsUnsuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super.createSubsequentIncident();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 		

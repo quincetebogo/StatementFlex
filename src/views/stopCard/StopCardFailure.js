@@ -65,7 +65,6 @@ export class StopCardFailure extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		super.createSubsequentIncident();
 
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		

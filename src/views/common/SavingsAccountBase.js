@@ -75,6 +75,8 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		
 		if (returnValue.succeeded) {
+			await super.createAndClassifySubsIncident();
+			
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
@@ -209,8 +211,6 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _setIncidentDone() {
-		await super.createSubsequentIncident();
-
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 

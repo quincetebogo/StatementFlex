@@ -383,7 +383,7 @@ export class HorizonChannelService extends Service {
 	}
 
 	getTemporaryLimits(request) {
-		const url = `/clientcare-card-${this._version}/temporary-limits`;
+		const url = `/clientcare-card-${this._version}/temporary-limit`;
 
 		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
 	}

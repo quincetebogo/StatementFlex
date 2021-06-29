@@ -41,7 +41,6 @@ import 'app/components/common/RelatedOptions';
 
 	connectedCallback() {
 		super.connectedCallback();
-		super.createSubsequentIncident();
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 

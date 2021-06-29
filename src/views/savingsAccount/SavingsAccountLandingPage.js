@@ -192,6 +192,8 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		const returnValue = await this.savingsAccountService.transactionHistory(transactionHistoryRequest);
 
 		if (returnValue.succeeded && returnValue.result) {
+			await super.createAndClassifySubsIncident();
+			
 			this.transactionHistory = returnValue.result.transactions;
 			this.accountDetails = {
 				"accountNumber": this.landingPageInfo.accountNumber,
