@@ -295,6 +295,32 @@ export class VerifyCaller extends Component {
 		this.isBusy = !this.isBusy;
 	}
 
+	_startTimer() {
+		const startTimer = setInterval(() => {
+
+			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
+			this.seconds--;
+
+			if (this.seconds <= 0) {
+				this._stopTimer();
+				
+				this.itaTimer = null;
+				this.itaTimeout = true;
+
+				// What happens when both ITA & XDS attempts are exaaused
+				if (this._itaAttemptsExceeded()) {
+					this._navigateToItaVerificationFailed();
+				} else {
+					this._updateApplicationState(`unverified`);
+				}
+			}
+
+			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
+		}, 1000);
+
+		return startTimer;
+	}
+  
 	_navigateToItaVerificationFailed() {
 		this._updateApplicationState(`failed`);
 		this.horizonRouter.navigateToItaVerificationFailed();
@@ -384,31 +410,6 @@ export class VerifyCaller extends Component {
 		return false;
 	}
 	
-	_startTimer() {
-		const startTimer = setInterval(() => {
-
-			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
-			this.seconds--;
-
-			if (this.seconds <= 0) {
-				this._stopTimer();
-				
-				this.itaTimer = null;
-				this.itaTimeout = true;
-
-				// What happens when both ITA & XDS attempts are exaaused
-				if (this._itaAttemptsExceeded()) {
-					this._navigateToItaVerificationFailed();
-				} else {
-					this._updateApplicationState(`unverified`);
-				}
-			}
-
-			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
-		}, 1000);
-
-		return startTimer;
-	}
 
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
@@ -758,33 +759,6 @@ export class VerifyCaller extends Component {
 		return html``;
 	}
 
-	_renderClientCannotBeVerified() {
-		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && this.maxItaAttempts <= MAX_ITA_ATTEMPTS;
-		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
-
-		if (!canVerifyViaITA && !canVerifyViaXDS) {
-			return html`
-				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-						<capitec-alert-banner type="error">
-							<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
-						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
-							halign="center"
-							valign="top" 
-							gap="clear"
-							id="notification-status-error-group">
-							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
-							<div class="foreign-client notification-info">
-								Unable to be verified, you can assist with with stopping cards and product enquiries.
-							</div>
-						</capitec-group>
-					</capitec-group>
-				</capitec-content-box>`;
-		}
-		return html``;
-	}
-
     _renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
@@ -822,6 +796,31 @@ export class VerifyCaller extends Component {
 
 		return html``;
 	}
-}
+	_renderClientCannotBeVerified() {
+		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && this.maxItaAttempts <= MAX_ITA_ATTEMPTS;
+		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
 
+		if (!canVerifyViaITA && !canVerifyViaXDS) {
+			return html`
+				<capitec-content-box id="notification-status-box">
+					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+						<capitec-alert-banner type="error">
+							<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
+						</capitec-alert-banner>
+						<capitec-group layout="vertical" 
+							halign="center"
+							valign="top" 
+							gap="clear"
+							id="notification-status-error-group">
+							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+							<div class="foreign-client notification-info">
+								Unable to be verified, you can assist with with stopping cards and product enquiries.
+							</div>
+						</capitec-group>
+					</capitec-group>
+				</capitec-content-box>`;
+		}
+		return html``;
+	}
+}
 window.customElements.define(`horizon-verify-caller`, VerifyCaller);
