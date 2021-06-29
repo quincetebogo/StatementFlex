@@ -65,6 +65,17 @@ export class MiniProfile extends Component {
 		this.eventAggregator.publish(`horizon-verify-via-security-questions`, {});
 	}
 
+	// Tooltip is displayed only for a long client's name where the overflowing text is hidden
+	_displayTooltip(e) {
+		const tooltip = this.shadowRoot.getElementById(`long-name`);
+		const clientName = this.shadowRoot.getElementById(`client-name`);
+
+		if(e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			clientName.style.display = `none`;
+		}
+	}
+
 	// --------- 
 	// PRIVATE
 	// ---------
@@ -210,6 +221,14 @@ export class MiniProfile extends Component {
 					--theme-font-weight: 600;
 					text-decoration: underline;
 				}
+				capitec-tooltip {
+					display: none;
+					--theme-tooltip-font-family: 'Hind Vadodara';
+					--theme-tooltip-font-size: 14px;
+					--theme-tooltip-line-height: 20px;
+					--theme-tooltip-border-radius: 2px;
+					--theme-layout-gap-spacing: 4px;
+				}
 			`
 		];
 	}
@@ -248,10 +267,17 @@ export class MiniProfile extends Component {
 				halign="left"
 				valign="top"
 				gap="clear">
-					<capitec-label class="client-name"
+					<capitec-label id="client-name" class="client-name"
 						label="${this.miniProfile.name}"
+						@mouseover="${(e) => this._displayTooltip(e)}"
 						type="title">
 					</capitec-label>
+					<capitec-tooltip id="long-name" message="${this.miniProfile.name}" position="bottom">
+						<capitec-label class="client-name"
+							label="${this.miniProfile.name}"
+							type="title">
+						</capitec-label>
+					</capitec-tooltip>
 					${this._renderInfo(`ID Number`, this._replaceEmptyValue(this.miniProfile.idNumber))}
 					${this._renderInfo(`Contact Number`, formatPhoneNumber(this.miniProfile.phoneNumber))}
 					${this._renderInfo(`Lives In`, this._replaceEmptyValue(this.miniProfile.livesIn))}
