@@ -1,3 +1,5 @@
+import { html, unsafeHTML } from 'platform/elements';
+
 /*
 	Utility Functions
 */
@@ -69,14 +71,15 @@ export function getMonthName(month) {
  *
  * @export
  * @param {*} value currency value
+ * @param {number} fractionDigits How many digits to round off while parsing to float
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
-export function formatCurrency(value) {
-	if (value.toString().includes(`R`)) {
+export function formatCurrency(value, fractionDigits = 2) {
+	if (value && value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
-	const amount = parseFloat(value).toFixed(2);
+	const amount = parseFloat(value).toFixed(fractionDigits);
 	const currencyString = amount >= 0 ? `R${amount.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}` : `- R${amount.toString().substring(1).replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	return currencyString;
 }
@@ -178,9 +181,25 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
  * @returns {*} Numeric value
  */
  export function convertCentsToRand(value) {
-	if (!isNaN(value)) {
+	if (isNaN(value)) {
 		console.log(`${value} is not a number to perform conversion`);
+		return value;
 	}
 
 	return value / 100;
+}
+
+
+/**
+ * Convert base64 to html
+ *
+ * @export
+ * @param {*} agreementContent encoded data of an agreement in a base64 format
+ * @returns {*} html comtent
+ */
+ export function base64toHTML(agreementContent) {
+
+	const agreement = atob(agreementContent);
+	return html`${unsafeHTML(agreement)}`;
+
 }

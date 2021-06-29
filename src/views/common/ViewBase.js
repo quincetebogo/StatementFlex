@@ -1,10 +1,12 @@
 import { EventAggregator, Logger } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { View, html } from 'platform/elements';
+import { View, css, html } from 'platform/elements';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { LandingPageEvents } from 'app/constants/Telemetry/Events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 
 import 'app/components/dialogs/common/EndCallSession';
@@ -44,6 +46,7 @@ export class ViewBase extends View {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleChannelServiceError(ex));
@@ -57,6 +60,8 @@ export class ViewBase extends View {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showEndCall = false;
 		this.showAddCallerDetails = false;
+		this.displayToast = false;
+		this.toastDetail = ``;
 	}
 
 	// --------------
@@ -66,13 +71,15 @@ export class ViewBase extends View {
 	static get properties() {
 		return {
 			callerInformation: { attribute: false },
-		    incomingCallDetails: { attribute: false },
+			incomingCallDetails: { attribute: false },
+			incidentDetails: { attribute: false },
 			verificationStatus: { attribute: false },
 
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			showEndCall: { attribute: false },
-			showAddCallerDetails: { attribute: false }
+			showAddCallerDetails: { attribute: false },
+			displayToast: { attribute: false }
 		};
 	}
 
@@ -85,6 +92,7 @@ export class ViewBase extends View {
 		this.verifySub = this.eventAggregator.subscribe(`horizon-verify-now-click`, () => this._verifyClick());
 		this.assignSub = this.eventAggregator.subscribe(`horizon-assign-incident`, () => this._assignIncidentClick());
 		this.addCallerDetailsSub = this.eventAggregator.subscribe(`horizon-add-caller-details`, () => this._addCallerDetails());
+		this.vasToast = this.eventAggregator.subscribe(`horizon-accepted-vas`, () => this._toastVAS());
 
 		super.connectedCallback();
 	}
@@ -94,6 +102,7 @@ export class ViewBase extends View {
 		this.verifySub.dispose();
 		this.assignSub.dispose();
 		this.addCallerDetailsSub.dispose();
+		this.vasToast.dispose();
 	
 		super.disconnectedCallback();
 	}
@@ -132,6 +141,8 @@ export class ViewBase extends View {
 	}
 
 	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+
 		this.showEndCall = !this.showEndCall;
 	}
 
@@ -146,6 +157,16 @@ export class ViewBase extends View {
 	_handleChannelServiceError() {
 		this.horizonRouter.navigateToSystemError();
 		return true;
+	}
+
+	_toastVAS() {
+		this._toggleToastDisplay();
+		this.toastDetail = `Value added services complete, you can update anytime.`;
+		window.setTimeout(() => this._toggleToastDisplay(), 3000);
+	}
+
+	_toggleToastDisplay() {
+		this.displayToast = !this.displayToast;
 	}
 
 	// ---------------
@@ -163,7 +184,8 @@ export class ViewBase extends View {
 	}
 
 	async _addCallerDetails() {
-		HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+		this._telemetry.logEvent(LandingPageEvents.ADD_CALLER_DETAILS, {});
+		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER, {});
 
 		const callDetails = {
 			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -181,10 +203,14 @@ export class ViewBase extends View {
 	}
 
 	_addCallerDetailsCancelled(event) {
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER, {});
+
 		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	async _addCallerDetailsConfirmed(event) {
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER, {});
+		
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
@@ -209,9 +235,39 @@ export class ViewBase extends View {
 		}
 	}
 
+	_telemetryStartSpan(eventName, screenName) {
+		this._telemetry.startSpan(eventName, {
+			"screen": screenName
+		});
+	}
+
+	_telemetryEndSpan(eventName, screenName) {
+		this._telemetry.endSpan(eventName, {
+			"screen": screenName
+		});
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
+
+	static get styles() {
+		return [
+			super.styles,
+			css`
+				capitec-toast {
+					position: absolute;
+					justify-content: center;
+					align-items: center;
+					top: var(--horizon-toast-top);
+					left: calc(50% - 200px);
+					z-index: 809;
+					
+					--theme-toast-min-width: 560px;
+				}
+			`
+		];
+	}
 
 	_mobileTemplate() {
 		return this._webTemplate();
@@ -227,6 +283,7 @@ export class ViewBase extends View {
 			${this._renderEndCallSessionModal()}
 			${this._renderLoadingIndicator()}
 			${this._renderAddCallerDetailsModal()}
+			${this._renderToast()}
 		`; 
 	}
 
@@ -275,5 +332,17 @@ export class ViewBase extends View {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
+	}
+
+	_renderToast() {
+		return this.displayToast
+			? html`
+				<capitec-toast
+					type="success"
+					header="Successful"
+					detail="${this.toastDetail}"
+					closable>
+				</capitec-toast>`
+		 	: html``;
 	}
 }

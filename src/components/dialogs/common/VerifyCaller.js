@@ -4,7 +4,11 @@ import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/Telemetry/Events/VerifyCaller';
 import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
+
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
@@ -49,8 +53,7 @@ export class VerifyCaller extends Component {
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-		this.timeLeft = `1:10`;
-		this.minutes = 1;
+        this.timeLeft = `70`;		
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.isBusy = false;
 		this.loading = true;
@@ -69,6 +72,7 @@ export class VerifyCaller extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
@@ -110,7 +114,8 @@ export class VerifyCaller extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-        this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
+		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
 
 
 		// Resetting ITA & XDS attempts
@@ -137,7 +142,7 @@ export class VerifyCaller extends Component {
 			this._initiateItaVerification();
 		} else if (this.hasSouthAfricanID) {
 			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
-			await this._securityQuestionsClick();
+			await this._launchSecurityQuestions();
 		} else {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
@@ -154,14 +159,27 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Entered disconnectedCallback - cleaning up resources`, `VerifyCaller`);
 		this._stopTimer();
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		});
+		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		});
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+	_securityQuestionsClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
+		this._launchSecurityQuestions();
+	}
 
-	async _securityQuestionsClick() {
-
+	async _launchSecurityQuestions() {
 		// This burns an ITA attempt!
 		this._stopTimer();
 
@@ -173,7 +191,7 @@ export class VerifyCaller extends Component {
 			this.securityQuestions = returnValue.result;
 
 			const authHistory = this.securityQuestions.authenticationHistory;
-            if (authHistory) {                
+			if (authHistory) {
 				this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
 				if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
 					this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} attempts at verifying via XDS in the last 24 hours!`);
@@ -185,17 +203,17 @@ export class VerifyCaller extends Component {
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
 				// TODO: If ITA attempts have been exceeded, this is the wrong thing to do
 				this._navigateToXdsVerificationFailed();
-            } else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
+			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-            } else {
+			} else {
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
-        } else {
+		} else {
 			this.xdsMessage = `System Issue: Unable to obtain security questions`;
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
-        }
+		}
 	}
 
 	_calculateXDSAttempts(authHistory) {
@@ -213,6 +231,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_skipClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": null // TODO: Determine by need and failed verification counts
+		});
+
 		this.dispatchEvent(new CustomEvent(`skip`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 	}
 
@@ -238,8 +261,12 @@ export class VerifyCaller extends Component {
 	}
 
 	_tryAgain() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_TRY_AGAIN, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		});
+
 		this.xdsMessage = ``;
-		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 
 		this._stopTimer();
@@ -255,6 +282,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_endCall() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_END_CALL, {
+			"screen": TelemetryScreen.VERIFY_CALLER,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -297,11 +329,14 @@ export class VerifyCaller extends Component {
 
 	_startTimer() {
 		const startTimer = setInterval(() => {
-
-			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
 			this.seconds--;
 
 			if (this.seconds <= 0) {
+				this._telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
+					"screen": TelemetryScreen.VERIFY_CALLER,
+					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
+				});
+
 				this._stopTimer();
 				
 				this.itaTimer = null;
@@ -315,7 +350,7 @@ export class VerifyCaller extends Component {
 				}
 			}
 
-			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
+            this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
 		return startTimer;
@@ -349,6 +384,10 @@ export class VerifyCaller extends Component {
 
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
+				this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
+
 		const connectionID = await this._initialiseSignalR();
 		
 		const itaNotificationSent = false;
@@ -393,6 +432,9 @@ export class VerifyCaller extends Component {
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 		if (returnValue.succeeded) {
+				this._telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
+					"screen": TelemetryScreen.VERIFY_CALLER
+				});
 			this.callerInformation.verificationAttempts.itaAttempts++;
 
 			this.itaTimeout = false;
@@ -417,6 +459,10 @@ export class VerifyCaller extends Component {
 		this._stopTimer();
 
 		if (this._isVerified(verificationStatus)) {
+			this._telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": null // Determine by need / path its opened from
+			});
 			this._updateApplicationState(`verified`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
@@ -427,6 +473,10 @@ export class VerifyCaller extends Component {
 			}));
 		} else {
 			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
+			this._telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
+				"screen": TelemetryScreen.VERIFY_CALLER,
+				"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
+			});
 
 			this.itaRejected = true;
 
@@ -551,7 +601,6 @@ export class VerifyCaller extends Component {
 				}
 				.timer-bold {
 					font-weight: 700;
-					color: #0083BB;
 				}
 				capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -576,6 +625,13 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
+
+				.btnTryAgain[disabled] {
+					cursor:default;
+					pointer-events:none;
+					filter: grayscale(100%);
+				}
+
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
@@ -672,7 +728,7 @@ export class VerifyCaller extends Component {
 									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
-								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
+								You have <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
 							</div>
 							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
 							</capitec-label>
@@ -777,7 +833,8 @@ export class VerifyCaller extends Component {
 						iconSize="default"
 					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
-					<horizon-option-button 
+					<horizon-option-button
+					class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"

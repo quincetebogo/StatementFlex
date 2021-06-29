@@ -1,4 +1,3 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
 import { ViewBase } from 'app/views/common/ViewBase';
 
@@ -35,10 +34,6 @@ export class DebiCheckSuccess extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
-		// Telemetry 
-		HorizonTelemetry.instance.debiCheckOutcome({
-			screen: TelemetryScreen.DEBICHECK_OUTCOME
-		});
 	}
 
 	disconnectedCallback() {
@@ -50,24 +45,12 @@ export class DebiCheckSuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// Telemetry
-		HorizonTelemetry.instance.debiCheckOutcomeDone({
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
+		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_debiCheckMandatesClick() {
-		// Telemetry
-		HorizonTelemetry.instance.debiCheckOutcomeBackToMandates({
-			nextScreen: TelemetryScreen.DEBICHECK
-		});
-
-		const screenDetails = this.horizonStore.getScreenDetails();
-		screenDetails.returnToOption = this.incidentDetails.currentNeed;
-
-		this.horizonStore.setScreenDetails(screenDetails);
-		this.horizonRouter.navigateToQuickTransactionFavourites();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	// ---------

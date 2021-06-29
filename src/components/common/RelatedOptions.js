@@ -1,11 +1,12 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
-import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { Logger } from 'platform/core';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
+import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/CardLimitsLanding';
@@ -22,7 +23,7 @@ const RENDER_MODE = Object.freeze({
 const SAVINGS_ACCOUNT_TYPE = 300;
 
 /**
- * Common componet, renders related options based on the need and context of success/ failure.
+ * Common component, renders related options based on the need and context of success/ failure.
  * Invoked by different success and failure screens
  * 
  * @exports
@@ -49,12 +50,16 @@ export class RelatedOptions extends Component {
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.navigationContext = NavigationContext.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
 		this.cardService = new CardService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+
+		Object.assign(RelatedOptions.prototype, tapToPayMixin);
 	}
 
 	// --------------
@@ -106,10 +111,6 @@ export class RelatedOptions extends Component {
 		return true;
 	}
 
-	_mainPage() {
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
-	}
-
 	_onCancel() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
@@ -124,7 +125,7 @@ export class RelatedOptions extends Component {
 		}
 	
 		const stopCard = () => this._stopCard();
-		const updateCardLimits = () => this._updateCardLimits();
+		const updateCardLimits = (option) => this._updateCardLimits(option);
 		const tapToPay = () => this._tapToPay();
 		const statements = () => this._Statements();
 		const taxCertificate = () => this._taxCertificate();
@@ -226,24 +227,6 @@ export class RelatedOptions extends Component {
 		}
 	}
 
-	async _updateCardLimits() {
-		const returnValue = await this.quickTransactionService.cardLimitsLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
-			this.renderMode = RENDER_MODE.UPDATE_CARD_LIMITS;
-		}
-	}
-
-	async _tapToPay() {
-		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber);
-			 
-		if (returnValue.succeeded) {
-			this.cards = returnValue.result;
-			this.renderMode = RENDER_MODE.TAP_TO_PAY;
-		}
-	}
-
 	async _Statements() {
 		const clientProductDetails = await this._getClientProducts();
 
@@ -274,6 +257,11 @@ export class RelatedOptions extends Component {
 		
 		screenDetails.returnToOption = option || ``;
 		this.horizonRouter.navigateToLandingPage(`SavingsAccount`, false);
+	}
+
+	_updateCardLimits(option) {
+		this.horizonStore.setReturnScreen(this.navigationContext.current.route, option);
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	// ---------
@@ -371,26 +359,6 @@ export class RelatedOptions extends Component {
 		`;
 	}
 
-	_renderUpdateCardLimits() {
-		return this.renderMode === RENDER_MODE.UPDATE_LIMITS
-			? html`
-				<horizon-card-limits-landing
-					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
-				</horizon-card-limits-landing>`
-			: html``;
-	}
-
-	_renderTapToPay() {
-		return this.renderMode === RENDER_MODE.TAP_TO_PAY
-			? html`
-				<horizon-tap-to-pay-landing
-					.cards="${this.cards}"
-					@back="${() => this._mainPage()}">
-				</horizon-tap-to-pay-landing>`
-			: html``;
-	}
-
 	_renderStatements() {
 		return this.renderMode === RENDER_MODE.STATEMENTS
 			? html`
@@ -406,7 +374,6 @@ export class RelatedOptions extends Component {
 		return this.renderMode === RENDER_MODE.PROOF_OF_ACCOUNT
 			? html`
 				<horizon-proof-of-account
-					.incomingCallDetails="${this.incomingCallDetails}"
 					.callerInformation="${this.callerInformation}"
 					.landingPageInfo="${this.landingPageInfo}"
 					@cancel="${() => this._backToLandingPage()}">

@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -23,6 +25,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -55,33 +58,23 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_doneClick() {
 		// Telemetry
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.FAVOURITES
 		});
-		const screenDetails = this.horizonStore.getScreenDetails();
-		const returnToScreen = screenDetails && screenDetails.returnToScreen;
-
-		const transactLP = () => this.horizonRouter.navigateToQuickTransactionFavourites();
-		const savingsAccountLP = () => this.horizonRouter.navigateToSavingsAccount();
-
-		const landingScreens = {
-			'Favourites': transactLP,
-			'SavingsAccount': savingsAccountLP
-		};
-		landingScreens[returnToScreen]();
+		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_handoffClick() {
 		// Telemetry
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: null
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
-		const incidentRecId = this.incidentDetails.incidentRecId;
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
 
 		this.horizonRouter.navigateToStrack(incidentRecId);
-		this.horizonRouter.navigateToReturnPage(`handoff`);
+		this.horizonStore.clearReturnScreen();
 	}
 
 	// ---------

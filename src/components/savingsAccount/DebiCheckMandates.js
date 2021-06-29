@@ -1,5 +1,4 @@
 import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { TABLE_ROW_CELL_CSS, TABLE_ROW_CSS, getFontColor } from 'app/css/DebiCheckMandates';
 import { convertCentsToRand, formatCurrency, getDateOrdinal } from 'app/utils/channelServiceUtilities';
 
@@ -51,7 +50,7 @@ export class DebiCheckMandates extends Component {
 
 	/**
 	 *
-	 * @property {Object} debiCheckMandates Contains list of active/pending/expired mandates
+	 * @property {Array} debiCheckMandates Contains list of active/pending/expired mandates
 	 *
 	 * @readonly
 	 * @static
@@ -59,7 +58,7 @@ export class DebiCheckMandates extends Component {
 	 */
 	static get properties() {
 		return {
-			debiCheckMandates: { type: Object },
+			debiCheckMandates: { type: Array },
 			
 			filterBy: { attribute: false }
 		};
@@ -72,22 +71,15 @@ export class DebiCheckMandates extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._loading();
 		this._convertCentsToRand();
 		this._initialise();
-
-		// Telemetry 
-		HorizonTelemetry.instance.screenLoadDebiCheck({
-			screen: TelemetryScreen.DEBICHECK
-		});
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
 
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadDebiCheckMandates({
-			screen: TelemetryScreen.DEBICHECK
-		});
+		this._unloading();
 	}
 
 	// --------------
@@ -95,11 +87,6 @@ export class DebiCheckMandates extends Component {
 	// --------------
 
 	_back() {
-		// Telemetry 
-		HorizonTelemetry.instance.exitDebiCheck({
-			screen: TelemetryScreen.DEBICHECK,
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
 
@@ -134,6 +121,14 @@ export class DebiCheckMandates extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	_loading() {
+		this.dispatchEvent(new CustomEvent(`loading`));
+	}
+
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
+	}
+
 	_initialise() {
 		this.pendingMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.PENDING);
 		this.activeMandates = this.debiCheckMandates.filter(item => MANDATE_STATUS[item.mandateStatus] === MANDATE_STATUS.ACTIVE);
@@ -152,21 +147,10 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_viewInfo(mandateId, registerId) {
-		// Telemetry
-		HorizonTelemetry.instance.selectViewDebiCheck({
-			screen: TelemetryScreen.DEBICHECK,
-			nextScreen: TelemetryScreen.VIEWINFO
-		});
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { "action": `viewInfo`, "mandateId": mandateId, "registerId": registerId } }));
 	}
 
 	_decline(mandateId) {
-		// Telemetry
-		HorizonTelemetry.instance.declineDebiCheckMandate({
-			screen: TelemetryScreen.DEBICHECK,
-			nextScreen: TelemetryScreen.DECLINE_DEBICHECK
-		});
-
 		// TODO: Add mandate data to the event
 		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId } }));
 	}
@@ -195,7 +179,7 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_convertCentsToRand() {
-		this.debiCheckMandates.foreach(item => {
+		this.debiCheckMandates.forEach(item => {
 			item.amount = convertCentsToRand(item.amount);
 			item.maxCollectionAmount = convertCentsToRand(item.maxCollectionAmount);
 		});

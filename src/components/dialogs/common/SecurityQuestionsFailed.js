@@ -2,7 +2,10 @@ import { Component, css, html } from 'platform/elements';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { VerifyCallerEvents } from 'app/constants/Telemetry/Events/VerifyCaller';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -42,9 +45,12 @@ export class SecurityQuestionsFailed extends Component {
 		this.incomingCallDetails = null;
 		this.callerInformation = {};
 		this.xdsMessage = ERROR_MESSAGE.DEFAULT_NOTIFICATION;
-		this.logger = Logger.getInstance();
+
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
+		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
+
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
 	}
 
@@ -89,6 +95,10 @@ export class SecurityQuestionsFailed extends Component {
 	// --------------
 
 	async _retrySecurityQuestions() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_TRY_AGAIN, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
+		});
 
 		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID);
@@ -115,20 +125,34 @@ export class SecurityQuestionsFailed extends Component {
 		}
 	}
 
-
 	_skip() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_SKIP, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": null
+		});
+
 		this.dispatchEvent(new CustomEvent(`skip`, {
 			detail: {}
 		}));
 	}
 
 	_verifyUsingMobileApp() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_VIA_APP, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.VERIFY_CALLER
+		});
+
 		this.dispatchEvent(new CustomEvent(`verify-via-app`, {
 			detail: {}
 		}));
 	}
 
 	_onEndCall() {
+		this._telemetry.logEvent(VerifyCallerEvents.XDS_END_CALL, {
+			"screen": TelemetryScreen.SECURITY_QUESTIONS,
+			"next-screen": TelemetryScreen.END_CALL
+		});
+		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
 
@@ -308,8 +332,8 @@ export class SecurityQuestionsFailed extends Component {
 						iconSize="default"
 						@click="${() => this._skip()}">
 					</horizon-option-button>
-					<horizon-option-button 
-						label="Verify via Banking App" 
+					<horizon-option-button
+						label="Verify via Banking App"
 						icon="system/cellphone-action"
 						iconSize="default"
 						@click="${() => this._verifyUsingMobileApp()}"

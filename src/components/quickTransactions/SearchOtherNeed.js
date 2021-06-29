@@ -1,18 +1,7 @@
 import { Component, css, html, live } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/Feedback';
-
-const orgUnit = `Client Care`;
-
-const RENDER_MODE = Object.freeze({
-	FEEDBACK: 0
-});
 
 /**
  * Search Other Need component
@@ -36,10 +25,6 @@ export class SearchOtherNeed extends Component {
 	constructor() {
 		super();
 
-		// Create Instances
-		this.logger = Logger.getInstance();
-		this.horizonRouter = HorizonRouter.getInstance();
-
 		// Private properties
 		this.isBusy = false;
 		this.renderMode = -1;
@@ -52,8 +37,6 @@ export class SearchOtherNeed extends Component {
 		this.categories = null;
 		this.needs = null;
 		this.issues = null;
-
-		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), null);
 	}
 
 	// --------------
@@ -62,8 +45,6 @@ export class SearchOtherNeed extends Component {
 
 	/**
 	 *
-	 * @property {Object} incidentDetails Incident details
-	 * @property {Object} incomingCallDetails Incoming call details
 	 *
 	 * @readonly
 	 * @static
@@ -71,15 +52,16 @@ export class SearchOtherNeed extends Component {
 	 */
 	static get properties() {
 		return {
-			incidentDetails: { type: Object },
-			incomingCallDetails: { type: Object },
 
 			renderMode: { attribute: false },
 			isBusy: { attribute: false },
 			category: { attribute: false },
 			need: { attribute: false },
 			issue: { attribute: false },
-			solution: { attribute: false }
+			solution: { attribute: false },
+			categories: { type: Array },
+			needs: { type: Array },
+			issues: { type: Array }
 		};
 	}
 
@@ -87,25 +69,17 @@ export class SearchOtherNeed extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
+		this._loading();
+		
+		this.issuesWithSolution = this.issues;
+		this.issues = this.issues.map(item => item.issue);
 
-		HorizonTelemetry.instance.screenLoadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED
-		});
-
-		this.incidentRecId = this.incidentDetails.incidentRecId;
-		await this._getCategories();
 	}
 
-	async disconnectedCallback() {
-		
-		HorizonTelemetry.instance.screenUnloadOtherNeed({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			clientNeed: this.category,
-			specificNeed: this.need,
-			issueType: this.issue
-		});
+	disconnectedCallback() {
+		this._unloading();
 		super.disconnectedCallback();
 	}
 
@@ -117,128 +91,48 @@ export class SearchOtherNeed extends Component {
 		// initate back to favourite transactions page (on back arrow)
 		this.dispatchEvent(new CustomEvent(`back`, {}));
 	}
+	
 
-	_done() {
-		this.dispatchEvent(new CustomEvent(`done`, {}));
-	}
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
-	async _categoryChanged(e) {
+	_categoryChanged(e) {
 		if (e.detail.new !== null) {
 			this.category = e.detail.new;
 			this.need = ``;
 			this.issue = ``;
 			this.solution = ``;
-
-			await this._getSubCategories();
+			
+			this.dispatchEvent(new CustomEvent(`get-sub-categories`, { detail: { category: this.category } }));
 		}
 	}
 
-	async _subCategoryChanged(e) {
+	_subCategoryChanged(e) {
 		if (e.detail.new !== null) {
 			this.need = e.detail.new;
 			this.issue = ``;
 			this.solutionDisplay = false;
 
-			await this._getIssues();
+			this.dispatchEvent(new CustomEvent(`get-issues`, { detail: { category: this.category, need: this.need } }));
 		}
 	}
 
 	_issueChanged(e) {
-		this.issue = e.currentTarget.value;
-		this.solution = this.issuesWithSolution.find(item => item.issue === this.issue).solution;
-	}
-
-	async _onLaunchStrackClick() {
-
-		HorizonTelemetry.instance.otherNeedLaunchStrack({
-			screen: TelemetryScreen.SEARCH_OTHER_NEED,
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
-
-		const strackIncidentInfo = await this._incidentStatus() || {};
-		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
-
-		if (continueUpdate) {
-			await this._classifyIncident();
-		} else {
-			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
-
-			this.horizonRouter.navigateToStrack(this.incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		}
+		this.issue = e.currentTarget.value.issue;
+		this.solution = this.issues.find(item => item.issue === this.issue).solution;
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-	async _getCategories() {
-		const returnValue = await this.incidentManagementService.otherNeedCategories(orgUnit);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.categories = returnValue.result.categories.map(item => item.category);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Categories`, `_getCategories`, returnValue.result);
-		}
-		this.requestUpdate();
+	_loading() {
+		this.dispatchEvent(new CustomEvent(`loading`));
 	}
 
-	async _getSubCategories() {
-		const returnValue = await this.incidentManagementService.otherNeedSpecificNeed(orgUnit, this.category);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.needs = returnValue.result.needs.map(item => item.need);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
+	_unloading() {
+		this.dispatchEvent(new CustomEvent(`unloading`));
 	}
 
-	async _getIssues() {
-		const returnValue = await this.incidentManagementService.otherNeedIssueType(orgUnit, this.category, this.need);
-
-		if (returnValue.succeeded && returnValue.result) {
-			this.issuesWithSolution = returnValue.result.issues;
-			this.issues = returnValue.result.issues.map(item => item.issue);
-		} else {
-			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
-		}
-		this.requestUpdate();
-	}
-
-	async _classifyIncident() {
-		const request = {
-			incidentRecId: this.incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: `SEARCH_OTHER_NEED`,
-			incidentCategorization: {
-				category: `${this.category}`,
-				need: `${this.need}`,
-				issue: `${this.issue}`
-			}
-		};
-		const result = await this.incidentManagementService.classifyIncident(request);
-
-		if (result.succeeded) {
-			this.horizonRouter.navigateToStrack(this.incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		} else {
-			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
-		}
-	}
-
-	async _incidentStatus() {
-		const returnValue = await this.incidentManagementService.incidentStatus(this.incidentRecId);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return null;
-		}
-		return returnValue.result;
+	_launchStrack() {
+		this.dispatchEvent(new CustomEvent(`launch-strack`, { detail: { category: this.category, need: this.need, issue: this.issue } }));
 	}
 
 	// ---------
@@ -354,7 +248,6 @@ export class SearchOtherNeed extends Component {
 	_webTemplate() {
 		return html`
 			${this._renderOtherNeeds()}
-			${this._renderFeedback()}
 			${this._renderLoadingIndicator()}
 		`;
 	}
@@ -463,7 +356,7 @@ export class SearchOtherNeed extends Component {
 						class="strack-button"
 						type="primary"
 						label="Launch STrack"
-						@click="${() => this._onLaunchStrackClick()}">
+						@click="${() => this._launchStrack()}">
 					</capitec-button>
 				</capitec-group>`
 			: html``;
@@ -494,15 +387,6 @@ export class SearchOtherNeed extends Component {
 				</capitec-group>`
 			: html``;
 	}
-
-	_renderFeedback() {
-		return this.renderMode === RENDER_MODE.FEEDBACK
-			? html`
-				<horizon-feedback 
-					@done="${() => this._done()}">
-				</horizon-feedback>`
-			: html``;
-	}
 }
 
-customElements.define(`search-other-need`, SearchOtherNeed);
+customElements.define(`horizon-search-other-need`, SearchOtherNeed);

@@ -1,4 +1,5 @@
 import { Component, css, html } from 'platform/elements';
+// import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 /**
  * Renders card art layout and corresponding card action for stopcard/update card limits
@@ -32,7 +33,6 @@ export class CardArt extends Component {
 		this.type = ``;
 		this.cardArtSVG = ``;
 		this.isFocused = false;
-
 		this._initialise();
 		
 		this.addEventListener(`mouseenter`, this._mouseEnterCardArt.bind(this));
@@ -60,7 +60,6 @@ export class CardArt extends Component {
 			},
 			context: { type: String },
 			tapToPayStatus: { type: Boolean },
-
 			cardArtSVG: { attribute: false }
 		};
 	}
@@ -300,12 +299,17 @@ export class CardArt extends Component {
 	}
 
 	_webTemplate() {
-		return html`
-			<capitec-card class="cardArt">
-				${this._renderCard()}
-				<slot id="cardAction" name="cardAction"></slot>
-			</capitec-card>
-		`;
+		switch(this.context) {
+			case `cardArt`:
+				return html`${this.cardArtSVG}`;
+			default:
+				return html`
+					<capitec-card class="cardArt">
+						${this._renderCard()}
+						<slot id="cardAction" name="cardAction"></slot>
+					</capitec-card>
+				`;
+		}
 	}
 
 	_renderCard() {

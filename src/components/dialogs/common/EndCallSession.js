@@ -1,11 +1,14 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
+import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
@@ -48,6 +51,7 @@ export class EndCallSession extends Component {
 		this.incidentRecId = ``;
 
 		this._configuration = Configuration.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 		this.endCallCauseCode = EndCallCauseCode.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -88,9 +92,8 @@ export class EndCallSession extends Component {
 	async connectedCallback() {
 		super.connectedCallback();
 
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadEndCall({
-			screen: TelemetryScreen.END_CALL
+		this._telemetry.startSpan(EndCallEvents.END_CALL, {
+			"screen": TelemetryScreen.END_CALL
 		});
 
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
@@ -123,23 +126,20 @@ export class EndCallSession extends Component {
 	// --------------
 
 	_cancelClick() {
-		// Telemetry
-		HorizonTelemetry.instance.endCallCancel({
-			screen: TelemetryScreen.END_CALL,
-			nextScreen: null
+		this._telemetry.logEvent(EndCallEvents.END_CALL_CANCEL, {
+			"screen": TelemetryScreen.END_CALL,
+			"next-screen": null
 		});
-		HorizonTelemetry.instance.screenUnloadEndCall({ screen: TelemetryScreen.END_CALL });
+		this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_endCallClick() {
-
-		// Telemetry 
-		HorizonTelemetry.instance.endCall({
-			screen: TelemetryScreen.END_CALL,
-			reason: this.endCallReason.value,
-			nextScreen: TelemetryScreen.WAIT_FOR_CALL
+		this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
+			"screen": TelemetryScreen.END_CALL,
+			"reason": this.endCallReason.value,
+			"next-screen": TelemetryScreen.WAIT_FOR_CALL
 		});
 
 		const isValid = this._validateCloseIncidentReason();
@@ -201,10 +201,10 @@ export class EndCallSession extends Component {
 		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
-	_returnToCallWaitingPage() {
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadEndCall({ screen: TelemetryScreen.END_CALL });
-		HorizonTelemetry.instance.workflowCompleted();
+	async _returnToCallWaitingPage() {
+		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
+		await this._telemetry._endUnClosedChildSpans();
+		this._telemetry.endSpan(AcceptCallEvents.INCOMING_CALL);
 
 		const state = { callStatus: `CALL-ENDED` };
 		this.horizonStore.setState(state);

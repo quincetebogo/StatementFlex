@@ -1,9 +1,17 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, Logger } from 'platform/core';
 import { AccessChannelService } from 'app/services/AccessChannelService';
+import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { ValueAddedService } from 'app/services/ValueAddedService';
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
+import 'app/components/dialogs/ValueAddedServices';
 
+/**
+ * The AccessMenuBar is the right hand menu bar / area in Horizon. This component currently houses
+ * Client Insights and Access Channels
+ */
 export class AccessMenuBar extends Component {
 
 	// --------------
@@ -15,10 +23,15 @@ export class AccessMenuBar extends Component {
 
 		this.showAlert = false;
 		this.isBusy = false;
+		this.showValueAddedServicesModal = false;
 
+		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
+		this.eventAggregator = EventAggregator.getInstance();
+		this.logger = Logger.getInstance();
 
-		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), (ex) => this._accessChannelErrorHandler(ex));
+		this.accessChannelService = new AccessChannelService(() => this._toggleBusyFlag(), () => true);
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => true);
 	}
 
 	// ----------
@@ -30,7 +43,9 @@ export class AccessMenuBar extends Component {
 			showAlert: { type: Boolean },
 
 			isBusy: { attribute: false },
-			status: { attribute: false }
+			status: { attribute: false },
+			statusVAS: { attribute: false },
+			showValueAddedServicesModal: { attribute: false }
 		};
 	}
 
@@ -57,6 +72,18 @@ export class AccessMenuBar extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_showVASModal() {
+		this._valueAddedService();
+	}
+
+	_cancelVasClick() {
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
+
+	_acceptVasClick() {
+		this.eventAggregator.publish(`horizon-accepted-vas`, {});
+		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -67,10 +94,6 @@ export class AccessMenuBar extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_accessChannelErrorHandler(ex) {
-		return true;
-	}
-
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
@@ -80,6 +103,20 @@ export class AccessMenuBar extends Component {
 		
 		if (returnValue.succeeded) {
 			this.status = returnValue.result;
+		} else {
+			this.logger.log(`error`, `Failed to load access channel information`, `_accessChannelService`, returnValue.correlationId);
+		}
+	}
+
+	async _valueAddedService() {
+		const returnValue = await this.valueAddedService.getValueAddedServiceStatus(this.cifNumber);
+
+		if (returnValue.succeeded && returnValue.result !== ``) {
+			this.statusVAS = returnValue.result;
+			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
+		} else {
+			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
+			this.horizonRouter.navigateToSystemError();
 		}
 	}
 
@@ -103,8 +140,9 @@ export class AccessMenuBar extends Component {
 					--theme-card-border-radius: 0px 4px 0 0;
 					--theme-titlebar-shadow: 1px solid #E1E1E1;
 				}
-				capitec-icon[icon="system/notify"] {
-					--theme-icon-size-small: 26px;
+				capitec-icon[icon="system/settings-action"] {
+					--theme-icon-size-small: 24px;
+					cursor: pointer;
 				}
 				.insights-group {
 					height: 398px;
@@ -150,7 +188,8 @@ export class AccessMenuBar extends Component {
 				${this.renderAccessChannelTabs()}
 			</section>
 			${this.renderAccessChannelError()}
-			${this._renderLoadingIndicator()}`;
+			${this._renderLoadingIndicator()}
+			${this._renderValueAddedServicesModal()}`;
 	}
 
 	renderClientInsights() {
@@ -162,7 +201,8 @@ export class AccessMenuBar extends Component {
 						<capitec-spacer></capitec-spacer>
 						<capitec-icon
 							size="small"
-							icon="system/notify">
+							icon="system/settings-action"
+							@click = "${() => this._showVASModal()}">
 						</capitec-icon>
 				</capitec-title-bar>
 
@@ -224,6 +264,18 @@ export class AccessMenuBar extends Component {
 
 		return html``;
 	}
+
+	_renderValueAddedServicesModal() {
+		return this.showValueAddedServicesModal
+		? html`
+			<horizon-value-added-services
+				.statusVAS="${this.statusVAS}"
+				@cancel="${() => this._cancelVasClick()}"
+				@accept="${() => this._acceptVasClick()}">
+			</horizon-value-added-services>`
+		: html``;
+	}
+
 }
 
 window.customElements.define(`access-component`, AccessMenuBar);

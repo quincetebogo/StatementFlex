@@ -99,7 +99,7 @@ export class HorizonChannelService extends Service {
 	async _post(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
 		const correlationId = v4();
 		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
 		try {
 			const response = await super.httpClient.request({
@@ -115,7 +115,7 @@ export class HorizonChannelService extends Service {
 				caller: caller
 			});
 	
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
 	
 			return response;
 		} catch (exception) {
@@ -178,7 +178,7 @@ export class HorizonChannelService extends Service {
 	async _put(url, model, customHeaders, caller, isBinary, controller, sla, timeout) {
 		const correlationId = v4();
 		
-		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model)}`, caller, correlationId);
+		this._logger.log(`debug`, `url: ${url}, body: ${JSON.stringify(model).substring(0, 19000)}`, caller, correlationId);
 
 		try {
 			const response = await super.httpClient.request({
@@ -194,7 +194,7 @@ export class HorizonChannelService extends Service {
 				caller: caller
 			});
 
-			this._logger.log(`debug`, `result: ${JSON.stringify(response)}`, caller, correlationId);
+			this._logger.log(`debug`, `result: ${JSON.stringify(response).substring(0, 19000)}`, caller, correlationId);
 
 			return response;
 		} catch (exception) {
@@ -229,6 +229,27 @@ export class HorizonChannelService extends Service {
 	accessChannel(cifNumber) {
 		const url = `/clientcare-accesschannels-${this._version}/access-channels?cif=${cifNumber}`;
 		return this._get(url, this._setToken(), `accessChannels`);
+	}
+
+	// --------------------
+	// Value Added Services
+	// --------------------
+
+	getValueAddedService(cifNumber) {
+		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		return this._get(url, this._setToken(), `getValueAddedService`);
+	}
+
+	putValueAddedService(request) {
+		const url = `/clientcare-client-${this._version}/value-added-services?` +
+						`CapitecEntityId=${request.capitecEntityId}&` +
+						`OptOutInsights=${request.optOutInsights}&` +
+						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
+						`optOutPreAssesments=${request.optOutPreAssesments}&` +
+						`optOutAnalysis=${request.optOutAnalysis}&` +
+						`optOutThirdParties=${request.optOutThirdParties}&`;
+
+		return this._put(url, request, this._setToken(), `putValueAddedService`);
 	}
 
 	// -----------
@@ -305,7 +326,7 @@ export class HorizonChannelService extends Service {
 
 	// addCallerDetailsRequest
 	addCallerDetails(callerData) {
-		const url = `/clientcare-call-${this._version}/caller/add-caller-details`;
+		const url = `/clientcare-card-${this._version}/caller/addcallerdetails`;
 		const model = {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
@@ -321,12 +342,13 @@ export class HorizonChannelService extends Service {
 	// card
 	// ----
 
-	async cardLimitsLanding(cifNumber) {
+	async cardLimitsLanding(cifNumber, incidentRecId) {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
 		const url = `/clientcare-card-${this._version}/limits-landing?` +
-					`cifNumber=${cifNumber}`;
+					`cifNumber=${cifNumber}&` +
+					`incidentRecId=${incidentRecId}`;
 		return this._get(url, this._setToken(), `cardLimitsLanding`);
 	}
 
@@ -335,16 +357,56 @@ export class HorizonChannelService extends Service {
 			return this._mock.getCardLimits();
 		}
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
-		return this._get(url, this._setToken(), `cardLimitsLanding`);
+		return this._get(url, this._setToken(), `getCardLimits`);
 	}
 
-	async tapToPayLanding(cifNumber) {
+	getCardLimitsAgreement(cardDetails) {
+		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
+	}
+
+	updatePermanentLimits(request) {
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this._put(url, request, this._setToken(), `updatePermanentLimits`);
+	}
+
+	updateTemporaryLimits(request) {
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this._put(url, request, this._setToken(), `updateTemporaryLimits`);
+	}
+
+	getPermanentLimits(request) {
+		const url = `/clientcare-card-${this._version}/permanent-limits`;
+
+		return this._post(url, request, this._setToken(), `getPermanentLimits`);
+	}
+
+	getTemporaryLimits(request) {
+		const url = `/clientcare-card-${this._version}/temporary-limits`;
+
+		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
+	}
+
+	async tapToPayLanding(cifNumber, incidentRecId) {
 		if (await this._mockEnabled(`tapToPayLanding`)) {
 			return this._mock.tapToPay(cifNumber);
 		}
 
-		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?${cifNumber}`;
-		return this._get(url, this._setToken(), `tapToPay`);
+		const url = `/clientcare-card-${this._version}/tap-to-pay-landing?cifNumber=${cifNumber}&incidentRecId=${incidentRecId}`;
+		return this._get(url, this._setToken(), `tapToPayLanding`);
+	}
+
+	tapToPayAgreement(agreementInfo) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay-agreement`;
+
+		return this._post(url, agreementInfo, this._setToken(), `tapToPayAgreement`);
+	}
+
+	updateTapToPay(acceptTapToPay) {
+		const url = `/clientcare-card-${this._version}/tap-to-pay`;
+
+		return this._post(url, acceptTapToPay, this._setToken(), `updateTapToPay`);
 	}
 	
 	async stopCard(stopCardRequest) {

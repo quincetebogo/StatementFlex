@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 // import 'app/components/dialogs/insure/AssignReasonDialog';
@@ -39,6 +41,8 @@ export class StopCardFailure extends ViewBase {
 		this.isReassigned = false;
 		this.showHandoffModal = false;
 		this.failedCards = [];
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -73,9 +77,11 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	disconnectedCallback() {
-		HorizonTelemetry.instance.screenUnloadStopCard();
-
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME
+		});
 	}
 
 	// --------------
@@ -97,8 +103,9 @@ export class StopCardFailure extends ViewBase {
 
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
-
-		HorizonTelemetry.instance.stopCardTryAgain({ screen: TelemetryScreen.STOP_CARD_OUTCOME });
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME
+		});
 
 		this.retry++;
 		// Checking if max attempts exhausted, YES -> show Assign/HandOff dialog
@@ -136,8 +143,6 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_onHandOff(e) {
-		HorizonTelemetry.instance.stopCardAssign({ screen: TelemetryScreen.STOP_CARD_OUTCOME });
-
 		// On return from the Stop Card Assign dialog, mark the incident as assigned
         this.isReassigned = true;
 		this.horizonStore.setIsIncidentReassigned(this.isReassigned);
@@ -149,6 +154,15 @@ export class StopCardFailure extends ViewBase {
 		// May be implemented later to render progress on endCall method
 	}
 
+	_onAssign() {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
+			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
+		});
+
+		this.showHandoffModal = !this.showHandoffModal;
+	}
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -433,7 +447,7 @@ export class StopCardFailure extends ViewBase {
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button class="button-assign"
 								label="Assign"
-								@click="${() => this.showHandoffModal = !this.showHandoffModal}">
+								@click="${() => this._onAssign()}">
 				</capitec-button>
 				<capitec-button class="button-tryAgain"
 								type="primary"

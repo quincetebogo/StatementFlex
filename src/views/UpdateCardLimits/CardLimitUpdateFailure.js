@@ -13,10 +13,13 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	constructor() {
 		super();
 
-		this.card1 = `5284 **** **** 1522`;
-		this.card2 = `5238 **** **** 8907`;
-
+		this.limitType = ``;
+		this.cardCategory = ``;
+		this.maskedCardNumber = ``;
+		this.limitExpiryDate = ``;
+		this.istapToPayUnChanged = false;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.tapToPayStatus = ``;
 	}
 
 	// --------------
@@ -25,7 +28,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	static get properties() {
 		return {
-
+			
 		};
 	}
 
@@ -35,6 +38,18 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._updateIncidentState();
+
+		const screenDetails = this.horizonStore.getScreenDetails();
+		const limitDetails = screenDetails.limitDetails;
+
+		this.maskedCardNumber = limitDetails.cardMaskedNumber;
+		this.limitType = limitDetails.limitType;
+		this.cardCategory = limitDetails.cardCategory;
+		this.limitExpiryDate = limitDetails.limitExpiryDate;
+		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
+		this.tapToPayStatus = limitDetails.tapToPayStatus;
 	}
 
 	disconnectedCallback() {
@@ -46,12 +61,12 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		// TODO : Functionality to navigate after card limit successfully updated
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_onHandoff() {
 		this.horizonRouter.navigateToStrack(this.incidentRecId);
-		// TODO : Functionality to update card limits
 	}
 
 	// --------------
@@ -62,6 +77,12 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_updateIncidentState() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -70,11 +91,9 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		return [
 			super.styles,
 			css`
-
 				.id-update-msg {
 					width: auto;
 				}
-
 				.card {
 					height: 112px;
 					width: auto;
@@ -99,16 +118,32 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	_renderCardLimitsUpdateFailure() {
 		return html`
 			<horizon--error-screen 
-					header="Permanent card limits not updated" 
-					left="Done"
-					right="Handoff"
-					toast="Permanent card limit updated."
-					image="/images/cards-unsuccesful-limit-update.svg"
-					@left-click=${() => this._doneClick()}
-					@right-click=${() => this._onHandoff()}>
-					<section id="id-error-msg" slot="detail"><b>The permanent card limits for debit card 5284 **** **** 1522 was not updated.</b></section>
+				header="${this.limitType} card limits not updated" 
+				left="Done"
+				right="Handoff"
+				toast="${this.limitType} card limit updated."
+				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
+				image="/images/cards-unsuccesful-limit-update.svg"
+				subDetail="${this.istapToPayUnChanged ? `` : true }"
+				@left-click=${() => this._doneClick()}
+				@right-click=${() => this._onHandoff()}>
+					<section
+						slot="detail">
+							The ${this.limitType.toLowerCase()} card limits for ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not updated.
+					</section>
+
+					${this._getSubTitle()}
 			</horizon--error-screen>
 		`;
+	}
+
+	_getSubTitle() {
+		return !this.istapToPayUnChanged
+			? html`
+				<section slot="sub-detail">
+					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
+				</section>`
+			: html``;
 	}
 
 	_renderRelatedOptions() {
@@ -120,4 +155,4 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	}
 }
 
-customElements.define(`permanent-card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
+customElements.define(`card-limit-update-failure`, UnsuccessfulCardLimitUpdate);
