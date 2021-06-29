@@ -313,6 +313,17 @@ export class ConfirmCallerDetails extends Component {
 		
 		this.renderMode = RENDER_MODE.END_CALL;
 	}
+	
+	// Tooltip is displayed only for a long client's name where the overflowing text is hidden
+	_displayTooltip(e) {
+		const tooltip = this.shadowRoot.getElementById(`long-name`);
+		const clientName = this.shadowRoot.getElementById(`client-name`);
+
+		if(e.target.scrollWidth > e.target.offsetWidth) {
+			tooltip.style.display = `flex`;
+			clientName.style.display = `none`;
+		}
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -530,6 +541,11 @@ export class ConfirmCallerDetails extends Component {
 					--theme-text-select: text;
 					--theme-label-title-font-weight: 600;
 					line-height: 28px;
+					display: inline-block;
+					width: 385px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 				.client-info-row {
 					height: 56px;
@@ -555,6 +571,15 @@ export class ConfirmCallerDetails extends Component {
 				.footer-group > capitec-button {
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 12px;
+				}
+				capitec-tooltip {
+					display: none;
+					height: 27px;
+					--theme-tooltip-font-family: 'Hind Vadodara';
+					--theme-tooltip-font-size: 14px;
+					--theme-tooltip-line-height: 20px;
+					--theme-tooltip-border-radius: 2px;
+					--theme-layout-gap-spacing: 0px;
 				}
 			`
 		];
@@ -635,9 +660,24 @@ export class ConfirmCallerDetails extends Component {
 						icon="/images/common/avatar.svg">
 					</capitec-avatar>
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
-						<capitec-label row="1" column="1" colspan="2" type="title"
-							label="${this.confirmedCaller.name}">
+						<capitec-label 
+							id="client-name" 
+							type="title"
+							row="1" column="1" colspan="2"
+							label="${this.confirmedCaller.name}"
+							@mouseover="${(e) => this._displayTooltip(e)}">
 						</capitec-label>
+						<capitec-tooltip
+							id="long-name" 
+							row="1" column="1" colspan="2" 
+							message="${this.confirmedCaller.name}"
+							position="bottom">
+							<capitec-label
+								type="title"
+								label="${this.confirmedCaller.name}"
+								@mouseover="${(e) => this._displayTooltip(e)}">
+							</capitec-label>
+						</capitec-tooltip>
 						<horizon-label class="client-info-row" row="2" column="1" 
 							label="ID Number"
 							value="${this.confirmedCaller.southAfricanIDNumber}">

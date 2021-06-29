@@ -312,7 +312,7 @@ export class TapToPayLanding extends Component {
 				<capitec-title-bar>
 					<capitec-icon 
 						size="small"
-						icon="system/back-action"
+						icon="system/arrow-left-action"
 						@click="${() => this._back()}">
 					</capitec-icon>
 					<capitec-label class="title-label" label="Tap to Pay" type="title"></capitec-label>

@@ -93,7 +93,7 @@ export class TapToPaySuccess extends ViewBase {
 			super.styles,
 			css`
 				#id-update-msg {
-					width: 690%;
+					width: auto;
 					height: auto;
 				}
 
