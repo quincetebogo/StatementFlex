@@ -146,7 +146,7 @@ export class EndCallSession extends Component {
 		const isValid = this._validateCloseIncidentReason();
 
 		// Ignoring the abandon or not started need action
-		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber !== `0`) {
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 			this._returnToCallWaitingPage();
 			return;
 		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
