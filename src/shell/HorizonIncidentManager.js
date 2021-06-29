@@ -129,6 +129,7 @@ export class HorizonIncidentManager {
 	 * Creating a subsequent incident for other than primary need
 	 * 
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
+	 * @param {object} incidentCategorization - Category, Subcategory & issue details
 	 * @returns {void}
 	 */
 	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization) {
@@ -313,6 +314,7 @@ export class HorizonIncidentManager {
 	 * @returns {void}
 	 */
 	async _updateSubsequentNeedNonClientDetails(callDetails, callerInfo) {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		if (incidentDetails.incidentRecId === `` || incidentDetails.incidentRecId === `0`) {
 			this.logger.log(`error`, `There is no incident available against which to record the client details`, `_updateSubsequentNeedNonClientDetails`);

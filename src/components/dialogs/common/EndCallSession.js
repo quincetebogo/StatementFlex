@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
-import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
