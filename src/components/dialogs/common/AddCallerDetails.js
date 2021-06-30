@@ -81,10 +81,12 @@ export class AddCallerDetails extends Component {
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-
+		this.errorMessage = ``;
+		this.surnameError = ``;
+		this.cellphoneError = ``;
 		this.validationFailed = false;
 		this.alertBannerMessage = ``;
-
+		this.firstNameError = ``;
 		this.horizonStore = HorizonStore.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
@@ -112,7 +114,8 @@ export class AddCallerDetails extends Component {
 			incidentDetails: { type: Object },
 			callerInformation: { type: Object },
 			renderMode: { attribute: false },
-			validationFailed: { attribute: false }
+			validationFailed: { attribute: false },
+			errorMessage: { type: String }
 		};
 	}
 
@@ -129,6 +132,11 @@ export class AddCallerDetails extends Component {
 
 		// Short hand references for reaching into the incoming addCallerDialog model
 		this.ivrOption = this.incomingCallDetails.ivrOption;
+
+		this.firstNameTextField = this.callerInformation.nonClientFirstName;
+		this.surnameTextField = this.callerInformation.nonClientSurName;
+		this.cellPhoneTextField = this.callerInformation.nonClientCellPhone;
+		this.nonClientRelationship = this.callerInformation.nonClientRelationship;
 
 		/* this.nonClientInformation = this.addCallerDialog.nonClientInformation;
 		this.firstNameTextField = this.nonClientInformation.firstNameTextField;
@@ -150,22 +158,24 @@ export class AddCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_keyPress(e) {
+	_keyPress(e, errorMessage) {
+		// Clear the string everytime we type a character
 		if (e.detail.new !== ``) {
-			this[e.currentTarget.id].errorMessage = ``;
+			e.currentTarget.error = ``;
+			errorMessage = ``;
 		}
 		this.validationFailed = false;
-		this.requestUpdate();
+		// this.requestUpdate();
 	}
 
-	_valueChanged(e) {
+	 _valueChanged(e) {
 		if (typeof e.detail.new === `object`) {
-			this[e.currentTarget.id].value = e.detail.new.value;
+			this[e.currentTarget.id] = e.detail.new;
 		} else {
-			this[e.currentTarget.id].value = e.detail.new;
+			this[e.currentTarget.id] = e.detail.new;
 		}
-		this.validationFailed = false;
-	}
+		// this.validationFailed = false;
+	 }
 
 	_confirmClick() {
 		this._telemetry.logEvent(IDCallerEvents.ADD_CALLER_CONFIRM_CLICK, {
@@ -189,12 +199,12 @@ export class AddCallerDetails extends Component {
 						this.confirmedCaller.name,
 						this.confirmedCaller.southAfricanIDNumber,
 						this.confirmedCaller.verifiedTelephoneNumber,
-						this.callerInformation.nonClientFirstName,
-						this.callerInformation.nonClientSurName,
-						`${this.callerInformation.nonClientFirstName} ${this.callerInformation.nonClientSurName}`,
-						this.callerInformation.nonClientCellPhone,
+						this.firstNameTextField,
+						this.surnameTextField,
+						`${this.firstNameTextField} ${this.surnameTextField}`,
+						this.cellPhoneTextField,
 						``,
-						this.callerInformation.nonClientRelationship,
+						this.nonClientRelationship,
 						true,
 						this.confirmedCaller.verificationStatus || `unverified`,
 						false,
@@ -241,34 +251,22 @@ export class AddCallerDetails extends Component {
 	// ---------------
 
 	_validateData() {
-		for (const key in this.nonClientInformation) {
-			if (Object.prototype.hasOwnProperty.call(this.nonClientInformation, key)) {
-				const field = this.nonClientInformation[key];
-				// When the field is required and it doesn't have any value - assigning error message
-				if (field.required && !field.value) {
-					this[key].errorMessage = field.inputValidationOption.validationFailedMessage;
-					this.validationFailed = true;
-					this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
-				}
-			}
-		}
+		if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField)) {
+			this.firstNameError = ERROR_MESSAGE.INVALID_FIRSTNAME;
+			this.validationFailed = true;
+			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
+		};
 
-		if (!isNullorEmpty(this.cellPhoneTextField.value) &&
-			!RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField.value)) {
-			this.cellPhoneTextField.errorMessage = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
+		if (!isNullorEmpty(this.cellPhoneTextField) &&
+			!RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField)) {
+			this.surnameError = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_CELLPHONE.ERR_MESSAGE;
 
 		}
 
-		if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField.value)) {
-			this.firstNameTextField.errorMessage = ERROR_MESSAGE.INVALID_FIRSTNAME;
-			this.validationFailed = true;
-			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
-		};
-
-		if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField.value)) {
-			this.surnameTextField.errorMessage = ERROR_MESSAGE.INVALID_SURNAME;
+		if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField)) {
+			this.cellphoneError = ERROR_MESSAGE.INVALID_SURNAME;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
 		};
@@ -280,7 +278,8 @@ export class AddCallerDetails extends Component {
 	 * Temporary method to return error message
 	 */
 	_getErrorMessage(field) {
-		return field && field.errorMessage ? field.errorMessage : ``;
+		
+		return field.currentTarget === `` ? `` : this.errorMessage;
 	}
 
 	// ---------
@@ -389,37 +388,38 @@ export class AddCallerDetails extends Component {
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
 										id="firstNameTextField"
-										value="${this.callerInformation.nonClientFirstName}"
+										value="${this.firstNameTextField}"
 										tabindex="1"
-										@value-changed="${(e) => this._valueChanged(e)}" 
-										@key-input="${(e) => this._keyPress(e)}">
+										error="${this.firstNameError}"
+										@value-changed="${(e) => this.firstNameTextField = e.detail.new}"
+										@key-input="${(e) => this._keyPress(e, this.firstNameError)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
 					<capitec-text-field label="Surname"
 										id="surnameTextField"
-										value="${this.callerInformation.nonClientSurName}"
+										value="${this.surnameTextField}"
 										tabindex="2"
-										@value-changed="${(e) => this._valueChanged(e)}"
-										@key-input="${(e) => this._keyPress(e)}">
+										@value-changed="${(e) => this.surnameTextField = e.detail.new}"
+										@key-input="${(e) => this._keyPress(e, this.surnameError)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
 					<capitec-text-field type="number"
 										id="cellPhoneTextField"
-										value="${this.callerInformation.nonClientCellPhone}"
+										value="${this.cellPhoneTextField}"
 										label="Cellphone Number (Optional)"
 										tabindex="3"
-										@key-input="${(e) => this._keyPress(e)}"
-										@value-changed="${(e) => this._valueChanged(e)}">
+										@value-changed="${(e) => this.cellPhoneTextField = e.detail.new}"
+										@key-input="${(e) => this._keyPress(e, this.cellphoneError)}">
 					</capitec-text-field><br>
 				</div>
 				<div class="group-field-row">
 					<capitec-select id="nonClientRelationship"
                                     label="Choose relationship type (Optional)"
-						            value="${this.callerInformation.nonClientRelationship}"
+						            value="${this.nonClientRelationship}"
                                     .items="${POSSIBLE_RELATIONSHIPS}"
-						            @value-changed="${(e) => this._valueChanged(e)}"
+									@value-changed="${(e) => this.nonClientRelationship = e.detail.new}"
                                     tabindex="4"
 						            id-field="key"
                                     display-field="value">

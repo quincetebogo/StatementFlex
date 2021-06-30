@@ -321,7 +321,7 @@ export class ViewBase extends View {
 				.confirmedCaller="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.addCallerDialog="${this.addCallerDetails}"
+				.callerInformation="${this.callerInformation}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`
