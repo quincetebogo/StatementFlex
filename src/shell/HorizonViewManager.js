@@ -77,7 +77,7 @@ export class HorizonViewManager {
 
 		this.shellComponents = [
 			{
-				load: () => import(`../components/shell/HorizonActionBar`)
+				load: () => import(`../components/shell/ActionBar`)
 			},
 			{
 				load: () => import(`../components/landingPage/WelcomeBar`)
