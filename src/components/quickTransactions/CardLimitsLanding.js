@@ -311,6 +311,18 @@ export class CardLimitsLanding extends Component {
 			}, null);
 		}
 	}
+	
+	_onScroll(e) {
+		const expandersList = e.currentTarget.querySelectorAll('horizon-expander');
+
+		expandersList.forEach((expander, index) => {
+			if(e.target.scrollTop > 110 * (index + 1)) {
+				expander.expanded = false;
+			} else {
+				expander.expanded = true;
+			}
+		})
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -503,6 +515,7 @@ export class CardLimitsLanding extends Component {
                   font-weight: 600;
                   letter-spacing: 0;
                   line-height: 20px;
+				  border-top: 0px;
                 }
                 .columnGroup{
                     height: 48px;
@@ -510,9 +523,11 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
                 }
                 .columnGroup > bb-multi-line-label{
-                    padding: 6px;
+                    padding: 6px 16px;
                     height: 48px;
+					--horizon-multi-line-label-font-weight: 600;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 .columnGroup > capitec-label{
                     justify-content:center;
@@ -525,6 +540,7 @@ export class CardLimitsLanding extends Component {
                     letter-spacing: 0;
                     line-height: 20px;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 
                 capitec-hyperlink{
@@ -538,19 +554,21 @@ export class CardLimitsLanding extends Component {
                 }
                 horizon-expander{
                     margin: 16px;
-                    width: 1032px;
+                    width: 1031px;
                     border: 1px solid E1E1E1;
                     border-radius: 4px;
                     height: auto;
+					animation-timing-function: linear;
                 }
                 capitec-card > capitec-content-box{
                     padding: 0px;
                 }
                 .col1{
-                    width:224px;
+                    width:222px;
                 }
                 .col2{
                     width: 204px;
+					border-right: 0px;
                 }
                 .col3{
                     width:207px;
@@ -566,7 +584,7 @@ export class CardLimitsLanding extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.dual{
-					height: 324px;
+					height: auto;
 				}
 				capitec-label[label="Update"] {
 					text-align: end;
@@ -591,7 +609,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
-				<capitec-content-box>
+				<capitec-content-box @scroll = "${(e) => this._onScroll(e)}">
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
@@ -764,7 +782,7 @@ export class CardLimitsLanding extends Component {
 			${this._renderLimitsRow(card, `Debit`)}
 		`;
 	}
-
+	
 	_renderLimitsRow(card, updateType) {
         const limits = card && card.cardLimits;
         const linkedLimits = card.linkedCardLimits;

@@ -74,31 +74,23 @@ export class ComponentMultiLineLabel extends Component {
                     flex-direction: column-reverse;
                 }
                 .value {
-                    //font-size: 15px;
-                    //font-weight: 600;
-                    //letter-spacing: 0;
-                    //line-height: 20px;
-  height: 12px;
-  width: 184px;
-  color: #3A3A3A;
-  font-family: "Hind Vadodara";
-  font-size: 12px;
-  letter-spacing: 0;
-  line-height: 12px;
-  text-align: right;
-                }
-capitec-label{
-  height: 20px;
-  width: 184px;
-  color: #3A3A3A;
-  font-family: "Hind Vadodara";
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 0;
-  line-height: 20px;
-  text-align: right;
-}
-            `
+					height: 12px;
+					font-size: 12px;
+					line-height: 12px;
+					font-weight: var(--horizon-multi-line-value-font-weight, 400);
+				}
+				capitec-label{
+					height: 20px;
+					width: auto;
+					color: #3A3A3A;
+					font-family: "Hind Vadodara";
+					font-size: 14px;
+					font-weight: var(--horizon-multi-line-label-font-weight, 400);
+					letter-spacing: 0;
+					line-height: 20px;
+					text-align: right;
+				}
+			`
         ];
     }
     _renderValue() {

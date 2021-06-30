@@ -445,6 +445,7 @@ export class Expander extends Component {
                 }                
                 horizon-label{
                     width: 182px;
+					--theme-layout-gap-spacing: 0px;
                     --horizon-label-text-height: 20px;
                     --horizon-label-text-color: #3A3A3A;
                     --horizon-label-text-font-size: 14px;
@@ -459,15 +460,23 @@ export class Expander extends Component {
                     width: 200px;
                 }                
                 .header-icon{
-                    margin: 12px 16px;
+					height: 40px;
+                    margin: 12px 23px;
                 }
+				.header-icon > img {
+					height: 40px;
+				}
 
                 .vertical-line{
-                    height: 24px;
+                    height: 40px;
                     width: 1px;
                     background-color: #E1E1E1;
                     margin-right: 16px;
                 }
+
+				.header-col1 {
+					width: 146px;
+				}
 
 				@keyframes expand {
 					0% {
@@ -517,7 +526,7 @@ export class Expander extends Component {
 
     _renderHeaders(headers, index) {
         return index == 0 ? html`
-            <horizon-label style="width: 151px;" label=${headers} value="${this.subtitles[index]}">
+            <horizon-label class="header-col1" label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
             <div class="vertical-line"></div>
         ` : html`
