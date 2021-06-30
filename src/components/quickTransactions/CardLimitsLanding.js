@@ -477,7 +477,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 16px 16px 0px;
+					margin: 16px 16px 4px;
 					--theme-label-strong-font-size: 18px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3E4547;
@@ -553,7 +553,8 @@ export class CardLimitsLanding extends Component {
                     line-height: 20px;
                 }
                 horizon-expander{
-                    margin: 16px;
+                    margin: 12px 16px 0px;
+    				--theme-expander-header-height: 64px;
                     width: 1031px;
                     border: 1px solid E1E1E1;
                     border-radius: 4px;
