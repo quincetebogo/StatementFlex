@@ -594,8 +594,8 @@ export class CardLimitsLanding extends Component {
 				<capitec-content-box>
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
-						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
+						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 					</capitec-expander-group>
 				</capitec-content-box>
 			</capitec-card>

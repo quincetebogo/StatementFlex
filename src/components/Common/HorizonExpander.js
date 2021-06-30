@@ -300,11 +300,12 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					border-top: var(--theme-expander-border, 1px solid black);
+					//border-top: var(--theme-expander-border, 1px solid black);
 					cursor: pointer;
                     padding: 0px;
-                    border-radius:4px 4px 0px 4px;
-                    border-right: 1px solid #E1E1E1;
+                    border-radius: 4px;
+                    //border-right: 1px solid #E1E1E1;
+					border: 1px solid #E1E1E1;
 				}
 
 				:host(*.styled) > .header {
@@ -367,7 +368,7 @@ export class Expander extends Component {
 				:host > .content {
 					//border-left: var(--theme-expander-border, 1px solid black);
 					//border-right: var(--theme-expander-border, 1px solid black);
-					border-top: var(--theme-expander-border, 1px solid black);
+					//border-top: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
 				}
 
