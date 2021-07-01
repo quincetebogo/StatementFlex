@@ -131,26 +131,13 @@ export class ConfirmCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	async _addCallerDetailsClick() {
+	_addCallerDetailsClick() {
 		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
 			"screen": TelemetryScreen.CONFIRM_CALLER,
 			"next-screen": TelemetryScreen.ADD_CALLER_DETAILS
 		});
 
-		const callDetails = {
-			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOption: this.incomingCallDetails.ivrOption.value,
-			incidentNo: this.incidentDetails.incidentReferenceNumber,
-			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
-		};
-
-		const returnValue = await this.cardService.addCallerDetails(callDetails);
-
-		if (returnValue.succeeded) {
-			this.addCallerDetails = returnValue.result;
-			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-		}
+		this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
 	}
 
 	_addCallerDetailsCancelled(event) {

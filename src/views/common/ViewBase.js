@@ -183,23 +183,11 @@ export class ViewBase extends View {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 	}
 
-	async _addCallerDetails() {
+	_addCallerDetails() {
 		this._telemetry.logEvent(LandingPageEvents.ADD_CALLER_DETAILS, {});
 		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER, {});
 
-		const callDetails = {
-			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOption: this.incomingCallDetails.ivrOption.value,
-			incidentNo: this.incidentDetails.incidentReferenceNumber,
-			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
-		};
-
-		const returnValue = await this.cardService.addCallerDetails(callDetails);
-		if (returnValue.succeeded) {
-			this.addCallerDetails = returnValue.result;
-			this.showAddCallerDetails = !this.showAddCallerDetails;
-		}
+		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	_addCallerDetailsCancelled(event) {

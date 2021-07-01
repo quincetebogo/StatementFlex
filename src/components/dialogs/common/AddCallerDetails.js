@@ -22,6 +22,7 @@ const HEADER_LABEL = `Add Caller Details`;
 
 const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: `Please enter all required fields before you continue`,
+	REQUIRED_FIELD_HINT: `This is a required field`,
 	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`,
 	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
 	INVALID_SURNAME: `Only alpha characters and hyphen allowed`
@@ -51,6 +52,7 @@ const POSSIBLE_RELATIONSHIPS = [
 	{ key: 5, value: `Other` }
 ];
 
+
 /**
 /**
  * Add Caller Details is used to record the information of a third-pary calling in 
@@ -73,7 +75,6 @@ export class AddCallerDetails extends Component {
 	// --------------
 
 	constructor() {
-
 		super();
 
 		RegExp();
@@ -81,7 +82,6 @@ export class AddCallerDetails extends Component {
 		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
-		this.errorMessage = ``;
 		this.surnameError = ``;
 		this.cellphoneError = ``;
 		this.validationFailed = false;
@@ -91,6 +91,12 @@ export class AddCallerDetails extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
+
+		this.ErrorMessageFields = {
+			firstNameTextField: ``,
+			surnameTextField: ``,
+			cellPhoneTextField: ``
+		};
 	}
 
 	// ----------
@@ -113,9 +119,9 @@ export class AddCallerDetails extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 			callerInformation: { type: Object },
+
 			renderMode: { attribute: false },
-			validationFailed: { attribute: false },
-			errorMessage: { type: String }
+			validationFailed: { attribute: false }
 		};
 	}
 
@@ -151,11 +157,11 @@ export class AddCallerDetails extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_keyPress(e, errorMessage) {
+	_keyPress(e) {
 		// Clear the error string
 		if (e.detail.new !== ``) {
 			e.currentTarget.error = ``;
-			errorMessage = ``;
+			this.ErrorMessageFields[e.currentTarget.id] = ``;
 		}
 		this.validationFailed = false;
 	}
@@ -234,24 +240,30 @@ export class AddCallerDetails extends Component {
 	// ---------------
 
 	_validateData() {
-		if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField)) {
+		if (isNullorEmpty(this.firstNameTextField)) {
+			this.validationFailed = true;
+			this.firstNameError = ERROR_MESSAGE.REQUIRED_FIELD_HINT;
+			this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+		} else if (!RegExp(REGEX_NAME.PATTERN, `g`).test(this.firstNameTextField)) {
 			this.firstNameError = ERROR_MESSAGE.INVALID_FIRSTNAME;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
 		};
 
-		if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField)) {
+		if (isNullorEmpty(this.surnameTextField)) {
+			this.validationFailed = true;
+			this.surnameError = ERROR_MESSAGE.REQUIRED_FIELD_HINT;
+			this.alertBannerMessage = ERROR_MESSAGE.REQUIRED_FIELDS_EMPTY;
+		} else if (!RegExp(REGEX_SURNAME.PATTERN, `g`).test(this.surnameTextField)) {
 			this.surnameError = ERROR_MESSAGE.INVALID_SURNAME;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
 		};
 
-		if (!isNullorEmpty(this.cellPhoneTextField) &&
-			!RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField)) {
+		if (!isNullorEmpty(this.cellPhoneTextField) && !RegExp(REGEX_CELLPHONE.PATTERN, `g`).test(this.cellPhoneTextField)) {
 			this.cellphoneError = ERROR_MESSAGE.INVALID_CELLPHONE_NUMBER;
 			this.validationFailed = true;
 			this.alertBannerMessage = REGEX_CELLPHONE.ERR_MESSAGE;
-
 		}
 
 		return this.validationFailed;
@@ -369,7 +381,7 @@ export class AddCallerDetails extends Component {
 						tabindex="1"
 						error="${this.firstNameError}"
 						@value-changed="${(e) => this.firstNameTextField = e.detail.new}"
-						@key-input="${(e) => this._keyPress(e, this.firstNameError)}">
+						@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -380,7 +392,7 @@ export class AddCallerDetails extends Component {
 						tabindex="2"
 						error="${this.surnameError}"
 						@value-changed="${(e) => this.surnameTextField = e.detail.new}"
-						@key-input="${(e) => this._keyPress(e, this.surnameError)}">
+						@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field>
 				</div>
 				<div class="group-field-row">
@@ -392,7 +404,7 @@ export class AddCallerDetails extends Component {
 						tabindex="3"
 						error="${this.cellphoneError}"
 						@value-changed="${(e) => this.cellPhoneTextField = e.detail.new}"
-						@key-input="${(e) => this._keyPress(e, this.cellphoneError)}">
+						@key-input="${(e) => this._keyPress(e)}">
 					</capitec-text-field><br>
 				</div>
 				<div class="group-field-row">
