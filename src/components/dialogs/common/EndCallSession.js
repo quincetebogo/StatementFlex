@@ -262,6 +262,7 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
 		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		console.log(needAction)
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
@@ -270,9 +271,10 @@ export class EndCallSession extends Component {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction ? needAction : END_CALL_REASONS.value,
+				needAction: needAction,
 				incidentCategorization: null
 			};
+
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
 
 			if (!returnValue.succeeded) {
@@ -281,7 +283,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
+			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has already been categorized in STrack.`, `_classifyAndClose`);
 		}
 		await this._closeIncident(strackIncidentInfo);
 	}
