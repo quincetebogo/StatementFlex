@@ -549,7 +549,7 @@ export class SearchCaller extends Component {
                 this.alertBannerMessage = ERROR_MESSAGES.INVALID_BRANCH;
                 return false;
             }
-            if (!RegExp(BRANCH_REGEX_PATTERN.branchName.PATTERN, `g`).test(this.branchName)) {
+            if (!RegExp(BRANCH_REGEX_PATTERN.branchName.PATTERN, `g`).test(this.branchCode)) {
                 this.errMessage.branchName = BRANCH_REGEX_PATTERN.branchName.FIELD_ERROR;
                 this.alertBannerMessage = BRANCH_REGEX_PATTERN.branchName.ALERT_BANNER;
                 return false;
@@ -800,7 +800,7 @@ export class SearchCaller extends Component {
 							<capitec-content-box style="height:${this.clientType == CLIENT_TYPE.BRANCH ? `690px;` : `480px;`}">
 								${this._renderAlertBanner()}
 								${this._renderClientType()}
-								${this._renderClientFields()}
+								${this._renderCapitecClient()}
 								${this._renderNonClientFields()}
 								${this._renderBranchFields()}
 							</capitec-content-box>
@@ -854,8 +854,13 @@ export class SearchCaller extends Component {
 			</capitec-radio-group>`;
     }
 
-    _renderClientFields() {
+    _renderCapitecClient() {
         if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
+            return html`${this._renderClientFields()}`;
+        }
+    }
+
+    _renderClientFields() {
             return html`
 					<capitec-label 
 						class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
@@ -888,8 +893,6 @@ export class SearchCaller extends Component {
 							</capitec-text-field>
 						</div>
 					</capitec-group>`;
-        }
-        return html``;
     }
 
     _renderNonClientFields() {
