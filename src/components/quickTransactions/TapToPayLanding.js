@@ -209,7 +209,7 @@ export class TapToPayLanding extends Component {
 			}
 
 			.content-body {
-				width: 100%;
+				width: 1064px;
 				height: 100%;
 			}
 
@@ -285,7 +285,12 @@ export class TapToPayLanding extends Component {
 			}
 
 			horizon-card-art {
+				margin-bottom: 24px;
 				--horizon-card-art-box-shadow:none!important;
+			}
+
+			horizon-card-art:nth-child(n+3) {
+				--theme-layout-gap-spacing: 0px;
 			}
 
 			.primary-cards {
