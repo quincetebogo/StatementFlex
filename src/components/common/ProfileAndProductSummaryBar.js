@@ -179,7 +179,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_favouritesClicked() {
 		this.product = ``;
 		this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
-
+		
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -228,8 +228,8 @@ export class ProfileAndProductSummaryBar extends Component {
 		</section>`;
 	}
 
+
 	_renderFavourites() {
-		if (this.hasFavourites) {
 			return html`
 				<horizon-favourites-tile
 					class="favourites-button"
@@ -238,8 +238,6 @@ export class ProfileAndProductSummaryBar extends Component {
 					@click="${() => this._favouritesClicked()}"
 					?selected=${this.activePageTitle === `Favourites`}>
 				</horizon-favourites-tile>`;
-		};
-		return html``;
 	}
 }
 
