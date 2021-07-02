@@ -517,6 +517,14 @@ export class ConfirmCallerDetails extends Component {
         this.isBusy = !this.isBusy;
     }
 
+    async _updateClientDetails() {
+        const returnValue = await this.incidentService.updateIncidentClientDetails(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
+
+        if (!returnValue.succeeded) {
+            this.logger.log(`error`, `Unable to update client details on incident for a 3rd Party flow due to a system error`, `_updateClientDetails`, returnValue.correlationId);
+        }
+    }
+
     // ---------
     // RENDERING
     // ---------
