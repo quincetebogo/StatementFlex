@@ -723,9 +723,13 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `transactionHistory`);
     }
 
-    UpdateIncidentBranchDetailsRequest(branchDetails) {
+    UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
         //IncidentRecId String
         //BranchCode String
+        const branchDetails = {
+            incidentRecId: incidentRecID,
+            branchCode: branchCode
+        };
         const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
         return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
     }
@@ -733,7 +737,8 @@ export class HorizonChannelService extends Service {
     GetConsultantInformation(cpNumber) {
         //cpNumber = userID
         //CpNumber String
-        const url = `/clientcare-incident-${this._version}/user-details`;
+        const url = `/clientcare-incident-${this._version}/user-details?` +
+            `UserID=${cpNumber}`;
         return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
     }
 

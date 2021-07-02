@@ -193,8 +193,8 @@ export class IncidentManagementService extends ServiceBase {
     * @param {Number} [autoRetries] The amount of times the call should be retried if it fails
     * @memberof IncidentManagementService
     */
-    UpdateIncidentBranchDetailsRequest(branchDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.UpdateIncidentBranchDetailsRequest(branchDetails), `UpdateIncidentBranchDetailsRequest`, errorHandler, autoRetries);
+    UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+        return this.wrapCall(this.channelService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode), `UpdateIncidentBranchDetailsRequest`, errorHandler, autoRetries);
     }
 
     /**

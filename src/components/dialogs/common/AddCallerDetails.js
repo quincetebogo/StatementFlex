@@ -24,9 +24,7 @@ const ERROR_MESSAGE = {
 	REQUIRED_FIELDS_EMPTY: `Please enter all required fields before you continue`,
 	INVALID_CELLPHONE_NUMBER: `Cellphone number must be 10 digits`,
 	INVALID_FIRSTNAME: `Only alpha characters and hyphen allowed`,
-    INVALID_SURNAME: `Only alpha characters and hyphen allowed`,
-    INVALID_BRANCH: `Branch name - branch code`,
-    INVALID_CP: `CP must be 6 numbers`
+    INVALID_SURNAME: `Only alpha characters and hyphen allowed`
 };
  
 const REGEX_CELLPHONE = {
@@ -42,16 +40,6 @@ const REGEX_NAME = {
 const REGEX_SURNAME = {
 	PATTERN: /^[A-Za-z\s-]+$/,
 	ERR_MESSAGE: `Name and surname must be completed`
-};
-
-const REGEX_CP = {
-    PATTERN: /^([0-9]{6}$)/,
-    ERR_MESSAGE: `CP number must be 6 characters long`
-};
-
-const CLIENT_RELATIONSHIP = {
-    BRANCH: 0,
-    OTHER: 1
 };
 
 
@@ -94,11 +82,6 @@ export class AddCallerDetails extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this._telemetry = HorizonTelemetry.instance;
-        this.cpNumber = ``;
-        this.consultantName = `Consultant Name`;
-        this.branchCode = ``;
-        this.consultantNameHint = ``;
-
 	}
 
 	// ----------
@@ -122,13 +105,8 @@ export class AddCallerDetails extends Component {
 			incidentDetails: { type: Object },
 			addCallerDialog: { type: Object },
             clientRelationship: { type: Number },
-            getConsultantDetails: { type: Object, attribute: false},
-            updateIncidentBranchDetails: { type: Object, attribute: false},
 			renderMode: { attribute: false },
-            validationFailed: { attribute: false },
-            cpNumber: {type: String, attribute: false},
-            consultantName: {type: String, attribute: false},
-            branchCode: {type: String, attribute: false}
+            validationFailed: { attribute: false }
 		};
 	}
 
@@ -180,33 +158,9 @@ export class AddCallerDetails extends Component {
 		this.requestUpdate();
     }
 
-    _getConsultant(e) {
-        let cpNumber = e.detail.new;
-        if (cpNumber.length == 6) {
-            let consultantInfo = this.getConsultantDetails("cp" + cpNumber);
-            //this.consultantName = consultantInfo.consultantName;
-            //this.branchCode = consultantInfo.branchCode;
-            this.consultantName = "Moses Mkeba";
-            this.consultantNameHint = "Consultant Name";
-            this.branchCode = "Sandton";
-        } else if (cpNumber.length == 0) {
-            this.consultantName = "Consultant Name";
-            this.consultantNameHint = "";
-        } else if (cpNumber.length > 6) {
-            //cpNumber = cpNumber.slice(0, (6 - cpNumber.length));
-            //this.cpNumber = cpNumber;
-            this.consultantName = "Consultant Name";
-            this.consultantNameHint = "";
-            //this.requestUpdate();
-        }
-    }
 
 	_valueChanged(e) {
         if (typeof e.detail.new === `object`) {
-            if (e.detail.new.value === `Branch Consultant`) {
-                this.clientRelationship = CLIENT_RELATIONSHIP.BRANCH;
-            } else {
-                this.clientRelationship = CLIENT_RELATIONSHIP.OTHER;            }
 			this[e.currentTarget.id].value = e.detail.new.value;
 		} else {
 			this[e.currentTarget.id].value = e.detail.new;
@@ -252,8 +206,6 @@ export class AddCallerDetails extends Component {
 					)
 				}
             }));
-
-            this.updateIncidentBranchDetails(this.branchCode);
 		}
 	}
 
@@ -290,16 +242,6 @@ export class AddCallerDetails extends Component {
 	// ---------------
 
     _validateData() {
-
-        if (this.clientRelationship === CLIENT_RELATIONSHIP.BRANCH) {
-            if (!isNullorEmpty(this.cpNumber) &&
-                !RegExp(REGEX_CP.PATTERN, `g`).test(this.cpNumber)) {
-                this.validationFailed = true;
-                this.alertBannerMessage = REGEX_CP.ERR_MESSAGE;
-            }
-
-        }
-        else {
             for (const key in this.nonClientInformation) {
                 if (Object.prototype.hasOwnProperty.call(this.nonClientInformation, key)) {
                     const field = this.nonClientInformation[key];
@@ -330,8 +272,7 @@ export class AddCallerDetails extends Component {
 		    	this.surnameTextField.errorMessage = ERROR_MESSAGE.INVALID_SURNAME;
 		    	this.validationFailed = true;
 		    	this.alertBannerMessage = REGEX_NAME.ERR_MESSAGE;
-		    };
-        }
+		    };       
 		return this.validationFailed;
 	}
 
@@ -420,7 +361,6 @@ export class AddCallerDetails extends Component {
 								${this._renderErrorMessage()}
 								${this._renderAddCallerDetails()}
 								${this._renderCallerDetails()}
-								${this._renderBranchDetails()}
 							</div>
 							<div slot="footer">
 								${this._renderFooter()}
@@ -462,7 +402,6 @@ export class AddCallerDetails extends Component {
     }
 
     _renderCallerDetails() {
-        if (this.clientRelationship === CLIENT_RELATIONSHIP.OTHER) {
             return html`
 				<div class="group-field-row">
 					<capitec-text-field label="Name"
@@ -496,43 +435,6 @@ export class AddCallerDetails extends Component {
 					</capitec-text-field><br>
 				</div>
                 `;
-        } else {
-            return html``;
-        }
-    }
-
-    _renderBranchDetails() {
-        if (this.clientRelationship === CLIENT_RELATIONSHIP.BRANCH) {
-            return html`
-					<div class="group-field-row" style="margin-top: 18px">
-						<capitec-text-field
-							id="cpNumber"
-							label="CP Number"
-                            type="numeric"
-							.value="${this.cpNumber}"
-                            @key-input="${(e) => this._getConsultant(e)}">
-						</capitec-text-field>
-					</div>
-             <!--Branch name and consultant name to auto populate -->
-                    <capitec-text-field
-                        class="group-field-row"
-                        id="consultantName"
-                        label="${this.consultantName}"
-                        hint="${this.consultantNameHint}" 
-                        disabled>
-                    </capitec-text-field>
-					<div class="group-field-row" style="margin-top: 18px">
-						<capitec-text-field
-							id="branchCode"
-							label="Branch Name"
-							.value="${this.branchCode}">
-						</capitec-text-field>
-					</div>
-            
-                    `;
-
-        }
-        return html``;
     }
 
 	_renderFooter() {

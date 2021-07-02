@@ -105,7 +105,9 @@ export class CallerDialog extends Component {
 				--theme-modal-header-padding-right: 31px;
 				--theme-modal-header-padding-left: 31px;
 				--theme-modal-footer-padding: var(--horizon-modal-footer-padding, 7px 16px 9px 0px);
-				
+                --theme-modal-body-box-shadow: #664e60;
+                --theme-modal-header-border-radius: 4px 4px 0px 0px;
+                --theme-modal-body-border-radius: 4px 4px 4px 4px;
 			}
 
 			div[slot="body"] {
