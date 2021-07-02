@@ -119,9 +119,8 @@ export class AddCallerDetails extends Component {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 			callerInformation: { type: Object },
-      		clientRelationship: { type: Number },
 			renderMode: { attribute: false },
-            validationFailed: { attribute: false }
+			validationFailed: { attribute: false }
 		};
 	}
 
@@ -351,7 +350,7 @@ export class AddCallerDetails extends Component {
 								${this._renderCallerDetails()}
 							</div>
 							<div slot="footer">
-								${this._renderFooter()}
+							${this._renderFooter()}
 							</div>
 					</horizon-caller-dialog>`;
 			case RENDER_MODE.END_CALL:
@@ -387,7 +386,7 @@ export class AddCallerDetails extends Component {
 						label="Choose relationship type (Optional)"
 						value="${this.nonClientRelationship}"
 						tabindex="4"
-						.items=""${POSSIBLE_RELATIONSHIPS}"
+						.items="${POSSIBLE_RELATIONSHIPS}"
 						id-field="key"
 						display-field="value"
 						@value-changed="${(e) => this.nonClientRelationship = e.detail.new}">
