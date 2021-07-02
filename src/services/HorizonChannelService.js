@@ -324,20 +324,6 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
-	// addCallerDetailsRequest
-	addCallerDetails(callerData) {
-		const url = `/clientcare-card-${this._version}/caller/addcallerdetails`;
-		const model = {
-			'incomingTelephoneNumber': callerData.incomingNumber,
-			'voiceReferenceNumber': callerData.voiceReference,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber
-		};
-
-		return this._post(url, model, this._setToken(), `addCallerDetails`);
-	}
-
 	// ----
 	// card
 	// ----

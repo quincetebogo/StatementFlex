@@ -132,26 +132,13 @@ export class ConfirmCallerDetails extends Component {
     // EVENT HANDLERS
     // --------------
 
-    async _addCallerDetailsClick() {
+	_addCallerDetailsClick() {
         this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_ADD_CALLER_CLICK, {
             "screen": TelemetryScreen.CONFIRM_CALLER,
             "next-screen": TelemetryScreen.ADD_CALLER_DETAILS
         });
 
-        const callDetails = {
-            incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
-            voiceReference: this.incomingCallDetails.voiceReferenceNumber,
-            ivrOption: this.incomingCallDetails.ivrOption.value,
-            incidentNo: this.incidentDetails.incidentReferenceNumber,
-            agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
-        };
-
-        const returnValue = await this.cardService.addCallerDetails(callDetails);
-
-        if (returnValue.succeeded) {
-            this.addCallerDetails = returnValue.result;
-            this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
-        }
+			this.renderMode = RENDER_MODE.ADD_CALLER_DETAILS;
     }
 
     _addCallerDetailsCancelled(event) {
@@ -332,7 +319,7 @@ export class ConfirmCallerDetails extends Component {
 		const tooltip = this.shadowRoot.getElementById(`long-name`);
 		const clientName = this.shadowRoot.getElementById(`client-name`);
 
-		if(e.target.scrollWidth > e.target.offsetWidth) {
+		if (e.target.scrollWidth > e.target.offsetWidth) {
 			tooltip.style.display = `flex`;
 			clientName.style.display = `none`;
 		}
@@ -349,29 +336,29 @@ export class ConfirmCallerDetails extends Component {
     _initCallerInformation() {
         // This is the callerInformation object that will be persisted to state.   
         this.callerInformation = new CallerInformation(
-            this.confirmedCaller.cifNumber,//cif
-            this.confirmedCaller.birthdate,//birthdate
-            this.confirmedCaller.languagePreference,//languagePreference
-            this.confirmedCaller.livesIn,//livesIn
-            this.confirmedCaller.name,//name
-            this.confirmedCaller.southAfricanIDNumber,//SA id
-            this.confirmedCaller.verifiedTelephoneNumber,//verified number
-            ``,//nonclient firstname
-            ``,//nonclient surname
-            ``,//nonclient fullname
-            ``,//nonclient cellphone
-            ``,//nonclient ID number
-            ``,//nonclient relationship
-            true,//isConfirmed
-            `unverified`,//verificationStatus
-            false,//verificationToastDisplayed
-            false,//isThirdParty
-            false,//isNonClient
-            false,//hasInsuranceProducts
-            false,//hasDigitalChannels
-            0,//verificationAttempts
-            this.confirmedCaller.isBranchConsultant,//isBranchConsultant
-            this.confirmedCaller.isClientPresent //isClientPresent
+            this.confirmedCaller.cifNumber, // cif
+            this.confirmedCaller.birthdate, // birthdate
+            this.confirmedCaller.languagePreference, // languagePreference
+            this.confirmedCaller.livesIn, // livesIn
+            this.confirmedCaller.name, // name
+            this.confirmedCaller.southAfricanIDNumber, // SA id
+            this.confirmedCaller.verifiedTelephoneNumber, // verified number
+            ``, // nonclient firstname
+            ``, // nonclient surname
+            ``, // nonclient fullname
+            ``, // nonclient cellphone
+            ``, // nonclient ID number
+            ``, // nonclient relationship
+            true, // isConfirmed
+            `unverified`, // verificationStatus
+            false, // verificationToastDisplayed
+            false, // isThirdParty
+            false, // isNonClient
+            false, // hasInsuranceProducts
+            false, // hasDigitalChannels
+            0, // verificationAttempts
+            this.confirmedCaller.isBranchConsultant, // isBranchConsultant
+            this.confirmedCaller.isClientPresent // isClientPresent
         );
     }
 
@@ -657,13 +644,14 @@ export class ConfirmCallerDetails extends Component {
 			        </capitec-hyperlink>
 			        if the caller is calling on another client's behalf
 		        </capitec-alert-banner>`;
-        } else {
-            return html`
-		        <capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-                    <p><b>Notify:</b>${branchBannerMessage}</p>
-		        </capitec-alert-banner>`;
-        }
-    }
+        } 
+
+		return html`
+			<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+				<p><b>Notify:</b>${branchBannerMessage}</p>
+			</capitec-alert-banner>`;
+	}
+
     _renderConfirmedCaller() {
         return html`
 				<capitec-group class="client-info" layout="horizontal" gap="clear">
@@ -737,7 +725,7 @@ export class ConfirmCallerDetails extends Component {
 					label="Search Client"
 					@click="${() => this._searchClick()}"
                     ?hidden="${this.confirmedCaller.isBranchConsultant}">
-				</capitec-button>			
+				</capitec-button>
 				<capitec-button 
 					id="id-confirm-button" 
 					type="primary" 
@@ -763,7 +751,7 @@ export class ConfirmCallerDetails extends Component {
 				.confirmedCaller="${this.confirmedCaller}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.addCallerDialog="${this.addCallerDetails}"
+				.callerInformation="${this.callerInformation}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
