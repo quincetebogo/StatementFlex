@@ -79,7 +79,6 @@ export class AddCallerDetails extends Component {
 
 		RegExp();
 
-		this.confirmedCaller = null;
 		this.incomingCallDetails = null;
 		this.renderMode = RENDER_MODE.ADD_CALLER;
 		this.surnameError = ``;
@@ -91,6 +90,8 @@ export class AddCallerDetails extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.eventAggregator = EventAggregator.getInstance();
         this._telemetry = HorizonTelemetry.instance;
+
+		this.nonClientRelationship = ``;
 
 		this.ErrorMessageFields = {
 			firstNameTextField: ``,
@@ -104,7 +105,6 @@ export class AddCallerDetails extends Component {
 	// ----------
 
 	/**
-	 * @property {Object} confirmedCaller - Caller info for verified client.
 	 * @property {Object} incomingCallDetails - Incoming call information
 	 * @property {Object} incidentDetails Incident details
 	 * @property {Object} callerInformation - information on incoming caller
@@ -115,12 +115,12 @@ export class AddCallerDetails extends Component {
 	 */
 	static get properties() {
 		return {
-			confirmedCaller: { type: Object },
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
 			callerInformation: { type: Object },
 			renderMode: { attribute: false },
-			validationFailed: { attribute: false }
+			validationFailed: { attribute: false },
+			nonClientRelationship: { attribute: false }
 		};
 	}
 
@@ -181,13 +181,13 @@ export class AddCallerDetails extends Component {
 				detail: {
 					incomingCallDetails: this.incomingCallDetails,
 					callerInformation: new CallerInformation(
-						this.confirmedCaller.cifNumber,
-						this.confirmedCaller.birthdate,
-						this.confirmedCaller.languagePreference,
-						this.confirmedCaller.livesIn,
-						this.confirmedCaller.name,
-						this.confirmedCaller.southAfricanIDNumber,
-						this.confirmedCaller.verifiedTelephoneNumber,
+						this.callerInformation.cifNumber,
+						this.callerInformation.birthdate,
+						this.callerInformation.languagePreference,
+						this.callerInformation.livesIn,
+						this.callerInformation.name,
+						this.callerInformation.southAfricanIDNumber,
+						this.callerInformation.verifiedTelephoneNumber,
 						this.firstNameTextField,
 						this.surnameTextField,
 						`${this.firstNameTextField} ${this.surnameTextField}`,
@@ -195,7 +195,7 @@ export class AddCallerDetails extends Component {
 						``,
 						this.nonClientRelationship,
 						true,
-						this.confirmedCaller.verificationStatus || `unverified`,
+						this.callerInformation.verificationStatus || `unverified`,
 						false,
 						true,
 						false,
@@ -385,11 +385,11 @@ export class AddCallerDetails extends Component {
 						data-automation-id="add-caller-details-non-client-relationship"
 						label="Choose relationship type (Optional)"
 						value="${this.nonClientRelationship}"
-						tabindex="4"
+						tabindex="1"
 						.items="${POSSIBLE_RELATIONSHIPS}"
 						id-field="key"
 						display-field="value"
-						@value-changed="${(e) => this.nonClientRelationship = e.detail.new}">
+						@value-changed="${(e) => this.nonClientRelationship = e.detail.new.value}">
 					</capitec-select>
 				</div>
 			</content-box>`;
@@ -403,7 +403,7 @@ export class AddCallerDetails extends Component {
 					data-automation-id="add-caller-details-first-name"
 					label="Name"
 					value="${this.firstNameTextField}"
-					tabindex="1"
+					tabindex="2"
 					error="${this.firstNameError}"
 					@value-changed="${(e) => this.firstNameTextField = e.detail.new}"
 					@key-input="${(e) => this._keyPress(e)}">
@@ -415,7 +415,7 @@ export class AddCallerDetails extends Component {
 					data-automation-id="add-caller-details-surname"
 					label="Surname"
 					value="${this.surnameTextField}"
-					tabindex="2"
+					tabindex="3"
 					error="${this.surnameError}"
 					@value-changed="${(e) => this.surnameTextField = e.detail.new}"
 					@key-input="${(e) => this._keyPress(e)}">
@@ -428,7 +428,7 @@ export class AddCallerDetails extends Component {
 					type="numeric"
 					label="Cellphone Number (Optional)"
 					value="${this.cellPhoneTextField}"
-					tabindex="3"
+					tabindex="4"
 					error="${this.cellphoneError}"
 					@value-changed="${(e) => this.cellPhoneTextField = e.detail.new}"
 					@key-input="${(e) => this._keyPress(e)}">

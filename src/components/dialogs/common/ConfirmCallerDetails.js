@@ -155,7 +155,7 @@ export class ConfirmCallerDetails extends Component {
         if (this.incidentDetails.incidentRecId && this.incidentDetails.incidentRecId !== ``) {
 
             await this._updateClientDetails();
-
+			
             const nonClientDetails = {
                 ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
                 incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
@@ -756,10 +756,9 @@ export class ConfirmCallerDetails extends Component {
     renderAddCallerDetailsModal() {
         return html`
 			<horizon-add-caller-details
-				.confirmedCaller="${this.confirmedCaller}"
+				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.callerInformation="${this.callerInformation}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`;
