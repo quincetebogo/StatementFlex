@@ -7,8 +7,8 @@ import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/HorizonSelect';
 import 'app/components/common/CallerDialog';
@@ -248,19 +248,26 @@ export class SearchCaller extends Component {
     // --------------
 
     _clientTypeChanged(e) {
-        if (e.detail.new) {
-            this.clientType = e.target.id === `capitecClient` ? CLIENT_TYPE.CAPITEC_CLIENT : e.target.id === `branch` ? CLIENT_TYPE.BRANCH : CLIENT_TYPE.NON_CLIENT;
-        }
-        this.headerLabel = this.clientType === CLIENT_TYPE.NON_CLIENT ? `Add Caller Details` : `Search Caller Details`;
-        this._clearErrors(e);
-    }
+		if (e.detail.new) {
+			if (e.target.id === `capitecClient`) {
+				this.clientType = CLIENT_TYPE.CAPITEC_CLIENT;
+			} else if (e.target.id === `branch`) {
+				this.clientType = CLIENT_TYPE.BRANCH;
+			} else {
+				this.clientType = CLIENT_TYPE.NON_CLIENT;
+			}
+		}
 
-    _inBranch(e) {
-        if (e.detail.new) {
-            this.clientInBranch = e.target.id === `clientPresent` ? true : false;
-        }
-        this._clearErrors(e)
-    }
+		this.headerLabel = this.clientType === CLIENT_TYPE.NON_CLIENT ? `Add Caller Details` : `Search Caller Details`;
+		this._clearErrors(e);
+	}
+
+	_inBranch(e) {
+		if (e.detail.new) {
+			this.clientInBranch = e.target.id === `clientPresent`;
+		}
+		this._clearErrors(e);
+	}
 
     _valueChanged(e) {
         this[e.currentTarget.id] = e.detail.new;
@@ -271,22 +278,22 @@ export class SearchCaller extends Component {
         this._clearErrors(e);
     }
 
-    async _getConsultant(e) {
-        this._clearErrors(e);
-        let cpNumber = e.detail.new;
-        if (cpNumber.length == 6) {
-            let consultantInfo = await this._getConsultantDetails("cp" + cpNumber);
-            if (consultantInfo.status === `Active`) {
-                this.consultantName = consultantInfo.firstName + " " + consultantInfo.lastName;
-                this.branchCode = consultantInfo.branchId;
-                this.branchName = consultantInfo.branchId + "-" + consultantInfo.branchName;
-            }
-        } else {
-            this.consultantName = ``;
-            this.branchName = ``;
-        }
-        this.cpNumber = cpNumber;
-    }
+	async _getConsultant(e) {
+		this._clearErrors(e);
+		const cpNumber = e.detail.new;
+		if (cpNumber.length === 6) {
+			const consultantInfo = await this._getConsultantDetails(`cp${cpNumber}`);
+			if (consultantInfo.status === `Active`) {
+				this.consultantName = `${consultantInfo.firstName} ${consultantInfo.lastName}`;
+				this.branchCode = consultantInfo.branchId;
+				this.branchName = `${consultantInfo.branchId} - ${consultantInfo.branchName}`;
+			}
+		} else {
+			this.consultantName = ``;
+			this.branchName = ``;
+		}
+		this.cpNumber = cpNumber;
+	}
 
     async _onSearchClient() {
 
@@ -335,7 +342,7 @@ export class SearchCaller extends Component {
         });
 
         if (this._validateBranchFields() && this._validateFields()) {
-            if (this.clientInBranch == null) {
+            if (this.clientInBranch === null) {
                 this.errMessage.inBranch = `Please choose an option`;
                 this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
             } else {
@@ -544,7 +551,7 @@ export class SearchCaller extends Component {
                 this.alertBannerMessage = BRANCH_REGEX_PATTERN.cpNumber.ALERT_BANNER;
                 return false;
             }
-            if (this.branchName == `null-null`) {
+            if (this.branchName === `null-null`) {
                 this.errMessage.branchName = `Invalid branch code`;
                 this.alertBannerMessage = ERROR_MESSAGES.INVALID_BRANCH;
                 return false;
@@ -599,6 +606,7 @@ export class SearchCaller extends Component {
 
         return this.errMessage.cpNumber || this.errMessage.branchName || this.errMessage.consultantName;
     }
+
     _clearErrors(e) {
         this.errMessage[e.currentTarget.id] = ``;
         this.errMessage.nameValue = ``;
@@ -675,8 +683,8 @@ export class SearchCaller extends Component {
     }
 
     async _updateIncidentBranchDetails(branchCode) {
-        //on confirm click, update incident details to be branch incident and not client incident
-        let incidentRecID = this.incidentDetails.incidentRecId;
+        // on confirm click, update incident details to be branch incident and not client incident
+        const incidentRecID = this.incidentDetails.incidentRecId;
         const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode);
         if (!returnValue.succeeded) {
             this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
@@ -685,15 +693,14 @@ export class SearchCaller extends Component {
         return true;
     }
 
-    async _getConsultantDetails(cpNumber) {
-
-        const returnValue = await this.incidentService.GetConsultantInformation(cpNumber);
-        if (returnValue.succeeded) {
-            //return consultantInfo = {consultantName: returnValue.result.consultantName, branchCode: returnValue.result.branchCode}
-            return returnValue.result;
-        }
-        return null;
-    }
+	async _getConsultantDetails(cpNumber) {
+		const returnValue = await this.incidentService.GetConsultantInformation(cpNumber);
+		if (returnValue.succeeded) {
+			// return consultantInfo = {consultantName: returnValue.result.consultantName, branchCode: returnValue.result.branchCode}
+			return returnValue.result;
+		}
+		return null;
+	}
 
     // ---------
     // RENDERING
@@ -797,7 +804,7 @@ export class SearchCaller extends Component {
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(event) => this._needChanged(event)}">
 						<div slot="body">
-							<capitec-content-box style="height:${this.clientType == CLIENT_TYPE.BRANCH ? `690px;` : `480px;`}">
+							<capitec-content-box style="height:${this.clientType === CLIENT_TYPE.BRANCH ? `690px;` : `480px;`}">
 								${this._renderAlertBanner()}
 								${this._renderClientType()}
 								${this._renderCapitecClient()}

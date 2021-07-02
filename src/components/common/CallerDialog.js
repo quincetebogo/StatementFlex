@@ -134,9 +134,14 @@ export class CallerDialog extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left">
 				<capitec-group slot="header" layout="horizontal" halign="left" valign="center" gap="none" id="modalHeader">
-					<capitec-label type="title" label="${this.headerLabel}"></capitec-label>
+					<capitec-label
+						data-automation-id="caller-dialog-heading"
+						type="title" 
+						label="${this.headerLabel}">
+					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
+						data-automation-id="caller-dialog-end=call"
 						style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
 						label="End Call"
 						@click="${() => this._onEndCall()}">
