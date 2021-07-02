@@ -19,8 +19,6 @@
 
 	STOP_CARD: `Stop Card`,
 	STOP_CARD_OUTCOME: `Stop Card Outcome`,
-	STOP_CARD_SUCCESS: `Stop Card Success`,
-	STOP_CARD_FAILURE: `Stop Card Failure`,
 
 	FAVOURITES: `Favourite Transactions`,
 
@@ -32,6 +30,9 @@
 	UPDATE_CARD_LIMITS: `Update Card Limits`,
 
 	TAP_TO_PAY: `Tap to Pay`,
+	TAP_TO_PAY_AGREEMENT: `Tap to Pay Agreement`,
+	TAP_TO_PAY_OUTCOME: `Tap to Pay Outcome`,
+
 	STATEMENTS: `Statements`,
 	STATEMENTS_OUTCOME: `Statements Outcome`,
 	TAX_CERTIFICATE: `Tax Certificate`,
@@ -44,5 +45,11 @@
 	ASSIGN_STOP_CARD: `Assign stop card`,
 	END_CALL: `End Call Session`,
 	
-	PRODUCT_INFO: `Product Info`
+    PRODUCT_INFO: `Product Info`,
+
+    CARD_LIMITS_LANDING: `Card limits`,
+    DISCARD_CHANGES: `Discard changes`,
+    LIMITS_AGREEMENT: `Update Limits Agreement`,
+    UPDATE_LIMITS_OUTCOME: `Update limits outcome`
+
 };

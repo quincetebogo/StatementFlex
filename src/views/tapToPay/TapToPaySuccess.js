@@ -1,5 +1,6 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -51,9 +52,9 @@ export class TapToPaySuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.selectDoneSuccessTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_SUCCESS,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_DONE, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
 		this.horizonStore.clearReturnScreen();
@@ -61,9 +62,9 @@ export class TapToPaySuccess extends ViewBase {
 	}
 
 	_tapToPayClick() {
-		HorizonTelemetry.instance.tapToPaySuccessOutcome({
-			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_ANOTHER, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		this.horizonRouter.navigateToReturnPage();
@@ -93,6 +94,7 @@ export class TapToPaySuccess extends ViewBase {
 			css`
 				#id-update-msg {
 					width: auto;
+					height: auto;
 				}
 
 				horizon-success-screen {
@@ -129,7 +131,9 @@ export class TapToPaySuccess extends ViewBase {
 					<section 
 						id="id-update-msg" 
 						slot="detail">
-							The tap to pay functionality on your dual ${this.cardType} card <b>${this.cardMaskedNumber}</b> has been ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`} and is now pending.
+							The tap to pay functionality on your ${this.cardType} card <b>${this.cardMaskedNumber} </b> ${this.tapToPayStatus === `ON` 
+							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+							: `is deactivated`}.
 					</section>
 			</horizon-success-screen>
 		`;

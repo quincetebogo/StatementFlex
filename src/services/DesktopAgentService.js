@@ -4,8 +4,8 @@ import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { validate } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { validate } from 'app/utils/channelServiceUtilities';
 
 /**
  *  The Desktop Agent Service subscribes to Server Side Events from the Desktop Agent running on the
@@ -136,7 +136,9 @@ export class DesktopAgentService {
 			newCallEvent.incomingTelephoneNumber = validate(eventData.IncomingTelephoneNumber, DesktopAgentService.incomingTelephoneNumberValidation);
 
 			if (newCallEvent.incomingTelephoneNumber === 0) {
-				this._logger.log(`warn`, `Incoming number does not match validation rule: ${eventData.IncomingTelephoneNumber}`);
+				if (this.incomingTelephoneNumber !== `anonymous`) {
+					this._logger.log(`warn`, `Incoming number does not match validation rule: ${eventData.IncomingTelephoneNumber}`);
+				}
 				newCallEvent.incomingTelephoneNumber = `0000000000`;
 			}
 
@@ -187,7 +189,7 @@ export class DesktopAgentService {
 		if (telephoneNumber.length >= 9) {
 			return `0${telephoneNumber.substr(telephoneNumber.length - 9)}`;
 		} else if (telephoneNumber.length < 10) {
-			telephoneNumber.padStart(10, `0`);
+			telephoneNumber = telephoneNumber.padStart(10, `0`);
 		}
 
 		return telephoneNumber;
@@ -307,6 +309,15 @@ export class DesktopAgentService {
 	
 			this.nextCall = newCallEvent;
 	
+			// Telemetry: If the call was created manually, we log telemetry without any IVR selection.
+			// The mapped need will be logged later.
+			this._telemetry.newTrace();
+			this._telemetry.startSpan(AcceptCallEvents.INCOMING_CALL, {
+				"screen": TelemetryScreen.WAIT_FOR_CALL,
+				"ivr": ``,
+				"ucid": newCallEvent.voiceReferenceNumber
+			});
+
 			this._handleIncomingCall();
 		}
 	}
@@ -350,7 +361,7 @@ export class DesktopAgentService {
 	}
 
 	_setValidationData() {
-		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{6,14}`; // E164 telephone number format (minimum of 7 digits, maximum of 15)
+		DesktopAgentService.incomingTelephoneNumberValidation = `^\\+?[0-9][0-9]{3,14}`; 
 		DesktopAgentService.voiceReferenceNumberValidation = `^[0-9]{20}`; 
 		DesktopAgentService.agentTelephoneNumberValidation = `^[0-9]*`; // 
 		DesktopAgentService.vdnValidation = `^[0-9]*`; 

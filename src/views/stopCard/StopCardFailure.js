@@ -104,7 +104,7 @@ export class StopCardFailure extends ViewBase {
 	async _onTryAgain() {
 		console.log(`cards to stop`, this.failedCards);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_TRY_AGAIN, {
-			"screen": TelemetryScreen.STOP_CARD_FAILURE
+			"screen": TelemetryScreen.STOP_CARD_OUTCOME
 		});
 
 		this.retry++;
@@ -155,7 +155,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_onAssign() {
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
 		});

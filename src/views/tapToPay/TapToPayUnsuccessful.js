@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -16,6 +18,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	constructor() {
 		super();
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// --------------
@@ -24,7 +28,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	static get properties() {
 		return {
-			card: { attribute: false }
+			card: { attribute: false },
+			cardType: { attribute: String }
 		};
 	}
 	// -------------------
@@ -37,7 +42,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
-
+		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -45,6 +50,11 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.TAP_TO_PAY, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": null
+		});
 	}
 
 	// --------------
@@ -52,18 +62,20 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.selectDoneTapToPayFailure({
-			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_DONE, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
+
 
 		this.horizonStore.clearReturnScreen();
 		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_handoffClick() {
-		HorizonTelemetry.instance.tapToPayHandoff({
-			screen: TelemetryScreen.TAP_TO_PAY_OUTCOME
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME_HANDOFF, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": null
 		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
@@ -131,7 +143,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 					<section
 						id="id-error-msg" 
 						slot="detail">
-						Tap to Pay for debit card ${this.card} was not activated.
+						Tap to Pay for ${this.cardType} card ${this.card} was not activated.
 					</section>
 			</horizon--error-screen >
 		`;

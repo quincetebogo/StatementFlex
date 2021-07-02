@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 
 import 'platform/components/popups/Modal';
 
@@ -56,20 +55,10 @@ export class DeclineDebiCheckMandate extends Component {
 	// --------------
 
 	_cancelClick() {
-		// Telemetry
-		HorizonTelemetry.instance.selectCancelDeclineDebiCheck({
-			screen: TelemetryScreen.DECLINE_DEBICHECK,
-			nextScreen: TelemetryScreen.DEBICHECK
-		});
 		this.dispatchEvent(new CustomEvent(`cancel`));
 	}
 
 	_declineClick() {
-		// Telemetry
-		HorizonTelemetry.instance.declineDebiCheckConfirmation({
-			screen: TelemetryScreen.DECLINE_DEBICHECK,
-			nextScreen: TelemetryScreen.DEBICHECK_OUTCOME
-		});
 		this.dispatchEvent(new CustomEvent(`decline`, {
 			detail: { mandateId: this.mandateId }
 		}));

@@ -5,9 +5,9 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonSignalRClient } from 'app/shell/HorizonSignalRClient';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { VerifyCallerEvents } from 'app/constants/Telemetry/Events/VerifyCaller';
+import { isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/OptionButton';
 import 'app/components/common/CallerDialog';
@@ -62,8 +62,7 @@ export class VerifyCaller extends Component {
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 		this.incomingCallDetails = null;
-		this.timeLeft = `1:10`;
-		this.minutes = 1;
+        this.timeLeft = `70`;		
 		this.seconds = ITA_TIMEOUT_SECS;
 		this.appTimedOut = false;
 		this.isBusy = false;
@@ -183,9 +182,8 @@ export class VerifyCaller extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	async _securityQuestionsClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
+	_securityQuestionsClick() {
+		this._telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
@@ -195,7 +193,6 @@ export class VerifyCaller extends Component {
 	async _launchSecurityQuestions() {
 		if (this.itaTimer) {
 			this._stopTimer();
-			this.horizonSignalRClient.deRegisterHandler();
 		}
 
 		this.xdsMessage = ``;
@@ -290,7 +287,6 @@ export class VerifyCaller extends Component {
 		this.appTimedOut = false;
 		this.itaMessage = ``;
 		this.xdsMessage = ``;
-		this.minutes = 1;
 		this.seconds = ITA_TIMEOUT_SECS;
 
 		if (this.itaTimer) {
@@ -358,8 +354,6 @@ export class VerifyCaller extends Component {
 
 	_startTimer() {
 		const startTimer = setInterval(() => {
-
-			this.minutes = this.minutes !== 0 ? this.minutes - 1 : this.minutes;
 			this.seconds--;
 
 			if (this.seconds <= 0) {
@@ -381,7 +375,7 @@ export class VerifyCaller extends Component {
 				}
 			}
 
-			this.timeLeft = `${this.minutes}:${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
+            this.timeLeft = `${this.seconds < 10 ? `0` : ``}${this.seconds.toString()}`;
 		}, 1000);
 
 		return startTimer;
@@ -589,7 +583,6 @@ export class VerifyCaller extends Component {
 				}
 				.timer-bold {
 					font-weight: 700;
-					color: #0083BB;
 				}
 				capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -614,6 +607,13 @@ export class VerifyCaller extends Component {
 					width: 204px;
 					height: 81px;
 				}
+
+				.btnTryAgain[disabled] {
+					cursor:default;
+					pointer-events:none;
+					filter: grayscale(100%);
+				}
+
 				horizon-caller-dialog {
 					--horizon-modal-footer-padding: 0px;
 				}
@@ -711,7 +711,7 @@ export class VerifyCaller extends Component {
 									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
-								There is <span class="timer-bold">${this.timeLeft}</span> remaining.
+								You have <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
 							</div>
 							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
 							</capitec-label>
@@ -814,7 +814,8 @@ export class VerifyCaller extends Component {
 						iconSize="default"
 					    @click="${() => this._skipClick()}">
 					</horizon-option-button>
-					<horizon-option-button 
+					<horizon-option-button
+					class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"

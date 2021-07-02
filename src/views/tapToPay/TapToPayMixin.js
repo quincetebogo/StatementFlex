@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { OutcomeScreen } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
 
 /**
@@ -10,7 +12,8 @@ import { html } from 'platform/elements';
  * 
  *   this.navigationContext
  *   this.logger
-
+ *   this._telemetry
+ * 
  *   this.horizonStore
  *   this.horizonRouter
  * 
@@ -24,11 +27,9 @@ import { html } from 'platform/elements';
  */
 export const tapToPayMixin = {
 	async _tapToPay() {
-
-		// Telemetry select Tap to Pay
-		HorizonTelemetry.instance.selectTapToPay({
-			screen: TelemetryScreen.FAVOURITES,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAP_TO_PAY, {
+			"screen": TelemetryScreen.FAVOURITES,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		const returnValue = await this.quickTransactionService.tapToPayLanding(this.callerInformation.cifNumber, this.incidentDetails.incidentRecId);
@@ -37,27 +38,14 @@ export const tapToPayMixin = {
 			this.cards = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		} else {
-			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`);
+			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`, `_tapToPay`, returnValue.correlationId);
 		}
 	},
 
-	_loadingTapToPay() {
-		HorizonTelemetry.instance.screenLoadTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY
-		});
-	},
-
-	_unloadingTapToPay() {
-		HorizonTelemetry.instance.screenUnloadTapToPay({
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
-	},
-
 	async _getTapToPayAgreement(agreementRequest) {
-		// Telemetry
-		HorizonTelemetry.instance.selectToggle({
-			screen: TelemetryScreen.TAP_TO_PAY,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_AGREEMENT
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_TOGGLE, {
+			"screen": TelemetryScreen.TAP_TO_PAY,
+			"next-screen": null
 		});
 		
 		const returnValue = await this.quickTransactionService.tapToPayAgreement(agreementRequest);
@@ -66,11 +54,23 @@ export const tapToPayMixin = {
 			return returnValue.result;
 		}
 
+		this.logger.log(`error`, `Unable to load Tap To Pay Agreement`, `_getTapToPayAgreement`, returnValue.correlationId);
+
 		return null;
 	},
 
 	async _updateTapToPay(updateRequest) {
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE, {
+			"screen": TelemetryScreen.TAP_TO_PAY,
+			"next-screen": TelemetryScreen.TAP_TO_PAY_OUTCOME
+		});
+
 		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update Tap To Pay Agreement`, `_updateTapToPay`, returnValue.correlationId);
+		}
+
 		return returnValue.succeeded;
 	},
 
@@ -79,6 +79,11 @@ export const tapToPayMixin = {
 	},
 
 	_tapToPayResult(eventData) {
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME, {
+			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"next-screen": eventData.detail.success ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
+		});
+
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.tapToPayDetails = eventData.detail.tapToPayDetails;
 		this.horizonStore.setScreenDetails(screenDetails);
@@ -102,8 +107,7 @@ export const tapToPayMixin = {
 				voiceRecordingReference=${this.incomingCallDetails.voiceReferenceNumber}
 				.getAgreements="${agreementRequest => this._getTapToPayAgreement(agreementRequest)}"
 				.updateAgreement="${renderRequest => this._updateTapToPay(renderRequest)}"
-				@loading="${() => this._loadingTapToPay()}"
-				@unloading="${() => this._unloadingTapToPay()}"
+				@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.TAP_TO_PAY, TelemetryScreen.TAP_TO_PAY)}"
 				@back="${() => this._backToLandingPage()}"
 				@result=${eventData => this._tapToPayResult(eventData)}
 			></horizon-tap-to-pay-landing>

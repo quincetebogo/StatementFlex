@@ -1,6 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 const FEEDBACK_OPTIONS = [
@@ -50,9 +48,6 @@ export class Feedback extends Component {
 		this.feedbackOptions = [];
 
 		this.isBusy = false;
-
-		this.horizonStore = HorizonStore.getInstance();
-		
 	}
 
 	// ----------
@@ -75,11 +70,6 @@ export class Feedback extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this.feedbackOptions = FEEDBACK_OPTIONS;
-
-		// Telemetry
-		HorizonTelemetry.instance.screenLoadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK
-		});
 	}
 
 	// --------------
@@ -90,11 +80,7 @@ export class Feedback extends Component {
 		if (this.selectedFeedback === -1) {
 			this.alertBannerMessage = ERROR_LIST.VALIDATION_ERROR;
 		} else {
-		// Telemetry
-		HorizonTelemetry.instance.screenUnloadFeedbackScreen({
-			screen: TelemetryScreen.FEEDBACK
-		});
-		this.dispatchEvent(new CustomEvent(`done`, { detail: this.selectedFeedback }));
+			this.dispatchEvent(new CustomEvent(`done`, { detail: this.selectedFeedback }));
 		}
 	}
 

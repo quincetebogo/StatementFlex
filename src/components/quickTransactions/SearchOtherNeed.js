@@ -1,5 +1,4 @@
 import { Component, css, html, live } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/EndCallSession';
@@ -73,6 +72,7 @@ export class SearchOtherNeed extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._loading();
+		
 		this.issuesWithSolution = this.issues;
 		this.issues = this.issues.map(item => item.issue);
 

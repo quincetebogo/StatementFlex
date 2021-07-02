@@ -1,3 +1,5 @@
+import { html, unsafeHTML } from 'platform/elements';
+
 /*
 	Utility Functions
 */
@@ -73,7 +75,7 @@ export function getMonthName(month) {
  * @returns {*} Formatted currency value (E.g R 250 000)
  */
 export function formatCurrency(value, fractionDigits = 2) {
-	if (value.toString().includes(`R`)) {
+	if (value && value.toString().includes(`R`)) {
 		return `${value.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ` `)}`;
 	}
 
@@ -185,4 +187,19 @@ export function isWellFormedSouthAfricanID(southAfricanIDNumber) {
 	}
 
 	return value / 100;
+}
+
+
+/**
+ * Convert base64 to html
+ *
+ * @export
+ * @param {*} agreementContent encoded data of an agreement in a base64 format
+ * @returns {*} html comtent
+ */
+ export function base64toHTML(agreementContent) {
+
+	const agreement = atob(agreementContent);
+	return html`${unsafeHTML(agreement)}`;
+
 }

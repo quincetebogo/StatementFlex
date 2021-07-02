@@ -19,6 +19,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.tapToPayStatus = ``;
 	}
 
 	// --------------
@@ -48,6 +49,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.cardCategory = limitDetails.cardCategory;
 		this.limitExpiryDate = limitDetails.limitExpiryDate;
 		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
+		this.tapToPayStatus = limitDetails.tapToPayStatus;
 	}
 
 	disconnectedCallback() {
@@ -139,7 +141,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		return !this.istapToPayUnChanged
 			? html`
 				<section slot="sub-detail">
-					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not activated.
+					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
 				</section>`
 			: html``;
 	}

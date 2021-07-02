@@ -1,5 +1,13 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+
+const CARD_TYPE_MAPPING = {
+	DEBIT_MASTERCARD: `Debit MasterCard`,
+	MASTERCARD_CREDIT: `Credit Card`,
+	DEBIT_MASTERCARD_VIRTUAL: `Debit Card`
+};
 
 /**
  * The Horizon Tap to Pay Dialog implements the modal for the agreement of Tap to Pay
@@ -23,8 +31,11 @@ export class TapToPayAgreement extends Component {
 		super();
 		this.tapToPayInfo = {};
 		this.tapToPayAgreement = ``;
+		this.alertBannerText = ``;
 		this.agreementResult = {};
 		this.selectedCard = {};
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -34,7 +45,8 @@ export class TapToPayAgreement extends Component {
 
 	static get properties() {
 		return {
-			agreementResult: { type: Object }
+			agreementResult: { type: Object },
+			alertBannerText: { type: String }
 		};
 	}
 
@@ -52,10 +64,9 @@ export class TapToPayAgreement extends Component {
 	// --------------
 
 	_cancelClick() {
-		// Telemetry
-		HorizonTelemetry.instance.tapToPayCancel({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE_CANCEL, {
+			"screen": TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			"next-screen": TelemetryScreen.TAP_TO_PAY
 		});
 
 		this.tapToPayInfo.acceptedTapToPay = false;
@@ -63,13 +74,13 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_agreeClick(event) {  
-		// Telemetry
-		HorizonTelemetry.instance.selectAgreeTapToPay({
-			screen: TelemetryScreen.TAP_TO_PAY_AGREEMENT,
-			nextScreen: TelemetryScreen.TAP_TO_PAY_OUTCOME,
-			tncAccepted: null
+		
+		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_UPDATE, {
+			"screen": TelemetryScreen.TAP_TO_PAY_AGREEMENT,
+			"next-screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
+			"tnc-accepted": null
 		});
-  
+
 		if (this._validateCheckBox()) {
 			this.dispatchEvent(new CustomEvent(`on-agree`, {
 				detail: { 
@@ -81,10 +92,12 @@ export class TapToPayAgreement extends Component {
 	}
 
 	_toggleAgreementsAccept(e) {
+		this.alertBannerText = ``;
 		this.tapToPayInfo[e.currentTarget.id] = e.detail.new;
 	}
 
 	_validateCheckBox() {
+		this.tapToPayInfo.acceptedTapToPay ? this.alertBannerText = `` : this.alertBannerText = `Please confirm agreement to the terms and conditions`;
 		return this.tapToPayInfo.acceptedTapToPay;
 	}
 
@@ -108,6 +121,8 @@ export class TapToPayAgreement extends Component {
 				capitec-modal {
 					width: 808px;
 					height: 856px;
+
+					--theme-modal-free-max-width: 808px;
 					--theme-modal-header-padding-left: 16px;
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -132,15 +147,20 @@ export class TapToPayAgreement extends Component {
 					--theme-expander-indicator-height: 7px;
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
+					--theme-expander-header-font-color: #3A3A3A;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-expander-height: 621px;
+					--theme-expander-height: auto;
 				}
 
 				capitec-expander-group > capitec-expander:last-child {
-					margin-bottom: 0px;
+					margin-bottom: 13px;
+				}
+
+				capitec-expander-group > capitec-expander[label="View Agreement"]{
+					--theme-expander-height: 621px;
 				}
 
 				capitec-check {
@@ -149,6 +169,20 @@ export class TapToPayAgreement extends Component {
 					--theme-label-font-size: 15px;
 					--theme-label-font-weight: 500;
 					--theme-label-font-color: #3A3A3A;
+				}
+
+				capitec-check[class="check-not-agreed"] {
+					--theme-check-border-color: #C83B37;
+				}
+
+				capitec-alert-banner {
+					width: 776px;
+
+					--theme-alert-banner-height: 48px;
+					--theme-layout-gap-spacing: 16px;
+					--theme-alert-banner-icon-margin-left: 16px;
+					--theme-alert-banner-icon-margin-right: 8px;
+					--theme-alert-banner-font-weight: 600;
 				}
 
 				.expander-cb {
@@ -169,7 +203,7 @@ export class TapToPayAgreement extends Component {
 				}
 
 				.expander-cb > .terms-and-conditions:nth-child(n+2) {
-					--theme-layout-gap-spacing: 71px;
+					--theme-layout-gap-spacing: 18px;
 				}
 
 				.terms-and-conditions > ol {
@@ -183,6 +217,7 @@ export class TapToPayAgreement extends Component {
 
 				.accept-terms-and-conditions {
 					justify-content: center;
+					margin-bottom: 13px;
 
 					--theme-card-min-height: 48px;
 				}
@@ -194,6 +229,17 @@ export class TapToPayAgreement extends Component {
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 18px;
 					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 0px;
+				}
+
+				.scroll {
+					height: 728px;
+					width: 808px;
+					border-bottom: 1px solid #E1E1E1;
+
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 18px;
+					--theme-container-padding-right: 2px;
 					--theme-container-padding-bottom: 0px;
 				}
 
@@ -214,8 +260,8 @@ export class TapToPayAgreement extends Component {
 		return html`
 		<capitec-modal type="free" header-align="left" header="${this.selectedCard.isContactlessActivated ? `Activate Tap To Pay` : `Deactivate Tap To Pay`}">
 			<div slot="body">
-				<capitec-content-box class="main">
-					${this._renderAlertBanner()}
+				<capitec-content-box class=${this.alertBannerText ? `scroll` : `main`}>
+					${this._renderErrorAlertBanner()}
 					${this._renderViewAgreement()}
 				</capitec-content-box>
 			</div>
@@ -226,7 +272,11 @@ export class TapToPayAgreement extends Component {
 		`;
 	}
 
-	_renderAlertBanner() {}
+	_renderErrorAlertBanner() {
+		return this.alertBannerText
+			? html`<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerText}"></capitec-alert-banner>`
+			: html``;
+	}
 
 	_renderViewAgreement() {
 		return html`
@@ -261,7 +311,7 @@ export class TapToPayAgreement extends Component {
 		return html`
 			<capitec-content-box class="expander-cb">
 				<div class="terms-and-conditions">
-					You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <strong>[Debit MasterCard and/or credit card]</strong>, as well as your rights as a client as confirmed on this call with you. 
+					You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <strong>${CARD_TYPE_MAPPING[this.selectedCard.cardType]}</strong>, as well as your rights as a client as confirmed on this call with you. 
 				</div>
 				<div class="terms-and-conditions">
 					<ol>
@@ -276,7 +326,8 @@ export class TapToPayAgreement extends Component {
 				<capitec-card class="accept-terms-and-conditions">
 					<capitec-check 
 						id="acceptedTapToPay"
-						label="Please confirm that you agree to these terms and conditions and that your are bound by them?"
+						class=${this.alertBannerText ? `check-not-agreed` : ``}
+						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
