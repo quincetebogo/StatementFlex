@@ -415,13 +415,13 @@ export class UpdateCardLimits extends Component {
         }
         return html`
 			<div>
-				Maximum limit for ${this.errorField} is <strong>${formatCurrency(this.maxValue)}</strong>
+				Maximum limit for ${this.errorField} is <strong>${formatCurrency(this.maxValue, 0)}</strong>
 			</div>
 		`;
     }
 
     _getFieldError(value) {
-        return !value ? `` : `Max limit - ${formatCurrency(value)}`;
+        return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
     }
     
     _getTapToPayStatus() {
@@ -471,16 +471,9 @@ export class UpdateCardLimits extends Component {
 				--theme-type-clear-background: rgba(0,157,224,0.1)
 			}
 			.dailyExTitle {
-				--theme-label-font-color: #3A3A3A;
 				margin-left: 12px;
 				margin-top: 12px;
-				--theme-label-font-size: 16px;
-				line-height: 20px;
-			}
-			.limitTitle {
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-font-size: 14px;
-				height: 20px;
+				--theme-label-default-font-size: 16px;
 			}
 			.limitSubtitle {
 				color: #3A3A3A;
@@ -500,7 +493,7 @@ export class UpdateCardLimits extends Component {
 				--theme-label-subtitle-line-height: 12px;
 				--theme-label-subtitle-font-size: 12px;
 				width: 150px;
-				margin-bottom: 14px;
+				margin: 0px 0px 16px 8px;
 			}
 			capitec-modal {
 				--theme-modal-header-background-color: #F7F7F7;
@@ -572,10 +565,10 @@ export class UpdateCardLimits extends Component {
 				--theme-label-title-font-weight: 600;
 				padding-bottom: 16px;
 				--theme-label-title-line-height: 24px;
-				margin-bottom: 0px;
+				margin: 0px 8px ;
 			}
 			capitec-label[type="default"] {
-				--theme-label-default-font-size: 15px;
+				line-height: 20px;
 				--theme-label-default-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
 			}
@@ -708,7 +701,7 @@ export class UpdateCardLimits extends Component {
 				height: 24px;
 				width: 85px;
 				font-size: 18px;
-				margin: 0px;
+				margin: 0px 8px;
 			}
 			.toggleText {
 				height: 48px;
@@ -863,16 +856,16 @@ export class UpdateCardLimits extends Component {
 				</capitec-label>
 				<div class="dailyLimits">
 					<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryTemporaryLimits, 0)}</b></p>
+						<capitec-label label="Primary card limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalPrimaryTemporaryLimits, 0)}</b></p>
 					</div>
 						<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSuplementaryPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalSuplementaryTemporaryLimits, 0)}</b></p>
+						<capitec-label label="Supplementary card limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSuplementaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalSuplementaryTemporaryLimits, 0)}</b></p>
 					</div>
 					<div style="display: inline-block; width: 245px; height: 32px">
-						<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPermanentLimits, 0)}</b>/Temporary <b>${formatCurrency(this.totalTemporaryLimits, 0)}</b></p>
+						<capitec-label label="Total limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalTemporaryLimits, 0)}</b></p>
 					</div>
 				</div>
 			</capitec-title-bar>
