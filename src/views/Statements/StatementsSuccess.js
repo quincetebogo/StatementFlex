@@ -1,5 +1,8 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
@@ -15,6 +18,7 @@ export class StatementsSuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// ----------
@@ -46,21 +50,19 @@ export class StatementsSuccess extends ViewBase {
 
 	_doneClick() {
 		// Telemetry
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
-		});
-
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+            "screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.FAVOURITES
+        });
 		this.horizonRouter.navigateToReturnPage();
 	}
 
 	_sendAnotherClick() {
-		// Telemetry
-		HorizonTelemetry.instance.selectSendAnotherStatement({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: TelemetryScreen.STATEMENTS
-		});
-
+	// Telemetry
+	this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS, {
+		"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+		"nextScreen": TelemetryScreen.STATEMENTS
+	});
 		this.horizonRouter.navigateToReturnPage();
 	}
 
