@@ -262,7 +262,6 @@ export class EndCallSession extends Component {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
 		const needAction = ivrActionMapping[incidentDetails.currentNeed];
-		console.log(needAction)
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
