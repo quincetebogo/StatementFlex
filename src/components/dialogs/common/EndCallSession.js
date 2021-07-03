@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext } from 'platform/core';
-import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -142,9 +142,14 @@ export class EndCallSession extends Component {
 			"next-screen": TelemetryScreen.WAIT_FOR_CALL
 		});
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const isValid = this._validateCloseIncidentReason();
 
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+		// Ignoring the abandon or not started need action
+		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
+			this._returnToCallWaitingPage();
+			return;
+		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 			this._stopCardEndCall();
 		} else if (isValid) {
 			if (this._preventCloseOfIncident()) {

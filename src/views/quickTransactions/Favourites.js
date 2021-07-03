@@ -575,18 +575,16 @@ export class Favourites extends SavingsAccountBase {
 			"issue-type": event.detail.issue
 		});
 
-		const incidentRecId = this.incidentDetails.incidentRecId;
-		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
-		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
-		
-		if (continueUpdate) {
-			await this._classifyIncident(event, incidentRecId);
-		} else {
-			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
+		const incidentCategorization = {
+			category: `${event.detail.category}`,
+			need: `${event.detail.need}`,
+			issue: `${event.detail.issue}`
+		};
 
-			this.horizonRouter.navigateToStrack(incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		}
+		await super.createAndClassifySubsIncident(incidentCategorization);
+
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
 	async _getCategories() {
@@ -620,27 +618,6 @@ export class Favourites extends SavingsAccountBase {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
 		this.requestUpdate();
-	}
-
-	async _classifyIncident(event, incidentRecId) {
-		const request = {
-			incidentRecId: incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: `SEARCH_OTHER_NEED`,
-			incidentCategorization: {
-				category: `${event.detail.category}`,
-				need: `${event.detail.need}`,
-				issue: `${event.detail.issue}`
-			}
-		};
-		const result = await this.incidentManagementService.classifyIncident(request);
-
-		if (result.succeeded) {
-			this.horizonRouter.navigateToStrack(incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		} else {
-			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
-		}
 	}
 
 	async _incidentStatus(incidentRecId) {
