@@ -99,6 +99,12 @@ export class FavouriteTransactions extends Component {
 				stopPropagation: selectedOption !== `stop-card` && this.verificationStatus !== `verified`
 			}
 		}));
+		this.dispatchEvent(new CustomEvent(`option-click`, {
+			detail: {
+				option: selectedOption,
+				stopPropagation: selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
+			}
+		}));
 	};
 
 
@@ -223,6 +229,20 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderFavourites() {
+		if(this.verificationStatus === `non-client`) {
+			return html`
+			<capitec-card class="card">
+				<capitec-title-bar type="clear">
+					<img src="/images/transactions/fav_icon.svg">
+					<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
+				</capitec-title-bar>
+				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
+					${this._renderSearchOtherNeed()}
+				</capitec-group>
+			</capitec-card>
+		`;
+		}
+		else{
 		return html`
 				<capitec-card class="card">
 					<capitec-title-bar type="clear">
@@ -239,6 +259,7 @@ export class FavouriteTransactions extends Component {
 					</capitec-group>
 				</capitec-card>
 			`;
+		}
 	}
 
 	_renderVerifiedToast() {
@@ -310,13 +331,12 @@ export class FavouriteTransactions extends Component {
 					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-	                    style="visibility: visible;"
->
+	                    style="visibility: visible;">
 					</horizon-option-button>
 					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
-						style="visibility: visible;"
+	                    style="visibility: visible;"
 						>
 					</horizon-option-button>
 				</capitec-button-bar>
@@ -349,8 +369,7 @@ export class FavouriteTransactions extends Component {
 				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
 				<capitec-button-bar>
 					<horizon-option-button label="Search Other Need" icon="system/search-action" iconSize="default"
-						@click="${() => this._optionSelectedClick(`search-other-need`)}"
-						?disabled="${this.verificationStatus === `non-client`}">
+						@click="${() => this._optionSelectedClick(`search-other-need`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
