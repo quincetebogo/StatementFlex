@@ -135,6 +135,7 @@ export class VerifyCaller extends Component {
 		};
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
+
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
 		} else if (!this.hasSouthAfricanID && !this.callHandleService.hasDigitalChannels) {
@@ -258,7 +259,7 @@ export class VerifyCaller extends Component {
 
 		this._stopTimer();
 
-		if (!this._itaAttemptsExceeded) {
+		if (!this._itaAttemptsExceeded()) {
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
 			this._initiateItaVerification();
 		} else {
@@ -692,7 +693,11 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (this.callerInformation.hasDigitalChannels && !this._pushFailed() && !this._itaAttemptsExceeded() && this.xdsMessage === ``) {
+		if (!this.callerInformation.hasDigitalChannels || this.xdsMessage !== ``) {
+			return html``;
+		}
+
+		if (!this._pushFailed() && !this._itaAttemptsExceeded()) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
@@ -718,18 +723,33 @@ export class VerifyCaller extends Component {
 				</capitec-content-box>
 			`;
 		}
-		return html``;
 	}
 
 	_renderPushNotificationError() {
-		if (this.callerInformation.hasDigitalChannels && this._pushFailed() && !this._itaAttemptsExceeded() && this.xdsMessage === ``) {
+		// Don't display this notification if we are dealing with XDS Errors or no verification method is available
+		if (this.xdsMessage !== `` || (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID)) {
+			return html``;
+		}
+
+		if (!this.callerInformation.hasDigitalChannels || (this._pushFailed() && !this._itaAttemptsExceeded())) {
 			let message = ``;
 			if (this.itaTimeout) {
 				message = `The client did not accept the notification in time`;
 			} else if (this.itaRejected) {
 				message = `The client rejected the notification`;
+			} else if (!this.callerInformation.hasDigitalChannels) {
+				message = `The client is not registered for the App/USSD`;
 			} else {
 				message = `The notification didn't send due to a system error.`;
+			}
+
+			let notificationMessage = ``;
+			if (this.callerInformation.hasDigitalChannels && this.hasSouthAfricanID && !this._xdsAttemptsExceeded()) {
+				notificationMessage = `Notify the client and either try again or complete through security questions`;
+			} else if (this.callerInformation.hasDigitalChannels) {
+				notificationMessage = `Notify the client and try again`;
+			} else {
+				notificationMessage = `Notify the client or complete through security questions`;
 			}
 
 			return html`
@@ -751,9 +771,7 @@ export class VerifyCaller extends Component {
 								An error has occured.
 							</div>
 							<capitec-label type="title"
-								label="Notify the client and either try again${this.hasSouthAfricanID && !this._xdsAttemptsExceeded() 
-									? ` or complete through security questions.` 
-									: ``}">
+								label="${notificationMessage}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -796,7 +814,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderClientCannotBeVerified() {
-		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && this.maxItaAttempts <= MAX_ITA_ATTEMPTS;
+		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
 		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
 
 		if (!canVerifyViaITA && !canVerifyViaXDS) {
