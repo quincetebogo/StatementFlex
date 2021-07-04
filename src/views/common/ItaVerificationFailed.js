@@ -65,7 +65,7 @@ export class ItaVerificationFailed extends ViewBase {
 				#id-error-msg {
 					width: 550px;
 				}
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-size: 912px;
 				}
 			`
@@ -86,7 +86,7 @@ export class ItaVerificationFailed extends ViewBase {
 
 	_renderItaFailureScreen() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="Verification was unsuccessful"
 				left="Continue Unverified"
 				right="Verify Via Security Questions" 
@@ -95,7 +95,7 @@ export class ItaVerificationFailed extends ViewBase {
 				@left-click=${() => this._leftClick()}
 				@right-click=${() => super._verifyClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24hours.</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 

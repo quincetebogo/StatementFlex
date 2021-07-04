@@ -70,7 +70,7 @@ export class MiniProfile extends Component {
 		const tooltip = this.shadowRoot.getElementById(`long-name`);
 		const clientName = this.shadowRoot.getElementById(`client-name`);
 
-		if(e.target.scrollWidth > e.target.offsetWidth) {
+		if (e.target.scrollWidth > e.target.offsetWidth) {
 			tooltip.style.display = `flex`;
 			clientName.style.display = `none`;
 		}

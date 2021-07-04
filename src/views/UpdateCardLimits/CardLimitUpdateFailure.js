@@ -117,7 +117,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	_renderCardLimitsUpdateFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="${this.limitType} card limits not updated" 
 				left="Done"
 				right="Handoff"
@@ -133,7 +133,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 					</section>
 
 					${this._getSubTitle()}
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 
