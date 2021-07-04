@@ -53,10 +53,8 @@ export class VerifyCaller extends Component {
 
 		// Property initialization
 		this.renderMode = RENDER_MODE.VERIFY_CALLER;
-    this.timeLeft = `70`;		
-    this.seconds = ITA_TIMEOUT_SECS;
-    this.isBusy = false;
-		this.loading = true;
+		this.seconds = ITA_TIMEOUT_SECS;
+		this.isBusy = false;
 
 		this.xdsMessage = ``;
 
@@ -98,20 +96,19 @@ export class VerifyCaller extends Component {
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
 			hasSouthAfricanID: { attribute: false },
 
-			timeLeft: { attribute: false },
 			itaTimeout: { attribute: false },
+			seconds: { attribute: false },
 			itaRejected: { attribute: false },
 			itaSystemError: { attribute: false }, 
 
-			isBusy: { attribute: false },
-			loading: { attribute: false }
+			isBusy: { attribute: false }
 		};
 	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
 
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
@@ -140,18 +137,11 @@ export class VerifyCaller extends Component {
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
-		} else if (this.hasSouthAfricanID) {
-			this.logger.log(`info`, `Digital channels are unavailable, only verification via XDS is available`, `VerifyCaller`);
-			await this._launchSecurityQuestions();
-		} else {
+		} else if (!this.hasSouthAfricanID && !this.callHandleService.hasDigitalChannels) {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
-			this.logger.log(`info`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
+			this.logger.log(`warn`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
 		}
-
-		// The Verify Caller UI will not display until this.loading is false. This keeps it hidden
-		// should we be transitioning directly to security questions because APP/USSD is unavailable
-		this.loading = false;
 	}
 
 	disconnectedCallback() {
@@ -171,15 +161,12 @@ export class VerifyCaller extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	_securityQuestionsClick() {
+	async _securityQuestionsClick() {
 		this._telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
-		this._launchSecurityQuestions();
-	}
 
-	async _launchSecurityQuestions() {
 		// This burns an ITA attempt!
 		this._stopTimer();
 
@@ -340,7 +327,7 @@ export class VerifyCaller extends Component {
 
 	async _initiateItaVerification() {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
-		if (signalRUrl && signalRUrl !== ``) {
+		if (signalRUrl === ``) {
 			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
 			return;
 		}
@@ -348,7 +335,7 @@ export class VerifyCaller extends Component {
 			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
 			return;
 		}
-		if (!this.HorizonSignalRClient) {
+		if (this.horizonSignalRClient) {
 			this.logger.log(`warn`, `ITA connection is already started, a new connection will not be started`, `_initiateItaVerification`);
 			return;
 		}
@@ -446,8 +433,6 @@ export class VerifyCaller extends Component {
 					this._updateApplicationState(`unverified`);
 				}
 			}
-
-      this.timeLeft = `${this.seconds <= 0 ? `0` : this.seconds.toString()}`;
 		}, 1000);
 
 		return startTimer;
@@ -658,10 +643,6 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderVerifyCallerDialog() {
-		if (this.loading) {
-			return html`${this._renderLoadingIndicator()}`;
-		}
-
 		return this.renderMode !== RENDER_MODE.VERIFY_CALLER
 			? html``
 			: html`
@@ -711,7 +692,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationStatus() {
-		if (this.callerInformation.hasDigitalChannels && !this._pushFailed() && !this._itaAttemptsExceeded() && this.xdsMessage !== ``) {
+		if (this.callerInformation.hasDigitalChannels && !this._pushFailed() && !this._itaAttemptsExceeded() && this.xdsMessage === ``) {
 			return html`
 				<capitec-content-box id="notification-status-box">
 					<capitec-group layout="vertical"
@@ -728,7 +709,7 @@ export class VerifyCaller extends Component {
 									id="notification-status-group">
 							<img src="/images/insure/sms.svg" class="sms-svg"/>
 							<div class="notification-info">
-								You have <span class="timer-bold">${this.timeLeft} seconds</span> remaining.
+								You have <span class="timer-bold">${this.seconds.toString()} seconds</span> remaining.
 							</div>
 							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
 							</capitec-label>
@@ -741,8 +722,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-	if (this.callerInformation.hasDigitalChannels && this._pushFailed() && !this._renderOtherOptions._itaAttemptsExceeded() && this.xdsMessage === ``) {
-
+		if (this.callerInformation.hasDigitalChannels && this._pushFailed() && !this._itaAttemptsExceeded() && this.xdsMessage === ``) {
 			let message = ``;
 			if (this.itaTimeout) {
 				message = `The client did not accept the notification in time`;
@@ -874,7 +854,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (this.isBusy || this.loading) {
+		if (this.isBusy) {
 			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
 		};
 
