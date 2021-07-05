@@ -188,9 +188,8 @@ export class VerifyCaller extends Component {
 
 			if (!this.securityQuestions.authenticationPermitted) {
 				this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
-				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; // There have already been too many attempts.
-				// TODO: If ITA attempts have been exceeded, this is the wrong thing to do
-				this._navigateToXdsVerificationFailed();
+				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
+				this.xdsMessage = `Authentication Not Permitted`;
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
@@ -782,8 +781,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderXdsError() {
-		if (this.hasSouthAfricanID && this.xdsMessage !== ``) {
-			const message = this.callerInformation.hasDigitalChannels && this._itaAttemptsExceeded()
+		if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
+			const message = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded()
 				? `Notify the client and either try again or complete verification verification via the App.`
 				: `Notify the client and try again`;
 

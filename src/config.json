@@ -2,7 +2,7 @@
 	"serviceURIs": {
 		"channelServiceUrl": "https://horizoncs-v1.platform-dev.int.capinet"
 	},
-	"signalRUrl": "",
+	"signalRUrl": "https://horizoncs-ita-v1.platform-int.int.capinet",
 	"DesktopAgent": {
 		"registrationUrl": "http://localhost:8889/subscribe"
 	},
