@@ -81,6 +81,6 @@ export class CardService extends ServiceBase {
 
 	// assignRequest
 	assign(assignData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.assignTeams(assignData), `assign`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.assign(assignData), `assign`, errorHandler, autoRetries);
 	}
 }

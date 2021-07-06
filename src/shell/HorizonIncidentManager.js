@@ -1,6 +1,6 @@
+import { CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS } from 'app/constants/IncidentManager';
 import { Component, View } from 'platform/elements';
-import { Configuration, Logger } from 'platform/core';
-import { CLOSE_REASONS, HORIZON_NEED_STATUS, REASON_RESOLUTIONS} from 'app/constants/IncidentManager';
+import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
@@ -34,6 +34,7 @@ export class HorizonIncidentManager {
 		this._configuration = Configuration.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.securityContext = SecurityContext.getInstance();
 
 		this.incidentService = new IncidentManagementService(null, () => true);
 	}
@@ -47,8 +48,11 @@ export class HorizonIncidentManager {
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		Component.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
+
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
 		View.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization);
+		View.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
 	}
 
 	async _handleMultipleNeed (clientNeed, toggleBusyFlag) {
@@ -102,9 +106,8 @@ export class HorizonIncidentManager {
 			 incidentDetails.needStatus === HORIZON_NEED_STATUS.FAILED)) {
 
 				this.primaryNeedIncidentRecId = incidentDetails.primaryIncidentRecID || incidentDetails.incidentRecId;
-				this.incidentService._toggleBusyFlag = toggleBusyFlag;
 
-				await this._closePrimaryIncident(clientNeed);
+				await this.closeIncident({ clientNeed: clientNeed }, toggleBusyFlag);
 				return true;
 		}
 
@@ -189,37 +192,76 @@ export class HorizonIncidentManager {
 		await this._classifyIncident(incidentCategorization);
 	}
 
-	// ---------------
-	// PRIVATE METHODS
-	// ---------------
-
 	/**
 	 * Closing current need
 	 * Since we know the need is fullfilled, closing incident with default values
 	 * Reason - Need Fullfilled & Cause code - Normal Enquiry
 	 * 
 	 * @param {string} clientNeed - Client's need [Stop card/ Proof of account/ Statements etc..]
-	 * @returns {void}
+	 * @param {Function} toggleBusyFlag - Toggle busy flag function
+	 * @returns {boolean} - true/ false, indicating close incident status 
 	 */
-	 async _closePrimaryIncident(clientNeed) {
+	 async closeIncident({ clientNeed, endCallReason = {}, causeCodeByContext }, toggleBusyFlag) {
+
+		this.incidentService._toggleBusyFlag = toggleBusyFlag;
+		
 		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const reason = CLOSE_REASONS[incidentDetails.needStatus];
-		const resolution = REASON_RESOLUTIONS[reason];
+		const incidentInfo = await this._incidentStatus(incidentDetails.incidentRecId);
+
+		if (this._isReassigned(incidentInfo)) {
+			this.logger.log(`warning`, `Incident manager: ${incidentDetails.incidentRecId} is reassigned, skipping close incident`, `closeIncident`, null);
+			return true;
+		}
+
+		const reason = isNullorEmpty(endCallReason.key) ? CLOSE_REASONS[incidentDetails.needStatus] : endCallReason.key;
+		const resolution = this._getResolution(incidentInfo.resolution, incidentDetails, endCallReason);
+		const causeCode = this._getCauseCode(incidentInfo.causeCode, causeCodeByContext, incidentDetails);
 
 		const closeIncidentRequest = {
 			incidentRecId: incidentDetails.incidentRecId,
 			reason: reason,
-			resolution: resolution,
-			causeCode: `NormalEnquiry`
+			resolution: this._formatLineBreaks(resolution),
+			causeCode: causeCode
 		};
 
 		const returnValue = await this.incidentService.closeIncident(closeIncidentRequest);
 
 		if (!returnValue.succeeded) {
 			this.logger.log(`error`, `Failed to close incident. Agent may have to manually close incident.`, `_closePrimaryIncident`, returnValue.correlationId);
+			return false;
 		}
 		
 		this._updateIncidentState(clientNeed);
+		return true;
+	}
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_isReassigned(incidentInfo) {
+		return incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username;
+	}
+
+	_getResolution(resolution, incidentDetails, endCallReason) {
+		const reason = CLOSE_REASONS[incidentDetails.needStatus];
+
+		return resolution ? `${resolution}\n${endCallReason.value || REASON_RESOLUTIONS[reason]}` : `${endCallReason.value || REASON_RESOLUTIONS[reason]}`;
+	}
+
+	_getCauseCode(causeCode, caueCodeByContext, incidentDetails) {
+		let notStartedCode = ``;
+		// Special case, when subsequent need is created on opening a need, if its not required anymore
+		// then it should be tagged as 'TransactionCancelled'.
+		if (incidentDetails.needStatus === HORIZON_NEED_STATUS.NOT_STARTED) {
+			notStartedCode = `TransactionCancelled`;
+		}
+
+		return causeCode || notStartedCode || caueCodeByContext || `NormalEnquiry`;
+	}
+
+	_formatLineBreaks(value) {
+		return value.replaceAll(`\n`, `%0D%0A`);
 	}
 
 	_updateIncidentState(clientNeed) {
