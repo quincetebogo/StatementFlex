@@ -4,9 +4,10 @@ import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
+import { LandingPageEvents } from 'app/constants/Telemetry/Events/LandingPage';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/dialogs/common/EndCallSession';
 import 'app/components/dialogs/common/VerifyCaller';
@@ -140,6 +141,8 @@ export class ViewBase extends View {
 	}
 
 	_endCallClick() {
+		this._telemetry.logEvent(LandingPageEvents.END_CALL, {});
+
 		this.showEndCall = !this.showEndCall;
 	}
 
@@ -180,29 +183,22 @@ export class ViewBase extends View {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 	}
 
-	async _addCallerDetails() {
-		// HorizonTelemetry.instance.selectAddCallerDetails({ screen: TelemetryScreen.CONFIRM_CALLER });
+	_addCallerDetails() {
+		this._telemetry.logEvent(LandingPageEvents.ADD_CALLER_DETAILS, {});
+		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER, {});
 
-		const callDetails = {
-			incomingNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReference: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOption: this.incomingCallDetails.ivrOption.value,
-			incidentNo: this.incidentDetails.incidentReferenceNumber,
-			agentPhoneNumber: this.incomingCallDetails.agentTelephoneNumber
-		};
-
-		const returnValue = await this.cardService.addCallerDetails(callDetails);
-		if (returnValue.succeeded) {
-			this.addCallerDetails = returnValue.result;
-			this.showAddCallerDetails = !this.showAddCallerDetails;
-		}
+		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	_addCallerDetailsCancelled(event) {
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER, {});
+
 		this.showAddCallerDetails = !this.showAddCallerDetails;
 	}
 
 	async _addCallerDetailsConfirmed(event) {
+		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER, {});
+		
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.callerInformation = event.detail.callerInformation;
 
@@ -225,6 +221,18 @@ export class ViewBase extends View {
 		} else {
 			this.logger.log(`error`, `There is no incident available against which to record then non-client details`, `_addCallerDetailsConfirmed`);
 		}
+	}
+
+	_telemetryStartSpan(eventName, screenName) {
+		this._telemetry.startSpan(eventName, {
+			"screen": screenName
+		});
+	}
+
+	_telemetryEndSpan(eventName, screenName) {
+		this._telemetry.endSpan(eventName, {
+			"screen": screenName
+		});
 	}
 
 	// ---------
@@ -298,10 +306,9 @@ export class ViewBase extends View {
 	_renderAddCallerDetailsModal() {
 		return this.showAddCallerDetails ? html`
 			<horizon-add-caller-details
-				.confirmedCaller="${this.callerInformation}"
+				.callerInformation="${this.callerInformation}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
-				.addCallerDialog="${this.addCallerDetails}"
 				@cancel="${(e) => this._addCallerDetailsCancelled(e)}"
 				@confirm=${(e) => this._addCallerDetailsConfirmed(e)}>
 			</horizon-add-caller-details>`

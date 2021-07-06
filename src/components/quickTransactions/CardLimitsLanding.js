@@ -311,7 +311,7 @@ export class CardLimitsLanding extends Component {
 			}, null);
 		}
 	}
-
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -465,7 +465,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.card-title {
 					line-height: 24px;
-					margin: 16px 16px 0px;
+					margin: 16px 16px 4px;
 					--theme-label-strong-font-size: 18px;
 					--theme-label-strong-font-weight: 600;
 					--theme-label-font-color: #3E4547;
@@ -503,6 +503,7 @@ export class CardLimitsLanding extends Component {
                   font-weight: 600;
                   letter-spacing: 0;
                   line-height: 20px;
+				  border-top: 0px;
                 }
                 .columnGroup{
                     height: 48px;
@@ -510,9 +511,11 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
                 }
                 .columnGroup > bb-multi-line-label{
-                    padding: 6px;
+                    padding: 6px 16px;
                     height: 48px;
+					--horizon-multi-line-label-font-weight: 600;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 .columnGroup > capitec-label{
                     justify-content:center;
@@ -525,6 +528,7 @@ export class CardLimitsLanding extends Component {
                     letter-spacing: 0;
                     line-height: 20px;
 					cursor: pointer;
+					border-top: 0px;
                 }
                 
                 capitec-hyperlink{
@@ -537,20 +541,23 @@ export class CardLimitsLanding extends Component {
                     line-height: 20px;
                 }
                 horizon-expander{
-                    margin: 16px;
-                    width: 1032px;
+                    margin: 12px 16px 0px;
+    				--theme-expander-header-height: 64px;
+                    width: 1031px;
                     border: 1px solid E1E1E1;
                     border-radius: 4px;
                     height: auto;
+					animation-timing-function: linear;
                 }
                 capitec-card > capitec-content-box{
                     padding: 0px;
                 }
                 .col1{
-                    width:224px;
+                    width:222px;
                 }
                 .col2{
                     width: 204px;
+					border-right: 0px;
                 }
                 .col3{
                     width:207px;
@@ -566,11 +573,14 @@ export class CardLimitsLanding extends Component {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.dual{
-					height: 324px;
+					height: auto;
 				}
 				capitec-label[label="Update"] {
 					text-align: end;
 					color: #009DE0;
+				}
+				bb-multi-line-label[label="N/A"] {
+					padding: 14px 16px;
 				}`
         ];
     }
@@ -594,8 +604,8 @@ export class CardLimitsLanding extends Component {
 				<capitec-content-box>
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
-						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
+						${this.supplementaryCards.length > 0 ? this._renderSupplementaryCardGroup() : ``}
 					</capitec-expander-group>
 				</capitec-content-box>
 			</capitec-card>
@@ -706,7 +716,7 @@ export class CardLimitsLanding extends Component {
 				<capitec-label row="1" class="col1" column="1" colspan="1" rowspan="1" label="" size="4"></capitec-label>
 				<capitec-label row="1" class="col2" column="2" colspan="1" rowspan="1" label="Cash Withdrawals" size="4"></capitec-label>
 				<capitec-label row="1" class="col3" column="3" colspan="1" label="Card Machine Purchases" size="4"></capitec-label>
-				<capitec-label row="1" class="col4" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
+				<capitec-label row="1" class="col4" column="4" colspan="1" label="Online/Scan to Pay/Phone" size="4"></capitec-label>
 				<capitec-label row="1" class="col5" column="5" colspan="1" label="Actions" size="4"></capitec-label>
 			</capitec-group>
 		`;
@@ -764,11 +774,18 @@ export class CardLimitsLanding extends Component {
 			${this._renderLimitsRow(card, `Debit`)}
 		`;
 	}
-
+	
 	_renderLimitsRow(card, updateType) {
+		return html`
+			${this._renderPermanentLimitsRow(card, updateType)}
+			${this._renderTemporaryLimitsRow(card, updateType)}
+		`;
+	}
+
+	_renderPermanentLimitsRow(card, updateType) {	
         const limits = card && card.cardLimits;
         const linkedLimits = card.linkedCardLimits;
-
+		
 		return html`
 			<capitec-group
 				class="columnGroup"
@@ -795,38 +812,46 @@ export class CardLimitsLanding extends Component {
 					</bb-multi-line-label>
 					${this._renderUpdateButton(LIMIT_TYPES.PERMANENT, card)}
 			</capitec-group>
-
-			<capitec-group
-				class="columnGroup"
-				layout="grid" gap="line" halign="left" valign="center"
-				columns="5" rows="1"
-				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
-					<capitec-label
-						class="col1"
-						row="1" column="1" colspan="1" size="4"
-						label="Temporary limit">
-					</capitec-label>
-					<bb-multi-line-label
-						class="col2"
-						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, card, `tempCashLimit`)}">
-					</bb-multi-line-label>
-					<bb-multi-line-label
-						class="col3"
-						row="1" column="3" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
-					</bb-multi-line-label>
-					<bb-multi-line-label
-						class="col4"
-						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, card, `tempOnlineLimit`)}">
-					</bb-multi-line-label>
-					${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
-			</capitec-group>
 		`;
+	}
+
+	_renderTemporaryLimitsRow(card, updateType) {
+        const limits = card && card.cardLimits;
+        const linkedLimits = card.linkedCardLimits;
+		
+		return card.cardDisplayType !== CARD_DISPLAY_TYPES.VIRTUAL_CARD 
+			? html`
+				<capitec-group
+					class="columnGroup"
+					layout="grid" gap="line" halign="left" valign="center"
+					columns="5" rows="1"
+					@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
+						<capitec-label
+							class="col1"
+							row="1" column="1" colspan="1" size="4"
+							label="Temporary limit">
+						</capitec-label>
+						<bb-multi-line-label
+							class="col2"
+							row="1" column="2" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, card, `tempCashLimit`)}">
+						</bb-multi-line-label>
+						<bb-multi-line-label
+							class="col3"
+							row="1" column="3" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
+						</bb-multi-line-label>
+						<bb-multi-line-label
+							class="col4"
+							row="1" column="4" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, card, `tempOnlineLimit`)}">
+						</bb-multi-line-label>
+						${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
+				</capitec-group>`
+			: html ``;
 	}
 
 	_getLimitValue(value, card, id) {
@@ -846,11 +871,11 @@ export class CardLimitsLanding extends Component {
 
 		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
 			return ``;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD) {
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(id === `permOnlineLimit`)) {
 			return ``;
 		}
 
-		return `max` + formatCurrency(value);
+		return `max ` + formatCurrency(value, 0);
 	}
 
 	_renderUpdateButton(type, card) {

@@ -35,6 +35,8 @@ export class CallerInformation {
 	 * @param {boolean} hasInsuranceProducts Indicates if the incoming caller has insurance products
 	 * @param {boolean} hasDigitalChannels Indicates if the incoming caller has digital channels (APP/USSD) 
 	 * @param {Object} verificationAttempts The number if XDS/ITA verification attempts for this client
+     * @param {boolean} isBranchConsultant if the caller is a branch consultant or not
+     * @param {boolean} isClientPresent if the client is present in branch when a consultant is phoning on their behalf
 	 */
 	constructor(
 		cifNumber,
@@ -53,12 +55,14 @@ export class CallerInformation {
 		isConfirmed,
 		verificationStatus,
 		verificationToastDisplayed,
-		is3rdParty,
+        is3rdParty,
 		isNonClient,
 		hasInsuranceProducts = false,
 		hasDigitalChannels = false,
-		verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 }
-	) {
+        verificationAttempts = { itaAttempts: 0, xdsAttempts: 0 },
+        isBranchConsultant = false,
+        isClientPresent = false
+    ) {
 		this.cifNumber = cifNumber;
 		this.birthdate = birthdate;
 		this.languagePreference = languagePreference;
@@ -80,7 +84,8 @@ export class CallerInformation {
 		this.hasInsuranceProducts = hasInsuranceProducts;
 		this.hasDigitalChannels = hasDigitalChannels;
 		this.verificationAttempts = verificationAttempts;
-
+        this.isBranchConsultant = isBranchConsultant;
+        this.isClientPresent = isClientPresent;
 		Object.seal();
 	}
 }

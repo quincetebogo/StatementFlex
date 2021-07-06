@@ -275,6 +275,8 @@ export class RelatedOptions extends Component {
 					height: 32px;
 					width: auto;
 					padding: 4px 0px 4px 16px;
+					border-left: 1px solid #E1E1E1;
+					border-right: 1px solid #E1E1E1;
 					--theme-label-subtitle-font-size: 14px;
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;

@@ -124,7 +124,7 @@ export class SuccessScreen extends Component {
 					margin-top:33px;
 					margin-bottom:23px;
 					height: 32px;
-					color: #003652;
+					color: #3A3A3A;
 					font-family: "Hind Vadodara";
 					font-size: 24px;
 					font-weight: 600;
@@ -198,7 +198,7 @@ export class SuccessScreen extends Component {
 				slot[name=detail]::slotted(*){
 					height: 24px;
 					width: 543px;
-					color: #545D60;
+					color: #3E4547;
 					font-family: "Hind Vadodara";
 					font-size: 16px;
 					letter-spacing: 0;

@@ -324,20 +324,6 @@ export class HorizonChannelService extends Service {
 		);
 	}
 
-	// addCallerDetailsRequest
-	addCallerDetails(callerData) {
-		const url = `/clientcare-card-${this._version}/caller/addcallerdetails`;
-		const model = {
-			'incomingTelephoneNumber': callerData.incomingNumber,
-			'voiceReferenceNumber': callerData.voiceReference,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber
-		};
-
-		return this._post(url, model, this._setToken(), `addCallerDetails`);
-	}
-
 	// ----
 	// card
 	// ----
@@ -710,8 +696,8 @@ export class HorizonChannelService extends Service {
 			return this._mock.transactionHistory(transactionHistoryRequest);
 		}
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` + 
-		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+        const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
+        `CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +
 		`StartDate=${transactionHistoryRequest.startDate}&` +
@@ -721,7 +707,27 @@ export class HorizonChannelService extends Service {
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
-	}
+    }
+
+    UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
+        //IncidentRecId String
+        //BranchCode String
+        const branchDetails = {
+            incidentRecId: incidentRecID,
+            branchCode: branchCode
+        };
+        const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+        return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
+    }
+
+    GetConsultantInformation(cpNumber) {
+        //cpNumber = userID
+        //CpNumber String
+        const url = `/clientcare-incident-${this._version}/user-details?` +
+            `UserID=${cpNumber}`;
+        return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
+    }
+
 
 	// ----------------
 	// call - ITA & XDS

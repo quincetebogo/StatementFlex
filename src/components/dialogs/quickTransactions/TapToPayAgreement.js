@@ -121,6 +121,8 @@ export class TapToPayAgreement extends Component {
 				capitec-modal {
 					width: 808px;
 					height: 856px;
+
+					--theme-modal-free-max-width: 808px;
 					--theme-modal-header-padding-left: 16px;
 					--theme-modal-header-color: #3A3A3A;
 					--theme-modal-header-background-color: #F7F7F7;
@@ -145,15 +147,24 @@ export class TapToPayAgreement extends Component {
 					--theme-expander-indicator-height: 7px;
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
+					--theme-expander-header-font-color: #3A3A3A;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-expander-height: 621px;
+					--theme-expander-height: auto;
 				}
 
 				capitec-expander-group > capitec-expander:last-child {
-					margin-bottom: 0px;
+					margin-bottom: 13px;
+				}
+
+				capitec-expander-group > capitec-expander[label="View Agreement"]{
+					--theme-expander-height: 621px;
+				}
+				
+				capitec-expander[expanded] {
+					--theme-expander-background-color: #F7F7F7;
 				}
 
 				capitec-check {
@@ -169,6 +180,8 @@ export class TapToPayAgreement extends Component {
 				}
 
 				capitec-alert-banner {
+					width: 776px;
+
 					--theme-alert-banner-height: 48px;
 					--theme-layout-gap-spacing: 16px;
 					--theme-alert-banner-icon-margin-left: 16px;
@@ -194,7 +207,7 @@ export class TapToPayAgreement extends Component {
 				}
 
 				.expander-cb > .terms-and-conditions:nth-child(n+2) {
-					--theme-layout-gap-spacing: 71px;
+					--theme-layout-gap-spacing: 18px;
 				}
 
 				.terms-and-conditions > ol {
@@ -208,6 +221,7 @@ export class TapToPayAgreement extends Component {
 
 				.accept-terms-and-conditions {
 					justify-content: center;
+					margin-bottom: 13px;
 
 					--theme-card-min-height: 48px;
 				}
@@ -219,6 +233,17 @@ export class TapToPayAgreement extends Component {
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 18px;
 					--theme-container-padding-right: 16px;
+					--theme-container-padding-bottom: 0px;
+				}
+
+				.scroll {
+					height: 728px;
+					width: 808px;
+					border-bottom: 1px solid #E1E1E1;
+
+					--theme-container-padding-left: 16px;
+					--theme-container-padding-top: 18px;
+					--theme-container-padding-right: 2px;
 					--theme-container-padding-bottom: 0px;
 				}
 
@@ -239,7 +264,7 @@ export class TapToPayAgreement extends Component {
 		return html`
 		<capitec-modal type="free" header-align="left" header="${this.selectedCard.isContactlessActivated ? `Activate Tap To Pay` : `Deactivate Tap To Pay`}">
 			<div slot="body">
-				<capitec-content-box class="main">
+				<capitec-content-box class=${this.alertBannerText ? `scroll` : `main`}>
 					${this._renderErrorAlertBanner()}
 					${this._renderViewAgreement()}
 				</capitec-content-box>
@@ -306,7 +331,7 @@ export class TapToPayAgreement extends Component {
 					<capitec-check 
 						id="acceptedTapToPay"
 						class=${this.alertBannerText ? `check-not-agreed` : ``}
-						label="Please confirm that you agree to these terms and conditions and that your are bound by them?"
+						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
