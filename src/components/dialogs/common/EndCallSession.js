@@ -235,7 +235,7 @@ export class EndCallSession extends Component {
 		//   - StopCard was the need and
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && this.endCallReason.key === 1))) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === 1 || this.endCallReason.key === 2)))) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
@@ -265,15 +265,15 @@ export class EndCallSession extends Component {
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
+		const endCallReasonMapping = this.endCallReason.mapping;
 
-		if (!isNullorEmpty(needAction) && continueUpdate) {
+		if ((!isNullorEmpty(needAction) || !isNullorEmpty(endCallReasonMapping)) && continueUpdate) {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction,
+				needAction: needAction || endCallReasonMapping,
 				incidentCategorization: null
 			};
-
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
 
 			if (!returnValue.succeeded) {
@@ -282,7 +282,7 @@ export class EndCallSession extends Component {
 		} 
 		
 		if (!continueUpdate) {
-			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has already been categorized in STrack.`, `_classifyAndClose`);
+			this.logger.log(`error`, `Incident:${incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_classifyAndClose`);
 		}
 		await this._closeIncident(strackIncidentInfo);
 	}
