@@ -833,7 +833,8 @@ export class StatementsDialog extends Component {
 
     _webTemplate() {
 		return html`
-			<bb-stepper-modal 
+			<bb-stepper-modal
+				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${STATEMENTS_STEPS}"
 				current-active-step="${this.currentStep}"
@@ -874,6 +875,7 @@ export class StatementsDialog extends Component {
 		if (this.errorMessage) {
 			return html`
 				<capitec-alert-banner
+					data-automation-id="statements-dialog-alert-message"
 					type="unsuccessful-red">
 						<p><b>Notify:</b> ${this.errorMessage}</p>
 				</capitec-alert-banner>`;
@@ -882,6 +884,7 @@ export class StatementsDialog extends Component {
 		if (this.notifyClient && isNullorEmpty(this.errorMessage)) {
 			return html`
 				<capitec-alert-banner
+					data-automation-id="statements-dialog-notify-message"
 					type="info"
 					@click="${() => this.notifyClient = false}"
 					closable>
@@ -912,6 +915,7 @@ export class StatementsDialog extends Component {
 		return savingsAccountProduct
 			? html`
 				<horizon-product-tile
+					data-automation-id="statements-dialog-primary-savings-account"
 					class="product-transact"
 					type="default"
 					label="Savings Account"
@@ -930,6 +934,7 @@ export class StatementsDialog extends Component {
 		return savingsPlanProducts
 			? html`
 				<horizon-product-tile
+					data-automation-id="statements-dialog-flexible-savings-plan"
 					class="product-save"
 					type="default"
 					label="Savings Plans"
@@ -957,6 +962,7 @@ export class StatementsDialog extends Component {
 				<capitec-radio-group>
 					${plans.map(item => html`
 						<horizon-product-tile 
+							data-automation-id="statements-dialog-savings-plan"
 							type="radio-button"
 							label="${item.accountName}"
 							subtitle= "${item.accountType === ACCOUNT_TYPE.FIXED_TERM_SAVINGS_ACCOUNT 
@@ -984,6 +990,7 @@ export class StatementsDialog extends Component {
 					class="choose-period"
 					layout="horizontal">
 						<horizon-product-tile
+							data-automation-id="statements-dialog-one-month-period"
 							type="radio-button"
 							label="1 month"
 							subtitle="Last 30 days"
@@ -992,6 +999,7 @@ export class StatementsDialog extends Component {
 							?selected="${this.periodSelected === TIME_PERIOD.ONE_MONTH.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
+							data-automation-id="statements-dialog-three-months-period"
 							type="radio-button"
 							label="3 months"
 							subtitle="Last 90 days"
@@ -1000,6 +1008,7 @@ export class StatementsDialog extends Component {
 							?selected="${this.periodSelected === TIME_PERIOD.THREE_MONHTS.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
+							data-automation-id="statements-dialog-six-months-period"
 							type="radio-button"
 							label="6 months"
 							subtitle="Last 180 days"
@@ -1008,6 +1017,7 @@ export class StatementsDialog extends Component {
 							?selected="${this.periodSelected === TIME_PERIOD.SIX_MONTHS.value}">
 						</horizon-product-tile>
 						<horizon-product-tile
+							data-automation-id="statements-dialog-nine-months-period"
 							type="radio-button"
 							label="9 months"
 							subtitle="Last 270 days"
@@ -1030,6 +1040,7 @@ export class StatementsDialog extends Component {
 			</capitec-label>
 
 			<horizon-product-tile
+				data-automation-id="statements-dialog-choose-date-range"
 				class="choose-date-range"
 				type="radio-button"
 				label="Choose date range"
@@ -1038,7 +1049,7 @@ export class StatementsDialog extends Component {
 				?selected="${this._customDateRange}"
 				@click="${() => this._customDateRangeSelected()}">
 			</horizon-product-tile>
-								${this._renderCustomDateRange()}
+			${this._renderCustomDateRange()}
 		`;
 	}
 
@@ -1061,6 +1072,7 @@ export class StatementsDialog extends Component {
 		if (this.showCalendar) {
 			return html`
 				<capitec-date-time-picker
+					data-automation-id="statements-dialog-calendar"
 					class="calendar"
 					type="range"
 					mode="date"
@@ -1088,6 +1100,7 @@ export class StatementsDialog extends Component {
 
 				<capitec-text-field
 					id="email"
+					data-automation-id="statements-dialog-email-address"
 					label="Email address"
 					oncopy="return false"
 					onpaste="return false"
@@ -1106,6 +1119,7 @@ export class StatementsDialog extends Component {
 
 				<capitec-text-field
 					id="confirmEmail"
+					data-automation-id="statements-dialog-confirm-email-address"
 					label="Email address"
 					oncopy="return false" 
 					onpaste="return false"
@@ -1124,6 +1138,7 @@ export class StatementsDialog extends Component {
 				</capitec-label>
 
 				<horizon-product-tile
+					data-automation-id="statements-dialog-view-document"
 					class="view-document"
 					type="default"
 					label="${this._summary.dateRangeLabel}"
@@ -1154,6 +1169,7 @@ export class StatementsDialog extends Component {
 				halign="left"
 				valign="center">
 					<capitec-button
+						data-automation-id="statements-dialog-back"
 						type="clear"
 						label="Back"
 						@click="${(e) => this._back()}"
@@ -1161,24 +1177,28 @@ export class StatementsDialog extends Component {
 					</capitec-button>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
+						data-automation-id="statements-dialog-cancel"
 						type="clear"
 						label="Cancel"
 						@click="${() => this._cancel()}"
 						?hidden="${this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
+						data-automation-id="statements-dialog-next"
 						type="primary"
 						label="Next"
 						@click="${() => this._next()}"
 						?hidden="${this.currentStep === 2 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
+						data-automation-id="statements-dialog-send"
 						type="primary"
 						label="Send"
 						@click="${() => this._sendStatement()}"
 						?hidden="${this.currentStep !== 2 || this.renderMode === RENDER_MODE.PDF}">
 					</capitec-button>
 					<capitec-button
+						data-automation-id="statements-dialog-close"
 						type="primary"
 						label="Close"
 						@click="${() => this._close()}"
@@ -1191,6 +1211,7 @@ export class StatementsDialog extends Component {
 	_renderPDFViewer() {
 		return html`
 			<capitec-content-box
+				data-automation-id="statements-dialog-pdf-viewer"
 				class="main-cb pdf-cb"
 				layout="vertical"
 				gap="clear"
