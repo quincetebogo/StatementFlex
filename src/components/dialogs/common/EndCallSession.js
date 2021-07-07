@@ -227,7 +227,9 @@ export class EndCallSession extends Component {
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
-
+		if (this.endCallReason.key === 9) {
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
+		}
 		// Don't close the incident the incident if
 		//    - StopCard was the need and
 		//    - the call was probably dropped before attempting to stop cards
