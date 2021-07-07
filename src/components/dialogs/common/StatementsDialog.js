@@ -395,7 +395,7 @@ export class StatementsDialog extends Component {
 			};
 		}
 
-		const returnValue = await this.quickTransactionService.viewStatement(statement);
+		const returnValue = await this.quickTransactionService.viewStatement(statement, () => this._createIncidentOnError());
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
@@ -570,6 +570,11 @@ export class StatementsDialog extends Component {
 	}
 
 	_errorHandler(exception) {
+		return true;
+	}
+
+	async _createIncidentOnError() {
+		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag());
 		return true;
 	}
 
