@@ -12,6 +12,7 @@
 	 * 
 	 * @param {string} [incidentReferenceNumber = ``] The STrack Incident Reference Number
 	 * @param {string} [incidentRecId = ``] The STrack Incident Reference ID
+	 * @param {string} [primaryIncidentRef = ``] Primary incident reference number
 	 * @param {string} [primaryIncidentRecID] Primary incident recID, when there is subsequent need
 	 * @param {string} [currentNeed = ``] Current need [Stopcard/ Debicheck/ Statements etc..]
 	 * @param {string} [previousNeed = ``] Previous need [Stopcard/ Debicheck/ Statements etc..], when switching to subsequent need
@@ -23,6 +24,7 @@
 	constructor(
 		incidentReferenceNumber = ``,
 		incidentRecId = ``,
+		primaryIncidentRef = ``,
 		primaryIncidentRecID = ``,
 		currentNeed = ``,
 		previousNeed = ``,
@@ -31,6 +33,7 @@
 	) {
 		this.incidentReferenceNumber = incidentReferenceNumber;
 		this.incidentRecId = incidentRecId;
+		this.primaryIncidentRef = primaryIncidentRef;
 		this.primaryIncidentRecID = primaryIncidentRecID;
 		this.currentNeed = currentNeed;
 		this.previousNeed = previousNeed;

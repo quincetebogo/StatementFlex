@@ -430,7 +430,7 @@ export class HorizonChannelService extends Service {
 			`/clientcare-card-${this._version}/Assign`, {
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
-				"team": assignData.Everyteam
+				"team": assignData.team
 			},
 			this._setToken(),
 			`assign`
