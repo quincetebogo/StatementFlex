@@ -296,7 +296,7 @@ export class Favourites extends SavingsAccountBase {
 		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
 		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
 
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => true);
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
@@ -589,6 +589,11 @@ export class Favourites extends SavingsAccountBase {
 			this._logger.log(`error`, `Failed to retrieve Other Needs Issue Type`, `_searchSpecificNeed`, returnValue.result);
 		}
 		this.requestUpdate();
+	}
+
+	async _createIncidentOnError() {
+		await super.createAndClassifySubsIncident();
+		return true;
 	}
 
 	// ---------

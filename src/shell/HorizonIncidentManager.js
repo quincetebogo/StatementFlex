@@ -48,6 +48,7 @@ export class HorizonIncidentManager {
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
+		Component.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization);
 		Component.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
 
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
