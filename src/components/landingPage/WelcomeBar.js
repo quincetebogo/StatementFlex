@@ -147,7 +147,12 @@ export class LandingPageWelcome extends Component {
 								<div></div>
 								<div>
 									<capitec-label id="hello-id" type="title" label="Hello"></capitec-label>
- 									<capitec-label  id="name-id" label="${this.fullname}" type="subtitle"></capitec-label>
+ 									<capitec-label 
+									 	id="name-id" 
+										 label="${this.fullname}" 
+										 type="subtitle"
+										 data-automation-id="welcome-bar-user-name">
+									</capitec-label>
 								</div>
 								</capitec-group>
 						</capitec-card>

@@ -1,6 +1,11 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
 
+/**
+ * The Title Bar is displayed at the top of the initial Horizon Landing Page (Call Waiting Page)
+ * This component displays the logged in user and provides a button that triggers the
+ * searching for a client rather than waiting for a call to pop successfully.
+ */
 export class TitleBar extends Component {
 
 	// --------------
@@ -101,10 +106,21 @@ export class TitleBar extends Component {
 				<capitec-icon class="branding-logo-white" size="medium" icon="capitec-logo"></capitec-icon>
 				<capitec-spacer></capitec-spacer>
 				<capitec-group layout="horizontal" gap="line" halign="right" valign="center">
-				<capitec-icon size="meadium" icon="system/search" @click="${() => this._searchCaller()}"></capitec-icon>
+				<capitec-icon 
+					size="meadium" 
+					icon="system/search" 
+					@click="${() => this._searchCaller()}"
+					data-automation-id="title-bar-search">
+				</capitec-icon>
 				<div class="logged-in-user">
-					<capitec-label label="${this.fullname}"></capitec-label>
-					<capitec-label label="${this.employeeId}"></capitec-label>
+					<capitec-label 
+						label="${this.fullname}"
+						data-automation-id="title-bar-user-name">
+					</capitec-label>
+					<capitec-label 
+						label="${this.employeeId}"
+						data-automation-id="title-bar-employee-id">
+					</capitec-label>
 				</div>
 				</capitec-group>
 			</capitec-title-bar>
