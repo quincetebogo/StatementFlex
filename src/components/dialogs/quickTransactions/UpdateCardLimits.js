@@ -750,7 +750,7 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} ${this.updateType} Limits">
+			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} Limits">
 				<div slot="body">
 				
 					<capitec-stepper
@@ -808,7 +808,7 @@ export class UpdateCardLimits extends Component {
     _renderSetLimits() {
         return this.renderMode === RENDER_MODE.LIMITS
             ? html`
-				<capitec-label type="title" label="${this.limitLabel}" class="limitLabel"></capitec-label>
+				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? "Virtual Limits" :this.limitLabel}" class="limitLabel"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
