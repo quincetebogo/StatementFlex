@@ -13,12 +13,10 @@ import 'app/components/common/HorizonSelect';
 import 'app/components/common/RadioButtonGroup';
 import 'app/components/common/CallerDialog';
 import 'app/components/dialogs/common/EndCallSession';
-import 'app/components/dialogs/common/SecurityQuestionsFailed';
 
 const RENDER_MODE = Object.freeze({
 	SECURITY_QUESTIONS: 1,
-	FIRST_FAILURE: 2,
-	END_CALL: 3
+	END_CALL: 2
 });
 
 const HEADER_LABEL = `Security Questions`;
@@ -64,7 +62,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
 
 	// --------------
@@ -154,20 +152,6 @@ export class VerifyBySecurityQuestions extends Component {
 		}));
 	}
 
-	_verifyViaApp() {
-		this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_VIA_APP, {
-			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": TelemetryScreen.VERIFY_CALLER
-		});
-
-		this.dispatchEvent(new CustomEvent(`verify-via-app`, {
-			detail: {
-				incomingCallDetails: this.incomingCallDetails,
-				callerInformation: this.callerInformation
-			}
-		}));
-	}
-
 	_continueClick() {
 		if (!this.checked) {
 			this.alertBannerMessage = ERROR_MESSAGE;
@@ -189,70 +173,71 @@ export class VerifyBySecurityQuestions extends Component {
 		} else {
 			this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": null, //Have to determine
+				"next-screen": null // Have to determine
 			});
 
 			this.alertBannerMessage = ``;
 			this.checked = false;
 
-			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions);
+			const returnValue = await this.callHandleService.verifySecurityQuestions(this.securityQuestions, () => true);
 			
 			if (returnValue.succeeded) {
-				this.logger.log(`warn`, `verifySecurityQuestions returned: ${returnValue.result}`);
+				this.logger.log(`info`, `verifySecurityQuestions returned: ${returnValue.result}`);
+
 				if (returnValue.result === `Authenticated`) {
-      		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
-			      "screen": TelemetryScreen.SECURITY_QUESTIONS,
-			      "next-screen": null, //Have to determine
-      		});
-          this.callerInformation.verificationStatus = `verified`;
-      		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+					this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
+						"screen": TelemetryScreen.SECURITY_QUESTIONS,
+						"next-screen": null // Have to determine
+					});
 
-				} else if (returnValue.result !== `Authenticated` && this.callerInformation.verificationAttempts.xdsAttempts < 1) {
-		        this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-      			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			      "next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-        	});        
-					this.callerInformation.verificationAttempts.xdsAttempts++;
-					this.renderMode = RENDER_MODE.FIRST_FAILURE;
+					this.callerInformation.verificationStatus = `verified`;
+					this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+				} else if (returnValue.result !== `Authenticated` && this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
+					this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+						"screen": TelemetryScreen.SECURITY_QUESTIONS,
+						"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
+					});
+
+					this.dispatchEvent(new CustomEvent(`failed`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 				} else {
-      			this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
-            
-					  this.callerInformation.verificationAttempts.xdsAttempts++;
-            this.callerInformation.verificationStatus = `failed`; // TODO - CHECK THIS AFTER MERGE
-					  this.horizonStore.setCallerInformation(this.callerInformation);
-					  this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-            
-					  // TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
-  	        this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-        			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-        			"next-screen": TelemetryScreen.XDS_FAILED
-            });
+					this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+						"screen": TelemetryScreen.SECURITY_QUESTIONS,
+						"next-screen": TelemetryScreen.XDS_FAILED
+					});
 
-        		this.horizonRouter.navigateToXdsVerificationFailed();
+					this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
+
+					this.callerInformation.verificationStatus = `failed`;
+					this.horizonStore.setCallerInformation(this.callerInformation);
+					this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+
+					  // TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
+					this.horizonRouter.navigateToXdsVerificationFailed();
 				}
-			} else if (this.callerInformation.verificationAttempts.xdsAttempts < 1) {
+			} else if (this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
+				this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+					"screen": TelemetryScreen.SECURITY_QUESTIONS,
+					"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
+				});
+
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
-				this.callerInformation.verificationAttempts.xdsAttempts++;
-    		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			    "screen": TelemetryScreen.SECURITY_QUESTIONS,
-			    "next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-		    });
-		    this.renderMode = RENDER_MODE.FIRST_FAILURE;
+
+				this.renderMode = RENDER_MODE.FIRST_FAILURE;
 			} else {
+				this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
+					"screen": TelemetryScreen.SECURITY_QUESTIONS,
+					"next-screen": TelemetryScreen.XDS_FAILED
+				});
+
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as the final failure.`, `_verifyClick`);
-				this.callerInformation.verificationAttempts.xdsAttempts++;
+
 				this.callerInformation.verificationStatus = `failed`;
-        
-      	this.horizonStore.setCallerInformation(this.callerInformation);
+
+				this.horizonStore.setCallerInformation(this.callerInformation);
 				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-  
-      	this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
-			    "screen": TelemetryScreen.SECURITY_QUESTIONS,
-			    "next-screen": TelemetryScreen.XDS_FAILED
-    		});
-        
-	      // TODO: If ITA attempts have been exceeded, this is the wrong thing to do
-      this.horizonRouter.navigateToXdsVerificationFailed();
+
+				// TODO: If ITA attempts have been exceeded, this is the wrong thing to do
+				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}
 	}
@@ -271,16 +256,6 @@ export class VerifyBySecurityQuestions extends Component {
 				answer.isEnteredAnswerYN = false;
 			}
 		});
-	}
-
-	_retrySecurityQuestions(e) {
-		if (this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
-			this.questionNumber = 0;
-			this.securityQuestions = e.detail.securityQuestions;
-			this.questions = e.detail.securityQuestions.questions;
-			this.alertBannerMessage = ``;
-			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-		}
 	}
 
 	_endCallClick() {
@@ -303,15 +278,6 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	_xdsErrorHandler(exception) {
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		this.alertBannerMessage = SYSTEM_ERROR;
-
-		return true;
-	}
 
 	_toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
@@ -462,9 +428,7 @@ export class VerifyBySecurityQuestions extends Component {
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
-			case RENDER_MODE.FIRST_FAILURE:
-				return html`${this._renderFailureModal()}`;
-			default:
+		default:
 				return html``;
 		}
 	}
@@ -532,18 +496,6 @@ export class VerifyBySecurityQuestions extends Component {
 				</capitec-button>
 			</capitec-group>
 		`;
-	}
-
-	_renderFailureModal() {
-		return html`
-			<horizon-security-questions-failed
-				.incidentDetails="${this.incidentDetails}"
-				.incomingCallDetails="${this.incomingCallDetails}"
-				.callerInformation="${this.callerInformation}" 
-				@security-questions="${(e) => this._retrySecurityQuestions(e)}"
-				@skip="${() => this._skipClick()}"
-				@verify-via-app="${() => this._verifyViaApp()}">
-			</horizon-security-questions-failed>`;
 	}
 
 	_renderEndCallModal() {

@@ -57,6 +57,7 @@ export class VerifyCaller extends Component {
 		this.isBusy = false;
 
 		this.xdsMessage = ``;
+		this.xdsFailed = false;
 
 		this.itaTimer = null;
 		this.itaTimeout = false;
@@ -172,6 +173,8 @@ export class VerifyCaller extends Component {
 		this._stopTimer();
 
 		this.xdsMessage = ``;
+		this.xdsFailed = false;
+
 		const clientID = this.callerInformation.southAfricanIDNumber;
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, () => true);
 
@@ -250,6 +253,11 @@ export class VerifyCaller extends Component {
 	_verifiedViaSecurityQuestions(event) {
 		this.callerInformation = event.detail.callerInformation;
 		this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
+	}
+
+	_failedSecurityQuestions(event) {
+		this.callerInformation = event.detail.callerInformation;
+		this.xdsMessage = `Unfortunately you didn't pass the security questions.`;
 	}
 
 	_verifyViaApp(event) {
@@ -518,7 +526,8 @@ export class VerifyCaller extends Component {
 	}
 
 	_xdsAttemptsExceeded() {
-		// xdsAttempts is 0 based and is incremented on success/failure
+		// xdsAttempts is 0 based and is incremented on attempting to retrieve security questions
+		// This is because simply retreiving security questions counts as an attempt
 		return this.callerInformation.verificationAttempts.xdsAttempts >= MAX_XDS_ATTEMPTS;
 	}
 
@@ -685,7 +694,8 @@ export class VerifyCaller extends Component {
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
 					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
-					@verify-via-app="${(event) => this._verifyViaApp(event)}">
+					@failed="${(event) => this._failedSecurityQuestions(event)}"
+				></horizon-security-question>
 				</horizon-security-question>`;
 	}
 
@@ -704,6 +714,8 @@ export class VerifyCaller extends Component {
 	_renderBody() {
 		if (!this._canVerify()) {
 			return this._renderClientCannotBeVerified();
+		} else if (this.hasSouthAfricanID && this.xdsFailed && this.callerInformation.verificationAttempts.xdsAttempts === MAX_XDS_ATTEMPTS - 1) {
+			this._renderXdsOneAttemptLeft();
 		} else if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
 			return this._renderXdsError();
 		} else if (this._itaInProgress()) {
@@ -788,6 +800,31 @@ export class VerifyCaller extends Component {
 						</capitec-group>
 					</capitec-group>
 				</capitec-content-box>`;
+	}
+
+	_renderXdsOneAttemptLeft() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" 
+                                halign="stretch"
+                                valign="top" 
+                                gap="clear">
+					<capitec-alert-banner type="unsuccessful-red">
+						${this.xdsMessage}
+					</capitec-alert-banner>
+					<capitec-group layout="vertical"
+                                    halign="center"
+                                    valign="top" 
+                                    gap="clear"
+                                    id="notification-status-group">
+						<img src="/images/warning.svg" class="sms-svg"/>
+						<capitec-label type="title"
+							label="You've got one more attempt left. Do you want to try the security questions again?">
+						</capitec-label>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>
+		`;
 	}
 
 	_renderXdsError() {
