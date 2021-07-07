@@ -261,17 +261,16 @@ export class EndCallSession extends Component {
 	async _classifyAndClose() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
-		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		const needAction = ivrActionMapping[incidentDetails.currentNeed] || ivrActionMapping[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
-		const endCallReasonMapping = this.endCallReason.mapping;
 
-		if ((!isNullorEmpty(needAction) || !isNullorEmpty(endCallReasonMapping)) && continueUpdate) {
+		if (!isNullorEmpty(needAction) && continueUpdate) {
 			const request = {
 				incidentRecId: this.incidentRecId,
 				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-				needAction: needAction || endCallReasonMapping,
+				needAction: needAction,
 				incidentCategorization: null
 			};
 			const returnValue = await this.incidentManagementService.classifyIncident(request);
