@@ -72,7 +72,7 @@ export class VerifyCaller extends Component {
 		this.logger = Logger.getInstance();
 		this._telemetry = HorizonTelemetry.instance;
 
-		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._xdsErrorHandler(ex));
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
 
 	// ----------
@@ -138,7 +138,7 @@ export class VerifyCaller extends Component {
 
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
-		} else if (!this.hasSouthAfricanID && !this.callHandleService.hasDigitalChannels) {
+		} else if (!this.hasSouthAfricanID && !this.callerInformation.hasDigitalChannels) {
 			// Technically this may not be a foreign client. We don't have a valid ID number available for the
 			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
 			this.logger.log(`warn`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
@@ -173,47 +173,58 @@ export class VerifyCaller extends Component {
 
 		this.xdsMessage = ``;
 		const clientID = this.callerInformation.southAfricanIDNumber;
-		const returnValue = await this.callHandleService.xdsQuestions(clientID);
+		const returnValue = await this.callHandleService.xdsQuestions(clientID, () => true);
 
 		if (returnValue.succeeded) {
 			this.securityQuestions = returnValue.result;
 
 			const authHistory = this.securityQuestions.authenticationHistory;
 			if (authHistory) {
+				// Retreive the number of previous attemnpts (including this current attempt)
 				this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
-				if (this.callerInformation.verificationAttempts.xdsAttempts > 0) {
-					this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} attempts at verifying via XDS in the last 24 hours!`);
+				if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
+					this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
 				}
+			} else {
+				// Just sending off a request counts as an attempt already
+				this.callerInformation.verificationAttempts.xdsAttempts++;
 			}
 
 			if (!this.securityQuestions.authenticationPermitted) {
-				this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
 				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
 				this.xdsMessage = `Authentication Not Permitted`;
+				this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
 			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
 				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
 				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
 			} else {
+				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
 				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
 				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
 			}
 		} else {
+			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
 			this.xdsMessage = `System Issue: Unable to obtain security questions`;
 			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
 		}
 	}
 
 	_calculateXDSAttempts(authHistory) {
-		const yesterday = new Date();
-		yesterday.setDate(yesterday.getDate() - 1);
- 
-		const usedAttempts = authHistory.filter(item => {
-			const bureauDate = new Date(item.bureauDate);
-			if (bureauDate > yesterday && item.authenticationStatus === `Not Authenticated`) {
-				return true;
+		let ndx = 0;
+		let usedAttempts = 0;
+
+		// Just asking for security questions counts as one attempt
+		// All previous pending/failed attempts after the last successful attempt count as attempts.
+		// There is no time limit after which an attempt is considered expired.
+		while (ndx < authHistory.length - 1) {
+			if (authHistory[ndx].authenticationStatus !== `Authenticated`) {
+				ndx++;
+				usedAttempts++;
+			} else {
+				return usedAttempts;
 			}
-			return false;
-		}).length;
+		}
+
 		return usedAttempts;
 	}
 
@@ -290,15 +301,6 @@ export class VerifyCaller extends Component {
 
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
-	}
-
-	_xdsErrorHandler(exception) {
-		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
-		this.horizonStore.setCallerInformation(this.callerInformation);
-
-		this.xdsMessage = `System error. Please try again later`;
-
-		return true;
 	}
 
 	_itaErrorHandler(exception) {
@@ -500,6 +502,17 @@ export class VerifyCaller extends Component {
 		return typeof verificationStatus === `string` && verificationStatus === `true`;
 	}
 
+	_canVerify() {
+		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
+		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
+
+		return canVerifyViaITA || canVerifyViaXDS;
+	}
+
+	_itaInProgress() {
+		return this.itaTimer !== null;
+	}
+
 	_pushFailed() {
 		return this.itaTimeout || this.itaRejected || this.itaSystemError;
 	}
@@ -653,10 +666,7 @@ export class VerifyCaller extends Component {
 					.headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
 					<div slot="body">
-						${this._renderPushNotificationStatus()}
-						${this._renderXdsError()}
-						${this._renderPushNotificationError()}
-						${this._renderClientCannotBeVerified()}
+						${this._renderBody()}
 						${this._renderOtherOptions()}
 						${this._renderLoadingIndicator()}
 					</div>
@@ -691,70 +701,73 @@ export class VerifyCaller extends Component {
 				</horizon-end-call-session>`;
 	}
 
-	_renderPushNotificationStatus() {
-		if (!this.callerInformation.hasDigitalChannels || this.xdsMessage !== ``) {
-			return html``;
-		}
+	_renderBody() {
+		if (!this._canVerify()) {
+			return this._renderClientCannotBeVerified();
+		} else if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
+			return this._renderXdsError();
+		} else if (this._itaInProgress()) {
+			return this._renderPushNotificationStatus();
+		};
+		
+		return this._renderPushNotificationError();
+	}
 
-		if (!this._pushFailed() && !this._itaAttemptsExceeded()) {
-			return html`
-				<capitec-content-box id="notification-status-box">
+	_renderPushNotificationStatus() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group
+						layout="vertical"
+						halign="stretch" 
+						valign="top"
+						gap="clear">
+					<capitec-alert-banner type="info">
+						Notify client that a push notification has been sent and they need to accept to continue.					
+					</capitec-alert-banner>
 					<capitec-group layout="vertical"
-									halign="stretch" 
-									valign="top"
-									gap="clear">
-						<capitec-alert-banner type="info">
-							Notify client that a push notification has been sent and they need to accept to continue.
-						</capitec-alert-banner>
-						<capitec-group layout="vertical"
-									halign="center"
-									valign="top"
-									gap="clear"
-									id="notification-status-group">
-							<img src="/images/insure/sms.svg" class="sms-svg"/>
-							<div class="notification-info">
-								You have <span class="timer-bold">${this.seconds.toString()} seconds</span> remaining.
-							</div>
-							<capitec-label type="title" label="If the client has not received the notification, choose Try Again.">
-							</capitec-label>
-						</capitec-group>
+							halign="center"
+							valign="top"
+							gap="clear"
+							id="notification-status-group">
+						<img src="/images/insure/sms.svg" class="sms-svg"/>
+						<div 
+							class="notification-info">
+							You have <span class="timer-bold">${this.seconds.toString()} seconds</span> remaining.
+						</div>
+						<capitec-label 
+							type="title" 
+							label="If the client has not received the notification, choose Try Again.">
+						</capitec-label>
 					</capitec-group>
-				</capitec-content-box>
-			`;
-		}
+				</capitec-group>
+			</capitec-content-box>`;
 	}
 
 	_renderPushNotificationError() {
-		// Don't display this notification if we are dealing with XDS Errors or no verification method is available
-		if (this.xdsMessage !== `` || (!this.callerInformation.hasDigitalChannels && !this.hasSouthAfricanID)) {
-			return html``;
+		let message = ``;
+		if (this.itaTimeout) {
+			message = `The client did not accept the notification in time`;
+		} else if (this.itaRejected) {
+			message = `The client rejected the notification`;
+		} else if (!this.callerInformation.hasDigitalChannels) {
+			message = `The client is not registered for the App/USSD`;
+		} else {
+			message = `The notification didn't send due to a system error.`;
 		}
 
-		if (!this.callerInformation.hasDigitalChannels || (this._pushFailed() && !this._itaAttemptsExceeded())) {
-			let message = ``;
-			if (this.itaTimeout) {
-				message = `The client did not accept the notification in time`;
-			} else if (this.itaRejected) {
-				message = `The client rejected the notification`;
-			} else if (!this.callerInformation.hasDigitalChannels) {
-				message = `The client is not registered for the App/USSD`;
-			} else {
-				message = `The notification didn't send due to a system error.`;
-			}
+		let notificationMessage = ``;
+		if (this.callerInformation.hasDigitalChannels && this.hasSouthAfricanID && !this._xdsAttemptsExceeded()) {
+			notificationMessage = `Notify the client and either try again or complete through security questions`;
+		} else if (this.callerInformation.hasDigitalChannels) {
+			notificationMessage = `Notify the client and try again`;
+		} else {
+			notificationMessage = `Notify the client or complete through security questions`;
+		}
 
-			let notificationMessage = ``;
-			if (this.callerInformation.hasDigitalChannels && this.hasSouthAfricanID && !this._xdsAttemptsExceeded()) {
-				notificationMessage = `Notify the client and either try again or complete through security questions`;
-			} else if (this.callerInformation.hasDigitalChannels) {
-				notificationMessage = `Notify the client and try again`;
-			} else {
-				notificationMessage = `Notify the client or complete through security questions`;
-			}
-
-			return html`
-				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" 
-									halign="stretch" 
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" 
+								halign="stretch" 
 									valign="top" 
 									gap="clear">
 						<capitec-alert-banner type="error">
@@ -774,69 +787,58 @@ export class VerifyCaller extends Component {
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
-				</capitec-content-box>
-			`;
-		}
-		return html``;
+				</capitec-content-box>`;
 	}
 
 	_renderXdsError() {
-		if (this.hasSouthAfricanID && !this._xdsAttemptsExceeded() && this.xdsMessage !== ``) {
-			const message = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded()
-				? `Notify the client and either try again or complete verification verification via the App.`
-				: `Notify the client and try again`;
+		const message = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded()
+			? `Notify the client and either try again or complete verification verification via the App.`
+			: `Notify the client and try again`;
 
-			return html`
-				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-						<capitec-alert-banner type="error">
-							${this.xdsMessage}
-						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
-                                        halign="center"
-                                        valign="top" 
-                                        gap="clear"
-                                        id="notification-status-error-group">
-							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
-							<div class="notification-info">
-								An error has occured.
-							</div>
-							<capitec-label type="title"
-								label="${message}">
-							</capitec-label>
-						</capitec-group>
-					</capitec-group>
-				</capitec-content-box>
-			`;
-		}
-		return html``;
-	}
-
-	_renderClientCannotBeVerified() {
-		const canVerifyViaITA = this.callerInformation.hasDigitalChannels && !this._itaAttemptsExceeded();
-		const canVerifyViaXDS = this.hasSouthAfricanID && !this._xdsAttemptsExceeded();
-
-		if (!canVerifyViaITA && !canVerifyViaXDS) {
-			return html`
-				<capitec-content-box id="notification-status-box">
-					<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
-						<capitec-alert-banner type="error">
-							<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
-						</capitec-alert-banner>
-						<capitec-group layout="vertical" 
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="error">
+						${this.xdsMessage}
+					</capitec-alert-banner>
+					<capitec-group 
+							layout="vertical" 
 							halign="center"
 							valign="top" 
 							gap="clear"
 							id="notification-status-error-group">
-							<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
-							<div class="foreign-client notification-info">
-								Unable to be verified, you can assist with with stopping cards and product enquiries.
-							</div>
-						</capitec-group>
+						<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
+						<div 
+							class="notification-info">
+								An error has occured.
+						</div>
+						<capitec-label type="title"
+							label="${message}">
+						</capitec-label>
 					</capitec-group>
-				</capitec-content-box>`;
-		}
-		return html``;
+				</capitec-group>
+			</capitec-content-box>`;
+	}
+
+	_renderClientCannotBeVerified() {
+		return html`
+			<capitec-content-box id="notification-status-box">
+				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
+					<capitec-alert-banner type="error">
+						<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
+					</capitec-alert-banner>
+					<capitec-group layout="vertical" 
+						halign="center"
+						valign="top" 
+						gap="clear"
+						id="notification-status-error-group">
+						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
+						<div class="foreign-client notification-info">
+							Unable to be verified, you can assist with with stopping cards and product enquiries.
+						</div>
+					</capitec-group>
+				</capitec-group>
+			</capitec-content-box>`;
 	}
 
     _renderOtherOptions() {
