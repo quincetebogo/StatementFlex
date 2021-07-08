@@ -572,18 +572,28 @@ export class InsureInformation extends Component {
 					<capitec-icon size="medium" icon="product/insure-white"></capitec-icon>
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
-					<capitec-button class="calculate-button" type="white" label="Calculate Premium"
+					<capitec-button
+						data-automation-id="insure-information-calculate-premium"
+						class="calculate-button" 
+						type="white" 
+						label="Calculate Premium"
 						@click="${() => this._calculatePremiumClick()}">
 					</capitec-button>
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs">
-					<capitec-tab label="Benefits">
+					<capitec-tab 
+						data-automation-id="insure-information-benefits-tab"
+						label="Benefits">
 						${this._renderBenefitContent()}
 					</capitec-tab>
-					<capitec-tab label="Cover">
+					<capitec-tab 
+						data-automation-id="insure-information-cover-tab"
+						label="Cover">
 						${this._renderCoverContent()}
 					</capitec-tab>
-					<capitec-tab label="Claim">
+					<capitec-tab 
+						data-automation-id="insure-information-claim-tab"
+						label="Claim">
 						${this._renderClaimContent()}
 					</capitec-tab>
 				</capitec-tab-group>
@@ -821,7 +831,8 @@ export class InsureInformation extends Component {
 
 	_renderDislaimer() {
 		if (this.renderMode === RENDER_MODE.DISCLAIMER) {
-			return html`<horizon-non-advisory-disclaimer 
+			return html`
+			<horizon-non-advisory-disclaimer
 				@click="${() => this.renderMode = RENDER_MODE.MAIN_PAGE}">
 			</horizon-non-advisory-disclaimer>`;
 		}
@@ -842,8 +853,12 @@ export class InsureInformation extends Component {
 	_renderNonClientBanner() {
 		if (this.verificationStatus === `non-client` && this.displayNotification) {
 			return html`
-				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClick()}">
-					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
+				<capitec-alert-banner 
+					data-automation-id="insure-information-non-client-banner"
+					class="info-banner" 
+					type="info" 
+					closable @click="${() => this._onCloseClick()}">
+						All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -852,10 +867,14 @@ export class InsureInformation extends Component {
 	_renderCoverBanner() {
 		if (this.displayCoverNotification) {
 			return html`
-				<capitec-alert-banner class="cover-banner" type="info" closable @click="${() => this._onCloseCover()}">
-					*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by
-					legislation. The restriction is
-					<br>&nbsp; applicable to the life (ID) across all insurers and their recorded policies.
+				<capitec-alert-banner 
+					data-automation-id="insure-information-cover-banner"
+					class="cover-banner" 
+					type="info" 
+					closable @click="${() => this._onCloseCover()}">
+						*Legal maximum child cover. The total amount payable in the event of the death of a child is restricted by
+						legislation. The restriction is
+						<br>&nbsp; applicable to the life (ID) across all insurers and their recorded policies.
 				</capitec-alert-banner>`;
 		}
 		return html``;
@@ -864,7 +883,11 @@ export class InsureInformation extends Component {
 	_renderClaimAlert() {
 		if (this.displayClaimNotification) {
 			return html`
-				<capitec-alert-banner class="info-banner" type="info" closable @click="${() => this._onCloseClaimAlert()}">
+				<capitec-alert-banner 
+					data-automation-id="insure-information-claim-alert-banner"
+					class="info-banner" 
+					type="info" closable 
+					@click="${() => this._onCloseClaimAlert()}">
 					All Capitec Funeral Plan are subject to terms and conditions, including limitiations and exclusions.
 				</capitec-alert-banner>`;
 		}
@@ -877,7 +900,10 @@ export class InsureInformation extends Component {
 				${this._renderUnverifiedToast()}
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
-					<capitec-hyperlink label="Verify Now" @click="${() => this._verifyClientClick()}">
+					<capitec-hyperlink 
+						data-automation-id="insure-information-verify-now"
+						label="Verify Now" 
+						@click="${() => this._verifyClientClick()}">
 					</capitec-hyperlink>
 				</capitec-alert-banner>`;
 		}
@@ -898,7 +924,12 @@ export class InsureInformation extends Component {
 	_renderVerifiedToast() {
 		if (this.verificationStatus === `verified` && this.displayToast) {
 			return html`
-				<capitec-toast class="toast" type="success" header="Successful" detail="Client has been verified">
+				<capitec-toast 
+					data-automation-id="insure-information-verified-toast"
+					class="toast" 
+					type="success" 
+					header="Successful" 
+					detail="Client has been verified">
 				</capitec-toast>`;
 		}
 		return html``;
@@ -907,7 +938,12 @@ export class InsureInformation extends Component {
 	_renderUnverifiedToast() {
 		if (this.renderAlertBanner === `unverified` && this.displayToast) {
 			return html`
-				<capitec-toast class="toast" type="warning" header="Not Verified" detail="Only limited information will be display">
+				<capitec-toast 
+					data-automation-id="insure-information-unverified-toast"
+					class="toast" 
+					type="warning" 
+					header="Not Verified" 
+					detail="Only limited information will be display">
 				</capitec-toast>
 				`;
 		}
