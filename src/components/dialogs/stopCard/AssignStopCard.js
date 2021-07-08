@@ -271,7 +271,8 @@ export class AssignStopCard extends Component {
 			<capitec-modal 
 				type="free" 
 				header="Assign Stop Card" 
-				header-align="left">
+				header-align="left"
+				data-automation-id="assign-stop-card-dialog">
 					<div slot="body">
 						${this.renderBody()}
 					</div>
@@ -291,6 +292,7 @@ export class AssignStopCard extends Component {
 			
 			<capitec-select 
 				id="select-team"
+				data-automation-id="assign-stop-card-select-team"
 				class="team-options"
   				label="Choose a team (Required)"
 				.items="${this.teamItems}" 
@@ -312,10 +314,18 @@ export class AssignStopCard extends Component {
 
 		// if even number begining of line
 		if (index / 2 === 0 && index + 1 < cards.length) {
-			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span> and ${cards[index + 1].cardDisplayName} <span class="bold-text">${cards[index + 1].maskedCardNumber}</span></p>`;
+			return html`<p 
+							class="failed-cards"
+							data-automation-id="assign-stop-card-failed-cards">
+								${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span> and ${cards[index + 1].cardDisplayName} <span class="bold-text">${cards[index + 1].maskedCardNumber}</span>
+						</p>`;
 		} else if (index / 2 === 0 && index + 1 >= cards.length) {
 			// If odd number, second on line
-			return html`<p class="failed-cards">${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span></p>`;
+			return html`<p 
+							class="failed-cards"
+							data-automation-id="assign-stop-card-failed-cards">
+								${cards[index].cardDisplayName} <span class="bold-text">${cards[index].maskedCardNumber}</span>
+						</p>`;
 		}
 	}
 
@@ -323,6 +333,7 @@ export class AssignStopCard extends Component {
 		if (this.errorAlert) {
 			return html`
 				<capitec-alert-banner class="alert-banner" type = "unsuccessful-red"
+					data-automation-id="assign-stop-card-error-banner"
 					label = "Select an team to Assign"
 					closable
 					style = "width: 100%;">
@@ -337,11 +348,13 @@ export class AssignStopCard extends Component {
 	renderFooter() {
 		return html`
 			<capitec-button class="cancel-button"
+				data-automation-id="assign-stop-card-error-cancel"
 				type = "clear"
 				label = "Cancel"
 				@click="${() => this._onCancelClick()}" >
 			</capitec-button >
 			<capitec-button class="assign-button"
+				data-automation-id="assign-stop-card-error-assign"
 				type="primary"
 				label="Assign"
 				@click="${(e) => this._onAssignClick(e)}" >
