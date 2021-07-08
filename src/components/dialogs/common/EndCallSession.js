@@ -157,7 +157,7 @@ export class EndCallSession extends Component {
 				this._returnToCallWaitingPage();
 				return;
 			}
-			this._closeIncident();
+			this._classifyAndClose();
 		}
 	}
 
