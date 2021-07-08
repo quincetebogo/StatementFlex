@@ -363,13 +363,9 @@ export class AssignStopCard extends Component {
 	}
 
 	renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
-
-		return html`
-            <capitec-loading-indicator></capitec-loading-indicator>
-        `;
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 
