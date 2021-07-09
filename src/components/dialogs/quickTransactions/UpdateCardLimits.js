@@ -780,7 +780,7 @@ export class UpdateCardLimits extends Component {
 		}
 		return html`
 			<capitec-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
+				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner" data-automation-id="update-card-limits-unsuccessful-banner">
 					<capitec-label
 						label="Notify client: "
 						type="default">
@@ -794,7 +794,7 @@ export class UpdateCardLimits extends Component {
 	_renderAgreementsAlertBanner() {
 		return this.alertBannerText
 			? html`
-				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red">
+				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
 						<capitec-label
 							label="${this.alertBannerText}"
@@ -867,6 +867,7 @@ export class UpdateCardLimits extends Component {
 		return html`
 			<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
 				<capitec-label
+					data-automation-id="update-card-limits-total-daily-limits-exposure"
 					label="Total daily limit exposure"
 					class="dailyExTitle">
 				</capitec-label>
@@ -968,6 +969,7 @@ export class UpdateCardLimits extends Component {
 			<capitec-card>
 				<capitec-group layout="horizontal" class="toggleText" halign="left" valign="center" gap="none">
 					<capitec-label
+					data-automation-id="update-card-limits-update-tap-to-pay"
 						label="Would you like to activate your Tap to Pay?"
 						type="default">
 					</capitec-label>
@@ -988,6 +990,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-title-bar type="clear" label="">
 					<capitec-icon icon="status/info"></capitec-icon>
 					<capitec-label
+						data-automation-id="update-card-limits-update-tap-to-pay-banner"
 						label="Notify client: "
 						type="strong"
 						class="label-bold"

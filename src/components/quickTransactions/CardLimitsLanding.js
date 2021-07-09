@@ -896,6 +896,7 @@ export class CardLimitsLanding extends Component {
 		return this.showUpdateLimitsModal
 			? html`
 				<horizon-update-card-limits
+					data-automation-id="update-card-limits-modal"
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
 					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"
