@@ -316,7 +316,7 @@ export class ProofOfAccount extends Component {
 
 	_webTemplate() {
 		return html`
-		<capitec-modal type="free" header-align="left" header="Proof Of Account">
+		<capitec-modal type="free" header-align="left" data-automation-id="proof-of-account-header" header="Proof Of Account">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
 				${this._renderAlertBanner()}
 				${this._renderEmailFields()}
