@@ -281,8 +281,7 @@ export class FavouriteTransactions extends Component {
 		if (this.verificationStatus === `unverified`) {
 			return html`
 				<capitec-alert-banner 
-					class="banner" 
-					data-automation-id="favourite-transactions-unverified-alert-banner"
+					class="banner"
 					type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">
 						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label>
@@ -307,10 +306,8 @@ export class FavouriteTransactions extends Component {
 			return html`
 				<capitec-alert-banner 
 					class="banner"
-					data-automation-id="favourite-transactions-failed-verification-alert-banner"
 					type="unsuccessful-red"
 					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
-				</capitec-alert-banner>
 				</capitec-alert-banner>
 			`;
 		}
