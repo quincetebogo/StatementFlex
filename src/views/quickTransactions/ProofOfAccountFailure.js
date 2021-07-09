@@ -140,6 +140,7 @@ import 'app/components/common/RelatedOptions';
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
+			data-automation-id="proof-of-account-related-options"
 				context = "Failure">
 			</horizon-related-options>
 		`;
