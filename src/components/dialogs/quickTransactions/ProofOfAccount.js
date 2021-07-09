@@ -335,11 +335,13 @@ export class ProofOfAccount extends Component {
 				<capitec-alert-banner type="unsuccessful-red">
 					<capitec-group layout="horizontal">
 						<capitec-label
+							data-automation-id="proof-of-account-notify-alert-banner"
 							type="subtitle"
 							label="Notify: "
 							class="label-err-message">
 						</capitec-label>
 						<capitec-label
+							data-automation-id="proof-of-account-alert-banner"
 							label="${this.alertBannerMessage}"
 							class="label-err-message">
 						</capitec-label>
