@@ -616,6 +616,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
+					data-automation-id="card-limits-landing-back"
 					size="small"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
@@ -790,7 +791,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-group
 				class="columnGroup"
 				layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center"
-				data-automation-id="update-cards-limits-permanent-limits"
+				data-automation-id="card-limits-landing-permanent-limits"
 				@click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType)}">
 					<capitec-label class="col1" row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
 					<bb-multi-line-label
@@ -826,7 +827,7 @@ export class CardLimitsLanding extends Component {
 					class="columnGroup"
 					layout="grid" gap="line" halign="left" valign="center"
 					columns="5" rows="1"
-					data-automation-id="update-cards-limits-temporary-limits"
+					data-automation-id="card-limits-landing-temporary-limits"
 					@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
 						<capitec-label
 							class="col1"
@@ -896,7 +897,6 @@ export class CardLimitsLanding extends Component {
 		return this.showUpdateLimitsModal
 			? html`
 				<horizon-update-card-limits
-					data-automation-id="update-card-limits-modal"
 					.cardDetails="${this._cardDetails}"
 					.limitType="${this._limitType}"
 					.getTemporaryLimits="${(request) => this._getTemporaryLimits(request)}"

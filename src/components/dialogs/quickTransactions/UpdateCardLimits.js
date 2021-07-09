@@ -750,10 +750,11 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} ${this.updateType} Limits">
+			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} ${this.updateType} Limits" data-automation-id="update-card-limits-modal">
 				<div slot="body">
 				
 					<capitec-stepper
+						data-automation-id="update-card-limits-stepper"
 						layout="horizontal"
 						.steps="${UPDATE_LIMIT_STEPS}"
 						active-step-number="${this.renderMode}">
