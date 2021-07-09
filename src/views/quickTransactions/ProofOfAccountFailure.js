@@ -122,6 +122,7 @@ import 'app/components/common/RelatedOptions';
 	_renderProofOfAccountFailure() {
 		return html`
 			<horizon--error-screen
+				data-automation-id="proof-of-account-failure"
 				image="/images/insure/assign-pay-arrears.svg"
 				header="Proof of account not sent" 
 				left="Done"

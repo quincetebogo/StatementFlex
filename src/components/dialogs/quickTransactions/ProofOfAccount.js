@@ -356,6 +356,7 @@ export class ProofOfAccount extends Component {
 			<div class="email-div">
 				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
 				<capitec-text-field 
+					data-automation-id="proof-of-account-email"
 					class="email-text" 
 					id="idEmailAddress" 
                     oncopy="return false"
@@ -373,6 +374,7 @@ export class ProofOfAccount extends Component {
 			<div class="email-div">
 				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
 				<capitec-text-field 
+					data-automation-id="proof-of-account-confirm-email"
 					class="email-text" id="idConfirmEmailAddress" 
                     oncopy="return false"
 					onpaste="return false"
@@ -391,13 +393,15 @@ export class ProofOfAccount extends Component {
 	_renderFooter() {
 		return html`
 		<capitec-group layout="horizontal">
-			<capitec-button 
+			<capitec-button
+				data-automation-id="proof-of-account-cancel"
 				id="id-cancel-button" 
 				type="clear" 
 				label="Cancel" 
 				@click="${(e) => this._cancelClick(e)}">
 			</capitec-button>
-			<capitec-button 
+			<capitec-button
+				data-automation-id="proof-of-account-send" 
 				id="id-send-button" 
 				type="primary" 
 				label="Send" 
