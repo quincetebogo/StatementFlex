@@ -132,6 +132,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 	_renderTapToPayFailure() {
 		return html`
 			<horizon-error-screen 
+				data-automation-id="tap-to-pay-unsuccessful"
 				header="Tap to pay not activated" 
 				image="/images/tap-to-pay-error.svg"
 				left="Done"
