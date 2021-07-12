@@ -301,6 +301,7 @@ export class SearchOtherNeed extends Component {
 		return html`
 			<capitec-action-bar class="otherneed-action-bar">
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-category"
 					label="Search client need"
 					.items="${this.categories}"
 					display-field="category"
@@ -312,6 +313,7 @@ export class SearchOtherNeed extends Component {
 				</capitec-select>
 
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-need"
 					label="Choose specific need"
 					.items="${this.needs}"
 					display-field="need"
@@ -323,6 +325,7 @@ export class SearchOtherNeed extends Component {
 				</capitec-select>
 				
 				<capitec-select
+					data-automation-id="search-other-need-action-bar-issue"
 					label="Choose issue type"
 					.items="${this.issues}"
 					display-field="issue"
@@ -346,6 +349,7 @@ export class SearchOtherNeed extends Component {
 
 				<capitec-content-box>
 					<capitec-label
+						data-automation-id="search-other-need-solution"
 						class="solution-heading"
 						type="default"
 						label="${this.solution}">
@@ -354,6 +358,7 @@ export class SearchOtherNeed extends Component {
 				
 				<capitec-group layout="vertical" gap="line" halign="right" valign="bottom">
 					<capitec-button
+						data-automation-id="search-other-need-launch-strack"
 						class="strack-button"
 						type="primary"
 						label="Launch STrack"

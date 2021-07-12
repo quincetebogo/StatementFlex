@@ -638,6 +638,7 @@ export class ConfirmCallerDetails extends Component {
             ? html``
             : html`
 				<capitec-alert-banner 
+					data-automation-id="confirm-caller-details-error-banner"
 					type="unsuccessful-red"
 					label=${this.errorMessage}>
 				</capitec-alert-banner>`;
@@ -646,16 +647,23 @@ export class ConfirmCallerDetails extends Component {
     _renderAlertBanner() {
         if (!this.confirmedCaller.isBranchConsultant) {
             return html`
-		        <capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
-			        <capitec-hyperlink label="Add Caller Details"
-				    @click="${() => this._addCallerDetailsClick()}">
-			        </capitec-hyperlink>
-			        if the caller is calling on another client's behalf
+		        <capitec-alert-banner 
+					id="id-banner-addcallerdetails" 
+					data-automation-id="confirm-caller-details-add-caller-banner"
+					type="warning">
+			        	<capitec-hyperlink label="Add Caller Details"
+							data-automation-id="confirm-caller-details-add-caller-details"
+				    		@click="${() => this._addCallerDetailsClick()}">
+						</capitec-hyperlink>
+					if the caller is calling on another client's behalf
 		        </capitec-alert-banner>`;
         } 
 
 		return html`
-			<capitec-alert-banner id="id-banner-addcallerdetails" type="warning">
+			<capitec-alert-banner 
+				id="id-banner-addcallerdetails" 
+				data-automation-id="confirm-caller-details-branch-banner"
+				type="warning">
 				<p><b>Notify:</b>${branchBannerMessage}</p>
 			</capitec-alert-banner>`;
 	}
@@ -670,6 +678,7 @@ export class ConfirmCallerDetails extends Component {
 					<capitec-group id="id-caller-group" layout="grid" gap="none" columns="auto" rows="auto">
 						<capitec-label 
 							id="client-name" 
+							data-automation-id="confirm-caller-details-client-name"
 							type="title"
 							row="1" column="1" colspan="2"
 							label="${this.confirmedCaller.name}"
@@ -677,32 +686,39 @@ export class ConfirmCallerDetails extends Component {
 						</capitec-label>
 						<capitec-tooltip
 							id="long-name" 
+							data-automation-id="confirm-caller-details-client-name-tooltip"
 							row="1" column="1" colspan="2" 
 							message="${this.confirmedCaller.name}"
 							position="bottom">
 							<capitec-label
+								data-automation-id="confirm-caller-details-client-name-tooltip-label"
 								type="title"
 								label="${this.confirmedCaller.name}"
 								@mouseover="${(e) => this._displayTooltip(e)}">
 							</capitec-label>
 						</capitec-tooltip>
 						<horizon-label class="client-info-row" row="2" column="1" 
+							data-automation-id="confirm-caller-details-id-number"
 							label="ID Number"
 							value="${this.confirmedCaller.southAfricanIDNumber}">
 						</horizon-label>
 						<horizon-label class="client-info-row" row="2" column="2" 
+							data-automation-id="confirm-caller-details-verified-phone-number"
 							label="Verified Cellphone Number"
 							value="${this._getVerifiedTelephoneNumber()}">
 						</horizon-label>
 						<horizon-label class="client-info-row" row="3" columun="1" 
+							data-automation-id="confirm-caller-details-lives-in"
 							label="Lives In" 
 							value="${this.confirmedCaller.livesIn}">
 						</horizon-label>
 						<horizon-label class="client-info-row" row="3" columun="2" 
+							data-automation-id="confirm-caller-details-language-preference"
 							label="Language Preference"
 							value="${this._getLanguagePreference()}">
 						</horizon-label>
 						<horizon-label class="client-info-row" row="4" columun="1" 
+							data-automation-id="confirm-caller-details-birthday"
 							label="Birthday"
 							value="${this._getBirthdate(this.birthdate)}" >
 						</horizon-label>
@@ -720,6 +736,7 @@ export class ConfirmCallerDetails extends Component {
             gap="none" 
             class="footer-group">
 				<capitec-button
+					data-automation-id="confirm-caller-details-back"
                     class="footer-back"
 					type="clear"
 					label="Back"
@@ -729,6 +746,7 @@ export class ConfirmCallerDetails extends Component {
                 <capitec-spacer></capitec-spacer>
 				<capitec-button 
 					id="id-search-button" 
+					data-automation-id="confirm-caller-details-search"
 					type="clear" 
 					label="Search Client"
 					@click="${() => this._searchClick()}"
@@ -736,6 +754,7 @@ export class ConfirmCallerDetails extends Component {
 				</capitec-button>
 				<capitec-button 
 					id="id-confirm-button" 
+					data-automation-id="confirm-caller-details-confirm"
 					type="primary" 
 					label="Confirm"
 					@click="${() => this._confirmClick()}"
@@ -745,12 +764,9 @@ export class ConfirmCallerDetails extends Component {
     }
 
     _renderLoadingIndicator() {
-
-        if (!this.isBusy) {
-            return html``;
-        };
-
-        return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>` 
+			: html``;
     }
 
     renderAddCallerDetailsModal() {

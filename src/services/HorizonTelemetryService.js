@@ -136,7 +136,7 @@ export class HorizonTelemetry extends Telemetry {
 		}
 
 		const spanID = await super.spanStart({
-			baggage: this._formatBaggaeDetails(baggage || []),
+			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
 			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 			eventType: TelemetryEventType.SYSTEM,
@@ -173,7 +173,7 @@ export class HorizonTelemetry extends Telemetry {
 
 		if (this.traceId && spanId) {
 			await super.spanEnd({
-				baggage: this._formatBaggaeDetails(baggage || []),
+				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
 				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 				eventType: TelemetryEventType.SYSTEM,
@@ -207,7 +207,7 @@ export class HorizonTelemetry extends Telemetry {
 		const currentSpan = this._getCurrentSpanofEvent(events);
 
 		await super.event({
-			baggage: this._formatBaggaeDetails(baggage || []),
+			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
 			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
 			eventType: TelemetryEventType.SYSTEM,
@@ -315,15 +315,8 @@ export class HorizonTelemetry extends Telemetry {
 	 * @param {object} baggage Object holds event details
 	 * @returns {Array} Baggage array
 	 */
-	_formatBaggaeDetails(baggage) {
-		const array = [];
-
-		Object.entries(baggage).map(item => {
-			array.push({
-				[item[0]]: item[1]
-			});
-		});
-		return array;
+	_formatBaggageDetails(baggage) {				
+		return Object.entries(baggage).map(item => ({ [item[0]]: item[1] }));
 	}
 
 	/**
