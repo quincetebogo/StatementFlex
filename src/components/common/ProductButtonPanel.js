@@ -120,7 +120,8 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.savingsAccount ? this.detail.savingsAccount : ``}"
 				icon="product/transact-white"
 				@click="${() => this._productButtonClick(`SavingsAccount`)}"
-				?selected="${this.selectedButton === `SavingsAccount`}">
+				?selected="${this.selectedButton === `SavingsAccount`}"
+				data-automation-id="product-button-panel-savings-account">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -130,7 +131,8 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.savingsPlan ? this.detail.savingsPlan : ``}"
 				icon="product/save-white"
 				@click="${() => this._productButtonClick(`SavingsPlan`)}"
-				?selected="${this.selectedButton === `SavingsPlan`}">
+				?selected="${this.selectedButton === `SavingsPlan`}"
+				data-automation-id="product-button-panel-savings-plan">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -140,7 +142,8 @@ export class ProductButtonPanel extends Component {
 				detail="${this.detail.insure ? this.detail.insure : ``}"
 				icon="product/insure-white"
 				@click="${() => this._productButtonClick(`Insure`)}"
-				?selected="${this.selectedButton === `Insure`}">
+				?selected="${this.selectedButton === `Insure`}"
+				data-automation-id="product-button-panel-insure">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"
@@ -151,7 +154,8 @@ export class ProductButtonPanel extends Component {
 				icon="product/credit-white"
 				?detailIcon="${false}"
 				@click="${() => this._productButtonClick(`Credit`)}"
-				?selected="${this.selectedButton === `Credit`}">
+				?selected="${this.selectedButton === `Credit`}"
+				data-automation-id="product-button-panel-credit">
 			</horizon-product-tile>
 		`;
 	}

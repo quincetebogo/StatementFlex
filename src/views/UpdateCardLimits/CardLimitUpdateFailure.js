@@ -117,10 +117,10 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	_renderCardLimitsUpdateFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="${this.limitType} card limits not updated" 
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
 				image="/images/cards-unsuccesful-limit-update.svg"
@@ -133,7 +133,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 					</section>
 
 					${this._getSubTitle()}
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 

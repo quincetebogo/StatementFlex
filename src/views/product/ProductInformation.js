@@ -87,6 +87,9 @@ export class ProductInformation extends ViewBase {
 	async _viewBenefits() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}${this._config.type}/`);
+
+		await super.createAndClassifySubsIncident();
+		
 		this._updateIncidentState();
 	}
 

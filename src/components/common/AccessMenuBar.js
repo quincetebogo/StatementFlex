@@ -278,4 +278,4 @@ export class AccessMenuBar extends Component {
 
 }
 
-window.customElements.define(`access-component`, AccessMenuBar);
+window.customElements.define(`horizon-access-menu-bar`, AccessMenuBar);
