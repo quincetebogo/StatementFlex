@@ -284,6 +284,7 @@ export class SearchOtherNeed extends Component {
 		return html`
 			<capitec-title-bar type="default">
 				<capitec-icon
+					data-automation-id="search-other-need-back-to-favourites"
 					size="small"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">

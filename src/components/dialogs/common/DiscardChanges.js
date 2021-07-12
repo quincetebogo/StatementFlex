@@ -186,12 +186,14 @@ export class DiscardChanges extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button 
+						data-automation-id="discard-changes-cancel"
 						id="id-cancel-button"
 						label="Cancel" 
 						@click="${() => this._onCancelClick()}">
 				</capitec-button>
 
 				<capitec-button 
+						data-automation-id="discard-changes-discard"
 						id="id-discard-button" 
 						type="primary" 
 						label="Discard" 
