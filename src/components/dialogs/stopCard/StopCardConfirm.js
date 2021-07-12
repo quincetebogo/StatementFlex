@@ -230,10 +230,8 @@ export class StopCardConfirm extends Component {
 				<capitec-button 
 					data-automation-id="stop-card-confirm-cancel"
 					type="clear" 
-					label="Cancel" 
-					@click="${() => {
-				this._onCancelClick();
-			}}">
+					label="Cancel"
+					@click="${() => this._onCancelClick()}">
 				</capitec-button>
 			
 				<capitec-button 
