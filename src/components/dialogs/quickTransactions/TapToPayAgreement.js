@@ -162,6 +162,10 @@ export class TapToPayAgreement extends Component {
 				capitec-expander-group > capitec-expander[label="View Agreement"]{
 					--theme-expander-height: 621px;
 				}
+				
+				capitec-expander[expanded] {
+					--theme-expander-background-color: #F7F7F7;
+				}
 
 				capitec-check {
 					padding-left: 16px;
