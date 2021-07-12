@@ -312,18 +312,6 @@ export class CardLimitsLanding extends Component {
 		}
 	}
 	
-	_onScroll(e) {
-		const expandersList = e.currentTarget.querySelectorAll('horizon-expander');
-
-		expandersList.forEach((expander, index) => {
-			if(e.target.scrollTop > 110 * (index + 1)) {
-				expander.expanded = false;
-			} else {
-				expander.expanded = true;
-			}
-		})
-	}
-
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -590,6 +578,9 @@ export class CardLimitsLanding extends Component {
 				capitec-label[label="Update"] {
 					text-align: end;
 					color: #009DE0;
+				}
+				bb-multi-line-label[label="N/A"] {
+					padding: 14px 16px;
 				}`
         ];
     }
@@ -610,7 +601,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-card class="center-section">
 				${this._renderTitleBar()}
-				<capitec-content-box @scroll = "${(e) => this._onScroll(e)}">
+				<capitec-content-box>
 					<capitec-expander-group modeset="multiple">
 						${this.primaryCards.length > 0 ? this._renderPrimaryCardGroup() : ``}
 						${this.virtualCards.length > 0 ? this._renderVirtualCardGroup() : ``}
@@ -725,7 +716,7 @@ export class CardLimitsLanding extends Component {
 				<capitec-label row="1" class="col1" column="1" colspan="1" rowspan="1" label="" size="4"></capitec-label>
 				<capitec-label row="1" class="col2" column="2" colspan="1" rowspan="1" label="Cash Withdrawals" size="4"></capitec-label>
 				<capitec-label row="1" class="col3" column="3" colspan="1" label="Card Machine Purchases" size="4"></capitec-label>
-				<capitec-label row="1" class="col4" column="4" colspan="1" label="Online/scan to pay/phone" size="4"></capitec-label>
+				<capitec-label row="1" class="col4" column="4" colspan="1" label="Online/Scan to Pay/Phone" size="4"></capitec-label>
 				<capitec-label row="1" class="col5" column="5" colspan="1" label="Actions" size="4"></capitec-label>
 			</capitec-group>
 		`;
@@ -785,9 +776,16 @@ export class CardLimitsLanding extends Component {
 	}
 	
 	_renderLimitsRow(card, updateType) {
+		return html`
+			${this._renderPermanentLimitsRow(card, updateType)}
+			${this._renderTemporaryLimitsRow(card, updateType)}
+		`;
+	}
+
+	_renderPermanentLimitsRow(card, updateType) {	
         const limits = card && card.cardLimits;
         const linkedLimits = card.linkedCardLimits;
-
+		
 		return html`
 			<capitec-group
 				class="columnGroup"
@@ -814,38 +812,46 @@ export class CardLimitsLanding extends Component {
 					</bb-multi-line-label>
 					${this._renderUpdateButton(LIMIT_TYPES.PERMANENT, card)}
 			</capitec-group>
-
-			<capitec-group
-				class="columnGroup"
-				layout="grid" gap="line" halign="left" valign="center"
-				columns="5" rows="1"
-				@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
-					<capitec-label
-						class="col1"
-						row="1" column="1" colspan="1" size="4"
-						label="Temporary limit">
-					</capitec-label>
-					<bb-multi-line-label
-						class="col2"
-						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, card, `tempCashLimit`)}">
-					</bb-multi-line-label>
-					<bb-multi-line-label
-						class="col3"
-						row="1" column="3" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
-					</bb-multi-line-label>
-					<bb-multi-line-label
-						class="col4"
-						row="1" column="4" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
-						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, card, `tempOnlineLimit`)}">
-					</bb-multi-line-label>
-					${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
-			</capitec-group>
 		`;
+	}
+
+	_renderTemporaryLimitsRow(card, updateType) {
+        const limits = card && card.cardLimits;
+        const linkedLimits = card.linkedCardLimits;
+		
+		return card.cardDisplayType !== CARD_DISPLAY_TYPES.VIRTUAL_CARD 
+			? html`
+				<capitec-group
+					class="columnGroup"
+					layout="grid" gap="line" halign="left" valign="center"
+					columns="5" rows="1"
+					@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
+						<capitec-label
+							class="col1"
+							row="1" column="1" colspan="1" size="4"
+							label="Temporary limit">
+						</capitec-label>
+						<bb-multi-line-label
+							class="col2"
+							row="1" column="2" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCashAmountLimit : limits.tempCashAmountLimit, card, `tempCashLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCashAmountLimit : limits.maxTemporaryCashAmountLimit, card, `tempCashLimit`)}">
+						</bb-multi-line-label>
+						<bb-multi-line-label
+							class="col3"
+							row="1" column="3" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempPurchaseAmountLimit : limits.tempPurchaseAmountLimit, card, `tempPurchaseLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryPurchaseAmountLimit : limits.maxTemporaryPurchaseAmountLimit, card, `tempPurchaseLimit`)}">
+						</bb-multi-line-label>
+						<bb-multi-line-label
+							class="col4"
+							row="1" column="4" colspan="1" size="4" rowspan="1"
+							label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.tempCnpAmountLimit : limits.tempCnpAmountLimit, card, `tempOnlineLimit`)}"
+							value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxTemporaryCnpAmountLimit : limits.maxTemporaryCnpAmountLimit, card, `tempOnlineLimit`)}">
+						</bb-multi-line-label>
+						${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
+				</capitec-group>`
+			: html ``;
 	}
 
 	_getLimitValue(value, card, id) {
@@ -865,11 +871,11 @@ export class CardLimitsLanding extends Component {
 
 		if (type === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD && (id === `permOnlineLimit` || id === `tempOnlineLimit`)) {
 			return ``;
-		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD) {
+		} else if (type === CARD_DISPLAY_TYPES.VIRTUAL_CARD && !(id === `permOnlineLimit`)) {
 			return ``;
 		}
 
-		return `max` + formatCurrency(value);
+		return `max ` + formatCurrency(value, 0);
 	}
 
 	_renderUpdateButton(type, card) {

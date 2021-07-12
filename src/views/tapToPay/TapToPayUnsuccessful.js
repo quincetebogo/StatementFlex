@@ -79,9 +79,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -132,10 +132,11 @@ export class TapToPayUnsuccessful extends ViewBase {
 	_renderTapToPayFailure() {
 		return html`
 			<horizon-error-screen 
+				data-automation-id="tap-to-pay-unsuccessful"
 				header="Tap to pay not activated" 
 				image="/images/tap-to-pay-error.svg"
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="Tap to pay not activated."
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}

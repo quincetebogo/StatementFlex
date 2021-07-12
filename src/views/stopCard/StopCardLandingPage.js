@@ -73,7 +73,7 @@ export class StopCardLandingPage extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
-			"nex-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
+			"next-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
 		});
 
 		if (stoppedCardsFailed) {
@@ -110,6 +110,7 @@ export class StopCardLandingPage extends ViewBase {
 	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
+				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">
