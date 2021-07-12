@@ -93,7 +93,7 @@ import 'app/components/common/RelatedOptions';
 		return [
 			super.styles,
 			css`
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-height:768px;
 				}
 				#id-error-msg {
@@ -121,7 +121,7 @@ import 'app/components/common/RelatedOptions';
 
 	_renderProofOfAccountFailure() {
 		return html`
-			<horizon--error-screen
+			<horizon-error-screen
 				image="/images/insure/assign-pay-arrears.svg"
 				header="Proof of account not sent" 
 				left="Done"
@@ -132,7 +132,7 @@ import 'app/components/common/RelatedOptions';
 				<section id="id-error-msg" slot="detail">
 					Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 				</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 

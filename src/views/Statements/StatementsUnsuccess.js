@@ -85,7 +85,7 @@ export class StatementsUnsuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-height:768px;
 				}
 
@@ -114,7 +114,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen
+			<horizon-error-screen
 				header="Statement not emailed"
 				image="/images/insure/assign-pay-arrears.svg"
 				left="Done"
@@ -127,7 +127,7 @@ export class StatementsUnsuccess extends ViewBase {
 						slot="detail">
 							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 					</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 
