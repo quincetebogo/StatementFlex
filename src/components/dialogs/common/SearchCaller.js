@@ -797,6 +797,7 @@ export class SearchCaller extends Component {
             case RENDER_MODE.SEARCH_CALLER:
                 return html`
 					<horizon-caller-dialog
+						data-automation-id="search-caller-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
@@ -824,11 +825,9 @@ export class SearchCaller extends Component {
     }
 
     _renderLoadingIndicator() {
-        if (!this.isBusy) {
-            return html``;
-        }
-
-        return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return this.isBusy 
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
     }
 
     _renderClientType() {
@@ -841,18 +840,21 @@ export class SearchCaller extends Component {
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
 					<capitec-radio 
 						id="capitecClient" 
+						data-automation-id="search-caller-capitec-client"
 						label="Capitec Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}"
 						row="1" column="1">
 					</capitec-radio>
 					<capitec-radio 
 						id="nonCient" 
+						data-automation-id="search-caller-non-client"
 						label="Non Client" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
                     <capitec-radio 
 						id="branch" 
+						data-automation-id="search-caller-branch"
 						label="Branch" 
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="3">
@@ -877,6 +879,7 @@ export class SearchCaller extends Component {
 						<div class="search-field-row">
 							<capitec-select 
 								id="searchType" 
+								data-automation-id="search-caller-identification-method"
 								error="${this.errMessage.searchType}"
 								label="Choose identification method"
 								class="id-options" 
@@ -889,6 +892,7 @@ export class SearchCaller extends Component {
 						<div class="search-field-row">
 							<capitec-text-field 
 								id="searchValue" 
+								data-automation-id="search-caller-value"
 								type="search" 
 								keyboardMode="numeric" 
 								label="Search" 
@@ -914,6 +918,7 @@ export class SearchCaller extends Component {
 					<div class="search-field-row">
 						<capitec-text-field
 							id="nameValue"
+							data-automation-id="search-caller-non-client-first-name"
 							label="Name"
 							hint="Required Field"
 							.value="${this.nameValue}"
@@ -925,6 +930,7 @@ export class SearchCaller extends Component {
 					<div class="search-field-row">
 						<capitec-text-field
 							id="surNameValue"
+							data-automation-id="search-caller-non-client-surname"
 							label="Surname"
 							hint="Required Field"
 							.value="${this.surNameValue}"
@@ -936,6 +942,7 @@ export class SearchCaller extends Component {
 					<div class="search-field-row">
 						<capitec-text-field
 							id="cellPhoneNumberValue"
+							data-automation-id="search-caller-non-client-telephone"
 							label="Cellphone number (optional)"
 							type="numeric"
 							.value="${this.cellPhoneNumberValue}"
@@ -956,6 +963,7 @@ export class SearchCaller extends Component {
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
+							data-automation-id="search-caller-branch-consultant-cpnumber"
 							label="CP Number"
                             type="numeric"
                             maxlength="6"
@@ -968,6 +976,7 @@ export class SearchCaller extends Component {
 					<div class="branch-field-row">
                         <capitec-text-field
                             id="consultantName"
+							data-automation-id="search-caller-branch-consultant-name"
                             label="Consultant name"
                             .value="${this.consultantName}"
                             error=${this.errMessage.consultantName}
@@ -977,6 +986,7 @@ export class SearchCaller extends Component {
 					<div class="branch-field-row" style="margin-bottom: -10px;">
 						<capitec-text-field
 							id="branchName"
+							data-automation-id="search-caller-branch-name"
 							label="Branch name"
 							.value="${this.branchName}"
                             error=${this.errMessage.branchName}
@@ -992,12 +1002,14 @@ export class SearchCaller extends Component {
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
 					<capitec-radio
 						id="clientPresent"
+						data-automation-id="search-caller-branch-client-present"
 						label="Client present"
 						@value-changed="${(e) => this._inBranch(e)}"
 						row="1" column="1">
 					</capitec-radio>
 					<capitec-radio 
 						id="clientNotPresent" 
+						data-automation-id="search-caller-branch-client-not-present"
 						label="Client not present" 
 						@value-changed="${(e) => this._inBranch(e)}"
 						row="1" column="2">
@@ -1013,7 +1025,11 @@ export class SearchCaller extends Component {
         if (this.errMessage.inBranch) {
             return html`
                 <div>
-                    <capitec-alert-banner type="unsuccessful-red" label="Please choose an option"></capitec-alert-banner>
+                    <capitec-alert-banner 
+						data-automation-id="search-caller-in-branch-alert"
+						type="unsuccessful-red" 
+						label="Please choose an option">
+					</capitec-alert-banner>
                 </div>
             `;
         }
@@ -1021,10 +1037,13 @@ export class SearchCaller extends Component {
     }
 
     _renderAlertBanner() {
-
         if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
             return html`
-				<capitec-alert-banner type="unsuccessful-red" label="${this.alertBannerMessage}"></capitec-alert-banner>
+				<capitec-alert-banner 
+					data-automation-id="search-caller-alert-message"
+					type="unsuccessful-red" 
+					label="${this.alertBannerMessage}">
+				</capitec-alert-banner>
 			`;
         }
         return html``;
@@ -1034,6 +1053,7 @@ export class SearchCaller extends Component {
         return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
+					data-automation-id="search-caller-search-client"
 					type="primary"
 					@click="${(e) => this._onSearchClient(e)}"
 					label="Search Client"
@@ -1041,6 +1061,7 @@ export class SearchCaller extends Component {
 					tabindex="5">
 				</capitec-button>
 				<capitec-button
+					data-automation-id="search-caller-continue"
 					type="primary"
 					@click="${(e) => this._onContinue(e)}"
 					label="Continue"
@@ -1048,6 +1069,7 @@ export class SearchCaller extends Component {
 					tabindex="6">
 				</capitec-button>
                 <capitec-button
+					data-automation-id="search-caller-search-branch"
 					type="primary"
 					@click="${(e) => this._searchBranch(e)}"
 					label="Search client"

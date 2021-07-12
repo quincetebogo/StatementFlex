@@ -141,7 +141,7 @@ export class CallerDialog extends Component {
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
-						data-automation-id="caller-dialog-end=call"
+						data-automation-id="caller-dialog-end-call"
 						style="visibility:${!this.displayButton ? `hidden` : `visible`}" 
 						label="End Call"
 						@click="${() => this._onEndCall()}">

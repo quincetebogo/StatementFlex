@@ -75,7 +75,7 @@ export class XdsVerificationFailed extends ViewBase {
 				#id-error-msg {
 					width: 550px;
 				}
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-size: 889px;
 				}
 			`
@@ -96,7 +96,7 @@ export class XdsVerificationFailed extends ViewBase {
 
 	_renderXdsFailureScreen() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
 				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
@@ -105,7 +105,7 @@ export class XdsVerificationFailed extends ViewBase {
 				@left-click=${() => this._continueUnverifiedClick()}
 				@right-click=${() => super._verifyClick()}>
 				<section id="id-error-msg" slot="detail">If it's an urgent matter, please visit a branch or you can call again after 24 hours.</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 

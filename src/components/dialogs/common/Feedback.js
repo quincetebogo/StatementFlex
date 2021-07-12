@@ -1,20 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
-
-const FEEDBACK_OPTIONS = [
-	{
-		key: 0,
-		value: `Need fulfilled`
-	},
-	{
-		key: 2,
-		value: `Need was assigned/handed off`
-	},
-	{
-		key: 1,
-		value: `Need incomplete`
-	}
-];
 
 const ERROR_LIST = {
 	VALIDATION_ERROR: `Please choose an option:`
@@ -44,7 +30,6 @@ export class Feedback extends Component {
 		// VARIABLES
 		this.alertBannerMessage = ``;
 		this.selectedFeedback = -1;
-		this.selectedFeedbackText = ``;
 		this.feedbackOptions = [];
 
 		this.isBusy = false;
@@ -58,8 +43,7 @@ export class Feedback extends Component {
 		return {
 			isBusy: { attribute: false },
 			alertBannerMessage: { attribute: false },
-			selectedFeedback: { attribute: false },
-			selectedFeedbackText: { attribute: false }
+			selectedFeedback: { attribute: false }
 		};
 	}
 
@@ -86,7 +70,6 @@ export class Feedback extends Component {
 
 	_onValueChanged(event) {
 		this.selectedFeedback = event.detail.key; 
-		this.selectedFeedbackText = event.detail.value; 
 		this.alertBannerMessage = ``;
 	}
 

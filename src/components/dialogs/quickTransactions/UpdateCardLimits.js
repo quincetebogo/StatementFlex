@@ -750,10 +750,11 @@ export class UpdateCardLimits extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} Limits">
+			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} Limits" data-automation-id="update-card-limits-modal">
 				<div slot="body">
 				
 					<capitec-stepper
+						data-automation-id="update-card-limits-stepper"
 						layout="horizontal"
 						.steps="${UPDATE_LIMIT_STEPS}"
 						active-step-number="${this.renderMode}">
@@ -780,7 +781,7 @@ export class UpdateCardLimits extends Component {
 		}
 		return html`
 			<capitec-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
+				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner" data-automation-id="update-card-limits-unsuccessful-banner">
 					<capitec-label
 						label="Notify client: "
 						type="default">
@@ -794,7 +795,7 @@ export class UpdateCardLimits extends Component {
 	_renderAgreementsAlertBanner() {
 		return this.alertBannerText
 			? html`
-				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red">
+				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
 						<capitec-label
 							label="${this.alertBannerText}"
@@ -867,6 +868,7 @@ export class UpdateCardLimits extends Component {
 		return html`
 			<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
 				<capitec-label
+					data-automation-id="update-card-limits-total-daily-limits-exposure"
 					label="Total daily limit exposure"
 					class="dailyExTitle">
 				</capitec-label>
@@ -912,6 +914,7 @@ export class UpdateCardLimits extends Component {
 		return html`
 			<capitec-text-field
 				id="${cashAmountLimit}"
+				data-automation-id="update-card-limits-cash-amount"
 				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
@@ -924,6 +927,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${purchaseAmountLimit}"
+				data-automation-id="update-card-limits-purchase-amount"
 				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
@@ -936,6 +940,7 @@ export class UpdateCardLimits extends Component {
 			</capitec-text-field>
 			<capitec-text-field
 				id="${cnpAmountLimit}"
+				data-automation-id="update-card-limits-cnp-amount"
 				label="Online/scan to pay/phone (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
@@ -965,6 +970,7 @@ export class UpdateCardLimits extends Component {
 			<capitec-card>
 				<capitec-group layout="horizontal" class="toggleText" halign="left" valign="center" gap="none">
 					<capitec-label
+					data-automation-id="update-card-limits-update-tap-to-pay"
 						label="Would you like to activate your Tap to Pay?"
 						type="default">
 					</capitec-label>
@@ -976,6 +982,7 @@ export class UpdateCardLimits extends Component {
 					</capitec-label>
 					<capitec-toggle 
 						label=""
+						data-automation-id="update-card-limits-tap-to-pay-toggle"
 						@value-change="${(e) => this._toggleTapToPay(e)}"
 						?checked="${this._tapToPayStatus}">
 					</capitec-toggle>
@@ -984,6 +991,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-title-bar type="clear" label="">
 					<capitec-icon icon="status/info"></capitec-icon>
 					<capitec-label
+						data-automation-id="update-card-limits-update-tap-to-pay-banner"
 						label="Notify client: "
 						type="strong"
 						class="label-bold"
@@ -1115,6 +1123,7 @@ export class UpdateCardLimits extends Component {
 					class="back-btn"
 					type="clear" 
 					label="Back"
+					data-automation-id="update-card-limits-back"
 					@click="${() => this._back()}"
 					?hidden=${this.renderMode === RENDER_MODE.LIMITS}>
 				</capitec-button>
@@ -1122,6 +1131,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-spacer></capitec-spacer>
 				
 				<capitec-button
+					data-automation-id="update-card-limits-cancel"
 					class="cancel-btn"
 					type="clear"
 					label="Cancel"
@@ -1129,6 +1139,7 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 			
 				<capitec-button
+					data-automation-id="update-card-limits-next"
 					class="next-btn"
 					type="primary" 
 					label="Next"
@@ -1137,6 +1148,7 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 
 				<capitec-button
+					data-automation-id="update-card-limits-agree"
 					class="next-btn"
 					type="primary" 
 					label="Agree"

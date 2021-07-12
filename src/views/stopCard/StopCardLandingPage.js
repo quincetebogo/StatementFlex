@@ -1,7 +1,6 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { TelemetryStore } from 'app/store/TelemetryStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -74,7 +73,7 @@ export class StopCardLandingPage extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
-			"nex-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
+			"next-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
 		});
 
 		if (stoppedCardsFailed) {
@@ -111,6 +110,7 @@ export class StopCardLandingPage extends ViewBase {
 	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
+				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">
