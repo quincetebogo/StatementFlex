@@ -266,6 +266,7 @@ export class FavouriteTransactions extends Component {
 		if (this.displayToast) {
 			return html`
 				<capitec-toast
+					data-automation-id="favourite-transactions-verified-toast"
 					class="toast"
 					type="success"
 					header="Successful"
@@ -279,13 +280,20 @@ export class FavouriteTransactions extends Component {
 	_renderUnverifiedAlertBanner() {
 		if (this.verificationStatus === `unverified`) {
 			return html`
-				<capitec-alert-banner class="banner" type="warning">
+				<capitec-alert-banner 
+					class="banner"
+					data-automation-id="favourite-transactions-unverified-alert-banner"
+					type="warning">
 					<capitec-group id="id-notify-banner-group" layout="horizontal">
 						<capitec-label id="id-notify-client-warning" label="Notify client: "></capitec-label>
 						<capitec-label id="id-notify-client-warning-msg"
 							label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink id="id-verify-now-warning-link" label="Verify Now" @click="${() => this._verifyNowClick()}">
+						<capitec-hyperlink 
+							data-automation-id="favourite-transactions-verify"
+							id="id-verify-now-warning-link" 
+							label="Verify Now"
+							@click="${() => this._verifyNowClick()}">
 						</capitec-hyperlink>
 					</capitec-group>
 				</capitec-alert-banner>
@@ -297,9 +305,11 @@ export class FavouriteTransactions extends Component {
 	_renderFailedVerificationAlertBanner() {
 		if (this.verificationStatus === `failed`) {
 			return html`
-				<capitec-alert-banner class="banner" type="unsuccessful-red"
+				<capitec-alert-banner 
+					class="banner"
+					data-automation-id="favourite-transactions-failed-verification-alert-banner"
+					type="unsuccessful-red"
 					label="Notify client: I'm not able to access your account since you couldn't be verified. If it's an urgent matter please visit a branch, or you can call again after 24 hours.">
-				</capitec-alert-banner>
 				</capitec-alert-banner>
 			`;
 		}
@@ -311,8 +321,11 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar class="transact-title" type="default" label="Transact" style="visibility: visible;" ?hidden="${false}"></capitec-title-bar>
 				<capitec-button-bar  style="visibility: visible;" ?hidden="${false}">
-					<horizon-option-button badgeText="${pendingMandates}"
-						icon="system/debi-check-action" iconSize="default" label="DebiCheck"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-debi-check"
+						badgeText="${pendingMandates}"
+						icon="system/debi-check-action" iconSize="default"
+						label="DebiCheck"
 						@click="${() => this._optionSelectedClick(`debi-check`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
@@ -324,16 +337,28 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Cards"></capitec-title-bar>
 				<capitec-button-bar>
-					<horizon-option-button label="Stop Card" icon="system/stop-card-action" iconSize="default"
+					<horizon-option-button
+						data-automation-id="favourite-transactions-stop-card"
+						label="Stop Card" 
+						icon="system/stop-card-action"
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`stop-card`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
-					<horizon-option-button label="Update Card Limits" icon="system/cards-action" iconSize="default"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-update-card-limits"
+						label="Update Card Limits" 
+						icon="system/cards-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`update-card-limits`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
 	                    style="visibility: visible;">
 					</horizon-option-button>
-					<horizon-option-button label="Tap to Pay" icon="system/contactless-action" iconSize="default"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-tap-to-pay"
+						label="Tap to Pay" 
+						icon="system/contactless-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`tap-to-pay`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
 	                    style="visibility: visible;"
@@ -347,16 +372,28 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Document" style="visibility: visible;"></capitec-title-bar>
 				<capitec-button-bar  style="visibility: visible;">
-					<horizon-option-button label="Statements" icon="system/documents-action" iconSize="default"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-statements"
+						label="Statements" 
+						icon="system/documents-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`statements`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
-					<horizon-option-button label="Tax Certificate" icon="system/sars-action" iconSize="default"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-tax-certificate"
+						label="Tax Certificate" 
+						icon="system/sars-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`tax-certificate`)}"
 						?disabled="${this.verificationStatus === `non-client`}"
 						style="display: none;">
 					</horizon-option-button>
-					<horizon-option-button label="Proof of Account" icon="system/documents-action" iconSize="default"
+					<horizon-option-button
+						data-automation-id="favourite-transactions-proof-of-account"
+						label="Proof of Account" 
+						icon="system/documents-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`proof-of-account`)}"
 						?disabled="${this.verificationStatus === `non-client`}">
 					</horizon-option-button>
@@ -368,7 +405,11 @@ export class FavouriteTransactions extends Component {
 		return html`
 				<capitec-title-bar type="default" label="Search other need (not on Horizon)"></capitec-title-bar>
 				<capitec-button-bar>
-					<horizon-option-button label="Search Other Need" icon="system/search-action" iconSize="default"
+					<horizon-option-button 
+						data-automation-id="favourite-transactions-search-other-need"
+						label="Search Other Need" 
+						icon="system/search-action" 
+						iconSize="default"
 						@click="${() => this._optionSelectedClick(`search-other-need`)}">
 					</horizon-option-button>
 				</capitec-button-bar>
