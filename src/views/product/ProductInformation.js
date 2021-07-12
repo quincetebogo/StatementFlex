@@ -13,7 +13,7 @@ const CONFIG = {
 	SavingsPlan: {
 		type: `save`,
 		header: `Savings Plans`,
-		product: `savings-product-info`
+		product: `savings-plan-info`
 	},
 	Insure: {
 		type: `insure`,
