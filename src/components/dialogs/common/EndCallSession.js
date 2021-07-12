@@ -139,30 +139,30 @@ export class EndCallSession extends Component {
 	}
 
 	_endCallClick() {
-		if(this.endCallReason){
-		this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
-			"screen": TelemetryScreen.END_CALL,
-			"reason": this.endCallReason.value,
-			"next-screen": TelemetryScreen.WAIT_FOR_CALL
-		});
+		if (this.endCallReason) {
+			this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
+				"screen": TelemetryScreen.END_CALL,
+				"reason": this.endCallReason.value,
+				"next-screen": TelemetryScreen.WAIT_FOR_CALL
+			});
 
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const isValid = this._validateCloseIncidentReason();
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+			const isValid = this._validateCloseIncidentReason();
 
-		// Ignoring the abandon or not started need action
-		if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
-			this._returnToCallWaitingPage();
-		} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._stopCardEndCall();
-		} else if (isValid) {
-			if (this._preventCloseOfIncident()) {
-				// Updating state as call ended and redirecting it to call waiting page
+			// Ignoring the abandon or not started need action
+			if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 				this._returnToCallWaitingPage();
-				return;
+			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+				this._stopCardEndCall();
+			} else if (isValid) {
+				if (this._preventCloseOfIncident()) {
+					// Updating state as call ended and redirecting it to call waiting page
+					this._returnToCallWaitingPage();
+					return;
+				}
 			}
 			this._closeIncident();
 		}
-	 
 	}
 
 	_valueChanged(e) {
@@ -179,19 +179,6 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
-
-	
-
-	_setDefaultValues() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const feedback = incidentDetails.feedback;
-
-		if (incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
-			this.endCallReason = ``;
-			return;
-		}
-		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
-	}
 
 	async _returnToCallWaitingPage() {
 		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
@@ -234,6 +221,8 @@ export class EndCallSession extends Component {
 		}
 		if (this.endCallReason.key === 9) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
+			// Don't close the incident if it requires follow up
+			return true;
 		}
 		// Don't close the incident the incident if
 		//    - StopCard was the need and
