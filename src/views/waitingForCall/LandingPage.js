@@ -281,11 +281,7 @@ export class LandingPage extends ViewBase {
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
 
-		if (callerInformation.verificationStatus === `non-client`) {
-			this.horizonRouter.navigateToProductInfo(`SavingsAccount`);
-		} else {
-			this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
-		}
+		this.horizonRouter.navigateToLandingPage(event.detail.incomingCallDetails.ivrOption.value, callerInformation.hasInsuranceProducts);
 	}
 
 	_otherNeedSelected(event) {
