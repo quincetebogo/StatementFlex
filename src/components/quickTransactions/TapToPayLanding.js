@@ -141,8 +141,6 @@ export class TapToPayLanding extends Component {
 		if (result) {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
-		} else {
-			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber, cardType: this.selectedCard.cardType }, `Failed to load agreements`);
 		}
 	}
 
