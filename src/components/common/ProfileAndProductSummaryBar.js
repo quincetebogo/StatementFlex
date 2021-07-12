@@ -232,6 +232,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_renderFavourites() {
 			return html`
 				<horizon-favourites-tile
+					data-automation-id="profile-and-product-summary-bar-favourites"
 					class="favourites-button"
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
