@@ -316,7 +316,8 @@ export class TapToPayLanding extends Component {
 					<capitec-icon 
 						size="small"
 						icon="system/arrow-left-action"
-						@click="${() => this._back()}">
+						@click="${() => this._back()}"
+						data-automation-id="tap-to-pay-landing-back">
 					</capitec-icon>
 					<capitec-label class="title-label" label="Tap to Pay" type="title"></capitec-label>
 				</capitec-title-bar>
@@ -348,11 +349,13 @@ export class TapToPayLanding extends Component {
 	_renderPrimaryCards() {
 
 		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && card.isContactlessCard);
-		return html`
+		return primaryCards.length > 0 
+		? html`
 			<capitec-label
 				class="primary-card-label"
 				type="title"
-				label="Primary cards">
+				label="Primary cards"
+				data-automation-id="tap-to-pay-landing-primary-cards">
 			</capitec-label>
 
 			<capitec-group
@@ -362,16 +365,17 @@ export class TapToPayLanding extends Component {
 				gap="clear"
 				layout="horizontal"
 				wrap>
-					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
-			</capitec-group>
-		`;
+					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex, `primary-card-art`))}
+			</capitec-group>`
+		: html``;
 	}
 
-	_renderPrimaryCardArt(card, index) {
+	_renderPrimaryCardArt(card, index, automationId) {
 	
 		return html`
 			<horizon-card-art
 				id="primaryCard-widget-${index}"
+				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
 				disable-hover="${true}"
 				context="tap-to-pay"
@@ -388,7 +392,8 @@ export class TapToPayLanding extends Component {
 			<capitec-label
 				class="supplementary-card-label"
 				type="title"
-				label="Supplementary cards">
+				label="Supplementary cards"
+				data-automation-id="tap-to-pay-landing-supplementary-cards">
 			</capitec-label>
 
 			<capitec-group
@@ -398,15 +403,16 @@ export class TapToPayLanding extends Component {
 				gap="clear"
 				layout="horizontal"
 				wrap>
-					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
+					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex, `supplementary-card-art`))}
 			</capitec-group>`
 		: html``;
 	}
 
-	_renderSupplementaryCardArt(card, index) {
+	_renderSupplementaryCardArt(card, index, automationId) {
 		return html`
 			<horizon-card-art
 				id="supplementaryCard-widget-${index}"
+				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
 				disable-hover="${true}"
 				context="tap-to-pay"
