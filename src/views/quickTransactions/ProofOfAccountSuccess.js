@@ -120,7 +120,7 @@ export class ProofOfAccountSuccess extends ViewBase {
 	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen
-				data-automation-id="proof-of-account-success"
+				data-automation-id="proof-of-account-success-screen"
 				header="Proof of account sent" 
 				image="/images/statements/senddocuments.svg"
 				left="Done"
