@@ -231,32 +231,36 @@ export class FavouriteTransactions extends Component {
 	_renderFavourites() {
 		if(this.verificationStatus === `non-client`) {
 			return html`
-			<capitec-card class="card">
-				<capitec-title-bar type="clear">
-					<img src="/images/transactions/fav_icon.svg">
-					<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
-				</capitec-title-bar>
-				<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-					${this._renderSearchOtherNeed()}
-				</capitec-group>
-			</capitec-card>
-		`;
-		}
-		else{
-		return html`
-				<capitec-card class="card">
+			<capitec-card 
+				data-automation-id="favourite-transactions-non-client"
+				class="card">
 					<capitec-title-bar type="clear">
 						<img src="/images/transactions/fav_icon.svg">
 						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
 					</capitec-title-bar>
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-						${this._renderUnverifiedAlertBanner()}
-						${this._renderFailedVerificationAlertBanner()}
-						${this._renderTransactSection()}
-						${this._renderCardsSection()}
-						${this._renderDocumentsSections()}
 						${this._renderSearchOtherNeed()}
 					</capitec-group>
+			</capitec-card>
+		`;
+		}
+		else{
+		return html`
+				<capitec-card 
+					data-automation-id="favourite-transactions"
+					class="card">
+						<capitec-title-bar type="clear">
+							<img src="/images/transactions/fav_icon.svg">
+							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
+						</capitec-title-bar>
+						<capitec-group layout="vertical" halign="left" valign="top" gap="none">
+							${this._renderUnverifiedAlertBanner()}
+							${this._renderFailedVerificationAlertBanner()}
+							${this._renderTransactSection()}
+							${this._renderCardsSection()}
+							${this._renderDocumentsSections()}
+							${this._renderSearchOtherNeed()}
+						</capitec-group>
 				</capitec-card>
 			`;
 		}

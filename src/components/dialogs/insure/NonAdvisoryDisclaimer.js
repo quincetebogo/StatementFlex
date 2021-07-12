@@ -146,8 +146,7 @@ export class NonAdvisoryDisclaimer extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal 
-				data-automation-id="non-advisory-disclaimer"
+			<capitec-modal
 				type="free" 
 				header-align="left">
 				<div slot="header">
@@ -180,7 +179,6 @@ export class NonAdvisoryDisclaimer extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
-					data-automation-id="non-advisory-disclaimer-got-it"
 					id="id-done-button"
 					type="primary"
 					label="Got It"

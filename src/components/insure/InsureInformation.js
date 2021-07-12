@@ -573,7 +573,6 @@ export class InsureInformation extends Component {
 					<capitec-label label="Insure" type="title"></capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-button
-						data-automation-id="insure-information-calculate-premium"
 						class="calculate-button" 
 						type="white" 
 						label="Calculate Premium"
@@ -582,17 +581,14 @@ export class InsureInformation extends Component {
 				</capitec-title-bar>
 				<capitec-tab-group class="tabs">
 					<capitec-tab 
-						data-automation-id="insure-information-benefits-tab"
 						label="Benefits">
 						${this._renderBenefitContent()}
 					</capitec-tab>
 					<capitec-tab 
-						data-automation-id="insure-information-cover-tab"
 						label="Cover">
 						${this._renderCoverContent()}
 					</capitec-tab>
 					<capitec-tab 
-						data-automation-id="insure-information-claim-tab"
 						label="Claim">
 						${this._renderClaimContent()}
 					</capitec-tab>
@@ -854,7 +850,6 @@ export class InsureInformation extends Component {
 		if (this.verificationStatus === `non-client` && this.displayNotification) {
 			return html`
 				<capitec-alert-banner 
-					data-automation-id="insure-information-non-client-banner"
 					class="info-banner" 
 					type="info" 
 					closable @click="${() => this._onCloseClick()}">
@@ -868,7 +863,6 @@ export class InsureInformation extends Component {
 		if (this.displayCoverNotification) {
 			return html`
 				<capitec-alert-banner 
-					data-automation-id="insure-information-cover-banner"
 					class="cover-banner" 
 					type="info" 
 					closable @click="${() => this._onCloseCover()}">
@@ -884,7 +878,6 @@ export class InsureInformation extends Component {
 		if (this.displayClaimNotification) {
 			return html`
 				<capitec-alert-banner 
-					data-automation-id="insure-information-claim-alert-banner"
 					class="info-banner" 
 					type="info" closable 
 					@click="${() => this._onCloseClaimAlert()}">
@@ -901,7 +894,6 @@ export class InsureInformation extends Component {
 				<capitec-alert-banner class="unverfied-caller-alert" type="warning">
 					Client has not been verified, so you are only able to see limited information.
 					<capitec-hyperlink 
-						data-automation-id="insure-information-verify-now"
 						label="Verify Now" 
 						@click="${() => this._verifyClientClick()}">
 					</capitec-hyperlink>
@@ -925,7 +917,6 @@ export class InsureInformation extends Component {
 		if (this.verificationStatus === `verified` && this.displayToast) {
 			return html`
 				<capitec-toast 
-					data-automation-id="insure-information-verified-toast"
 					class="toast" 
 					type="success" 
 					header="Successful" 
@@ -939,7 +930,6 @@ export class InsureInformation extends Component {
 		if (this.renderAlertBanner === `unverified` && this.displayToast) {
 			return html`
 				<capitec-toast 
-					data-automation-id="insure-information-unverified-toast"
 					class="toast" 
 					type="warning" 
 					header="Not Verified" 
