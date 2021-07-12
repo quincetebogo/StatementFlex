@@ -120,6 +120,7 @@ export class TapToPaySuccess extends ViewBase {
 	_renderTapToPaySuccess() {
 		return html`
 			<horizon-success-screen 
+				data-automation-id="tap-to-pay-success"
 				header="Tap to pay ${this.tapToPayStatus === `ON` ? `activated` : `deactivated`}"
 				image="/images/cards-successful-tap-to-pay.svg"
 				left="Done"

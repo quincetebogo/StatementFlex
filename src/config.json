@@ -43,6 +43,7 @@
 		"tax-certificate": "TAX_CERTIFICATE",
 		"transaction-history": "TRANSACTION_HISTORY",
 		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS",
 		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
 		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
 		"credit-card-statements": "STATEMENTS_CC",

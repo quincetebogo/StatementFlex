@@ -316,7 +316,7 @@ export class ProofOfAccount extends Component {
 
 	_webTemplate() {
 		return html`
-		<capitec-modal type="free" header-align="left" header="Proof Of Account">
+		<capitec-modal type="free" header-align="left" data-automation-id="proof-of-account-header" header="Proof Of Account">
 			<div slot="body" class="${this.alertBannerMessage ? `err-body` : `body-class`} ">
 				${this._renderAlertBanner()}
 				${this._renderEmailFields()}
@@ -335,11 +335,13 @@ export class ProofOfAccount extends Component {
 				<capitec-alert-banner type="unsuccessful-red">
 					<capitec-group layout="horizontal">
 						<capitec-label
+							data-automation-id="proof-of-account-notify-alert-banner"
 							type="subtitle"
 							label="Notify: "
 							class="label-err-message">
 						</capitec-label>
 						<capitec-label
+							data-automation-id="proof-of-account-alert-banner"
 							label="${this.alertBannerMessage}"
 							class="label-err-message">
 						</capitec-label>
@@ -356,6 +358,7 @@ export class ProofOfAccount extends Component {
 			<div class="email-div">
 				<capitec-label class="search-label" label="Enter email address" type="title"> </capitec-label>
 				<capitec-text-field 
+					data-automation-id="proof-of-account-email"
 					class="email-text" 
 					id="idEmailAddress" 
                     oncopy="return false"
@@ -373,6 +376,7 @@ export class ProofOfAccount extends Component {
 			<div class="email-div">
 				<capitec-label class="confirm-search-label" label="Confirm email address"></capitec-label>
 				<capitec-text-field 
+					data-automation-id="proof-of-account-confirm-email"
 					class="email-text" id="idConfirmEmailAddress" 
                     oncopy="return false"
 					onpaste="return false"
@@ -391,13 +395,15 @@ export class ProofOfAccount extends Component {
 	_renderFooter() {
 		return html`
 		<capitec-group layout="horizontal">
-			<capitec-button 
+			<capitec-button
+				data-automation-id="proof-of-account-cancel"
 				id="id-cancel-button" 
 				type="clear" 
 				label="Cancel" 
 				@click="${(e) => this._cancelClick(e)}">
 			</capitec-button>
-			<capitec-button 
+			<capitec-button
+				data-automation-id="proof-of-account-send" 
 				id="id-send-button" 
 				type="primary" 
 				label="Send" 

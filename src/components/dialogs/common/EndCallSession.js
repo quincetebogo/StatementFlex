@@ -161,7 +161,7 @@ export class EndCallSession extends Component {
 					return;
 				}
 			}
-			this._closeIncident();
+			this._classifyAndClose();
 		}
 	}
 
