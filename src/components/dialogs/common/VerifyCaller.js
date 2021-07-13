@@ -71,7 +71,7 @@ export class VerifyCaller extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
@@ -136,6 +136,9 @@ export class VerifyCaller extends Component {
 		};
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
+
+		this.hasSouthAfricanID = true;
+		this.callerInformation.hasDigitalChannels = true;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
@@ -377,7 +380,7 @@ export class VerifyCaller extends Component {
 			return null;
 		}
 		try {
-			return connectionID = await this.horizonSignalRClient.getConnectionId();
+			return await this.horizonSignalRClient.getConnectionId();
 		} catch (error) {
 			this.logger.log(`error`, `Failed to obtain Connection ID`, `_initialiseSignalR`);
 			return null;
@@ -901,7 +904,7 @@ export class VerifyCaller extends Component {
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded()}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this.itaTimer}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
