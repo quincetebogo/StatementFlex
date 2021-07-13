@@ -7,6 +7,7 @@ import { ValueAddedService } from 'app/services/ValueAddedService';
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
 import 'app/components/dialogs/ValueAddedServices';
+import 'app/components/dialogs/ValueAddedServicesUnavailable';
 
 /**
  * The AccessMenuBar is the right hand menu bar / area in Horizon. This component currently houses
@@ -24,6 +25,7 @@ export class AccessMenuBar extends Component {
 		this.showAlert = false;
 		this.isBusy = false;
 		this.showValueAddedServicesModal = false;
+		this.showUnavailableVASModal = false;
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -45,7 +47,8 @@ export class AccessMenuBar extends Component {
 			isBusy: { attribute: false },
 			status: { attribute: false },
 			statusVAS: { attribute: false },
-			showValueAddedServicesModal: { attribute: false }
+			showValueAddedServicesModal: { attribute: false },
+			showUnavailableVASModal: { attribute: false }
 		};
 	}
 
@@ -85,6 +88,10 @@ export class AccessMenuBar extends Component {
 		this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 	}
 
+	_acceptUnavailableVasClick() {
+		this.showUnavailableVASModal = !this.showUnavailableVASModal;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -114,7 +121,11 @@ export class AccessMenuBar extends Component {
 		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS = returnValue.result;
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-		} else {
+		} 
+		else if (returnValue.succeeded) {
+			this.showUnavailableVASModal = !this.showUnavailableVASModal;
+		} 
+		else {
 			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
 			this.horizonRouter.navigateToSystemError();
 		}
@@ -189,7 +200,9 @@ export class AccessMenuBar extends Component {
 			</section>
 			${this.renderAccessChannelError()}
 			${this._renderLoadingIndicator()}
-			${this._renderValueAddedServicesModal()}`;
+			${this._renderValueAddedServicesModal()}
+			${this._renderUnavailableVASModal()}
+		`;
 	}
 
 	renderClientInsights() {
@@ -273,6 +286,16 @@ export class AccessMenuBar extends Component {
 				@cancel="${() => this._cancelVasClick()}"
 				@accept="${() => this._acceptVasClick()}">
 			</horizon-value-added-services>`
+		: html``;
+	}
+
+	_renderUnavailableVASModal() {
+		return this.showUnavailableVASModal
+		? html`
+			<horizon-value-added-services-unavailable
+				@accept-unavailable="${() => this._acceptUnavailableVasClick()}">
+			</horizon-value-added-services-unavailable>
+		`
 		: html``;
 	}
 
