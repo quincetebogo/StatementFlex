@@ -252,7 +252,7 @@ export class EndCallSession extends Component {
 	}
 
 	_validateCloseIncidentReason() {
-		if (isNullorEmpty(this.endCallReason)) {
+		if (isNullorEmpty(this.endCallReason.key)) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 			return false;
 		}
