@@ -59,7 +59,7 @@ export class VerifyCaller extends Component {
 		this.xdsMessage = ``;
 		this.xdsFailed = false;
 
-		this.itaInProgress = false;
+		this.itaInProgress = true;
 		this.itaTimer = null;
 		this.itaTimeout = false;
 		this.itaRejected = false;
@@ -72,7 +72,7 @@ export class VerifyCaller extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.configuration = Configuration.getInstance();
 		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.getInstance();
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag());
 	}
@@ -115,8 +115,7 @@ export class VerifyCaller extends Component {
 		super.connectedCallback();
 
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
-		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
-
+		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
 
 		// Resetting ITA & XDS attempts
 		if (!this.callerInformation.verificationAttempts) {
@@ -126,21 +125,7 @@ export class VerifyCaller extends Component {
 			};
 		}
 
-		// function for stopping the ITA timer
-		this._stopTimer = () => {
-			this._cleanupSignalRConnection();
-
-			if (this.itaTimer) {
-				clearInterval(this.itaTimer);
-				this.itaTimer = null;
-				this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
-			}
-		};
-
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
-
-		this.hasSouthAfricanID = true;
-		this.callerInformation.hasDigitalChannels = false;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
@@ -157,11 +142,11 @@ export class VerifyCaller extends Component {
 		this._stopTimer();
 		super.disconnectedCallback();
 
-		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
 
-		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
+		this.telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
 	}
@@ -170,7 +155,7 @@ export class VerifyCaller extends Component {
 	// EVENT HANDLERS
 	// --------------
 	async _securityQuestionsClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_SQ_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS
 		});
@@ -238,7 +223,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_skipClick() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_SKIP_CLICK, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": null // TODO: Determine by need and failed verification counts
 		});
@@ -273,7 +258,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_tryAgain() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_TRY_AGAIN, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_TRY_AGAIN, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.VERIFY_CALLER
 		});
@@ -294,7 +279,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_endCall() {
-		this._telemetry.logEvent(VerifyCallerEvents.ITA_END_CALL, {
+		this.telemetry.logEvent(VerifyCallerEvents.ITA_END_CALL, {
 			"screen": TelemetryScreen.VERIFY_CALLER,
 			"next-screen": TelemetryScreen.END_CALL
 		});
@@ -363,7 +348,7 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 
-		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
 
@@ -411,7 +396,7 @@ export class VerifyCaller extends Component {
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 		if (returnValue.succeeded) {
-			this._telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
 				"screen": TelemetryScreen.VERIFY_CALLER
 			});
 			
@@ -423,7 +408,7 @@ export class VerifyCaller extends Component {
 
 			this.logger.log(`info`, `ITA verification request successfully initiated`, `_itaServiceCall`);
 
-			this.itaTimer = this._startTimer();
+			this._startTimer();
 
 			return true;
 		} 
@@ -433,12 +418,17 @@ export class VerifyCaller extends Component {
 	}
 	
 	_startTimer() {
-		const startTimer = setInterval(() => {
+		if (this.itaTimer) {
+			this.logger.log(`warn`, `Attempted to start ITA Timer before the previous timer has been stopped`, `_startTimer`);
+			return this.itaTimer;
+		}
+
+		this.itaTimer = setInterval(() => {
 
 			this.seconds--;
 
 			if (this.seconds <= 0) {
-				this._telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
+				this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
 					"screen": TelemetryScreen.VERIFY_CALLER,
 					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
 				});
@@ -455,9 +445,17 @@ export class VerifyCaller extends Component {
 				}
 			}
 		}, 1000);
-
-		return startTimer;
 	}
+
+	_stopTimer() {
+		this._cleanupSignalRConnection();
+
+		if (this.itaTimer) {
+			clearInterval(this.itaTimer);
+			this.itaTimer = null;
+			this.logger.log(`info`, `ITA timer stopped`, `VerifyCaller`);
+		}
+	};
 	
 	_signalRPostEventAction(verificationStatus) {
 		this.logger.log(`info`, `ITA verification event received. Status=${verificationStatus}`, `_signalRPostEventAction`);
@@ -465,7 +463,7 @@ export class VerifyCaller extends Component {
 		this._stopTimer();
 
 		if (this._isVerified(verificationStatus)) {
-			this._telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": null // Determine by need / path its opened from
 			});
@@ -479,7 +477,7 @@ export class VerifyCaller extends Component {
 			}));
 		} else {
 			this.logger.log(`info`, `ITA SignalR event indicated that verification was rejected`, `_signalRPostEventAction`);
-			this._telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
+			this.telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
 			});
@@ -820,17 +818,17 @@ export class VerifyCaller extends Component {
 		return html`
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" 
-                                halign="stretch"
-                                valign="top" 
-                                gap="clear">
+								halign="stretch"
+								valign="top" 
+								gap="clear">
 					<capitec-alert-banner type="unsuccessful-red">
 						${this.xdsMessage}
 					</capitec-alert-banner>
 					<capitec-group layout="vertical"
-                                    halign="center"
-                                    valign="top" 
-                                    gap="clear"
-                                    id="notification-status-group">
+									halign="center"
+									valign="top" 
+									gap="clear"
+									id="notification-status-group">
 						<img src="/images/warning.svg" class="sms-svg"/>
 						<capitec-label type="title"
 							label="You've got one more attempt left. Do you want to try the security questions again?">
@@ -892,7 +890,7 @@ export class VerifyCaller extends Component {
 			</capitec-content-box>`;
 	}
 
-    _renderOtherOptions() {
+	_renderOtherOptions() {
 		return html`
 			<capitec-title-bar type="default" label="Choose another option"></capitec-title-bar>
 			<capitec-content-box id="relation-options-btn">
@@ -908,14 +906,14 @@ export class VerifyCaller extends Component {
 						label="Skip"
 						icon="system/arrow-right-action" 
 						iconSize="default"
-					    @click="${() => this._skipClick()}">
+						@click="${() => this._skipClick()}">
 					</horizon-option-button>
 					<horizon-option-button
 					  class="btnTryAgain"
 						label="Try Again" 
 						img-src="/images/insure/refresh.svg"
 						iconSize="default"
-						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this.itaTimer}
+						?hidden=${!this.callerInformation.hasDigitalChannels || this._itaAttemptsExceeded() || this._itaInProgress()}
 						@click="${() => this._tryAgain()}">
 					</horizon-option-button>
 				</capitec-group>
