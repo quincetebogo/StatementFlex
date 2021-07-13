@@ -47,17 +47,17 @@
 		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
 		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
 		"credit-card-statements": "STATEMENTS_CC",
-        "savings-account": "SAVINGS_ACCOUNT",
+		"savings-account": "SAVINGS_ACCOUNT",
 		"telephony-hung-up": "TELEPHONY_HUNG_UP",
-        "telephony-call-back": "TELEPHONY_CALL_BACK",
-        "telephony-bad-connection": "TELEPHONY_BAD_CONNECTION",
-        "telephony-disconnected": "TELEPHONY_DISCONNECTED",
-        "telephony-no-reply": "TELEPHONY_NO_REPLY",
-        "credit-card-balance": "CREDIT_CARD_BALANCE",
-        "savings-account-balance": "SAVINGS_BALANCE",
+		"telephony-call-back": "TELEPHONY_CALL_BACK",
+		"telephony-bad-connection": "TELEPHONY_BAD_CONNECTION",
+		"telephony-disconnected": "TELEPHONY_DISCONNECTED",
+		"telephony-no-reply": "TELEPHONY_NO_REPLY",
+		"credit-card-balance": "CREDIT_CARD_BALANCE",
+		"savings-account-balance": "SAVINGS_BALANCE",
 		"mobile-banking": "MOBILE_BANKING_BALANCE",
-        "transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
-        "pending-transaction-information": "SAVINGS_BLANCE_PENDING"
+		"transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
+		"pending-transaction-information": "SAVINGS_BLANCE_PENDING"
 	},
 	"mock": {
 		"enabled": true,
@@ -87,15 +87,15 @@
 			"positiveCase": true
 		},
 		"digitalVerificationChannelsAvailable": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckMandates": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"debiCheckDetails": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"cardLimits": {
@@ -103,23 +103,23 @@
 			"positiveCase": true
 		},
 		"hasInsuranceProducts": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"stopCardLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"stopCard": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": false
 		},
 		"transactionHistory": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"savingsAccountLanding": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		},
 		"tapToPayLanding": {
@@ -127,7 +127,7 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
-			"enabled": true,
+			"enabled": false,
 			"positiveCase": true
 		}
 	}

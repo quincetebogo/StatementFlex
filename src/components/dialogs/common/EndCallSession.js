@@ -44,7 +44,7 @@ export class EndCallSession extends Component {
 		super();
 
 		this.incomingCallDetails = {};
-		this.endCallReasons=[];
+		this.endCallReasons = [];
 		this.isBusy = false;
 		this.isReassigned = false;
 		this.alertBannerMessage = ``;
@@ -91,14 +91,14 @@ export class EndCallSession extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-		this.endCallReasons=END_CALL_REASONS;
-
+		
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
 			"screen": TelemetryScreen.END_CALL
 		});
 
+		this.endCallReasons = END_CALL_REASONS;
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -108,7 +108,7 @@ export class EndCallSession extends Component {
 		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
 		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
 
-		
+		this._setDefaultValues();
 	}
 
 	disconnectedCallback() {
@@ -139,7 +139,9 @@ export class EndCallSession extends Component {
 	}
 
 	_endCallClick() {
-		if (this.endCallReason) {
+		const isValid = this._validateCloseIncidentReason();
+
+		if (isValid) {
 			this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
 				"screen": TelemetryScreen.END_CALL,
 				"reason": this.endCallReason.value,
@@ -147,21 +149,20 @@ export class EndCallSession extends Component {
 			});
 
 			const incidentDetails = this.horizonStore.getIncidentDetails();
-			const isValid = this._validateCloseIncidentReason();
 
 			// Ignoring the abandon or not started need action
 			if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 				this._returnToCallWaitingPage();
 			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
 				this._stopCardEndCall();
-			} else if (isValid) {
+			} else {
 				if (this._preventCloseOfIncident()) {
 					// Updating state as call ended and redirecting it to call waiting page
 					this._returnToCallWaitingPage();
 					return;
 				}
+				this._classifyAndClose();
 			}
-			this._classifyAndClose();
 		}
 	}
 
@@ -179,6 +180,17 @@ export class EndCallSession extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_setDefaultValues() {
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const feedback = incidentDetails.feedback;
+
+		if (incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
+			this.endCallReason = {};
+			return;
+		}
+		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
+	}
 
 	async _returnToCallWaitingPage() {
 		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
@@ -513,17 +525,19 @@ export class EndCallSession extends Component {
 				label="Choose reason">
 			</capitec-label>
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
-			<div class="end-call-reason">
-			<capitec-select
-				label="Choose reason"
-				class="id-options" 
-				id-field="key"
- 				display-field="value"
-				.items=${this.endCallReasons}
-				@value-changed="${(e) => this._valueChanged(e)}"
-				tabindex=3>
-				</capitec-select>
-			</div>
+				<div class="end-call-reason">
+					<capitec-select
+						label="Choose reason"
+						class="id-options" 
+						id-field="key"
+						display-field="value"
+						.items=${this.endCallReasons}
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex=3
+						value="${this.endCallReason.value || ``}"
+						select-mode="single">
+					</capitec-select>
+				</div>
 			</capitec-group>
 		`;
 	}
