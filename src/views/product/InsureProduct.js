@@ -53,6 +53,7 @@ export class InsureProduct extends ProductPageBase {
 	_webTemplate() {
 		return html`
 			<horizon-cnet-product-info 
+				data-automation-id="insure-product"
 				viewType="insure" 
 				viewHeader="Insure"
 				@view-benefits="${() => this._viewBenefits(`insure`)}">

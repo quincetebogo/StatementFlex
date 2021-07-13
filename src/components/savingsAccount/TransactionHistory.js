@@ -373,42 +373,40 @@ export class TransactionHistory extends Component {
         }
     }
 
-    _refineSearch() {
+	_refineSearch() {
+		this.filteredData = this.transactionHistory;
 
-        this.filteredData = this.transactionHistory;     
-        if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-            const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
+		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
+			const searchText = RENDER_CHIPS[FILTER_BY.TEXT].split(` `);
 
-            const searchTextResult = searchText.map(key => {
+			const searchTextResult = searchText.map(key => {
 				if (key !== ``) {
 					if (key.startsWith(`-`)) {
-					   return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
-					} else {
-						return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 || 
-																parseFloat(item.amount).toFixed(2).startsWith(key) || 
-																((parseFloat(item.amount) * -1).toFixed(2).startsWith(key) ));
-                    }
+						return this.filteredData.filter(item => parseFloat(item.amount).toFixed(2).startsWith(key));
+					}
+					return this.filteredData.filter(item => item.description.toLowerCase().indexOf(key.toLowerCase()) !== -1 ||
+															parseFloat(item.amount).toFixed(2).startsWith(key) ||
+															(parseFloat(item.amount) * -1).toFixed(2).startsWith(key));
+			}
+				return [];
+			});
+			this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
+		}
 
-			   }
-                return [];
-            });            
-            this.filteredData = Array.from(new Set([...searchTextResult.flat()]));           
-        }
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			const startDate = new Date(Date.parse(this.startDate));
+			const endDate = new Date(Date.parse(this.endDate));
 
-        if (RENDER_CHIPS[FILTER_BY.DATE]) {
-            const startDate = new Date(Date.parse(this.startDate));
-            const endDate = new Date(Date.parse(this.endDate));
+			this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
+		}
 
-            this.filteredData = this.filteredData.filter(item => item.tranDate >= startDate && item.tranDate <= endDate); 
-        }
+		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
+			const status = RENDER_CHIPS[FILTER_BY.STATUS];
 
-        if (RENDER_CHIPS[FILTER_BY.STATUS]) {
-            const status = RENDER_CHIPS[FILTER_BY.STATUS];
-
-            this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
-        }
-        this.requestUpdate();
-    }
+			this.filteredData = this.filteredData.filter(item => item.transactionStatus === status);
+		}
+		this.requestUpdate();
+	}
 
     _formatDate(date) {
         const newdate = new Date(Date.parse(date));
@@ -618,14 +616,25 @@ export class TransactionHistory extends Component {
 					${this._renderAccountDetailsBar()}
 					${this._renderActionBar()}
 					${this._renderFilterBar()}
-				<capitec-content-box class="main-view" id = "transactions-table">
+				<capitec-content-box class="main-view" id="transactions-table">
 					${this._renderTransactionHistory()}
 				</capitec-content-box>
 				<capitec-action-bar class="load-more-bar ${this.showLoadMore ? `show-load-more` : `hide-load-more`}">
 					<capitec-spacer></capitec-spacer>
-					<capitec-button type="clear" label="Load More" @click = ${() => this._loadMoreTransactions()}></capitec-button>
+					<capitec-button
+						type="clear"
+						label="Load More"
+						@click = ${() => this._loadMoreTransactions()}
+						data-automation-id="transaction-history-load-more">
+					</capitec-button>
 					<capitec-spacer></capitec-spacer>
-					<capitec-icon class='scroll-top' size="medium" icon="system/arrow-up-action" @click = ${(e) => this._scrollToTop(e)}></capitec-icon>
+					<capitec-icon
+						class='scroll-top'
+						size="medium"
+						icon="system/arrow-up-action"
+						@click = ${(e) => this._scrollToTop(e)}
+						data-automation-id="transaction-history-scroll-top">
+					</capitec-icon>
 				</capitec-action-bar>
 				</capitec-group>
 			</capitec-card>
@@ -637,7 +646,8 @@ export class TransactionHistory extends Component {
         if (this.errorMessage) {
             return html`
 				<capitec-alert-banner
-					type="unsuccessful-red">
+					type="unsuccessful-red"
+					data-automation-id="transaction-history-alert-banner">
 						<p><b>Notify:</b> ${this.errorMessage}</p>
 				</capitec-alert-banner>`;
         }
@@ -653,7 +663,10 @@ export class TransactionHistory extends Component {
     _renderTitleBar() {
         return html`
 			<capitec-title-bar class="transaction-history-title" type="transact">
-				<img src="/images/insure/left-arrow.svg" @click="${() => this._back()}"/>
+				<img
+					src="/images/insure/left-arrow.svg"
+					@click="${() => this._back()}"
+					data-automation-id="transaction-history-back" />
 				<capitec-label 
 					label="Transaction History"
 					type="title">
@@ -667,27 +680,33 @@ export class TransactionHistory extends Component {
 			<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
 				<horizon-label
 					label="Account number"
-					value="${this.accountDetails.accountNumber}">
+					value="${this.accountDetails.accountNumber}"
+					data-automation-id="transaction-history-acc-number">
 				</horizon-label>
 				<horizon-label
 					label="Balance"
-					value="${formatCurrency(this.accountDetails.balance)}">
+					value="${formatCurrency(this.accountDetails.balance)}"
+					data-automation-id="transaction-history-acc-bal">
 				</horizon-label>
 				<horizon-label
 					label="Available balance"
-					value="${formatCurrency(this.accountDetails.availableBalance)}">
+					value="${formatCurrency(this.accountDetails.availableBalance)}"
+					data-automation-id="transaction-history-available-bal">
 				</horizon-label>
 				<horizon-label
 					label="Pending amount"
-					value="${formatCurrency(this.accountDetails.pendingAmount)}">
+					value="${formatCurrency(this.accountDetails.pendingAmount)}"
+					data-automation-id="transaction-history-pending-amount">
 				</horizon-label>
 				<horizon-label
 					label="Interest"
-					value="${this.accountDetails.interest}%">
+					value="${this.accountDetails.interest}%"
+					data-automation-id="transaction-history-acc-interest">
 				</horizon-label>
 				<horizon-label
 					label="Status"
-					value="${this.accountDetails.status}">
+					value="${this.accountDetails.status}"
+					data-automation-id="transaction-history-acc-status">
 				</horizon-label>
 			</capitec-group>
 		`;
@@ -704,7 +723,8 @@ export class TransactionHistory extends Component {
 					@value-change="${(e) => this._searchTextChange(e)}"
 					@focus="${(e) => this._searchTextFocussed(e)}"
 					@blur="${(e) => this._searchTextBlur(e)}"
-					value="${RENDER_CHIPS[FILTER_BY.TEXT]}">
+					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
+					data-automation-id="transaction-history-text-filter">
 				</capitec-text-field>
                  <capitec-date-time-picker
                     id="calendarRange"
@@ -717,8 +737,9 @@ export class TransactionHistory extends Component {
 	                inputType="calendar"
 	                outputType="string"
 	                .predefinedRanges="${this.getPredefinedDateRanges()}"
-                    @apply-clicked="${(e) => this._dateChanged(e)}">                  
-                </capitec-date-time-picker>           
+                    @apply-clicked="${(e) => this._dateChanged(e)}"
+					data-automation-id="transaction-history-date-filter">
+                </capitec-date-time-picker>
             <capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
@@ -726,7 +747,8 @@ export class TransactionHistory extends Component {
 					@focus="${(e) => this._statusFocussed(e)}"
 					@value-change = "${(e) => this._filterByStatus(e)}"
 					value = ${RENDER_CHIPS[FILTER_BY.STATUS]}
-					hint="">
+					hint=""
+					data-automation-id="transaction-status-filter">
 				</capitec-select>
 			</capitec-group>
 		`;
@@ -735,12 +757,19 @@ export class TransactionHistory extends Component {
     _renderFilterBar() {
         if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.STATUS] !== ``) {
             return html`
-				<capitec-action-bar class="filter-bar">
-					<capitec-label label = "Active filters:"></capitec-label>
-						${this._renderTextChip()}
-						${this._renderDateChip()}
-						${this._renderStatusChip()}
-					<capitec-button type="clear" label="Clear All" @click = "${() => this._clearFilters()}"></capitec-button>
+				<capitec-action-bar
+					class="filter-bar"
+					data-automation-id="transaction-history-active-filters">
+						<capitec-label label = "Active filters:"></capitec-label>
+							${this._renderTextChip()}
+							${this._renderDateChip()}
+							${this._renderStatusChip()}
+						<capitec-button
+							type="clear"
+							label="Clear All"
+							@click = "${() => this._clearFilters()}"
+							data-automation-id="transaction-history-clear-active-filters">
+						</capitec-button>
 				</capitec-action-bar>
 			`;
         }
@@ -784,62 +813,66 @@ export class TransactionHistory extends Component {
 
     _renderTransactionHistory() {
         return html`
-		<capitec-table
+			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
 				expandable="right"
 				?fixed = "${true}"
-				.expandRenderer="${(item) => this._renderExpander(item)}">
+				.expandRenderer="${(item) => this._renderExpander(item)}"
+				data-automation-id="transaction-history-table">
 					<capitec-table-column label="Transaction Date" field="transactionDate" type="date" size="156px;"></capitec-table-column>
 					<capitec-table-column label="Description" field="description" size="410px;"></capitec-table-column>
 					<capitec-table-column label="Transaction Status" field="transactionStatus" size="144px;"
-                    .renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
+					.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
 					</capitec-table-column>
 					<capitec-table-column label="Amount" field="formatedAmount" size="158px;" type="currency"></capitec-table-column>
 					<capitec-table-column label="Balance" field="formatedBalance" size="130px;" type="currency" align ="right"></capitec-table-column>
 			</capitec-table>
-
 		`;
-    }
+	}
 
-    _renderTransactionStatus(value) {
-        if (value === `Processed`) {
-            return html``;
-        }
-
-        return html`<div style = "${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
-						<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
-					</div>`;
+	_renderTransactionStatus(value) {
+		return value === `Processed`
+			? html``
+			: html`
+				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
+					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
+				</div>`;
     }
 
     _renderExpander(item) {
         return html`
 			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL).toString()}" 
-				label="Statement description: ${item.description}">
+				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
+				label="Statement description: ${item.description}"
+				data-automation-id="transaction-history-item-description">
 			</capitec-label>
 	
 			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}">
+					value = "${item.transactionType ? item.transactionType : `-`}"
+					data-automation-id="transaction-history-item-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}">
+					value = "${item.transferAccount ? item.transferAccount : `-`}"
+					data-automation-id="transaction-history-item-transfer-account">
 				</horizon-label>
-				<horizon-label 
+				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}">
+					value = "${this._formatDate(item.postingDate)}"
+					data-automation-id="transaction-history-item-posting-date">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Processed date"
-					value = "${this._formatDate(item.processDate)}">
+					value = "${this._formatDate(item.processDate)}"
+					data-automation-id="transaction-history-item-processed-date">
 				</horizon-label>
 			</capitec-group>
 
@@ -847,22 +880,26 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}">
+					value = "${item.transactionCode ? item.transactionCode : `-`}"
+					data-automation-id="transaction-history-item-code">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}">
+					value = "${item.cardNumber ? item.cardNumber : `-`}"
+					data-automation-id="transaction-history-item-card-number">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}">
+					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
+					data-automation-id="transaction-history-item-card-auth-type">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}">
+					value = "${item.journalNumber ? item.journalNumber : `-`}"
+					data-automation-id="transaction-history-item-journal-number">
 				</horizon-label>
 			</capitec-group>
 
@@ -870,22 +907,26 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Includes Vat"
-					value = "${item.includesVat ? `Yes` : `No`}">
+					value = "${item.includesVat ? `Yes` : `No`}"
+					data-automation-id="transaction-history-item-includes-vat">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}">
+					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
+					data-automation-id="transaction-history-item-terminalID">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Cash back"
-					value = "${item.cashback ? item.cashback : `-`}">
+					value = "${item.cashback ? item.cashback : `-`}"
+					data-automation-id="transaction-history-item-cashback">
 				</horizon-label>
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Branch" 
-					value = "${item.branch ? item.branch : `-`}">
+					value = "${item.branch ? item.branch : `-`}"
+					data-automation-id="transaction-history-item-branch">
 				</horizon-label>
 			</capitec-group>
 
@@ -893,7 +934,8 @@ export class TransactionHistory extends Component {
 				<horizon-label
 					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
 					label="Teller"
-					value = "${item.teller ? item.teller : `-`}">
+					value = "${item.teller ? item.teller : `-`}"
+					data-automation-id="transaction-history-item-teller">
 				</horizon-label>
 			</capitec-group>
 		`;

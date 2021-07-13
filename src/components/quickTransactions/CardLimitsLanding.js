@@ -297,7 +297,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType,
+				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
 				limitExpiryDate: this._calculateLimitExpiry(),
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
@@ -306,7 +306,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType,
+				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		}
@@ -616,6 +616,7 @@ export class CardLimitsLanding extends Component {
 		return html`
 			<capitec-title-bar class="title-bar">
 				<capitec-icon 
+					data-automation-id="card-limits-landing-back"
 					size="small"
 					icon="system/arrow-left-action"
 					@click="${() => this._back()}">
@@ -790,6 +791,7 @@ export class CardLimitsLanding extends Component {
 			<capitec-group
 				class="columnGroup"
 				layout="grid" gap="line" columns="5" rows="1" halign="left" valign="center"
+				data-automation-id="card-limits-landing-permanent-limits"
 				@click="${() => this._updateLimits(card, LIMIT_TYPES.PERMANENT, updateType)}">
 					<capitec-label class="col1" row="1" column="1" colspan="1" label="Permanent limit" size="4"></capitec-label>
 					<bb-multi-line-label
@@ -825,6 +827,7 @@ export class CardLimitsLanding extends Component {
 					class="columnGroup"
 					layout="grid" gap="line" halign="left" valign="center"
 					columns="5" rows="1"
+					data-automation-id="card-limits-landing-temporary-limits"
 					@click="${() => this._updateLimits(card, LIMIT_TYPES.TEMPORARY, updateType)}">
 						<capitec-label
 							class="col1"
