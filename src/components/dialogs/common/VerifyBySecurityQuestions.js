@@ -183,7 +183,7 @@ export class VerifyBySecurityQuestions extends Component {
 			
 			if (returnValue.succeeded) {
 				this.logger.log(`info`, `verifySecurityQuestions returned: ${returnValue.result}`);
-
+				
 				if (returnValue.result === `Authenticated`) {
 					this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 						"screen": TelemetryScreen.SECURITY_QUESTIONS,

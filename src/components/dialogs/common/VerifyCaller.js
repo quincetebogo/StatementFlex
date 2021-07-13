@@ -59,7 +59,7 @@ export class VerifyCaller extends Component {
 		this.xdsMessage = ``;
 		this.xdsFailed = false;
 
-		this.itaInProgress = true;
+		this.itaInProgress = false;
 		this.itaTimer = null;
 		this.itaTimeout = false;
 		this.itaRejected = false;
@@ -249,6 +249,7 @@ export class VerifyCaller extends Component {
 	_failedSecurityQuestions(event) {
 		this.callerInformation = event.detail.callerInformation;
 		this.xdsMessage = `Unfortunately you didn't pass the security questions.`;
+		this.renderMode = RENDER_MODE.VERIFY_CALLER;
 	}
 
 	_verifyViaApp(event) {
@@ -704,8 +705,7 @@ export class VerifyCaller extends Component {
 					@cancel="${(event) => this._cancelledSecurityQuestions(event)}"
 					@skip="${(event) => this._skippedSecurityQuestions(event)}"
 					@verified="${(event) => this._verifiedViaSecurityQuestions(event)}"
-					@failed="${(event) => this._failedSecurityQuestions(event)}"
-				></horizon-security-question>
+					@failed="${(event) => this._failedSecurityQuestions(event)}">
 				</horizon-security-question>`;
 	}
 
