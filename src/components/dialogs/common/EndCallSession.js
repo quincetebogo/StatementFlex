@@ -231,7 +231,7 @@ export class EndCallSession extends Component {
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
-		if (this.endCallReason.key === 9) {
+		if (this.endCallReason.key === 5) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
 			// Don't close the incident if it requires follow up
 			return true;
@@ -243,7 +243,7 @@ export class EndCallSession extends Component {
 		//   - StopCard was the need and
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === 1 || this.endCallReason.key === 2)))) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === 2 || this.endCallReason.key === 3)))) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
