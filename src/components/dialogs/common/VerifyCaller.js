@@ -59,6 +59,7 @@ export class VerifyCaller extends Component {
 		this.xdsMessage = ``;
 		this.xdsFailed = false;
 
+		this.itaInProgress = false;
 		this.itaTimer = null;
 		this.itaTimeout = false;
 		this.itaRejected = false;
@@ -97,6 +98,7 @@ export class VerifyCaller extends Component {
 			xdsMessage: { attribute: false }, // Set when there has been a system error with XDS
 			hasSouthAfricanID: { attribute: false },
 
+			itaInProgress: { attribute: false },
 			itaTimeout: { attribute: false },
 			seconds: { attribute: false },
 			itaRejected: { attribute: false },
@@ -138,7 +140,7 @@ export class VerifyCaller extends Component {
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
 		this.hasSouthAfricanID = true;
-		this.callerInformation.hasDigitalChannels = true;
+		this.callerInformation.hasDigitalChannels = false;
 
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
@@ -158,6 +160,7 @@ export class VerifyCaller extends Component {
 		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
+
 		this._telemetry.endSpan(VerifyCallerEvents.VERIFY_CALLER, {
 			"screen": TelemetryScreen.VERIFY_CALLER
 		});
@@ -342,10 +345,12 @@ export class VerifyCaller extends Component {
 		const signalRUrl = await this.configuration.getSetting(`signalRUrl`);
 		if (signalRUrl === ``) {
 			this.logger.log(`warn`, `ITA is not configured`, `_initiateItaVerification`);
+			this.itaInProgress = false;
 			return;
 		}
 		if (this._itaAttemptsExceeded()) {
 			this.logger.log(`error`, `Cannot initiate ITA - maximum number of attempts exceeded`, `_initiateItaVerification`);
+			this.itaInProgress = false;
 			return;
 		}
 		if (this.horizonSignalRClient) {
@@ -353,11 +358,14 @@ export class VerifyCaller extends Component {
 			return;
 		}
 
+		this.itaInProgress = true;
+
 		this.logger.log(`info`, `Initiating ITA verification`, `_initiateItaVerification`);
 		this.horizonSignalRClient = HorizonSignalRClient.getInstance();
-				this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
-					"screen": TelemetryScreen.VERIFY_CALLER
-				});
+
+		this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
+			"screen": TelemetryScreen.VERIFY_CALLER
+		});
 
 		const connectionID = await this._initialiseSignalR();
 		
@@ -403,9 +411,10 @@ export class VerifyCaller extends Component {
 		const returnValue = await this.callHandleService.itaVerification(request, (ex) => this._itaErrorHandler(ex));
 
 		if (returnValue.succeeded) {
-				this._telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
-					"screen": TelemetryScreen.VERIFY_CALLER
-				});
+			this._telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
+				"screen": TelemetryScreen.VERIFY_CALLER
+			});
+			
 			this.callerInformation.verificationAttempts.itaAttempts++;
 
 			this.itaTimeout = false;
@@ -436,7 +445,6 @@ export class VerifyCaller extends Component {
 
 				this._stopTimer();
 				
-				this.itaTimer = null;
 				this.itaTimeout = true;
 
 				// What happens when both ITA & XDS attempts are exaaused
@@ -486,6 +494,7 @@ export class VerifyCaller extends Component {
 	}
 
 	async _cleanupSignalRConnection() {
+		this.itaInProgress = false;
 		if (this.horizonSignalRClient) {
 			this.logger.log(`info`, `Stopping SignalR Connection for ITA Verification`, `_stopSignalRConnection`);
 
@@ -521,7 +530,7 @@ export class VerifyCaller extends Component {
 	}
 
 	_itaInProgress() {
-		return this.itaTimer !== null;
+		return this.itaInProgress || this.itaTimer !== null;
 	}
 
 	_pushFailed() {
@@ -766,6 +775,8 @@ export class VerifyCaller extends Component {
 			message = `The client rejected the notification`;
 		} else if (!this.callerInformation.hasDigitalChannels) {
 			message = `The client is not registered for the App/USSD`;
+		} else if (this._itaAttemptsExceeded()) {
+			message = `Maximum number of ITA Attempts reached`;
 		} else {
 			message = `The notification didn't send due to a system error.`;
 		}
