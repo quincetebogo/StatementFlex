@@ -297,7 +297,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType,
+				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
 				limitExpiryDate: this._calculateLimitExpiry(),
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
@@ -306,7 +306,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory: this._updateType,
+				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		}
