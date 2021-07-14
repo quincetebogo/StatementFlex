@@ -1,6 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { ValueAddedService } from 'app/services/ValueAddedService';
 
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
+
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
  * 
@@ -31,6 +35,8 @@ export class ValueAddedServices extends Component {
 		this.showThirdPartyAlert = false;
 
 		this.alertBannerMessage = ``;
+
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), (ex) => this._valueAddedServiceErrorHandler(ex));
 	}
@@ -69,10 +75,14 @@ export class ValueAddedServices extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
+		this._telemetry.startSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES
+		});
+
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
 		this.insightsStatus = this.statusVAS.optOutInsights;
 		this.behavioralStatus = this.statusVAS.optOutBehaviouralMarketing;
-		this.preAssessmentStatus = this.statusVAS.optOutPreAssesments;
+		this.preAssessmentStatus = this.statusVAS.optOutPreAssessments;
 		this.analysisStatus = this.statusVAS.optOutAnalysis;
 		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
 
@@ -83,11 +93,23 @@ export class ValueAddedServices extends Component {
 		this.showThirdPartyAlert = !this.thirdPartyStatus;
 	}
 
+	disconnectedCallback() {
+		this._telemetry.endSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES
+		});
+	}
+
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
 	_cancel() {
+
+		this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_CANCEL, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
@@ -97,13 +119,25 @@ export class ValueAddedServices extends Component {
 			capitecEntityId: this.capitecEntityId,
 			optOutInsights: this.insightsStatus,
 			optOutBehaviouralMarketing: this.behavioralStatus,
-			optOutPreAssesments: this.preAssessmentStatus,
+			optOutPreAssessments: this.preAssessmentStatus,
 			optOutAnalysis: this.analysisStatus,
 			optOutThirdParties: this.thirdPartyStatus
 		}
 		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(request);
 
 		if (returnValue.succeeded) {
+
+			this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_ACCEPTED, {
+				"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
+				"next-screen": TelemetryScreen.FAVOURITES,
+				"capitec-entity-id": this.capitecEntityId,
+				"insights": this.insightsStatus,
+				"behavioural-marketing": this.behavioralStatus,
+				"pre-assessments": this.preAssessmentStatus,
+				"analysis": this.analysisStatus,
+				"third-parties": this.thirdPartyStatus
+			});
+
 			this.dispatchEvent(new CustomEvent(`accept`, {}));
 		}
 	}
