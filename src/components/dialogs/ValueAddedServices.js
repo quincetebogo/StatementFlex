@@ -94,6 +94,8 @@ export class ValueAddedServices extends Component {
 	}
 
 	disconnectedCallback() {
+		super.disconnectedCallback();
+
 		this._telemetry.endSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES, {
 			"screen": TelemetryScreen.VALUE_ADDED_SERVICES
 		});

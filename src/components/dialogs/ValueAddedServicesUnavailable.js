@@ -48,6 +48,8 @@ export class ValueAddedServiceUnavailable extends Component {
 	}
 
 	disconnectedCallback() {
+		super.disconnectedCallback();
+
 		this._telemetry.endSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES_UNAVAILABLE, {
 			"screen": TelemetryScreen.VALUE_ADDED_SERVICES_UNAVAILABLE
 		});
