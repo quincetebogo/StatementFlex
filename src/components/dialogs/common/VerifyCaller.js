@@ -351,7 +351,7 @@ export class VerifyCaller extends Component {
 
 		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 			"screen": TelemetryScreen.VERIFY_CALLER
-		});
+		}, false);
 
 		const connectionID = await this._initialiseSignalR();
 		
@@ -399,7 +399,7 @@ export class VerifyCaller extends Component {
 		if (returnValue.succeeded) {
 			this.telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
 				"screen": TelemetryScreen.VERIFY_CALLER
-			});
+			}, true);
 			
 			this.callerInformation.verificationAttempts.itaAttempts++;
 
@@ -432,7 +432,7 @@ export class VerifyCaller extends Component {
 				this.telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
 					"screen": TelemetryScreen.VERIFY_CALLER,
 					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-				});
+				}, true);
 
 				this._stopTimer();
 				
@@ -467,7 +467,7 @@ export class VerifyCaller extends Component {
 			this.telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": null // Determine by need / path its opened from
-			});
+			}, true);
 			this._updateApplicationState(`verified`);
 
 			this.dispatchEvent(new CustomEvent(`verified`, {
@@ -481,7 +481,7 @@ export class VerifyCaller extends Component {
 			this.telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-			});
+			}, true);
 
 			this.itaRejected = true;
 

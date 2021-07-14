@@ -153,6 +153,7 @@ export class Favourites extends SavingsAccountBase {
 			"launch-strack-feedback": event.detail.selectedFeedback
 		});
 
+		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
 		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
 		const options = {
@@ -165,19 +166,15 @@ export class Favourites extends SavingsAccountBase {
 		
 		if (isSuccess) {
 			// Navigate to favourites landing page
-			this._updateIncidentState();
+			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+			incidentDetails.feedback = selectedOption.key;
+
+			this.horizonStore.setIncidentDetails(incidentDetails);
+
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
 		}
-	}
-
-	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-		incidentDetails.feedback = this.selectedFeedback;
-
-		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
     async _clientVerified(event) {

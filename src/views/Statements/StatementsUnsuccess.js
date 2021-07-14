@@ -62,7 +62,8 @@ export class StatementsUnsuccess extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_handoffClick() {

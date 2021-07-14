@@ -188,7 +188,7 @@ export class VerifyBySecurityQuestions extends Component {
 					this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 						"screen": TelemetryScreen.SECURITY_QUESTIONS,
 						"next-screen": null // Have to determine
-					});
+					}, true);
 
 					this.callerInformation.verificationStatus = `verified`;
 					this.dispatchEvent(new CustomEvent(`verified`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
@@ -196,14 +196,14 @@ export class VerifyBySecurityQuestions extends Component {
 					this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 						"screen": TelemetryScreen.SECURITY_QUESTIONS,
 						"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-					});
+					}, true);
 
 					this.dispatchEvent(new CustomEvent(`failed`, { detail: { incomingCallDetails: this.incomingCallDetails, callerInformation: this.callerInformation } }));
 				} else {
 					this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 						"screen": TelemetryScreen.SECURITY_QUESTIONS,
 						"next-screen": TelemetryScreen.XDS_FAILED
-					});
+					}, true);
 
 					this.logger.log(`warn`, `Caller exceeded verification attempts!`, `_verifyClick`);
 
@@ -218,7 +218,7 @@ export class VerifyBySecurityQuestions extends Component {
 				this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 					"screen": TelemetryScreen.SECURITY_QUESTIONS,
 					"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-				});
+				}, true);
 
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
 
@@ -227,7 +227,7 @@ export class VerifyBySecurityQuestions extends Component {
 				this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 					"screen": TelemetryScreen.SECURITY_QUESTIONS,
 					"next-screen": TelemetryScreen.XDS_FAILED
-				});
+				}, true);
 
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as the final failure.`, `_verifyClick`);
 
