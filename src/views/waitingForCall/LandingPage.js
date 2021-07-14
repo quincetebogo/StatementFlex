@@ -11,7 +11,6 @@ import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'platform/components/buttons/Button';
@@ -44,7 +43,7 @@ export class LandingPage extends ViewBase {
 		this.horizonViewManager = HorizonViewManager.getInstance();
 		this.desktopAgentService = DesktopAgentService.getInstance();
 		this._configuration = Configuration.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
+		this.telemetry = HorizonTelemetry.getInstance();
 
 		this.initialiseService = new InitialiseService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
 		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._landingPageErrorHandler(ex));
@@ -70,7 +69,7 @@ export class LandingPage extends ViewBase {
 			}
 		});
 
-        this.employeeId = ``;
+		this.employeeId = ``;
 	}
 
 	// ----------
@@ -93,7 +92,7 @@ export class LandingPage extends ViewBase {
 	disconnectedCallback() {
 		// Telemetry
 		// TODO: This should probably move since this point will also mark the end of the caller verification.
-		this._telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.endSpan(IDCallerEvents.IDENTIFY_CALLER);
 		// TODO: Fulfill need span should start here
 
 		// Cleanup all event aggregator and state management subscriptions;
@@ -152,10 +151,10 @@ export class LandingPage extends ViewBase {
 		 }
 
 		if (incident) {
-			await this._telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
+			await this.telemetry.logEvent(AcceptCallEvents.INCIDENT_CREATED, {
 				"incident-reference": incident.incidentNumber,
 				"incident-rec-id": incident.incidentRecId
-			});
+			}, true);
 		}
 	
 		return incident;
@@ -170,7 +169,7 @@ export class LandingPage extends ViewBase {
 		newCallInfo.incidentRecId = this.incidentDetails.incidentRecId;
 
 		// Telemetry
-		this._telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
+		this.telemetry.startSpan(IDCallerEvents.IDENTIFY_CALLER);
 
 		// If the incoming call was manually created (by pressing the search button on the agent's action bar)
 		// then we don't invoke acceptCall as this method tries to identify the incoming caller based the incoming
@@ -239,18 +238,18 @@ export class LandingPage extends ViewBase {
 		// Once the search dialogs identify a client we can go to the Confirm Caller Details Dialog
 		this.incomingCallDetails = event.detail.incomingCallDetails;
 		this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
 		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	}
 
-    _branchCaptured(event) {
-        this.incomingCallDetails = event.detail.incomingCallDetails;
-        this.confirmedCaller = event.detail.confirmedCaller;
-        this.incidentDetails = event.detail.incidentDetails;
-        this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
-        this.renderMode = RENDER_MODE.CONFIRM_CALLER;
-    }
+	_branchCaptured(event) {
+		this.incomingCallDetails = event.detail.incomingCallDetails;
+		this.confirmedCaller = event.detail.confirmedCaller;
+		this.incidentDetails = event.detail.incidentDetails;
+		this.confirmedCaller.isBranchConsultant = event.detail.isBranchConsultant;
+		this.renderMode = RENDER_MODE.CONFIRM_CALLER;
+	}
 
 	_nonClientCaptured(event) {
 		// If a non-client is calling in (determined on the general search dialog), 
@@ -271,12 +270,16 @@ export class LandingPage extends ViewBase {
 			``, // Non client relationship
 			false, // is Confirmed Client
 			`non-client`, // Verification Status
-			false,
-			false,
-			true,
-			false,
-            false,
-            event.detail.isBranchConsultant
+			false, // verification toast
+			false, // is 3rd party
+			true, // is non-client
+			false, // has insurance products
+			false, // has digital channels
+			{
+				xdsAttempts: 0,
+				itaAttempts: 0
+			},
+			event.detail.isBranchConsultant
 		);
 		this.horizonStore.setIncomingCallDetails(event.detail.incomingCallDetails);
 		this.horizonStore.setCallerInformation(callerInformation);
@@ -371,8 +374,8 @@ export class LandingPage extends ViewBase {
 					.confirmedCaller="${this.confirmedCaller}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
-                    @branch-captured="${(event) => this._branchCaptured(event)}"
-                    @non-client-captured=${event => this._nonClientCaptured(event)}>
+					@branch-captured="${(event) => this._branchCaptured(event)}"
+					@non-client-captured=${event => this._nonClientCaptured(event)}>
 				</horizon-confirm-caller-details>`;
 		}
 	}
@@ -393,7 +396,7 @@ export class LandingPage extends ViewBase {
 					.incidentDetails="${this.incidentDetails}"
 					@client-identified="${(event) => this._clientIdentified(event)}"
 					@non-client-captured="${event => this._nonClientCaptured(event)}"
-                    @branch-captured="${(event) => this._branchCaptured(event)}"
+					@branch-captured="${(event) => this._branchCaptured(event)}"
 					@stop-card-need-selected="${(event) => this._stopCardNeedSelected(event)}">
 				</horizon-search-caller>`;
 		}

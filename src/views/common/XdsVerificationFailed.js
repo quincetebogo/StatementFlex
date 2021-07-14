@@ -1,9 +1,9 @@
 import { css, html } from 'platform/elements';
-import { HorizonRouter } from 'app/shell/HorizonRouter';
-import { HorizonStore } from 'app/store/HorizonStore';
 import { ViewBase } from 'app/views/common/ViewBase';
-
 import 'app/components/common/ErrorScreen';
+
+
+const MAX_ITA_ATTEMPTS = 3;
 
 /**
  * The XDS Verification Failed screen is displayed the second time a client fails verification.
@@ -63,6 +63,14 @@ export class XdsVerificationFailed extends ViewBase {
 	// ---------
 	// RENDERING
 	// ---------
+	_itaAvailable() {
+		// itaAttempts is 0 based and is incremented on successful initiation of an ITA request
+		return this.callerInformation.hasDigitalChannels && this.callerInformation.verificationAttempts.itaAttempts < MAX_ITA_ATTEMPTS;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -99,7 +107,7 @@ export class XdsVerificationFailed extends ViewBase {
 			<horizon-error-screen 
 				header="Verification was unsuccessful" 
 				left="Continue Unverified"
-				right="${this.callerInformation.hasDigitalChannels ? `Verify Via Banking App` : ``}"
+				right="${ this._itaAvailable() ? `Verify Via Banking App` : ``}"
 				toast="Your Verification has failed."
 				image="/images/insure/assign-pay-arrears.svg"
 				@left-click=${() => this._continueUnverifiedClick()}
