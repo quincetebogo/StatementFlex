@@ -360,7 +360,7 @@ export class VerifyCaller extends Component {
 				this._telemetry.logEvent(VerifyCallerEvents.ITA_TIMEDOUT, {
 					"screen": TelemetryScreen.VERIFY_CALLER,
 					"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-				});
+				}, true);
 
 				this._stopTimer();
 				
@@ -393,7 +393,7 @@ export class VerifyCaller extends Component {
 				this.horizonSignalRClient = HorizonSignalRClient.getInstance();
 				this._telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER_ITA, {
 					"screen": TelemetryScreen.VERIFY_CALLER
-				});
+				}, false);
 
 				const connectionID = await this._initialiseSignalR();
 				if (connectionID) {
@@ -445,7 +445,7 @@ export class VerifyCaller extends Component {
 				this.logger.log(`INFO`, `ITA verification request initiated`, `_itaServiceCall`);
 				this._telemetry.logEvent(VerifyCallerEvents.ITA_REQUEST_SENT, {
 					"screen": TelemetryScreen.VERIFY_CALLER
-				});
+				}, true);
 
 				// Registering handler to perform post event action
 				await this.horizonSignalRClient.registerHandler((verificationStatus) => {
@@ -475,7 +475,7 @@ export class VerifyCaller extends Component {
 			this._telemetry.logEvent(VerifyCallerEvents.ITA_SUCCESS, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": null // Determine by need / path its opened from
-			});
+			}, true);
 
 			this._updateApplicationState(`verified`);
 
@@ -490,7 +490,7 @@ export class VerifyCaller extends Component {
 			this._telemetry.logEvent(VerifyCallerEvents.ITA_FAILED, {
 				"screen": TelemetryScreen.VERIFY_CALLER,
 				"next-screen": this.itaFailedCount >= MAX_ITA_ATTEMPTS ? TelemetryScreen.ITA_FAILED : TelemetryScreen.VERIFY_CALLER
-			});
+			}, true);
 
 			this.itaVerificationFailed = true;
 			this.itaFailedCount++;

@@ -118,9 +118,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @returns {void}
 	 */
-	async startSpan(eventName, baggage = null) {
+	async startSpan(eventName, baggage = null, systemTriggered = true) {
 
 		/**
 		 * Extracting eventName(call.id-caller.confimr-caller) into events array(['call', 'id-caller', 'confirm-caller'])
@@ -129,6 +130,7 @@ export class HorizonTelemetry extends Telemetry {
 		const events = this._extractTags(eventName);
 		const currentSpan = events[events.length - 1];
 		const currentSpanID = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		// If the specific span got intialized already, do nothing and return
 		if (currentSpanID) {
@@ -138,8 +140,8 @@ export class HorizonTelemetry extends Telemetry {
 		const spanID = await super.spanStart({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}.start-span`,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
 			parentSpan: this._getParentSpanID(eventName),
 			tags: this._extractTags(`horizon.${eventName}.start-span`),
 			traceId: this.traceId
@@ -159,9 +161,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @returns {void}
 	 */
-	async endSpan(eventName, baggage = null) {
+	async endSpan(eventName, baggage = null, systemTriggered = true) {
 
 		/**
 		 * Extracting eventName(call.id-caller) into events array(['call', 'id-caller'])
@@ -170,13 +173,14 @@ export class HorizonTelemetry extends Telemetry {
 		const events = this._extractTags(eventName);
 		const currentSpan = events[events.length - 1];
 		const spanId = this._getSpanID(currentSpan);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		if (this.traceId && spanId) {
 			await super.spanEnd({
 				baggage: this._formatBaggageDetails(baggage || []),
 				eventName: `horizon.${eventName}.end-span`,
-				eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-				eventType: TelemetryEventType.SYSTEM,
+				eventOriginator: this._eventOriginator(eventType),
+				eventType: eventType,
 				parentSpan: null,
 				spanId: spanId,
 				tags: this._extractTags(`horizon.${eventName}.end-span`),
@@ -195,9 +199,10 @@ export class HorizonTelemetry extends Telemetry {
 	 * 
 	 * @param {string} eventName Event name to start a span
 	 * @param {object} baggage Options, this generally holds details of event
+	 * @param {boolean} systemTriggered Flag to determin telemetry event type
 	 * @returns {void}
 	 */
-	async logEvent(eventName, baggage = null) {
+	async logEvent(eventName, baggage = null, systemTriggered = false) {
 
 		/**
 		 * Extracting eventName(call.incident-created) into events array(['call', 'incident-created'])
@@ -205,12 +210,13 @@ export class HorizonTelemetry extends Telemetry {
 		 */
 		const events = this._extractTags(eventName);
 		const currentSpan = this._getCurrentSpanofEvent(events);
+		const eventType = systemTriggered ? TelemetryEventType.SYSTEM : TelemetryEventType.PERSON;
 
 		await super.event({
 			baggage: this._formatBaggageDetails(baggage || []),
 			eventName: `horizon.${eventName}`,
-			eventOriginator: this._eventOriginator(TelemetryEventType.SYSTEM),
-			eventType: TelemetryEventType.SYSTEM,
+			eventOriginator: this._eventOriginator(eventType),
+			eventType: eventType,
 			parentSpan: null,
 			spanId: this._getSpanID(currentSpan),
 			tags: this._extractTags(`horizon.${eventName}`),
