@@ -173,6 +173,7 @@ export class VerifyCaller extends Component {
 			this.securityQuestions = returnValue.result;
 
 			const authHistory = this.securityQuestions.authenticationHistory;
+
 			if (authHistory) {
 				// Retreive the number of previous attemnpts (including this current attempt)
 				this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
@@ -355,7 +356,7 @@ export class VerifyCaller extends Component {
 
 		const connectionID = await this._initialiseSignalR();
 		
-		const itaNotificationSent = false;
+		let itaNotificationSent = false;
 		if (connectionID) {
 			itaNotificationSent = await this._itaServiceCall(connectionID);
 		};

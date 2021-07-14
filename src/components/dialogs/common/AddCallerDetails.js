@@ -200,7 +200,11 @@ export class AddCallerDetails extends Component {
 						true,
 						false,
 						false, // presence of insurance products not yet determined
-						false // availability of digital channels not yet determined
+						false, // availability of digital channels not yet determined
+						{
+							xdsAttempts: 0,
+							itaAttempts: 0
+						}
 					)
 				}
             }));
