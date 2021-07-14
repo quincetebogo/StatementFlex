@@ -211,7 +211,6 @@ export class VerifyBySecurityQuestions extends Component {
 					this.horizonStore.setCallerInformation(this.callerInformation);
 					this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
-					  // TODO: If ITA attmepts have been exceeded, this is the wrong thing to do
 					this.horizonRouter.navigateToXdsVerificationFailed();
 				}
 			} else if (this.callerInformation.verificationAttempts.xdsAttempts < MAX_XDS_ATTEMPTS) {
@@ -236,7 +235,6 @@ export class VerifyBySecurityQuestions extends Component {
 				this.horizonStore.setCallerInformation(this.callerInformation);
 				this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
-				// TODO: If ITA attempts have been exceeded, this is the wrong thing to do
 				this.horizonRouter.navigateToXdsVerificationFailed();
 			}
 		}

@@ -274,7 +274,6 @@ export class VerifyCaller extends Component {
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
 			this._initiateItaVerification();
 		} else {
-			// TODO: Can we get here if we hide the tryAgain button once ITA attempts are exceeded?
 			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
 			this._navigateToItaVerificationFailed();
 		}
