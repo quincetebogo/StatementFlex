@@ -123,7 +123,7 @@ export class ProofOfAccount extends Component {
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
 				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
 				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
-			});
+			}, true);
 			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
 
 			if (returnValue.succeeded) {
