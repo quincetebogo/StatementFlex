@@ -1,9 +1,9 @@
 {
-  "name": "Horizon-UI-2",
+  "name": "Horizon-UI",
   "product": "BSC-Horizon",
   "group": "G_PL_HZN_DEV",
-  "version": "1.4.5",
-  "alias": "horizon2",
+  "version": "1.4.11",
+  "alias": "horizon",
   "release": "CLIRel",
   "contractVersion": "v1",
   "serviceType": "Hosting",
