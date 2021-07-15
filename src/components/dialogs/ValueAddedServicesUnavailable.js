@@ -1,5 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { ValueAddedService } from 'app/services/ValueAddedService';
+import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
@@ -12,7 +14,6 @@ import { ValueAddedService } from 'app/services/ValueAddedService';
  * @class ValueAddedServiceUnavailable
  * @extends {Component}
  */
-
 export class ValueAddedServiceUnavailable extends Component {
 
 	// --------------
@@ -21,15 +22,13 @@ export class ValueAddedServiceUnavailable extends Component {
 
 	constructor() {
 		super();
+
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 	// -----------
 	// PROPERTIES
 	// -----------
-
-	static get properties() {
-		return {}
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES
@@ -37,6 +36,18 @@ export class ValueAddedServiceUnavailable extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
+
+		this._telemetry.startSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES_UNAVAILABLE, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES_UNAVAILABLE
+		});
+	}
+
+	disconnectedCallback() {
+		super.disconnectedCallback();
+
+		this._telemetry.endSpan(AccessMenuBarEvents.VALUE_ADDED_SERVICES_UNAVAILABLE, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES_UNAVAILABLE
+		});
 	}
 
 	// --------------
@@ -44,6 +55,12 @@ export class ValueAddedServiceUnavailable extends Component {
 	// --------------
 
 	_accept() {
+
+		this._telemetry.logEvent(AccessMenuBarEvents.VALUE_ADDED_SERVICES_UNAVAILABLE_ACCEPTED, {
+			"screen": TelemetryScreen.VALUE_ADDED_SERVICES,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.dispatchEvent(new CustomEvent(`accept-unavailable`, {}));
 	}
 

@@ -525,14 +525,14 @@ export class HorizonChannelService extends Service {
 		return this._post(url, statement, this._setToken(), `sendStatement`);
 	}
 
-    sendProofOfAccount(clientInfo) {
-        const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
-        return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
-    }
+	sendProofOfAccount(clientInfo) {
+		const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
+		return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+	}
 
-    viewProofOfAccount(clientInfo) {
-        const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
-        return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+	viewProofOfAccount(clientInfo) {
+		const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
+		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
 	// ----------
@@ -621,6 +621,25 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `incidentStatus`);
 	}
 
+	UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
+		// IncidentRecId String
+		// BranchCode String
+		const branchDetails = {
+			incidentRecId: incidentRecID,
+			branchCode: branchCode
+		};
+		const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+		return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
+	}
+
+	GetConsultantInformation(cpNumber) {
+		// cpNumber = userID
+		// CpNumber String
+		const url = `/clientcare-incident-${this._version}/user-details?` +
+			`UserID=${cpNumber}`;
+		return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
+	}
+
 	// ----------
 	// initialise
 	// ----------
@@ -696,8 +715,8 @@ export class HorizonChannelService extends Service {
 			return this._mock.transactionHistory(transactionHistoryRequest);
 		}
 
-        const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
-        `CIFNumber=${transactionHistoryRequest.cifNumber}&` +
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
+		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +
 		`StartDate=${transactionHistoryRequest.startDate}&` +
@@ -707,27 +726,7 @@ export class HorizonChannelService extends Service {
 		`MoneyType=${transactionHistoryRequest.moneyType}`;
 
 		return this._get(url, this._setToken(), `transactionHistory`);
-    }
-
-    UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
-        //IncidentRecId String
-        //BranchCode String
-        const branchDetails = {
-            incidentRecId: incidentRecID,
-            branchCode: branchCode
-        };
-        const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
-        return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
-    }
-
-    GetConsultantInformation(cpNumber) {
-        //cpNumber = userID
-        //CpNumber String
-        const url = `/clientcare-incident-${this._version}/user-details?` +
-            `UserID=${cpNumber}`;
-        return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
-    }
-
+	}
 
 	// ----------------
 	// call - ITA & XDS
@@ -737,11 +736,11 @@ export class HorizonChannelService extends Service {
 	itaVerification(request) {
 		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
-    }
+	}
 	
 	itaVerification(request) {
 		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`);
-    }
+	}
 	*/
 }

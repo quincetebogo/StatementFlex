@@ -4,13 +4,14 @@ import { AccessChannelService } from 'app/services/AccessChannelService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { ValueAddedService } from 'app/services/ValueAddedService';
+
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
 import 'app/components/dialogs/ValueAddedServices';
 import 'app/components/dialogs/ValueAddedServicesUnavailable';
 
 /**
- * The AccessMenuBar is the right hand menu bar / area in Horizon. This component currently houses
+ * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
  * Client Insights and Access Channels
  */
 export class AccessMenuBar extends Component {
@@ -96,7 +97,6 @@ export class AccessMenuBar extends Component {
 	// PUBLIC METHODS
 	// --------------
 
-
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
@@ -121,11 +121,9 @@ export class AccessMenuBar extends Component {
 		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS = returnValue.result;
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-		} 
-		else if (returnValue.succeeded) {
+		} else if (returnValue.succeeded) {
 			this.showUnavailableVASModal = !this.showUnavailableVASModal;
-		} 
-		else {
+		} else {
 			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
 			this.horizonRouter.navigateToSystemError();
 		}
@@ -192,20 +190,24 @@ export class AccessMenuBar extends Component {
 		];
 	}
 
-	render() {
+	_mobileTemplate() {
+		return _webTemplate();
+	}
+
+	_webTemplate() {
 		return html`
 			<section>
-				${this.renderClientInsights()}
-				${this.renderAccessChannelTabs()}
+				${this._renderClientInsights()}
+				${this._renderAccessChannelTabs()}
 			</section>
-			${this.renderAccessChannelError()}
+			${this._renderAccessChannelError()}
 			${this._renderLoadingIndicator()}
 			${this._renderValueAddedServicesModal()}
 			${this._renderUnavailableVASModal()}
 		`;
 	}
 
-	renderClientInsights() {
+	_renderClientInsights() {
 		return html`
 			<capitec-card class="insights-card">
 				<capitec-title-bar
@@ -231,7 +233,7 @@ export class AccessMenuBar extends Component {
 			</capitec-card>`;
 	}
 
-	renderAccessChannelTabs() {
+	_renderAccessChannelTabs() {
 		return html`
 			<capitec-group class="access-group" layout="vertical" halign="stretch" valign="top" gap="clear">
 				<capitec-label class="header-label" label="Access Channels"></capitec-label>
@@ -264,7 +266,7 @@ export class AccessMenuBar extends Component {
 		`;
 	}
 
-	renderAccessChannelError() {
+	_renderAccessChannelError() {
 		if (this.showAlert) {
 			return html`<horizon-access-channel-error @on-OK="${() => this.showAlert = false}"></horizon-access-channel-error>`;
 		}
