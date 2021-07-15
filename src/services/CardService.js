@@ -37,6 +37,7 @@ export class CardService extends ServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
+		incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({
