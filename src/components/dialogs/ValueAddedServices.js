@@ -424,7 +424,7 @@ export class ValueAddedServices extends Component {
 		return html`
 			<capitec-group layout="vertical">
 				<capitec-group class="permission-group" layout="horizontal">
-					<p class="permission-message">We may pre-assesses you in order to give you further access to products and services, limit changes, discounts and incentives <strong>(Pre-assessments)</strong> </p>
+					<p class="permission-message">We may pre-assess you in order to give you further access to products and services, limit changes, discounts and incentives <strong>(Pre-assessments)</strong> </p>
 
 					<capitec-toggle 
 							id="preAssessment"

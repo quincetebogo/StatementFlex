@@ -123,7 +123,8 @@ export class AccessMenuBar extends Component {
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
 		} else if (returnValue.succeeded) {
 			this.showUnavailableVASModal = !this.showUnavailableVASModal;
-		} else {
+		} 
+		else {
 			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
 			this.horizonRouter.navigateToSystemError();
 		}
@@ -300,6 +301,7 @@ export class AccessMenuBar extends Component {
 		`
 		: html``;
 	}
+
 }
 
 window.customElements.define(`horizon-access-menu-bar`, AccessMenuBar);
