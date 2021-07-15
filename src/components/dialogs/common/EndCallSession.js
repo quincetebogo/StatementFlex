@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, NavigationContext, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
-import { END_CALL_REASONS } from 'app/constants/EndCallReasons';
+import { END_CALL_REASON } from 'app/constants/EndCallReasons';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -98,7 +98,7 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		this.endCallReasons = END_CALL_REASONS;
+		this.endCallReasons = END_CALL_REASON.table;
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -231,7 +231,7 @@ export class EndCallSession extends Component {
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
-		if (this.endCallReason.key === 5) {
+		if (this.endCallReason.key === END_CALL_REASON.FOLLOW_UP) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
 			// Don't close the incident if it requires follow up
 			return true;
@@ -243,7 +243,7 @@ export class EndCallSession extends Component {
 		//   - StopCard was the need and
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === 2 || this.endCallReason.key === 3)))) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === END_CALL_REASON.NEED_ASSIGNED || this.endCallReason.key === END_CALL_REASON.NEED_HANDED_OFF)))) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
@@ -380,15 +380,15 @@ export class EndCallSession extends Component {
 		//    assigned was selected as an end call reason
 		//   and The incident has not been flagged as assigned
 		// then we must disallow selecting assigned as an end call reason
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2 && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_ASSIGNED && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	_selectedNeedFulfilledOnFailureToStopCards() {
-		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 	
 	_selectedNeedFulfilledAfterAssigningStoppedCards() {
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	// ---------

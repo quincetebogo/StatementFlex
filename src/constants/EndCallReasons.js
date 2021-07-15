@@ -4,55 +4,69 @@
  * @readonly
  * @enum {String} EndCallReasons
  */
-export const END_CALL_REASONS = [
-	{
-		key: 0,
-		value: `Need fulfilled`,
-		mapping: ``
-	},
-	{
-		key: 2,
-		value: `Need assigned`,
-		mapping: ``
-	},
-	{
-		key: 3,
-		value: `Need handed off`,
-		mapping: ``
-	},
-	{
-		key: 6,
-		value: `Language transfer`,
-		mapping: `telephony-disconnected`
-	},
-	{
-		key: 8,
-		value: `Call transferred`,
-		mapping: `telephony-disconnected`
-	},
-	{
-		key: 1,
-		value: `Need incomplete - bad connection`,
-		mapping: `telephony-bad-connection`
-	},
-	{
-		key: 7,
-		value: `Balance enquiry`,
-		mapping: `savings-account-balance`
-	},
-	{
-		key: 9,
-		value: `Product enquiry`,
-		mapping: ``
-	},
-	{
-		key: 4,
-		value: `Client failed verification`,
-		mapping: ``
-	},
-	{
-		key: 5,
-		value: `Follow up required`,
-		mapping: ``
-	}
-];
+
+export const END_CALL_REASON = Object.freeze({
+	NEED_FULFILLED: 0,
+	NEED_INCOMPLETE: 1,
+	NEED_ASSIGNED: 2,
+	NEED_HANDED_OFF: 3,
+	FAILED_VERIFICATION: 4,
+	FOLLOW_UP: 5,
+	LANGUAGE_TRANSFER: 6,
+	BALANCE_ENQUIRY: 7,
+	CALL_TRANSFERED: 8,
+	PRODUCT_ENQUIRY: 9,
+
+	table: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: ``
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: ``
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: ``
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-bad-connection`
+		},
+		{
+			key: BALANCE_ENQUIRY,
+			value: `Balance enquiry`,
+			mapping: `savings-account-balance`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: ``
+		},
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: ``
+		},
+		{
+			key: FOLLOW_UP,
+			value: `Follow up required`,
+			mapping: ``
+		}
+	]
+});
