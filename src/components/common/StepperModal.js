@@ -298,12 +298,14 @@ export class WizardStepperModal extends Component {
 			<div class="modal" role="dialog" aria-modal="true">
 				<div class="container">
 					<slot name="header">
-						<div class="header">
+						<div class="header"
+							data-automation-id="bb-stepper-heading">
 							${this.header}
 							${this.showEditButton 
 								? html`
 									<capitec-spacer></capitec-spacer>
 									<capitec-hyperlink
+										data-automation-id="bb-stepper-edit-click"
 										label="Edit"
 										@click="${() => this.dispatchEvent(new CustomEvent(`edit-button-click`))}"
 										class="default-size">
@@ -316,6 +318,7 @@ export class WizardStepperModal extends Component {
 						<slot name="override">
 							<div class="stepper-container">
 								<capitec-stepper
+									data-automation-id="bb-stepper-active-step"
 									layout="horizontal"
 									.steps=${this.steps}
 									active-step-number=${this.currentActiveStep + 1}>

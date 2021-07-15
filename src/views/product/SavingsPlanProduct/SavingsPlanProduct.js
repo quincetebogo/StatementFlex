@@ -69,6 +69,7 @@ export class SavingsPlanProduct extends ProductPageBase {
 
 		return html`
 			<horizon-cnet-product-info 
+				data-automation-id="savings-plan-product"
 				viewType="save" 
 				viewHeader="Savings Plans"
 				@view-benefits="${() => this._viewBenefits(`save`)}">

@@ -54,7 +54,8 @@ export class StatementsSuccess extends ViewBase {
             "screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
         });
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_sendAnotherClick() {
@@ -106,6 +107,7 @@ export class StatementsSuccess extends ViewBase {
 	_renderSuccessScreen() {
 		return html`
 			<horizon-success-screen 
+				data-automation-id="statements-success"
 				header="Statement sent" 
 				image="/images/statements/senddocuments.svg"
 				left="Done"

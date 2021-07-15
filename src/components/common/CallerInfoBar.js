@@ -118,10 +118,12 @@ export class CallerInfoBar extends Component {
 		return html`
 			<div class="call-details-bar">
 				<horizon-label
+					data-automation-id="caller-info-bar-incident-reference"
 					label="Reference Number"
 					value = "${this.incidentReferenceNumber && this.incidentReferenceNumber > 0 ? this.incidentReferenceNumber : ``}">
 				</horizon-label>
 				<horizon-select
+					data-automation-id="caller-info-bar-need"
 					label="Client Need"
 					display-field="value"
 					.items="${this.possibleNeedValues}"
@@ -130,6 +132,7 @@ export class CallerInfoBar extends Component {
 					?disabled=${!this.isNeedSelectable}>
 				</horizon-select>
 				<horizon-label
+					data-automation-id="caller-info-bar-incoming-telephone"
 					label="Incoming Number"
 					value="${this.incomingTelephoneNumber}">
 				</horizon-label>

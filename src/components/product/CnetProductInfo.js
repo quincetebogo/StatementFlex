@@ -79,12 +79,14 @@ export class CnetProductInfo extends Component {
 		return html`
 			<capitec-card class="product-info">
 			<capitec-title-bar
+				data-automation-id="cnet-product-info-title-bar"
 				type="${this.viewType}">
 					<capitec-icon
 						size="medium"
 						icon="product/${this.viewType}-white">
 					</capitec-icon>
 					<capitec-label
+						data-automation-id="cnet-product-info-title"
 						label="${this.viewHeader}"
 						type="title">
 					</capitec-label>
@@ -106,6 +108,7 @@ export class CnetProductInfo extends Component {
 							label="Want to know the benefits and fees visit the Capitec website for all info and more">
 						</capitec-label>
 						<capitec-button
+							data-automation-id="cnet-product-info-view-benefits"
 							class="benefits-button"
 							type="primary"
 							label="View Benefits"

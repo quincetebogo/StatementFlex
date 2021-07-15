@@ -109,6 +109,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_renderCardLimitsUpdateSuccess() {
 		return html`
 			<horizon-success-screen 
+				data-automation-id="card-limit-update-success-screen"
 				header="${this.limitType} card limits updated" 
 				image="/images/cards-successful-limit-update.svg"
 				left="Done"
