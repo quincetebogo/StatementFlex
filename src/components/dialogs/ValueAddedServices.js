@@ -1,9 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { ValueAddedService } from 'app/services/ValueAddedService';
-
+import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
+import { ValueAddedService } from 'app/services/ValueAddedService';
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
@@ -16,7 +15,6 @@ import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBa
  * @class ValueAddedServices
  * @extends {Component}
  */
-
 export class ValueAddedServices extends Component {
 
 	// --------------
@@ -64,8 +62,7 @@ export class ValueAddedServices extends Component {
 			preAssessmentStatus: { type: Boolean, attribute: false },
 			analysisStatus: { type: Boolean, attribute: false },
 			thirdPartyStatus: { type: Boolean, attribute: false }
-
-		}
+		};
 	}
 
 	// -------------------
@@ -124,7 +121,8 @@ export class ValueAddedServices extends Component {
 			optOutPreAssessments: this.preAssessmentStatus,
 			optOutAnalysis: this.analysisStatus,
 			optOutThirdParties: this.thirdPartyStatus
-		}
+		};
+
 		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(request);
 
 		if (returnValue.succeeded) {
@@ -154,11 +152,11 @@ export class ValueAddedServices extends Component {
 		const thirdParty = () => this._thirdPartyStatusChanged();
 
 		const toggleSwitched = {
-			'insights' : insights,
-			'behavioural' : behavioural,
-			'preAssessment' : preAssessment,
-			'analysis' : analysis,
-			'thirdParty' : thirdParty
+			'insights': insights,
+			'behavioural': behavioural,
+			'preAssessment': preAssessment,
+			'analysis': analysis,
+			'thirdParty': thirdParty
 		};
 
 		toggleSwitched[e.currentTarget.id]();

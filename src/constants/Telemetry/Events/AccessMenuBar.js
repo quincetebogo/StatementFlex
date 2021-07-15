@@ -11,10 +11,10 @@
 	VALUE_ADDED_SERVICES: `call.fulfill-need.value-added-services`,
 	VALUE_ADDED_SERVICES_UNAVAILABLE: `call.fulfill-need.value-added-services-unavailable`,
 
-	//Value Added Services - Available
+	// Value Added Services - Available
 	VALUE_ADDED_SERVICES_ACCEPTED: `call.fulfill-need.value-added-services.accepted`,
 	VALUE_ADDED_SERVICES_CANCEL: `call.fulfill-need.value-added-services.cancel`,
 
-	//Value Added Services - Unavailable
+	// Value Added Services - Unavailable
 	VALUE_ADDED_SERVICES_UNAVAILABLE_ACCEPTED: `call.fulfill-need.value-added-services-unavailable.accepted`
  };

@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
+import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
 
 /**
  * The Horizon Value Added Services dialog is used to seek permission to access client data.
@@ -14,7 +14,6 @@ import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBa
  * @class ValueAddedServiceUnavailable
  * @extends {Component}
  */
-
 export class ValueAddedServiceUnavailable extends Component {
 
 	// --------------
@@ -30,10 +29,6 @@ export class ValueAddedServiceUnavailable extends Component {
 	// -----------
 	// PROPERTIES
 	// -----------
-
-	static get properties() {
-		return {}
-	}
 
 	// -------------------
 	// LIFECYCLE OVERRIDES

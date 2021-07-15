@@ -11,7 +11,7 @@ import 'app/components/dialogs/ValueAddedServices';
 import 'app/components/dialogs/ValueAddedServicesUnavailable';
 
 /**
- * The AccessMenuBar is the right hand menu bar / area in Horizon. This component currently houses
+ * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses
  * Client Insights and Access Channels
  */
 export class AccessMenuBar extends Component {
@@ -121,11 +121,9 @@ export class AccessMenuBar extends Component {
 		if (returnValue.succeeded && returnValue.result !== ``) {
 			this.statusVAS = returnValue.result;
 			this.showValueAddedServicesModal = !this.showValueAddedServicesModal;
-		} 
-		else if (returnValue.succeeded) {
+		} else if (returnValue.succeeded) {
 			this.showUnavailableVASModal = !this.showUnavailableVASModal;
-		} 
-		else {
+		} else {
 			this.logger.log(`error`, `Failed to load Value Added Services`, `_valueAddedService`, returnValue.correlationId);
 			this.horizonRouter.navigateToSystemError();
 		}
