@@ -326,7 +326,7 @@ export class HorizonChannelService extends Service {
 
 	// addCallerDetailsRequest
 	addCallerDetails(callerData) {
-		const url = `/clientcare-call-${this._version}/caller/add-caller-details`;
+		const url = `/clientcare-card-${this._version}/caller/addcallerdetails`;
 		const model = {
 			'incomingTelephoneNumber': callerData.incomingNumber,
 			'voiceReferenceNumber': callerData.voiceReference,
