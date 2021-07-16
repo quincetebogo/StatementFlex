@@ -170,7 +170,6 @@ export class Favourites extends SavingsAccountBase {
 			incidentDetails.feedback = selectedOption.key;
 
 			this.horizonStore.setIncidentDetails(incidentDetails);
-
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;

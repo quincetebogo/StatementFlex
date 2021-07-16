@@ -50,6 +50,9 @@
     CARD_LIMITS_LANDING: `Card limits`,
     DISCARD_CHANGES: `Discard changes`,
     LIMITS_AGREEMENT: `Update Limits Agreement`,
-    UPDATE_LIMITS_OUTCOME: `Update limits outcome`
+    UPDATE_LIMITS_OUTCOME: `Update limits outcome`,
+
+	VALUE_ADDED_SERVICES: `Value Added Services`,
+	VALUE_ADDED_SERVICES_UNAVAILABLE: `Value Added Services Unavailable`
 
 };
