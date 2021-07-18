@@ -49,9 +49,9 @@ export class SystemError extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------

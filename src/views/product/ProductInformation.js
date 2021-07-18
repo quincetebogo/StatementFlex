@@ -112,10 +112,10 @@ export class ProductInformation extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
