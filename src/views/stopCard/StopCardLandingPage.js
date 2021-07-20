@@ -74,8 +74,8 @@ export class StopCardLandingPage extends ViewBase {
 		this.horizonStore.setScreenDetails(screenDetails);
 		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME, { 
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
-			"nex-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
-		});
+			"next-screen": stoppedCardsFailed ? OutcomeScreen.FAIL : OutcomeScreen.SUCCESS
+		}, true);
 
 		if (stoppedCardsFailed) {
 			this.horizonRouter.navigateToStopCardFailed();

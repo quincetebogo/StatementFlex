@@ -247,6 +247,14 @@ export class ViewBase extends View {
 		});
 	}
 
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+
+	async createAndClassifySubsIncident(incidentCategorization) {
+		await super.createAndClassifySubsIncident(() => this._toggleBusyFlag(), incidentCategorization);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------

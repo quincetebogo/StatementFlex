@@ -1,4 +1,5 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service Methods for Quick Transactions
@@ -24,7 +25,9 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.favouritesLanding(clientInfo), `favouritesLanding`, errorHandler, autoRetries);
 	}
 
-	sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async sendStatement(statement, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.sendStatement(statement), `sendStatement`, errorHandler, autoRetries);
 	}
 
@@ -40,9 +43,11 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.getCardLimits(cardDetails), `getCardLimits`, errorHandler, autoRetries);
 	}
 
-    sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-        return this.wrapCall(this.channelService.sendProofOfAccount(clientInfo), `sendProofOfAccount`, errorHandler, autoRetries);
-    }
+	async sendProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		
+		return this.wrapCall(this.channelService.sendProofOfAccount(clientInfo), `sendProofOfAccount`, errorHandler, autoRetries);
+	}
 
     viewProofOfAccount(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
         return this.wrapCall(this.channelService.viewProofOfAccount(clientInfo), `viewProofOfAccount`, errorHandler, autoRetries);
@@ -60,7 +65,9 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.tapToPayAgreement(agreementInfo), `tapToPayAgreement`, errorHandler, autoRetries);
 	}
 
-	updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updateTapToPay(acceptTapToPay, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.updateTapToPay(acceptTapToPay), `updateTapToPay`, errorHandler, autoRetries);
 	}
 
@@ -68,11 +75,15 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.getCardLimitsAgreement(cardDetails), `getCardLimitsAgreement`, errorHandler, autoRetries);
 	}
 
-	updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updatePermanentLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.updatePermanentLimits(request), `updatePermanentLimits`, errorHandler, autoRetries);
 	}
 
-	updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async updateTemporaryLimits(request, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.updateTemporaryLimits(request), `updateTemporaryLimits`, errorHandler, autoRetries);
 	}
 

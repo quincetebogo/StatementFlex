@@ -31,14 +31,28 @@ export class SystemError extends ViewBase {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
+	async connectedCallback() {
 		super.connectedCallback();
+		await super.createAndClassifySubsIncident();
 
+		this._updateIncidentState();
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
+
+	// N/A
+
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_updateIncidentState() {
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
+	}
 
 	// ---------
 	// RENDERING

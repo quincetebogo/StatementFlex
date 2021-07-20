@@ -79,9 +79,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -94,9 +94,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -135,7 +135,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 				header="Tap to pay not activated" 
 				image="/images/tap-to-pay-error.svg"
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="Tap to pay not activated."
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}

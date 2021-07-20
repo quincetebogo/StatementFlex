@@ -280,7 +280,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": null, //Have to determine
-		});
+		}, true);
 
 		this.callerInformation.verificationStatus = `verified`;
 		this.dispatchEvent(new CustomEvent(`verified`, {
@@ -304,7 +304,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": TelemetryScreen.SECURITY_QUESTIONS_FAILURE
-		});
+		}, true);
 
 		this.renderMode = RENDER_MODE.FIRST_FAILURE;
 		this.noOfXdsVerificationAttempted++;
@@ -314,7 +314,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_FAILED, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
 			"next-screen": TelemetryScreen.XDS_FAILED
-		});
+		}, true);
 
 		this.noOfXdsVerificationAttempted++;
 		this.callerInformation.verificationStatus = `failed`;

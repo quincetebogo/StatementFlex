@@ -62,7 +62,8 @@ export class StatementsUnsuccess extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
 			"nextScreen": TelemetryScreen.FAVOURITES
 		});
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_handoffClick() {
@@ -71,9 +72,9 @@ export class StatementsUnsuccess extends ViewBase {
 			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 

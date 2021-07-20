@@ -82,7 +82,7 @@ export const tapToPayMixin = {
 		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME, {
 			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			"next-screen": eventData.detail.success ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
-		});
+		}, true);
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.tapToPayDetails = eventData.detail.tapToPayDetails;
