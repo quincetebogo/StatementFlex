@@ -72,7 +72,7 @@ export class ValueAddedServices extends Component {
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
 		this.insightsStatus = this.statusVAS.optOutInsights;
 		this.behavioralStatus = this.statusVAS.optOutBehaviouralMarketing;
-		this.preAssessmentStatus = this.statusVAS.optOutPreAssesments;
+		this.preAssessmentStatus = this.statusVAS.OptOutPreAssessments;
 		this.analysisStatus = this.statusVAS.optOutAnalysis;
 		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
 
@@ -97,7 +97,7 @@ export class ValueAddedServices extends Component {
 			capitecEntityId: this.capitecEntityId,
 			optOutInsights: this.insightsStatus,
 			optOutBehaviouralMarketing: this.behavioralStatus,
-			optOutPreAssesments: this.preAssessmentStatus,
+			OptOutPreAssessments: this.OptOutPreAssessments,
 			optOutAnalysis: this.analysisStatus,
 			optOutThirdParties: this.thirdPartyStatus
 		}

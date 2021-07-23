@@ -245,7 +245,7 @@ export class HorizonChannelService extends Service {
 						`CapitecEntityId=${request.capitecEntityId}&` +
 						`OptOutInsights=${request.optOutInsights}&` +
 						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
-						`optOutPreAssesments=${request.optOutPreAssesments}&` +
+						`OptOutPreAssessments=${request.OptOutPreAssessments}&` +
 						`optOutAnalysis=${request.optOutAnalysis}&` +
 						`optOutThirdParties=${request.optOutThirdParties}&`;
 
