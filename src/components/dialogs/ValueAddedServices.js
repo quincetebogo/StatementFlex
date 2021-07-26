@@ -24,15 +24,15 @@ export class ValueAddedServices extends Component {
 
 		this.isBusy = false;
 
-		this.showInsightsAlert = false;
-		this.showBehavioralAlert = false;
-		this.showPreAssessmentAlert = false;
-		this.showAnalysisAlert = false;
-		this.showThirdPartyAlert = false;
+		this.optOutInsights = false;
+		this.optOutBehaviouralMarketing = false;
+		this.optOutPreAssessments = false;
+		this.optOutAnalysis = false;
+		this.optOutThirdParties = false;
 
 		this.alertBannerMessage = ``;
 
-		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), (ex) => this._valueAddedServiceErrorHandler(ex));
+		this.valueAddedService = new ValueAddedService(() => this._toggleBusyFlag(), () => this._valueAddedServiceErrorHandler());
 	}
 
 	// -----------
@@ -44,22 +44,16 @@ export class ValueAddedServices extends Component {
 			statusVAS: { type: Object },
 
 			isBusy: { attribute: false },
-			showInsightsAlert: { attribute: false },
-			showBehavioralAlert: { attribute: false },
-			showPreAssessmentAlert: { attribute: false },
-			showAnalysisAlert: { attribute: false },
-			showThirdPartyAlert: { attribute: false },
 
 			alertBannerMessage: { type: String },
 
 			capitecEntityId: { type: String, attribute: false },
-			insightsStatus: { type: Boolean, attribute: false },
-			behavioralStatus: { type: Boolean, attribute: false },
-			preAssessmentStatus: { type: Boolean, attribute: false },
-			analysisStatus: { type: Boolean, attribute: false },
-			thirdPartyStatus: { type: Boolean, attribute: false }
-
-		}
+			optOutInsights: { type: Boolean, attribute: false },
+			optOutBehaviouralMarketing: { type: Boolean, attribute: false },
+			optOutPreAssessments: { type: Boolean, attribute: false },
+			optOutAnalysis: { type: Boolean, attribute: false },
+			optOutThirdParties: { type: Boolean, attribute: false }
+		};
 	}
 
 	// -------------------
@@ -70,17 +64,11 @@ export class ValueAddedServices extends Component {
 		super.connectedCallback();
 
 		this.capitecEntityId = this.statusVAS.capitecEntityId;
-		this.insightsStatus = this.statusVAS.optOutInsights;
-		this.behavioralStatus = this.statusVAS.optOutBehaviouralMarketing;
-		this.preAssessmentStatus = this.statusVAS.optOutPreAssessments;
-		this.analysisStatus = this.statusVAS.optOutAnalysis;
-		this.thirdPartyStatus = this.statusVAS.optOutThirdParties;
-
-		this.showInsightsAlert = !this.insightsStatus;
-		this.showBehavioralAlert = !this.behavioralStatus;
-		this.showPreAssessmentAlert = !this.preAssessmentStatus;
-		this.showAnalysisAlert = !this.analysisStatus;
-		this.showThirdPartyAlert = !this.thirdPartyStatus;
+		this.optOutInsights = this.statusVAS.optOutInsights;
+		this.optOutBehaviouralMarketing = this.statusVAS.optOutBehaviouralMarketing;
+		this.optOutPreAssessments = this.statusVAS.optOutPreAssessments;
+		this.optOutAnalysis = this.statusVAS.optOutAnalysis;
+		this.optOutThirdParties = this.statusVAS.optOutThirdParties;
 	}
 
 	// --------------
@@ -95,11 +83,11 @@ export class ValueAddedServices extends Component {
 
 		const request = {
 			capitecEntityId: this.capitecEntityId,
-			optOutInsights: this.insightsStatus,
-			optOutBehaviouralMarketing: this.behavioralStatus,
-			OptOutPreAssessments: this.preAssessmentStatus,
-			optOutAnalysis: this.analysisStatus,
-			optOutThirdParties: this.thirdPartyStatus
+			optOutInsights: this.optOutInsights,
+			optOutBehaviouralMarketing: this.optOutBehaviouralMarketing,
+			optOutPreAssessments: this.optOutPreAssessments,
+			optOutAnalysis: this.optOutAnalysis,
+			optOutThirdParties: this.optOutThirdParties
 		};
 		
 		const returnValue = await this.valueAddedService.putValueAddedServiceStatus(request);
@@ -119,11 +107,11 @@ export class ValueAddedServices extends Component {
 		const thirdParty = () => this._thirdPartyStatusChanged();
 
 		const toggleSwitched = {
-			'insights' : insights,
-			'behavioural' : behavioural,
-			'preAssessment' : preAssessment,
-			'analysis' : analysis,
-			'thirdParty' : thirdParty
+			'insights': insights,
+			'behavioural': behavioural,
+			'preAssessment': preAssessment,
+			'analysis': analysis,
+			'thirdParty': thirdParty
 		};
 
 		toggleSwitched[e.currentTarget.id]();
@@ -137,7 +125,7 @@ export class ValueAddedServices extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_valueAddedServiceErrorHandler(ex) {
+	_valueAddedServiceErrorHandler() {
 		this.alertBannerMessage = `System error. Please try again.`;
 	}
 
@@ -146,28 +134,23 @@ export class ValueAddedServices extends Component {
 	}
 
 	_insightsStatusChanged() {
-		this.insightsStatus = !this.insightsStatus;
-		this.showInsightsAlert = !this.showInsightsAlert;
+		this.optOutInsights = !this.optOutInsights;
 	}
 
 	_behavioralStatusChanged() {
-		this.behavioralStatus = !this.behavioralStatus;
-		this.showBehavioralAlert = !this.showBehavioralAlert;
+		this.optOutBehaviouralMarketing = !this.optOutBehaviouralMarketing;
 	}
 
 	_preAssessmentStatusChanged() {
-		this.preAssessmentStatus = !this.preAssessmentStatus;
-		this.showPreAssessmentAlert = !this.showPreAssessmentAlert;
+		this.optOutPreAssessments = !this.optOutPreAssessments;
 	}
 
 	_analysisStatusChanged() {
-		this.analysisStatus = !this.analysisStatus;
-		this.showAnalysisAlert = !this.showAnalysisAlert;
+		this.optOutAnalysis = !this.optOutAnalysis;
 	}
 
 	_thirdPartyStatusChanged() {
-		this.thirdPartyStatus = !this.thirdPartyStatus;
-		this.showThirdPartyAlert = !this.showThirdPartyAlert;
+		this.optOutThirdParties = !this.optOutThirdParties;
 	}
 
 	// ---------
@@ -344,7 +327,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle
 							id="insights" 
 							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${this.insightsStatus}">
+							?checked="${!this.optOutInsights}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderInsightsAlert()}
@@ -353,7 +336,7 @@ export class ValueAddedServices extends Component {
 	}
 
 	_renderInsightsAlert() {
-		return this.showInsightsAlert
+		return this.optOutInsights
 		? html`
 			<capitec-alert-banner type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised insights to bank better by paying less in fees and earning more in interest.</strong></p>
@@ -370,7 +353,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="behavioural"
 							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${this.behavioralStatus}">
+							?checked="${!this.optOutBehaviouralMarketing}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderBehavioralAlert()}
@@ -379,7 +362,7 @@ export class ValueAddedServices extends Component {
 	}
 
 	_renderBehavioralAlert() {
-		return this.showBehavioralAlert
+		return this.optOutBehaviouralMarketing
 		? html`
 			<capitec-alert-banner type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on products and services that may help you to improve your financial life.</strong></p>
@@ -396,7 +379,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="preAssessment"
 							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${this.preAssessmentStatus}">
+							?checked="${!this.optOutPreAssessments}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderPreAssessmentAlert()}
@@ -405,7 +388,7 @@ export class ValueAddedServices extends Component {
 	}
 
 	_renderPreAssessmentAlert() {
-		return this.showPreAssessmentAlert
+		return this.optOutPreAssessments
 		? html`
 			<capitec-alert-banner type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer give you personalised information on increased credit offers, discounts and incentives that may save you money in order to live better.</strong></p>
@@ -422,7 +405,7 @@ export class ValueAddedServices extends Component {
 					<capitec-toggle 
 							id="analysis"
 							@value-change=${(e) => this._toggleValue(e)}
-							?checked="${this.analysisStatus}">
+							?checked="${!this.optOutAnalysis}">
 					</capitec-toggle>
 				</capitec-group>
 				${this._renderAnalysisAlert()}
@@ -431,7 +414,7 @@ export class ValueAddedServices extends Component {
 	}
 
 	_renderAnalysisAlert() {
-		return this.showAnalysisAlert
+		return this.optOutAnalysis
 		? html`
 			<capitec-alert-banner type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer use your personalised information to improve our products to suit your needs and to help you to improve your financial life.</strong></p>
@@ -450,7 +433,7 @@ export class ValueAddedServices extends Component {
 				<capitec-toggle
 						id="thirdParty"
 						@value-change=${(e) => this._toggleValue(e)}
-						?checked="${this.thirdPartyStatus}">
+						?checked="${!this.optOutThirdParties}">
 				</capitec-toggle>
 			</capitec-group>
 			${this._renderThirdPartyAlert()}
@@ -459,7 +442,7 @@ export class ValueAddedServices extends Component {
 	}
 
 	_renderThirdPartyAlert() {
-		return this.showThirdPartyAlert
+		return this.optOutThirdParties
 		? html`
 			<capitec-alert-banner type="warning">
 				<p class="permission-alert"><strong>Notify client: We will no longer share your information with Third Parties or within the Capitec Group to provide you with new/improved products and services, and/or personalised offers that may help you to improve your financial life</strong></p>
