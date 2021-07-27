@@ -98,21 +98,7 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const confirmedCaller = {
-			idNumber: this.callerInformation.southAfricanIDNumber,
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-			incidentRecId: this.incidentDetails.incidentRecId,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-			nonClientFullName: this.callerInformation.nonClientFullName,
-			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
-			nonClientRelationship: this.callerInformation.nonClientRelationship
-		};
-
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, (ex) => this._stopCardErrorHandler());
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler());
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();

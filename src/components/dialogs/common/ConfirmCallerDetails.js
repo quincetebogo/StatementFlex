@@ -175,29 +175,30 @@ export class ConfirmCallerDetails extends Component {
         }
     }
 
-    _confirmClick() {
-            this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
-                "screen": TelemetryScreen.CONFIRM_CALLER,
-                "next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
-                "confirmed-primary-need": null,
-                "confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
-                "confirmed-client-cif": this.callerInformation.cifNumber
-            });
-        if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
-            const stopCard = () => this._navigateToLandingPage();
-            const productEnquiry = () => this._navigateToLandingPage();
-            const transact = () => this._verifyCaller();
+	_confirmClick() {
+		this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+			"screen": TelemetryScreen.CONFIRM_CALLER,
+			"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
+			"confirmed-primary-need": null,
+			"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
+			"confirmed-client-cif": this.callerInformation.cifNumber
+		});
 
-            const clientNeed = {
-                StopCard: stopCard,
-                ProductEnquiry: productEnquiry,
-                Transact: transact
-            };
-            clientNeed[this.incomingCallDetails.ivrOptionCode]();     
-        } else {
-            this._navigateToLandingPage();
-        }    
-    }
+		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
+			const stopCard = () => this._navigateToLandingPage();
+			const productEnquiry = () => this._navigateToLandingPage();
+			const transact = () => this._verifyCaller();
+
+			const clientNeed = {
+				StopCard: stopCard,
+				ProductEnquiry: productEnquiry,
+				Transact: transact
+			};
+			clientNeed[this.incomingCallDetails.ivrOptionCode]();
+		} else {
+			this._navigateToLandingPage();
+		}
+	}
 
     async _verifyCaller() {
         if (await this._setAvailabilityFlags()) {
@@ -330,86 +331,73 @@ export class ConfirmCallerDetails extends Component {
 	// --------------
 
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
-    _initCallerInformation() {
-        // This is the callerInformation object that will be persisted to state.   
-        this.callerInformation = new CallerInformation(
-            this.confirmedCaller.cifNumber, // cif
-            this.confirmedCaller.birthdate, // birthdate
-            this.confirmedCaller.languagePreference, // languagePreference
-            this.confirmedCaller.livesIn, // livesIn
-            this.confirmedCaller.name, // name
-            this.confirmedCaller.southAfricanIDNumber, // SA id
-            this.confirmedCaller.verifiedTelephoneNumber, // verified number
-            ``, // nonclient firstname
-            ``, // nonclient surname
-            ``, // nonclient fullname
-            ``, // nonclient cellphone
-            ``, // nonclient ID number
-            ``, // nonclient relationship
-            true, // isConfirmed
-            `unverified`, // verificationStatus
-            false, // verificationToastDisplayed
-            false, // isThirdParty
-            false, // isNonClient
-            false, // hasInsuranceProducts
-            false, // hasDigitalChannels
-            0, // verificationAttempts
-            this.confirmedCaller.isBranchConsultant, // isBranchConsultant
-            this.confirmedCaller.isClientPresent // isClientPresent
-        );
-    }
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+	_initCallerInformation() {
+		// This is the callerInformation object that will be persisted to state.   
+		this.callerInformation = new CallerInformation(
+			this.confirmedCaller.cifNumber, // cif
+			this.confirmedCaller.birthdate, // birthdate
+			this.confirmedCaller.languagePreference, // languagePreference
+			this.confirmedCaller.livesIn, // livesIn
+			this.confirmedCaller.name, // name
+			this.confirmedCaller.southAfricanIDNumber, // SA id
+			this.confirmedCaller.verifiedTelephoneNumber, // verified number
+			``, // nonclient firstname
+			``, // nonclient surname
+			``, // nonclient fullname
+			``, // nonclient cellphone
+			``, // nonclient ID number
+			``, // nonclient relationship
+			true, // isConfirmed
+			`unverified`, // verificationStatus
+			false, // verificationToastDisplayed
+			false, // isThirdParty
+			false, // isNonClient
+			false, // hasInsuranceProducts
+			false, // hasDigitalChannels
+			0, // verificationAttempts
+			this.confirmedCaller.isBranchConsultant, // isBranchConsultant
+			this.confirmedCaller.isClientPresent // isClientPresent
+		);
+	}
 
-    async _navigateToLandingPage() {
-        if (!await this._setAvailabilityFlags()) {
-            // The channel service calls to set the availability flags failed.
-            // Do nothing here. The error handler for the channel service calls will do the necessary.
-            return;
-        }
+	async _navigateToLandingPage() {
+		if (!await this._setAvailabilityFlags()) {
+			// The channel service calls to set the availability flags failed.
+			// Do nothing here. The error handler for the channel service calls will do the necessary.
+			return;
+		}
 
-        if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
-            const confirmedCaller = {
-                idNumber: this.callerInformation.southAfricanIDNumber,
-                incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-                ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-                incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-                incidentRecId: this.incidentDetails.incidentRecId,
-                agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-                nonClientFullName: this.callerInformation.nonClientFullName,
-                nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-                nonClientIDNumber: ``,
-                nonClientRelationship: this.callerInformation.nonClientRelationship
-            };
+		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
+			
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
 
-            const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+			if (!returnValue.succeeded) {
+				// The error handler will take over. We don't need to do anything more in this routine
+				return;
+			}
 
-            if (!returnValue.succeeded) {
-                // The error handler will take over. We don't need to do anything more in this routine
-                return;
-            }
+			const screenDetails = this.horizonStore.getScreenDetails();
+			screenDetails.cards = returnValue.result && returnValue.result.cards;
+			this.horizonStore.setScreenDetails(screenDetails);
+		};
 
-            const screenDetails = this.horizonStore.getScreenDetails();
-            screenDetails.cards = returnValue.result && returnValue.result.cards;
-            this.horizonStore.setScreenDetails(screenDetails);
-        };
+		this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
+	}
 
-        this.horizonRouter.navigateToLandingPage(this.incomingCallDetails.ivrOption.value, this.callerInformation.hasInsuranceProducts);
-    }
+	async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
+		const InsuranceCientInfo = {
+			IdNumber: southAfricanIDNumber,
+			CifNumber: cifNumber,
+			isCallerVarified: isCallerVerified
+		};
 
-    async _checkForInsuranceProducts(southAfricanIDNumber, cifNumber, isCallerVerified) {
-        const InsuranceCientInfo = {
-            IdNumber: southAfricanIDNumber,
-            CifNumber: cifNumber,
-            isCallerVarified: isCallerVerified
-        };
+		const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
 
-        const returnValue = await this.insureService.hasInsuranceProducts(InsuranceCientInfo);
-
-        return returnValue.result.hasInsurance;
-    }
+		return returnValue.result.hasInsurance;
+	}
 
     async _setAvailabilityFlags() {
         let flagsSet = false;
