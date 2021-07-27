@@ -9,6 +9,7 @@ import { html } from 'platform/elements';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
 
 /**
  * A sub-base class of viewbase for Favourites & Savings account landing pages 
@@ -114,13 +115,16 @@ export class SavingsAccountBase extends ViewBase {
 				"next-screen": TelemetryScreen.DEBICHECK
 			});
 
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.mandateId = event.detail.mandateId;
-			this.horizonStore.setScreenDetails(screenDetails);
 
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+            this.mandateId = event.detail.mandateId;
+            this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
+			//const screenDetails = this.horizonStore.getScreenDetails();
+			//screenDetails.mandateId = event.detail.mandateId;
+			//this.horizonStore.setScreenDetails(screenDetails);
 
-			this.horizonRouter.navigateToDebiCheckSuccess();
+			//this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+
+			//this.horizonRouter.navigateToDebiCheckSuccess();
 		} else if (event.detail.action === `viewInfo`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 				"screen": TelemetryScreen.DEBICHECK,
@@ -147,6 +151,20 @@ export class SavingsAccountBase extends ViewBase {
 		this.mandateId = event.detail.mandateId;
 
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+    }
+
+    //TODO: implement approve call when done (not decline)
+    async _approveDebiCheckMandate(event) {
+		//this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
+		//	"screen": TelemetryScreen.DECLINE_DEBICHECK,
+		//	"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
+		//});
+
+		//this.mandateId = event.detail.mandateId;
+
+		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -244,6 +262,7 @@ export class SavingsAccountBase extends ViewBase {
 			${this._renderStatementsModal()}
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckApproveMandate()}
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${super._webTemplate()}
@@ -283,6 +302,15 @@ export class SavingsAccountBase extends ViewBase {
 					@cancel="${() => this._cancelDeclineMandate()}"
 					@decline="${(event) => this._declineDebiCheckMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
+			: html``;
+    }
+
+    _renderDebiCheckApproveMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE 
+			? html`
+				<horizon-approve-debicheck-mandate
+					mandateId="${this.mandateId}">
+				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
 

@@ -17,7 +17,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 656,
 			"mandateName": "DISCLIFE 5130111776-21",
-			"mandateStatus": "Pending"
+			"mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 1,
@@ -29,7 +29,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 5656.00,
 			"mandateName": "DISCLIFE 5130111776-21",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "ACTIVE"
 		},
 		{
 			"mandateId": 2,
@@ -41,7 +41,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 299.00,
 			"mandateName": "TELKOMMOB15922277090232",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 3,
@@ -53,7 +53,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 1299.00,
 			"mandateName": "VODACOM 0340833372 1000",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "INACTIVE"
 		},
 		{
 			"mandateId": 4,
@@ -65,7 +65,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 3450.00,
 			"mandateName": "BMWFINANCE 989800101333",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "SUSPENDED"
 		},
 		{
 			"mandateId": 5,
@@ -77,7 +77,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 1200.00,
 			"mandateName": "FNBRVLLOAN4000069539246",
-			"mandateStatus": "Expired"
+            "mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 6,
@@ -89,7 +89,7 @@ export const mockMandates = {
 			},
 			"maxCollectionAmount": 1200.00,
 			"mandateName": "MTN",
-			"mandateStatus": "Declined"
+            "mandateStatus": "PENDING"
 		}
 	]
 };

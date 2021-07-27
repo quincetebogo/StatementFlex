@@ -10,6 +10,7 @@ const FILTER_BY = {
 };
 
 const MANDATE_STATUS = {
+    //ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
 	ACTIVE: `Accepted`,
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
@@ -538,15 +539,8 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status, mandateId, registerId) {
-		return html`<capitec-label type="subtitle"
-									label="View Info"
-									style="${TABLE_ROW_CELL_CSS.cellButton}"
-									@click="${() => this._viewInfo(mandateId, registerId)}">
-					 </capitec-label>
-					 `;
-
-			/* Remove approve/decline buttons as this functionality is now part of release 2
-			  html`<capitec-label type="subtitle"
+        return status == 'PENDING'
+            ? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._decline(mandateId)}">
@@ -555,8 +549,12 @@ export class DebiCheckMandates extends Component {
 					 				label="Approve"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
 									@click="${() => this._approve(mandateId)}">
+					 </capitec-label>`
+            : html`<capitec-label type="subtitle"
+	    				label="View Info"
+						style="${TABLE_ROW_CELL_CSS.cellButton}"
+						@click="${() => this._viewInfo(mandateId, registerId)}">
 					 </capitec-label>`;
-			*/
 	}
 
 	_renderNoResults() {

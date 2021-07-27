@@ -1,4 +1,6 @@
 import { Component, css, html } from 'platform/elements';
+import 'platform/components/popups/Modal';
+import { DateTime } from 'luxon';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
 
@@ -23,11 +25,11 @@ export class ApproveDebiCheckMandate extends Component {
         this.referenceNumber = `998877665544`; //mandateInfo.contractReference
         this.fullName = `Mr Ivan Makatini`;
         this.installmentAmount = 5656.00; //mandateSummaryList.amount
-        this.firstCollectionDate = new Date();//mandateInfo.firstCollectionDate  .substring(0, 10);
+        this.firstCollectionDate = new Date().toISOString().substr(0, 10);//mandateInfo.firstCollectionDate  .substring(0, 10);
         this.collectionDateFrequency = `month`;//mandateSummaryList.collectionDate.frequency
         this.accountNumber = `1164116973`;
         this.shortName = `Mr I. Makatini`;
-        this.today = new Date();
+        this.today = new Date().toISOString().substr(0, 10);
         this.emailAddress = `ivanmakatini@email.com`; //QUESTION location? state?
         this.alertMessage = MESSAGE;
         this.error = false;
@@ -117,25 +119,22 @@ export class ApproveDebiCheckMandate extends Component {
 				capitec-expander-group > capitec-expander {
 					border: 1px solid #E1E1E1;
 					border-radius: 4px;
+                    margin-bottom: 8px;
 
-					--theme-expander-indicator-width: 13px;
-					//--theme-expander-indicator-height: 7px;
+					--theme-expander-indicator-width: 13px;			
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
 					--theme-expander-header-font-color: #3A3A3A;
-					--theme-container-padding-left: 0px;
+					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
-					--theme-container-padding-bottom: 0px;
 					--theme-expander-height: auto;
 				}
 
 				capitec-expander-group > capitec-expander > capitec-content-box {
 				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 13px;
+				--theme-container-padding-top: 16px;
 				--theme-container-padding-right: 16px;
-				--theme-container-padding-bottom: 0px;
-				--theme-layout-gap-spacing: 18px
                 }
 
 				capitec-check {
@@ -145,21 +144,48 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-label-font-weight: 500;
 					--theme-label-font-color: #3A3A3A;
 				}
+				capitec-card {
+					justify-content: center;
+					margin-bottom: 13px;
 
-			.agreement-content {
-				color: #3A3A3A;
-				font-family: "Hind Vadodara";
-				font-size: 16px;
-			}
-			.agreement-content > ol {
-				margin: 0px;
-				padding-left: 20px;
-			}
-			.agreement-content > ol > li {
-				padding-left: 10px;
-			}
-                
-            `
+					--theme-card-min-height: 48px;
+				}
+			    .agreement-content {
+			    	color: #3A3A3A;
+			    	font-family: "Hind Vadodara";
+			    	font-size: 16px;
+			    }
+			    .agreement-content > ol {
+			    	margin: 0px;
+			    	padding-left: 20px;
+                    margin-bottom: 40px;
+			    }
+			    .agreement-content > ol > li {
+			    	padding-left: 15px;
+                    margin-bottom: 14px; 
+			    }
+                .declaration-content{
+			    	padding-bottom: 0px;
+			    	color: #3A3A3A;
+			    	font-family: "Hind Vadodara";
+			    	font-size: 16px;
+			    }
+			    .declaration-content > ol {
+			    	margin: 0px;
+			    	padding-left: 20px;
+                    margin-bottom: 40px;
+			    }
+                .declaration-content > ol > li {
+			    	padding-left: 10px;
+                    margin-bottom: 14px; 
+                    margin-top: 8px;
+			    }
+                .cb-yesno{
+                    margin-top:14px;
+                }
+
+                    
+                `
         ];
     }
 
@@ -204,15 +230,15 @@ export class ApproveDebiCheckMandate extends Component {
             <capitec-expander-group modeset="single">
 				<capitec-expander
 				expandbuttonalignment="left"
-				label="View Agreement"
-                .expanded="true">
+				label="Agreement"
+                .expanded=${true}>
 					<!--INSERT AGREEMENT TEXT CS CALL-->
                     ${this._renderAgreementContent()}
 				</capitec-expander>
 
 				<capitec-expander
 				expandbuttonalignment="left"
-				label="Update Card Limits">
+				label="Declaration">
 					<!--INSERT DECLARATION TEXT CS CALL-->	
                     ${this._renderDeclarationContent()}
 				</capitec-expander>
@@ -224,45 +250,40 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderAgreementContent() {
         return html`
-			<capitec-content-box>
-				<div class="agreement-content">
-                    Thank you, ${this.fullName}. We confirm that you agree to the following:
-				</div>
-				<div class="agreement-content">
+			<capitec-content-box class="agreement-content">
+
+                    <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
+
 					<ol>
-						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number ${this.referenceNumber} </li>
-						<li>Please take note that your instalment of ${this.installmentAmount} will be deducted from your nominated bank account every ${this.collectionDateFrequency}, starting on ${this.firstCollectionDate} and a last amount of ${this.installmentAmount}. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
+						<li>Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency}</strong>, starting on <strong>${this.firstCollectionDate}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
                             Do you understand and accept this? </br>
                             ${this._renderYesNo(1)}</li>
-						<li>The payments will be made by early debit order against your nominated account number ${this.accountNumber} with Capitec Bank Limited, ${this.shortName}.</br>
+						<li>The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>.</br>
                             Do you agree with this?
                             ${this._renderYesNo(2)}</li>
 						<li>The permission for the bank to collect instalments in the credit agreement will also apply to the agreement we now make. Do you understand and accept what I have read to you?
                             ${this._renderYesNo(3)}</li>
 					</ol>
-				</div>
+
 			</capitec-content-box>            
         `;
     }
 
     _renderDeclarationContent() {
         return html`
-			<capitec-content-box>
-				<div class="agreement-content">
-                    Thank you, ${this.fullName}. We confirm and acknowledge that:
-				</div>
-				<div class="agreement-content">
+			<capitec-content-box  class="declaration-content">
+                   <strong> Thank you, ${this.fullName}. We confirm and acknowledge that:</strong>
 					<ol>
 						<li>Do you hereby authorise the bank to debit your account? </br>
                             ${this._renderYesNo(4)}</li>
 						<li>Please note that if we're unable to collect any instalment(s) from your account in accordance with what we have agreed to on this call, then such payment(s) may be subject to a tracking process, whereby we will attempt to collect the instalment(s) from your account over a tracking period. </li>
 						<li>If you have an issue with any debit order made against your account, you may dispute it in line with the rules of the Payments Association of South Africa. </li>
 						<li>You confirm that all the details you have provided on this call are correct. </li>
-						<li>Written confirmation of what we agreed today will be emailed to: ${this.emailAddress} </li>
-						<li>Please note that the Mandate Reference Number is ${this.mandateId} </li>
-						<li>Date: ${this.today} </li>
+						<li>Written confirmation of what we agreed today will be emailed to: <strong>${this.emailAddress}</strong> </li>
+						<li>Please note that the Mandate Reference Number is <strong>${this.mandateId}</strong> </li>
+						<li>Date: <strong>${this.today}</strong> </li>
 					</ol>
-				</div>
 
 				<capitec-card>
 					<capitec-check
@@ -276,6 +297,7 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderYesNo(row) {
         return html`
+			<div class="cb-yesno">            
             	<capitec-radio-group>
 					<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
 						<capitec-radio
@@ -290,6 +312,7 @@ export class ApproveDebiCheckMandate extends Component {
 						</capitec-radio>
 					</capitec-group>
 				</capitec-radio-group>
+			</div>            
         `;
     }
 
@@ -299,7 +322,7 @@ export class ApproveDebiCheckMandate extends Component {
             <capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
 					@click="${(e) => this._cancelClick(e)}"
-					label="Search Client">
+					label="Cancel">
 				</capitec-button>
 				<capitec-button
 					type="primary"
