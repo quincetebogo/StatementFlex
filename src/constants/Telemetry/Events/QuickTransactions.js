@@ -108,7 +108,11 @@
 	DEBICHECK_DECLINE_MANDATE: `call.fulfill-need.debicheck.decline-mandate`,
 	DEBICHECK_DECLINE_MANDATE_CANCEL: `call.fulfill-need.debicheck.decline-mandate.cancel`,
 	DEBICHECK_DECLINE_MANDATE_CONFIRM: `call.fulfill-need.debicheck.decline-mandate.confirm`,
-	DEBICHECK_APPROVE_MANDATE: `call.fulfill-need.debicheck.approve-mandate`
+	DEBICHECK_APPROVE_MANDATE: `call.fulfill-need.debicheck.approve-mandate`,
 	// Yet to confiure events for Debi check mandates approve and outcome screens
 	// It can be done when we implement those feature
+
+	// Tax Certificate
+	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
+	TAX_CERTIFICATE_OUTCOME_HANDOFF: `call.fulfill-need.tax-certificate.outcome.hand-off`,
  };
