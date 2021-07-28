@@ -6,9 +6,9 @@
 		{
 			"type": "shell",
 			"label": "run",
-			"command": "C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.4.1\\cli\\ocwp",
+			"command": "C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.5.0\\cli\\ocwp",
 			"args": [
-				"C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.4.1\\cli",
+				"C:\\Capitec\\PlatformSDKs\\CLIRuntimes\\ocwp\\runtime\\1.5.0\\cli",
 				"run",
 				"--port",
 				"62000"
