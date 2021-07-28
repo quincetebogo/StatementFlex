@@ -1,6 +1,7 @@
 import { css, html } from 'platform/elements';
 import { isNullorEmpty, isWellFormedSouthAfricanID } from 'app/utils/channelServiceUtilities';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
+import { FEEDBACK_OPTIONS } from 'app/constants/SearchOtherNeed';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
@@ -27,22 +28,6 @@ const orgUnit = `Client Care`;
 const ERROR_LIST = {
 	SYSTEM_ERROR: `System error. Please try again`
 };
-
-const FEEDBACK_OPTIONS = [
-	{
-		key: 0,
-		value: `Need fulfilled`
-	},
-	{
-		key: 2,
-		value: `Need was assigned/handed off`
-	},
-	{
-		key: 1,
-		value: `Need incomplete`
-	}
-];
-
 
 /**
  * The Quick Transactions Favourites Landing Page View
@@ -166,48 +151,30 @@ export class Favourites extends SavingsAccountBase {
 
 	async _done(event) {
 		this._telemetry.logEvent(QuickTransactionEvents.SEARCH_OTHER_NEED_DONE, {
-			"launch-strack- feedback": event.detail.selectedFeedback
+			"launch-strack-feedback": event.detail.selectedFeedback
 		});
-		
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		const ivrOptionCode = incomingCallDetails.ivrOptionCode;
-		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
-		const strackIncidentInfo = await this._incidentStatus(this.incidentDetails.incidentRecId) || {};
-		const resolution = this._getResolution(strackIncidentInfo.resolution, selectedOption);
 
-		const closeIncidentRequest = {
-			incidentRecId: incidentDetails.incidentRecId,
-			reason: event.detail,
-			resolution: this._formatLineBreaks(resolution),
-			causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(`LandingPage`, ivrOptionCode, selectedOption.value)
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const selectedOption = FEEDBACK_OPTIONS.find(item => item.key === event.detail);
+		const options = {
+			clientNeed: null,
+			endCallReason: selectedOption,
+			causeCodeByContext: this.endCallCauseCode.getCauseCode(`LandingPage`, incomingCallDetails.ivrOptionCode, selectedOption.value)
 		};
 
-		const returnValue = await this.incidentManagementService.closeIncident(closeIncidentRequest);
+		const isSuccess = await super.closeIncident(options, () => this._toggleBusyFlag());
 		
-		if (returnValue.succeeded) {
+		if (isSuccess) {
 			// Navigate to favourites landing page
-			this._updateIncidentState();
+			incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
+			incidentDetails.feedback = selectedOption.key;
+
+			this.horizonStore.setIncidentDetails(incidentDetails);
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
 		}
-	}
-
-	_getResolution(resolution, selectedOption) {
-		return resolution ? `${resolution || ``}\n${selectedOption.value}` : `${selectedOption.value}`;
-	}
-
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
-	}
-
-	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.CLOSED;
-		incidentDetails.feedback = this.selectedFeedback;
-
-		this.horizonStore.setIncidentDetails(incidentDetails);
 	}
 
     async _clientVerified(event) {
@@ -258,9 +225,11 @@ export class Favourites extends SavingsAccountBase {
 		const returnValue = await this.quickTransactionService.getPermanentLimits(request, () => true);
 
 		if (returnValue.succeeded) {
-	
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to retrieve permanent card limits`, `_getPermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 		return null;
 	}
 
@@ -277,6 +246,10 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update permanent card limits`, `_updatePermanentLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
+
 		return null;
 	}
 
@@ -286,6 +259,9 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get temporary card limits`, `_getTemporaryLimits`, returnValue.correlationId);
+		this.horizonRouter.navigateToSystemError();
 
 		return null;
 	}
@@ -303,15 +279,28 @@ export class Favourites extends SavingsAccountBase {
 		if (returnValue.succeeded) {
 			return true;
 		}
+
+		this.logger.log(`error`, `Unable to update temporary card limits`, `_updateTemporaryLimits`, returnValue.correlationId);
+
 		return null;
 	}
 
 	async _getCardLimitsAgreement(agreementRequest) {
-		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => true);
+		agreementRequest.cardDetails.permanentCashAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.permanentCnpAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCashAmountLimit *= 100;
+		agreementRequest.cardDetails.tempPurchaseAmountLimit *= 100;
+		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
+
+		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
 
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
+
+		this.logger.log(`error`, `Unable to get card limits agreement`, `_getCardLimitsAgreement`, returnValue.correlationId);
+
 		return null;
 	}
 
@@ -556,18 +545,16 @@ export class Favourites extends SavingsAccountBase {
 			"issue-type": event.detail.issue
 		});
 
-		const incidentRecId = this.incidentDetails.incidentRecId;
-		const strackIncidentInfo = await this._incidentStatus(incidentRecId) || {};
-		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
-		
-		if (continueUpdate) {
-			await this._classifyIncident(event, incidentRecId);
-		} else {
-			this.logger.log(`error`, `Incident:${this.incidentDetails.incidentReferenceNumber} has been already categorized at STrack.`, `_onLaunchStrackClick`);
+		const incidentCategorization = {
+			category: `${event.detail.category}`,
+			need: `${event.detail.need}`,
+			issue: `${event.detail.issue}`
+		};
 
-			this.horizonRouter.navigateToStrack(incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		}
+		await super.createAndClassifySubsIncident(incidentCategorization);
+
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
+		this.renderMode = RENDER_MODE.FEEDBACK;
 	}
 
 	async _getCategories() {
@@ -603,47 +590,9 @@ export class Favourites extends SavingsAccountBase {
 		this.requestUpdate();
 	}
 
-	async _classifyIncident(event, incidentRecId) {
-		const request = {
-			incidentRecId: incidentRecId,
-			ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-			needAction: `SEARCH_OTHER_NEED`,
-			incidentCategorization: {
-				category: `${event.detail.category}`,
-				need: `${event.detail.need}`,
-				issue: `${event.detail.issue}`
-			}
-		};
-		const result = await this.incidentManagementService.classifyIncident(request);
-
-		if (result.succeeded) {
-			this.horizonRouter.navigateToStrack(incidentRecId);
-			this.renderMode = RENDER_MODE.FEEDBACK;
-		} else {
-			this.logger.log(`error`, `Unable to categorize incident on STrack`, `_onLaunchStrackClick`);
-		}
-	}
-
-	async _incidentStatus(incidentRecId) {
-		const returnValue = await this.incidentManagementService.incidentStatus(incidentRecId);
-
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
-			return null;
-		}
-		return returnValue.result;
-	}
-
-	_telemetryStartSpan(eventName, screenName) {
-		this._telemetry.startSpan(eventName, {
-			"screen": screenName
-		});
-	}
-
-	_telemetryEndSpan(eventName, screenName) {
-		this._telemetry.endSpan(eventName, {
-			"screen": screenName
-		});
+	async _createIncidentOnError() {
+		await super.createAndClassifySubsIncident();
+		return true;
 	}
 
 	// ---------

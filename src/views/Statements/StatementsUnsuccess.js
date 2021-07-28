@@ -1,5 +1,7 @@
-import { HorizonTelemetry, TelemetryScreen } from 'app/services/HorizonTelemetryService';
 import { css, html } from 'platform/elements';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/ErrorScreen';
@@ -23,6 +25,7 @@ export class StatementsUnsuccess extends ViewBase {
 
 		this.mailId = ``;
 		this.acNumber = ``;
+		this._telemetry = HorizonTelemetry.instance;
 	}
 
 
@@ -54,23 +57,24 @@ export class StatementsUnsuccess extends ViewBase {
 	// --------------
 
 	_doneClick() {
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME,
-			nextScreen: TelemetryScreen.FAVOURITES
+		// Telemetry
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME,
+			"nextScreen": TelemetryScreen.FAVOURITES
 		});
-
-		this.horizonRouter.navigateToReturnPage();
+		this.horizonStore.clearReturnScreen();
+		this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 
 	_handoffClick() {
-		HorizonTelemetry.instance.screenUnloadStatements({
-			screen: TelemetryScreen.STATEMENTS_OUTCOME
+		// Telemetry
+		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
+			"screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
-
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -82,7 +86,7 @@ export class StatementsUnsuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-height:768px;
 				}
 
@@ -111,7 +115,8 @@ export class StatementsUnsuccess extends ViewBase {
 
 	_renderUnsuccessScreen() {
 		return html`
-			<horizon--error-screen
+			<horizon-error-screen
+				data-automation-id="statements-unsuccess"
 				header="Statement not emailed"
 				image="/images/insure/assign-pay-arrears.svg"
 				left="Done"
@@ -124,13 +129,14 @@ export class StatementsUnsuccess extends ViewBase {
 						slot="detail">
 							The statement for savings account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
 					</section>
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
+				data-automation-id="statements-unsuccess-related-options"
 				context = "Failure"
 				@cancel = "${() => this.renderMode = RENDER_MODE.STATEMENTS_UNSUCCESS}">
 			</horizon-related-options>

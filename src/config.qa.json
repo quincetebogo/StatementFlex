@@ -42,10 +42,22 @@
 		"proof-of-account": "PROOF_OF_ACCOUNT",
 		"tax-certificate": "TAX_CERTIFICATE",
 		"transaction-history": "TRANSACTION_HISTORY",
-		"search-other-need": "SEARCH_OTHER_NEED",
 		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS",
 		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
-		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT"
+		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
+		"credit-card-statements": "STATEMENTS_CC",
+		"savings-account": "SAVINGS_ACCOUNT",
+		"telephony-hung-up": "TELEPHONY_HUNG_UP",
+		"telephony-call-back": "TELEPHONY_CALL_BACK",
+		"telephony-bad-connection": "TELEPHONY_BAD_CONNECTION",
+		"telephony-disconnected": "TELEPHONY_DISCONNECTED",
+		"telephony-no-reply": "TELEPHONY_NO_REPLY",
+		"credit-card-balance": "CREDIT_CARD_BALANCE",
+		"savings-account-balance": "SAVINGS_BALANCE",
+		"mobile-banking": "MOBILE_BANKING_BALANCE",
+		"transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
+		"pending-transaction-information": "SAVINGS_BLANCE_PENDING"
 	},
 	"mock": {
 		"enabled": false

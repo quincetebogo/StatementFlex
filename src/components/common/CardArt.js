@@ -60,7 +60,6 @@ export class CardArt extends Component {
 			},
 			context: { type: String },
 			tapToPayStatus: { type: Boolean },
-
 			cardArtSVG: { attribute: false }
 		};
 	}
@@ -402,14 +401,16 @@ export class CardArt extends Component {
 					<capitec-label
 						class="toggle-label ${this.tapToPayStatus ? `On` : `Off`}"
 						label=${this.tapToPayStatus ? `On` : `Off`}
-						type="default">
+						type="default"
+						data-automation-id="card-art-toggle-label">
 					</capitec-label>
 					
 					<capitec-toggle
 						class="${this.tapToPayStatus ? `On` : `Off`}"
 						label=""
 						@value-changed=${(event) => this._toggleChecked(event)}
-						?checked="${this.tapToPayStatus}">
+						?checked="${this.tapToPayStatus}"
+						data-automation-id="card-art-toggle-status">
 					</capitec-toggle>
 			</capitec-group>
 		`;
