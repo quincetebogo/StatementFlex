@@ -242,10 +242,10 @@ export class HorizonChannelService extends Service {
 
 	putValueAddedService(request) {
 		const url = `/clientcare-client-${this._version}/value-added-services?` +
-						`CapitecEntityId=${request.capitecEntityId}&` +
-						`OptOutInsights=${request.optOutInsights}&` +
+						`capitecEntityId=${request.capitecEntityId}&` +
+						`optOutInsights=${request.optOutInsights}&` +
 						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
-						`optOutPreAssesments=${request.optOutPreAssesments}&` +
+						`optOutPreAssessments=${request.optOutPreAssessments}&` +
 						`optOutAnalysis=${request.optOutAnalysis}&` +
 						`optOutThirdParties=${request.optOutThirdParties}&`;
 
