@@ -1,33 +1,27 @@
 import { Component, css, html } from 'platform/elements';
-import { stringify } from 'uuid';
-
-//import '/platform/core/Label';
-//import '../core/Icon';
-//import '../layouts/Group';
-//import '../layers/ContentBox';
 
 /**
- * A layout component that groups together content in an expanded box such as Client Insights, access information etc.
+ * A generic component that replicates the platform expander with few add-on properties.
  *
  * ```js
- * import 'platform/components/containers/Expander';
+ * import 'app/components/common/HorizonExpander';
  * ```
  *
  * ```html
- * <capitec-expander-group modeset="single">
- *     <capitec-expander icon="system/client-insights" label="Client Insights">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- *     <capitec-expander icon="system/access" label="Access">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- *     <capitec-expander icon="system/notes" label="Notes">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- *     <capitec-expander icon="system/knowledge" label="Knowledge Base">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- * </capitec-expander-group>
+ *	<horizon-expander 
+ *		label="Client Insights"
+ *		expandButtonAlignment="right | left"
+ *		layout="vertical"
+ *		halign="stretch"
+ *		valign="top"
+ *		gap="clear"
+ *		wrap=false
+ *		noPadding=false
+ *		expanded=false
+ *		disabled=false>
+ *			<capitec-label slot="custom-header" label="No Records Found"></capitec-label>
+ *			<capitec-label slot="content" label="No Records Found"></capitec-label>
+ *	</horizon-expander>
  * ```
  *
  */
@@ -44,7 +38,6 @@ export class Expander extends Component {
 
         // Set the default property values.
         this.label = null;
-        this.icon = null;
 
         this.expanded = false;
         this.disabled = false;
@@ -56,9 +49,6 @@ export class Expander extends Component {
         this.gap = `clear`;
         this.noPadding = false;
         this.wrap = false;
-        this.headers = [];
-        this.subtitles = [];
-        this.color = "#E61414";
     }
 
     // ----------
@@ -69,7 +59,6 @@ export class Expander extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {String} label - The label data associated with expander.
-	 * @property {String} icon - The icon to display on the expander.
 	 *
 	 * @property {Boolean} [expanded=false] - Indicator if the expander is currently expanded.
 	 * @property {Boolean} [disabled=false] - Indicator if the expander is currently disabled.
@@ -87,7 +76,6 @@ export class Expander extends Component {
     static get properties() {
         return {
             label: { type: String },
-            icon: { type: String },
 
             expanded: { type: Boolean },
             disabled: { type: Boolean },
@@ -98,10 +86,7 @@ export class Expander extends Component {
             expandButtonAlignment: { type: String },
             gap: { type: String },
             noPadding: { type: Boolean },
-            wrap: { type: Boolean },
-            headers: { type: Array },
-            subtitles: { type: Array },
-            color: {type: String}
+            wrap: { type: Boolean }
         };
     }
 
@@ -300,11 +285,12 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					border-top: var(--theme-expander-border, 1px solid black);
+                    border: 1px solid #E1E1E1;
+					border-left: var(--theme-expander-border-left, 1px solid #E1E1E1);
 					cursor: pointer;
                     padding: 0px;
-                    border-radius:4px 4px 0px 4px;
-                    border-right: 1px solid #E1E1E1;
+                    border-radius:4px;
+					height: 64px;
 				}
 
 				:host(*.styled) > .header {
@@ -318,12 +304,6 @@ export class Expander extends Component {
 				:host > .header > .indicator {
 					width: var(--theme-expander-indicator-width, 20px);
 					height: var(--theme-expander-indicator-height, 20px);
-				}
-
-				:host > .header > .icon {
-					width: var(--theme-expander-icon-width, 24px);
-					height: var(--theme-expander-icon-height, 24px);
-                    margin:20px;
 				}
 
 				:host > .header > capitec-label {
@@ -360,14 +340,13 @@ export class Expander extends Component {
 				}
 
 				/* CONTENT */
-                    .content{
-                    padding: 0px;
-                }
+				.content{
+					padding: 0px;
+				}
 
 				:host > .content {
 					//border-left: var(--theme-expander-border, 1px solid black);
 					//border-right: var(--theme-expander-border, 1px solid black);
-					border-top: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
 				}
 
@@ -441,33 +420,8 @@ export class Expander extends Component {
                     height: 24px;
                     width: 24px;
                     margin: 20px;
-                }                
-                horizon-label{
-                    width: 182px;
-                    --horizon-label-text-height: 20px;
-                    --horizon-label-text-color: #3A3A3A;
-                    --horizon-label-text-font-size: 14px;
-                    --horizon-label-text-line-height: 20px;
-                    
-                    --horizon-label-value-height: 20px;
-                    --horizon-label-value-color: #3A3A3A;
-                    --horizon-label-value-font-size: 16px;
-                    --horizon-label-value-line-height: 20px;
-                }                
-                horizon-label[label="Card expiry date"]{
-                    width: 200px;
-                }                
-                .header-icon{
-                    margin: 12px 16px;
                 }
-
-                .vertical-line{
-                    height: 24px;
-                    width: 1px;
-                    background-color: #E1E1E1;
-                    margin-right: 16px;
-                }
-
+	
 				@keyframes expand {
 					0% {
 						max-height: var(--theme-expander-header-height, 50px);
@@ -494,36 +448,17 @@ export class Expander extends Component {
 					}
 				}
 			`
-        ];
-    }
+		];
+	}
 
-    _renderExpanderButton() {
-        return html`
-				<div class="header-icon">
-                    ${this.icon ? html`<img src="${this.icon}">` : html``}
-				</div>
-                ${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
-                ${this.headers ? this.headers.map((heading, index) => this._renderHeaders(heading, index)) : html``}
-				${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
-			`;
-    }
-
-    _renderIcon() {
-        return html`
-			<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>
+	_renderExpanderButton() {
+		return html`
+			${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
+			<slot name="custom-header"></slot>
+			${this.label ? html`<capitec-label type="strong" label="${this.label}"></capitec-label>` : html`<capitec-spacer></capitec-spacer>`}
+			${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
 		`;
-    }
-
-    _renderHeaders(headers, index) {
-        return index == 0 ? html`
-            <horizon-label style="width: 151px;" label=${headers} value="${this.subtitles[index]}">
-            </horizon-label>
-            <div class="vertical-line"></div>
-        ` : html`
-            <horizon-label label=${headers} value="${this.subtitles[index]}">
-            </horizon-label>
-        ` ;
-    }
+	}
 
 	/**
 	 * Generates the component template for mobile mode.
@@ -550,12 +485,12 @@ export class Expander extends Component {
 	 */
     _webTemplate() {
         return html`
-			<capitec-group class="header" style="border-left: 4px solid ${this.color}; height: 64px" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
+			<capitec-group class="header" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
 				${this._renderExpanderButton()}
 			</capitec-group>
 
 			<capitec-content-box class="content" layout="${this.layout}" halign="${this.halign}" valign="${this.valign}" gap="${this.gap}" ?noPadding="${this.noPadding}" ?wrap="${this.wrap}">
-				<slot></slot>
+				<slot name="content"></slot>
 			</capitec-content-box>
 			`;
     }
@@ -567,7 +502,7 @@ window.customElements.define(`horizon-expander`, Expander);
  * Notify direct subscribers that the component was collapsed.
  *
  * @example
- * <capitec-expander ... @collapse="${this._handler}"></capitec-expander>
+ * <horizon-expander ... @collapse="${this._handler}"></horizon-expander>
  *
  * @event Expander#collapse
  * @type {Object}
@@ -579,7 +514,7 @@ window.customElements.define(`horizon-expander`, Expander);
  * Notify direct subscribers that the component was expanded.
  *
  * @example
- * <capitec-expander ... @expand="${this._handler}"></capitec-expander>
+ * <horizon-expander ... @expand="${this._handler}"></horizon-expander>
  *
  * @event Expander#expand
  * @type {Object}

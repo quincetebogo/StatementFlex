@@ -521,10 +521,14 @@ export class CardLimitsLanding extends Component {
                 horizon-expander{
                     margin: 16px;
                     width: 1032px;
-                    border: 1px solid E1E1E1;
-                    border-radius: 4px;
                     height: auto;
                 }
+				.border-debit{
+					--theme-expander-border-left: 4px solid #009DE0;
+				}
+				.border-credit{
+					--theme-expander-border-left: 4px solid #E61414;
+				}
                 capitec-card > capitec-content-box{
                     padding: 0px;
                 }
@@ -553,7 +557,38 @@ export class CardLimitsLanding extends Component {
 				capitec-label[label="Update"] {
 					text-align: end;
 					color: #009DE0;
-				}`
+				}
+				.header-icon{
+					height: 40px;
+					margin: 12px 23px;
+				}
+				.header-icon > img {
+					height: 40px;
+				}
+				.vertical-line{
+					height: 40px;
+					width: 1px;
+					background-color: #E1E1E1;
+					margin-right: 16px;
+				}
+				.header-col1 {
+					width: 146px;
+				}
+				horizon-label{
+                    width: 182px;
+					--theme-layout-gap-spacing: 0px;
+                    --horizon-label-text-height: 20px;
+                    --horizon-label-text-color: #3A3A3A;
+                    --horizon-label-text-line-height: 20px;
+                    
+                    --horizon-label-value-height: 20px;
+                    --horizon-label-value-color: #3A3A3A;
+                    --horizon-label-value-font-size: 16px;
+                    --horizon-label-value-line-height: 20px;
+                }                
+                horizon-label[label="Card expiry date"]{
+                    width: 200px;
+                }`
         ];
     }
 
@@ -613,12 +648,9 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				expandButtonAlignment="right"
-				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
-				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
-				.headers="${this.expanderHeaders[index]}"
-				.subtitles="${this.expanderSubtitle[index]}">
-					${this._renderLimits(sub[3])}
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				expandButtonAlignment="right">
+				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
 	}
@@ -641,12 +673,9 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				expandButtonAlignment="right"
-				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
-				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
-				.headers="${this.expanderHeaders[index]}"
-				.subtitles="${this.expanderSubtitle[index]}">
-					${this._renderLimits(sub[3])}
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				expandButtonAlignment="right">
+				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
 	}
@@ -669,14 +698,34 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				expandButtonAlignment="right"
-				icon="/images/cardArt/black_front_${this.expanderHeaders[index][0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg"
-				color="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `#009DE0` : `#E61414`}"
-				.headers="${this.expanderHeaders[index]}"
-				.subtitles="${this.expanderSubtitle[index]}">
-					${this._renderLimits(sub[3])}
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				expandButtonAlignment="right">
+				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
+	}
+
+	_renderExpanderHeader(expanderHeaders, expanderSubtitle) {
+		return html`
+			<capitec-group slot="custom-header" layout="horizontal" gap="clear" halign="left" valign="center">
+				<div class="header-icon">
+					<img src="/images/cardArt/black_front_${expanderHeaders[0] === `Debit MasterCard` ? `debit` : `credit`}_40px height.svg">
+				</div> 
+				${expanderHeaders.map((heading, index) => this._renderHeaderLabel(heading, index, expanderSubtitle))}
+			</capitec-group>
+			${this._renderLimits(expanderSubtitle[3])}
+		`;
+	}
+
+	_renderHeaderLabel(headers, index, expanderSubtitle) {
+		return index == 0 ? html`
+			<horizon-label class="header-col1" label=${headers} value="${expanderSubtitle[index]}">
+			</horizon-label>
+			<div class="vertical-line"></div>
+		` : html`
+			<horizon-label label=${headers} value="${expanderSubtitle[index]}">
+			</horizon-label>
+		` ;
 	}
 
 	_renderHeaders() {
@@ -695,19 +744,19 @@ export class CardLimitsLanding extends Component {
 		switch (card.category) {
 			case CARD_TYPES.DEBIT:
 				return html`
-					<div class="limits-group">
+					<div slot="content" class="limits-group">
 			            ${this._renderHeaders()}
 						${this._renderDebitLimits(card)}
 					</div>`;
 			case CARD_TYPES.CREDIT:
 				return html`
-					<div class="limits-group">
+					<div slot="content" class="limits-group">
 			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 					</div>`;
 			case CARD_TYPES.DUAL:
 				return html`
-					<div class="limits-group dual">
+					<div slot="content" class="limits-group dual">
 			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 						${this._renderDebitLimits(card)}
