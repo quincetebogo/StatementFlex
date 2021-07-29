@@ -17,7 +17,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.email = `ivanmakatini@gmail.com`;
+		this.isTaxFreeCertificate = false;
+
+		this.mailId = `ivanmakatini@gmail.com`;
 
 		//this.horizonStore = HorizonStore.getInstance();
 	}
@@ -28,7 +30,9 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 	static get properties() {
 		return {
-			email: { attribute: String }
+			mailId: { attribute: String },
+
+			isTaxFreeCertificate: { attribute: false, type: Boolean }
 		};
 	}
 	// -------------------
@@ -149,17 +153,30 @@ export class TaxCertificateUnsuccess extends ViewBase {
 				image="/images/tax-certificate/send-tax-certificate.svg"
 				left="Done"
 				right="Assign"
-				toast="Tax certificate not sent"
-				sub_detail="true"
+				toast="Taxable savings certificate not sent"
+				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate not sent` : ``}"
+				subDetail="${this.isTaxFreeCertificate ? true : `` }"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._handoffClick()}>
 					<section
 						id="id-error-msg" 
 						slot="detail">
-						Your taxable savings certificate was not emailed to <strong>${this.email}</strong>
+							Your taxable savings certificate was not emailed to <strong>${this.mailId}</strong>
 					</section>
+					${this._renderTaxFreeCertificateDetail()}
 			</horizon-error-screen>
 		`;
+	}
+
+	_renderTaxFreeCertificateDetail() {
+		return this.isTaxFreeCertificate 
+			? html`
+				<section 
+					class="id-update-msg" 
+					slot="sub-detail">
+						Your tax-free certificate was not emailed to <strong>${this.mailId}</strong>.
+				</section>`
+			: html``;
 	}
 
 	_renderRelatedOptions() {
