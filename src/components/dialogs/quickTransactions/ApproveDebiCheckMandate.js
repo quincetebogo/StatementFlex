@@ -1,8 +1,16 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import 'platform/components/popups/Modal';
 import { DateTime } from 'luxon';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
+const ERROR_MESSAGE = `Make a selection to confirm the following information to approve the DebiCheck mandate.`;
+const QUESTIONS = {
+    0: {color: "black", accepted: 2},
+    1: {color: "black", accepted: 2},
+    2: {color: "black", accepted: 2},
+    3: {color: "black", accepted: 2}
+};
 
 export class ApproveDebiCheckMandate extends Component {
 
@@ -24,16 +32,17 @@ export class ApproveDebiCheckMandate extends Component {
         this.mandateId = `112233445566`; //mandateInfo.mandateReference
         this.referenceNumber = `998877665544`; //mandateInfo.contractReference
         this.fullName = `Mr Ivan Makatini`;
-        this.installmentAmount = 5656.00; //mandateSummaryList.amount
+        this.installmentAmount = 0; //mandateSummaryList.amount
         this.firstCollectionDate = new Date().toISOString().substr(0, 10);//mandateInfo.firstCollectionDate  .substring(0, 10);
-        this.collectionDateFrequency = `month`;//mandateSummaryList.collectionDate.frequency
+        this.collectionDateFrequency = ``;//mandateSummaryList.collectionDate.frequency
         this.accountNumber = `1164116973`;
         this.shortName = `Mr I. Makatini`;
         this.today = new Date().toISOString().substr(0, 10);
         this.emailAddress = `ivanmakatini@email.com`; //QUESTION location? state?
-        this.alertMessage = MESSAGE;
         this.error = false;
         this.alertType = `info`;
+        this.alertMessage = MESSAGE;
+        this.approve = false;
     }
 
     // ----------
@@ -49,14 +58,34 @@ export class ApproveDebiCheckMandate extends Component {
 	 */
     static get properties() {
         return {
-            mandateId: { type: String }
+            mandateInfo: { type: Object },
+            debiCheckDetails: { type: Object },
+            alertMessage: { type: String, attribute: false }
         };
     }
 
 
-    //async _initialise() {
-    
-    //}
+    async _initialise() {
+        
+
+        for (const key in QUESTIONS) {
+            QUESTIONS[key].accepted = 2;
+        }
+
+        this.mandateId = this.debiCheckDetails.mandateReference;
+        this.referenceNumber = this.debiCheckDetails.contractReference;
+
+        //this.fullName = `Mr Ivan Makatini`; state.callerInformation.name
+        //this.accountNumber = `1164116973`; this.landingPageInfo.accountNumber
+        //this.shortName = `Mr I. Makatini`; 
+        //this.emailAddress = `ivanmakatini@email.com`;
+
+        this.installmentAmount = formatCurrency(this.mandateInfo.amount);
+        this.firstCollectionDate = isNullorEmpty(this.mandateInfo) ? new Date() :  this.mandateInfo.firstCollectionDate.toISOString().substr(0, 10);
+        this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency
+        this.today = new Date().toISOString().substr(0, 10);
+
+    }
 
     // -------------------
     // LIFECYCLE OVERRIDES
@@ -64,7 +93,7 @@ export class ApproveDebiCheckMandate extends Component {
 
     connectedCallback() {
         super.connectedCallback();
-       // this._initialise();
+        this._initialise();
     }
 
     // --------------
@@ -76,11 +105,72 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _approveClick() {
-        this.dispatchEvent(new CustomEvent(`approve`, {
-            detail: { mandateId: this.mandateId }
-        }));
+        if (this._validateAccepted()) {
+            this.dispatchEvent(new CustomEvent(`approve`, {
+                detail: { mandateId: this.mandateId }
+            }));
+        }        
     }
 
+    _checkAccepted() {
+        for (const key in QUESTIONS) {
+            if (QUESTIONS[key].accepted == 0) {
+                this.alertMessage = ` DebiCheck will not be approved and will result in expired mandates.`;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _validateAccepted() {
+        let returnVal = true;
+        for (const key in QUESTIONS) {
+            if (QUESTIONS[key].accepted == 2) {
+                QUESTIONS[key].color = "red";
+                this.alertMessage = ERROR_MESSAGE;
+                this.alertType = 'unsuccessful-red';
+                this.requestUpdate();
+                returnVal = false;
+            }
+        }
+        if (!this.approve) {
+            this.alertMessage = ERROR_MESSAGE;
+            this.alertType = 'unsuccessful-red';
+            this.requestUpdate();
+            return false;
+        }
+        return returnVal;
+    }
+
+    _agree(e, row, val) {
+        if (e.detail.new) {
+        this._clearErrors(row);
+            if (val == 1) {
+                QUESTIONS[row].color = "black";
+                QUESTIONS[row].accepted = 1;
+                this.requestUpdate();
+            } else if(val== 0){
+                QUESTIONS[row].color = "#D4781C";
+                QUESTIONS[row].accepted = 0;
+                this.requestUpdate();
+            }
+        }
+
+    }
+
+    _toggleAgreementsAccept(e) {
+        this.approve = !this.approve;
+        this._clearErrors(5);
+    }
+
+    _clearErrors(row) {
+        this.alertMessage = MESSAGE;
+        this.alertType = 'info';
+        if (row < 5) {
+         QUESTIONS[row].color = "black";
+        }
+        this.requestUpdate();
+    }
 
     static get styles() {
         return [
@@ -137,6 +227,28 @@ export class ApproveDebiCheckMandate extends Component {
 				--theme-container-padding-right: 16px;
                 }
 
+                capitec-label{
+                    height: 20px;
+                    width: 81px;
+                    color: #3A3A3A;
+                    font-family: "Hind Vadodara";
+                    font-size: 14px;
+                    font-weight: 600;
+                    letter-spacing: 0;
+                    line-height: 20px;
+                }
+                capitec-alert-banner{
+                    font-family: "Hind Vadodara";
+                    letter-spacing: 0;
+                    line-height: 20px;
+                
+                    --theme-alert-banner-height: 48px;
+                    --theme-alert-banner-font-size: 14px;
+	                --theme-alert-banner-info-font-color: #3A3A3A;
+	                --theme-alert-banner-warning-font-color: #3A3A3A;
+	                --theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+                }
+
 				capitec-check {
 					padding-left: 16px;
 
@@ -182,9 +294,7 @@ export class ApproveDebiCheckMandate extends Component {
 			    }
                 .cb-yesno{
                     margin-top:14px;
-                }
-
-                    
+                }                    
                 `
         ];
     }
@@ -213,11 +323,11 @@ export class ApproveDebiCheckMandate extends Component {
     _renderAgreementsAlertBanner() {
         //alertType = unsucessful-red, info, warning
         return html`
-            <capitec-alert-banner type="${this.alertType}" closable>
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
+            <capitec-alert-banner type="${this._checkAccepted() ? `warning` : this.alertType }" closable>
+				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
 					<capitec-label
-						label="Notify client: "
-						type="default">
+                    label="Notify client: "
+					type="default">                    
 					</capitec-label>
 					${this.alertMessage}
 				</capitec-group>
@@ -251,19 +361,17 @@ export class ApproveDebiCheckMandate extends Component {
     _renderAgreementContent() {
         return html`
 			<capitec-content-box class="agreement-content">
-
                     <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
-
 					<ol>
 						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
-						<li>Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency}</strong>, starting on <strong>${this.firstCollectionDate}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency}</strong>, starting on <strong>${this.firstCollectionDate}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
                             Do you understand and accept this? </br>
-                            ${this._renderYesNo(1)}</li>
-						<li>The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>.</br>
+                            ${this._renderYesNo(0)}</li>
+						<li style="color:${QUESTIONS[1].color};">The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>.</br>
                             Do you agree with this?
+                            ${this._renderYesNo(1)}</li>
+						<li style="color:${QUESTIONS[2].color};">The permission for the bank to collect instalments in the credit agreement will also apply to the agreement we now make. Do you understand and accept what I have read to you?
                             ${this._renderYesNo(2)}</li>
-						<li>The permission for the bank to collect instalments in the credit agreement will also apply to the agreement we now make. Do you understand and accept what I have read to you?
-                            ${this._renderYesNo(3)}</li>
 					</ol>
 
 			</capitec-content-box>            
@@ -275,13 +383,13 @@ export class ApproveDebiCheckMandate extends Component {
 			<capitec-content-box  class="declaration-content">
                    <strong> Thank you, ${this.fullName}. We confirm and acknowledge that:</strong>
 					<ol>
-						<li>Do you hereby authorise the bank to debit your account? </br>
-                            ${this._renderYesNo(4)}</li>
+						<li style="color:${QUESTIONS[3].color};">Do you hereby authorise the bank to debit your account? </br>
+                            ${this._renderYesNo(3)}</li>
 						<li>Please note that if we're unable to collect any instalment(s) from your account in accordance with what we have agreed to on this call, then such payment(s) may be subject to a tracking process, whereby we will attempt to collect the instalment(s) from your account over a tracking period. </li>
 						<li>If you have an issue with any debit order made against your account, you may dispute it in line with the rules of the Payments Association of South Africa. </li>
 						<li>You confirm that all the details you have provided on this call are correct. </li>
 						<li>Written confirmation of what we agreed today will be emailed to: <strong>${this.emailAddress}</strong> </li>
-						<li>Please note that the Mandate Reference Number is <strong>${this.mandateId}</strong> </li>
+						<li>Please note that the Mandate Reference Number is <strong>${this.mandateReference}</strong> </li>
 						<li>Date: <strong>${this.today}</strong> </li>
 					</ol>
 
@@ -303,12 +411,12 @@ export class ApproveDebiCheckMandate extends Component {
 						<capitec-radio
 							class="radio-btn-yes"
 							label="Yes"
-							@value-change="${(e) => this._YesorNo(e, row)}">
+							@value-change="${(e) => this._agree(e, row, 1)}">
 						</capitec-radio>
 						<capitec-radio
 							class="radio-btn-no"
 							label="No"
-							@value-change="${(e) => this._YesorNo(e, row)}">
+							@value-change="${(e) => this._agree(e, row, 0)}">
 						</capitec-radio>
 					</capitec-group>
 				</capitec-radio-group>
@@ -327,8 +435,10 @@ export class ApproveDebiCheckMandate extends Component {
 				<capitec-button
 					type="primary"
 					@click="${(e) => this._approveClick(e)}"
-					label="Approve">
+					label="Approve"
+                    .disabled="${this._checkAccepted()}">
 				</capitec-button>
+
 			</capitec-group>
         `;
     }

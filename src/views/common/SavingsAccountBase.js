@@ -116,15 +116,17 @@ export class SavingsAccountBase extends ViewBase {
 			});
 
 
-            this.mandateId = event.detail.mandateId;
-            this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
-			//const screenDetails = this.horizonStore.getScreenDetails();
-			//screenDetails.mandateId = event.detail.mandateId;
-			//this.horizonStore.setScreenDetails(screenDetails);
+            this.mandateInfo = event.detail.mandateInfo;
 
-			//this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+            const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
 
-			//this.horizonRouter.navigateToDebiCheckSuccess();
+            if (returnValue.succeeded && returnValue.result) {
+                this.debiCheckDetails = returnValue.result;
+                this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
+            } else {
+                this.horizonRouter.navigateToSystemError();
+            }
+
 		} else if (event.detail.action === `viewInfo`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 				"screen": TelemetryScreen.DEBICHECK,
@@ -183,6 +185,16 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
+
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+    }
+
+    //TODO: UPDATE TELEMETRY
+    _cancelApproveMandate() {
+		//this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, {
+		//	"screen": TelemetryScreen.DECLINE_DEBICHECK,
+		//	"next-screen": TelemetryScreen.DEBICHECK
+		//});
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -309,7 +321,10 @@ export class SavingsAccountBase extends ViewBase {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE 
 			? html`
 				<horizon-approve-debicheck-mandate
-					mandateId="${this.mandateId}">
+					.mandateInfo="${this.mandateInfo}"
+					.debiCheckDetails=${this.debiCheckDetails}
+					@cancel="${() => this._cancelApproveMandate()}"
+					@approve="${(event) => this._approveDebiCheckMandate(event)}">
 				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
