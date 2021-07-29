@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
+import { EventAggregator, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { NavigationContext, EventAggregator } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
@@ -10,8 +10,8 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import 'app/components/common/HorizonExpander';
 
 const RENDER_MODE = {
-    TAX_CERTIFICATE: 1,
-    EMAIL: 2
+    EMAIL: 0,
+	PDF: 1
 };
 
 const TAX_CERTIFICATE_STEPS = [
@@ -22,6 +22,12 @@ const TAX_CERTIFICATE_STEPS = [
         title: `Specify Email`
     }
 ];
+
+const CERTIFICATE_TYPE = {
+	taxFree: `IT3(s)`,
+	taxableSavings: `IT3(b)`
+};
+
 /**
  * Tax Certificates dialog is used to send tax certificates from the primary savings account.
  * This component is envoked from the Favourites landing screen.
@@ -44,7 +50,8 @@ export class TaxCertificate extends Component {
 
 	constructor() {
 		super();
-		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
+		this.currentStep = 0;
+		this.renderMode = RENDER_MODE.EMAIL;
 		this.navigationContext = NavigationContext.getInstance();
 
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -54,14 +61,10 @@ export class TaxCertificate extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-
 		this.certType = {};
 		this.showChoosePeriod = false;
 
-		this.tableRecords = [
-			{ columnOne: `Savings account`, columnTwo: `Balance`, columnThree: `Interest Recieved`, columnFour: `Status` },
-			{ columnOne: `Savings account`, columnTwo: `Balance`, columnThree: `Interest Recieved`, columnFour: `Status` }
-		];
+		// this.years = [`2016`, `2017`, `2018`, `2019`, `2020`];
 	}
 
 	// --------------
@@ -69,12 +72,16 @@ export class TaxCertificate extends Component {
 	// --------------
 
 	/**
+	 * @property {Object} cards Object contains the list of client's card
 	 * @param {object} callerInformation Identified caller information
 	 * @param {Object} landingPageInfo Favourites landing page info
 	 */
 
 	static get properties() {
 		return {
+			cards: { type: Object },
+			currentStep: { attribute: false },
+			renderMode: { attribute: false },
 			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
 
@@ -93,8 +100,9 @@ export class TaxCertificate extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
+		console.log(this.cards);
 		// this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
-		// 	"screen": TelemetryScreen.TAX_CERTIFICATE
+		// "screen": TelemetryScreen.TAX_CERTIFICATE
 		// });
 	}
 
@@ -106,18 +114,22 @@ export class TaxCertificate extends Component {
 	// EVENT HANDLERS
 	// --------------
 
+	_errorHandler(ex) {
+		return true;
+	}
+
 	toggleBusyFlag() {
 		this.isBusy = !this.isBusy;
 	}
 
 	_certChange(e) {
-		if(e.detail.new) {
+		if (e.detail.new) {
 			this.certType.name = e.target.id;
-			if (this.certType.name === "taxable savings") {
-				this.certType.detail = "IT3(b)"
+			if (this.certType.name === `taxable savings`) {
+				this.certType.detail = `IT3(b)`;
 			} else {
-				this.certType.detail = "IT3(s)"
-			}
+				this.certType.detail = `IT3(s)`;
+						}
 			this.showChoosePeriod = e.detail.new;
 		}
 	}
@@ -163,18 +175,27 @@ export class TaxCertificate extends Component {
 		return tempdate;
 	}
 
+	_back() {
+
+		// Telemetry
+		this.errorMessage = ``;
+		this.currentStep--;
+	}
+
 	_cancelClick(e) {
-		// this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_CANCEL, {
-		// 	"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
-		// 	"next-screen": TelemetryScreen.FAVOURITES
-		// });
-		// this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, { "screen": TelemetryScreen.PROOF_OF_ACCOUNT });
+	
+		// telemetry
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
-	_nextClick() {
+	_close() {
+		this.renderMode = RENDER_MODE.EMAIL;
+		
+	}
 
+	_nextClick() {
+		this.currentStep++;
 	}
 
 	// ---------------
@@ -229,6 +250,14 @@ export class TaxCertificate extends Component {
 		this._clearErrors(e);
 	}
 
+	_getHeaderTitle() {
+		return this.renderMode === RENDER_MODE.PDF ? `View Document` : `Tax Certificate`;
+	}
+
+	_getStepperVisibility() {
+		return this.renderMode === RENDER_MODE.PDF;
+	}
+
 	_clearErrors(e) {
         this.errMessage.idEmailAddress = ``;
         this.errMessage.idConfirmEmail = ``;
@@ -255,6 +284,13 @@ export class TaxCertificate extends Component {
 		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
+	_viewPDF() {
+		console.log(`CS call for Viewing the document`);
+		this.renderMode = RENDER_MODE.PDF;
+		// Telemetry
+		
+	}
+
 	// ---------------
 	// PUBLIC METHODS
 	// ---------------
@@ -268,7 +304,7 @@ export class TaxCertificate extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css `
+			css`
 			bb-stepper-modal {
 				--theme-modal-header-height: 64px;
 				--theme-modal-header-font-size: 18px;
@@ -282,9 +318,9 @@ export class TaxCertificate extends Component {
 			}
 			.main-cb {
 				height: 100%;
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 			}
 			div[slot="step"]{
@@ -366,6 +402,52 @@ export class TaxCertificate extends Component {
 			.check-details {
 				margin-left: 8px; 
 			}
+
+			.available-cards {
+				--theme-layout-gap-spacing: 16px;
+			}
+
+			.view-document-tile {
+				width: 100%;
+			}
+
+			capitec-label[type="strong"] {
+				line-height: 20px;
+				cursor: pointer;
+
+				--theme-label-font-color: #009DE0;
+				--theme-label-strong-font-size: 16px;
+				--theme-label-strong-font-weight: 600;
+
+			}
+
+			horizon-product-tile {
+				--theme-product-tile--height: 64px;
+				--theme-product-tile-title-height: 20px;
+				--theme-product-tile-title-font-size: 16px;
+				--theme-product-tile-subtitle-height: 20px;
+				--theme-product-tile-subtitle-font-size: 16px;
+				--theme-product-tile-heading-margin-left: 16px;
+				--theme-layout-gap-spacing: 8px;
+				--theme-product-tile-title-font-weight: 600;
+			}
+
+			.main-cb > capitec-label[type="subtitle"] {
+				line-height: 24px;
+
+				--theme-label-subtitle-font-size: 18px;
+				--theme-label-subtitle-font-weight: 600;
+				--theme-layout-gap-spacing: 16px;
+			}
+
+			.footer {
+				width: var(--horizon-tax-certificate-modal-footer-width, 100%);
+				
+				--theme-container-padding-left: 16px;
+				--theme-container-padding-top: 16px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 16px;
+			}
 			`
 		];
 	}
@@ -377,19 +459,20 @@ export class TaxCertificate extends Component {
 	_webTemplate() {
 		return html`
 		<bb-stepper-modal
-				header="Tax Certificate"
+				header="${this._getHeaderTitle()}"
 				.steps="${TAX_CERTIFICATE_STEPS}"
-				current-active-step="${this.renderMode}">
-			<div slot="step">
-				${this._renderContent()}
-			</div>
-		</div>
-		<div slot="footer">
-			${this._renderFooter()}
-		</div>
-	</bb-stepper-modal>
-			${this._renderLoadingIndicator()}
-		`
+				current-active-step="${this.currentStep}"
+				.hideStepper="${this._getStepperVisibility()}">
+					<div slot="step">
+						${this._renderContent()}
+					</div>
+
+				<div slot="footer">
+					${this._renderFooter()}
+				</div>
+		</bb-stepper-modal>
+		${this._renderLoadingIndicator()}
+		`;
 	}
 
 	_renderAlertBanner() {
@@ -414,18 +497,27 @@ export class TaxCertificate extends Component {
 	}
 
 	_renderContent() {
-		return html`
-			<capitec-content-box
-				class="main-cb"
-				layout="vertical"
-				gap="clear"
-				?noScroll="${true}">
-			${this._renderChoosePeriod()}
-			${this._renderEmailFields()}
-			</capitec-content-box>`
+		switch (this.renderMode) {
+			case RENDER_MODE.PDF:
+				return html`
+					${this._renderPDFViewer()}`;
+			case RENDER_MODE.EMAIL:
+			default:
+				return html`
+				<capitec-content-box
+					class="main-cb"
+					layout="vertical"
+					gap="clear"
+					?noScroll="${false}">
+				${this._renderViewTaxcertificate()}
+				${this._renderChoosePeriod()}
+			
+				</capitec-content-box>`;
+		}
+			
 	}
 
-	_renderChooseCerificate() {
+	_renderChooseCertificate() {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE ? html`
 			<capitec-label 
 				type="title"
@@ -453,11 +545,10 @@ export class TaxCertificate extends Component {
 					column="3"></capitec-radio>
 			</capitec-group>
 			</capitec-radio-group>
-		` : html ``;
+		` : html``;
 	}
 
 	_renderChoosePeriod() {
-		this.years = ["2017", "2018", "2019", "2020"];
 		const status = `Available`;
 		if (this.showChoosePeriod) {
 		return html`
@@ -485,19 +576,80 @@ export class TaxCertificate extends Component {
 		}
 	}
 
-	_renderOptions() {
-		return html`
-			<capitec-table .items="${this.tableRecords}">
-				<capitec-table-column label="Overview(4 accounts)" field="columnOne" value="1457065930"></capitec-table-column>
-				<capitec-table-column label="" field="columnTwo"></capitec-table-column>
-				<capitec-table-column label="" field="columnThree"></capitec-table-column>
-				<capitec-table-column label="" field="columnFour"></capitec-table-column>
-			</capitec-table>
-		`;
+	_renderViewTaxcertificate() {
+		const availableCards = this.cards.map(card => card.cardExpiryYear);
+		console.log(availableCards);
+		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
+			if (CERTIFICATE_TYPE.taxableSavings) {
+				return html`
+					<capitec-label
+						class="tax-certificate-heading"
+						type="subtitle"
+						label="View ${CERTIFICATE_TYPE.taxableSavings} certificate(s)">
+					</capitec-label>
+
+					<capitec-group
+						class="available-cards"
+						valign="top"
+						halign="left"
+						gap="clear"
+						layout="vertical">
+							${availableCards.map((item, itemIndex) => this._renderViewTaxableCertificateTile(item, itemIndex))}
+					</capitec-group>`;
+			}
+				
+			if (CERTIFICATE_TYPE.taxFree) {
+					return html`
+					<capitec-label
+						class="tax-certificate-heading"
+						type="subtitle"
+						label="View ${CERTIFICATE_TYPE.taxFree} certificate(s)">
+					</capitec-label>
+					<capitec-group
+						class="available-cards"
+						valign="top"
+						halign="left"
+						gap="clear"
+						layout="vertical">
+							${availableCards.map((item, itemIndex) => this._renderViewTaxfreeCertificateTile(item, itemIndex))}
+					</capitec-group>`;
+			}
+		}
 	}
 
-	_renderEmailFields() {
-		return html``;
+	_renderViewTaxableCertificateTile(item, itemIndex) {
+		const status = `Available`;
+		return html`
+			<horizon-product-tile
+				class="view-document-tile"
+				type="default"
+				label="20${item}"
+				subtitle="${CERTIFICATE_TYPE.taxableSavings} ${status}">
+				${this._renderViewDocumnetLink()}
+			</horizon-product-tile>`;
+	}
+
+	_renderViewTaxfreeCertificateTile(item, itemIndex) {
+		const status = `Available`;
+		return html`
+			<horizon-product-tile
+				class="view-document-tile"
+				type="default"
+				label="20${item}"
+				subtitle="${CERTIFICATE_TYPE.taxFree} ${status}">
+				${this._renderViewDocumnetLink()}
+			</horizon-product-tile>`;
+	}
+
+	_renderViewDocumnetLink() {
+		return html`
+			<capitec-label
+				slot="detail"
+				type="strong"
+				label="View Document"
+				@click="${() => this._viewPDF()}">
+			</capitec-label>
+		`;
 	}
 
 	_renderFooter() {
@@ -506,7 +658,6 @@ export class TaxCertificate extends Component {
 		class="footer"
 		layout="horizontal"
 		gap="clear">
-			<capitec-group style="display: inline; border-top: 1px solid grey;">
 			<capitec-button
 				type="clear"
 				label="Back"
@@ -524,10 +675,34 @@ export class TaxCertificate extends Component {
 				class="next-btn"
 				type="primary" 
 				label="Next"
-				@click="${() => this._nextClick()}">
+				@click="${() => this._nextClick()}"
+				?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
 				</capitec-button>
-			</capitec-group>
+				<capitec-button
+						data-automation-id="tax-certificate-dialog-send"
+						type="primary"
+						label="Send"
+						@click="${() => this._sendTaxCertificate()}"
+						?hidden="${this.currentStep !== 1 || this.renderMode === RENDER_MODE.PDF}">
+					</capitec-button>
 		</capitec-content-box>
+		`;
+	}
+
+	_renderPDFViewer() {
+		return html`
+			<capitec-content-box
+				data-automation-id="tax-certificate-dialog-pdf-viewer"
+				class="main-cb pdf-cb"
+				layout="vertical"
+				gap="clear"
+				?noScroll="${false}">
+					<object
+						class="pdf-viewer"
+						data="${this.encodedPDF}"
+						type="application/pdf">
+					</object>
+			</capitec-content-box>
 		`;
 	}
 
