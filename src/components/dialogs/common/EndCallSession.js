@@ -79,7 +79,7 @@ export class EndCallSession extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			endCallContext: { type: String }, 
+			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
 			isBusy: { attribute: false },
@@ -98,7 +98,10 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		this.endCallReasons = END_CALL_REASON.table;
+		//Making end call reasons context sensitive 
+
+		this.endCallReasons = END_CALL_REASON[this.endCallContext];
+		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 

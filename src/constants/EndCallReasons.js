@@ -3,6 +3,7 @@
  * 
  * @readonly
  * @enum {String} EndCallReasons
+ * End call mapping refer from Confluience
  */
 
 const NEED_FULFILLED = 0;
@@ -29,7 +30,104 @@ export const END_CALL_REASON = Object.freeze({
 	CALL_TRANSFERED: CALL_TRANSFERED,
 	PRODUCT_ENQUIRY: PRODUCT_ENQUIRY,
 
-	table: [
+	ConfirmClient: [
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-bad-connection`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: ``
+		}
+	],
+
+	VerifyClient: [
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-bad-connection`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: ``
+		}
+	],
+	LandingPage: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: ``
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: ``
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: ``
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-bad-connection`
+		},
+		{
+			key: BALANCE_ENQUIRY,
+			value: `Balance enquiry`,
+			mapping: `savings-account-balance`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: ``
+		},
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: ``
+		}
+	],
+	TransactionHistory: [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
