@@ -1,7 +1,7 @@
 import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { HorizonChannelService } from 'app/services/HorizonChannelService';
 import { HorizonStore } from 'app/store/HorizonStore';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 export const DEFAULT_AUTO_RETRIES = 3;
 
