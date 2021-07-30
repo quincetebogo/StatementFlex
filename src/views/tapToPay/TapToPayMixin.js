@@ -1,6 +1,6 @@
-import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
 
@@ -38,7 +38,7 @@ export const tapToPayMixin = {
 			this.cards = returnValue.result.cards;
 			this.renderMode = RENDER_MODE.TAP_TO_PAY;
 		} else {
-			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`);
+			this.logger.log(`error`, `Unable to load Tap To Pay Landing Page data`, `_tapToPay`, returnValue.correlationId);
 		}
 	},
 
@@ -54,6 +54,8 @@ export const tapToPayMixin = {
 			return returnValue.result;
 		}
 
+		this.logger.log(`error`, `Unable to load Tap To Pay Agreement`, `_getTapToPayAgreement`, returnValue.correlationId);
+
 		return null;
 	},
 
@@ -64,6 +66,11 @@ export const tapToPayMixin = {
 		});
 
 		const returnValue = await this.quickTransactionService.updateTapToPay(updateRequest, (ex) => this._tapToPayErrorHandler(ex));
+
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, `Unable to update Tap To Pay Agreement`, `_updateTapToPay`, returnValue.correlationId);
+		}
+
 		return returnValue.succeeded;
 	},
 
@@ -75,7 +82,7 @@ export const tapToPayMixin = {
 		this._telemetry.logEvent(QuickTransactionEvents.TAP_TO_PAY_OUTCOME, {
 			"screen": TelemetryScreen.TAP_TO_PAY_OUTCOME,
 			"next-screen": eventData.detail.success ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
-		});
+		}, true);
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		screenDetails.tapToPayDetails = eventData.detail.tapToPayDetails;

@@ -16,12 +16,12 @@ export const relatedOptions = {
 	},
 	'update-card-limits': {
 		Success: [
-			`statements`,
-			`tap-to-pay`
+			`statements` // ,
+			// `tap-to-pay`
 		],
 		Failure: [
-			`statements`,
-			`tap-to-pay`
+			`statements`// ,
+			// `tap-to-pay`
 		]
 	},
 	'tap-to-pay': {

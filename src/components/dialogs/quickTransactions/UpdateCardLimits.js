@@ -1,29 +1,44 @@
 import { Component, css, html } from 'platform/elements';
+import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { formatCurrency } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/common/CardArt';
 
 const RENDER_MODE = {
-    LIMITS: 1,
-    AGREEMENT: 2
+	LIMITS: 1,
+	AGREEMENT: 2
 };
 
 const UPDATE_LIMIT_STEPS = [
-    {
-        title: `Update Limits`
-    },
-    {
-        title: `Agreement`
-    }
+	{
+		title: `Update Limits`
+	},
+	{
+		title: `Agreement`
+	}
 ];
 
 const TAP_TO_PAY_STATUS = {
-    ACTIVATED: `TapToPayActivated`,
-    DEACTIVATED: `TapToPayDeactivated`,
-    UNCHANGED: `Unchanged`
+	ACTIVATED: `TapToPayActivated`,
+	DEACTIVATED: `TapToPayDeactivated`,
+	UNCHANGED: `Unchanged`
+};
+
+const FIELDS = {
+	permanentCashAmountLimit: `cash withdrawals`,
+	tempCashAmountLimit: `cash withdrawals`,
+	permanentPurchaseAmountLimit: `card machine purchases`,
+	tempPurchaseAmountLimit: `card machine purchases`,
+	permanentCnpAmountLimit: `online/scan to pay/phone`,
+	tempCnpAmountLimit: `online/scan to pay/phone`
+};
+
+const CARD_DISPLAY_TYPES = {
+	PRIMARY_CARD: `Primary_Card`,
+	SUPPLEMENTARY_CARD: `Supplementary_Card`,
+	VIRTUAL_CARD: `Virtual_Card`
 };
 
 /**
@@ -39,47 +54,55 @@ const TAP_TO_PAY_STATUS = {
  */
 export class UpdateCardLimits extends Component {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        // private properites
-        this.isBusy = false;
-        this.renderMode = RENDER_MODE.LIMITS;
-        this.cardlimitsInfo = {};
-        this.getAgreement = {};
+		// private properites
+		this.isBusy = false;
+		this.renderMode = RENDER_MODE.LIMITS;
+		this.cardlimitsInfo = {};
+		this.getAgreement = {};
 
-        this.error = {
-            credit: {
-                cashAmountLimit: ``,
-                purchaseAmountLimit: ``,
-                cnpAmountLimit: ``
-            },
-            debit: {
-                cashAmountLimit: ``,
-                purchaseAmountLimit: ``,
-                cnpAmountLimit: ``
-            }
-        };
+		this.error = {
+			credit: {
+				cashAmountLimit: ``,
+				purchaseAmountLimit: ``,
+				cnpAmountLimit: ``
+			},
+			debit: {
+				cashAmountLimit: ``,
+				purchaseAmountLimit: ``,
+				cnpAmountLimit: ``
+			}
+		};
 
-        this.maxValue = ``;
-        this.limitLabel = ``;
-        this.limitsAgreementExpanded = true;
-        this.tapToPayAgreementExpanded = false;
-        this.alertBannerText = ``;
-        this.cardLimits = {};
-        this._tapToPayStatus = false;
+		this.maxValue = ``;
+		this.limitLabel = ``;
+		this.limitsAgreementExpanded = true;
+		this.tapToPayAgreementExpanded = false;
+		this.alertBannerText = ``;
+		this.cardLimits = {};
+		this._tapToPayStatus = false;
 		this.cardToDisplay = ``;
+		this.totalPrimaryPermanentLimits = 0;
+		this.totalPrimaryTemporaryLimits = 0;
+		this.totalSuplementaryPermanentLimits = 0;
+		this.totalSuplementaryTemporaryLimits = 0;
+		this.totalPermanentLimits = 0;
+		this.totalTemporaryLimits = 0;
+		this.errorField = ``;
+		this.fieldFocused = ``;
 
-        this._telemetry = HorizonTelemetry.instance;
-    }
+		this._telemetry = HorizonTelemetry.instance;
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
 	 * 
@@ -91,235 +114,279 @@ export class UpdateCardLimits extends Component {
 	 * @static
 	 * @memberof UpdateCardLimits
 	 */
-    static get properties() {
-        return {
-            limitType: { type: String },
-            cardDetails: { type: Object },
-            updateType: { type: String },
-            getAgreement: { type: String },
-            displayCard: { type: String },
-            getCardLimitsAgreement: { type: Object, attribute: false },
+	static get properties() {
+		return {
+			limitType: { type: String },
+			cardDetails: { type: Object },
+			updateType: { type: String },
+			getAgreement: { type: String },
+			displayCard: { type: String },
+			getCardLimitsAgreement: { type: Object, attribute: false },
 
 			limitLabel: { type: String },
 			limitsAgreementExpanded: { type: Boolean },
 			tapToPayAgreementExpanded: { type: Boolean },
 			alertBannerText: { type: String },
 
-            renderMode: { type: Boolean, attribute: false },
-            isBusy: { type: Boolean, attribute: false },
-            _tapToPayStatus: { type: Boolean, attribute: false }
-        };
-    }
+			renderMode: { type: Boolean, attribute: false },
+			isBusy: { type: Boolean, attribute: false },
+			_tapToPayStatus: { type: Boolean, attribute: false },
+			totalPrimaryPermanentLimits: { type: Number, attribute: false },
+			totalPrimaryTemporaryLimits: { type: Number, attribute: false },
+			totalSuplementaryPermanentLimits: { type: Number, attribute: false },
+			totalSuplementaryTemporaryLimits: { type: Number, attribute: false },
+			totalPermanentLimits: { type: Number, attribute: false },
+			totalTemporaryLimits: { type: Number, attribute: false },
+			fieldFocused: { type: String, attribute: false }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
+	connectedCallback() {
+		super.connectedCallback();
 
-        this.cardLimits = this.cardDetails.cardLimits;
-        this.linkedCardLimits = this.cardDetails.linkedCardLimits;
+		this.cardLimits = {
+			maxPermanentCashAmountLimit: this.cardDetails.cardLimits.maxPermanentCashAmountLimit,
+			maxPermanentCnpAmountLimit: this.cardDetails.cardLimits.maxPermanentCnpAmountLimit,
+			maxPermanentPurchaseAmountLimit: this.cardDetails.cardLimits.maxPermanentPurchaseAmountLimit,
+			maxTemporaryCashAmountLimit: this.cardDetails.cardLimits.maxTemporaryCashAmountLimit,
+			maxTemporaryCnpAmountLimit: this.cardDetails.cardLimits.maxTemporaryCnpAmountLimit,
+			maxTemporaryPurchaseAmountLimit: this.cardDetails.cardLimits.maxTemporaryPurchaseAmountLimit,
+			permanentCashAmountLimit: this.cardDetails.cardLimits.permanentCashAmountLimit,
+			permanentCnpAmountLimit: this.cardDetails.cardLimits.permanentCnpAmountLimit,
+			permanentPurchaseAmountLimit: this.cardDetails.cardLimits.permanentPurchaseAmountLimit,
+			tempCashAmountLimit: this.cardDetails.cardLimits.tempCashAmountLimit,
+			tempCnpAmountLimit: this.cardDetails.cardLimits.tempCnpAmountLimit,
+			tempLimitExpiryDate: this.cardDetails.cardLimits.tempLimitExpiryDate,
+			tempPurchaseAmountLimit: this.cardDetails.cardLimits.tempPurchaseAmountLimit
+		};
+
+		this.linkedCardLimits = this.cardDetails.linkedCardLimits 
+			? {
+				maxPermanentCashAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCashAmountLimit,
+				maxPermanentCnpAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentCnpAmountLimit,
+				maxPermanentPurchaseAmountLimit: this.cardDetails.linkedCardLimits.maxPermanentPurchaseAmountLimit,
+				maxTemporaryCashAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryCashAmountLimit,
+				maxTemporaryCnpAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryCnpAmountLimit,
+				maxTemporaryPurchaseAmountLimit: this.cardDetails.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
+				permanentCashAmountLimit: this.cardDetails.linkedCardLimits.permanentCashAmountLimit,
+				permanentCnpAmountLimit: this.cardDetails.linkedCardLimits.permanentCnpAmountLimit,
+				permanentPurchaseAmountLimit: this.cardDetails.linkedCardLimits.permanentPurchaseAmountLimit,
+				tempCashAmountLimit: this.cardDetails.linkedCardLimits.tempCashAmountLimit,
+				tempCnpAmountLimit: this.cardDetails.linkedCardLimits.tempCnpAmountLimit,
+				tempLimitExpiryDate: this.cardDetails.linkedCardLimits.tempLimitExpiryDate,
+				tempPurchaseAmountLimit: this.cardDetails.linkedCardLimits.tempPurchaseAmountLimit
+			}
+			: ``;
+
 		this.cardToDisplay = this._getCardName();
 		this._tapToPayStatus = this.cardDetails.isContactlessActivated;
-        this.cardArtDetails = {
-            cardArt: this.cardDetails.cardArt,
-            cardHoldName: this.cardDetails.cardHolderName,
-            primaryAccountId: this.cardDetails.primaryAccountId || this.cardDetails.primaryCreditAccountId
-        };
+		this.cardArtDetails = {
+			cardArt: this.cardDetails.cardArt,
+			cardHoldName: this.cardDetails.cardHolderName,
+			primaryAccountId: this.cardDetails.primaryAccountId || this.cardDetails.primaryCreditAccountId
+		};
 
-        this._telemetry.startSpan(QuickTransactionEvents.UPDATE_LIMITS, {
-            "screen": TelemetryScreen.UPDATE_CARD_LIMITS
-        });
+		this._telemetry.startSpan(QuickTransactionEvents.UPDATE_LIMITS, {
+			"screen": TelemetryScreen.UPDATE_CARD_LIMITS
+		});
 
+		this._initialise();
+	}
 
-        this._initialise();
-    }
+	disconnectedCallback() {
+		this._telemetry.endSpan(QuickTransactionEvents.UPDATE_LIMITS, {
+			"screen": TelemetryScreen.UPDATE_CARD_LIMITS
+		});
+	}
 
-    disconnectedCallback() {
-        this._telemetry.endSpan(QuickTransactionEvents.UPDATE_LIMITS, {
-            "screen": TelemetryScreen.UPDATE_CARD_LIMITS
-        });
-    }
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	_limitChanged(e, transactionType, maxLimit) {
 
-    _limitChanged(e, transactionType, maxLimit) {
+		this.alertBannerText = ``;
 
-        if (e.detail.new) {
-            if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
-                this.linkedCardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-            } else {
-                this.cardLimits[e.currentTarget.id] = parseFloat(e.detail.new);
-                if (Number(e.detail.new) > Number(maxLimit)) {
-                    this.error[transactionType][e.currentTarget.id] = maxLimit;
-                } else {
-                    this.error[transactionType][e.currentTarget.id] = ``;
-                }
-                this.requestUpdate();
-            }
-        }
-    }
+		const oldVal = e.detail.old || 0;
+		const newVal = e.detail.new || 0;
 
-    _back() {
-        this.cardlimitsInfo.acceptedLimitsAgreement = false;
-        this.cardlimitsInfo.acceptedTapToPayAgreement = false;
-        this.renderMode = RENDER_MODE.LIMITS;
+		if (this.updateType === `Debit` && this.cardDetails.linkedCardLimits) {
+			this.linkedCardLimits[e.currentTarget.id] = parseInt(newVal, 10);
+		} else {
+			this.cardLimits[e.currentTarget.id] = parseInt(newVal, 10);
+		}
+		const diff = parseInt(newVal) - parseInt(oldVal);
 
-        this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_BACK, {
-            "screen": TelemetryScreen.LIMITS_AGREEMENT,
-            "next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
-        });
-    }
-
-    _cancel() {
-        this.dispatchEvent(new CustomEvent(`cancel`, {}));
-    }
-
-    async _next() {
-        if (this._getErrorsCount() > 0) {
-            return;
-        }
-
-        this.alertBannerText = ``;
-
-        this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, this._getTapToPayStatus());
-		const tapToPayAgreement = this.getAgreement.tapToPayAgreement;
-
-        if (this.getAgreement) {
-            this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
-
-			if (tapToPayAgreement) {
-				this.tapToPayAgreementData = tapToPayAgreement.agreementContent.agreementContentData;
-				// Set the script type as it is null at this stage and must be set
-				tapToPayAgreement.scriptContent.scriptContentType = `HTML`;
+		if (this.cardDetails.cardDisplayType === `Primary_Card`) {
+			if (this.limitType === `Permanent`) {
+				this.totalPrimaryPermanentLimits += diff;
+			} else {
+				this.totalPrimaryTemporaryLimits += diff;
 			}
-			
-            this.renderMode = RENDER_MODE.AGREEMENT;
+		} else if (this.cardDetails.cardDisplayType === `Supplementary_Card`) {
+			if (this.limitType === `Permanent`) {
+				this.totalSuplementaryPermanentLimits += diff;
+			} else {
+				this.totalSuplementaryTemporaryLimits += diff;
+			}
+		}
 
-            const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
-                cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
-                purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
-                cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit
-            } : {
-                    cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
-                    purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
-                    cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit
-                };
+		this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
+		this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
+		this.error[transactionType][e.currentTarget.id] = Number(newVal) > Number(maxLimit) ? maxLimit : ``;
+		this.requestUpdate();
+	}
 
+	_randToInt(value) {
+		if (value.startsWith(`R`)) {
+			return parseInt(value.substring(1));
+		}
+		return parseInt(value);
+	}
 
-            this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_NEXT, {
-                "screen": TelemetryScreen.UPDATE_CARD_LIMITS,
-                "next-screen": TelemetryScreen.LIMITS_AGREEMENT,
-                "update-type": this.updateType,
-                "limit-type": this.limitType,
-                "cash-amount-limit": limits.cashAmountLimit,
-                "purchase-amount-limit": limits.purchaseAmountLimit,
-                "cnp-amount-limit": limits.cnpAmountLimit
-            });
-        } else {
-            this.alertBannerText = `System error. Please try again.`;
-        }
-    }
+	_back() {
+		this.cardlimitsInfo.acceptedLimitsAgreement = false;
+		this.cardlimitsInfo.acceptedTapToPayAgreement = false;
+		this.renderMode = RENDER_MODE.LIMITS;
 
-    _agree() {
-        const accepedToAgreement = this._tapToPayStatus
-            ? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement
-            : this.cardlimitsInfo.acceptedLimitsAgreement;
-        if (accepedToAgreement) {
-            const _tapToPayStatusChange = this._getTapToPayStatus();
-            this.cardDetails.linkedCardLimits = this.linkedCardLimits;
-            this.dispatchEvent(new CustomEvent(`accepted`, {
-                detail: {
-                    agreements: this.getAgreement,
-                    agreementAccepted: accepedToAgreement,
-                    card: this.cardDetails,
-                    istapToPayUnChanged: _tapToPayStatusChange === TAP_TO_PAY_STATUS.UNCHANGED,
-                    tapToPayStatusChange: _tapToPayStatusChange,
-                    tapToPayStatus: this._tapToPayStatus
-                }
-            }));
+		this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_BACK, {
+			"screen": TelemetryScreen.LIMITS_AGREEMENT,
+			"next-screen": TelemetryScreen.UPDATE_CARD_LIMITS
+		});
+	}
 
-            this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_AGREE, {
-                "screen": TelemetryScreen.LIMITS_AGREEMENT,
-                "next-screen": TelemetryScreen.UPDATE_LIMITS_OUTCOME,
-                "tap-to-pay-enabled": accepedToAgreement
-            });
-        } else {
-            this.alertBannerText = `Please confirm to agree terms and conditions`;
-        }
-    }
+	_cancel() {
+		this.dispatchEvent(new CustomEvent(`cancel`, {}));
+	}
 
-    _toggleTapToPay(e) {
-        this._tapToPayStatus = e.detail.new;
-    }
+	async _next() {
+		const compare = (obj, source) => Object.keys(source).every(key => obj.hasOwnProperty(key) && obj[key] === source[key]);
+		if (compare(this.cardLimits, this.cardDetails.cardLimits)) {
+			this._limitHasNotChanged();
+		} else {
+			this._limitHasChanged();
+		}
+	}
 
-    _toggleAgreementsAccept(e) {
-        this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
-        this.alertBannerText = ``;
+	_agree() {
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+		const accepedToAgreement = _tapToPayStatusChange !== TAP_TO_PAY_STATUS.UNCHANGED
+			? this.cardlimitsInfo.acceptedLimitsAgreement && this.cardlimitsInfo.acceptedTapToPayAgreement
+			: this.cardlimitsInfo.acceptedLimitsAgreement;
+		if (accepedToAgreement) {
+			this.cardDetails.cardLimits = this.cardLimits;
+			this.cardDetails.linkedCardLimits = this.linkedCardLimits;
+			this.dispatchEvent(new CustomEvent(`accepted`, {
+				detail: {
+					agreements: this.getAgreement,
+					agreementAccepted: accepedToAgreement,
+					card: this.cardDetails,
+					istapToPayUnChanged: _tapToPayStatusChange === TAP_TO_PAY_STATUS.UNCHANGED,
+					tapToPayStatusChange: _tapToPayStatusChange,
+					tapToPayStatus: this._tapToPayStatus
+				}
+			}));
 
-        if (e.detail.new && this._tapToPayStatus) {
+			this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_AGREE, {
+				"screen": TelemetryScreen.LIMITS_AGREEMENT,
+				"next-screen": TelemetryScreen.UPDATE_LIMITS_OUTCOME,
+				"tap-to-pay-enabled": accepedToAgreement
+			});
+		} else {
+			this.alertBannerText = `Please confirm to agree terms and conditions`;
+		}
+	}
+
+	_toggleTapToPay(e) {
+		this._tapToPayStatus = e.detail.new;
+	}
+
+	_toggleAgreementsAccept(e) {
+		this.cardlimitsInfo[e.currentTarget.id] = e.detail.new;
+		this.alertBannerText = ``;
+
+        if (e.detail.new && this._getTapToPayStatus() !== TAP_TO_PAY_STATUS.UNCHANGED ) {
             this.limitsAgreementExpanded = !this.limitsAgreementExpanded;
             this.tapToPayAgreementExpanded = !this.tapToPayAgreementExpanded;
         }
     }
 
-    // --------------
-    // PUBLIC METHODS
-    // --------------
+	_textFieldFocused(e) {
+		this.fieldFocused = e.currentTarget.id;
+	}
 
-    // N/A
+	_getTextFieldValue(id, value) {
+		return this.fieldFocused === id ? value : parseInt(value, 10).toFixed(2);  
+	}
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+	// --------------
+	// PUBLIC METHODS
+	// --------------
 
-    _initialise() {
-        this.cardlimitsInfo = {
-            tapToPayEnabled: false,
-            acceptedLimitsAgreement: false,
-            acceptedTapToPayAgreement: false
-        };
+	// N/A
 
-        // TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
-        this.limitLabel = `${this.updateType} Limits`;
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+
+	_initialise() {
+		this.cardlimitsInfo = {
+			tapToPayEnabled: false,
+			acceptedLimitsAgreement: false,
+			acceptedTapToPayAgreement: false
+		};
+
+		// TO DO : limitLabel to be loaded dynamically depending on update type once we get proper value in Update type
+		this.limitLabel = `${this.updateType} Limits`;
+
 
 		this.totalPrimaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Primary card limits`);
 		this.totalSupplementaryCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Supplementary card limits`);
-		this.totalCardLimits = this.cardDetails.totalDailyLimitExposures.find(item => item.cardTypeName === `Total limits`);
-    }
+		this.totalPrimaryPermanentLimits = this._randToInt(this.totalPrimaryCardLimits.permanentLimit);
+		this.totalPrimaryTemporaryLimits = this._randToInt(this.totalPrimaryCardLimits.temporaryLimit);
+		this.totalSuplementaryPermanentLimits = this._randToInt(this.totalSupplementaryCardLimits.permanentLimit);
+		this.totalSuplementaryTemporaryLimits = this._randToInt(this.totalSupplementaryCardLimits.temporaryLimit);
+		this.totalTemporaryLimits = this.totalPrimaryTemporaryLimits + this.totalSuplementaryTemporaryLimits;
+		this.totalPermanentLimits = this.totalPrimaryPermanentLimits + this.totalSuplementaryPermanentLimits;
 
-    _getErrorsCount() {
-        const debitErrors = Object.values(this.error.debit).filter(item => item !== ``);
-        const creditErrors = Object.values(this.error.credit).filter(item => item !== ``);
+	}
 
-        if (debitErrors.length + creditErrors.length === 1) {
-            this.maxValue = debitErrors[0] || creditErrors[0];
-        }
+	_getErrorsCount() {
+		const debitErrors = Object.values(this.error.debit).filter(item => item !== ``);
+		const creditErrors = Object.values(this.error.credit).filter(item => item !== ``);
 
-        return debitErrors.length + creditErrors.length;
-    }
+		if (debitErrors.length + creditErrors.length === 1) {
+			this.maxValue = debitErrors[0] || creditErrors[0];
+			
+			const errDetails = Object.entries(this.error[this.updateType.toLowerCase()]).find(item => !isNullorEmpty(item[1]));
+			this.errorField = FIELDS[errDetails[0]];
+		}
 
-    _getAlertMessage() {
+		return debitErrors.length + creditErrors.length;
+	}
 
-        if (this._getErrorsCount() > 1) {
-            return html`
+	_getAlertMessage() {
+
+		if (this._getErrorsCount() > 1) {
+			return html`
 				<capitec-label
 					label="Maximum limits have been exceeded"
 					type="strong">
 				</capitec-label>`;
-        }
-        return html`
+		}
+		return html`
 			<div>
-				Maximum limit for cash withdrawl is <strong>${formatCurrency(this.maxValue)}</strong>
+				Maximum limit for ${this.errorField} is <strong>${formatCurrency(this.maxValue, 0)}</strong>
 			</div>
 		`;
-    }
+	}
 
     _getFieldError(value) {
-        return !value ? `` : `Max limit - ${formatCurrency(value)}`;
+        return !value ? `` : `Max limit - ${formatCurrency(value, 0)}`;
     }
     
     _getTapToPayStatus() {
@@ -330,19 +397,70 @@ export class UpdateCardLimits extends Component {
     }
 
 	_toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
+		this.isBusy = !this.isBusy;
+	}
 
 	_getCardName() {
-        if (this.cardDetails.cardDisplayType === `Virtual_Card`) {
-            return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
-        }
-        return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
-    }
+		if (this.cardDetails.cardDisplayType === `Virtual_Card`) {
+			return this.linkedCardLimits ? `Virtual Credit Card` : `Virtual Debit MasterCard`;
+		}
+		return this.linkedCardLimits ? `Plastic Credit Card` : `Plastic Debit MasterCard`;
+	}
+	
+	async _limitHasChanged() {
+		if (this._getErrorsCount() > 0) {
+			return;
+		}
 
-    // ---------
-    // RENDERING
-    // ---------
+		this.alertBannerText = ``;
+		const newLimits = this.updateType === `Debit` && this.cardDetails.linkedCardLimits ? this.linkedCardLimits : this.cardLimits;
+
+		this.getAgreement = await this.getCardLimitsAgreement(this.cardDetails, newLimits, this._getTapToPayStatus());
+		const tapToPayAgreement = this.getAgreement && this.getAgreement.tapToPayAgreement;
+
+		if (this.getAgreement) {
+			this.cardLimitsAgreement = this.getAgreement.cardLimitsAgreement && this.getAgreement.cardLimitsAgreement.agreementContent.agreementContentData;
+
+			if (tapToPayAgreement) {
+				this.tapToPayAgreementData = tapToPayAgreement.agreementContent.agreementContentData;
+				// Set the script type as it is null at this stage and must be set
+				tapToPayAgreement.scriptContent.scriptContentType = `HTML`;
+			}
+			
+			this.renderMode = RENDER_MODE.AGREEMENT;
+
+			const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
+				cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
+				purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
+				cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit
+			} : {
+					cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+					purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+					cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit
+				};
+
+
+			this._telemetry.logEvent(QuickTransactionEvents.UPDATE_LIMITS_NEXT, {
+				"screen": TelemetryScreen.UPDATE_CARD_LIMITS,
+				"next-screen": TelemetryScreen.LIMITS_AGREEMENT,
+				"update-type": this.updateType,
+				"limit-type": this.limitType,
+				"cash-amount-limit": limits.cashAmountLimit,
+				"purchase-amount-limit": limits.purchaseAmountLimit,
+				"cnp-amount-limit": limits.cnpAmountLimit
+			});
+		} else {
+			this.alertBannerText = `System error. Please try again.`;
+		}
+	}
+
+	_limitHasNotChanged() {
+		this.alertBannerText = `Update limit(s) in order to continue.`;
+	}
+
+	// ---------
+	// RENDERING
+	// ---------
 
 	/**
 	 * Generates the component stylesheet.
@@ -351,10 +469,10 @@ export class UpdateCardLimits extends Component {
 	 * @static
 	 * @returns {css} CSS for the component.
 	 */
-    static get styles() {
-        return [
-            super.styles,
-            css`
+	static get styles() {
+		return [
+			super.styles,
+			css`
 			.cardArt {
 				width: var(--horizon-card-art-width, 328px);
 				height: var(--horizon-card-art-height, 304px);
@@ -369,22 +487,16 @@ export class UpdateCardLimits extends Component {
 				--theme-type-clear-background: rgba(0,157,224,0.1)
 			}
 			.dailyExTitle {
-				--theme-label-font-color: #3A3A3A;
 				margin-left: 12px;
 				margin-top: 12px;
-				--theme-label-font-size: 16px;
-				line-height: 20px;
-			}
-			.limitTitle {
-				--theme-label-font-color: #3A3A3A;
-				--theme-label-font-size: 14px;
-				height: 20px;
+				--theme-label-default-font-size: 16px;
 			}
 			.limitSubtitle {
 				color: #3A3A3A;
+				line-height: 12px;
 				font-size: 12px;
 				padding-bottom: 10px;
-				margin-top: 7px;
+				margin-top: 2px;
 			}
 			.dailyLimits {
 				height: 34px; 
@@ -397,21 +509,21 @@ export class UpdateCardLimits extends Component {
 				--theme-label-subtitle-line-height: 12px;
 				--theme-label-subtitle-font-size: 12px;
 				width: 150px;
-				margin-bottom: 14px;
+				margin: 0px 0px 16px 8px;
 			}
 			capitec-modal {
 				--theme-modal-header-background-color: #F7F7F7;
 				--theme-modal-header-color: #3A3A3A;
 				--theme-modal-header-padding-top: 20px;
 				--theme-modal-header-padding-bottom: 20px;
-				--theme-modal-footer-padding: 15px 15px 16px 24px;
+				--theme-modal-footer-padding : 16px 0px 0px 0px;
 			}
 			capitec-stepper {
 				--theme-stepper-step-title-font-color: #3A3A3A;
 				--theme-font-weight: 600;
 			}
 			.main-cb {
-				height: 657px;
+				height: 661px;
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 16px;
@@ -467,15 +579,18 @@ export class UpdateCardLimits extends Component {
 			capitec-label[type="title"] {
 				--theme-label-title-font-size: 18px;
 				--theme-label-title-font-weight: 600;
-				--theme-label-strong-font-color: #3A3A3A;
 				padding-bottom: 16px;
 				--theme-label-title-line-height: 24px;
-				margin-bottom: 0px;
+				margin: 0px 8px ;
 			}
 			capitec-label[type="default"] {
-				--theme-label-default-font-size: 15px;
+				line-height: 20px;
 				--theme-label-default-font-weight: 600;
 				--theme-label-font-color: #3A3A3A;
+			}
+			.limitLabel {
+				--theme-label-strong-font-color: #3A3A3A;
+				width: 400px;
 			}
 			.main-cb > capitec-card {
 				--theme-layout-gap-spacing: 0px;
@@ -483,6 +598,7 @@ export class UpdateCardLimits extends Component {
 			}
 			capitec-card > capitec-group {
 				width: 100%;
+				height: 268px;
 				padding: 0px 16px 0px 16px;
 			}
 			capitec-toggle {
@@ -515,7 +631,8 @@ export class UpdateCardLimits extends Component {
 				--theme-label-strong-font-weight: 600;
 			}
 			div[slot="footer"] > capitec-group {
-				--theme-layout-gap-spacing: 7px;
+				width: 812px;
+				margin: 16px 0px 16px 0px; 
 			}
 			.back-btn {
 				width: 65px;
@@ -550,14 +667,17 @@ export class UpdateCardLimits extends Component {
 			capitec-expander-group > capitec-expander:last-child {
 				margin-bottom: 0px;
 			}
+			capitec-expander-group > capitec-expander[expanded] {
+			--theme-expander-background-color: #F7F7F7;
+			}
 			.expander-cb {
 				background-color: #FFFFFF;
 				border-top: 1px solid #E1E1E1;
 
 				--theme-container-padding-left: 16px;
 				--theme-container-padding-top: 9px;
-				--theme-container-padding-right: 0px;
-				--theme-container-padding-bottom: 0px;
+				--theme-container-padding-right: 16px;
+				--theme-container-padding-bottom: 16px;
 				--theme-layout-gap-spacing: 18px;
 			}
 			.agreement-lb {
@@ -592,13 +712,12 @@ export class UpdateCardLimits extends Component {
 			}
 			.card-img-cb {
 				width: 356px;
-				padding-top: 31px;
 			}
 			.tapToPayTitle {
 				height: 24px;
 				width: 85px;
 				font-size: 18px;
-				margin: 0px;
+				margin: 0px 8px;
 			}
 			.toggleText {
 				height: 48px;
@@ -611,51 +730,58 @@ export class UpdateCardLimits extends Component {
 				font-weight: 500;
 				line-height: 20px;
 			}
-				.agreement-viewer {
-					width: 100%;
-					height: 100%;
-				}
+			.agreement-viewer {
+				width: 100%;
+				height: 100%;
+			}
+			.fieldHidden{
+				margin-bottom:24px;
+			}
+			.zeroPaddingRight {
+				--theme-container-padding-right: 0px;
+			}
 			`
-        ];
-    }
+		];
+	}
 
-    _mobileTemplate() {
-        return this._webTemplate();
-    }
+	_mobileTemplate() {
+		return this._webTemplate();
+	}
 
-    _webTemplate() {
-        return html`
-			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} ${this.updateType} Limits">
+	_webTemplate() {
+		return html`
+			<capitec-modal type="free" header-align="left" header="Update ${this.limitType} Limits" data-automation-id="update-card-limits-modal">
 				<div slot="body">
 				
 					<capitec-stepper
+						data-automation-id="update-card-limits-stepper"
 						layout="horizontal"
 						.steps="${UPDATE_LIMIT_STEPS}"
 						active-step-number="${this.renderMode}">
- 					</capitec-stepper>
+					</capitec-stepper>
 
-					 <capitec-content-box class="main-cb">
+					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
 						${this._renderSetLimits()}
 						${this._renderAgreement()}
-					 </capitec-content-box>
+					</capitec-content-box>
 				</div>
 
-				<div slot="footer">
+				<div style="border-top: 1px solid #e1e1e1" slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
 			${this._renderLoadingIndicator()}
 		`;
-    }
+	}
 
-    _renderLimitsAlertBanner() {
-        if (this._getErrorsCount() === 0) {
-            return html``;
-        }
-        return html`
+	_renderLimitsAlertBanner() {
+		if (this._getErrorsCount() === 0) {
+			return html``;
+		}
+		return html`
 			<capitec-alert-banner type="unsuccessful-red">
-				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
+				<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner" data-automation-id="update-card-limits-unsuccessful-banner">
 					<capitec-label
 						label="Notify client: "
 						type="default">
@@ -664,12 +790,12 @@ export class UpdateCardLimits extends Component {
 				</capitec-group>
 			</capitec-alert-banner>
 		`;
-    }
+	}
 
-    _renderAgreementsAlertBanner() {
-        return this.alertBannerText
-            ? html`
-				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red">
+	_renderAgreementsAlertBanner() {
+		return this.alertBannerText
+			? html`
+				<capitec-alert-banner class="agreements-banner" type="unsuccessful-red" data-automation-id="update-card-limits-agreements-unsuccessful-banner">
 					<capitec-group layout="horizontal" halign="left" valign="top" gap="none" class="alert-banner">
 						<capitec-label
 							label="${this.alertBannerText}"
@@ -677,29 +803,29 @@ export class UpdateCardLimits extends Component {
 						</capitec-label>
 					</capitec-group>
 				</capitec-alert-banner>`
-            : html``;
-    }
+			: html``;
+	}
 
     _renderSetLimits() {
         return this.renderMode === RENDER_MODE.LIMITS
             ? html`
-				<capitec-label type="title" label="${this.limitLabel}"></capitec-label>
+				<capitec-label type="title" label="${this.cardDetails.isVirtualCard ? "Virtual Limits" :this.limitLabel}" class="limitLabel"></capitec-label>
 				<capitec-group class="renderLimits" layout="horizontal" halign="left" valign="top" gap="clear">
 					<capitec-card style="display: inline">
 						${this._renderLimitsAlertBanner()}
 						${this.updateType === `Credit`
-                    ? this._renderCreditLimits()
-                    : this._renderDebitLimits()
-                }
+					? this._renderCreditLimits()
+					: this._renderDebitLimits()
+				}
 					</capitec-card>
 				</capitec-group>
 				${this._renderTapToPay()}`
-            : html``;
-    }
+			: html``;
+	}
 
-    _renderCard() {
-        return html`
-		<capitec-content-box class="card-img-cb" halign="center" valign="Center">
+	_renderCard() {
+		return html`
+		<capitec-content-box class="card-img-cb" halign="center" valign="center">
 			<horizon-card-art
 				.card="${this.cardArtDetails}"
 				disable-hover="${true}"
@@ -707,11 +833,13 @@ export class UpdateCardLimits extends Component {
 			</horizon-card-art>
 		</capitec-content-box>
 		`;
-    }
+	}
 
-    _renderCreditLimits() {
-        return html`
-			<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
+	_renderCreditLimits() {
+		const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `padding-bottom:24px` : ``;
+
+		return html`
+			<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
 				${this._renderCard()}
 				<capitec-content-box class="limits-cb">
 					${this._renderLimits(`credit`)}
@@ -720,11 +848,12 @@ export class UpdateCardLimits extends Component {
 
 				${this._renderAllLimits()}
 		`;
-    }
+	}
 
-    _renderDebitLimits() {
-        return html`
-				<capitec-group layout="horizontal" halign="center" valign="top" gap="none">
+	_renderDebitLimits() {
+		const primaryOrSup = this.cardDetails.cardDisplayType === `Supplementary_Card` ? `padding-bottom:24px` : ``;
+		return html`
+				<capitec-group style="${primaryOrSup}" layout="horizontal" halign="center" valign="top" gap="none">
 					${this._renderCard()}
 					<capitec-content-box class="limits-cb">
 						${this._renderLimits(`debit`)}
@@ -733,88 +862,101 @@ export class UpdateCardLimits extends Component {
 				
 				${this._renderAllLimits()}
 		`;
-    }
+	}
 
-    _renderAllLimits() {
-        return html`
-				<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
-					<capitec-label
-						label="Total daily limit exposure"
-						class="dailyExTitle">
-					</capitec-label>
-					<div class="dailyLimits">
-						<div style="display: inline-block; width: 245px; height: 32px">
-							<capitec-label label="Primary card limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalPrimaryCardLimits.temporaryLimit, 0)}</b></p>
-						</div>
-						 <div style="display: inline-block; width: 245px; height: 32px">
-							<capitec-label label="Supplementary card limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSupplementaryCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalSupplementaryCardLimits.temporaryLimit, 0)}</b></p>
-						</div>
-						<div style="display: inline-block; width: 245px; height: 32px">
-							<capitec-label label="Total limits" class="limitTitle"></capitec-label>
-							<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalCardLimits.permanentLimit, 0)}</b>/Temporary <b>${formatCurrency(this.totalCardLimits.temporaryLimit, 0)}</b></p>
-						</div>
+	_renderAllLimits() {
+		return html`
+			<capitec-title-bar type="clear" label="" class="dailyLimitsEx">
+				<capitec-label
+					data-automation-id="update-card-limits-total-daily-limits-exposure"
+					label="Total daily limit exposure"
+					class="dailyExTitle">
+				</capitec-label>
+				<div class="dailyLimits">
+					<div style="display: inline-block; width: 245px; height: 32px">
+						<capitec-label label="Primary card limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPrimaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalPrimaryTemporaryLimits, 0)}</b></p>
 					</div>
-				</capitec-title-bar>
+						<div style="display: inline-block; width: 245px; height: 32px">
+						<capitec-label label="Supplementary card limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalSuplementaryPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalSuplementaryTemporaryLimits, 0)}</b></p>
+					</div>
+					<div style="display: inline-block; width: 245px; height: 32px">
+						<capitec-label label="Total limits"></capitec-label>
+						<p class="limitSubtitle">Permanent <b>${formatCurrency(this.totalPermanentLimits, 0)}</b> / Temporary <b>${formatCurrency(this.totalTemporaryLimits, 0)}</b></p>
+					</div>
+				</div>
+			</capitec-title-bar>
 		`;
-    }
+	}
 
-    _renderLimits(transactionType) {
-        const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
-            cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
-            purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
-            cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit,
-            maxCashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCashAmountLimit : this.linkedCardLimits.maxTemporaryCashAmountLimit,
-            maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentPurchaseAmountLimit : this.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
-            maxcnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCnpAmountLimit : this.linkedCardLimits.maxTemporaryCnpAmountLimit
-        } : {
-                cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
-                purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
-                cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
-                maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
-                maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
-                maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
-            };
+	_renderLimits(transactionType) {
+		const limits = this.linkedCardLimits && this.updateType === `Debit` ? {
+			cashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCashAmountLimit : this.linkedCardLimits.tempCashAmountLimit,
+			purchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentPurchaseAmountLimit : this.linkedCardLimits.tempPurchaseAmountLimit,
+			cnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.permanentCnpAmountLimit : this.linkedCardLimits.tempCnpAmountLimit,
+			maxCashAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCashAmountLimit : this.linkedCardLimits.maxTemporaryCashAmountLimit,
+			maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentPurchaseAmountLimit : this.linkedCardLimits.maxTemporaryPurchaseAmountLimit,
+			maxcnpAmountLimit: this.limitType === `Permanent` ? this.linkedCardLimits.maxPermanentCnpAmountLimit : this.linkedCardLimits.maxTemporaryCnpAmountLimit
+		} : {
+				cashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCashAmountLimit : this.cardLimits.tempCashAmountLimit,
+				purchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentPurchaseAmountLimit : this.cardLimits.tempPurchaseAmountLimit,
+				cnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.permanentCnpAmountLimit : this.cardLimits.tempCnpAmountLimit,
+				maxCashAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCashAmountLimit : this.cardLimits.maxTemporaryCashAmountLimit,
+				maxPurchaseAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentPurchaseAmountLimit : this.cardLimits.maxTemporaryPurchaseAmountLimit,
+				maxcnpAmountLimit: this.limitType === `Permanent` ? this.cardLimits.maxPermanentCnpAmountLimit : this.cardLimits.maxTemporaryCnpAmountLimit
+			};
 
-        const cashAmountLimit = this.limitType === `Permanent` ? `permanentCashAmountLimit` : `tempCashAmountLimit`;
-        const purchaseAmountLimit = this.limitType === `Permanent` ? `permanentPurchaseAmountLimit` : `tempPurchaseAmountLimit`;
-        const cnpAmountLimit = this.limitType === `Permanent` ? `permanentCnpAmountLimit` : `tempCnpAmountLimit`;
+		const cashAmountLimit = this.limitType === `Permanent` ? `permanentCashAmountLimit` : `tempCashAmountLimit`;
+		const purchaseAmountLimit = this.limitType === `Permanent` ? `permanentPurchaseAmountLimit` : `tempPurchaseAmountLimit`;
+		const cnpAmountLimit = this.limitType === `Permanent` ? `permanentCnpAmountLimit` : `tempCnpAmountLimit`;
 
-        return html`
+		return html`
 			<capitec-text-field
 				id="${cashAmountLimit}"
+				data-automation-id="update-card-limits-cash-amount"
 				label="Cash withdrawal (max ${formatCurrency(limits.maxCashAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${limits.cashAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType].cashAmountLimit)}"
+				value="${this._getTextFieldValue(cashAmountLimit, limits.cashAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][cashAmountLimit])}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
+				@blur="${() => this.fieldFocused = ``}"
+				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxCashAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
 				id="${purchaseAmountLimit}"
+				data-automation-id="update-card-limits-purchase-amount"
 				label="Card machine purchases (max ${formatCurrency(limits.maxPurchaseAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${limits.purchaseAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType].purchaseAmountLimit)}"
+				value="${this._getTextFieldValue(purchaseAmountLimit, limits.purchaseAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][purchaseAmountLimit])}"
+				@blur="${() => this.fieldFocused = ``}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.VIRTUAL_CARD}"
+				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxPurchaseAmountLimit)}">
 			</capitec-text-field>
 			<capitec-text-field
 				id="${cnpAmountLimit}"
-				label="Online/telephone/mail purchases (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
+				data-automation-id="update-card-limits-cnp-amount"
+				label="Online/scan to pay/phone (max ${formatCurrency(limits.maxcnpAmountLimit, 0)})"
 				keyboardMode="numeric"
 				type="currency"
-				value="${limits.cnpAmountLimit}"
-				error="${this._getFieldError(this.error[transactionType].cnpAmountLimit)}"
+				value="${this._getTextFieldValue(cnpAmountLimit, limits.cnpAmountLimit)}"
+				error="${this._getFieldError(this.error[transactionType][cnpAmountLimit])}"
+				?hidden="${this.cardDetails.cardDisplayType === CARD_DISPLAY_TYPES.SUPPLEMENTARY_CARD}"
+				@blur="${() => this.fieldFocused = ``}"
+				@keyboard-input-focus="${(e) => this._textFieldFocused(e)}"
 				@value-changed="${(e) => this._limitChanged(e, transactionType, limits.maxcnpAmountLimit)}">
 			</capitec-text-field>
 		`;
-    }
+	}
 
-    _renderTapToPay() {
-        if (this.cardDetails.isContactlessCard) {
-            return html`
+	_renderTapToPay() {
+		if (this.cardDetails.isContactlessCard) {
+			return html`
 			<capitec-label
 				label="Tap to Pay"
 				class="tapToPayTitle">
@@ -828,16 +970,19 @@ export class UpdateCardLimits extends Component {
 			<capitec-card>
 				<capitec-group layout="horizontal" class="toggleText" halign="left" valign="center" gap="none">
 					<capitec-label
-						label="Would you like to activate your Tap to Pay"
+					data-automation-id="update-card-limits-update-tap-to-pay"
+						label="Would you like to activate your Tap to Pay?"
 						type="default">
 					</capitec-label>
 					<capitec-spacer></capitec-spacer>
 					<capitec-label
+						style="font-weight: 600"
 						label="${this._tapToPayStatus ? `On: Pending` : `Off`}"
 						type="default">
 					</capitec-label>
 					<capitec-toggle 
 						label=""
+						data-automation-id="update-card-limits-tap-to-pay-toggle"
 						@value-change="${(e) => this._toggleTapToPay(e)}"
 						?checked="${this._tapToPayStatus}">
 					</capitec-toggle>
@@ -846,6 +991,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-title-bar type="clear" label="">
 					<capitec-icon icon="status/info"></capitec-icon>
 					<capitec-label
+						data-automation-id="update-card-limits-update-tap-to-pay-banner"
 						label="Notify client: "
 						type="strong"
 						class="label-bold"
@@ -859,20 +1005,22 @@ export class UpdateCardLimits extends Component {
 				</capitec-title-bar>
 			</capitec-card>
 		`;
-        }
-        return html``;
-    }
+		}
+		return html``;
+	}
 
-    _renderAgreement() {
-        if (this.renderMode === RENDER_MODE.AGREEMENT) {
-            return html`
+	_renderAgreement() {
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+
+		if (this.renderMode === RENDER_MODE.AGREEMENT) {
+			return html`
 				<capitec-expander-group modeset="single">
 
 					<capitec-expander
 						expandbuttonalignment="left"
 						label="View Agreement">
 							<capitec-content-box
-								class="expander-cb" halign="left" valign="top" gap="none">
+								class="expander-cb zeroPaddingRight" halign="left" valign="top" gap="none">
 									<object
 										class="agreement-viewer"
 										data="data:text/html;base64,${this.cardLimitsAgreement}"
@@ -889,7 +1037,7 @@ export class UpdateCardLimits extends Component {
 							${this._renderTermsAndConditions(`LimitsAgreement`)}
 					</capitec-expander>
 
-					${this._tapToPayStatus ? html`
+					${_tapToPayStatusChange !== TAP_TO_PAY_STATUS.UNCHANGED ? html`
 						<capitec-expander
 							expandbuttonalignment="left"
 							label="Tap To Pay"
@@ -898,53 +1046,84 @@ export class UpdateCardLimits extends Component {
 						</capitec-expander>` : html``}
 				</capitec-expander-group>
 			`;
-        }
-        return html``;
-    }
+		}
+		return html``;
+	}
 
-    _renderAgreementContent(agreement) {
-        return agreement
-            ? html`
+	_renderAgreementContent(agreement) {
+		return agreement
+			? html`
 				<object
 					class="agreement-viewer"
 					data="data:text/html;base64,${agreement}"
 					type="text/html">
 				</object>`
-            : html``;
-    }
+			: html``;
+	}
 
-    _renderTermsAndConditions(type) {
-        return html`
+	_renderTermsAndConditions(type) {
+		return html`
 			<capitec-content-box class="expander-cb">
-				<div class="agreement-lb">
-					You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
-				</div>
-				<div class="agreement-lb">
-					<ol>
-						<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
-						<li>You are aware that it's safer to transfer funds electrically than using your card or cash, and that the card remains your liability in the event of it being[Virtual Card: compromised][Plastic Card: lost, stolen or misused].</li>
-						<li>You agree that you shall have no claim or right of action arising fromany undertaking, representation or warranty not included, and agreed during this call.</li>
-						<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
-					</ol>
-				</div>
+				${type === `LimitsAgreement` ? this._renderCardLimitsScript() : ``}
+				${type === `TapToPayAgreement` ? this._renderTapToPayScript() : ``}
 				<capitec-card class="agreement-terms">
 					<capitec-check 
 						id="accepted${type}"
-						label="Please confirm that you agree to these terms and conditions and that your are bound by them?"
+						label="Please confirm that you agree to these terms and conditions and that you are bound by them?"
 						@value-change="${(e) => this._toggleAgreementsAccept(e)}">
 					</capitec-check>
 				</capitec-card>
 			</capitec-content-box>
 		`;
-    }
+	}
+
+	_renderCardLimitsScript() {
+		return html`
+			<div class="agreement-lb">
+				You acknowledge and agree that you understand and accept the terms and conditions of updating your <br><strong>${this.cardToDisplay}</strong> and/or Card-Not-Present Functionality limits, as well as your rights as a client as confirmed on this call with you.
+			</div>
+			<div class="agreement-lb">
+				<ol>
+					<li>This call recording forms the agreement between us and you as to the amendment of your original <br><strong>${this.cardToDisplay}</strong> agreement in relation to your card limits and is effective at the date of concluding this call.</li>
+					<li>You are aware that it's safer to transfer funds electronically than using your card or cash, and that the card remains your liability in the event of it being ${this.cardDetails.isVirtualCard ? `compromised` : `lost, stolen or misused`}.</li>
+					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
+					<li>You declare that all the information you've given us on this call is true and correct, and that way we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
+				</ol>
+			</div>
+		`;
+	}
+
+	_renderTapToPayScript() {
+		const _tapToPayStatusChange = this._getTapToPayStatus();
+
+		return html`
+			<div class="agreement-lb">
+				You acknowledge and agree that you understand and accept the terms and conditions of enabling Tap to Pay on your <strong>${this.cardToDisplay}</strong>, as well as your rights as a client as confirmed on this call with you.
+			</div>
+			<div class="agreement-lb">
+				<ol>
+					<li>This call recording forms the agreement between us and you as to the amendment of your Tap to Pay Status and is effective at the date of concluding this call.</li>
+					<li>You’re aware that you must keep your Tap to Pay enabled card safe and immediately report it if stolen, as you will remain liable for any transactions performed if your card gets lost, stolen or misused.</li>
+					<li>You declare that you’re aware that the Tap to Pay functionality means your card can be used without a PIN, even when lost, stolen or misused.</li>
+					${_tapToPayStatusChange === TAP_TO_PAY_STATUS.DEACTIVATED ? html`<li>When you deactivated Tap to Pay, the card will function like a normal card and pin for all transactions, until such a time that you choose to reactivate the Tap to Pay functionality.</li>` : ``}
+					<li>You agree that you shall have no claim or right of action arising from any undertaking, representation or warranty not included, and agreed during this call.</li>
+					<li>You declare that all the information you’ve given us on this call is true and correct, and that we may, in any legal proceedings, rely on this call recording as rebuttable evidence of your acceptance of all terms and stipulations during this call. You acknowledge that a copy of the full agreement can be emailed to you on request.</li>
+				</ol>
+			</div>
+		`;
+	}
 
     _renderFooter() {
         return html`
-			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" style="width: 776px;">
+			<capitec-group 
+			class="footer" 
+			layout="horizontal"  
+			style="width: 812px; padding-right: 16px; padding-left: 16px;">
 				<capitec-button
 					class="back-btn"
 					type="clear" 
 					label="Back"
+					data-automation-id="update-card-limits-back"
 					@click="${() => this._back()}"
 					?hidden=${this.renderMode === RENDER_MODE.LIMITS}>
 				</capitec-button>
@@ -952,6 +1131,7 @@ export class UpdateCardLimits extends Component {
 				<capitec-spacer></capitec-spacer>
 				
 				<capitec-button
+					data-automation-id="update-card-limits-cancel"
 					class="cancel-btn"
 					type="clear"
 					label="Cancel"
@@ -959,6 +1139,7 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 			
 				<capitec-button
+					data-automation-id="update-card-limits-next"
 					class="next-btn"
 					type="primary" 
 					label="Next"
@@ -967,6 +1148,7 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 
 				<capitec-button
+					data-automation-id="update-card-limits-agree"
 					class="next-btn"
 					type="primary" 
 					label="Agree"
@@ -975,13 +1157,13 @@ export class UpdateCardLimits extends Component {
 				</capitec-button>
 			</capitec-group>
 		`;
-    }
+	}
 
-    _renderLoadingIndicator() {
-        return this.isBusy
-            ? html`<capitec-loading-indicator></capitec-loading-indicator>`
-            : html``;
-    }
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
 }
 
 customElements.define(`horizon-update-card-limits`, UpdateCardLimits);

@@ -5,8 +5,8 @@ import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
-import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'app/components/dialogs/common/ConfirmCallerDetails';
 import 'app/components/common/HorizonSelect';
@@ -439,6 +439,7 @@ export class StopCardSearchCaller extends Component {
 			case RENDER_MODE.STOP_CARD_SEARCH:
 				return html`
 					<horizon-caller-dialog
+						data-automation-id="stop-card-search-caller-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
@@ -482,6 +483,7 @@ export class StopCardSearchCaller extends Component {
 							class="search-fields ${this.alertBannerMessage ? `override-margin-top` : ``}">
 					<capitec-select 
 						id="identificationMethods" 
+						data-automation-id="stop-card-search-caller-identification-methods"
 						error="${this.errMessage.identificationMethods}"
 						label="Choose identification method" 
 						class="id-options"
@@ -494,6 +496,7 @@ export class StopCardSearchCaller extends Component {
 					</capitec-select>
 					<capitec-text-field 
 						id="searchFieldText" 
+						data-automation-id="stop-card-search-caller-value"
 						type="search" 
 						keyboardMode="numeric" 
 						label="Search"
@@ -510,10 +513,10 @@ export class StopCardSearchCaller extends Component {
 	}
 
 	renderAlertBanner() {
-
 		if (!isNullorEmpty(this.alertBannerMessage)) {
 			return html`
 				<capitec-alert-banner 
+					data-automation-id="stop-card-search-caller-alert"
 					type="error" 
 					label="${this.alertBannerMessage}" 
 					closable
@@ -529,6 +532,7 @@ export class StopCardSearchCaller extends Component {
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button 
 					id="id-search-button" 
+					data-automation-id="stop-card-search-search-client"
 					type="primary" 
 					@click="${(e) => this._onSearchClick(e)}"
 					label="Search Client"

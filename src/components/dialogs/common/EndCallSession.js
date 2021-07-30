@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration, Logger, NavigationContext } from 'platform/core';
-import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { Configuration, Logger, NavigationContext, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
+import { END_CALL_REASON } from 'app/constants/EndCallReasons';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
 import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -56,6 +57,7 @@ export class EndCallSession extends Component {
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
+		this.securityContext = SecurityContext.getInstance();
 
 		this.incidentManagementService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._endCallErrorHandler(ex));
 	}
@@ -89,13 +91,14 @@ export class EndCallSession extends Component {
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
-	async connectedCallback() {
+	connectedCallback() {
 		super.connectedCallback();
-
+		
 		this._telemetry.startSpan(EndCallEvents.END_CALL, {
 			"screen": TelemetryScreen.END_CALL
 		});
 
+		this.endCallReasons = END_CALL_REASON.table;
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -105,7 +108,7 @@ export class EndCallSession extends Component {
 		this.incidentRefNumber = incidentDetails.incidentReferenceNumber || this.incidentDetails.incidentReferenceNumber;
 		this.incidentRecId = incidentDetails.incidentRecId || this.incidentDetails.incidentRecId;
 
-		await this._loadEndCallOptions();
+		this._setDefaultValues();
 	}
 
 	disconnectedCallback() {
@@ -136,30 +139,37 @@ export class EndCallSession extends Component {
 	}
 
 	_endCallClick() {
-		this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
-			"screen": TelemetryScreen.END_CALL,
-			"reason": this.endCallReason.value,
-			"next-screen": TelemetryScreen.WAIT_FOR_CALL
-		});
-
 		const isValid = this._validateCloseIncidentReason();
 
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
-			this._stopCardEndCall();
-		} else if (isValid) {
-			if (this._preventCloseOfIncident()) {
-				// Updating state as call ended and redirecting it to call waiting page
+		if (isValid) {
+			this._telemetry.logEvent(EndCallEvents.END_CALL_CONFIRM, {
+				"screen": TelemetryScreen.END_CALL,
+				"reason": this.endCallReason.value,
+				"next-screen": TelemetryScreen.WAIT_FOR_CALL
+			});
+
+			const incidentDetails = this.horizonStore.getIncidentDetails();
+
+			// Ignoring the abandon or not started need action
+			if (!incidentDetails.incidentReferenceNumber || incidentDetails.incidentReferenceNumber === `0`) {
 				this._returnToCallWaitingPage();
-				return;
+			} else if (this.incomingCallDetails.ivrOptionCode === `StopCard`) {
+				this._stopCardEndCall();
+			} else {
+				if (this._preventCloseOfIncident()) {
+					// Updating state as call ended and redirecting it to call waiting page
+					this._returnToCallWaitingPage();
+					return;
+				}
+				this._classifyAndClose();
 			}
-			this._classifyAndClose();
 		}
 	}
 
 	_valueChanged(e) {
 		if (e.detail.new) {
 			this.alertBannerMessage = ``;
-			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.key);
+			this.endCallReason = this.endCallReasons.find(reason => reason.key === e.detail.new.key);
 		}
 	}
 
@@ -171,38 +181,20 @@ export class EndCallSession extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
-	_loadEndCallOptions() {
-		this.endCallReasons = [
-			{
-				"key": 0,
-				"value": `Need fulfilled`
-			},
-			{
-				"key": 1,
-				"value": `Need incomplete, bad connection`
-			},
-			{
-				"key": 2,
-				"value": `Need Assigned/ Handed off`
-			}
-		];
-		
-		this._setDefaultValues();
-	}
-
 	_setDefaultValues() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const feedback = incidentDetails.feedback;
 
 		if (incidentDetails.needStatus !== super.HORIZON_NEED_STATUS.CLOSED) {
-			this.endCallReason = ``;
+			this.endCallReason = {};
 			return;
 		}
 		this.endCallReason = this.endCallReasons.find(reason => reason.key === feedback);
 	}
 
-	_returnToCallWaitingPage() {
-		this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
+	async _returnToCallWaitingPage() {
+		await this._telemetry.endSpan(EndCallEvents.END_CALL, { "screen": TelemetryScreen.END_CALL });
+		await this._telemetry._endUnClosedChildSpans();
 		this._telemetry.endSpan(AcceptCallEvents.INCOMING_CALL);
 
 		const state = { callStatus: `CALL-ENDED` };
@@ -239,7 +231,11 @@ export class EndCallSession extends Component {
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
-
+		if (this.endCallReason.key === END_CALL_REASON.FOLLOW_UP) {
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
+			// Don't close the incident if it requires follow up
+			return true;
+		}
 		// Don't close the incident the incident if
 		//    - StopCard was the need and
 		//    - the call was probably dropped before attempting to stop cards
@@ -247,7 +243,7 @@ export class EndCallSession extends Component {
 		//   - StopCard was the need and
 		//   - an attempt to stop cards was made
 		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && this.endCallReason.key === 1))) {
+		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === END_CALL_REASON.NEED_ASSIGNED || this.endCallReason.key === END_CALL_REASON.NEED_HANDED_OFF)))) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
@@ -256,9 +252,7 @@ export class EndCallSession extends Component {
 	}
 
 	_validateCloseIncidentReason() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-
-		if (isNullorEmpty(this.endCallReason)) {
+		if (isNullorEmpty(this.endCallReason.key)) {
 			this.alertBannerMessage = ERROR_MESSAGE;
 			return false;
 		}
@@ -273,7 +267,7 @@ export class EndCallSession extends Component {
 	async _classifyAndClose() {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 		const ivrActionMapping = await this._getNeedActions();
-		const needAction = ivrActionMapping[incidentDetails.currentNeed];
+		const needAction = ivrActionMapping[incidentDetails.currentNeed] || ivrActionMapping[this.endCallReason.mapping];
 		const strackIncidentInfo = await this._incidentStatus() || {};
 		// Flag to check, if the incident is already updated outside of Horizon
 		const continueUpdate = isNullorEmpty(strackIncidentInfo.category) && isNullorEmpty(strackIncidentInfo.subCategory) && isNullorEmpty(strackIncidentInfo.issue);
@@ -298,30 +292,15 @@ export class EndCallSession extends Component {
 		await this._closeIncident(strackIncidentInfo);
 	}
 
-	async _closeIncident(strackIncidentInfo) {
-		let causeCode = ``;
-		const resolution = this._getResolution(strackIncidentInfo.resolution);
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-
-		// Special case, when subsequent need is created on opening a need, if its not required anymore
-		// then it should be tagged as 'TransactionCancelled'.
-		if (incidentDetails.needStatus === super.HORIZON_NEED_STATUS.NOT_STARTED) {
-			causeCode = `TransactionCancelled`;
-		}
-
-		const callToEnd = {
-			incidentRecId: this.incidentRecId,
-			reason: this.endCallReason.key,
-			resolution: this._formatLineBreaks(resolution),
-			causeCode: strackIncidentInfo.causeCode || causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+	async _closeIncident() {
+		
+		const options = {
+			clientNeed: null,
+			endCallReason: this.endCallReason,
+			causeCodeByContext: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 		};
 
-		const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
-
-		// Log any error
-		if (!returnValue.succeeded) {
-			this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentRefNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
-		}
+		await super.closeIncident(options, () => this._toggleBusyFlag());
 
 		// Return the the call waiting landing page even if an error occured
 		this._returnToCallWaitingPage();
@@ -337,14 +316,6 @@ export class EndCallSession extends Component {
 		return returnValue.result;
 	}
 
-	_getResolution(resolution) {
-		return resolution ? `${resolution || ``}\n${this.endCallReason.value}` : `${this.endCallReason.value}`;
-	}
-
-	_formatLineBreaks(value) {
-		return value.replaceAll(`\n`, `%0D%0A`);
-	}
-
 	async _stopCardEndCall() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
@@ -358,6 +329,16 @@ export class EndCallSession extends Component {
 			this.stoppedCardsFailed = screenDetails.stoppedCardsFailed;
 		} else {
 			this.stoppedCardsFailed = false;
+		}
+
+		/**
+		 * Temp solution to know, if incident is assigned at strack directly
+		 * and to fit in current stop card flow logic
+		 */
+		const incidentInfo = await this._incidentStatus(this.incidentRecId);
+		
+		if (incidentInfo) {
+			this.isReassigned = this.isReassigned || (incidentInfo.owner.toLocaleLowerCase() !== this.securityContext.username);
 		}
 
 		if (this._selectedAssignOnSuccessfulyStoppedCards()) {
@@ -378,22 +359,13 @@ export class EndCallSession extends Component {
 				return;
 			}
 
-			const strackIncidentInfo = await this._incidentStatus(this.incidentRecId) || {};
-			const resolution = this._getResolution(strackIncidentInfo.resolution);
-
-			const callToEnd = {
-				incidentRecId: this.incidentRecId,
-				reason: this.endCallReason.key,
-				resolution: this._formatLineBreaks(resolution),
-				causeCode: strackIncidentInfo.causeCode || this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
+			const options = {
+				clientNeed: null,
+				endCallReason: this.endCallReason,
+				causeCodeByContext: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
 			};
 
-			const returnValue = await this.incidentManagementService.closeIncident(callToEnd);
-
-			// Log any error
-			if (!returnValue.succeeded) {
-				this.logger.log(`error`, `An error occured while trying to close the incident ${this.incidentDetails.incidentReferenceNumber} with recording ID ${this.incomingCallDetails.voiceReferenceNumber}`, `_onReasonSelected`, returnValue.correlationId);
-			}
+			await super.closeIncident(options, () => this._toggleBusyFlag());
 
 			// Return the the call waiting landing page even if an error occured
 			this._returnToCallWaitingPage();
@@ -408,15 +380,15 @@ export class EndCallSession extends Component {
 		//    assigned was selected as an end call reason
 		//   and The incident has not been flagged as assigned
 		// then we must disallow selecting assigned as an end call reason
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 2 && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_ASSIGNED && !this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	_selectedNeedFulfilledOnFailureToStopCards() {
-		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === 0 && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.stoppedCardsFailed && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 	
 	_selectedNeedFulfilledAfterAssigningStoppedCards() {
-		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === 0 && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
+		return this.cardStopAttemptMade && this.endCallReason && this.endCallReason.key === END_CALL_REASON.NEED_FULFILLED && this.isReassigned && this.incomingCallDetails.ivrOptionCode === `StopCard`;
 	}
 
 	// ---------
@@ -462,12 +434,12 @@ export class EndCallSession extends Component {
 
 			div[slot="body"] {
 				width: 690px;
-				height: 322px;
+				height: 503px;
 				border-radius: 5px;
 			}
 
 			.body-box {
-				height: 322px;
+				height: 395px;
 				--theme-container-padding-bottom: 0px;
 			}
 
@@ -482,6 +454,10 @@ export class EndCallSession extends Component {
 				line-height: 24px;
 				margin: 0px 0px 8px 0px;
 			  }
+
+			  .id-options{
+				margin-top: 17px;
+			}
 
 			#id-cancel-button {
 				height: 48px;
@@ -506,11 +482,6 @@ export class EndCallSession extends Component {
 				--theme-button-padding-right: 12px;
 				--theme-button-padding-bottom: 14px;
 				--theme-button-padding-left: 12px;
-			}
-
-			.radio-button {
-				margin-top: 0px;
-				padding-bottom: 8px;
 			}
 			
 			capitec-alert-banner {
@@ -553,12 +524,21 @@ export class EndCallSession extends Component {
 				class="end-reason-label"
 				label="Choose reason">
 			</capitec-label>
-			<horizon-radio-button-group
-				class="radio-button"
-				.radioButtonsAvailable="${this.endCallReasons}"
-				@value-change="${(e) => this._valueChanged(e)}"
-				.selectedItem="${this.endCallReason && this.endCallReason.value}">
-			</horizon-radio-button-group>
+			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
+				<div class="end-call-reason">
+					<capitec-select
+						label="Choose reason"
+						class="id-options" 
+						id-field="key"
+						display-field="value"
+						.items=${this.endCallReasons}
+						@value-changed="${(e) => this._valueChanged(e)}"
+						tabindex=3
+						value="${this.endCallReason.value || ``}"
+						select-mode="single">
+					</capitec-select>
+				</div>
+			</capitec-group>
 		`;
 	}
 
@@ -567,7 +547,6 @@ export class EndCallSession extends Component {
 			<capitec-group layout="horizontal">
 				<capitec-button
 					id="id-cancel-button"
-					type="clear"
 					label="Cancel"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>

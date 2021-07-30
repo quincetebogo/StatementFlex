@@ -1,5 +1,5 @@
-
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service methods for Cards related functionality
@@ -29,11 +29,9 @@ export class CardService extends ServiceBase {
 		return this.wrapCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
 	};
 
-	addCallerDetails(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.addCallerDetails(callerData), `addCallerDetails`, errorHandler, autoRetries);
-	}
-
 	async stopCards(cardsToStop, callerInfo, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		let cardStopResults = [];
 
 		const stopCardRequest = {
@@ -79,6 +77,6 @@ export class CardService extends ServiceBase {
 
 	// assignRequest
 	assign(assignData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.assignTeams(assignData), `assign`, errorHandler, autoRetries);
+		return this.wrapCall(this.channelService.assign(assignData), `assign`, errorHandler, autoRetries);
 	}
 }
