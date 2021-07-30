@@ -57,6 +57,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.questions = [];
 		this.checked = false;
 		this.alertBannerMessage = ``;
+		this.isBusy = false;
 
 		this.logger = Logger.getInstance();
 
@@ -125,10 +126,6 @@ export class VerifyBySecurityQuestions extends Component {
 	// EVENT HANDLERS
 	// --------------
 
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
-
 	_cancelClick() {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_CANCEL, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
@@ -192,7 +189,7 @@ export class VerifyBySecurityQuestions extends Component {
 		} else {
 			this._telemetry.logEvent(VerifyCallerEvents.XDS_VERIFY_ANSWERS, {
 				"screen": TelemetryScreen.SECURITY_QUESTIONS,
-				"next-screen": null, //Have to determine
+				"next-screen": null // Have to determine
 			});
 
 			this.alertBannerMessage = ``;
@@ -279,7 +276,7 @@ export class VerifyBySecurityQuestions extends Component {
 	_xdsAuthenticated() {
 		this._telemetry.logEvent(VerifyCallerEvents.XDS_SUCCESS, {
 			"screen": TelemetryScreen.SECURITY_QUESTIONS,
-			"next-screen": null, //Have to determine
+			"next-screen": null // Have to determine
 		}, true);
 
 		this.callerInformation.verificationStatus = `verified`;
@@ -462,12 +459,12 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
 						</div>
 					</horizon-caller-dialog>
+					${this._renderLoadingIndicator()}
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
@@ -566,11 +563,11 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
+		if (this.isBusy) {
+			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		};
 
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return html``;
 	}
 }
 

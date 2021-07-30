@@ -446,7 +446,10 @@ export class StopCard extends Component {
 					height: 48px;
 					margin: 16px 16px 16px 16px;
 				}
-				`
+				img {
+					cursor: pointer;
+				}
+			`
 		];
 	}
 
@@ -478,14 +481,14 @@ export class StopCard extends Component {
 					type="clear" 
 					row="1" 
 					column="1">
-				<img 
-					data-automation-id="stop-card-back"
-					src="/images/insure/blue-left-arrow.svg" 
-					@click="${() => this._back()}"/>
-				<capitec-label 
-					label="Stop Card(s)"
-					type="title">
-				</capitec-label>
+						<img 
+							data-automation-id="stop-card-back"
+							src="/images/insure/blue-left-arrow.svg" 
+							@click="${() => this._back()}"/>
+						<capitec-label 
+							label="Stop Card(s)"
+							type="title">
+						</capitec-label>
 			</capitec-title-bar>`;
 	}
 
