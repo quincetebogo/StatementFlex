@@ -10,6 +10,8 @@ import { Component, css, html } from 'platform/elements';
  * ```html
  *	<horizon-expander 
  *		label="Client Insights"
+ *		icon="system/access"
+ *		checkBox=false
  *		expandButtonAlignment="right | left"
  *		layout="vertical"
  *		halign="stretch"
@@ -38,6 +40,8 @@ export class Expander extends Component {
 
         // Set the default property values.
         this.label = null;
+		this.icon = null;
+		this.checkBox = false;
 
         this.expanded = false;
         this.disabled = false;
@@ -59,6 +63,8 @@ export class Expander extends Component {
 	 * Registry of all properties defined by the component.
 	 *
 	 * @property {String} label - The label data associated with expander.
+	 * @property {String} icon - The icon to display on the expander.
+	 * @property {Boolean} checkBox - The check box to be used as an input.
 	 *
 	 * @property {Boolean} [expanded=false] - Indicator if the expander is currently expanded.
 	 * @property {Boolean} [disabled=false] - Indicator if the expander is currently disabled.
@@ -72,11 +78,14 @@ export class Expander extends Component {
 	 * @property {String} [expandButtonAlignment="right"] - Sets in which direction the expander's arrow should be position relative to the title, either:
 	 *    - 'right' - Meaning that the expander button is placed to the right of the title
 	 *    - 'left' - Meaning that the expander button is placed to the left of the title
+	 * 	  -  Only either of the label or slot='custom-header' can be used for an instance
 	 */
     static get properties() {
         return {
             label: { type: String },
-
+			icon: { type: String },
+			checkBox: { type: Boolean},
+			
             expanded: { type: Boolean },
             disabled: { type: Boolean },
 
@@ -200,7 +209,8 @@ export class Expander extends Component {
         // Notify any direct subscribers that the component was expanded.
         this.dispatchEvent(new CustomEvent(`expand`, {
             detail: {
-                label: this.label
+                label: this.label,
+				expFunc: (component) => this.expanderGroup(component)
             }
         }));
     }
@@ -228,6 +238,30 @@ export class Expander extends Component {
             }
         }));
     }
+
+	/**
+	 * Collapse all the other expanders except the current target expander in the component when given expand as an event.
+	 */
+	expanderGroup(component) {
+		component.shadowRoot.querySelectorAll(`horizon-expander`).forEach((item) => {
+			item.expanded = false;
+		});
+	}
+
+	/**
+	 * Provides status of the check-box
+	 * 
+	 * @fires value-change When the check-box value is changed.
+	 * @returns {void}
+	 */
+	_onValueChange(e) {
+		this.dispatchEvent(new CustomEvent(`value-change`, {
+			detail: {
+				old: e.detail.old,
+				new: e.detail.new
+			}
+	}));
+	}
 
     // ---------------
     // PRIVATE METHODS
@@ -306,6 +340,11 @@ export class Expander extends Component {
 					height: var(--theme-expander-indicator-height, 20px);
 				}
 
+				:host > .header > .icon {
+					width: var(--theme-expander-icon-width, 20px);
+					height: var(--theme-expander-icon-height, 20px);
+				}
+				
 				:host > .header > capitec-label {
 					color: var(--theme-expander-header-font-color, black);
 					font-size: var(--theme-expander-header-font-size, 14px);
@@ -421,6 +460,10 @@ export class Expander extends Component {
                     width: 24px;
                     margin: 20px;
                 }
+
+				.check-details {
+					margin-left: var(--theme-expander-check-box-margin-left, 16px); 
+				}
 	
 				@keyframes expand {
 					0% {
@@ -454,8 +497,9 @@ export class Expander extends Component {
 	_renderExpanderButton() {
 		return html`
 			${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
-			<slot name="custom-header"></slot>
-			${this.label ? html`<capitec-label type="strong" label="${this.label}"></capitec-label>` : html`<capitec-spacer></capitec-spacer>`}
+			${this.checkBox ? html`<capitec-check class="check-details"	@value-changed="${(e) => this._onValueChange(e)}"></capitec-check>` : html``}
+			${this.icon ? html`<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>` : html``}
+			${this.label ? html`<capitec-label type="strong" label="${this.label}"></capitec-label>` : html`<slot name="custom-header"></slot>`}
 			${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
 		`;
 	}
