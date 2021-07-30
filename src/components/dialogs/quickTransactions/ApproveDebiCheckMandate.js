@@ -1,7 +1,8 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, isNullorEmpty, getMonthName } from 'app/utils/channelServiceUtilities';
+import { HorizonStore } from 'app/store/HorizonStore';
+
 import 'platform/components/popups/Modal';
-import { DateTime } from 'luxon';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
 const ERROR_MESSAGE = `Make a selection to confirm the following information to approve the DebiCheck mandate.`;
@@ -29,20 +30,23 @@ export class ApproveDebiCheckMandate extends Component {
 
     constructor() {
         super();
-        this.mandateId = `112233445566`; //mandateInfo.mandateReference
-        this.referenceNumber = `998877665544`; //mandateInfo.contractReference
-        this.fullName = `Mr Ivan Makatini`;
+        this.mandateId = ``; //mandateInfo.mandateReference
+        this.referenceNumber = ``; //mandateInfo.contractReference
+        this.fullName = ``;
         this.installmentAmount = 0; //mandateSummaryList.amount
-        this.firstCollectionDate = new Date().toISOString().substr(0, 10);//mandateInfo.firstCollectionDate  .substring(0, 10);
+        this.firstCollectionDate = new Date();//mandateInfo.firstCollectionDate  .substring(0, 10);
         this.collectionDateFrequency = ``;//mandateSummaryList.collectionDate.frequency
-        this.accountNumber = `1164116973`;
-        this.shortName = `Mr I. Makatini`;
+        this.accountNumber = ``;
+        this.shortName = ``;
         this.today = new Date().toISOString().substr(0, 10);
-        this.emailAddress = `ivanmakatini@email.com`; //QUESTION location? state?
+        this.emailAddress = ``; 
         this.error = false;
         this.alertType = `info`;
         this.alertMessage = MESSAGE;
         this.approve = false;
+
+        this.horizonStore = HorizonStore.getInstance();
+
     }
 
     // ----------
@@ -72,16 +76,22 @@ export class ApproveDebiCheckMandate extends Component {
             QUESTIONS[key].accepted = 2;
         }
 
-        this.mandateId = this.debiCheckDetails.mandateReference;
-        this.referenceNumber = this.debiCheckDetails.contractReference;
+        const state = this.horizonStore.recoverState();
+        const callerInformation = this.horizonStore.getCallerInformation();
+        const landingPageInfo = state.landingPageInfo;
+        const screenDetails = this.horizonStore.getScreenDetails();
+        
 
-        //this.fullName = `Mr Ivan Makatini`; state.callerInformation.name
-        //this.accountNumber = `1164116973`; this.landingPageInfo.accountNumber
-        //this.shortName = `Mr I. Makatini`; 
-        //this.emailAddress = `ivanmakatini@email.com`;
+        this.mandateReference = this.debiCheckDetails.mandateReference; 
+        this.referenceNumber = this.debiCheckDetails.contractReference;
+        this.fullName = this.titleCase(callerInformation.name);
+
+        this.accountNumber = isNullorEmpty(landingPageInfo.accountNumber) ? `[Account number]` : landingPageInfo.accountNumber;
+        //this.shortName = `Mr I. Makatini`; // placeholder is account name ?
+        this.emailAddress = isNullorEmpty(screenDetails.emailAddress) ? `[email address]` : screenDetails.emailAddress; //from where? not working
 
         this.installmentAmount = formatCurrency(this.mandateInfo.amount);
-        this.firstCollectionDate = isNullorEmpty(this.mandateInfo) ? new Date() :  this.mandateInfo.firstCollectionDate.toISOString().substr(0, 10);
+        this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
         this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency
         this.today = new Date().toISOString().substr(0, 10);
 
@@ -105,7 +115,17 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _approveClick() {
-        if (this._validateAccepted()) {
+        let questionCount = 0;
+        for (const key in QUESTIONS) {
+            if (QUESTIONS[key].accepted == 2) {
+                questionCount++;
+                this.alertMessage = ERROR_MESSAGE;
+                this.alertType = 'unsuccessful-red';
+                this.requestUpdate();
+            }
+        }
+
+        if (questionCount < 3 && this._validateAccepted()) {
             this.dispatchEvent(new CustomEvent(`approve`, {
                 detail: { mandateId: this.mandateId }
             }));
@@ -172,6 +192,23 @@ export class ApproveDebiCheckMandate extends Component {
         this.requestUpdate();
     }
 
+
+    _getFullDate(shortDate) {
+        let longDate = new Date(shortDate);
+        const day = shortDate.substr(8, 3);
+        const month = getMonthName(longDate.getMonth() + 1);
+        const year = shortDate.substr(0, 4);
+
+        return day + " of " + month + " " + year;
+    }
+
+
+    titleCase(str) {
+        return str.split(' ')
+            .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+            .join(' ');
+    }
+
     static get styles() {
         return [
             super.styles,
@@ -220,11 +257,19 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-expander-height: auto;
 				}
+                capitec-expander-group > capitec-expander[expanded] {
+                    box-shadow: 0px 6px 10px 0.25px rgba(0,0,0,0.07);
+
+				    --theme-container-padding-left: 0px;
+                    --theme-expander-border-radius: 5px;
+                    --theme-expander-background-color: #F7F7F7;
+}
 
 				capitec-expander-group > capitec-expander > capitec-content-box {
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
-				--theme-container-padding-right: 16px;
+                    --theme-container-padding-left: 16px;
+                    --theme-container-padding-right: 16px;
+                    --theme-container-padding-top: 16px;
+                    background-color: #FFFFFF;                
                 }
 
                 capitec-label{
@@ -266,6 +311,7 @@ export class ApproveDebiCheckMandate extends Component {
 			    	color: #3A3A3A;
 			    	font-family: "Hind Vadodara";
 			    	font-size: 16px;
+                    border-top: 1px solid #E1E1E1;            
 			    }
 			    .agreement-content > ol {
 			    	margin: 0px;
@@ -277,6 +323,7 @@ export class ApproveDebiCheckMandate extends Component {
                     margin-bottom: 14px; 
 			    }
                 .declaration-content{
+                    border-top: 1px solid #E1E1E1;
 			    	padding-bottom: 0px;
 			    	color: #3A3A3A;
 			    	font-family: "Hind Vadodara";
@@ -294,7 +341,16 @@ export class ApproveDebiCheckMandate extends Component {
 			    }
                 .cb-yesno{
                     margin-top:14px;
-                }                    
+                }    
+                div[slot="footer"]{
+                    border-top: 1px solid rgb(225, 225, 225);
+                    width: 808px;
+                    padding-top: 8px;
+                    margin-right: -12px;
+                }
+			    .footer {
+                    margin-right: 16px;
+                }
                 `
         ];
     }
@@ -313,7 +369,7 @@ export class ApproveDebiCheckMandate extends Component {
 					</capitec-content-box>
 				</div>
 
-				<div slot="footer">
+				<div style="border-top: 1px solid #e1e1e1" slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
@@ -364,7 +420,7 @@ export class ApproveDebiCheckMandate extends Component {
                     <strong>Thank you, ${this.fullName}. We confirm that you agree to the following:</strong>
 					<ol>
 						<li>This call is to confirm your DebiCheck mandate and the payments you must make under the credit agreement, contract reference number <strong>${this.referenceNumber}</strong> </li>
-						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency}</strong>, starting on <strong>${this.firstCollectionDate}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
+						<li style="color:${QUESTIONS[0].color};">Please take note that your instalment of <strong>${this.installmentAmount}</strong> will be deducted from your nominated bank account every <strong>${this.collectionDateFrequency}</strong>, starting on <strong>${this._getFullDate(this.firstCollectionDate)}</strong> and a last amount of <strong>${this.installmentAmount}</strong>. We could also collect on an earlier date, depending on when your salary or wages is paid. </br>
                             Do you understand and accept this? </br>
                             ${this._renderYesNo(0)}</li>
 						<li style="color:${QUESTIONS[1].color};">The payments will be made by early debit order against your nominated account number <strong>${this.accountNumber}</strong> with Capitec Bank Limited, <strong>${this.shortName}</strong>.</br>
@@ -390,7 +446,7 @@ export class ApproveDebiCheckMandate extends Component {
 						<li>You confirm that all the details you have provided on this call are correct. </li>
 						<li>Written confirmation of what we agreed today will be emailed to: <strong>${this.emailAddress}</strong> </li>
 						<li>Please note that the Mandate Reference Number is <strong>${this.mandateReference}</strong> </li>
-						<li>Date: <strong>${this.today}</strong> </li>
+						<li>Date: <strong>${this._getFullDate(this.today)}</strong> </li>
 					</ol>
 
 				<capitec-card>
@@ -427,7 +483,7 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderFooter() {
         return html`
-            <capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
+            <capitec-group layout="horizontal" gap="clear" halign="right" valign="center" class="footer">
 				<capitec-button
 					@click="${(e) => this._cancelClick(e)}"
 					label="Cancel">
@@ -438,7 +494,6 @@ export class ApproveDebiCheckMandate extends Component {
 					label="Approve"
                     .disabled="${this._checkAccepted()}">
 				</capitec-button>
-
 			</capitec-group>
         `;
     }
