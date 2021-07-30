@@ -57,7 +57,11 @@
 		"savings-account-balance": "SAVINGS_BALANCE",
 		"mobile-banking": "MOBILE_BANKING_BALANCE",
 		"transaction-history-request": "SAVINGS_BALANCE_TRANSACTIONS",
-		"pending-transaction-information": "SAVINGS_BLANCE_PENDING"
+		"pending-transaction-information": "SAVINGS_BLANCE_PENDING",
+		"language-transfer": "LANGUAGE_TRANSFER",
+		"call-transfer": "CALL_TRANSFER",
+		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
+		"failed-verification": "FAILED_VERIFICATION"
 	},
 	"mock": {
 		"enabled": true,
