@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration, Logger, NavigationContext, SecurityContext } from 'platform/core';
+import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { END_CALL_REASON } from 'app/constants/EndCallReasons';
@@ -79,7 +79,7 @@ export class EndCallSession extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			endCallContext: { type: String }, 
+			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
 			isBusy: { attribute: false },
@@ -98,7 +98,10 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		this.endCallReasons = END_CALL_REASON.table;
+		//Making end call reasons context sensitive 
+
+		this.endCallReasons = END_CALL_REASON[this.endCallContext];
+		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -566,7 +569,7 @@ export class EndCallSession extends Component {
 			return html`
 				<capitec-alert-banner type="unsuccessful-red">
 					<b>Notify: </b>${this.alertBannerMessage}
-			</capitec-alert-banner>`;
+				</capitec-alert-banner>`;
 		}
 	}
 
