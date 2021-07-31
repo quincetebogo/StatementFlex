@@ -445,6 +445,13 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+		`
+	}
+
+	_renderContent() {
 		switch (this.renderMode) {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
@@ -464,7 +471,6 @@ export class VerifyBySecurityQuestions extends Component {
 							${this._renderFooter()}
 						</div>
 					</horizon-caller-dialog>
-					${this._renderLoadingIndicator()}
 				`;
 			case RENDER_MODE.END_CALL:
 				return html`${this._renderEndCallModal()}`;
@@ -563,11 +569,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (this.isBusy) {
-			return html`<capitec-loading-indicator></capitec-loading-indicator>`;
-		};
-
-		return html``;
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 
