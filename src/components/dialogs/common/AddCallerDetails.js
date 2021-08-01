@@ -346,7 +346,7 @@ export class AddCallerDetails extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${false}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="${HEADER_LABEL}" 
 						@on-end-call="${() => this._endCall()}">
 							<div slot="body" class="main">
 								${this._renderErrorMessage()}

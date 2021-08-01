@@ -410,7 +410,7 @@ export class VerifyBySecurityQuestions extends Component {
 							.incomingCallDetails="${this.incomingCallDetails}"
 							.incidentDetails="${this.incidentDetails}"
 							.isNeedSelectable=${false} 
-							.headerLabel="${HEADER_LABEL}" 
+							headerLabel="${HEADER_LABEL}" 
 							@on-end-call="${() => this._endCallClick()}">
 						<div slot="body">
 							<capitec-content-box class="body-box">

@@ -503,7 +503,7 @@ export class EndCallSession extends Component {
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${false}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="${HEADER_LABEL}" 
 						.displayButton="${false}">
 				<div slot="body">
 					<capitec-content-box class="body-box">

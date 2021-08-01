@@ -683,7 +683,7 @@ export class VerifyCaller extends Component {
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.incidentDetails="${this.incidentDetails}"
 					.isNeedSelectable=${false}
-					.headerLabel="${HEADER_LABEL}"
+					headerLabel="${HEADER_LABEL}"
 					@on-end-call="${() => this._endCall()}">
 					<div slot="body">
 						${this._renderBody()}
@@ -744,7 +744,7 @@ export class VerifyCaller extends Component {
 						valign="top"
 						gap="clear">
 					<capitec-alert-banner type="info">
-						Notify client that a push notification has been sent and they need to accept to continue.					
+						Notify client that a push notification has been sent and they need to accept to continue.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical"
 							halign="center"
