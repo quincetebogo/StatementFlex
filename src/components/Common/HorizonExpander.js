@@ -210,7 +210,7 @@ export class Expander extends Component {
         this.dispatchEvent(new CustomEvent(`expand`, {
             detail: {
                 label: this.label,
-				expFunc: (component) => this.expanderGroup(component)
+				expanderGroup: (component) => this.expanderGroupMode(component)
             }
         }));
     }
@@ -242,7 +242,7 @@ export class Expander extends Component {
 	/**
 	 * Collapse all the other expanders except the current target expander in the component when given expand as an event.
 	 */
-	expanderGroup(component) {
+	expanderGroupMode(component) {
 		component.shadowRoot.querySelectorAll(`horizon-expander`).forEach((item) => {
 			item.expanded = false;
 		});
