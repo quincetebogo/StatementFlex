@@ -37,7 +37,6 @@ const RENDER_MODE = {
 	VERIFY_CALLER: 5
 };
 
-const HEADER_LABEL = `Confirm Caller Details`;
 const branchBannerMessage = ` Branch calling in on behalf of the client`;
 
 /**
@@ -524,7 +523,7 @@ export class ConfirmCallerDetails extends Component {
 			super.styles,
 			css`
 				horizon-caller-dialog {
-					--horizon-modal-footer-padding: 16px 16px 16px 0px;
+					--horizon-modal-footer-padding: 16px;
 				}
 				capitec-content-box{
 					height: ${this.errorMessage = `` ? css`332px` : css`364`};
@@ -569,13 +568,6 @@ export class ConfirmCallerDetails extends Component {
 					--horizon-label-value-line-height: 20px;
 					--horizon-label-value-margin-top: 4px;
 				}
-				.footer-group{
-					width: 690px;
-				}
-				.footer-group > capitec-button:first-child {
-
-					padding-left: 16px;
-				}
 				capitec-tooltip {
 					display: none;
 					height: 27px;
@@ -597,11 +589,11 @@ export class ConfirmCallerDetails extends Component {
 		switch (this.renderMode) {
 			case RENDER_MODE.CONFIRM_CALLER:
 				return html`
-					<horizon-caller-dialog 
+					<horizon-caller-dialog
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${true}
-						.headerLabel="${HEADER_LABEL}" 
+						headerLabel="Confirm Caller"
 						@on-end-call="${() => this._onEndCall()}"
 						@on-need-changed="${(e) => this._needChanged(e)}">
 							<div slot="body">
@@ -654,7 +646,8 @@ export class ConfirmCallerDetails extends Component {
 					id="id-banner-addcallerdetails" 
 					data-automation-id="confirm-caller-details-add-caller-banner"
 					type="warning">
-						<capitec-hyperlink label="Add Caller Details"
+						<capitec-hyperlink 
+							label="Add Caller Details"
 							data-automation-id="confirm-caller-details-add-caller-details"
 							@click="${() => this._addCallerDetailsClick()}">
 						</capitec-hyperlink>
