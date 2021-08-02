@@ -231,6 +231,27 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `accessChannels`);
 	}
 
+	// --------------------
+	// Value Added Services
+	// --------------------
+
+	getValueAddedService(cifNumber) {
+		const url = `/clientcare-client-${this._version}/value-added-services?cif=${cifNumber}`;
+		return this._get(url, this._setToken(), `getValueAddedService`);
+	}
+
+	putValueAddedService(request) {
+		const url = `/clientcare-client-${this._version}/value-added-services?` +
+						`capitecEntityId=${request.capitecEntityId}&` +
+						`optOutInsights=${request.optOutInsights}&` +
+						`optOutBehaviouralMarketing=${request.optOutBehaviouralMarketing}&` +
+						`optOutPreAssessments=${request.optOutPreAssessments}&` +
+						`optOutAnalysis=${request.optOutAnalysis}&` +
+						`optOutThirdParties=${request.optOutThirdParties}&`;
+
+		return this._put(url, request, this._setToken(), `putValueAddedService`);
+	}
+
 	// -----------
 	// Call Methods
 	// -----------
@@ -301,20 +322,6 @@ export class HorizonChannelService extends Service {
 				this._setToken(),
 			`searchCaller`
 		);
-	}
-
-	// addCallerDetailsRequest
-	addCallerDetails(callerData) {
-		const url = `/clientcare-call-${this._version}/caller/add-caller-details`;
-		const model = {
-			'incomingTelephoneNumber': callerData.incomingNumber,
-			'voiceReferenceNumber': callerData.voiceReference,
-			'ivrOptionCode': callerData.ivrOption,
-			'incidentReferenceNumber': callerData.incidentNo,
-			'agentTelephoneNumber': callerData.agentPhoneNumber
-		};
-
-		return this._post(url, model, this._setToken(), `addCallerDetails`);
 	}
 
 	// ----
@@ -423,7 +430,7 @@ export class HorizonChannelService extends Service {
 			`/clientcare-card-${this._version}/Assign`, {
 				"cardIds": assignData.cardIds,
 				"incidentRecId": assignData.incidentRecId,
-				"team": assignData.Everyteam
+				"team": assignData.team
 			},
 			this._setToken(),
 			`assign`
@@ -518,14 +525,14 @@ export class HorizonChannelService extends Service {
 		return this._post(url, statement, this._setToken(), `sendStatement`);
 	}
 
-    sendProofOfAccount(clientInfo) {
-        const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
-        return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
-    }
+	sendProofOfAccount(clientInfo) {
+		const url = `/clientcare-documents-${this._version}/statements/send-proof-of-account`;
+		return this._post(url, clientInfo, this._setToken(), `sendProofOfAccount`);
+	}
 
-    viewProofOfAccount(clientInfo) {
-        const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
-        return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
+	viewProofOfAccount(clientInfo) {
+		const url = `/clientcare-documents-${this._version}/statements/view-proof-of-account`;
+		return this._post(url, clientInfo, this._setToken(), `viewProofOfAccount`);
 	}
 
 	// ----------
@@ -614,6 +621,25 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `incidentStatus`);
 	}
 
+	UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode) {
+		// IncidentRecId String
+		// BranchCode String
+		const branchDetails = {
+			incidentRecId: incidentRecID,
+			branchCode: branchCode
+		};
+		const url = `/clientcare-incident-${this._version}/UpdateIncidentBranchDetails`;
+		return this._post(url, branchDetails, this._setToken(), `UpdateIncidentBranchDetailsRequest`);
+	}
+
+	GetConsultantInformation(cpNumber) {
+		// cpNumber = userID
+		// CpNumber String
+		const url = `/clientcare-incident-${this._version}/user-details?` +
+			`UserID=${cpNumber}`;
+		return this._get(url, cpNumber, this._setToken(), `GetConsultantInformation`);
+	}
+
 	// ----------
 	// initialise
 	// ----------
@@ -689,7 +715,7 @@ export class HorizonChannelService extends Service {
 			return this._mock.transactionHistory(transactionHistoryRequest);
 		}
 
-		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` + 
+		const url = `/clientcare-savingsaccount-${this._version}/client/transactions?` +
 		`CIFNumber=${transactionHistoryRequest.cifNumber}&` +
 		`AccountNumber=${transactionHistoryRequest.accountNumber}&` +
 		`AccountType=${transactionHistoryRequest.accountType}&` +
@@ -710,11 +736,11 @@ export class HorizonChannelService extends Service {
 	itaVerification(request) {
 		return this._get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`, this._setToken(), `itaVerification`);
-    }
+	}
 	
 	itaVerification(request) {
 		return super.httpClient.get(`/clientcare/call/${this._version}/ita-verification?CifNumber=${request.cifNumber}&` + 
 									`ConnectionId=${request.connectionID}`);
-    }
+	}
 	*/
 }

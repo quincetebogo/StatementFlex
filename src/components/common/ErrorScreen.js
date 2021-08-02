@@ -269,4 +269,4 @@ export class ErrorScreen extends Component {
 	}
 }
 
-customElements.define(`horizon--error-screen`, ErrorScreen);
+customElements.define(`horizon-error-screen`, ErrorScreen);

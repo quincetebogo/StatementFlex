@@ -13,7 +13,7 @@ const CONFIG = {
 	SavingsPlan: {
 		type: `save`,
 		header: `Savings Plans`,
-		product: `savings-product-info`
+		product: `savings-plan-info`
 	},
 	Insure: {
 		type: `insure`,
@@ -87,6 +87,9 @@ export class ProductInformation extends ViewBase {
 	async _viewBenefits() {
 		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
 		window.open(`${globalOneUrl}${this._config.type}/`);
+
+		await super.createAndClassifySubsIncident();
+		
 		this._updateIncidentState();
 	}
 
@@ -109,10 +112,10 @@ export class ProductInformation extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -134,11 +137,11 @@ export class ProductInformation extends ViewBase {
 
 	_renderProductInfo() {
 		return html`
-			<horizon-cnet-product-info 
+			<horizon-cnet-product-info
+				data-automation-id="product-information-type-${this._config.type}"
 				viewType="${this._config.type}" 
 				viewHeader=${this._config.header}
-				@view-benefits="${() => this._viewBenefits()}"
-				>
+				@view-benefits="${() => this._viewBenefits()}">
 			</horizon-cnet-product-info>`;
 	}
 }

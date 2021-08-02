@@ -63,7 +63,7 @@ export class InitialSystemError extends View {
 				#id-error-msg{
 					width: 329px;
 				}
-				horizon--error-screen {
+				horizon-error-screen {
 					--horizon-error-screen-size: 912px;
 				}
 			`
@@ -81,7 +81,7 @@ export class InitialSystemError extends View {
 
 	_renderSystemError() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
 				header="System Error" 
 				left=""
 				right="Assign"
@@ -89,7 +89,7 @@ export class InitialSystemError extends View {
 				image="/images/insure/assign-pay-arrears.svg"
 				@right-click=${() => this._assignClick()}>
 				<section id="id-error-msg" slot="detail"><b>Notify client:</b> There is an issue with the system</section>
-			</horizon--error-screen>`;
+			</horizon-error-screen>`;
 	}
 }
 

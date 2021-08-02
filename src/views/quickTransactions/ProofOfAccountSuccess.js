@@ -85,9 +85,9 @@ export class ProofOfAccountSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -119,7 +119,8 @@ export class ProofOfAccountSuccess extends ViewBase {
 
 	_renderSuccessScreen() {
 		return html`
-			<horizon-success-screen 
+			<horizon-success-screen
+				data-automation-id="proof-of-account-success-screen"
 				header="Proof of account sent" 
 				image="/images/statements/senddocuments.svg"
 				left="Done"

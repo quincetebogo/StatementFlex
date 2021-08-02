@@ -19,6 +19,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
 		this.incidentRecId = this.incidentDetails.incidentRecId;
+		this.tapToPayStatus = ``;
 	}
 
 	// --------------
@@ -48,6 +49,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		this.cardCategory = limitDetails.cardCategory;
 		this.limitExpiryDate = limitDetails.limitExpiryDate;
 		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
+		this.tapToPayStatus = limitDetails.tapToPayStatus;
 	}
 
 	disconnectedCallback() {
@@ -76,9 +78,9 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -115,10 +117,11 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 
 	_renderCardLimitsUpdateFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
+				data-automation-id="card-limit-update-failure-screen"
 				header="${this.limitType} card limits not updated" 
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay not updated`}"
 				image="/images/cards-unsuccesful-limit-update.svg"
@@ -131,7 +134,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 					</section>
 
 					${this._getSubTitle()}
-			</horizon--error-screen>
+			</horizon-error-screen>
 		`;
 	}
 
@@ -139,7 +142,7 @@ export class UnsuccessfulCardLimitUpdate extends ViewBase {
 		return !this.istapToPayUnChanged
 			? html`
 				<section slot="sub-detail">
-					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not activated.
+					The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was not ${this.tapToPayStatus === `TapToPayActivated` ? `activated` : `deactivated`}.
 				</section>`
 			: html``;
 	}

@@ -4,6 +4,7 @@ import { optionsConfig, relatedOptions } from 'app/utils/relatedOptions';
 import { CardService } from 'app/services/CardService';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { tapToPayMixin } from 'app/views/tapToPay/TapToPayMixin';
 
@@ -51,6 +52,7 @@ export class RelatedOptions extends Component {
 		this.horizonStore = HorizonStore.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.logger = Logger.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
 		this.returnToSub = this.eventAggregator.subscribe(`horizon-navigate-related-option`, (e) => this._navigateToOption(e.option));
 
@@ -273,6 +275,8 @@ export class RelatedOptions extends Component {
 					height: 32px;
 					width: auto;
 					padding: 4px 0px 4px 16px;
+					border-left: 1px solid #E1E1E1;
+					border-right: 1px solid #E1E1E1;
 					--theme-label-subtitle-font-size: 14px;
 					--theme-label-subtitle-font-weight: 600;
 					--theme-layout-gap-spacing: 18px;

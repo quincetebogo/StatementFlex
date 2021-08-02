@@ -77,7 +77,7 @@ export class HorizonViewManager {
 
 		this.shellComponents = [
 			{
-				load: () => import(`../components/shell/HorizonActionBar`)
+				load: () => import(`../components/shell/ActionBar`)
 			},
 			{
 				load: () => import(`../components/landingPage/WelcomeBar`)
@@ -135,7 +135,7 @@ export class HorizonViewManager {
         if (viewSet.has(LAYOUT_COMPONENT.MARKETING_BAR)) {
             return html`<landingpage-marketing></landingpage-marketing>`;        
 		} else if (viewSet.has(LAYOUT_COMPONENT.ACCESS_BAR)) {
-			return html`<access-component></access-component>`;
+			return html`<horizon-access-menu-bar></horizon-access-menu-bar>`;
 		}
 
 		return html``;

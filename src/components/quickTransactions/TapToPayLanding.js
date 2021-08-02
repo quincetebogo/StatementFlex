@@ -2,6 +2,11 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/CardArt';
 import 'app/components/dialogs/quickTransactions/TapToPayAgreement';
 
+const CARD_TYPE_MAPPING = {
+	DEBIT_MASTERCARD: `Debit card`,
+	MASTERCARD_CREDIT: `Credit card`
+};
+
 export class TapToPayLanding extends Component {
 
 	// --------------
@@ -68,6 +73,7 @@ export class TapToPayLanding extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		this._loading();
+		this._initialise();
 	}
 
 	disconnectedCallback() {
@@ -78,6 +84,15 @@ export class TapToPayLanding extends Component {
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	_initialise() {
+		this.cards.forEach(card => {
+			if (card.isSupplementaryCard) {
+				card.cardDisplayName = `Supplementary ${CARD_TYPE_MAPPING[card.cardType].toLowerCase()}`;
+			} 
+			card.cardDisplayName = CARD_TYPE_MAPPING[card.cardType];
+		});
+	}
 
 	_loading() {
 		this.dispatchEvent(new CustomEvent(`loading`));
@@ -95,6 +110,7 @@ export class TapToPayLanding extends Component {
 	_result(success, tapToPayDetails, failureReason) {
 		this.dispatchEvent(new CustomEvent(`result`, { detail: { success: success, tapToPayDetails: tapToPayDetails, failureReason: failureReason } }));
 	}
+
 
 	// --------------
 	// EVENT HANDLERS
@@ -125,8 +141,6 @@ export class TapToPayLanding extends Component {
 		if (result) {
 			this.agreementResult = result;
 			this.showTapToPayAgreement = !this.UpdateshowTapToPayAgreement;
-		} else {
-			this._result(false, { tapToPayStatus: ``, cardMaskedNumber: this.selectedCard.maskedCardNumber }, `Failed to load agreements`);
 		}
 	}
 
@@ -193,7 +207,7 @@ export class TapToPayLanding extends Component {
 			}
 
 			.content-body {
-				width: 100%;
+				width: 1064px;
 				height: 100%;
 			}
 
@@ -269,7 +283,12 @@ export class TapToPayLanding extends Component {
 			}
 
 			horizon-card-art {
+				margin-bottom: 24px;
 				--horizon-card-art-box-shadow:none!important;
+			}
+
+			horizon-card-art:nth-child(n+3) {
+				--theme-layout-gap-spacing: 0px;
 			}
 
 			.primary-cards {
@@ -296,8 +315,9 @@ export class TapToPayLanding extends Component {
 				<capitec-title-bar>
 					<capitec-icon 
 						size="small"
-						icon="system/back-action"
-						@click="${() => this._back()}">
+						icon="system/arrow-left-action"
+						@click="${() => this._back()}"
+						data-automation-id="tap-to-pay-landing-back">
 					</capitec-icon>
 					<capitec-label class="title-label" label="Tap to Pay" type="title"></capitec-label>
 				</capitec-title-bar>
@@ -329,12 +349,13 @@ export class TapToPayLanding extends Component {
 	_renderPrimaryCards() {
 
 		const primaryCards = this.cards.filter(card => !card.isSupplementaryCard && card.isContactlessCard);
-
-		return html`
+		return primaryCards.length > 0 
+		? html`
 			<capitec-label
 				class="primary-card-label"
 				type="title"
-				label="Primary cards">
+				label="Primary cards"
+				data-automation-id="tap-to-pay-landing-primary-cards">
 			</capitec-label>
 
 			<capitec-group
@@ -343,16 +364,18 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
-					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex))}
-			</capitec-group>
-		`;
+				wrap>
+					${primaryCards.map((item, itemIndex) => this._renderPrimaryCardArt(item, itemIndex, `primary-card-art`))}
+			</capitec-group>`
+		: html``;
 	}
 
-	_renderPrimaryCardArt(card, index) {
+	_renderPrimaryCardArt(card, index, automationId) {
+	
 		return html`
 			<horizon-card-art
 				id="primaryCard-widget-${index}"
+				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
 				disable-hover="${true}"
 				context="tap-to-pay"
@@ -364,11 +387,13 @@ export class TapToPayLanding extends Component {
 
 	_renderSupplementaryCards() {
 		const supplementaryCards = this.cards.filter(card => card.isSupplementaryCard && card.isContactlessCard);
-		return html`
+		return !supplementaryCards 
+		? html`
 			<capitec-label
 				class="supplementary-card-label"
 				type="title"
-				label="Supplementary cards">
+				label="Supplementary cards"
+				data-automation-id="tap-to-pay-landing-supplementary-cards">
 			</capitec-label>
 
 			<capitec-group
@@ -377,16 +402,17 @@ export class TapToPayLanding extends Component {
 				halign="left"
 				gap="clear"
 				layout="horizontal"
-				grow="horizontal">
-					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex))}
-			</capitec-group>
-		`;
+				wrap>
+					${supplementaryCards.map((item, itemIndex) => this._renderSupplementaryCardArt(item, itemIndex, `supplementary-card-art`))}
+			</capitec-group>`
+		: html``;
 	}
 
-	_renderSupplementaryCardArt(card, index) {
+	_renderSupplementaryCardArt(card, index, automationId) {
 		return html`
 			<horizon-card-art
 				id="supplementaryCard-widget-${index}"
+				data-automation-id="tap-to-pay-landing-${automationId}"
 				.card="${card}"
 				disable-hover="${true}"
 				context="tap-to-pay"

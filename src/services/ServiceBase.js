@@ -1,6 +1,7 @@
 import { Configuration, EventAggregator, Logger } from 'platform/core';
 import { HorizonChannelService } from 'app/services/HorizonChannelService';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HorizonStore } from 'app/store/HorizonStore';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 export const DEFAULT_AUTO_RETRIES = 3;
 
@@ -40,6 +41,7 @@ export class ServiceBase {
 		this._toggleBusyFlag = toggleBusyFunc;
 		this._defaultErrorHandler = defaultErrorHandlerFunc;
 		this.logRequestResponseModels = null;
+		this.horizonStore = HorizonStore.getInstance();
 	}
 
 	

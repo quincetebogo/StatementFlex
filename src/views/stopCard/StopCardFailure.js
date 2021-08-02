@@ -155,7 +155,7 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_onAssign() {
-		this._telemetry.endSpan(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
+		this._telemetry.logEvent(QuickTransactionEvents.STOP_CARD_OUTCOME_ASSIGN, {
 			"screen": TelemetryScreen.STOP_CARD_OUTCOME,
 			"next-screen": TelemetryScreen.ASSIGN_STOP_CARD
 		});
@@ -177,9 +177,9 @@ export class StopCardFailure extends ViewBase {
 	}
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	/**
@@ -387,6 +387,7 @@ export class StopCardFailure extends ViewBase {
 		if (this.displayNotification) {
 			return html`
 			<capitec-toast 
+				data-automation-id="stop-card-failure-toast"
 				class="failure-toast" 
 				type="error" 
 				header="Unsuccessful" 
@@ -405,7 +406,12 @@ export class StopCardFailure extends ViewBase {
 
 	_renderStoppedCards() {
 		return html`
-			<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
+			<capitec-group 
+				data-automation-id="stop-card-failure-stopped-cards"
+				layout="vertical" 
+				halign="center" 
+				valign="center" 
+				gap="clear">
 				${this.stoppedCards.map((card) => this._renderCardStatus(card))}
 			</capitec-group>
 		`;
@@ -423,7 +429,8 @@ export class StopCardFailure extends ViewBase {
 		return html`
 			<div class="card-status-success">
 				<capitec-icon size="medium" icon="status/success-trans"></capitec-icon>
-				<p class="card-status-text">
+				<p data-automation-id="stop-card-failure-success-card"
+					class="card-status-text">
 					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 
@@ -435,7 +442,8 @@ export class StopCardFailure extends ViewBase {
 		return html`
 			<div class="card-status-error">
 				<capitec-icon size="medium" icon="status/error-trans"></capitec-icon>
-				<p class="card-status-text">
+				<p data-automation-id="stop-card-failure-fail-card"
+					class="card-status-text">
 					Unable to stop ${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> 
 				</p>
 			</div>
@@ -445,14 +453,18 @@ export class StopCardFailure extends ViewBase {
 	_renderFooter() {
 		return html`
 			<capitec-group class="button-bar" layout="horizontal" gap="clear" halign="right" valign="center">
-				<capitec-button class="button-assign"
-								label="Assign"
-								@click="${() => this._onAssign()}">
+				<capitec-button
+					data-automation-id="stop-card-failure-assign"
+					class="button-assign"
+					label="Assign"
+					@click="${() => this._onAssign()}">
 				</capitec-button>
-				<capitec-button class="button-tryAgain"
-								type="primary"
-								@click="${() => this._onTryAgain()}"
-								label="Try Again">
+				<capitec-button
+					data-automation-id="stop-card-failure-try-again"
+					class="button-tryAgain"
+					type="primary"
+					@click="${() => this._onTryAgain()}"
+					label="Try Again">
 				</capitec-button>
 			</capitec-group>
 		`;
@@ -462,6 +474,7 @@ export class StopCardFailure extends ViewBase {
 		return this.showHandoffModal
 		? html`
 				<horizon-assign-stop-card
+					data-automation-id="stop-card-failure-assign-dialog"
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails=${this.incomingCallDetails}
 					.cards=${this.failedCards}
@@ -475,6 +488,7 @@ export class StopCardFailure extends ViewBase {
 		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON) {
 			return html`
 				<horizon-insure-assign-reason 
+					data-automation-id="stop-card-failure-assign-reason"
 					@on-assign-reason=${(e) => this._onAssignReasonSelected(e)}
 					@on-cancel="${() => this.renderDialog = -1}">
 				</horizon-insure-assign-reason>
@@ -486,6 +500,7 @@ export class StopCardFailure extends ViewBase {
 	_renderAssignReasonSelected() {
 		if (this.renderDialog === RENDER_DIALOG.ASSIGN_REASON_SELECTED) {
 			return html`<horizon-assign-reason-selected
+						data-automation-id="stop-card-failure-assign-selected"
 						.selectedReason="${this.assignReason}"
 						@on-cancel="${() => this.renderDialog = -1}"
 						@team-selected="${(e) => this._onHandOff(e)}">

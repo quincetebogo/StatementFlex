@@ -28,7 +28,8 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	static get properties() {
 		return {
-			card: { attribute: false }
+			card: { attribute: false },
+			cardType: { attribute: String }
 		};
 	}
 	// -------------------
@@ -41,7 +42,7 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 		const screenDetails = this.horizonStore.getScreenDetails();
 		this.card = screenDetails.tapToPayDetails.cardMaskedNumber;
-
+		this.cardType = screenDetails.tapToPayDetails.cardType === `DEBIT_MASTERCARD` ? `debit` : `credit`;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
@@ -78,9 +79,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 		});
 
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails.incidentRecId);
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-		this.horizonRouter.navigateToStrack(incidentRecId);
+		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
 		this.horizonStore.clearReturnScreen();
 	}
 
@@ -93,9 +94,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -130,11 +131,12 @@ export class TapToPayUnsuccessful extends ViewBase {
 
 	_renderTapToPayFailure() {
 		return html`
-			<horizon--error-screen 
+			<horizon-error-screen 
+				data-automation-id="tap-to-pay-unsuccessful"
 				header="Tap to pay not activated" 
 				image="/images/tap-to-pay-error.svg"
 				left="Done"
-				right="Handoff"
+				right="Assign"
 				toast="Tap to pay not activated."
 				sub_detail="true"
 				@left-click=${() => this._doneClick()}
@@ -142,9 +144,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 					<section
 						id="id-error-msg" 
 						slot="detail">
-						Tap to Pay for debit card ${this.card} was not activated.
+						Tap to Pay for ${this.cardType} card ${this.card} was not activated.
 					</section>
-			</horizon--error-screen >
+			</horizon-error-screen >
 		`;
 	}
 

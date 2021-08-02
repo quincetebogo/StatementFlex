@@ -17,6 +17,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 		this.maskedCardNumber = ``;
 		this.limitExpiryDate = ``;
 		this.istapToPayUnChanged = false;
+		this.tapToPayStatus = ``;
 	}
 
 	// --------------
@@ -45,6 +46,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 		this.cardCategory = limitDetails.cardCategory;
 		this.limitExpiryDate = limitDetails.limitExpiryDate;
 		this.istapToPayUnChanged = limitDetails.istapToPayUnChanged;
+		this.tapToPayStatus = limitDetails.tapToPayStatus;
 	}
 
 	// --------------
@@ -69,9 +71,9 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -107,6 +109,7 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	_renderCardLimitsUpdateSuccess() {
 		return html`
 			<horizon-success-screen 
+				data-automation-id="card-limit-update-success-screen"
 				header="${this.limitType} card limits updated" 
 				image="/images/cards-successful-limit-update.svg"
 				left="Done"
@@ -133,7 +136,9 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				<section 
 					class="id-update-msg" 
 					slot="sub-detail">
-						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> was activated and is now pending.
+						The tap to pay functionality on your ${this.cardCategory.toLowerCase()} card <b>${this.maskedCardNumber}</b> ${this.tapToPayStatus === `TapToPayActivated`
+							? html`is pending tap to pay activation. <br /> To complete activation, insert card into card machine or ATM`
+							: `is deactivated`}.
 				</section>`
 			: html``;
 	}
