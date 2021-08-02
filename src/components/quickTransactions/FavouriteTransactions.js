@@ -96,7 +96,7 @@ export class FavouriteTransactions extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, {
 			detail: {
 				option: selectedOption,
-				stopPropagation: (selectedOption !== `stop-card` && selectedOption !== `search-other-need`) && this.verificationStatus !== `verified`
+				stopPropagation: selectedOption !== `stop-card` && selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
 			}
 		}));
 	};
@@ -184,28 +184,23 @@ export class FavouriteTransactions extends Component {
 			}
 
 			#id-notify-client-warning {
-				color: #D4781C;
-				font-family: "Hind Vadodara";
+				font-family: "Hind Vadodara SemiBold";
 				font-size: 14px;
-				font-weight: 600;
-				letter-spacing: 0;
 				line-height: 20px;
+				letter-spacing: 0;
 				margin-right:3px;
 			}
 
 			#id-notify-client-warning-msg {
-				color: #D4781C;
-				font-family: "Hind Vadodara";
+				font-family: "Hind Vadodara Regular";
 				font-size: 14px;
 				letter-spacing: 0;
 				line-height: 20px;
 			}
 			
 			#id-verify-now-warning-link {
-				--theme-hyperlink-color: #D4781C;
-				--theme-font-family: "Hind Vadodara";
-				--theme-font-weight: 600;
-				text-decoration: underline;
+				--theme-hyperlink-color: var(--theme-alert-banner-warning-font-color);
+				--theme-font-family: "Hind Vadodara Medium";
 			}
 			`
 		];
@@ -223,7 +218,7 @@ export class FavouriteTransactions extends Component {
 	}
 
 	_renderFavourites() {
-		if(this.verificationStatus === `non-client`) {
+		if (this.verificationStatus === `non-client`) {
 			return html`
 			<capitec-card 
 				data-automation-id="favourite-transactions-non-client"
@@ -235,29 +230,26 @@ export class FavouriteTransactions extends Component {
 					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
 						${this._renderSearchOtherNeed()}
 					</capitec-group>
-			</capitec-card>
-		`;
+			</capitec-card>`;
 		}
-		else{
+
 		return html`
-				<capitec-card 
-					data-automation-id="favourite-transactions"
-					class="card">
-						<capitec-title-bar type="clear">
-							<img src="/images/transactions/fav_icon.svg">
-							<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
-						</capitec-title-bar>
-						<capitec-group layout="vertical" halign="left" valign="top" gap="none">
-							${this._renderUnverifiedAlertBanner()}
-							${this._renderFailedVerificationAlertBanner()}
-							${this._renderTransactSection()}
-							${this._renderCardsSection()}
-							${this._renderDocumentsSections()}
-							${this._renderSearchOtherNeed()}
-						</capitec-group>
-				</capitec-card>
-			`;
-		}
+			<capitec-card 
+				data-automation-id="favourite-transactions"
+				class="card">
+					<capitec-title-bar type="clear">
+						<img src="/images/transactions/fav_icon.svg">
+						<capitec-label class="favourites" label="Favourites" type="title"></capitec-label>
+					</capitec-title-bar>
+					<capitec-group layout="vertical" halign="left" valign="top" gap="none">
+						${this._renderUnverifiedAlertBanner()}
+						${this._renderFailedVerificationAlertBanner()}
+						${this._renderTransactSection()}
+						${this._renderCardsSection()}
+						${this._renderDocumentsSections()}
+						${this._renderSearchOtherNeed()}
+					</capitec-group>
+			</capitec-card>`;
 	}
 
 	_renderVerifiedToast() {
@@ -287,10 +279,10 @@ export class FavouriteTransactions extends Component {
 						<capitec-label id="id-notify-client-warning-msg"
 							label="We need to verify your details before doing any transactions on your account."></capitec-label>
 						<capitec-spacer></capitec-spacer>
-						<capitec-hyperlink 
+						<capitec-hyperlink
 							data-automation-id="favourite-transactions-verify"
 							id="id-verify-now-warning-link" 
-							label="Verify Now"
+							label="Verify now"
 							@click="${() => this._verifyNowClick()}">
 						</capitec-hyperlink>
 					</capitec-group>
