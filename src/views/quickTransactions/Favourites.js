@@ -736,6 +736,7 @@ export class Favourites extends SavingsAccountBase {
 		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
 		? html`
 			<horizon-tax-certificate
+				.cards=${this.cards}
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`

@@ -9,10 +9,10 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 
-const RENDER_MODE = {
-    EMAIL: 0,
+const RENDER_MODE =  Object.freeze({
+	EMAIL: 0,
 	PDF: 1
-};
+});
 
 const TAX_CERTIFICATE_STEPS = [
     {
@@ -50,9 +50,13 @@ export class TaxCertificate extends Component {
 
 	constructor() {
 		super();
+		
+		this.navigationContext = NavigationContext.getInstance();
+
 		this.currentStep = 0;
 		this.renderMode = RENDER_MODE.EMAIL;
-		this.navigationContext = NavigationContext.getInstance();
+		this.certType = {};
+		this.showChoosePeriod = false;
 
 		this.horizonRouter = HorizonRouter.getInstance();
 		this.horizonStore = HorizonStore.getInstance();
@@ -61,8 +65,6 @@ export class TaxCertificate extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-		this.certType = {};
-		this.showChoosePeriod = false;
 
 		// this.years = [`2016`, `2017`, `2018`, `2019`, `2020`];
 	}
@@ -335,14 +337,24 @@ export class TaxCertificate extends Component {
 				--theme-stepper-inner-step-container-width: 448px;
 			}
 			.taxCertTitle {
-				margin: 16px;
+				margin-bottom: 8px;
 				--theme-label-font-color: #3A3A3A;
-				--theme-label-font-size: 18px;
-				--theme-label-line-height: 24px;
+				--theme-label-title-font-size: 18px;
+				--theme-label-title-font-weight: 600;
 			}
 			capitec-radio-group {
-				margin-top: 10px;
-				margin-bottom: 10px;
+				margin-top: 12px;
+				margin-bottom: 12px;
+			}
+			capitec-radio-group > capitec-group{
+				margin: 0px;
+			}
+			capitec-radio {
+				--theme-label-font-weight: 500;
+    			--theme-label-font-size: 16px;
+				--theme-label-font-family: "Hind Vadodara";
+				--theme-label-font-color: #3a3a3a;
+				margin-right: 32px;
 			}
 			horizon-label > .label-text {
 				font-weight: 600;
@@ -448,6 +460,32 @@ export class TaxCertificate extends Component {
 				--theme-container-padding-right: 16px;
 				--theme-container-padding-bottom: 16px;
 			}
+
+			.check-box-label {
+				width: 156px;
+				justify-content: left;
+				--horizon-label-text-height: 20px;
+				--horizon-label-text-font-size: 16px;
+				--horizon-label-text-line-height: 20px;
+				--horizon-label-text-font-weight: 600;
+
+				--horizon-label-value-height: 20px;
+				--horizon-label-value-font-size: 14px;
+				--horizon-label-value-font-weight: 500;
+				--horizon-label-value-line-height: 20px;
+
+				--horizon-label-text-color:#3A3A3A;
+			}
+			.check-details {
+				margin-left: 8px; 
+			}
+
+			horizon-expander{
+				--theme-layout-gap-spacing: 16px;
+				--theme-expander-indicator-width: 13px;
+				--theme-expander-header-height: 64px;
+			}
+
 			`
 		];
 	}
@@ -467,9 +505,9 @@ export class TaxCertificate extends Component {
 						${this._renderContent()}
 					</div>
 
-				<div slot="footer">
-					${this._renderFooter()}
-				</div>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
 		</bb-stepper-modal>
 		${this._renderLoadingIndicator()}
 		`;
@@ -504,76 +542,96 @@ export class TaxCertificate extends Component {
 			case RENDER_MODE.EMAIL:
 			default:
 				return html`
-				<capitec-content-box
-					class="main-cb"
-					layout="vertical"
-					gap="clear"
-					?noScroll="${false}">
-				${this._renderViewTaxcertificate()}
-				${this._renderChoosePeriod()}
-			
-				</capitec-content-box>`;
+					<capitec-content-box
+						class="main-cb"
+						layout="vertical"
+						gap="clear"
+						?noScroll="${false}">
+							${this._renderChooseCertificate()}
+							${this._renderChoosePeriod()}
+							${this._renderViewTaxcertificate()}
+					</capitec-content-box>`;
 		}
 			
 	}
 
 	_renderChooseCertificate() {
-		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE ? html`
+		return this.currentStep === 0 ? html`
 			<capitec-label 
 				type="title"
 				label="Choose a certificate type"
 				class="taxCertTitle">
 			</capitec-label>
 			<capitec-radio-group>
-			<capitec-group layout="grid" rows="auto" columns="auto">
-				<capitec-radio 
-					id="taxable savings" 
-					label="Taxable Savings IT3(b)"
-					@value-changed="${(e) => this._certChange(e)}"
-					row="1" column="1">
-					</capitec-radio>
-				<capitec-radio 
-					id="tax-free" 
-					label="Tax-free IT3(s)"
-					@value-changed="${(e) => this._certChange(e)}"
-					column="2">
-					</capitec-radio>
-				<capitec-radio 
-					id="both" 
-					label="Both"
-					@value-changed="${(e) => this._certChange(e)}"
-					column="3"></capitec-radio>
-			</capitec-group>
+				<capitec-group layout="horizontal" gap="none" halign="left" valign="center" noPadding>
+					<capitec-radio 
+						id="taxable savings" 
+						label="Taxable Savings IT3(b)"
+						@value-changed="${(e) => this._certChange(e)}"
+						row="1" column="1">
+						</capitec-radio>
+					<capitec-radio 
+						id="tax-free" 
+						label="Tax-free IT3(s)"
+						@value-changed="${(e) => this._certChange(e)}"
+						column="2">
+						</capitec-radio>
+					<capitec-radio 
+						id="both" 
+						label="Both"
+						@value-changed="${(e) => this._certChange(e)}"
+						column="3"></capitec-radio>
+				</capitec-group>
 			</capitec-radio-group>
 		` : html``;
 	}
 
 	_renderChoosePeriod() {
-		const status = `Available`;
+		const checkBoxLabel = [
+			{year : "2017", status: `Available`},
+			{year : "2018", status: `Available`},
+			{year : "2019", status: `Available`},
+			{year : "2020", status: `Available`}
+		];
+	
 		if (this.showChoosePeriod) {
-		return html`
-		<capitec-label
-			label="Choose Period (${this.certType.name})"
-			type="default">
-		</capitec-label>
-
-		<div class="tax-certificate-bar">
-			<!-- ${this.years.map(() => html`
-				code for expander goes here `)}
-	-->
-			<capitec-expander label="" ?expanded="${true}" expandable>
-				${this._renderOptions()}
-			</capitec-expander>
-			<capitec-group class="expander-header" layout="horizontal" gap="none" halign="left" valign="center">
-					<capitec-check class="check-details"></capitec-check>
-					<horizon-label
-						label="2020"
-						value="${this.certType.detail} ${status}">
-					</horizon-label>
-			</capitec-group>
-		</div>
-		`;
+			return html`
+				<capitec-label
+					label="Choose Period (${this.certType.name})"
+					type="default">
+				</capitec-label>
+				
+				${this._renderExpanders(checkBoxLabel)}
+			`;
 		}
+	}
+
+	_renderExpanders(checkBoxLabel) {
+		return checkBoxLabel.map(item => html`
+			<horizon-expander
+				id="tax-expander"
+				expandButtonAlignment="right"
+				checkBox = "${true}"
+				@value-change="${(e) => this._onValueChange(e, item)}"
+				@expand="${(e) => this._onExpanded(e)}">
+					<capitec-group slot="custom-header" layout="horizontal" gap="none" halign="left" valign="center">
+						<horizon-label
+							class="check-box-label"
+							label="${item.year}"
+							value="IT3(b) ${item.status}">
+						</horizon-label>
+					</capitec-group>
+					<capitec-content-box slot="content">
+						<capitec-label
+							label="Details coming soon...." >
+						</capitec-label>
+					</capitec-content-box>
+			</horizon-expander>
+		`);
+	}
+
+	_onExpanded(e) {
+		e.detail.expFunc(this);
 	}
 
 	_renderViewTaxcertificate() {
