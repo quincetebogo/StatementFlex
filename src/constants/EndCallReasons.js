@@ -163,7 +163,7 @@ export const END_CALL_REASON = Object.freeze({
 		{
 			key: BALANCE_ENQUIRY,
 			value: `Balance enquiry`,
-			mapping: `savings-account-balance`
+			mapping: `transaction-history-request`
 		},
 		{
 			key: PRODUCT_ENQUIRY,
