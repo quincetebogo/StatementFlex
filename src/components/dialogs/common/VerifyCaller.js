@@ -127,6 +127,9 @@ export class VerifyCaller extends Component {
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
+		this.hasSouthAfricanID = false;
+		this.callerInformation.hasDigitalChannels = true;
+
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
 		} else if (!this.hasSouthAfricanID && !this.callerInformation.hasDigitalChannels) {
@@ -557,7 +560,7 @@ export class VerifyCaller extends Component {
 			css`
 
 				div[slot="body"]{
-					width: 690px;
+					width: 100%;
 					height: 494px;
 				}
 				#notification-status-box {
@@ -576,13 +579,10 @@ export class VerifyCaller extends Component {
 					--theme-alert-banner-info-border: none;
 				}
 				#notification-status-box > capitec-group > capitec-alert-banner[type="error"] {
-					--theme-alert-banner-unsuccessful-red-background-color: rgba(200,59,55,0.15);
 					--theme-alert-banner-icon-margin-left: 15px;
 					--theme-alert-banner-icon-margin-right: 15px;
 					--theme-alert-banner-unsuccessful-red-border: none;
 					--theme-alert-banner-margin-bottom: 0px;
-
-					background-color: var(--theme-alert-banner-unsuccessful-red-background-color, rgba(200,60,55,0.1));
 				}
 				#notification-status-group > capitec-label {
 					line-height: 24px;
@@ -766,26 +766,30 @@ export class VerifyCaller extends Component {
 	}
 
 	_renderPushNotificationError() {
-		let message = ``;
+		let resultMessage = `Unable to verify the client.`;
+		let bannerMessage = ``;
+
 		if (this.itaTimeout) {
-			message = `The client did not accept the notification in time`;
+			bannerMessage = `The client did not accept the notification in time`;
 		} else if (this.itaRejected) {
-			message = `The client rejected the notification`;
+			bannerMessage = `The client rejected the notification`;
 		} else if (!this.callerInformation.hasDigitalChannels) {
-			message = `The client is not registered for the App/USSD`;
+			bannerMessage = `The client isn't registered for the app or USSD`;
 		} else if (this._itaAttemptsExceeded()) {
-			message = `Maximum number of ITA Attempts reached`;
+			bannerMessage = `Maximum number of ITA Attempts reached`;
 		} else {
-			message = `The notification didn't send due to a system error.`;
+			resultMessage = `There was an error.`;
+			bannerMessage = `The push notification didn't send due to a system error.`;
 		}
 
-		let notificationMessage = ``;
+		let instructionMessage = ``;
+
 		if (this.callerInformation.hasDigitalChannels && this.hasSouthAfricanID && !this._xdsAttemptsExceeded()) {
 			notificationMessage = `Notify the client and either try again or complete through security questions`;
 		} else if (this.callerInformation.hasDigitalChannels) {
-			notificationMessage = `Notify the client and try again`;
+			instructionMessage = `Notify the client and try again`;
 		} else {
-			notificationMessage = `Notify the client or complete through security questions`;
+			instructionMessage = `The client must complete with security questions, or continue unverified.`;
 		}
 
 		return html`
@@ -795,7 +799,7 @@ export class VerifyCaller extends Component {
 									valign="top" 
 									gap="clear">
 						<capitec-alert-banner type="error">
-							${message} 
+							${bannerMessage} 
 						</capitec-alert-banner>
 						<capitec-group layout="vertical"
 										halign="center"
@@ -804,10 +808,10 @@ export class VerifyCaller extends Component {
 										id="notification-status-error-group">
 							<img src="/images/insure/connection-error.svg" class="connection-error-svg"/>
 							<div class="notification-info">
-								An error has occured.
+								${resultMessage}
 							</div>
 							<capitec-label type="title"
-								label="${notificationMessage}">
+								label="${instructionMessage}">
 							</capitec-label>
 						</capitec-group>
 					</capitec-group>
@@ -874,7 +878,7 @@ export class VerifyCaller extends Component {
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 					<capitec-alert-banner type="error">
-						<b>Notify: </b>Client can not be verified. Continue unverified or transfer call to team leader.
+						<b>Notify: </b>Client cannot be verified. Continue unverified or transfer call to team leader.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
@@ -883,7 +887,7 @@ export class VerifyCaller extends Component {
 						id="notification-status-error-group">
 						<img src="/images/warning.svg" class="warning-svg connection-error-svg"/>
 						<div class="foreign-client notification-info">
-							Unable to be verified, you can assist with with stopping cards and product enquiries.
+							Unable to verify client. You may stop cards and help with product enquiries.
 						</div>
 					</capitec-group>
 				</capitec-group>
