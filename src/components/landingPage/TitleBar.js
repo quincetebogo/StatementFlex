@@ -72,28 +72,28 @@ export class TitleBar extends Component {
 	// RENDERING
 	// ---------
 	static get styles() {
-
 		return [
 			super.styles,
 			css`
-					.title-bar{
-						width: 100%;
-						height: 72px;
-						background-color: #ffffff;
-						box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
-						grid-template-columns: 1fr;
-						grid-row-gap: 8px;
-					}
-
-					.branding-logo-white{
-						height: 32px;
-						width: 193px;
-					}
-
-					.logged-in-user{
-						color: #003652;
-					}
-				}`
+				.title-bar{
+					width: 100%;
+					height: 72px;
+					background-color: #ffffff;
+					box-shadow: 0 1px 3px 0 rgba(0,0,0,0.2);
+					grid-template-columns: 1fr;
+					grid-row-gap: 8px;
+				}
+				.branding-logo-white{
+					height: 32px;
+					width: 193px;
+				}
+				.logged-in-user{
+					color: #003652;
+				}
+				capitec-icon[icon="system/search"] {
+					cursor: pointer;
+				}
+			`
 		];
 	}
 
@@ -108,7 +108,7 @@ export class TitleBar extends Component {
 				<capitec-group layout="horizontal" gap="line" halign="right" valign="center">
 				<capitec-icon 
 					size="meadium" 
-					icon="system/search" 
+					icon="system/search"
 					@click="${() => this._searchCaller()}"
 					data-automation-id="title-bar-search">
 				</capitec-icon>
