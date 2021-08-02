@@ -175,13 +175,14 @@ export class ConfirmCallerDetails extends Component {
 	}
 
 	_confirmClick() {
-			this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
-				"screen": TelemetryScreen.CONFIRM_CALLER,
-				"next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
-				"confirmed-primary-need": null,
-				"confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
-				"confirmed-client-cif": this.callerInformation.cifNumber
-			});
+            this._telemetry.logEvent(IDCallerEvents.CONFIRM_CALLER_CONFIRM_CLICK, {
+                "screen": TelemetryScreen.CONFIRM_CALLER,
+                "next-screen": this.incomingCallDetails.ivrOption.value === `StopCard` ? TelemetryScreen.STOP_CARD : TelemetryScreen.VERIFY_CALLER,
+                "confirmed-primary-need": null,
+                "confirmed-specific-need": this.incomingCallDetails.ivrOptionCode,
+                "confirmed-client-cif": this.callerInformation.cifNumber
+            });
+
 		if (this.confirmedCaller.isClientPresent || !this.callerInformation.isBranchConsultant) {
 			const stopCard = () => this._navigateToLandingPage();
 			const productEnquiry = () => this._navigateToLandingPage();
@@ -192,10 +193,10 @@ export class ConfirmCallerDetails extends Component {
 				ProductEnquiry: productEnquiry,
 				Transact: transact
 			};
-			clientNeed[this.incomingCallDetails.ivrOptionCode]();     
+            clientNeed[this.incomingCallDetails.ivrOptionCode]();     
 		} else {
 			this._navigateToLandingPage();
-		}    
+        }    
 	}
 
 	async _verifyCaller() {
@@ -372,21 +373,8 @@ export class ConfirmCallerDetails extends Component {
 		}
 
 		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
-			const confirmedCaller = {
-				idNumber: this.callerInformation.southAfricanIDNumber,
-				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-				ivrOptionCode: this.incomingCallDetails.ivrOption.value,
-				incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-				incidentRecId: this.incidentDetails.incidentRecId,
-				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-				nonClientFullName: this.callerInformation.nonClientFullName,
-				nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-				nonClientIDNumber: ``,
-				nonClientRelationship: this.callerInformation.nonClientRelationship
-			};
-
-			const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+			
+			const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
 
 			if (!returnValue.succeeded) {
 				// The error handler will take over. We don't need to do anything more in this routine

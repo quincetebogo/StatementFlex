@@ -194,25 +194,10 @@ export class RelatedOptions extends Component {
 	}
 
 	async _stopCard() {
-		const confirmedCaller = {
-			idNumber: this.callerInformation.southAfricanIDNumber,
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-			incidentRecId: this.incidentDetails.incidentRecId,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-			nonClientFullName: this.callerInformation.nonClientFullName,
-			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
-			nonClientRelationship: this.callerInformation.nonClientRelationship
-		};
 
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller);
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
 
 		if (returnValue.succeeded) {
-			this.incomingCallDetails.ivrOptionCode = `StopCard`;
-			this.incomingCallDetails.ivrOption.value = `StopCard`;
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.cards = returnValue.result && returnValue.result.cards;

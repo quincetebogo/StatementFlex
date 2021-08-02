@@ -55,6 +55,7 @@ export class VerifyBySecurityQuestions extends Component {
 		this.questions = [];
 		this.checked = false;
 		this.alertBannerMessage = ``;
+		this.isBusy = false;
 
 		this.logger = Logger.getInstance();
 
@@ -119,10 +120,6 @@ export class VerifyBySecurityQuestions extends Component {
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-
-	_toggleBusyFlag() {
-		this.isBusy = !this.isBusy;
-	}
 
 	_cancelClick() {
 		this.telemetry.logEvent(VerifyCallerEvents.XDS_CANCEL, {
@@ -403,6 +400,13 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_webTemplate() {
+		return html`
+			${this._renderLoadingIndicator()}
+			${this._renderContent()}
+		`
+	}
+
+	_renderContent() {
 		switch (this.renderMode) {
 			case RENDER_MODE.SECURITY_QUESTIONS:
 				return html`
@@ -417,7 +421,6 @@ export class VerifyBySecurityQuestions extends Component {
 								${this._renderAlertBanner()}
 								${this.questions.map((item, index) => this._renderSecurityQuestions(item, index))}
 							</capitec-content-box>
-							${this._renderLoadingIndicator()}
 						</div>
 						<div slot="footer">
 							${this._renderFooter()}
@@ -507,11 +510,9 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_renderLoadingIndicator() {
-		if (!this.isBusy) {
-			return html``;
-		}
-
-		return html`<capitec-loading-indicator></capitec-loading-indicator>`;
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
 	}
 }
 

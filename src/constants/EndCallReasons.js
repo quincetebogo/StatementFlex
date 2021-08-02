@@ -1,9 +1,3 @@
-/**
- * The end call reasons for end call dialog.
- * 
- * @readonly
- * @enum {String} EndCallReasons
- */
 
 const NEED_FULFILLED = 0;
 const NEED_INCOMPLETE = 1;
@@ -15,6 +9,16 @@ const LANGUAGE_TRANSFER = 6;
 const BALANCE_ENQUIRY = 7;
 const CALL_TRANSFERED = 8;
 const PRODUCT_ENQUIRY = 9;
+
+/**
+ * The end call reasons for end call dialog.
+ * 
+ * @readonly
+ * @enum {Object} END_CALL_REASON
+ * 
+ * End call mapping refer from Confluience https://confluence.capitecbank.co.za:8443/display/HOR/Quick+Transactions%3A+STrack+Field+Mapping 
+ * and https://confluence.capitecbank.co.za:8443/pages/viewpage.action?pageId=583797367
+ */
 
 export const END_CALL_REASON = Object.freeze({
 	
@@ -29,36 +33,85 @@ export const END_CALL_REASON = Object.freeze({
 	CALL_TRANSFERED: CALL_TRANSFERED,
 	PRODUCT_ENQUIRY: PRODUCT_ENQUIRY,
 
-	table: [
-		{
-			key: NEED_FULFILLED,
-			value: `Need fulfilled`,
-			mapping: ``
-		},
-		{
-			key: NEED_ASSIGNED,
-			value: `Need assigned`,
-			mapping: ``
-		},
-		{
-			key: NEED_HANDED_OFF,
-			value: `Need handed off`,
-			mapping: ``
-		},
+	ConfirmClient: [
 		{
 			key: LANGUAGE_TRANSFER,
 			value: `Language transfer`,
-			mapping: `telephony-disconnected`
+			mapping: `language-transfer`
 		},
 		{
 			key: CALL_TRANSFERED,
 			value: `Call transferred`,
-			mapping: `telephony-disconnected`
+			mapping: `call-transfer`
 		},
 		{
 			key: NEED_INCOMPLETE,
 			value: `Need incomplete - bad connection`,
-			mapping: `telephony-bad-connection`
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: `general-product-enquiry`
+		}
+	],
+	VerifyClient: [
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `failed-verification`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: `general-product-enquiry`
+		}
+	],
+	LandingPage: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
 		},
 		{
 			key: BALANCE_ENQUIRY,
@@ -68,12 +121,59 @@ export const END_CALL_REASON = Object.freeze({
 		{
 			key: PRODUCT_ENQUIRY,
 			value: `Product enquiry`,
-			mapping: ``
+			mapping: `general-product-enquiry`
 		},
 		{
 			key: FAILED_VERIFICATION,
 			value: `Client failed verification`,
-			mapping: ``
+			mapping: `failed-verification`
+		}
+	],
+	TransactionHistory: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `transaction-history`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `transaction-history`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `transaction-history`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: BALANCE_ENQUIRY,
+			value: `Balance enquiry`,
+			mapping: `savings-account-balance`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: FAILED_VERIFICATION,
+			value: `Client failed verification`,
+			mapping: `failed-verification`
 		},
 		{
 			key: FOLLOW_UP,
