@@ -171,11 +171,6 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		},
 		{
-			key: FAILED_VERIFICATION,
-			value: `Client failed verification`,
-			mapping: `failed-verification`
-		},
-		{
 			key: FOLLOW_UP,
 			value: `Follow up required`,
 			mapping: ``
