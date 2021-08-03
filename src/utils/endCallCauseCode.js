@@ -29,6 +29,12 @@ export class EndCallCauseCode {
 		this.causeCode.set(`VerifyClient`, {
 			"Need incomplete, bad connection": `ClientFailedSecurityCheck`
 		});
+		this.causeCode.set(`VerifyClient`, {
+			"Client failed verification": `ClientFailedSecurityCheck`
+		});
+		this.causeCode.set(`LandingPage`, {
+			"Client failed verification": `ClientFailedSecurityCheck`
+		});
 		this.causeCode.set(`StopCard`, {
 			"Need fulfilled": `NormalEnquiry`
 		});
