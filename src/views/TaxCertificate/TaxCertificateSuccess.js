@@ -18,8 +18,8 @@ export class TaxCertificateSuccess extends ViewBase {
 		this.isTaxFreeCertificate = false;
 
 		this.mailId = `ivanmakatini@gmail.com`;
-		this.taxableYear = `2019 and 2020`;
-		this.taxFreeYear = `2020`;
+		this.taxableYear = [`2018`, `2019`, `2020`];
+		this.taxFreeYear = [`2019`, `2020`];
 
 		this._telemetry = HorizonTelemetry.instance;
 	}
@@ -86,6 +86,32 @@ export class TaxCertificateSuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
+	_taxableYears() {
+		const taxableLength = this.taxableYear.length;
+		if (taxableLength === 1) {
+			return this.taxableYear;
+		} else if (taxableLength === 2) {
+			return this.taxableYear.join(` and `);
+		} else if (taxableLength > 2) {
+			const taxableLastYear = this.taxableYear.pop();
+			const taxableResult = this.taxableYear.join(`, `) + ` and ` + taxableLastYear;
+			return taxableResult; 
+		}
+	}
+
+	_taxFreeYears() {
+		const taxFreeLength = this.taxFreeYear.length;
+		if (taxFreeLength === 1) {
+			return this.taxFreeYear;
+		} else if (taxFreeLength === 2) {
+			return this.taxFreeYear.join(` and `);
+		} else if (taxFreeLength > 2) {
+			const taxFreeLastYear = this.taxFreeYear.pop();
+			const taxFreeResult = this.taxFreeYear.join(`, `) + `and` + taxFreeLastYear;
+			return taxFreeResult;
+		}
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -129,7 +155,7 @@ export class TaxCertificateSuccess extends ViewBase {
 					<section 
 						id="id-success-msg" 
 						slot="detail">
-							Taxable savings certificate for <strong>${this.taxableYear}</strong> has been emailed to <strong>${this.mailId}</strong>
+							Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
 					</section>
 					${this._renderTaxFreeCertificateDetail()}
 			</horizon-success-screen>
@@ -142,7 +168,7 @@ export class TaxCertificateSuccess extends ViewBase {
 				<section 
 					class="id-update-msg" 
 					slot="sub-detail">
-						Tax-free certificate for <strong>${this.taxFreeYear}</strong> has been emailed to <strong>${this.mailId}</strong>
+						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
 				</section>`
 			: html``;
 	}
