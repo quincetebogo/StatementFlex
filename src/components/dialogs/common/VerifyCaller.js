@@ -878,7 +878,7 @@ export class VerifyCaller extends Component {
 			<capitec-content-box id="notification-status-box">
 				<capitec-group layout="vertical" halign="stretch" valign="top" gap="clear">
 					<capitec-alert-banner type="error">
-						<b>Notify: </b>Client cannot be verified. Continue unverified or transfer call to team leader.
+						<b>Notify: </b>Client cannot be verified. Continue unverified or transfer call to team lead.
 					</capitec-alert-banner>
 					<capitec-group layout="vertical" 
 						halign="center"
