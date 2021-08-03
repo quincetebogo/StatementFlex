@@ -71,9 +71,7 @@ export class EndCallCauseCode {
 		const failedVerificationCount = this._getFailedVerificationCount();
 		
 		if (this.causeCode.has(context)) {
-			// When client verification fails, irrespective of any end call reason cause code
-			// should be ClientFailedSecurityCheck
-			return failedVerificationCount > 0 ? FAILED_VERIFICATION_CAUSECODE : DEFAULT_CAUSECODE;
+			return this.causeCode.get(clientNeed)[reasonCode] || DEFAULT_CAUSECODE;
 		}
 		return DEFAULT_CAUSECODE; // Default cause code
 	}
