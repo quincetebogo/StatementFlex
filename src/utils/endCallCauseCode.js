@@ -71,7 +71,7 @@ export class EndCallCauseCode {
 		const failedVerificationCount = this._getFailedVerificationCount();
 		
 		if (this.causeCode.has(context)) {
-			return this.causeCode.get(clientNeed)[reasonCode] || DEFAULT_CAUSECODE;
+			return this.causeCode.get(context)[reasonCode] || DEFAULT_CAUSECODE;
 		}
 		return DEFAULT_CAUSECODE; // Default cause code
 	}
