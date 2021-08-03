@@ -27,7 +27,7 @@ export class EndCallCauseCode {
 		this.causeCode = new Map();
 
 		this.causeCode.set(`VerifyClient`, {
-			"Need incomplete, bad connection": `ClientFailedSecurityCheck`
+			"Need incomplete, bad connection": `NormalEnquiry`
 		});
 		this.causeCode.set(`VerifyClient`, {
 			"Client failed verification": `ClientFailedSecurityCheck`
