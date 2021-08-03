@@ -20,7 +20,8 @@ import { Component, css, html } from 'platform/elements';
  *		wrap=false
  *		noPadding=false
  *		expanded=false
- *		disabled=false>
+ *		disabled=false
+ 		checked=false>
  *			<capitec-label slot="custom-header" label="No Records Found"></capitec-label>
  *			<capitec-label slot="content" label="No Records Found"></capitec-label>
  *	</horizon-expander>
@@ -42,6 +43,7 @@ export class Expander extends Component {
         this.label = null;
 		this.icon = null;
 		this.checkBox = false;
+		this.checked = false;
 
         this.expanded = false;
         this.disabled = false;
@@ -68,6 +70,7 @@ export class Expander extends Component {
 	 *
 	 * @property {Boolean} [expanded=false] - Indicator if the expander is currently expanded.
 	 * @property {Boolean} [disabled=false] - Indicator if the expander is currently disabled.
+	 * @property {Boolean} [checked=false] - Indicator if the expander's check button is selected.
 	 *
 	 * @property {LayoutAttribute} [layout=vertical] - The component content area layout.
 	 * @property {HAlignAttribute} [halign=stretch] - The component content area horizontal item alignment.
@@ -88,6 +91,7 @@ export class Expander extends Component {
 			
             expanded: { type: Boolean },
             disabled: { type: Boolean },
+			checked: { type: Boolean },
 
             layout: { type: String },
             halign: { type: String },
@@ -255,12 +259,14 @@ export class Expander extends Component {
 	 * @returns {void}
 	 */
 	_onValueChange(e) {
+		this.checked = e.detail.new;
+
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
 				old: e.detail.old,
 				new: e.detail.new
 			}
-	}));
+		}));
 	}
 
     // ---------------
@@ -464,7 +470,7 @@ export class Expander extends Component {
 				.check-details {
 					margin-left: var(--theme-expander-check-box-margin-left, 16px); 
 				}
-	
+
 				@keyframes expand {
 					0% {
 						max-height: var(--theme-expander-header-height, 50px);
