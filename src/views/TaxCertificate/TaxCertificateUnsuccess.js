@@ -6,7 +6,11 @@ import 'app/components/common/ErrorScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
- * An error/failure screen that will be displayed when Tax Certificate is unsuccessful.
+ * Display an failure screen indicating the selected tax certificates have not been sent.
+ *
+ * @export
+ * @class TaxCertificateUnsuccess
+ * @extends {ViewBase}
  */
 export class TaxCertificateUnsuccess extends ViewBase {
 
@@ -19,6 +23,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		this.isTaxFreeCertificate = false;
 
+		//TODO: To be removed once the navigation is wired up
 		this.mailId = `ivanmakatini@gmail.com`;
 
 		//this.horizonStore = HorizonStore.getInstance();
@@ -28,6 +33,15 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// PROPERTIES
 	// --------------
 
+		/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof TaxCertificateUnsuccess
+	 */
 	static get properties() {
 		return {
 			mailId: { attribute: String },
@@ -110,11 +124,21 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// ---------
 	// RENDERING
 	// ---------
+
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof TaxCertificateUnsuccess
+	 */
 	static get styles() {
 		return [
 			super.styles,
 			css`
-				#id-error-msg{
+				.error-msg {
 					height: 24px;
 					width: auto;
 					font-family: "Hind Vadodara";
@@ -159,7 +183,8 @@ export class TaxCertificateUnsuccess extends ViewBase {
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._handoffClick()}>
 					<section
-						id="id-error-msg" 
+						data-automation-id="tax-certificate-unsuccessful-tax-certificate-message"
+						class="error-msg" 
 						slot="detail">
 							Your taxable savings certificate was not emailed to <strong>${this.mailId}</strong>
 					</section>
@@ -172,7 +197,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		return this.isTaxFreeCertificate 
 			? html`
 				<section 
-					class="id-update-msg" 
+					data-automation-id="tax-certificate-unsuccessful-tax-free-certificate-message"
 					slot="sub-detail">
 						Your tax-free certificate was not emailed to <strong>${this.mailId}</strong>.
 				</section>`
