@@ -115,5 +115,6 @@
 	// Tax certificate
 	SELECT_VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
 	VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.view-certificate`,
-	SELECT_CLOSE_VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.view-certificate.close`
+	SELECT_CLOSE_VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.view-certificate.close`,
+	TAX_CERTIFICATE_SELECT_BACK: `call.fulfill-need.tax-certificate.pop-up.back`
  };

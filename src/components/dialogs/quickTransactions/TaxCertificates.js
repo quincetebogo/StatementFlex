@@ -190,6 +190,10 @@ export class TaxCertificate extends Component {
 	_back() {
 
 		// Telemetry
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_BACK, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+		});
+
 		this.errorMessage = ``;
 		this.currentStep--;
 	}
@@ -841,13 +845,12 @@ export class TaxCertificate extends Component {
 						${this.selectedCertificates.taxFree.map(item => this._renderViewCertificateTile(item))}
 					</capitec-group>`; 
 			}
-			
-
 	}
 
 	_renderViewCertificateTile(item) {
 		return html`
 			<horizon-product-tile
+				data-automation-id="tax-certificate-dialog-view-document"
 				class="view-document-tile"
 				type="default"
 				label="${item.year}"
@@ -881,6 +884,7 @@ export class TaxCertificate extends Component {
 			</capitec-button>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button
+				data-automation-id="tax-certificate-dialog-cancel"
 				class="cancel-button"
 				type="secondary"
 				label="Cancel"
