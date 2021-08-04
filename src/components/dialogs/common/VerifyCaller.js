@@ -117,7 +117,7 @@ export class VerifyCaller extends Component {
 		this.logger.log(`info`, `Entered connectedCallback`, `VerifyCaller`);
 		this.telemetry.startSpan(VerifyCallerEvents.VERIFY_CALLER);
 
-		// Resetting ITA & XDS attempts
+		// Set up ITA & XDS attempts if structure does not exist yet
 		if (!this.callerInformation.verificationAttempts) {
 			this.callerInformation.verificationAttempts = {
 				itaAttempts: 0,
@@ -133,11 +133,11 @@ export class VerifyCaller extends Component {
 		*/
 
 		if (this.callerInformation.hasDigitalChannels) {
-			this._initiateItaVerification();
-		} else if (!this.hasSouthAfricanID && !this.callerInformation.hasDigitalChannels) {
-			// Technically this may not be a foreign client. We don't have a valid ID number available for the
-			// client and digital channels are not available. So the Client Care Agent cannot verify the caller
-			this.logger.log(`warn`, `Neither digital channels nor a valid South African ID number are available to use for verification`, `VerifyCaller`);
+			return this._initiateItaVerification();
+		}
+		
+		if (!this._canVerify()) {
+			this.logger.log(`warn`, `There are no verification channels available or the client is blocked on all channels.`, `VerifyCaller`);
 		}
 	}
 
@@ -216,10 +216,12 @@ export class VerifyCaller extends Component {
 			if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
 				this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
 			}
-		} else {
-			// Just sending off a request counts as an attempt already
-			this.callerInformation.verificationAttempts.xdsAttempts++;
-		}
+
+			return;
+		} 
+		
+		// Just sending off a request counts as an attempt already
+		this.callerInformation.verificationAttempts.xdsAttempts++;
 	}
 
 	_calculateXDSAttempts(authHistory) {
@@ -291,10 +293,11 @@ export class VerifyCaller extends Component {
 		if (!this._itaAttemptsExceeded()) {
 			this.logger.log(`info`, `Retrying ITA verification`, `_tryAgain`);
 			this._initiateItaVerification();
-		} else {
-			this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
-			this._navigateToItaVerificationFailed();
-		}
+			return;
+		} 
+		
+		this.logger.log(`info`, `Maximum ITA verification attemmpts exceeded`, `_tryAgain`);
+		this._navigateToItaVerificationFailed();
 	}
 
 	_endCall() {
@@ -443,7 +446,6 @@ export class VerifyCaller extends Component {
 		}
 
 		this.itaTimer = setInterval(() => {
-
 			this.seconds--;
 
 			if (this.seconds <= 0) {
