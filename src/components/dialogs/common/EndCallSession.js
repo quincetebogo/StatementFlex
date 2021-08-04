@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { Configuration, Logger, NavigationContext, SecurityContext } from 'platform/core';
+import { Configuration, Logger, SecurityContext } from 'platform/core';
 import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { END_CALL_REASON } from 'app/constants/EndCallReasons';
@@ -79,7 +79,7 @@ export class EndCallSession extends Component {
 		return {
 			incomingCallDetails: { type: Object },
 			incidentDetails: { type: Object },
-			endCallContext: { type: String }, 
+			endCallContext: { type: String },
 			isReassigned: { type: Boolean },
 
 			isBusy: { attribute: false },
@@ -98,7 +98,10 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		this.endCallReasons = END_CALL_REASON.table;
+		//Making end call reasons context sensitive 
+
+		this.endCallReasons = END_CALL_REASON[this.endCallContext];
+		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
 
@@ -499,6 +502,7 @@ export class EndCallSession extends Component {
 	_webTemplate() {
 		return html`
 			<horizon-caller-dialog
+						data-automation-id="end-call-session-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
 						.incidentDetails="${this.incidentDetails}"
 						.isNeedSelectable=${false}
@@ -527,6 +531,7 @@ export class EndCallSession extends Component {
 			<capitec-group layout="vertical" gap="none" halign="stretch" valign="top">
 				<div class="end-call-reason">
 					<capitec-select
+						data-automation-id="end-call-session-select-reason"
 						label="Choose reason"
 						class="id-options" 
 						id-field="key"
@@ -546,12 +551,14 @@ export class EndCallSession extends Component {
 		return html`
 			<capitec-group layout="horizontal">
 				<capitec-button
+					data-automation-id="end-call-session-cancel"
 					id="id-cancel-button"
 					label="Cancel"
 					@click="${() => this._cancelClick()}">
 				</capitec-button>
 			
 				<capitec-button
+					data-automation-id="end-call-session-end-call"
 					id="id-continue-button"
 					type="primary"
 					label="End Call"
@@ -564,9 +571,11 @@ export class EndCallSession extends Component {
 	_renderAlertBanner() {
 		if (this.alertBannerMessage) {
 			return html`
-				<capitec-alert-banner type="unsuccessful-red">
+				<capitec-alert-banner 
+					data-automation-id="end-call-session-banner"
+					type="unsuccessful-red">
 					<b>Notify: </b>${this.alertBannerMessage}
-			</capitec-alert-banner>`;
+				</capitec-alert-banner>`;
 		}
 	}
 
