@@ -1,6 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
-import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
@@ -35,9 +33,7 @@ export class EmailComponent extends Component {
 			confirmEmail: ``
 		};
 
-		this.horizonStore = HorizonStore.getInstance();
 		this.logger = Logger.getInstance();
-		this._telemetry = HorizonTelemetry.instance;
 
 	}
 
@@ -110,14 +106,6 @@ export class EmailComponent extends Component {
 		this.mailClientError.email = ``;
 		this.mailClientError.confirmEmail = ``;
 		this.errorMessage = ``;
-	}
-
-	_updateScreenDetails() {
-		const screenDetails = this.horizonStore.getScreenDetails();
-
-		screenDetails.emailAddress = this.email;
-		
-		this.horizonStore.setScreenDetails(screenDetails);
 	}
 
 	_validateEmailAddress(type) {
@@ -205,7 +193,7 @@ export class EmailComponent extends Component {
 
 			<capitec-text-field
 				id="email"
-				data-automation-id="email-component-dialog-email-address"
+				data-automation-id="email-input-email-address"
 				label="Email address"
 				oncopy="return false"
 				onpaste="return false"
@@ -225,7 +213,7 @@ export class EmailComponent extends Component {
 
 			<capitec-text-field
 				id="confirmEmail"
-				data-automation-id="email-component-dialog-confirm-email-address"
+				data-automation-id="email-input-confirm-email-address"
 				label="Email address"
 				oncopy="return false" 
 				onpaste="return false"
@@ -243,4 +231,4 @@ export class EmailComponent extends Component {
 	
 };
 
-window.customElements.define(`horizon-email-component`, EmailComponent);
+window.customElements.define(`horizon-email-input`, EmailComponent);
