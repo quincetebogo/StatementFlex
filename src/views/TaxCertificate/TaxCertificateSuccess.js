@@ -6,6 +6,13 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';
 
+/**
+ * Display an confirmation/success screen indicating the selected tax certificates have been successfully sent.
+ *
+ * @export
+ * @class TaxCertificateSuccess
+ * @extends {ViewBase}
+ */
 export class TaxCertificateSuccess extends ViewBase {
 
 	// --------------
@@ -15,8 +22,9 @@ export class TaxCertificateSuccess extends ViewBase {
 	constructor() {
 		super();
 
-		this.isTaxFreeCertificate = false;
+		this.isTaxFreeCertificate = true;
 
+		//TODO: To be removed once the navigation is wired up
 		this.mailId = `ivanmakatini@gmail.com`;
 		this.taxableYear = [`2018`, `2019`, `2020`];
 		this.taxFreeYear = [`2019`, `2020`];
@@ -28,6 +36,15 @@ export class TaxCertificateSuccess extends ViewBase {
 	// PROPERTIES
 	// --------------
 
+	/**
+	 * Registry of all properties defined by the component.
+	 * 
+	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
+	 * 
+	 * @readonly
+	 * @static
+	 * @memberof TaxCertificateSuccess
+	 */
 	static get properties() {
 		return {
 			isTaxFreeCertificate: { attribute: false, type: Boolean }
@@ -89,26 +106,28 @@ export class TaxCertificateSuccess extends ViewBase {
 	_taxableYears() {
 		const taxableLength = this.taxableYear.length;
 		if (taxableLength === 1) {
-			return this.taxableYear;
-		} else if (taxableLength === 2) {
-			return this.taxableYear.join(` and `);
-		} else if (taxableLength > 2) {
+			return `${this.taxableYear}`;
+		}
+		if (taxableLength === 2) {
+			return `${this.taxableYear.join(` and `)}`;
+		}
+		if (taxableLength > 2) {
 			const taxableLastYear = this.taxableYear.pop();
-			const taxableResult = this.taxableYear.join(`, `) + ` and ` + taxableLastYear;
-			return taxableResult; 
+			return `${this.taxableYear.join(`, `)} and ${taxableLastYear}`;
 		}
 	}
 
 	_taxFreeYears() {
 		const taxFreeLength = this.taxFreeYear.length;
 		if (taxFreeLength === 1) {
-			return this.taxFreeYear;
-		} else if (taxFreeLength === 2) {
-			return this.taxFreeYear.join(` and `);
-		} else if (taxFreeLength > 2) {
+			return `${this.taxFreeYear}`;
+		}
+		if (taxFreeLength === 2) {
+			return `${this.taxFreeYear.join(` and `)}`;
+		}
+		if (taxFreeLength > 2) {
 			const taxFreeLastYear = this.taxFreeYear.pop();
-			const taxFreeResult = this.taxFreeYear.join(`, `) + ` and ` + taxFreeLastYear;
-			return taxFreeResult;
+			return `${this.taxFreeYear.join(`, `)} and ${taxFreeLastYear}`;
 		}
 	}
 
@@ -120,7 +139,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		return [
 			super.styles,
 			css`
-				#id-success-msg {
+				.success-msg {
 					width: auto;
 				}
 			`
@@ -153,7 +172,8 @@ export class TaxCertificateSuccess extends ViewBase {
 				@left-click=${() => this._sendAnotherClick}
 				@right-click=${() => this._doneClick()}>
 					<section 
-						id="id-success-msg" 
+						data-automation-id="tax-certificate-success-tax-certificate-message"
+						class="success-msg" 
 						slot="detail">
 							Taxable savings certificate for <strong>${this._taxableYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
 					</section>
@@ -166,7 +186,7 @@ export class TaxCertificateSuccess extends ViewBase {
 		return this.isTaxFreeCertificate 
 			? html`
 				<section 
-					class="id-update-msg" 
+					data-automation-id="tax-certificate-success-tax-free-certificate-message"
 					slot="sub-detail">
 						Tax-free certificate for <strong>${this._taxFreeYears()}</strong> has been emailed to <strong>${this.mailId}</strong>
 				</section>`
