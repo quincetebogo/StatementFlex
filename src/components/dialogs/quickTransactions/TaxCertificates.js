@@ -58,7 +58,6 @@ export class TaxCertificate extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.encodedPDF = ``;
 		this.navigationContext = NavigationContext.getInstance();
-		this.certType = {};
 		this.selectedCertType = null;
 		this.showChoosePeriod = false;
 		this.selectedCertificates = {
@@ -89,7 +88,6 @@ export class TaxCertificate extends Component {
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		// this.years = [`2016`, `2017`, `2018`, `2019`, `2020`];
 	}
 
 	// --------------
@@ -514,9 +512,9 @@ export class TaxCertificate extends Component {
 
 			.main-cb {
 				height: 100%;
-				--theme-container-padding-left: 16px;
-				--theme-container-padding-top: 16px;
-				--theme-container-padding-right: 16px;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-right: 0px;
 				--theme-container-padding-bottom: 0px;
 			}
 			.pdf-viewer {
@@ -809,33 +807,30 @@ export class TaxCertificate extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-		const availableCards = this.cards.map(card => card.cardExpiryYear);
-		console.log(availableCards);
 
-			if (CERTIFICATE_TYPE.taxableSavings.type) {
-				return html`
+		if (this.selectedCertificates.taxableSavings) {
+			return html`
+				<capitec-label
+					class="tax-certificate-heading"
+					type="subtitle"
+					label="View ${CERTIFICATE_TYPE.taxableSavings.displayName} certificate(s)">
+				</capitec-label>
+				<capitec-group
+					class="available-cards"
+					valign="top"
+					halign="left"
+					gap="clear"
+					layout="vertical">
+					${this.selectedCertificates.taxableSavings.map(item => this._renderViewCertificateTile(item))}
+				</capitec-group>`;
+		}
+		
+		if (this.selectedCertificates.taxFree){
+			return html`
 					<capitec-label
 						class="tax-certificate-heading"
 						type="subtitle"
-						label="View ${CERTIFICATE_TYPE.taxableSavings.type} certificate(s)">
-					</capitec-label>
-
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-							${availableCards.map((item, itemIndex) => this._renderViewTaxableCertificateTile(item, itemIndex))}
-					</capitec-group>`;
-			}
-				
-			if (CERTIFICATE_TYPE.taxFree.type) {
-					return html`
-					<capitec-label
-						class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${CERTIFICATE_TYPE.taxFree.type} certificate(s)">
+						label="View ${CERTIFICATE_TYPE.taxFree.displayName} certificate(s)">
 					</capitec-label>
 					<capitec-group
 						class="available-cards"
@@ -843,32 +838,20 @@ export class TaxCertificate extends Component {
 						halign="left"
 						gap="clear"
 						layout="vertical">
-							${availableCards.map((item, itemIndex) => this._renderViewTaxfreeCertificateTile(item, itemIndex))}
-					</capitec-group>`;
+						${this.selectedCertificates.taxFree.map(item => this._renderViewCertificateTile(item))}
+					</capitec-group>`; 
 			}
+			
+
 	}
 
-	_renderViewTaxableCertificateTile(item, itemIndex) {
-		const status = `Available`;
+	_renderViewCertificateTile(item) {
 		return html`
 			<horizon-product-tile
 				class="view-document-tile"
 				type="default"
-				label="20${item}"
-				subtitle="${CERTIFICATE_TYPE.taxableSavings.type} ${status}"
-				@click="${() => this._viewPDF()}">
-				${this._renderViewDocumnetLink()}
-			</horizon-product-tile>`;
-	}
-
-	_renderViewTaxfreeCertificateTile(item, itemIndex) {
-		const status = `Available`;
-		return html`
-			<horizon-product-tile
-				class="view-document-tile"
-				type="default"
-				label="20${item}"
-				subtitle="${CERTIFICATE_TYPE.taxFree.type} ${status}"
+				label="${item.year}"
+				subtitle="${CERTIFICATE_TYPE.taxableSavings.type ? CERTIFICATE_TYPE.taxableSavings.type : CERTIFICATE_TYPE.taxFree.type } ${item.status}"
 				@click="${() => this._viewPDF()}">
 				${this._renderViewDocumnetLink()}
 			</horizon-product-tile>`;
@@ -879,7 +862,7 @@ export class TaxCertificate extends Component {
 			<capitec-label
 				slot="detail"
 				type="strong"
-				label="View Document">
+				label="View certificate">
 			</capitec-label>
 		`;
 	}
