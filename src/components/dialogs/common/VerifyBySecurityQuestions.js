@@ -203,7 +203,7 @@ export class VerifyBySecurityQuestions extends Component {
 				} else {
 					this._xdsNotAuthenticated();
 				}
-			} else if (this.noOfXdsVerificationAttempted < 1) {
+			} else if (this.noOfXdsVerificationAttempted <= 1) {
 				this.logger.log(`error`, `Call to verifySecurityQuestions failed. Treating this as a first failure!`, `_verifyClick`);
 				this._showSQFailedScreen();
 			} else {
@@ -261,6 +261,11 @@ export class VerifyBySecurityQuestions extends Component {
 	// ---------------
 
 	_xdsErrorHandler(exception) {
+		this.noOfXdsVerificationAttempted++;
+
+		this.callerInformation.verificationStatus = `failed`;
+		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 		this.horizonStore.setCallerInformation(this.callerInformation);
 
@@ -289,6 +294,13 @@ export class VerifyBySecurityQuestions extends Component {
 	}
 
 	_xdsNotAuthenticated() {
+		this.noOfXdsVerificationAttempted++;
+
+		this.callerInformation.verificationStatus = `failed`;
+		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
+
+		this.horizonStore.setCallerInformation(this.callerInformation);
+
 		if (this.noOfXdsVerificationAttempted < 1) {
 			this._showSQFailedScreen();
 		} else if (returnValue.succeeded) {
@@ -304,7 +316,6 @@ export class VerifyBySecurityQuestions extends Component {
 		}, true);
 
 		this.renderMode = RENDER_MODE.FIRST_FAILURE;
-		this.noOfXdsVerificationAttempted++;
 	}
 
 	_navigateToXDSFailedVerification() {
@@ -313,11 +324,6 @@ export class VerifyBySecurityQuestions extends Component {
 			"next-screen": TelemetryScreen.XDS_FAILED
 		}, true);
 
-		this.noOfXdsVerificationAttempted++;
-		this.callerInformation.verificationStatus = `failed`;
-		this.callerInformation.verificationAttempts.xdsAttempts = this.noOfXdsVerificationAttempted;
-
-		this.horizonStore.setCallerInformation(this.callerInformation);
 		this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
 		this.horizonRouter.navigateToXdsVerificationFailed();
