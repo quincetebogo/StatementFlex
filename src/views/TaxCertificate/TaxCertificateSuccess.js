@@ -107,7 +107,7 @@ export class TaxCertificateSuccess extends ViewBase {
 			return this.taxFreeYear.join(` and `);
 		} else if (taxFreeLength > 2) {
 			const taxFreeLastYear = this.taxFreeYear.pop();
-			const taxFreeResult = this.taxFreeYear.join(`, `) + `and` + taxFreeLastYear;
+			const taxFreeResult = this.taxFreeYear.join(`, `) + ` and ` + taxFreeLastYear;
 			return taxFreeResult;
 		}
 	}
