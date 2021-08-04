@@ -127,8 +127,10 @@ export class VerifyCaller extends Component {
 
 		this.hasSouthAfricanID = isWellFormedSouthAfricanID(this.callerInformation.southAfricanIDNumber);
 
+		/*
 		this.hasSouthAfricanID = false;
 		this.callerInformation.hasDigitalChannels = true;
+		*/
 
 		if (this.callerInformation.hasDigitalChannels) {
 			this._initiateItaVerification();
@@ -173,37 +175,50 @@ export class VerifyCaller extends Component {
 		const returnValue = await this.callHandleService.xdsQuestions(clientID, () => true);
 
 		if (returnValue.succeeded) {
-			this.securityQuestions = returnValue.result;
+			return this._handleSecurityQuestions(returnValue.result);
+		} 
+		
+		this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
+		this.xdsMessage = `System Issue: Unable to obtain security questions`;
+		this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
+	}
 
-			const authHistory = this.securityQuestions.authenticationHistory;
+	_handleSecurityQuestions(securityQuestions) {
+		// Set this.securityQuestions for passing to the secuirty questions dialog
+		this.securityQuestions = securityQuestions;
 
-			if (authHistory) {
-				// Retreive the number of previous attemnpts (including this current attempt)
-				this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
-				if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
-					this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
-				}
-			} else {
-				// Just sending off a request counts as an attempt already
-				this.callerInformation.verificationAttempts.xdsAttempts++;
-			}
+		this._updateXdsAuthenticationAttempts(securityQuestions);
 
-			if (!this.securityQuestions.authenticationPermitted) {
-				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
-				this.xdsMessage = `Authentication Not Permitted`;
-				this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
-			} else if (this.securityQuestions.questions && this.securityQuestions.questions.length > 0) {
-				this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
-				this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
-			} else {
-				this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
-				this.xdsMessage = this.securityQuestions.errorMessage ? this.securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
-				this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
+		if (!securityQuestions.authenticationPermitted) {
+			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS; 
+			this.xdsMessage = `Authentication Not Permitted`;
+			this.logger.log(`warn`, `XDS returns authentication not permitted`, `_securityQuestionsClick`);
+			return;
+		} ;
+		
+		if (securityQuestions.questions && securityQuestions.questions.length > 0) {
+			this.logger.log(`info`, `XDS Questions retrieved, transitioning to Security Questions Dialog`, `_securityQuestionsClick`);
+			this.renderMode = RENDER_MODE.SECURITY_QUESTIONS;
+			return;
+		};
+		
+		this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
+		this.xdsMessage = securityQuestions.errorMessage ? securityQuestions.errorMessage : `System Issue: Unable to obtain security questions`;
+		this.logger.log(`error`, `XDS ERROR: ${$this.xdsMessage}`, `_securityQuestionsClick`);
+	}
+
+	_updateXdsAuthenticationAttempts(securityQuestions) {
+		const authHistory = securityQuestions.authenticationHistory;
+
+		if (authHistory) {
+			// Retreive the number of previous attemnpts (including this current attempt)
+			this.callerInformation.verificationAttempts.xdsAttempts = this._calculateXDSAttempts(authHistory);
+			if (this.callerInformation.verificationAttempts.xdsAttempts > 1) {
+				this.logger.log(`warn`, `The caller made ${this.callerInformation.verificationAttempts.xdsAttempts} to verify via XDS!`);
 			}
 		} else {
-			this.callerInformation.verificationAttempts.xdsAttempts = MAX_XDS_ATTEMPTS;
-			this.xdsMessage = `System Issue: Unable to obtain security questions`;
-			this.logger.log(`error`, `Failed to retrieve XDS Security Questions`, `_securityQuestionsClick`, returnValue.correlationId);
+			// Just sending off a request counts as an attempt already
+			this.callerInformation.verificationAttempts.xdsAttempts++;
 		}
 	}
 
