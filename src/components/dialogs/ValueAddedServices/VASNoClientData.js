@@ -30,11 +30,6 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 	// PROPERTIES
 	// -----------
 
-	static get properties() {
-		return {
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------

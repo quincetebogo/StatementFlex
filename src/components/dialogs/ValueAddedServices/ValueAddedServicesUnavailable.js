@@ -31,11 +31,6 @@ export class ValueAddedServiceUnavailable extends Component {
 	// PROPERTIES
 	// -----------
 
-	static get properties() {
-		return {
-		};
-	}
-
 	// -------------------
 	// LIFECYCLE OVERRIDES
 	// -------------------
@@ -159,7 +154,9 @@ export class ValueAddedServiceUnavailable extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal type="onboard">
+			<capitec-modal 
+					data-automation-id="value-added-services-unavailable-header"
+					type="onboard">
 				<div slot="body">
 					<capitec-group layout="vertical" halign="center" valign="center" gap="none">
 						${this._renderVASUnvailable()}

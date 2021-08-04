@@ -43,6 +43,19 @@ export class ValueAddedServices extends Component {
 	// PROPERTIES
 	// -----------
 
+	/**
+	 * @property {Object} statusVAS - Information about the client's current value added services
+	 * @property {String} capitecEntityId - value of the capitecEntityId received from statusVAS
+	 * @property {String} optOutInsights - value of the optOutInsights received from statusVAS
+	 * @property {String} optOutBehaviouralMarketing - value of the optOutBehaviouralMarketing received from statusVAS
+	 * @property {String} optOutPreAssessments - value of the optOutPreAssessments received from statusVAS
+	 * @property {String} optOutAnalysis - value of the optOutAnalysis received from statusVAS
+	 * @property {String} optOutThirdParties - value of the optOutThirdParties received from statusVAS
+	 *
+	 * @readonly
+	 * @static
+	 * @memberof AddCallerDetails
+	 */
 	static get properties() {
 		return {
 			statusVAS: { type: Object },
