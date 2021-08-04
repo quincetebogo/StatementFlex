@@ -10,7 +10,6 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
-import 'app/components/Common/EmailComponent';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -337,42 +336,42 @@ export class StatementsDialog extends Component {
 		}
 	}
 
-	// _emailFormatCheck(e) {
+	_emailFormatCheck(e) {
 		
-	// 	this[e.currentTarget.id] = e.detail.new;
+		this[e.currentTarget.id] = e.detail.new;
 
-	// 	if (e.detail.new.length > 0) {
-	// 		if (!EMAIL_REGEX.test(e.detail.new)) {
-	// 			this.errorMessage = `Invalid email format`;
-	// 			this.mailClientError.email = `Invalid email format`;
-	// 			this.mailClientError.confirmEmail = `Invalid email format`;
-	// 		} else {
-	// 			this.errorMessage = ``;
-	// 			this.mailClientError[e.currentTarget.id] = ``;
-	// 		}
-	// 	}
-	// 	if (!this._confirmEmailMatch()) {
-	// 		this.errorMessage = `Emails don't match`;
-	// 		this.mailClientError.email = `Emails don't match`;
-	// 			this.mailClientError.confirmEmail = `Emails don't match`;
-	// 	}
-	// 	this.requestUpdate();
-	// }
+		if (e.detail.new.length > 0) {
+			if (!EMAIL_REGEX.test(e.detail.new)) {
+				this.errorMessage = `Invalid email format`;
+				this.mailClientError.email = `Invalid email format`;
+				this.mailClientError.confirmEmail = `Invalid email format`;
+			} else {
+				this.errorMessage = ``;
+				this.mailClientError[e.currentTarget.id] = ``;
+			}
+		}
+		if (!this._confirmEmailMatch()) {
+			this.errorMessage = `Emails don't match`;
+			this.mailClientError.email = `Emails don't match`;
+				this.mailClientError.confirmEmail = `Emails don't match`;
+		}
+		this.requestUpdate();
+	}
 
-	// _confirmEmailMatch() {
+	_confirmEmailMatch() {
 
-	// 	if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-	// 		return this.email === this.confirmEmail;
-	// 	}
-	// 	return true;
-	// }
+		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
+			return this.email === this.confirmEmail;
+		}
+		return true;
+	}
 
-	// _inputEmail(e) {
-	// 	this.mailClientError[e.currentTarget.id] = ``;
-	// 	this.mailClientError.email = ``;
-	// 	this.mailClientError.confirmEmail = ``;
-	// 	this.errorMessage = ``;
-	// }
+	_inputEmail(e) {
+		this.mailClientError[e.currentTarget.id] = ``;
+		this.mailClientError.email = ``;
+		this.mailClientError.confirmEmail = ``;
+		this.errorMessage = ``;
+	}
 
 	async _viewPDF() {
 
@@ -408,8 +407,6 @@ export class StatementsDialog extends Component {
 	}
 
 	async _sendStatement() {
-
-		console.log(this.email)
 
 		if (!this._validateEmailAddress()) {
 			this.mailClientError.email = `Please enter email`;
@@ -533,13 +530,13 @@ export class StatementsDialog extends Component {
 		return true;
 	}
 
-	// _validateEmailAddress() {
-	// 	this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
-	// 	this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
+	_validateEmailAddress() {
+		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
+		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
 
-	// 	const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-	// 	return errorMessage === ``;
-	// }
+		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
+		return errorMessage === ``;
+	}
 
 	_validateRangeSelected() {
 		if (this._customDateRange) {
@@ -629,7 +626,7 @@ export class StatementsDialog extends Component {
 	_updateScreenDetails() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
-		// screenDetails.emailAddress = this.email;
+		screenDetails.emailAddress = this.email;
 		screenDetails.accountNumber = this.productSelected.accountNumber;
 		
 		this.horizonStore.setScreenDetails(screenDetails);
@@ -1101,63 +1098,59 @@ export class StatementsDialog extends Component {
 	_renderEmailClient() {
 		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
-				<horizon-email-component
-				.email="${this.email}">
-				</horizon-email-component>
-			`;
-			// 	<capitec-label
-			// 		type="subtitle"
-			// 		label="Enter email address">
-			// 	</capitec-label>
+				<capitec-label
+					type="subtitle"
+					label="Enter email address">
+				</capitec-label>
 
-			// 	<capitec-text-field
-			// 		id="email"
-			// 		data-automation-id="statements-dialog-email-address"
-			// 		label="Email address"
-			// 		oncopy="return false"
-			// 		onpaste="return false"
-			// 		oncut="return false"
-			// 		value="${this.email}"
-			// 		error="${this.mailClientError.email}"
-			// 		@value-changed="${(e) => this._emailFormatCheck(e)}"
-			// 		@input="${(e) => this._inputEmail(e)}">
-			// 	</capitec-text-field>
+				<capitec-text-field
+					id="email"
+					data-automation-id="statements-dialog-email-address"
+					label="Email address"
+					oncopy="return false"
+					onpaste="return false"
+					oncut="return false"
+					value="${this.email}"
+					error="${this.mailClientError.email}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
+				</capitec-text-field>
 		
-			// 	<capitec-label
-			// 		class="chooseText"
-			// 		type="subtitle"
-			// 		label="Confirm email address">
-			// 	</capitec-label>
+				<capitec-label
+					class="chooseText"
+					type="subtitle"
+					label="Confirm email address">
+				</capitec-label>
 
-			// 	<capitec-text-field
-			// 		id="confirmEmail"
-			// 		data-automation-id="statements-dialog-confirm-email-address"
-			// 		label="Email address"
-			// 		oncopy="return false" 
-			// 		onpaste="return false"
-			// 		oncut="return false"
-			// 		value="${this.confirmEmail}"
-			// 		error="${this.mailClientError.confirmEmail}"
-			// 		@value-changed="${(e) => this._emailFormatCheck(e)}"
-			// 		@input="${(e) => this._inputEmail(e)}">
-			// 	</capitec-text-field>
+				<capitec-text-field
+					id="confirmEmail"
+					data-automation-id="statements-dialog-confirm-email-address"
+					label="Email address"
+					oncopy="return false" 
+					onpaste="return false"
+					oncut="return false"
+					value="${this.confirmEmail}"
+					error="${this.mailClientError.confirmEmail}"
+					@value-changed="${(e) => this._emailFormatCheck(e)}"
+					@input="${(e) => this._inputEmail(e)}">
+				</capitec-text-field>
 
-			// 	<hr class="seperator">
+				<hr class="seperator">
 
-			// 	<capitec-label
-			// 		type="subtitle"
-			// 		label="View document">
-			// 	</capitec-label>
+				<capitec-label
+					type="subtitle"
+					label="View document">
+				</capitec-label>
 
-			// 	<horizon-product-tile
-			// 		data-automation-id="statements-dialog-view-document"
-			// 		class="view-document"
-			// 		type="default"
-			// 		label="${this._summary.dateRangeLabel}"
-			// 		subtitle="${this._summary.detail}">
-			// 			${this._renderViewDocumnetLink()}
-			// 	</horizon-product-tile>
-			// `;
+				<horizon-product-tile
+					data-automation-id="statements-dialog-view-document"
+					class="view-document"
+					type="default"
+					label="${this._summary.dateRangeLabel}"
+					subtitle="${this._summary.detail}">
+						${this._renderViewDocumnetLink()}
+				</horizon-product-tile>
+			`;
 		}
 	}
 

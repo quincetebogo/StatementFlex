@@ -86,12 +86,23 @@ export class EmailComponent extends Component {
 	// PRIVATE METHODS
 	// ---------------
 
+	_emailValueChange(email, confirm) {
+		this.dispatchEvent(new CustomEvent(`on-email-input`, {
+			detail: {
+				email: email,
+				confirmEmail: confirm
+			}
+		}))
+	}
+
 	_confirmEmailMatch() {
 
 		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			return this.email === this.confirmEmail;
+			if (this.email === this.confirmEmail) {
+				this._emailValueChange(this.email, this.confirmEmail);
+				return true;
+			}
 		}
-		return true;
 	}
 
 	_inputEmail(e) {
@@ -101,20 +112,32 @@ export class EmailComponent extends Component {
 		this.errorMessage = ``;
 	}
 
-	_validateEmailAddress() {
-		this.mailClientError.email = isNullorEmpty(this.email) ? `Please enter email` : ``;
-		this.mailClientError.confirmEmail = isNullorEmpty(this.confirmEmail) ? `Please enter email` : ``;
-
-		const errorMessage = this.mailClientError.email || this.mailClientError.confirmEmail ? `Complete all fields.` : ``;
-		return errorMessage === ``;
-	}
-
 	_updateScreenDetails() {
 		const screenDetails = this.horizonStore.getScreenDetails();
 
 		screenDetails.emailAddress = this.email;
 		
 		this.horizonStore.setScreenDetails(screenDetails);
+	}
+
+	_validateEmailAddress(type) {
+		if(type == "format") {
+			this.dispatchEvent(new CustomEvent(`on-email-validation`, {
+				detail: {
+						errorMessage: `Invalid email format`,
+						email: `Invalid email format`,
+						confirmEmail: `Invalid email format`
+					}
+			}))
+			} else {
+				this.dispatchEvent(new CustomEvent(`on-email-validation`, {
+					detail: {
+						errorMessage: `Emails don't match`,
+						email: `Emails don't match`,
+						confirmEmail: `Emails don't match`
+						}
+				}))
+			}
 	}
 
 	_emailFormatCheck(e) {
@@ -126,6 +149,7 @@ export class EmailComponent extends Component {
 				this.errorMessage = `Invalid email format`;
 				this.mailClientError.email = `Invalid email format`;
 				this.mailClientError.confirmEmail = `Invalid email format`;
+				this._validateEmailAddress("format");
 			} else {
 				this.errorMessage = ``;
 				this.mailClientError[e.currentTarget.id] = ``;
@@ -134,7 +158,8 @@ export class EmailComponent extends Component {
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError.email = `Emails don't match`;
-				this.mailClientError.confirmEmail = `Emails don't match`;
+			this.mailClientError.confirmEmail = `Emails don't match`;
+			this._validateEmailAddress("match");
 		}
 		this.requestUpdate();
 	}
