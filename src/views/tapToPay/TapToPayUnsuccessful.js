@@ -109,9 +109,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 				#id-update-msg{
 					width: auto;
 				}
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 28px;
-				}
 			`
 		];
 	}
