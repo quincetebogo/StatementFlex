@@ -10,7 +10,7 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 
-const RENDER_MODE =  Object.freeze({
+const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
 	PDF: 1
 });
@@ -25,8 +25,8 @@ const TAX_CERTIFICATE_STEPS = [
 ];
 
 const CERTIFICATE_TYPE = {
-	'taxFree': { type: `IT3(s)`, displayName: `tax-free`},
-	'taxableSavings': { type: `IT3(b)`, displayName: `taxable savings`}
+	'taxFree': { type: `IT3(s)`, displayName: `tax-free` },
+	'taxableSavings': { type: `IT3(b)`, displayName: `taxable savings` }
 };
 
 /**
@@ -60,8 +60,8 @@ export class TaxCertificate extends Component {
 		this.navigationContext = NavigationContext.getInstance();
 		this.selectedCertType = null;
 		this.selectedCertificates = {
-			taxableSavings:[],
-			taxFree:[]
+			taxableSavings: [],
+			taxFree: []
 		};
 
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -77,13 +77,13 @@ export class TaxCertificate extends Component {
 				{year : "2019", status: `Available`},
 				{year : "2020", status: `Unavailable`}
 				],
-			taxFree : [
-				{year : "2017", status: `Available`},
-				{year : "2018", status: `Available`},
-				{year : "2019", status: `Available`},
-				{year : "2020", status: `Available`}
+			taxFree: [
+				{ year: `2017`, status: `Available` },
+				{ year: `2018`, status: `Available` },
+				{ year: `2019`, status: `Available` },
+				{ year: `2020`, status: `Available` }
 			]
-		}
+		};
 
 		this.quickTransactionService = new QuickTransactionsService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
 
@@ -196,7 +196,11 @@ export class TaxCertificate extends Component {
 		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
-
+		this.selectedCertificates = { 
+			taxableSavings: [],
+			taxFree: []
+		};
+		
 		this.errorMessage = ``;
 		this.currentStep--;
 	}
@@ -254,7 +258,7 @@ export class TaxCertificate extends Component {
 			this.alertBannerMessage = '';
 			this.selectedCertificates[certType].push(checkBoxDetails);
 		} else {
-			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1)
+			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		}
 	}
 
@@ -838,28 +842,28 @@ export class TaxCertificate extends Component {
 	}
 
 	_renderViewTaxcertificate() {
-
-		return Object.keys(this.selectedCertificates).map(type => 
-			html`
-				<capitec-label
-					class="tax-certificate-heading"
-					type="subtitle"
-					label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
-				</capitec-label>
-				<capitec-group
-					class="available-cards"
-					valign="top"
-					halign="left"
-					gap="clear"
-					layout="vertical">
-					${this._renderViewCertificateTile(type)}
-				</capitec-group>`);
+		
+		return Object.keys(this.selectedCertificates).map(type => (this.selectedCertificates[type].length > 0 
+		 ? html`<capitec-label
+						class="tax-certificate-heading"
+						type="subtitle"
+						label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
+					</capitec-label>
+					<capitec-group
+						class="available-cards"
+						valign="top"
+						halign="left"
+						gap="clear"
+						layout="vertical">
+						${this._renderViewCertificateTile(type)}
+				</capitec-group>` 
+		: html``));
+				
 	}
 
 	_renderViewCertificateTile(type) {
-
-		return this.selectedCertificates[type].map(item =>
-			 html`
+		
+		return this.selectedCertificates[type].map(item => html`
 				<horizon-product-tile
 					data-automation-id="tax-certificate-dialog-view-document"
 					class="view-document-tile"
