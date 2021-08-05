@@ -207,6 +207,11 @@ export class SavingsAccountBase extends ViewBase {
 			this.horizonStore.setIncidentDetails(this.incidentDetails);
 		}
 
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
+
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 

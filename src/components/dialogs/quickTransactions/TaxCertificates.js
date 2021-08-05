@@ -123,7 +123,7 @@ export class TaxCertificate extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 		
-		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 	}
@@ -194,13 +194,14 @@ export class TaxCertificate extends Component {
 
 	async _cancelClick(e) {
 		
-		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_CANCEL, {
+		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_CANCEL, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
@@ -225,14 +226,19 @@ export class TaxCertificate extends Component {
 			return false;
 		} else {
 			
-			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_NEXT, {
+			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
 			
 				"screen": TelemetryScreen.TAX_CERTIFICATE,
-				
+				"next-screen": null,
+
 				"certificate-type": this.selectedCertType,
-				"selected-documents": null,//TODO: Add selected certificate types when CS is implemented
-				"document-type": null,
-				"certificate-period": null //list of the years that are selected
+				"selected-documents": [
+					{"document-type": null,
+					"certificate-period": null},
+					{"document-type": null,
+					"certificate-period": null}
+				]	//TODO: Add selected certificate types when CS is implemented
+				
 			});
 
 			this.currentStep++;
@@ -632,6 +638,7 @@ export class TaxCertificate extends Component {
 	_webTemplate() {
 		return html`
 		<bb-stepper-modal
+			data-automation-id="tax-certificate"
 			header="${this._getHeaderTitle()}"
 			.steps="${TAX_CERTIFICATE_STEPS}"
 			current-active-step="${this.currentStep}"
@@ -652,7 +659,10 @@ export class TaxCertificate extends Component {
 	_renderAlertBanner() {
 		if (!this._isNullorEmpty(this.alertBannerMessage)) {
 			return html`
-				<capitec-alert-banner type="unsuccessful-red" closable>
+				<capitec-alert-banner 
+					data-automation-id="tax-certificate-alert-banner"
+					type="unsuccessful-red" 
+					closable>
 					<p><b>Notify:</b> ${this.alertBannerMessage}</p>
 				</capitec-alert-banner>
 			`;
@@ -692,18 +702,21 @@ export class TaxCertificate extends Component {
 				<capitec-group layout="horizontal" gap="none" halign="left" valign="center" noPadding>
 					<capitec-radio 
 						id="taxableSavings" 
+						data-automation-id="tax-certificate-taxable-savings"
 						label="Taxable Savings IT3(b)"
 						@value-changed="${(e) => this._certChange(e)}"
 						row="1" column="1">
 						</capitec-radio>
 					<capitec-radio 
 						id="taxFree" 
+						data-automation-id="tax-certificate-tax-free"
 						label="Tax-free IT3(s)"
 						@value-changed="${(e) => this._certChange(e)}"
 						column="2">
 						</capitec-radio>
 					<capitec-radio 
 						id="both" 
+						data-automation-id="tax-certificate-both"
 						label="Both"
 						@value-changed="${(e) => this._certChange(e)}"
 						column="3"></capitec-radio>
@@ -738,6 +751,7 @@ export class TaxCertificate extends Component {
 		if (this.selectedCertType && this.currentStep === 0 ) {
 			return html`
 				<capitec-label
+					data-automation-id="tax-certificate-header-type"
 					class="choose-period-header"
 					label="Choose Period (${CERTIFICATE_TYPE[certificateType].displayName})"
 					type="title">
@@ -752,6 +766,7 @@ export class TaxCertificate extends Component {
 		return checkBoxLabel.map(item => html`
 			<horizon-expander
 				id="tax-expander"
+				data-automation-id="tax-certificate-document-period"
 				expandButtonAlignment="right"
 				checkBox = "${true}"
 				@value-change="${(e) => this._onValueChange(e, item, certType)}"
@@ -764,7 +779,10 @@ export class TaxCertificate extends Component {
 							value="${CERTIFICATE_TYPE[certType].type} ${item.status}">
 						</horizon-label>
 					</capitec-group>
-					<capitec-content-box class="expander-content" slot="content">
+					<capitec-content-box 
+						data-automation-id="tax-certificate-document-details"
+						class="expander-content" 
+						slot="content">
 						${this._renderCertificateDetails()}
 					</capitec-content-box>
 			</horizon-expander>

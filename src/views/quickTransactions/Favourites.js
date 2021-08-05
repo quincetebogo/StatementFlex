@@ -490,13 +490,17 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-    _taxCertificates() {
+    async _taxCertificates() {
         // TODO: Functionality to generate tax certificate comes here
 
-		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
+		await this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
+
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+		})
 
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
