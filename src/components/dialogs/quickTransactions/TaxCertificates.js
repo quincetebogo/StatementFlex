@@ -268,7 +268,7 @@ export class TaxCertificate extends Component {
 	static get styles() {
 		return [
 			super.styles,
-			css `
+			css`
 			bb-stepper-modal {
 				--theme-modal-header-height: 64px;
 				--theme-modal-header-font-size: 18px;
@@ -376,20 +376,19 @@ export class TaxCertificate extends Component {
 
 	_webTemplate() {
 		return html`
-		<bb-stepper-modal
+			<bb-stepper-modal
 				header="Tax Certificate"
 				.steps="${TAX_CERTIFICATE_STEPS}"
 				current-active-step="${this.renderMode}">
-			<div slot="step">
-				${this._renderContent()}
-			</div>
-		</div>
-		<div slot="footer">
-			${this._renderFooter()}
-		</div>
-	</bb-stepper-modal>
+					<div slot="step">
+						${this._renderContent()}
+					</div>
+					<div slot="footer">
+						${this._renderFooter()}
+					</div>
+			</bb-stepper-modal>
 			${this._renderLoadingIndicator()}
-		`
+		`;
 	}
 
 	_renderAlertBanner() {
@@ -420,9 +419,9 @@ export class TaxCertificate extends Component {
 				layout="vertical"
 				gap="clear"
 				?noScroll="${true}">
-			${this._renderChoosePeriod()}
-			${this._renderEmailFields()}
-			</capitec-content-box>`
+					${this._renderChoosePeriod()}
+					${this._renderEmailFields()}
+			</capitec-content-box>`;
 	}
 
 	_renderChooseCerificate() {
