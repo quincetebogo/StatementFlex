@@ -466,7 +466,8 @@ export class Expander extends Component {
                 }
 
 				.input {
-					margin-left: var(--theme-expander-check-box-margin-left, 16px); 
+					margin-left: var(--theme-expander-check-box-margin-left, 16px);
+					margin-right: var(--theme-expander-check-box-margin-right, 0px); 
 				}
 	
 				@keyframes expand {

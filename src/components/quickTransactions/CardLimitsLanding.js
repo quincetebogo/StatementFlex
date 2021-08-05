@@ -479,19 +479,11 @@ export class CardLimitsLanding extends Component {
 				.show {
 					display: block;
 				}
-                .vertical-line{
-                    height: 40px;
-                    width: 1px;
-                    background-color: #E1E1E1;
-                    margin-right: 16px;
-                    margin-top:3px;
-                }
                 .headerGroup{
                     height: 32px;
                     margin-bottom:0px;
                     background-color:#F7F7F7;
                 }
-                
                 .headerGroup > capitec-label{
                   text-align:right;
                   justify-content: center;
@@ -530,16 +522,6 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					border-top: 0px;
                 }
-                
-                capitec-hyperlink{
-                    text-align: right;
-                    color: #009DE0;
-                    font-family: "Hind Vadodara";
-                    font-size: 16px;
-                    font-weight: 500;
-                    letter-spacing: 0;
-                    line-height: 20px;
-                }
                 horizon-expander{
                     margin: 12px 16px 0px;
     				--theme-expander-header-height: 64px;
@@ -575,11 +557,8 @@ export class CardLimitsLanding extends Component {
                     width:155px;
                 }
 				.limits-group{
-					height: 162px;
-					--theme-layout-gap-spacing: 0px;
-				}
-				.dual{
 					height: auto;
+					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-label[label="Update"] {
 					text-align: end;
@@ -787,7 +766,7 @@ export class CardLimitsLanding extends Component {
 					</div>`;
 			case CARD_TYPES.DUAL:
 				return html`
-					<div slot="content" class="limits-group dual">
+					<div slot="content" class="limits-group">
 			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 						${this._renderDebitLimits(card)}
