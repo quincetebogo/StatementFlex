@@ -128,7 +128,13 @@ export class TaxCertificate extends Component {
 	}
 
 	disconnectedCallback() {
+		
 		super.disconnectedCallback();
+
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": TelemetryScreen.FAVOURITES
+		});
 	}
 
 	// --------------
@@ -187,7 +193,7 @@ export class TaxCertificate extends Component {
 	_back() {
 
 		// Telemetry
-		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_BACK, {
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_BACK, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
 		});
 
@@ -202,18 +208,13 @@ export class TaxCertificate extends Component {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP, {
-			"screen": TelemetryScreen.TAX_CERTIFICATE,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
 
 	_close() {
 		this.renderMode = RENDER_MODE.EMAIL;
 		// Telemetry
-		this._telemetry.endSpan(QuickTransactionEvents.VIEW_TAX_CERTIFICATE, {
+		this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_CLOSE_PDF, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
@@ -257,6 +258,7 @@ export class TaxCertificate extends Component {
 		}
 	}
 
+	// Only single expander to be seen expanded at a time
 	_onExpanded(e) {
 		e.detail.expanderGroup(this);
 	}
@@ -355,7 +357,7 @@ export class TaxCertificate extends Component {
 		this.renderMode = RENDER_MODE.PDF;
 
 		// Telemetry
-		await this._telemetry.logEvent(QuickTransactionEvents.SELECT_VIEW_TAX_CERTIFICATE, { 
+		await this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT, { 
 			"screen": TelemetryScreen.TAX_CERTIFICATE,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 		});
@@ -372,7 +374,7 @@ export class TaxCertificate extends Component {
 			// render the PDF
 			this.encodedPDF = base64ToBlobUrl(returnValue.result.statementData);
 			// Telemetry
-			this._telemetry.startSpan(QuickTransactionEvents.VIEW_TAX_CERTIFICATE, { 
+			this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_VIEW_PDF, { 
 				"screen": TelemetryScreen.TAX_CERTIFICATE_DOCUMENT
 			});
 		} else {
@@ -539,13 +541,6 @@ export class TaxCertificate extends Component {
 				--theme-layout-gap-spacing: 16px;
 			}
 
-			.main-cb {
-				height: 100%;
-				--theme-container-padding-left: 0px;
-				--theme-container-padding-top: 0px;
-				--theme-container-padding-right: 0px;
-				--theme-container-padding-bottom: 0px;
-			}
 			.pdf-viewer {
 				height: 100%;
 				width: 100%;
@@ -735,18 +730,18 @@ export class TaxCertificate extends Component {
 		` : html``;
 	}
 	
-	_renderCertificateTypes() {
-		switch (this.selectedCertType) {
-			case 'taxableSavings':
-			case 'taxFree':
-				return html`${this._renderChoosePeriod(this.selectedCertType)}`;
-			case 'both':
-				return html`${this._renderChoosePeriod('taxableSavings')}
+    _renderCertificateTypes() {
+        switch (this.selectedCertType) {
+            case 'taxableSavings':
+            case 'taxFree':
+                return html`${this._renderChoosePeriod(this.selectedCertType)}`;
+            case 'both':
+                return html`${this._renderChoosePeriod('taxableSavings')}
 							${this._renderChoosePeriod('taxFree')}`;
-			default:
-				return html``;
-		}
-	}
+            default:
+                return html``;
+        }
+    }
 	
 	_renderEmail() {
 		if (this.currentStep === 1 && this.renderMode === RENDER_MODE.EMAIL) {
@@ -907,28 +902,28 @@ export class TaxCertificate extends Component {
 				label="Cancel"
 				@click="${() => this._cancelClick()}"
 				?hidden="${this.renderMode === RENDER_MODE.PDF}">
-				</capitec-button>
-				<capitec-button
-					class="next-btn"
-					type="primary" 
-					label="Next"
-					@click="${() => this._nextClick()}"
-					?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
-				</capitec-button>
-				<capitec-button
-					data-automation-id="tax-certificate-dialog-send"
-					type="primary"
-					label="Send"
-					@click="${() => this._sendTaxCertificate()}"
-					?hidden="${this.currentStep !== 1 || this.renderMode === RENDER_MODE.PDF}">
-				</capitec-button>
-				<capitec-button
-					data-automation-id="tax-certificate-dialog-close"
-					type="primary"
-					label="Close"
-					@click="${() => this._close()}"
-					?hidden="${this.renderMode !== RENDER_MODE.PDF}">
-				</capitec-button>
+			</capitec-button>
+			<capitec-button
+				class="next-btn"
+				type="primary" 
+				label="Next"
+				@click="${() => this._nextClick()}"
+				?hidden="${this.currentStep === 1 || this.renderMode === RENDER_MODE.PDF}">
+			</capitec-button>
+			<capitec-button
+				data-automation-id="tax-certificate-dialog-send"
+				type="primary"
+				label="Send"
+				@click="${() => this._sendTaxCertificate()}"
+				?hidden="${this.currentStep !== 1 || this.renderMode === RENDER_MODE.PDF}">
+			</capitec-button>
+			<capitec-button
+				data-automation-id="tax-certificate-dialog-close"
+				type="primary"
+				label="Close"
+				@click="${() => this._close()}"
+				?hidden="${this.renderMode !== RENDER_MODE.PDF}">
+			</capitec-button>
 		</capitec-button-bar>
 		`;
 	}

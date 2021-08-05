@@ -115,6 +115,7 @@
 	// Tax certificate
 	TAX_CERTIFICATE : `call.fulfill-need.tax-certificate`,
 	TAX_CERTIFICATE_POP_UP: `call.fulfill-need.tax-certificate.pop-up`,
+	TAX_CERTIFICATE_POP_UP_BACK: `call.fulfill-need.tax-certificate.pop-up.back`,
 	TAX_CERTIFICATE_POP_UP_NEXT: `call.fulfill-need.tax-certificate.pop-up.next`,
 	TAX_CERTIFICATE_POP_UP_CANCEL: `call.fulfill-need.tax-certificate.pop-up.cancel`,
 	TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
