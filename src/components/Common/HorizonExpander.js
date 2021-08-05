@@ -1,5 +1,9 @@
 import { Component, css, html } from 'platform/elements';
 
+const INPUT_TYPES = {
+	CHECKBOX: `Checkbox`
+};
+
 /**
  * A generic component that replicates the platform expander with few add-on properties.
  *
@@ -11,7 +15,7 @@ import { Component, css, html } from 'platform/elements';
  *	<horizon-expander 
  *		label="Client Insights"
  *		icon="system/access"
- *		checkBox=false
+ *		inputType="checkbox"
  *		expandButtonAlignment="right | left"
  *		layout="vertical"
  *		halign="stretch"
@@ -40,6 +44,9 @@ export class Expander extends Component {
         super();
 
         // Set the default property values.
+        this.label = ``;
+		this.icon = ``;
+		this.inputType = ``;
         this.label = null;
 		this.icon = null;
 		this.checkBox = false;
@@ -66,7 +73,7 @@ export class Expander extends Component {
 	 *
 	 * @property {String} label - The label data associated with expander.
 	 * @property {String} icon - The icon to display on the expander.
-	 * @property {Boolean} checkBox - The check box to be used as an input.
+	 * @property {String} inputType - Input type (Checkbox | ``).
 	 *
 	 * @property {Boolean} [expanded=false] - Indicator if the expander is currently expanded.
 	 * @property {Boolean} [disabled=false] - Indicator if the expander is currently disabled.
@@ -87,7 +94,7 @@ export class Expander extends Component {
         return {
             label: { type: String },
 			icon: { type: String },
-			checkBox: { type: Boolean},
+			inputType: { type: String },
 			
             expanded: { type: Boolean },
             disabled: { type: Boolean },
@@ -467,10 +474,19 @@ export class Expander extends Component {
                     margin: 20px;
                 }
 
-				.check-details {
-					margin-left: var(--theme-expander-check-box-margin-left, 16px); 
+				.input {
+					margin-left: var(--theme-expander-check-box-margin-left, 16px);
 				}
 
+				capitec-label {
+					padding-left: var(--horizon-expander-header-padding-left, 0px);
+				}
+				
+				slot[name="custom-header"] {
+					display: flex;
+					padding-left: var(--horizon-expander-header-padding-left, 0px);
+				}
+	
 				@keyframes expand {
 					0% {
 						max-height: var(--theme-expander-header-height, 50px);
@@ -500,14 +516,43 @@ export class Expander extends Component {
 		];
 	}
 
-	_renderExpanderButton() {
+	_renderExpanderTile() {
 		return html`
-			${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
-			${this.checkBox ? html`<capitec-check class="check-details"	@value-changed="${(e) => this._onValueChange(e)}" ?disabled = ${this.disabled}></capitec-check>` : html``}
-			${this.icon ? html`<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>` : html``}
-			${this.label ? html`<capitec-label type="strong" label="${this.label}"></capitec-label>` : html`<slot name="custom-header"></slot>`}
-			${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
+			${this.expandButtonAlignment === `left`
+				? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>`
+				: html``}
+			${this._renderInput()}
+			${this._renderIcon()}
+			${this._renderTileHeader()}
+			${this.expandButtonAlignment === `right`
+				? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>`
+				: html``}
 		`;
+	}
+
+	_renderInput() {
+		switch (this.inputType) {
+			case INPUT_TYPES.CHECKBOX:
+				return html`
+						<capitec-check
+							class="input"
+							@value-changed="${(e) => this._onValueChange(e)}">
+						</capitec-check>`;
+			default:
+				return html``;
+		}
+	}
+
+	_renderIcon() {
+		return this.icon
+			? html`<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>`
+			: html``;
+	}
+
+	_renderTileHeader() {
+		return this.label
+			? html`<capitec-label type="strong" label="${this.label}"></capitec-label>`
+			: html`<slot name="custom-header"></slot>`;
 	}
 
 	/**
@@ -536,13 +581,19 @@ export class Expander extends Component {
     _webTemplate() {
         return html`
 			<capitec-group class="header" layout="horizontal" halign="left" valign="center" @click="${(e) => this._click(e)}">
-				${this._renderExpanderButton()}
+				${this._renderExpanderTile()}
 			</capitec-group>
 
-			<capitec-content-box class="content" layout="${this.layout}" halign="${this.halign}" valign="${this.valign}" gap="${this.gap}" ?noPadding="${this.noPadding}" ?wrap="${this.wrap}">
-				<slot name="content"></slot>
+			<capitec-content-box class="content"
+				layout="${this.layout}"
+				halign="${this.halign}"
+				valign="${this.valign}"
+				gap="${this.gap}"
+				?noPadding="${this.noPadding}"
+				?wrap="${this.wrap}">
+					<slot name="content"></slot>
 			</capitec-content-box>
-			`;
+		`;
     }
 }
 

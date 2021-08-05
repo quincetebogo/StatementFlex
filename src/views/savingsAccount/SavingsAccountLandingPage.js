@@ -131,6 +131,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 				// Now we can update the information on the product buttons
 				this._updateLeftBar();
+				this.endCallContext=`LandingPage`;
 				this.renderMode = RENDER_MODE.MAIN_PAGE;
 			}
 		} else {
@@ -203,7 +204,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 				"interest": this.landingPageInfo.interestRatePercentage,
 				"status": this.landingPageInfo.accountStatus
 			};
-
+			this.endCallContext=`TransactionHistory`;
 			this.renderMode = RENDER_MODE.TRANSACTION_HISTORY;
 		}
 	}

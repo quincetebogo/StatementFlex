@@ -479,19 +479,11 @@ export class CardLimitsLanding extends Component {
 				.show {
 					display: block;
 				}
-                .vertical-line{
-                    height: 40px;
-                    width: 1px;
-                    background-color: #E1E1E1;
-                    margin-right: 16px;
-                    margin-top:3px;
-                }
                 .headerGroup{
                     height: 32px;
                     margin-bottom:0px;
                     background-color:#F7F7F7;
                 }
-                
                 .headerGroup > capitec-label{
                   text-align:right;
                   justify-content: center;
@@ -530,21 +522,12 @@ export class CardLimitsLanding extends Component {
 					cursor: pointer;
 					border-top: 0px;
                 }
-                
-                capitec-hyperlink{
-                    text-align: right;
-                    color: #009DE0;
-                    font-family: "Hind Vadodara";
-                    font-size: 16px;
-                    font-weight: 500;
-                    letter-spacing: 0;
-                    line-height: 20px;
-                }
                 horizon-expander{
                     margin: 16px;
                     width: 1032px;
                     height: auto;
 					animation-timing-function: linear;
+					--horizon-expander-header-padding-left: 23px;
                 }
 				.border-debit{
 					--theme-expander-border-left: 4px solid #009DE0;
@@ -572,11 +555,8 @@ export class CardLimitsLanding extends Component {
                     width:155px;
                 }
 				.limits-group{
-					height: 162px;
-					--theme-layout-gap-spacing: 0px;
-				}
-				.dual{
 					height: auto;
+					--theme-layout-gap-spacing: 0px;
 				}
 				capitec-label[label="Update"] {
 					text-align: end;
@@ -584,7 +564,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.header-icon{
 					height: 40px;
-					margin: 12px 23px;
+					margin: 12px 23px 12px 0px;
 				}
 				.header-icon > img {
 					height: 40px;
@@ -674,7 +654,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
@@ -699,7 +680,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
@@ -724,7 +706,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
@@ -781,7 +764,7 @@ export class CardLimitsLanding extends Component {
 					</div>`;
 			case CARD_TYPES.DUAL:
 				return html`
-					<div slot="content" class="limits-group dual">
+					<div slot="content" class="limits-group">
 			            ${this._renderHeaders()}
 						${this._renderCreditLimits(card)}
 						${this._renderDebitLimits(card)}
