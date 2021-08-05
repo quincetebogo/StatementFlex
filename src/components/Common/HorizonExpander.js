@@ -467,7 +467,15 @@ export class Expander extends Component {
 
 				.input {
 					margin-left: var(--theme-expander-check-box-margin-left, 16px);
-					margin-right: var(--theme-expander-check-box-margin-right, 0px); 
+				}
+
+				capitec-label {
+					padding-left: var(--horizon-expander-header-padding-left, 0px);
+				}
+				
+				slot[name="custom-header"] {
+					display: flex;
+					padding-left: var(--horizon-expander-header-padding-left, 0px);
 				}
 	
 				@keyframes expand {

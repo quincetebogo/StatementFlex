@@ -530,6 +530,7 @@ export class CardLimitsLanding extends Component {
                     border-radius: 4px;
                     height: auto;
 					animation-timing-function: linear;
+					--horizon-expander-header-padding-left: 23px;
                 }
 				.border-debit{
 					--theme-expander-border-left: 4px solid #009DE0;
@@ -566,7 +567,7 @@ export class CardLimitsLanding extends Component {
 				}
 				.header-icon{
 					height: 40px;
-					margin: 12px 23px;
+					margin: 12px 23px 12px 0px;
 				}
 				.header-icon > img {
 					height: 40px;
