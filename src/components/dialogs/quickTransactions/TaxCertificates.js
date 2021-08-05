@@ -724,7 +724,7 @@ export class TaxCertificate extends Component {
 
 	_renderChoosePeriod(certificateType) {
 		
-		if (this.showChoosePeriod && this.currentStep === 0 ) {
+		if (this.showChoosePeriod && this.currentStep === 0) {
 			return html`
 				<capitec-label
 					class="choose-period-header"
@@ -812,12 +812,12 @@ export class TaxCertificate extends Component {
 
 	_renderViewTaxcertificate() {
 
-		if (this.selectedCertificates.taxableSavings) {
-			return html`
+		return Object.keys(this.selectedCertificates).map(type => 
+			html`
 				<capitec-label
 					class="tax-certificate-heading"
 					type="subtitle"
-					label="View ${CERTIFICATE_TYPE.taxableSavings.displayName} certificate(s)">
+					label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
 				</capitec-label>
 				<capitec-group
 					class="available-cards"
@@ -825,39 +825,24 @@ export class TaxCertificate extends Component {
 					halign="left"
 					gap="clear"
 					layout="vertical">
-					${this.selectedCertificates.taxableSavings.map(item => this._renderViewCertificateTile(item))}
-				</capitec-group>`;
-		}
-		
-		if (this.selectedCertificates.taxFree){
-			return html`
-					<capitec-label
-						class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${CERTIFICATE_TYPE.taxFree.displayName} certificate(s)">
-					</capitec-label>
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-						${this.selectedCertificates.taxFree.map(item => this._renderViewCertificateTile(item))}
-					</capitec-group>`; 
-			}
+					${this._renderViewCertificateTile(type)}
+				</capitec-group>`);
 	}
 
-	_renderViewCertificateTile(item) {
-		return html`
-			<horizon-product-tile
-				data-automation-id="tax-certificate-dialog-view-document"
-				class="view-document-tile"
-				type="default"
-				label="${item.year}"
-				subtitle="${CERTIFICATE_TYPE.taxableSavings.type ? CERTIFICATE_TYPE.taxableSavings.type : CERTIFICATE_TYPE.taxFree.type } ${item.status}"
-				@click="${() => this._viewPDF()}">
-				${this._renderViewDocumnetLink()}
-			</horizon-product-tile>`;
+	_renderViewCertificateTile(type) {
+
+		return this.selectedCertificates[type].map(item =>
+			 html`
+				<horizon-product-tile
+					data-automation-id="tax-certificate-dialog-view-document"
+					class="view-document-tile"
+					type="default"
+					label="${item.year}"
+					subtitle="${CERTIFICATE_TYPE[type].type} ${item.status}"
+					@click="${() => this._viewPDF()}">
+					${this._renderViewDocumnetLink()}
+				</horizon-product-tile>`);
+		
 	}
 
 	_renderViewDocumnetLink() {
