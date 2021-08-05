@@ -1,6 +1,9 @@
+node_modules/
 dist
 jsconfig.json
 /src/types.d.ts
 ocwp
 **.log
 .vs
+package.json
+package-lock.json

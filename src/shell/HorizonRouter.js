@@ -36,8 +36,10 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
-	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`
+	TAX_CERTIFICATE_SUCCESSFUL: `/success/tax-certificate`,
+	TAX_CERTIFICATE_UNSUCCESSFUL: `/error/tax-certificate`
 });
+ 
 
 /**
  * The HorizonRouter class provides a series of functions for navigating to pages.
@@ -218,6 +220,10 @@ export class HorizonRouter {
 
 	navigateToTaxCertificateSuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL}`);
+	}
+
+	navigateToTaxCertificateUnsuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -647,11 +653,7 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
-		name: `horizon-tax-certificate-success`,
-		title: `TaxCertificateSuccessful`,
 		icon: null,
-		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
-		load: () => import(`../views/TaxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

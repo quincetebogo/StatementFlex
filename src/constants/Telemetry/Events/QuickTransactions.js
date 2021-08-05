@@ -114,5 +114,5 @@ export const QuickTransactionEvents = {
 
 	// Tax Certificate
 	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
-
+	TAX_CERTIFICATE_OUTCOME_HANDOFF: `call.fulfill-need.tax-certificate.outcome.hand-off`,
 };
