@@ -58,7 +58,6 @@ export class TaxCertificate extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.encodedPDF = ``;
 		this.navigationContext = NavigationContext.getInstance();
-		this.certType = {};
 		this.selectedCertType = null;
 		this.selectedCertificates = {
 			taxableSavings:[],
@@ -188,6 +187,10 @@ export class TaxCertificate extends Component {
 	_back() {
 
 		// Telemetry
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_BACK, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+		});
+
 		this.errorMessage = ``;
 		this.currentStep--;
 	}
@@ -536,6 +539,13 @@ export class TaxCertificate extends Component {
 				--theme-layout-gap-spacing: 16px;
 			}
 
+			.main-cb {
+				height: 100%;
+				--theme-container-padding-left: 0px;
+				--theme-container-padding-top: 0px;
+				--theme-container-padding-right: 0px;
+				--theme-container-padding-bottom: 0px;
+			}
 			.pdf-viewer {
 				height: 100%;
 				width: 100%;
@@ -832,70 +842,39 @@ export class TaxCertificate extends Component {
 		`;
 	}
 
-    _renderViewTaxcertificate() {
-        const availableCards = this.cards.map(card => card.cardExpiryYear);
-        console.log(availableCards);
+	_renderViewTaxcertificate() {
 
-        if (CERTIFICATE_TYPE.taxableSavings.type) {
-            return html`
-					<capitec-label
-						class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${CERTIFICATE_TYPE.taxableSavings.type} certificate(s)">
-					</capitec-label>
+		return Object.keys(this.selectedCertificates).map(type => 
+			html`
+				<capitec-label
+					class="tax-certificate-heading"
+					type="subtitle"
+					label="View ${CERTIFICATE_TYPE[type].displayName} certificate(s)">
+				</capitec-label>
+				<capitec-group
+					class="available-cards"
+					valign="top"
+					halign="left"
+					gap="clear"
+					layout="vertical">
+					${this._renderViewCertificateTile(type)}
+				</capitec-group>`);
+	}
 
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-							${availableCards.map((item, itemIndex) => this._renderViewTaxableCertificateTile(item, itemIndex))}
-					</capitec-group>`;
-        }
+	_renderViewCertificateTile(type) {
 
-        if (CERTIFICATE_TYPE.taxFree.type) {
-            return html`
-					<capitec-label
-						class="tax-certificate-heading"
-						type="subtitle"
-						label="View ${CERTIFICATE_TYPE.taxFree.type} certificate(s)">
-					</capitec-label>
-					<capitec-group
-						class="available-cards"
-						valign="top"
-						halign="left"
-						gap="clear"
-						layout="vertical">
-							${availableCards.map((item, itemIndex) => this._renderViewTaxfreeCertificateTile(item, itemIndex))}
-					</capitec-group>`;
-        }
-    }
-
-    _renderViewTaxableCertificateTile(item, itemIndex) {
-        const status = `Available`;
-        return html`
-			<horizon-product-tile
-				class="view-document-tile"
-				type="default"
-				label="20${item}"
-				subtitle="${CERTIFICATE_TYPE.taxableSavings.type} ${status}"
-				@click="${() => this._viewPDF()}">
-				${this._renderViewDocumnetLink()}
-			</horizon-product-tile>`;
-    }
-
-	_renderViewTaxfreeCertificateTile(item, itemIndex) {
-		const status = `Available`;
-		return html`
-			<horizon-product-tile
-				class="view-document-tile"
-				type="default"
-				label="20${item}"
-				subtitle="${CERTIFICATE_TYPE.taxFree.type} ${status}"
-				@click="${() => this._viewPDF()}">
-				${this._renderViewDocumnetLink()}
-			</horizon-product-tile>`;
+		return this.selectedCertificates[type].map(item =>
+			 html`
+				<horizon-product-tile
+					data-automation-id="tax-certificate-dialog-view-document"
+					class="view-document-tile"
+					type="default"
+					label="${item.year}"
+					subtitle="${CERTIFICATE_TYPE[type].type} ${item.status}"
+					@click="${() => this._viewPDF()}">
+					${this._renderViewDocumnetLink()}
+				</horizon-product-tile>`);
+		
 	}
 
 	_renderViewDocumnetLink() {
@@ -903,7 +882,7 @@ export class TaxCertificate extends Component {
 			<capitec-label
 				slot="detail"
 				type="strong"
-				label="View Document">
+				label="View certificate">
 			</capitec-label>
 		`;
 	}
@@ -922,6 +901,7 @@ export class TaxCertificate extends Component {
 			</capitec-button>
 			<capitec-spacer></capitec-spacer>
 			<capitec-button
+				data-automation-id="tax-certificate-dialog-cancel"
 				class="cancel-button"
 				type="secondary"
 				label="Cancel"
