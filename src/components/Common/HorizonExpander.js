@@ -503,7 +503,7 @@ export class Expander extends Component {
 	_renderExpanderButton() {
 		return html`
 			${this.expandButtonAlignment === `left` ? html`<capitec-icon class="indicator-left" icon="system/chevron-down-action"></capitec-icon>` : html``}
-			${this.checkBox ? html`<capitec-check class="check-details"	@value-changed="${(e) => this._onValueChange(e)}"></capitec-check>` : html``}
+			${this.checkBox ? html`<capitec-check class="check-details"	@value-changed="${(e) => this._onValueChange(e)}" ?disabled = ${this.disabled}></capitec-check>` : html``}
 			${this.icon ? html`<capitec-icon class="icon" icon="${this.icon}"></capitec-icon>` : html``}
 			${this.label ? html`<capitec-label type="strong" label="${this.label}"></capitec-label>` : html`<slot name="custom-header"></slot>`}
 			${this.expandButtonAlignment === `right` ? html`<capitec-spacer></capitec-spacer><capitec-icon class="indicator right" icon="system/chevron-down-action"></capitec-icon>` : html``}
