@@ -677,7 +677,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
@@ -702,7 +703,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
@@ -727,7 +729,8 @@ export class CardLimitsLanding extends Component {
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
 				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
-				expandButtonAlignment="right">
+				expandButtonAlignment="right"
+				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
 			</horizon-expander>
 		`);
