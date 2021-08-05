@@ -23,10 +23,10 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 		this.isTaxFreeCertificate = false;
 
-		//TODO: To be removed once the navigation is wired up
+		// TODO: To be removed once the navigation is wired up
 		this.mailId = `ivanmakatini@gmail.com`;
 
-		//this.horizonStore = HorizonStore.getInstance();
+		// this.horizonStore = HorizonStore.getInstance();
 	}
 
 	// --------------
@@ -56,7 +56,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	connectedCallback() {
 		super.connectedCallback();
 
-		//TODO: Uncomment the below code when CS is being implemented.
+		// TODO: Uncomment the below code when CS is being implemented.
 
 		// this._updateIncidentState();
 
@@ -76,7 +76,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 
 	_doneClick() {
 		
-		//TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
+		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// Telemetry
 		// this._telemetry.endSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
@@ -86,12 +86,12 @@ export class TaxCertificateUnsuccess extends ViewBase {
 		// this.horizonStore.clearReturnScreen();
 
 		
-		//this.horizonRouter.navigateToQuickTransactionFavourites();
+		// this.horizonRouter.navigateToQuickTransactionFavourites();
 	}
 	
 	_handoffClick() {
 
-		//TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
+		// TODO : Uncomment entire function once the Tax Certificate dialog is ready and navigation needs to be wired up.
 
 		// this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_OUTCOME_HANDOFF, {
 		// 	"screen": TelemetryScreen.TAX_CERTIFICATE_OUTCOME,
@@ -113,7 +113,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// PRIVATE METHODS
 	// ---------------
 
-	//TODO : Uncomment the below code when CS is being implemented.
+	// TODO : Uncomment the below code when CS is being implemented.
 
 	// _updateIncidentState() {
 	// 	const incidentDetails = this.horizonStore.getIncidentDetails();
@@ -124,16 +124,6 @@ export class TaxCertificateUnsuccess extends ViewBase {
 	// ---------
 	// RENDERING
 	// ---------
-
-	/**
-	 * Registry of all properties defined by the component.
-	 * 
-	 * @property {Boolean} [isTaxFreeCertificate=true] - Specifies if a Tax Free Certificate is being sent.
-	 * 
-	 * @readonly
-	 * @static
-	 * @memberof TaxCertificateUnsuccess
-	 */
 	static get styles() {
 		return [
 			super.styles,
@@ -179,7 +169,7 @@ export class TaxCertificateUnsuccess extends ViewBase {
 				right="Assign"
 				toast="Taxable savings certificate not sent"
 				secondaryToast="${this.isTaxFreeCertificate ? `Tax-free certificate not sent` : ``}"
-				subDetail="${this.isTaxFreeCertificate ? true : `` }"
+				subDetail="${this.isTaxFreeCertificate ? true : ``}"
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._handoffClick()}>
 					<section
