@@ -1,9 +1,3 @@
-/**
- * The end call reasons for end call dialog.
- * 
- * @readonly
- * @enum {String} EndCallReasons
- */
 
 const NEED_FULFILLED = 0;
 const NEED_INCOMPLETE = 1;

@@ -465,7 +465,7 @@ export class Expander extends Component {
                     margin: 20px;
                 }
 
-				.check-details {
+				.input {
 					margin-left: var(--theme-expander-check-box-margin-left, 16px); 
 				}
 	
@@ -517,7 +517,7 @@ export class Expander extends Component {
 			case INPUT_TYPES.CHECKBOX:
 				return html`
 						<capitec-check
-							class="check-details"
+							class="input"
 							@value-changed="${(e) => this._onValueChange(e)}">
 						</capitec-check>`;
 			default:
