@@ -35,7 +35,8 @@ const HORIZON_ROUTES = Object.freeze({
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
+	TAX_CERTIFICATE_UNSUCCESSFUL: `/error/tax-certificate`
 });
 
 /**
@@ -213,6 +214,10 @@ export class HorizonRouter {
 
 	navigateToStatementUnsuccessful() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.STATEMENTS_UNSUCCESSFUL}`);
+	}
+
+	navigateToTaxCertificateUnsuccessful() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL}`);
 	}
 
 	navigateToLandingPage(ivrOption, hasInsuranceProducts) {
@@ -639,6 +644,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL,
 		load: () => import(`../views/tapToPay/TapToPayUnsuccessful`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-tax-certificate-unsuccessful`,
+		title: `TaxCertificateUnsuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL,
+		load: () => import(`../views/TaxCertificate/TaxCertificateUnsuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

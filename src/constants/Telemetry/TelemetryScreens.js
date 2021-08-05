@@ -36,6 +36,7 @@
 	STATEMENTS: `Statements`,
 	STATEMENTS_OUTCOME: `Statements Outcome`,
 	TAX_CERTIFICATE: `Tax Certificate`,
+	TAX_CERTIFICATE_OUTCOME: `Tax Certificate Outcome`,
 	PROOF_OF_ACCOUNT: `Proof of Account`,
 	PROOF_OF_ACCOUNT_OUTCOME: `Proof of Account`,
 
