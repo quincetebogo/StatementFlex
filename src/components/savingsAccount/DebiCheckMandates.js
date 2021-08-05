@@ -73,7 +73,6 @@ export class DebiCheckMandates extends Component {
 		super.connectedCallback();
 
 		this._loading();
-		this._convertCentsToRand();
 		this._initialise();
 	}
 
@@ -499,10 +498,10 @@ export class DebiCheckMandates extends Component {
 						   halign="left"
 						   valign="center">
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width280)} ${unsafeCSS(TABLE_ROW_CSS.borderRight).toString()}">
-					${this._renderCell(rowData.mandateName, formatCurrency(rowData.amount))}
+					${this._renderCell(rowData.mandateName, formatCurrency(convertCentsToRand(rowData.amount)))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width165).toString()}">
-					${this._renderCell(`Max collection amount`, formatCurrency(rowData.maxCollectionAmount))}
+					${this._renderCell(`Max collection amount`, formatCurrency(convertCentsToRand(rowData.maxCollectionAmount)))}
 				</div>
 				<div style="${unsafeCSS(TABLE_ROW_CSS.width240).toString()}">
 					${this._renderCell(`Collection day`, rowData.collectionDate.frequency)}

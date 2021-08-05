@@ -1,16 +1,18 @@
 import { Component, css, html } from 'platform/elements';
-import { formatCurrency, isNullorEmpty, getMonthName } from 'app/utils/channelServiceUtilities';
+import { formatCurrency, isNullorEmpty, getMonthName, convertCentsToRand } from 'app/utils/channelServiceUtilities';
+import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
+import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { HorizonStore } from 'app/store/HorizonStore';
 
-import 'platform/components/popups/Modal';
+import 'app/components/dialogs/common/DiscardChanges';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
-const ERROR_MESSAGE = `Make a selection to confirm the following information to approve the DebiCheck mandate.`;
 const QUESTIONS = {
-    0: {color: "black", accepted: 2},
-    1: {color: "black", accepted: 2},
-    2: {color: "black", accepted: 2},
-    3: {color: "black", accepted: 2}
+    0: { color: "black", accepted: 2 },
+    1: { color: "black", accepted: 2 },
+    2: { color: "black", accepted: 2 },
+    3: { color: "black", accepted: 2 }
 };
 
 export class ApproveDebiCheckMandate extends Component {
@@ -39,12 +41,14 @@ export class ApproveDebiCheckMandate extends Component {
         this.accountNumber = ``;
         this.shortName = ``;
         this.today = new Date().toISOString().substr(0, 10);
-        this.emailAddress = ``; 
+        this.emailAddress = ``;
         this.error = false;
         this.alertType = `info`;
         this.alertMessage = MESSAGE;
         this.approve = false;
+        this.showDiscardChangesModal = false;
 
+        this._telemetry = HorizonTelemetry.instance;
         this.horizonStore = HorizonStore.getInstance();
 
     }
@@ -64,33 +68,31 @@ export class ApproveDebiCheckMandate extends Component {
         return {
             mandateInfo: { type: Object },
             debiCheckDetails: { type: Object },
-            alertMessage: { type: String, attribute: false }
+            alertMessage: { type: String, attribute: false },
+            showDiscardChangesModal: { type: Boolean, attribute: false }
         };
     }
 
 
     async _initialise() {
-        
 
-        for (const key in QUESTIONS) {
-            QUESTIONS[key].accepted = 2;
-        }
+        this._clearAll();
 
         const state = this.horizonStore.recoverState();
         const callerInformation = this.horizonStore.getCallerInformation();
         const landingPageInfo = state.landingPageInfo;
         const screenDetails = this.horizonStore.getScreenDetails();
-        
 
-        this.mandateReference = this.debiCheckDetails.mandateReference; 
+
+        this.mandateReference = this.debiCheckDetails.mandateReference;
         this.referenceNumber = this.debiCheckDetails.contractReference;
         this.fullName = this.titleCase(callerInformation.name);
 
-        this.accountNumber = isNullorEmpty(landingPageInfo.accountNumber) ? `[Account number]` : landingPageInfo.accountNumber;
-        //this.shortName = `Mr I. Makatini`; // placeholder is account name ?
-        this.emailAddress = isNullorEmpty(screenDetails.emailAddress) ? `[email address]` : screenDetails.emailAddress; //from where? not working
+        this.accountNumber = isNullorEmpty(landingPageInfo.accountNumber) ? `1164116973` : landingPageInfo.accountNumber;
+        this.shortName = `Savings account`; // `[Account name]`// placeholder is account name ?
+        this.emailAddress = isNullorEmpty(screenDetails.emailAddress) ? `ivanmakatini@email.com` : screenDetails.emailAddress; //  `[email address]`
 
-        this.installmentAmount = formatCurrency(this.mandateInfo.amount);
+        this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
         this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
         this.collectionDateFrequency = this.mandateInfo.collectionDate.frequency
         this.today = new Date().toISOString().substr(0, 10);
@@ -103,73 +105,87 @@ export class ApproveDebiCheckMandate extends Component {
 
     connectedCallback() {
         super.connectedCallback();
+
+        this._telemetry.startSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK
+        });
+
         this._initialise();
     }
 
+    disconnectedCallback() {
+        super.disconnectedCallback();
+
+        this._telemetry.endSpan(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK
+        });
+    }
+    
     // --------------
     // EVENT HANDLERS
     // --------------
 
     _cancelClick() {
+
+        for (const key in QUESTIONS) {
+            if (QUESTIONS[key].accepted !== 2) {
+                this.showDiscardChangesModal = true;            
+                return false;
+            }
+        }
+        this._clearAll();
         this.dispatchEvent(new CustomEvent(`cancel`));
     }
 
-    _approveClick() {
-        let questionCount = 0;
-        for (const key in QUESTIONS) {
-            if (QUESTIONS[key].accepted == 2) {
-                questionCount++;
-                this.alertMessage = ERROR_MESSAGE;
-                this.alertType = 'unsuccessful-red';
-                this.requestUpdate();
-            }
-        }
+    _cancelDiscardModal() {
+        this.showDiscardChangesModal = false;
+        this._telemetry.logEvent(QuickTransactionEvents.DISCARD_CHANGES_CANCEL, {
+            "screen": TelemetryScreen.DISCARD_CHANGES,
+            "next-screen": TelemetryScreen.DEBICHECK
+        });
+    }
 
-        if (questionCount < 3 && this._validateAccepted()) {
-            this.dispatchEvent(new CustomEvent(`approve`, {
-                detail: { mandateId: this.mandateId }
-            }));
-        }        
+    _approveClick() {
+        this.dispatchEvent(new CustomEvent(`approve`, {
+            detail: { mandateId: this.mandateId }
+        }));     
     }
 
     _checkAccepted() {
         for (const key in QUESTIONS) {
+            if (QUESTIONS[key].accepted == 2) {
+                return true;
+            }
             if (QUESTIONS[key].accepted == 0) {
                 this.alertMessage = ` DebiCheck will not be approved and will result in expired mandates.`;
+                this.alertType = 'warning';
+                return true;
+            }
+            if (!this.approve) {
                 return true;
             }
         }
         return false;
     }
 
-    _validateAccepted() {
-        let returnVal = true;
-        for (const key in QUESTIONS) {
-            if (QUESTIONS[key].accepted == 2) {
-                QUESTIONS[key].color = "red";
-                this.alertMessage = ERROR_MESSAGE;
-                this.alertType = 'unsuccessful-red';
-                this.requestUpdate();
-                returnVal = false;
+    _collapseExpander() {
+        for (var i = 0; i < 3; i++) {
+            if (QUESTIONS[i].accepted !== 1) {
+                return true;
             }
         }
-        if (!this.approve) {
-            this.alertMessage = ERROR_MESSAGE;
-            this.alertType = 'unsuccessful-red';
-            this.requestUpdate();
-            return false;
-        }
-        return returnVal;
+        return false;
     }
 
     _agree(e, row, val) {
         if (e.detail.new) {
-        this._clearErrors(row);
+            this._clearErrors(row);
             if (val == 1) {
                 QUESTIONS[row].color = "black";
                 QUESTIONS[row].accepted = 1;
                 this.requestUpdate();
-            } else if(val== 0){
+            } else if (val == 0) {
+
                 QUESTIONS[row].color = "#D4781C";
                 QUESTIONS[row].accepted = 0;
                 this.requestUpdate();
@@ -187,19 +203,28 @@ export class ApproveDebiCheckMandate extends Component {
         this.alertMessage = MESSAGE;
         this.alertType = 'info';
         if (row < 5) {
-         QUESTIONS[row].color = "black";
+            QUESTIONS[row].color = "black";
         }
         this.requestUpdate();
     }
 
+    _clearAll() {
+        for (const key in QUESTIONS) {
+            QUESTIONS[key].color = 'black';
+            QUESTIONS[key].accepted = 2;
+        }
+    }
 
     _getFullDate(shortDate) {
-        let longDate = new Date(shortDate);
-        const day = shortDate.substr(8, 3);
-        const month = getMonthName(longDate.getMonth() + 1);
-        const year = shortDate.substr(0, 4);
+        if(shortDate){
+            const day = shortDate.substr(8, 3);
+            const monthNum = parseInt(shortDate.substr(5, 2));
+            const month = getMonthName(monthNum - 1);
+            const year = shortDate.substr(0, 4);
 
-        return day + " of " + month + " " + year;
+            return day + " of " + month + " " + year;
+        }
+
     }
 
 
@@ -252,7 +277,6 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-expander-header-font-size: 16px;
 					--theme-expander-header-font-weight: 600;
 					--theme-expander-header-font-color: #3A3A3A;
-					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-right: 0px;
 					--theme-expander-height: auto;
@@ -263,10 +287,9 @@ export class ApproveDebiCheckMandate extends Component {
 				    --theme-container-padding-left: 0px;
                     --theme-expander-border-radius: 5px;
                     --theme-expander-background-color: #F7F7F7;
-}
+                }
 
 				capitec-expander-group > capitec-expander > capitec-content-box {
-                    --theme-container-padding-left: 16px;
                     --theme-container-padding-right: 16px;
                     --theme-container-padding-top: 16px;
                     background-color: #FFFFFF;                
@@ -308,6 +331,7 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-card-min-height: 48px;
 				}
 			    .agreement-content {
+                    --theme-container-padding-left: 16px;
 			    	color: #3A3A3A;
 			    	font-family: "Hind Vadodara";
 			    	font-size: 16px;
@@ -328,6 +352,7 @@ export class ApproveDebiCheckMandate extends Component {
 			    	color: #3A3A3A;
 			    	font-family: "Hind Vadodara";
 			    	font-size: 16px;
+                    --theme-container-padding-left: 16px;
 			    }
 			    .declaration-content > ol {
 			    	margin: 0px;
@@ -366,6 +391,7 @@ export class ApproveDebiCheckMandate extends Component {
 					<capitec-content-box class="main-cb">
 						${this._renderAgreementsAlertBanner()}
 						${this._renderAgreement()}
+						${this._renderDiscardChangesModal()}
 					</capitec-content-box>
 				</div>
 
@@ -379,7 +405,7 @@ export class ApproveDebiCheckMandate extends Component {
     _renderAgreementsAlertBanner() {
         //alertType = unsucessful-red, info, warning
         return html`
-            <capitec-alert-banner type="${this._checkAccepted() ? `warning` : this.alertType }" closable>
+            <capitec-alert-banner type="${this.alertType}" closable>
 				<capitec-group layout="horizontal"  valign="top" gap="none" class="alert-banner">
 					<capitec-label
                     label="Notify client: "
@@ -397,14 +423,15 @@ export class ApproveDebiCheckMandate extends Component {
 				<capitec-expander
 				expandbuttonalignment="left"
 				label="Agreement"
-                .expanded=${true}>
+                .expanded=${this._collapseExpander()}>
 					<!--INSERT AGREEMENT TEXT CS CALL-->
                     ${this._renderAgreementContent()}
 				</capitec-expander>
 
 				<capitec-expander
 				expandbuttonalignment="left"
-				label="Declaration">
+				label="Declaration"
+                .expanded=${!this._collapseExpander()}>
 					<!--INSERT DECLARATION TEXT CS CALL-->	
                     ${this._renderDeclarationContent()}
 				</capitec-expander>
@@ -496,6 +523,18 @@ export class ApproveDebiCheckMandate extends Component {
 				</capitec-button>
 			</capitec-group>
         `;
+    }
+
+    _renderDiscardChangesModal() {
+        if (this.showDiscardChangesModal) {
+            return html`
+				<horizon-discard-changes
+					@on-cancel="${() => this._cancelDiscardModal()}"
+					@on-confirm="${() => this.dispatchEvent(new CustomEvent(`cancel`))}">
+				</horizon-discard-changes>`
+        }
+       
+            return html``;
     }
 }
 

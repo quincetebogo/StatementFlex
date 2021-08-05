@@ -6,6 +6,7 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -34,16 +35,22 @@ export class SavingsAccountBase extends ViewBase {
 	// --------------
 
 	constructor() {
-		super();
+        super();
 
-		this.navigationContext = NavigationContext.getInstance();
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+        this.debiCheckMandates = {};
+        this.incomingCallDetails = {};
+        this.incidentRecId = ``;
+
+        this.navigationContext = NavigationContext.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		this.debiCheckDetails = {};
-		this.clientProducts = null;
-		this.debiCheckMandates = {};
+
 	}
 
 	// --------------
@@ -55,7 +62,10 @@ export class SavingsAccountBase extends ViewBase {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();
+        super.connectedCallback();
+        this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+        this.incidentDetails = this.horizonStore.getIncidentDetails();
+        this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	disconnectedCallback() {
@@ -112,7 +122,7 @@ export class SavingsAccountBase extends ViewBase {
 		} else if (event.detail.action === `approve`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 				"screen": TelemetryScreen.DEBICHECK,
-				"next-screen": TelemetryScreen.DEBICHECK
+				"next-screen": TelemetryScreen.APPROVE_DEBICHECK
 			});
 
 
@@ -159,12 +169,26 @@ export class SavingsAccountBase extends ViewBase {
 
     //TODO: implement approve call when done (not decline)
     async _approveDebiCheckMandate(event) {
-		//this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
-		//	"screen": TelemetryScreen.DECLINE_DEBICHECK,
-		//	"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
-		//});
+        //Hasn't been promoted to dev yet...'
+        //const request = {
+        //    incidentRecId: this.incidentRecId,
+        //    ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+        //    needAction: 'DEBI_CHECK_APPROVE',
+        //    incidentCategorization: null
+        //};
+        //const returnValue = await this.incidentManagementService.classifyIncident(request);
 
-		//this.mandateId = event.detail.mandateId;
+        //if (!returnValue.succeeded) {
+        //    this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_approveDebiCheckMandate`, returnValue.correlationId);
+        //}
+
+
+
+        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK,
+            "next-screen": TelemetryScreen.DEBICHECK_OUTCOME
+		});
+
 
 		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
@@ -191,10 +215,10 @@ export class SavingsAccountBase extends ViewBase {
 
     //TODO: UPDATE TELEMETRY
     _cancelApproveMandate() {
-		//this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, {
-		//	"screen": TelemetryScreen.DECLINE_DEBICHECK,
-		//	"next-screen": TelemetryScreen.DEBICHECK
-		//});
+        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK,
+			"next-screen": TelemetryScreen.DEBICHECK
+		});
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
