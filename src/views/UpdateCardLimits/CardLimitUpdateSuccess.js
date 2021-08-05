@@ -71,9 +71,9 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -112,13 +112,13 @@ export class SuccessfulCardLimitUpdate extends ViewBase {
 				data-automation-id="card-limit-update-success-screen"
 				header="${this.limitType} card limits updated" 
 				image="/images/cards-successful-limit-update.svg"
-				left="Done"
-				right="Update Card Limits"
+				left="Update Card Limits"
+				right="Done"
 				toast="${this.limitType} card limit updated."
 				secondaryToast="${this.istapToPayUnChanged ? `` : `Tap to pay updated`}"
 				subDetail="${this.istapToPayUnChanged ? `` : true }"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._updateCardLimitsClick()}>
+				@left-click=${() => this._updateCardLimitsClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						class="id-update-msg" 
 						slot="detail">

@@ -94,9 +94,9 @@ export class TapToPayUnsuccessful extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -108,9 +108,6 @@ export class TapToPayUnsuccessful extends ViewBase {
 			css`
 				#id-update-msg{
 					width: auto;
-				}
-				horizon-success-screen {
-					--horizon-button-group-margin-top: 28px;
 				}
 			`
 		];

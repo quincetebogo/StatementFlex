@@ -5,7 +5,7 @@
  * @readonly
  * @enum {Object} QuickTransactionEvents
  */
- export const QuickTransactionEvents = {
+export const QuickTransactionEvents = {
 	FULFILL_NEED: `call.fulfill-need`,
 
 	// Pending mandates alert
@@ -66,35 +66,35 @@
 	TAP_TO_PAY_OUTCOME_ANOTHER: `call.fulfill-need.tap-to-pay.outcome.another`,
 	TAP_TO_PAY_OUTCOME_HANDOFF: `call.fulfill-need.tap-to-pay.outcome.hand-off`,
 	LAUNCH_STRACK_FEEDBACK: `call.fulfill-need.feedback`,
-     LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
+	LAUNCH_STRACK_FEEDBACK_DONE: `call.fulfill-need.feedback.done`,
 
-     // Update card limits 
-     CARD_LIMITS: `call.fulfill-need.card-limits`,
-     CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
+	// Update card limits 
+	CARD_LIMITS: `call.fulfill-need.card-limits`,
+	CARD_LIMITS_SELECT_CARD: `call.fulfill-need.card-limits.select-card`,
 
-     // Update card limits modal
-     UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
-     UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
-     UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
-     UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
-     UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
+	// Update card limits modal
+	UPDATE_LIMITS: `call.fulfill-need.card-limits.update-limits`,
+	UPDATE_LIMITS_NEXT: `call.fulfill-need.card-limits.update-limits.next`,
+	UPDATE_LIMITS_AGREE: `call.fulfill-need.card-limits.update-limits.agree`,
+	UPDATE_LIMITS_BACK: `call.fulfill-need.card-limits.update-limits.back`,
+	UPDATE_LIMITS_CANCEL: `call.fulfill-need.card-limits.update-limits.cancel`,
 
-     // Discard changes modal
-     DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
-     DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
-     DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
+	// Discard changes modal
+	DISCARD_CHANGES: `call.fulfill-need.card-limits.update-limits.discard-changes`,
+	DISCARD_CHANGES_CANCEL: `call.fulfill-need.card-limits.update-limits.discard-changes.cancel`,
+	DISCARD_CHANGES_CONFIRM: `call.fulfill-need.card-limits.update-limits.discard-changes.confirm`,
 
-	 // Satements
-	 STATEMENTS: `call.fulfill-need.statements`,
-	 STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
+	// Satements
+	STATEMENTS: `call.fulfill-need.statements`,
+	STATEMENTS_CANCEL: `call.fulfill-need.statements.cancel`,
 
-	 STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
-	 STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
-	 STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
-	 STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
-	 STATEMENTS_BACK: `call.fulfill-need.statements.back`,
-	 STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
-	 STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
+	STATEMENTS_SELECT_ACCOUNT: `call.fulfill-need.statements.select-account`,
+	STATEMENTS_SELECT_PLAN: `call.fulfill-need.statements.select-plan`,
+	STATEMENTS_ACCOUNT_NEXT: `call.fulfill-need.statements.next`,
+	STATEMENTS_SELECT_PERIOD: `call.fulfill-need.statements.select-period`,
+	STATEMENTS_BACK: `call.fulfill-need.statements.back`,
+	STATEMENTS_SELECT_DATE_RANGE: `call.fulfill-need.statements.select-custom-period`,
+	STATEMENTS_PERIOD_NEXT: `call.fulfill-need.statements.select-period.next`,
 
 	SELECT_STATEMENTS_VIEW_PDF: `call.fulfill-need.statements.view-document`,
 	SELECT_STATEMENTS_CLOSE_PDF: `call.fulfill-need.statements.close-document`,
@@ -113,8 +113,10 @@
 	// It can be done when we implement those feature
 
 	// Tax certificate
+	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
+	TAX_CERTIFICATE_OUTCOME_HANDOFF: `call.fulfill-need.tax-certificate.outcome.hand-off`,
 	SELECT_VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
 	VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.view-certificate`,
 	SELECT_CLOSE_VIEW_TAX_CERTIFICATE: `call.fulfill-need.tax-certificate.view-certificate.close`,
 	TAX_CERTIFICATE_SELECT_BACK: `call.fulfill-need.tax-certificate.pop-up.back`
- };
+};

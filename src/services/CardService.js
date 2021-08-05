@@ -25,7 +25,21 @@ export class CardService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	identifyCaller(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	identifyCaller(callerInformation, incomingCallDetails, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const callerData = {
+			idNumber: callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: `StopCard`,
+			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
+			incidentRecId: incidentDetails.incidentRecId,
+			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: callerInformation.nonClientFullName,
+			nonClientCellPhone: callerInformation.nonClientCellPhone,
+			nonClientIDNumber: ``,
+			nonClientRelationship: callerInformation.nonClientRelationship
+		};
+
 		return this.wrapCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
 	};
 
@@ -33,6 +47,7 @@ export class CardService extends ServiceBase {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
 
 		let cardStopResults = [];
+		incidentDetails = this.horizonStore.getIncidentDetails();
 
 		const stopCardRequest = {
 			cards: cardsToStop.map((card) => ({

@@ -72,9 +72,9 @@ export class StatementsSuccess extends ViewBase {
 	// ---------------
 
 	_updateIncidentState() {
-		const incidentDetails = this.horizonStore.getIncidentDetails();
-		incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
-		this.horizonStore.setIncidentDetails(incidentDetails);
+		this.incidentDetails = this.horizonStore.getIncidentDetails();
+		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	// ---------
@@ -110,11 +110,11 @@ export class StatementsSuccess extends ViewBase {
 				data-automation-id="statements-success"
 				header="Statement sent" 
 				image="/images/statements/senddocuments.svg"
-				left="Done"
-				right="Send Another"
+				left="Send Another"
+				right="Done"
 				toast="Statement sent"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._sendAnotherClick()}>
+				@left-click=${() => this._sendAnotherClick()}
+				@right-click=${() => this._doneClick()}>
 					<section 
 						id="id-error-msg" 
 						slot="detail">

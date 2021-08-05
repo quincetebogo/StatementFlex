@@ -96,13 +96,7 @@ export class FavouriteTransactions extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, {
 			detail: {
 				option: selectedOption,
-				stopPropagation: selectedOption !== `stop-card` && this.verificationStatus !== `verified`
-			}
-		}));
-		this.dispatchEvent(new CustomEvent(`option-click`, {
-			detail: {
-				option: selectedOption,
-				stopPropagation: selectedOption !== `search-other-need` && this.verificationStatus !== `verified`
+				stopPropagation: (selectedOption !== `stop-card` && selectedOption !== `search-other-need`) && this.verificationStatus !== `verified`
 			}
 		}));
 	};
@@ -417,15 +411,6 @@ export class FavouriteTransactions extends Component {
 					</horizon-option-button>
 				</capitec-button-bar>
 		`;
-	}
-
-	_renderLoadingIndicator() {
-		if (this.isBusy) {
-			return html`
-		<capitec-loading-indicator></capitec-loading-indicator>
-		`;
-		}
-		return html``;
 	}
 }
 
