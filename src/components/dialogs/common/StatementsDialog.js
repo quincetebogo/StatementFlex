@@ -210,26 +210,14 @@ export class StatementsDialog extends Component {
 	// --------------
 
 	_onEmailValueChange(e) {
-		this.dispatchEvent(new CustomEvent(`value-changed`, {
-			detail: {
-				email: e.detail.email,
-				confirmEmail: e.detail.confirm
-			}
-		}))
-
+		console.log(e.detail)
 		this.email = e.detail.email;
-		this.confirmEmail = e.detail.confirm;
+		this.confirmEmail = e.detail.confirmEmail;
 	}
 
 	_validEmailAddressCheck(e) {
 		console.log(e.detail)
-		this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-			detail: e.detail
-		}))
-
-		this.errorMessage = e.detail.errorMessage;
-		this.mailClientError.email = this.errorMessage;
-		this.mailClientError.confirmEmail = this.errorMessage;
+		this.errorMessage = e.detail;
 	}
 
 	async _cancel() {
