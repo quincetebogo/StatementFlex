@@ -118,10 +118,10 @@ export class ApproveDebiCheckMandate extends Component {
 
     _cancelClick() {
         QUESTIONS.forEach(key => {
-            if (QUESTIONS[key].accepted !== 2) {
+            if (key.accepted !== 2) {
                 this.showDiscardChangesModal = true;
                 return false;
-            }        
+            }
         });
 
         this._clearAll();
@@ -143,25 +143,25 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _checkAccepted() {
-        QUESTIONS.forEach(key => {
-            if (QUESTIONS[key].accepted == 2) {
+        for (var key = 0; key < QUESTIONS.length; key++) {
+            if (key.accepted == 2) {
                 return true;
             }
-            if (QUESTIONS[key].accepted == 0) {
+            if (key.accepted == 0) {
                 this.alertType = 'warning';
                 return true;
             }
             if (!this.approve) {
                 return true;
             }
-        });
+        }
         return false;
     }
 
     _checkWarning() {
         let returnVal = false;
         QUESTIONS.forEach(key => {
-            if (QUESTIONS[key].accepted == 0) {
+            if (key.accepted == 0) {
                 returnVal = true;
             }
         });
@@ -201,8 +201,8 @@ export class ApproveDebiCheckMandate extends Component {
 
     _clearAll() {
         QUESTIONS.forEach(key => {
-            QUESTIONS[key].color = 'black';
-            QUESTIONS[key].accepted = 2;
+            key.color = 'black';
+            key.accepted = 2;
         });
     }
 
