@@ -88,7 +88,7 @@ export class HorizonEmailInput extends Component {
 				email: email,
 				confirmEmail: confirm
 			}
-		}))
+		}));
 	}
 
 	_validateEmailAddress() {
@@ -99,8 +99,7 @@ export class HorizonEmailInput extends Component {
 						email: this.mailClientError.email,
 						confirmEmail: this.mailClientError.confirmEmail
 					}
-			}))
-		
+			}));
 	}
 
 	// ---------------
@@ -137,23 +136,25 @@ export class HorizonEmailInput extends Component {
 				this.mailClientError.confirmEmail = `Invalid email format`;
 				this._validateEmailAddress();
 				return;
-			} else {
-				this.errorMessage = ``;
-				this.mailClientError[e.currentTarget.id] = ``;
-				this._validateEmailAddress();
-			}
+			} 
+
+			this.errorMessage = ``;
+			this.mailClientError[e.currentTarget.id] = ``;
+			this._validateEmailAddress();
 		}
+
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError.email = `Emails don't match`;
 			this.mailClientError.confirmEmail = `Emails don't match`;
 			this._validateEmailAddress();
 		}
+
 		this.requestUpdate();
 	}
 
 	static get styles() {
-		return[
+		return [
 			super.styles,
 			css`
 			.emailLabel[type="subtitle"] {
@@ -162,9 +163,8 @@ export class HorizonEmailInput extends Component {
 				--theme-label-subtitle-font-size: 18px;
 				--theme-label-subtitle-font-weight: 600;
 				--theme-layout-gap-spacing: 16px;
-			}
-			`
-		]
+			}`
+		];
 	}
 
 	_mobileTemplate() {
