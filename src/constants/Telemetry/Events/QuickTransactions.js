@@ -112,7 +112,14 @@ export const QuickTransactionEvents = {
 	// Yet to confiure events for Debi check mandates approve and outcome screens
 	// It can be done when we implement those feature
 
-	// Tax Certificate
-	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
-	TAX_CERTIFICATE_OUTCOME_HANDOFF: `call.fulfill-need.tax-certificate.outcome.hand-off`,
-};
+	// Tax certificate
+	TAX_CERTIFICATE : `call.fulfill-need.tax-certificate`,
+	TAX_CERTIFICATE_POP_UP: `call.fulfill-need.tax-certificate.pop-up`,
+	TAX_CERTIFICATE_POP_UP_BACK: `call.fulfill-need.tax-certificate.pop-up.back`,
+	TAX_CERTIFICATE_POP_UP_NEXT: `call.fulfill-need.tax-certificate.pop-up.next`,
+	TAX_CERTIFICATE_POP_UP_CANCEL: `call.fulfill-need.tax-certificate.pop-up.cancel`,
+	TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
+	TAX_CERTIFICATE_POP_UP_VIEW_PDF: `call.fulfill-need.tax-certificate.view-certificate`,
+	TAX_CERTIFICATE_POP_UP_CLOSE_PDF: `call.fulfill-need.tax-certificate.view-certificate.close`
+	
+ };

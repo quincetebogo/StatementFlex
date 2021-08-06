@@ -19,6 +19,7 @@ import 'app/components/dialogs/quickTransactions/ViewInfoDebiCheck';
 import 'app/components/dialogs/quickTransactions/ProofOfAccount';
 import 'app/components/quickTransactions/TapToPayLanding';
 import 'app/components/dialogs/common/Feedback';
+import 'app/components/dialogs/quickTransactions/TaxCertificates';
 
 
 const SAVINGS_ACCOUNT_TYPE = 300;
@@ -473,13 +474,19 @@ export class Favourites extends SavingsAccountBase {
 		}
 	}
 
-    _taxCertificates() {
+    async _taxCertificates() {
         // TODO: Functionality to generate tax certificate comes here
 
-		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
+		await this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.FAVOURITES,
 			"next-screen": TelemetryScreen.TAX_CERTIFICATE
 		});
+
+		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
+			"screen": TelemetryScreen.TAX_CERTIFICATE
+		})
+
+		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
 
 	async _proofOfAccount() {
@@ -614,6 +621,7 @@ export class Favourites extends SavingsAccountBase {
 			${this._renderSearchOtherNeed()}
 			${this._renderProofOfAccount()}
 			${this._renderFeedback()}
+			${this._renderTaxCertificate()}
 
 			${super._webTemplate()}
 		`;
@@ -622,6 +630,7 @@ export class Favourites extends SavingsAccountBase {
     _renderFavouritesLandingPage() {
         switch (this.renderMode) {
             case RENDER_MODE.MAIN_PAGE:
+			case RENDER_MODE.TAX_CERTIFICATE:
             case RENDER_MODE.PROOF_OF_ACCOUNT:
             case RENDER_MODE.STATEMENTS:
             case RENDER_MODE.VERIFY_NOW:
@@ -709,6 +718,18 @@ export class Favourites extends SavingsAccountBase {
 					@done="${(event) => this._done(event)}">
 				</horizon-feedback>`
 			: html``;
+	}
+
+	_renderTaxCertificate() {
+		return this.renderMode === RENDER_MODE.TAX_CERTIFICATE
+		? html`
+			<horizon-tax-certificate
+				.cards="${this.cards}"
+				.callerInformation="${this.callerInformation}"
+				@cancel="${() => this._backToLandingPage()}">
+			</horizon-tax-certificate>
+		`
+		: html``;
 	}
 }
 
