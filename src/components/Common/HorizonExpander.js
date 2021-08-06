@@ -14,20 +14,25 @@ import { stringify } from 'uuid';
  * ```
  *
  * ```html
- * <capitec-expander-group modeset="single">
- *     <capitec-expander icon="system/client-insights" label="Client Insights">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- *     <capitec-expander icon="system/access" label="Access">
- *         <capitec-label label="No Records Found"></capitec-label>
- *     </capitec-expander>
- *     <capitec-expander icon="system/notes" label="Notes">
- *         <capitec-label label="No Records Found"></capitec-label>
+ *	<horizon-expander 
+ *		label="Client Insights"
+ *		icon="system/access"
+ *		inputType="checkbox"
+ *		expandButtonAlignment="right | left"
+ *		layout="vertical"
+ *		halign="stretch"
+ *		valign="top"
+ *		gap="clear"
+ *		wrap=false
+ *		noPadding=false
+ *		expanded=false
+ *		disabled=false>
+ *			<capitec-label slot="custom-header" label="No Records Found"></capitec-label>
  *     </capitec-expander>
  *     <capitec-expander icon="system/knowledge" label="Knowledge Base">
- *         <capitec-label label="No Records Found"></capitec-label>
+ *			<capitec-label slot="content" label="No Records Found"></capitec-label>
  *     </capitec-expander>
- * </capitec-expander-group>
+ *	</horizon-expander>
  * ```
  *
  */
@@ -83,6 +88,7 @@ export class Expander extends Component {
 	 * @property {String} [expandButtonAlignment="right"] - Sets in which direction the expander's arrow should be position relative to the title, either:
 	 *    - 'right' - Meaning that the expander button is placed to the right of the title
 	 *    - 'left' - Meaning that the expander button is placed to the left of the title
+	 * 	  -  Only either of the label or slot='custom-header' can be used for an instance
 	 */
     static get properties() {
         return {
@@ -240,6 +246,12 @@ export class Expander extends Component {
         this.dispatchEvent(new CustomEvent(`collapse`, {
             detail: {
                 label: this.label
+	 * @param {*} e 
+	change(e) {
+		this.dispatchEvent(new CustomEvent(`value-change`, {
+			detail: {
+				old: e.detail.old,
+				new: e.detail.new
             }
         }));
     }
