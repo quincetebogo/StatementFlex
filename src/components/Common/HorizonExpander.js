@@ -24,8 +24,7 @@ const INPUT_TYPES = {
  *		wrap=false
  *		noPadding=false
  *		expanded=false
- *		disabled=false
- 		checked=false>
+ *		disabled=false>
  *			<capitec-label slot="custom-header" label="No Records Found"></capitec-label>
  *			<capitec-label slot="content" label="No Records Found"></capitec-label>
  *	</horizon-expander>
@@ -47,13 +46,10 @@ export class Expander extends Component {
         this.label = ``;
 		this.icon = ``;
 		this.inputType = ``;
-        this.label = null;
-		this.icon = null;
-		this.checkBox = false;
-		this.checked = false;
 
         this.expanded = false;
         this.disabled = false;
+        this.selected = false;
 
         this.layout = `vertical`;
         this.halign = `stretch`;
@@ -77,8 +73,8 @@ export class Expander extends Component {
 	 *
 	 * @property {Boolean} [expanded=false] - Indicator if the expander is currently expanded.
 	 * @property {Boolean} [disabled=false] - Indicator if the expander is currently disabled.
-	 * @property {Boolean} [checked=false] - Indicator if the expander's check button is selected.
-	 *
+	 * @property {Boolean} [selected=false] - Boolean value tells if checkbox/input is selected or not or not
+	 * 
 	 * @property {LayoutAttribute} [layout=vertical] - The component content area layout.
 	 * @property {HAlignAttribute} [halign=stretch] - The component content area horizontal item alignment.
 	 * @property {VAlignAttribute} [valign=top] - The component content area vertical item alignment.
@@ -98,7 +94,7 @@ export class Expander extends Component {
 			
             expanded: { type: Boolean },
             disabled: { type: Boolean },
-			checked: { type: Boolean },
+			selected: { type: Boolean },
 
             layout: { type: String },
             halign: { type: String },
@@ -266,7 +262,6 @@ export class Expander extends Component {
 	 * @returns {void}
 	 */
 	_onValueChange(e) {
-		this.checked = e.detail.new;
 
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {
@@ -536,6 +531,8 @@ export class Expander extends Component {
 				return html`
 						<capitec-check
 							class="input"
+							?checked = ${this.selected}
+							?disabled = ${this.disabled}
 							@value-changed="${(e) => this._onValueChange(e)}">
 						</capitec-check>`;
 			default:

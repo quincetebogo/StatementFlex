@@ -653,7 +653,19 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
+		name: `horizon-tax-certificate-unsuccessful`,
+		title: `TaxCertificateUnsuccessful`,
 		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_UNSUCCESSFUL,
+		load: () => import(`../views/TaxCertificate/TaxCertificateUnsuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-tax-certificate-success`,
+		title: `TaxCertificateSuccess`,
+		icon: null,
+		path: HORIZON_ROUTES.TAX_CERTIFICATE_SUCCESSFUL,
+		load: () => import(`../views/TaxCertificate/TaxCertificateSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];
