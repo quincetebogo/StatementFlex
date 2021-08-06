@@ -80,6 +80,7 @@ export class HorizonLabel extends Component {
 					font-family: "Hind Vadodara";
 					font-size: var(--horizon-label-text-font-size, 14px);
 					letter-spacing: 0;
+					font-weight: var(--horizon-label-text-font-weight, 500);
 					line-height: var(--horizon-label-text-line-height, 21px);
 				}
 
@@ -91,7 +92,7 @@ export class HorizonLabel extends Component {
 					color: var(--horizon-label-value-color, #003652);
 					font-family: "Hind Vadodara";
 					font-size: var(--horizon-label-value-font-size, 18px);
-					font-weight: 600;
+					font-weight: var(--horizon-label-value-font-weight, 600);
 					letter-spacing: 0;
 					line-height: var(--horizon-label-value-line-height, 27px);
 				}`
