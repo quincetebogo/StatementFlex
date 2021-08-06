@@ -94,6 +94,7 @@ export class DebiCheckFailure extends ViewBase {
 			`
 		];
 	}
+
 	_mobileTemplate() {
 		return this._webTemplate();
 	}
@@ -106,6 +107,7 @@ export class DebiCheckFailure extends ViewBase {
 			${super._webTemplate()}
 		`;
 	}
+
 	_renderFailureScreen() {
 		return html`
 			<horizon-error-screen
@@ -135,4 +137,4 @@ export class DebiCheckFailure extends ViewBase {
 	}
 }
 
-customElements.define(`horizon-debi-check-failue`, DebiCheckFailure);
+customElements.define(`horizon-debi-check-failure`, DebiCheckFailure);
