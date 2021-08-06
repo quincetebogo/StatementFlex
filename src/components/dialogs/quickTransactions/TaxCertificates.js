@@ -77,10 +77,10 @@ export class TaxCertificate extends Component {
 		
 		this.availableCert = {
 			taxableSavings : [
-				{year : "2014", status: `Available`},
-				{year : "2015", status: `Available`},
-				{year : "2016", status: `Available`},
-				{year : "2017", status: `Unavailable`}
+				{year : `2014`, status: `Available`},
+				{year : `2015`, status: `Available`},
+				{year : `2016`, status: `Available`},
+				{year : `2017`, status: `Unavailable`}
 				],
 			taxFree: [
 				{ year: `2018`, status: `Available` },
@@ -112,8 +112,8 @@ export class TaxCertificate extends Component {
 			callerInformation: { type: Object },
 			landingPageInfo: { type: Object },
 
-			selectedCertType: { type: String},
-			selectedCertificates: { type: Object},
+			selectedCertType: { type: String },
+			selectedCertificates: { type: Object },
 
 			isBusy: { attribut: false },
 			alertBannerMessage: { attribute: false },
@@ -236,37 +236,39 @@ export class TaxCertificate extends Component {
 		if (isNullorEmpty(this.selectedCertType)) {
 			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE ;
 			return false;
-		} else if (this.selectedCertificates.taxFree.length === 0 && this.selectedCertificates.taxableSavings.length === 0) {
+		} 
+
+		if (this.selectedCertificates.taxFree.length === 0 && this.selectedCertificates.taxableSavings.length === 0) {
 			this.alertBannerMessage = ERROR_MESSAGE.DOCUMENT_TYPE;
 			return false;
-		} else {
-			
-			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
-			
-				"screen": TelemetryScreen.TAX_CERTIFICATE,
-				"next-screen": null,
-
-				"certificate-type": this.selectedCertType,
-				"selected-documents": [
-					{"document-type": null,
-					"certificate-period": null},
-					{"document-type": null,
-					"certificate-period": null}
-				]	//TODO: Add selected certificate types when CS is implemented
-				
-			});
-
-			this.currentStep++;
 		}
+		
+		this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_POP_UP_NEXT, {
+		
+			"screen": TelemetryScreen.TAX_CERTIFICATE,
+			"next-screen": null,
+
+			"certificate-type": this.selectedCertType,
+			//TODO: Add selected certificate types when CS is implemented
+			"selected-documents": [
+				{"document-type": null,
+				"certificate-period": null},
+				{"document-type": null,
+				"certificate-period": null}
+			]	
+		});
+
+		this.currentStep++;
 	}
 
 	_onValueChange(e, checkBoxDetails, certType) {
-		if(e.detail.new){
+		if (e.detail.new) {
 			this.alertBannerMessage = '';
 			this.selectedCertificates[certType].push(checkBoxDetails);
 		} else {
 			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
 		}
+		this.requestUpdate();
 	}
 
 	// Only single expander to be seen as expanded at a time
@@ -739,13 +741,13 @@ export class TaxCertificate extends Component {
 	
     _renderCertificateTypes() {
         switch (this.selectedCertType) {
-            case 'taxableSavings':
-                return html`${this._renderChoosePeriod('taxableSavings')}`;
-            case 'taxFree':
-                return html`${this._renderChoosePeriod('taxFree')}`;
-            case 'both':
-                return html`${this._renderChoosePeriod('taxableSavings')}
-							${this._renderChoosePeriod('taxFree')}`;
+            case `taxableSavings`:
+                return html`${this._renderChoosePeriod(`taxableSavings`)}`;
+            case `taxFree`:
+                return html`${this._renderChoosePeriod(`taxFree`)}`;
+            case `both`:
+                return html`${this._renderChoosePeriod(`taxableSavings`)}
+							${this._renderChoosePeriod(`taxFree`)}`;
             default:
                 return html``;
         }
@@ -775,7 +777,7 @@ export class TaxCertificate extends Component {
 		}
 	}
 
-	_renderCertificateYears(item, certType) {
+	_renderCertificateYears(item,certType) {
 		return html`
 			<horizon-expander
 				id="tax-expander"
