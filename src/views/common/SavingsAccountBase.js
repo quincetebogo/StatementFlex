@@ -39,7 +39,7 @@ export class SavingsAccountBase extends ViewBase {
 
 		this.debiCheckDetails = {};
 		this.clientProducts = null;
-        this.debiCheckMandates = {};
+        this.debiCheckMandates = [];
         this.incomingCallDetails = {};
         this.incidentRecId = ``;
 
@@ -167,7 +167,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
     }
 
-    //TODO: implement approve call when done (not decline)
+    //TODO: remove comment when enpoint is avail
     async _approveDebiCheckMandate(event) {
         //Hasn't been promoted to dev yet...'
         //const request = {
@@ -213,7 +213,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
     }
 
-    //TODO: UPDATE TELEMETRY
     _cancelApproveMandate() {
         this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
             "screen": TelemetryScreen.APPROVE_DEBICHECK,
@@ -307,7 +306,8 @@ export class SavingsAccountBase extends ViewBase {
 
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-				this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+            this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+            this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE ||
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates

@@ -76,9 +76,10 @@ export class ApproveDebiCheckMandate extends Component {
         this.referenceNumber = this.debiCheckDetails.contractReference;
         this.fullName = this.titleCase(callerInformation.name);
 
-        this.accountNumber = isNullorEmpty(landingPageInfo.accountNumber) ? `[account number]` : landingPageInfo.accountNumber;
-        this.shortName = `[Account name]`// placeholder is account name ?
-        this.emailAddress = isNullorEmpty(screenDetails.emailAddress) ? `[e-mail]` : screenDetails.emailAddress; //  `[email address]`
+        //TODO: Remove hardcoded data once endpoints are activated
+        this.accountNumber = `164116973`; //: screenDetails.accountNumber;
+        this.shortName = `Savings account`// placeholder is account name ?
+        this.emailAddress = `ivanmakatini@email.com`;// : screenDetails.emailAddress; 
 
         this.installmentAmount = formatCurrency(convertCentsToRand(this.mandateInfo.amount));
         this.firstCollectionDate = isNullorEmpty(this.debiCheckDetails) ? new Date() : new Date(this.debiCheckDetails.firstCollectionDate).toISOString().substr(0, 10);
@@ -233,12 +234,13 @@ export class ApproveDebiCheckMandate extends Component {
 					--theme-modal-header-background-color: #F7F7F7;
 					--theme-modal-header-padding-top: 20px;
 					--theme-modal-header-padding-bottom: 20px;
-					//--theme-modal-footer-padding: 8px 16px 8px 0px;                    
+					--theme-modal-footer-padding: 8px 16px 8px 0px;                    
                 }
 
                 .main-cb {
                     height: 754px;
-                    
+                    border-bottom: 1px solid rgb(225, 225, 225);
+
                 	--theme-container-padding-left: 16px;
                 	--theme-container-padding-top: 16px;
                 	--theme-container-padding-right: 16px;
@@ -353,13 +355,9 @@ export class ApproveDebiCheckMandate extends Component {
                     margin-top:14px;
                 }    
                 div[slot="footer"]{
-                    border-top: 1px solid rgb(225, 225, 225);
+                    padding-right: 8px;
                     width: 808px;
-                    padding-top: 8px;
                     margin-right: -12px;
-                }
-			    .footer {
-                    margin-right: 16px;
                 }
                 `
         ];
@@ -380,7 +378,7 @@ export class ApproveDebiCheckMandate extends Component {
 					</capitec-content-box>
 				</div>
 
-				<div style="border-top: 1px solid #e1e1e1" slot="footer">
+				<div slot="footer">
 					${this._renderFooter()}
 				</div>
 			</capitec-modal>
@@ -493,7 +491,7 @@ export class ApproveDebiCheckMandate extends Component {
 
     _renderFooter() {
         return html`
-            <capitec-group layout="horizontal" gap="clear" halign="right" valign="center" class="footer">
+            <capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
 					@click="${(e) => this._cancelClick(e)}"
 					label="Cancel">
