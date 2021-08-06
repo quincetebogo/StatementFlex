@@ -9,12 +9,14 @@ import 'app/components/dialogs/common/DiscardChanges';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
 const WARNING_MESSAGE = ` DebiCheck will not be approved and will result in expired mandates.`;
-const QUESTIONS = {
-    0: { color: "black", accepted: 2 },
-    1: { color: "black", accepted: 2 },
-    2: { color: "black", accepted: 2 },
-    3: { color: "black", accepted: 2 }
-};
+
+const ORANGE = "#D4781C";
+const QUESTIONS = [
+    { color: "black", accepted: 2 },
+    { color: "black", accepted: 2 },
+    { color: "black", accepted: 2 },
+    { color: "black", accepted: 2 }
+];
 
 export class ApproveDebiCheckMandate extends Component {
 
@@ -109,19 +111,19 @@ export class ApproveDebiCheckMandate extends Component {
             "screen": TelemetryScreen.APPROVE_DEBICHECK
         });
     }
-    
+
     // --------------
     // EVENT HANDLERS
     // --------------
 
     _cancelClick() {
-
-        for (const key in QUESTIONS) {
+        QUESTIONS.forEach(key => {
             if (QUESTIONS[key].accepted !== 2) {
-                this.showDiscardChangesModal = true;            
+                this.showDiscardChangesModal = true;
                 return false;
-            }
-        }
+            }        
+        });
+
         this._clearAll();
         this.dispatchEvent(new CustomEvent(`cancel`));
     }
@@ -137,11 +139,11 @@ export class ApproveDebiCheckMandate extends Component {
     _approveClick() {
         this.dispatchEvent(new CustomEvent(`approve`, {
             detail: { mandateId: this.mandateId }
-        }));     
+        }));
     }
 
     _checkAccepted() {
-        for (const key in QUESTIONS) {
+        QUESTIONS.forEach(key => {
             if (QUESTIONS[key].accepted == 2) {
                 return true;
             }
@@ -152,17 +154,17 @@ export class ApproveDebiCheckMandate extends Component {
             if (!this.approve) {
                 return true;
             }
-        }
+        });
         return false;
     }
 
     _checkWarning() {
         let returnVal = false;
-        for (const key in QUESTIONS) {
+        QUESTIONS.forEach(key => {
             if (QUESTIONS[key].accepted == 0) {
                 returnVal = true;
             }
-        }
+        });
         return returnVal;
     }
 
@@ -176,17 +178,19 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _agree(e, row, val) {
-        if (e.detail.new) {
-            this.alertType = 'info';
-            if (val == 1) {
-                QUESTIONS[row].color = "black";
-                QUESTIONS[row].accepted = 1;
-            } else if (val == 0) {
-                QUESTIONS[row].color = "#D4781C";
-                QUESTIONS[row].accepted = 0;
-            }
-            this.requestUpdate();
+        if (!e.detail.new) {
+            return;
         }
+        this.alertType = 'info';
+        if (val == 1) {
+            QUESTIONS[row].color = "black";
+            QUESTIONS[row].accepted = 1;
+        } else if (val == 0) {
+            QUESTIONS[row].color = ORANGE;
+            QUESTIONS[row].accepted = 0;
+        }
+        this.requestUpdate();
+
 
     }
 
@@ -196,20 +200,20 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _clearAll() {
-        for (const key in QUESTIONS) {
+        QUESTIONS.forEach(key => {
             QUESTIONS[key].color = 'black';
             QUESTIONS[key].accepted = 2;
-        }
+        });
     }
 
     _getFullDate(shortDate) {
-        if(shortDate){
+        if (shortDate) {
             const day = shortDate.substr(8, 3);
             const monthNum = parseInt(shortDate.substr(5, 2));
             const month = getMonthName(monthNum - 1);
             const year = shortDate.substr(0, 4);
 
-            return day + " of " + month + " " + year;
+            return `${day} of ${month} ${year}`;
         }
 
     }
@@ -513,8 +517,8 @@ export class ApproveDebiCheckMandate extends Component {
 					@on-confirm="${() => this.dispatchEvent(new CustomEvent(`cancel`))}">
 				</horizon-discard-changes>`
         }
-       
-            return html``;
+
+        return html``;
     }
 }
 
