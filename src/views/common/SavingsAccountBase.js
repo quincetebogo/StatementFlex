@@ -1,12 +1,12 @@
+import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
-import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
-import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
@@ -167,7 +167,7 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
     }
 
-    //TODO: remove comment when enpoint is avail
+    // TODO: remove comment when enpoint is avail
     async _approveDebiCheckMandate(event) {
         //Hasn't been promoted to dev yet...'
         //const request = {

@@ -10,7 +10,7 @@ const FILTER_BY = {
 };
 
 const MANDATE_STATUS = {
-    //ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
+    // ACTIVE, INACTIVE, SUSPENDED, PENDING, ALL
 	ACTIVE: `Accepted`,
 	INACTIVE: `Expired`,
 	PENDING: `Pending`,
@@ -538,7 +538,7 @@ export class DebiCheckMandates extends Component {
 	}
 
 	_renderButtons(status, rowData) {
-        return status == 'PENDING'
+        return status === `PENDING`
             ? html`<capitec-label type="subtitle"
 									label="Decline"
 									style="${TABLE_ROW_CELL_CSS.cellButton}"
