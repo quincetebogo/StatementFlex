@@ -76,11 +76,11 @@ export class TaxCertificate extends Component {
 		this._telemetry = HorizonTelemetry.instance;
 		
 		this.availableCert = {
-			taxableSavings : [
-				{year : `2014`, status: `Available`},
-				{year : `2015`, status: `Available`},
-				{year : `2016`, status: `Available`},
-				{year : `2017`, status: `Unavailable`}
+			taxableSavings: [
+				{ year: `2014`, status: `Available` },
+				{ year: `2015`, status: `Available` },
+				{ year: `2016`, status: `Available` },
+				{ year: `2017`, status: `Unavailable` }
 				],
 			taxFree: [
 				{ year: `2018`, status: `Available` },
@@ -157,7 +157,7 @@ export class TaxCertificate extends Component {
 
 	_certChange(e) {
 		if (e.detail.new) {
-			this.alertBannerMessage = '';
+			this.alertBannerMessage = ``;
 			this.selectedCertType = e.target.id;
 		}
 	}
@@ -234,7 +234,7 @@ export class TaxCertificate extends Component {
 
 	_nextClick() {
 		if (isNullorEmpty(this.selectedCertType)) {
-			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE ;
+			this.alertBannerMessage = ERROR_MESSAGE.CERT_TYPE;
 			return false;
 		} 
 
@@ -249,13 +249,13 @@ export class TaxCertificate extends Component {
 			"next-screen": null,
 
 			"certificate-type": this.selectedCertType,
-			//TODO: Add selected certificate types when CS is implemented
+			// TODO: Add selected certificate types when CS is implemented
 			"selected-documents": [
-				{"document-type": null,
-				"certificate-period": null},
-				{"document-type": null,
-				"certificate-period": null}
-			]	
+				{ "document-type": null,
+				"certificate-period": null },
+				{ "document-type": null,
+				"certificate-period": null }
+			]
 		});
 
 		this.currentStep++;
@@ -263,7 +263,7 @@ export class TaxCertificate extends Component {
 
 	_onValueChange(e, checkBoxDetails, certType) {
 		if (e.detail.new) {
-			this.alertBannerMessage = '';
+			this.alertBannerMessage = ``;
 			this.selectedCertificates[certType].push(checkBoxDetails);
 		} else {
 			this.selectedCertificates[certType].splice(this.selectedCertificates[certType].indexOf(checkBoxDetails), 1);
@@ -763,7 +763,7 @@ export class TaxCertificate extends Component {
 	}
 
 	_renderChoosePeriod(certificateType) {
-		if (this.selectedCertType && this.currentStep === 0 ) {
+		if (this.selectedCertType && this.currentStep === 0) {
 			return html`
 				<capitec-label
 					data-automation-id="tax-certificate-header-type"
@@ -777,7 +777,7 @@ export class TaxCertificate extends Component {
 		}
 	}
 
-	_renderCertificateYears(item,certType) {
+	_renderCertificateYears(item, certType) {
 		return html`
 			<horizon-expander
 				id="tax-expander"

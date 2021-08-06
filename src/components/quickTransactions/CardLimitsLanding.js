@@ -297,7 +297,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
+				cardCategory: cardDetails.isVirtualCard ? `virtual` : this._updateType,
 				limitExpiryDate: this._calculateLimitExpiry(),
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
@@ -306,7 +306,7 @@ export class CardLimitsLanding extends Component {
 				istapToPayUnChanged: event.detail.istapToPayUnChanged,
 				cardMaskedNumber: cardDetails.maskedCardNumber,
 				limitType: this._limitType,
-				cardCategory:cardDetails.isVirtualCard ? `virtual`: this._updateType,
+				cardCategory: cardDetails.isVirtualCard ? `virtual` : this._updateType,
 				tapToPayStatus: request.tapToPayStatusChange
 			}, null);
 		}
@@ -653,7 +653,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -679,7 +679,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -705,7 +705,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -726,14 +726,14 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderHeaderLabel(headers, index, expanderSubtitle) {
-		return index == 0 ? html`
+		return index === 0 ? html`
 			<horizon-label class="header-col1" label=${headers} value="${expanderSubtitle[index]}">
 			</horizon-label>
 			<div class="vertical-line"></div>
 		` : html`
 			<horizon-label label=${headers} value="${expanderSubtitle[index]}">
 			</horizon-label>
-		` ;
+		`;
 	}
 
 	_renderHeaders() {
@@ -808,7 +808,7 @@ export class CardLimitsLanding extends Component {
 		`;
 	}
 
-	_renderPermanentLimitsRow(card, updateType) {	
+	_renderPermanentLimitsRow(card, updateType) {
         const limits = card && card.cardLimits;
         const linkedLimits = card.linkedCardLimits;
 		
@@ -822,7 +822,7 @@ export class CardLimitsLanding extends Component {
 					<bb-multi-line-label
 						class="col2"
 						row="1" column="2" colspan="1" size="4" rowspan="1"
-						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCashAmountLimit : limits.permanentCashAmountLimit , card, `permCashLimit`)}"
+						label="${this._getLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.permanentCashAmountLimit : limits.permanentCashAmountLimit, card, `permCashLimit`)}"
 						value="${this._getMaxLimitValue(linkedLimits && updateType === `Debit` ? linkedLimits.maxPermanentCashAmountLimit : limits.maxPermanentCashAmountLimit, card, `permCashLimit`)}">
 					</bb-multi-line-label>
 					<bb-multi-line-label
@@ -879,7 +879,7 @@ export class CardLimitsLanding extends Component {
 						</bb-multi-line-label>
 						${this._renderUpdateButton(LIMIT_TYPES.TEMPORARY, card)}
 				</capitec-group>`
-			: html ``;
+			: html``;
 	}
 
 	_getLimitValue(value, card, id) {
@@ -903,7 +903,7 @@ export class CardLimitsLanding extends Component {
 			return ``;
 		}
 
-		return `max ` + formatCurrency(value, 0);
+		return `max ${formatCurrency(value, 0)}`;
 	}
 
 	_renderUpdateButton(type, card) {
