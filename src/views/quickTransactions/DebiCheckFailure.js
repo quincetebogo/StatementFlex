@@ -119,7 +119,7 @@ export class DebiCheckFailure extends ViewBase {
 				@left-click=${() => this._doneClick()}
 				@right-click=${() => this._assignClick()}>
 				<section id="id-error-msg" slot="detail">
-					DebiCheck mandate for <b>DISCLIFE 5130111776-21</b> was not approved.
+					DebiCheck mandate for <b>${this.mandateId}</b> was not approved.
 				</section>
 			</horizon-error-screen>
 		`;
