@@ -179,7 +179,7 @@ export class ProfileAndProductSummaryBar extends Component {
 	_favouritesClicked() {
 		this.product = ``;
 		this._telemetry.logEvent(LandingPageEvents.PRODUCT_BUTTON_FAVOURITES, {});
-
+		
 		this.horizonRouter.navigateToLandingPage(`Transact`, this.callerInformation.hasInsuranceProducts);
 	}
 
@@ -228,18 +228,17 @@ export class ProfileAndProductSummaryBar extends Component {
 		</section>`;
 	}
 
+
 	_renderFavourites() {
-		if (this.hasFavourites) {
 			return html`
 				<horizon-favourites-tile
+					data-automation-id="profile-and-product-summary-bar-favourites"
 					class="favourites-button"
 					label="Favourites"
 					subtitle="Transact, dispute, cards and more"
 					@click="${() => this._favouritesClicked()}"
 					?selected=${this.activePageTitle === `Favourites`}>
 				</horizon-favourites-tile>`;
-		};
-		return html``;
 	}
 }
 

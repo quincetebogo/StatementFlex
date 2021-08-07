@@ -1,10 +1,10 @@
 import { Component, css, html } from 'platform/elements';
 import { stringify } from 'uuid';
 
-//import '/platform/core/Label';
-//import '../core/Icon';
-//import '../layouts/Group';
-//import '../layers/ContentBox';
+// import '/platform/core/Label';
+// import '../core/Icon';
+// import '../layouts/Group';
+// import '../layers/ContentBox';
 
 /**
  * A layout component that groups together content in an expanded box such as Client Insights, access information etc.
@@ -58,7 +58,7 @@ export class Expander extends Component {
         this.wrap = false;
         this.headers = [];
         this.subtitles = [];
-        this.color = "#E61414";
+        this.color = `#E61414`;
     }
 
     // ----------
@@ -101,7 +101,7 @@ export class Expander extends Component {
             wrap: { type: Boolean },
             headers: { type: Array },
             subtitles: { type: Array },
-            color: {type: String}
+            color: { type: String }
         };
     }
 
@@ -300,11 +300,12 @@ export class Expander extends Component {
 
 				:host > .header {
 					width: var(--theme-expander-header-width, 100%);
-					border-top: var(--theme-expander-border, 1px solid black);
+					//border-top: var(--theme-expander-border, 1px solid black);
 					cursor: pointer;
                     padding: 0px;
-                    border-radius:4px 4px 0px 4px;
-                    border-right: 1px solid #E1E1E1;
+                    border-radius: 4px;
+                    //border-right: 1px solid #E1E1E1;
+					border: 1px solid #E1E1E1;
 				}
 
 				:host(*.styled) > .header {
@@ -367,7 +368,7 @@ export class Expander extends Component {
 				:host > .content {
 					//border-left: var(--theme-expander-border, 1px solid black);
 					//border-right: var(--theme-expander-border, 1px solid black);
-					border-top: var(--theme-expander-border, 1px solid black);
+					//border-top: var(--theme-expander-border, 1px solid black);
 					align-content: flex-start;
 				}
 
@@ -524,14 +525,14 @@ export class Expander extends Component {
     }
 
     _renderHeaders(headers, index) {
-        return index == 0 ? html`
+        return index === 0 ? html`
             <horizon-label class="header-col1" label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
             <div class="vertical-line"></div>
         ` : html`
             <horizon-label label=${headers} value="${this.subtitles[index]}">
             </horizon-label>
-        ` ;
+        `;
     }
 
 	/**

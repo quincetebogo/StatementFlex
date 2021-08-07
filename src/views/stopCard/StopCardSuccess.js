@@ -98,21 +98,7 @@ export class StopCardSuccess extends ViewBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-		const confirmedCaller = {
-			idNumber: this.callerInformation.southAfricanIDNumber,
-			incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-			voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-			ivrOptionCode: `StopCard`,
-			incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-			incidentRecId: this.incidentDetails.incidentRecId,
-			agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-			nonClientFullName: this.callerInformation.nonClientFullName,
-			nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-			nonClientIDNumber: this.callerInformation.nonClientIDNumber,
-			nonClientRelationship: this.callerInformation.nonClientRelationship
-		};
-
-		const returnValue = await this.cardService.identifyCaller(confirmedCaller, (ex) => this._stopCardErrorHandler());
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails, (ex) => this._stopCardErrorHandler());
 
 		if (returnValue.succeeded) {
 			const screenDetails = this.horizonStore.getScreenDetails();
@@ -283,8 +269,11 @@ export class StopCardSuccess extends ViewBase {
 	_renderNotifyClient() {
 		// For some reason ?hidden boolean attribute does not want to work on the div 
 		return html`
-			<capitec-alert-banner type="info" style="visibility:${!this.displayNotification ? `visible` : `visible`}">
-			<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
+			<capitec-alert-banner 
+				data-automation-id="stop-card-success-notify-client"
+				type="info" 
+				style="visibility:${!this.displayNotification ? `visible` : `visible`}">
+					<span class="bold-text">Notice:</span> Please check if the client also needs to stop the remote banking app channels (App/USSD)
 			</capitec-alert-banner>`;
 	}
 
@@ -294,7 +283,11 @@ export class StopCardSuccess extends ViewBase {
 
 	_renderStoppedCards() {
 		return html`
-			<capitec-group layout="vertical" halign="center" valign="center" gap="clear">
+			<capitec-group 
+				data-automation-id="stop-card-success-stopped-cards"
+				layout="vertical" 
+				halign="center" 
+				valign="center" gap="clear">
 				${this.stoppedCards.map((card) => this._renderSuccessStatus(card))}
 			</capitec-group>
 		`;
@@ -304,11 +297,13 @@ export class StopCardSuccess extends ViewBase {
 		return html`
 			<capitec-group id="id-button-group" layout="horizontal">
 				<capitec-button
+					data-automation-id="stop-card-success-done"
 					class="button"
 					label="Done"
 					@click="${() => this._doneClick()}">
 				</capitec-button>
 				<capitec-button
+					data-automation-id="stop-card-success-return"
 					class="button"
 					type="primary"
 					label="Return to Stop Card"
@@ -324,7 +319,9 @@ export class StopCardSuccess extends ViewBase {
 					size="medium"
 					icon="status/success-trans">
 				</capitec-icon>
-				<p class="card-status-text">
+				<p 
+					data-automation-id="stop-card-success-msg-success"
+					class="card-status-text">
 					${card.cardDisplayName.split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)} <b>${card.maskedCardNumber}</b> was stopped successfully
 				</p>
 			</div>
@@ -334,6 +331,7 @@ export class StopCardSuccess extends ViewBase {
 	_renderRelatedOptions() {
 		return html`
 			<horizon-related-options
+				data-automation-id="stop-card-success-related-options"
 				context = "Success"
 				@verify-now-alert="${(event) => this._relatedOptionSelected(event)}">
 			</horizon-related-options>
@@ -344,6 +342,7 @@ export class StopCardSuccess extends ViewBase {
 		if (!this.displayNotification) {
 			return html`
 				<capitec-toast 
+					data-automation-id="stop-card-success-related-toast"
 					class="success-toast" 
 					type="success" 
 					header="Successfull" 
@@ -360,6 +359,7 @@ export class StopCardSuccess extends ViewBase {
 		return this.showAlertModal
 			? html`
 				<horizon-client-not-verified
+					data-automation-id="stop-card-success-not-verified-dialog"
 					@cancel="${() => this._onCancel()}"
 					@verify-now="${() => super._verifyClick()}">
 				</horizon-client-not-verified>`

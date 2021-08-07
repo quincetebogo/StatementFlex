@@ -446,7 +446,10 @@ export class StopCard extends Component {
 					height: 48px;
 					margin: 16px 16px 16px 16px;
 				}
-				`
+				img {
+					cursor: pointer;
+				}
+			`
 		];
 	}
 
@@ -476,14 +479,17 @@ export class StopCard extends Component {
         return html`
 			<capitec-title-bar 
 					type="clear" 
-                                        row="1" 
-                                        column="1">
-				<img src="/images/insure/blue-left-arrow.svg" @click="${() => this._back()}"/>
-				<capitec-label 
-					label="Stop Card(s)"
-					type="title">
-				</capitec-label>
-                    </capitec-title-bar>`;
+					row="1" 
+					column="1">
+						<img 
+							data-automation-id="stop-card-back"
+							src="/images/insure/blue-left-arrow.svg" 
+							@click="${() => this._back()}"/>
+						<capitec-label 
+							label="Stop Card(s)"
+							type="title">
+						</capitec-label>
+			</capitec-title-bar>`;
 	}
 
 	_renderNotifyClient() {
@@ -495,34 +501,42 @@ export class StopCard extends Component {
 
 	_renderCardDetails() {
 		return html`
-				<capitec-table .items="${this.cards}" row="3" column="1" align="left"  groupField="cardType" .dataHandler="${(renderSet) => this._customGroupByHandler(renderSet)}">
-					<capitec-table-column label="" 
-                                          field="" 
-                                          type="text" 
-                                          size="1064px;"
-						                  .renderer="${(rowData) => this._renderRowData(rowData)}" 
-                                          .headerRenderer="${() => this._headerRenderer()}">
-					</capitec-table-column>
-				</capitec-table>
-				`;
+			<capitec-table 
+					.items="${this.cards}" 
+					row="3" column="1" 
+					align="left"
+					groupField="cardType"
+					.dataHandler="${(renderSet) => this._customGroupByHandler(renderSet)}">
+				<capitec-table-column
+					label="" 
+					field="" 
+					type="text" 
+					size="1064px;"
+					.renderer="${(rowData) => this._renderRowData(rowData)}" 
+					.headerRenderer="${() => this._headerRenderer()}">
+				</capitec-table-column>
+			</capitec-table>
+			`;
 
 	}
 
 	_headerRenderer() {
-        return html`<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="${TABLE_STYLE.CELL_HEIGHT}">
-						<div row="1" column="2" style="${TABLE_STYLE.HEADER_CELL}">
-							<capitec-label label="Card Type"
-										   style="${TABLE_STYLE.CELL_HEIGHT}"
-										   type="subtitle">
-							</capitec-label>
-						</div>
-						<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
-							<capitec-label label="Card Number"
-										   style="${TABLE_STYLE.CELL_HEIGHT}"
-										   type="subtitle">
-							</capitec-label>
-						</div>
-					</capitec-group>`;
+		return html`
+			<capitec-group layout="grid" rows="auto" columns="uniform" gap="none" style="${TABLE_STYLE.CELL_HEIGHT}">
+				<div row="1" column="2" style="${TABLE_STYLE.HEADER_CELL}">
+					<capitec-label 
+						label="Card Type"
+						style="${TABLE_STYLE.CELL_HEIGHT}"
+						type="subtitle">
+					</capitec-label>
+				</div>
+				<div row="1" column="3" style="${TABLE_STYLE.HEADER_CELL}">
+					<capitec-label label="Card Number"
+						style="${TABLE_STYLE.CELL_HEIGHT}"
+						type="subtitle">
+					</capitec-label>
+				</div>
+			</capitec-group>`;
 	}
 
 	/**
@@ -537,12 +551,14 @@ export class StopCard extends Component {
 				${this._renderRowInput(rowData)}
 				<div row="1" column="2" style="${TABLE_STYLE.BODY_CELL}">
 					<capitec-label 
+						data-automation-id="stop-card-type"
 						label="${rowData[COLUMNS.CARDTYPE].split(`_`).map(w => w[0].toUpperCase() + w.substr(1).toLowerCase()).join(` `)}"
 						style="${TABLE_STYLE.CELL_HEIGHT}">
 					</capitec-label>
 				</div>
 				<div row="1" column="3" style="${TABLE_STYLE.BODY_CELL}">
 					<capitec-label 
+						data-automation-id="stop-card-number"
 						label="${rowData[COLUMNS.CARDNUMBER]}"
 						style="${TABLE_STYLE.CELL_HEIGHT}">
 					</capitec-label>
@@ -554,14 +570,15 @@ export class StopCard extends Component {
 	_renderRowInput(rowData) {
 		return html`
 			<div 
-                row="1" 
-                 column="1" 
-                 style="width: 35px; height: 22px;">
-				    <capitec-check 
-                        label="" 
-                        style="--theme-check-width: 21px; --theme-check-height: 21px;"
-					    @value-changed="${(e) => this._valueChanged(e, rowData)}">
-				    </capitec-check>
+					row="1" 
+					column="1" 
+					style="width: 35px; height: 22px;">
+				<capitec-check 
+					data-automation-id="stop-card-select"
+					label="" 
+					style="--theme-check-width: 21px; --theme-check-height: 21px;"
+					@value-changed="${(e) => this._valueChanged(e, rowData)}">
+				</capitec-check>
 			</div>`;
 	}
 
@@ -573,21 +590,25 @@ export class StopCard extends Component {
                                        style="line-height: 21px; width: 102px;">
 						</capitec-label>
 						<capitec-button type="clear" label="Card Damaged"
+										data-automation-id="stop-card-damaged"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS[DAMAGED]}"
 							            @click="${(e) => this._onClickReason(STOPREASONS[DAMAGED], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Lost"
+										data-automation-id="stop-card-lost"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS[LOST]}"
 							            @click="${(e) => this._onClickReason(STOPREASONS[LOST], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Card Stolen"
+										data-automation-id="stop-card-stolen"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS[STOLEN]}"
 							            @click="${(e) => this._onClickReason(STOPREASONS[STOLEN], rowData)}">
 						</capitec-button>
 						<capitec-button type="clear" label="Suspected Fraud"
+										data-automation-id="stop-card-fraud"
 										style="${TABLE_STYLE.REASON_BUTTONS}"
 							            .disabled="${rowData.cardStopReason === STOPREASONS[SUSPECTED_FRAUD]}"
 							            @click="${(e) => this._onClickReason(STOPREASONS[SUSPECTED_FRAUD], rowData)}">
@@ -614,10 +635,15 @@ export class StopCard extends Component {
 		if (this.selectedCardCount > 0) {
 			return html`
 				<button-bar row="4" column="1">
-					<capitec-label label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle"></capitec-label>
-					<capitec-button label="Stop Card(s)"
-                                        type="primary"
-                                        @click="${() => this._onStopCards()}">
+					<capitec-label 
+						data-automation-id="stop-card-selected-card-count"
+						label="${this.selectedCardCount.toString()} card(s) selected" type="subtitle">
+					</capitec-label>
+					<capitec-button 
+						data-automation-id="stop-card-stop-cards"
+						label="Stop Card(s)"
+						type="primary"
+						@click="${() => this._onStopCards()}">
 					</capitec-button>
 				</button-bar>`;
 		}

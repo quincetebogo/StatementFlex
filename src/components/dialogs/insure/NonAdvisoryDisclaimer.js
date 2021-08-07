@@ -146,7 +146,7 @@ export class NonAdvisoryDisclaimer extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-modal 
+			<capitec-modal
 				type="free" 
 				header-align="left">
 				<div slot="header">

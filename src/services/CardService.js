@@ -25,13 +25,23 @@ export class CardService extends ServiceBase {
 	// PUBLIC METHODS
 	// --------------
 
-	identifyCaller(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	identifyCaller(callerInformation, incomingCallDetails, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		const callerData = {
+			idNumber: callerInformation.southAfricanIDNumber,
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			ivrOptionCode: `StopCard`,
+			incidentReferenceNumber: incidentDetails.incidentReferenceNumber,
+			incidentRecId: incidentDetails.incidentRecId,
+			agentTelephoneNumber: incomingCallDetails.agentTelephoneNumber,
+			nonClientFullName: callerInformation.nonClientFullName,
+			nonClientCellPhone: callerInformation.nonClientCellPhone,
+			nonClientIDNumber: ``,
+			nonClientRelationship: callerInformation.nonClientRelationship
+		};
+
 		return this.wrapCall(this.channelService.identifyCaller(callerData), `identifyCaller`, errorHandler, autoRetries);
 	};
-
-	addCallerDetails(callerData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
-		return this.wrapCall(this.channelService.addCallerDetails(callerData), `addCallerDetails`, errorHandler, autoRetries);
-	}
 
 	async stopCards(cardsToStop, callerInfo, incidentDetails, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);

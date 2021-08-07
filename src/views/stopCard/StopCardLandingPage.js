@@ -1,7 +1,6 @@
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
-import { TelemetryStore } from 'app/store/TelemetryStore';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { html } from 'platform/elements';
 
@@ -111,6 +110,7 @@ export class StopCardLandingPage extends ViewBase {
 	_renderStopCardComponent() {
 		return html`
 			<horizon-stop-card
+				data-automation-id="stop-card-landing-page"
 				.cards="${this.cards || []}"
 				.incomingCallDetails="${this.incomingCallDetails}"
 				@cards-stopped="${(event) => this._stoppedCards(event)}">

@@ -170,7 +170,6 @@ export class Favourites extends SavingsAccountBase {
 			incidentDetails.feedback = selectedOption.key;
 
 			this.horizonStore.setIncidentDetails(incidentDetails);
-
 			this._searchOtherNeedDone();
 		} else {
 			this.alertBannerMessage = ERROR_LIST.SYSTEM_ERROR;
@@ -412,38 +411,22 @@ export class Favourites extends SavingsAccountBase {
 			"next-screen": TelemetryScreen.STOP_CARD
 		});
 
-        const confirmedCaller = {
-            idNumber: this.callerInformation.southAfricanIDNumber,
-            incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-            voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-            ivrOptionCode: `StopCard`,
-            incidentReferenceNumber: this.incidentDetails.incidentReferenceNumber,
-            incidentRecId: this.incidentDetails.incidentRecId,
-            agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-            nonClientFullName: this.callerInformation.nonClientFullName,
-            nonClientCellPhone: this.callerInformation.nonClientCellPhone,
-            nonClientIDNumber: this.callerInformation.nonClientIDNumber,
-            nonClientRelationship: this.callerInformation.nonClientRelationship
-        };
+		const returnValue = await this.cardService.identifyCaller(this.callerInformation, this.incomingCallDetails, this.incidentDetails);
 
-        const returnValue = await this.cardService.identifyCaller(confirmedCaller);
-
-        if (returnValue.succeeded) {
-            this.incomingCallDetails.ivrOptionCode = `StopCard`;
-            this.incomingCallDetails.ivrOption.value = `StopCard`;
+		if (returnValue.succeeded) {
 
 			const screenDetails = this.horizonStore.getScreenDetails();
 			screenDetails.cards = returnValue.result && returnValue.result.cards;
 			this.horizonStore.setScreenDetails(screenDetails);
 
-            this.horizonStore.setCallerInformation(this.callerInformation);
-            this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
+			this.horizonStore.setCallerInformation(this.callerInformation);
+			this.horizonStore.setIncomingCallDetails(this.incomingCallDetails);
 
-            this.horizonRouter.navigateToStopCard();
-        } else {
-            this.horizonRouter.navigateToSystemError();
-        }
-    }
+			this.horizonRouter.navigateToStopCard();
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
 
 	async _updateCardLimits() {
 		this._telemetry.logEvent(QuickTransactionEvents.FAVOURITES_UPDATE_CARD_LIMITS, {
