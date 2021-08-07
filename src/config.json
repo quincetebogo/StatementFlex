@@ -14,7 +14,7 @@
 		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
 	"VDN": "7253",
-	"LogRequestResponseModels": true,
+	"LogRequestResponseModels": false,
 	"ivrMapping": [
 		{
 			"option": "7251",
@@ -78,6 +78,14 @@
 			"positiveCase": true
 		},
 		"cardLimitsLanding": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getTemporaryLimits": {
+			"enabled": false,
+			"positiveCase": true
+		},
+		"getCardLimitsAgreement": {
 			"enabled": false,
 			"positiveCase": true
 		},
