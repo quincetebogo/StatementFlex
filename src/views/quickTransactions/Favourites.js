@@ -293,7 +293,7 @@ export class Favourites extends SavingsAccountBase {
 		agreementRequest.cardDetails.tempCnpAmountLimit *= 100;
 
 		const returnValue = await this.quickTransactionService.getCardLimitsAgreement(agreementRequest, () => this._createIncidentOnError());
-
+		
 		if (returnValue.succeeded) {
 			return returnValue.result;
 		}
