@@ -332,6 +332,7 @@ export class HorizonChannelService extends Service {
 		if (await this._mockEnabled(`cardLimitsLanding`)) {
 			return this._mock.cardLimitsLanding(cifNumber);
 		}
+
 		const url = `/clientcare-card-${this._version}/limits-landing?` +
 					`cifNumber=${cifNumber}&` +
 					`incidentRecId=${incidentRecId}`;
@@ -346,7 +347,11 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `getCardLimits`);
 	}
 
-	getCardLimitsAgreement(cardDetails) {
+	async getCardLimitsAgreement(cardDetails) {
+		if (await this._mockEnabled(`getCardLimitsAgreement`)) {
+			return this._mock.getCardLimitsAgreement(cardDetails);
+		}
+
 		return this._post(`/clientcare-card-${this._version}/limits-agreement`, cardDetails, this._setToken(), `getCardLimitsAgreement`);
 	}
 
@@ -368,7 +373,12 @@ export class HorizonChannelService extends Service {
 		return this._post(url, request, this._setToken(), `getPermanentLimits`);
 	}
 
-	getTemporaryLimits(request) {
+	async getTemporaryLimits(request) {
+
+		if (await this._mockEnabled(`getTemporaryLimits`)) {
+			return this._mock.getTemporaryLimits(request);
+		}
+
 		const url = `/clientcare-card-${this._version}/temporary-limits`;
 
 		return this._post(url, request, this._setToken(), `getTemporaryLimits`);
