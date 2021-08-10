@@ -669,7 +669,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -695,7 +695,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -721,7 +721,7 @@ export class CardLimitsLanding extends Component {
 		
 		return this.expanderSubtitle.map((sub, index) => html`
 			<horizon-expander
-				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? "border-debit" : "border-credit"}"
+				class="${this.expanderHeaders[index][0] === `Debit MasterCard` ? `border-debit` : `border-credit`}"
 				expandButtonAlignment="right"
 				.expanded="${true}">
 				${this._renderExpanderHeader(this.expanderHeaders[index], sub)}
@@ -742,14 +742,14 @@ export class CardLimitsLanding extends Component {
 	}
 
 	_renderHeaderLabel(headers, index, expanderSubtitle) {
-		return index == 0 ? html`
+		return index === 0 ? html`
 			<horizon-label class="header-col1" label=${headers} value="${expanderSubtitle[index]}">
 			</horizon-label>
 			<div class="vertical-line"></div>
 		` : html`
 			<horizon-label label=${headers} value="${expanderSubtitle[index]}">
 			</horizon-label>
-		` ;
+		`;
 	}
 
 	_renderHeaders() {
