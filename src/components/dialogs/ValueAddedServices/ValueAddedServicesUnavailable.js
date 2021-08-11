@@ -1,7 +1,7 @@
 import { Component, css, html } from 'platform/elements';
-import { AccessMenuBarEvents } from 'app/constants/Telemetry/Events/AccessMenuBar';
+import { AccessMenuBarEvents } from 'app/constants/telemetry/events/AccessMenuBar';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 /**
  * The Horizon Value Added Services Unavailable dialog is used to display the
