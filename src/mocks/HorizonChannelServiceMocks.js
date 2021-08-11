@@ -43,6 +43,8 @@ export class HorizonChannelServiceMocks {
 		this.callMocks = await this._loadMockModule(this.callMocks, `acceptCall`, () => import(`../mocks/CallMocks`).catch(err => logError(err)));
 		this.favouritesMocks = await this._loadMockModule(this.favouritesMocks, `favouritesLanding`, () => import(`../mocks/QuickTransactionMocks`).catch(err => logError(err)));
 		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `cardLimitsLanding`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getTemporaryLimits`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
+		this.cardLimitsMocks = await this._loadMockModule(this.cardLimitsMocks, `getCardLimitsAgreement`, () => import(`../mocks/CardLimitsMock`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckMandates`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.mandatesMocks = await this._loadMockModule(this.mandatesMocks, `debiCheckDetails`, () => import(`../mocks/DebiCheckMockData`).catch(err => logError(err)));
 		this.securityQuestionMocks = await this._loadMockModule(this.securityQuestionMocks, `xdsQuestions`, () => import(`../mocks/SecurityQuestions`).catch(err => logError(err)));
@@ -99,7 +101,25 @@ export class HorizonChannelServiceMocks {
 
 	cardLimitsLanding() {
 		if (this._mocking.cardLimitsLanding.positiveCase) {
-			return this.cardLimitsMocks;
+			return this.cardLimitsMocks.limitsLandingResponse;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	getTemporaryLimits() {
+		if (this._mocking.getTemporaryLimits.positiveCase) {
+			return this.cardLimitsMocks.temporaryLimitsResponse;
+		}
+
+		// Code for a negative case could come here
+		return null;
+	}
+
+	getCardLimitsAgreement() {
+		if (this._mocking.getCardLimitsAgreement.positiveCase) {
+			return this.cardLimitsMocks.limitsAgreementResponse;
 		}
 
 		// Code for a negative case could come here

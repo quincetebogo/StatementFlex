@@ -230,24 +230,13 @@ export class EndCallSession extends Component {
 			// Don't close the incident if it has been reassigned or handed off
 			return true; 
 		} else if (incidentDetails.needStatus === super.HORIZON_NEED_STATUS.CLOSED) {
-			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} already marked a closed. No further close action required.`);
+			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} already marked as closed. No further close action required.`);
 			// Incident might be closed for search other need, no need to close again
 			return true;
 		}
 		if (this.endCallReason.key === END_CALL_REASON.FOLLOW_UP) {
 			this.logger.log(`warn`, `Incident ${this.incidentRefNumber} requires follow up. The call will be ended without closing the incident.`);
 			// Don't close the incident if it requires follow up
-			return true;
-		}
-		// Don't close the incident the incident if
-		//    - StopCard was the need and
-		//    - the call was probably dropped before attempting to stop cards
-		// OR
-		//   - StopCard was the need and
-		//   - an attempt to stop cards was made
-		//   - and Need Incomplete was selected as the end call reason
-		if (this.incomingCallDetails.ivrOptionCode === `StopCard` && (!this.cardStopAttemptMade || (this.endCallReason && (this.endCallReason.key === END_CALL_REASON.NEED_ASSIGNED || this.endCallReason.key === END_CALL_REASON.NEED_HANDED_OFF)))) {
-			this.logger.log(`warn`, `Incident ${this.incidentRefNumber}: A Stop Card Call may have been dropped before attempting to stop a card. The incident will be left open.`);
 			return true;
 		}
 
@@ -362,16 +351,7 @@ export class EndCallSession extends Component {
 				return;
 			}
 
-			const options = {
-				clientNeed: null,
-				endCallReason: this.endCallReason,
-				causeCodeByContext: this.endCallCauseCode.getCauseCode(this.endCallContext, this.incomingCallDetails.ivrOptionCode, this.endCallReason.value)
-			};
-
-			await super.closeIncident(options, () => this._toggleBusyFlag());
-
-			// Return the the call waiting landing page even if an error occured
-			this._returnToCallWaitingPage();
+			await this._classifyAndClose();
 		} else {
 			this.alertBannerMessage = ERROR_MESSAGE;
 		}
