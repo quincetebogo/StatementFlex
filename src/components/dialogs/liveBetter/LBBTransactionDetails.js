@@ -155,7 +155,7 @@ export class LinkedTransactionDetails extends Component {
 		return html`
 			<capitec-modal 
 				type="free" 
-				data-automation-id="">
+				data-automation-id="linked-transaction-details">
 					<div slot="header">
 						<capitec-group class="header-gradient">
 							<capitec-label label="Transaction Details"></capitec-label>
@@ -173,29 +173,93 @@ export class LinkedTransactionDetails extends Component {
 
 	_renderDetails() {
 		return html`
-		<capitec-group class="details-vertical" layout="vertical" gap="none" halign="left" valign="top">
-			<capitec-group layout="horizontal" gap="none" halign="left" valign="top">
-				<horizon-label class="col-1" label="Category" value="${this.transactionDetails.category}"></horizon-label>
-			</capitec-group>
+		<capitec-group 
+			class="details-vertical" 
+			layout="vertical" 
+			gap="none" 
+			halign="left" 
+			valign="top">
+				<capitec-group 
+					layout="horizontal" 
+					gap="none" 
+					halign="left" 
+					valign="top">
+						<horizon-label 
+							data-automation-id="linked-transaction-details-category"
+							class="col-1" 
+							label="Category" 
+							value="${this.transactionDetails.category}">
+						</horizon-label>
+				</capitec-group>
 
-			<capitec-group class="details-horizontal" layout="horizontal" gap="none" halign="left" valign="center">
-				<horizon-label class="col-1" label="Transaction type" value="${this.transactionDetails.transactionType}"></horizon-label>	
-				<horizon-label class="col-2" label="Amount" value="${this.transactionDetails.amount}"></horizon-label>
-				<horizon-label label="From account" value="${this.transactionDetails.fromAccount}"></horizon-label>			
-			</capitec-group>
+				<capitec-group 
+					class="details-horizontal" 
+					layout="horizontal"
+					gap="none" 
+					halign="left" 
+					valign="center">
+						<horizon-label 
+							data-automation-id="linked-transaction-details-transaction-type"
+							class="col-1" 
+							label="Transaction type" 
+							value="${this.transactionDetails.transactionType}">
+						</horizon-label>	
+						<horizon-label 
+							data-automation-id="linked-transaction-details-amount"
+							class="col-2" 
+							label="Amount" 
+							value="${this.transactionDetails.amount}">
+						</horizon-label>
+						<horizon-label 
+							data-automation-id="linked-transaction-details-from-account"
+							label="From account" 
+							value="${this.transactionDetails.fromAccount}">
+						</horizon-label>			
+				</capitec-group>
 
-			<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-				<horizon-label class="col-1" label="Transaction date" value="${this.transactionDetails.transactionDate}"></horizon-label>
-				<horizon-label class="col-2" label="Posting date" value="${this.transactionDetails.postingDate}"></horizon-label>
-			</capitec-group>
+				<capitec-group 
+					layout="horizontal" 
+					gap="none" 
+					halign="left" 
+					valign="center">
+						<horizon-label 
+							data-automation-id="linked-transaction-details-transaction-date"
+							class="col-1" 
+							label="Transaction date" 
+							value="${this.transactionDetails.transactionDate}">
+						</horizon-label>
+						<horizon-label 
+							data-automation-id="linked-transaction-details-posting-date"
+							class="col-2" 
+							label="Posting date" 
+							value="${this.transactionDetails.postingDate}">
+						</horizon-label>
+				</capitec-group>
 
-			<capitec-group class="details-horizontal" layout="horizontal" gap="none" halign="left" valign="center">
-				<horizon-label label="Description" value="${this.transactionDetails.description}"></horizon-label>
-			</capitec-group>
+				<capitec-group 
+					class="details-horizontal" 
+					layout="horizontal" 
+					gap="none" 
+					halign="left" 
+					valign="center">
+						<horizon-label 
+							data-automation-id="linked-transaction-details-description"
+							label="Description" 
+							value="${this.transactionDetails.description}">
+						</horizon-label>
+				</capitec-group>
 
-			<capitec-group layout="horizontal" gap="none" halign="left" valign="center">
-				<horizon-label label="Long description" value="${this.transactionDetails.longDescription}"></horizon-label>
-			</capitec-group>
+				<capitec-group 
+					layout="horizontal" 
+					gap="none" 
+					halign="left" 
+					valign="center">
+						<horizon-label 
+							data-automation-id="linked-transaction-details-long-description"
+							label="Long description" 
+							value="${this.transactionDetails.longDescription}">
+						</horizon-label>
+				</capitec-group>
 		</capitec-group>
 		`;
 	}
@@ -204,6 +268,7 @@ export class LinkedTransactionDetails extends Component {
 		return html`
 			<capitec-group layout="horizontal" valign="bottom" halign="right">
 				<capitec-button  
+						data-automation-id="linked-transaction-details-close"
 						type="primary" 
 						label="Close" 
 						@click="${() => this._onCloseClick()}">
