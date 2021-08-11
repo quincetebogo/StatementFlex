@@ -10,7 +10,7 @@ import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
-import 'app/components/Common/HorizonEmailInput';
+import 'app/components/common/HorizonEmailInput';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
