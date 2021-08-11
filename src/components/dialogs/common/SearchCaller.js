@@ -16,113 +16,113 @@ import 'app/components/dialogs/common/EndCallSession';
 
 
 const RENDER_MODE = Object.freeze({
-    SEARCH_CALLER: 0,
-    END_CALL: 1
+	SEARCH_CALLER: 0,
+	END_CALL: 1
 });
 
 const CLIENT_TYPE = Object.freeze({
-    CAPITEC_CLIENT: 0,
-    NON_CLIENT: 1,
-    BRANCH: 2
+	CAPITEC_CLIENT: 0,
+	NON_CLIENT: 1,
+	BRANCH: 2
 });
 
 // ToDO: Below const need to be removed, once channelService fix the issue on contract.
 // These error messages has to come from service
 const ERROR_MESSAGES = {
-    SYSTEM_ERROR: `System error. Please try again later`,
-    STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
-    NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
-    REQUIRED_FIELDS_EMPTY: `All fields are required`,
-    INVALID_BRANCH: `Invalid branch code`,
-    NOT_FOUND: {
-        0: {
-            ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
-            FIELD_ERROR: `ID/Passport number not found`
-        },
-        1: {
-            ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
-            FIELD_ERROR: `Foreign passport number not found`
-        },
-        2: {
-            ALERT_BANNER: `Account number not found. This is not a valid account number`,
-            FIELD_ERROR: `Account number not found`
-        },
-        3: {
-            ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
-            FIELD_ERROR: `Reference number not found`
-        },
-        4: {
-            ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
-            FIELD_ERROR: `Cellphone number not found`
-        }
-    }
+	SYSTEM_ERROR: `System error. Please try again later`,
+	STRACK_ERROR: `Take note: A system error has occured. Please go to STrack to search for client.`,
+	NONCLIENT_REQUIRED_FIELDS_EMPTY: `Name and surname must be completed`,
+	REQUIRED_FIELDS_EMPTY: `All fields are required`,
+	INVALID_BRANCH: `Invalid branch code`,
+	NOT_FOUND: {
+		0: {
+			ALERT_BANNER: `ID/Passport number not found. This is not a valid ID/Passport number`,
+			FIELD_ERROR: `ID/Passport number not found`
+		},
+		1: {
+			ALERT_BANNER: `Foreign passport number not found. This is not a valid foreign passport number`,
+			FIELD_ERROR: `Foreign passport number not found`
+		},
+		2: {
+			ALERT_BANNER: `Account number not found. This is not a valid account number`,
+			FIELD_ERROR: `Account number not found`
+		},
+		3: {
+			ALERT_BANNER: `Reference number not found. This is not a valid reference number`,
+			FIELD_ERROR: `Reference number not found`
+		},
+		4: {
+			ALERT_BANNER: `Cellphone number not found. This is not a verified Capitec number`,
+			FIELD_ERROR: `Cellphone number not found`
+		}
+	}
 };
 
 const NONCLIENT_REGEX_PATTERN = {
-    CHARACTER_ERROR: `Invalid Special Character(s)`,
-    ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
-    nameValue: {
-        PATTERN: /^[A-Za-z\s-]+$/,
-        FIELD_ERROR: `Enter a name`,
-        ALERT_BANNER: `Name and surname must be completed`
-    },
-    surNameValue: {
-        PATTERN: /^[A-Za-z\s-]+$/,
-        FIELD_ERROR: `Enter a surname`,
-        ALERT_BANNER: `Name and surname must be completed`
-    },
-    cellPhoneNumberValue: [
-        {
-            PATTERN: /^[0-9]{10}$/,
-            FIELD_ERROR: `Must be 10 digits`,
-            ALERT_BANNER: `Incorrect cellphone number`
-        },
-        {
-            PATTERN: /^0[0-9].*$/,
-            FIELD_ERROR: `Incorrect cellphone number`,
-            ALERT_BANNER: `Incorrect cellphone number`
-        }
-    ]
+	CHARACTER_ERROR: `Invalid Special Character(s)`,
+	ALERT_BANNER_CHARACTER_ERROR: `Invalid Special Character(s)`,
+	nameValue: {
+		PATTERN: /^[A-Za-z\s-]+$/,
+		FIELD_ERROR: `Enter a name`,
+		ALERT_BANNER: `Name and surname must be completed`
+	},
+	surNameValue: {
+		PATTERN: /^[A-Za-z\s-]+$/,
+		FIELD_ERROR: `Enter a surname`,
+		ALERT_BANNER: `Name and surname must be completed`
+	},
+	cellPhoneNumberValue: [
+		{
+			PATTERN: /^[0-9]{10}$/,
+			FIELD_ERROR: `Must be 10 digits`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		},
+		{
+			PATTERN: /^0[0-9].*$/,
+			FIELD_ERROR: `Incorrect cellphone number`,
+			ALERT_BANNER: `Incorrect cellphone number`
+		}
+	]
 };
 
 const BRANCH_REGEX_PATTERN = {
-    cpNumber: {
-        PATTERN: /^([0-9]{6}$)/,
-        FIELD_ERROR: `Must be 6 digits`,
-        ALERT_BANNER: `Incorrect CP number, i.e. 345679 6 digits only`
-    },
-    branchName: {
-        PATTERN: /BR[0-9]{3,9}$/,
-        FIELD_ERROR: `Consultant might not have a branch`,
-        ALERT_BANNER: `Invalid branch code`
-    }
+	cpNumber: {
+		PATTERN: /^([0-9]{6}$)/,
+		FIELD_ERROR: `Must be 6 digits`,
+		ALERT_BANNER: `Incorrect CP number, i.e. 345679 6 digits only`
+	},
+	branchName: {
+		PATTERN: /BR[0-9]{3,9}$/,
+		FIELD_ERROR: `Consultant might not have a branch`,
+		ALERT_BANNER: `Invalid branch code`
+	}
 };
 
 const REGEX_PATTERNS = {
-    0: {
-        PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
-        FIELD_ERROR: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
-        ALERT_BANNER: `Incorrect ID/Passport number`
-    },
-    1: {
-        PATTERN: /^/,
-        FIELD_ERROR: ``
-    },
-    2: {
-        PATTERN: /^[0-9]{10}$/,
-        FIELD_ERROR: `Account number must be 10 characters long`,
-        ALERT_BANNER: `Incorrect Account number`
-    },
-    3: {
-        PATTERN: /^[0-9]{8}$/,
-        FIELD_ERROR: `Reference number must be 8 characters long`,
-        ALERT_BANNER: `Incorrect Reference number`
-    },
-    4: {
-        PATTERN: /^[0-9]{10}$/,
-        FIELD_ERROR: `Enter a 10 digit cellphone number`,
-        ALERT_BANNER: `Incorrect Capitec cellphone number`
-    }
+	0: {
+		PATTERN: /^(^[MDAT]([0-9]{8})|[0-9]{13})$/,
+		FIELD_ERROR: `An ID Number must be 13 digits long, a passport number must be 9 characters`,
+		ALERT_BANNER: `Incorrect ID/Passport number`
+	},
+	1: {
+		PATTERN: /^/,
+		FIELD_ERROR: ``
+	},
+	2: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: `Account number must be 10 characters long`,
+		ALERT_BANNER: `Incorrect Account number`
+	},
+	3: {
+		PATTERN: /^[0-9]{8}$/,
+		FIELD_ERROR: `Reference number must be 8 characters long`,
+		ALERT_BANNER: `Incorrect Reference number`
+	},
+	4: {
+		PATTERN: /^[0-9]{10}$/,
+		FIELD_ERROR: `Enter a 10 digit cellphone number`,
+		ALERT_BANNER: `Incorrect Capitec cellphone number`
+	}
 };
 
 const HEADER_LABEL = `Search Caller Details`;
@@ -142,60 +142,60 @@ const HEADER_LABEL = `Search Caller Details`;
  */
 export class SearchCaller extends Component {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        RegExp();
+		RegExp();
 
-        this.renderMode = RENDER_MODE.SEARCH_CALLER;
-        this.isBusy = false;
-        this.clientType = -1;
-        this.errMessage = {
-            searchType: ``,
-            searchValue: ``,
-            nameValue: ``,
-            surNameValue: ``,
-            cellPhoneNumberValue: ``,
-            cpNumber: ``,
-            consultantName: ``,
-            branchName: ``,
-            inBranch: ``
-        };
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
+		this.isBusy = false;
+		this.clientType = -1;
+		this.errMessage = {
+			searchType: ``,
+			searchValue: ``,
+			nameValue: ``,
+			surNameValue: ``,
+			cellPhoneNumberValue: ``,
+			cpNumber: ``,
+			consultantName: ``,
+			branchName: ``,
+			inBranch: ``
+		};
 
-        this.alertBannerMessage = ``;
+		this.alertBannerMessage = ``;
 
-        this.headerLabel = HEADER_LABEL;
+		this.headerLabel = HEADER_LABEL;
 
-        this.searchType = { "key": ``, "value": `` };
-        this.searchValue = ``;
-        this.nameValue = ``;
-        this.surNameValue = ``;
-        this.cellPhoneNumberValue = ``;
+		this.searchType = { "key": ``, "value": `` };
+		this.searchValue = ``;
+		this.nameValue = ``;
+		this.surNameValue = ``;
+		this.cellPhoneNumberValue = ``;
 
-        this.cpNumber = ``;
-        this.consultantName = ``;
-        this.branchName = ``;
-        this.branchCode = ``;
-        this.clientInBranch = null;
+		this.cpNumber = ``;
+		this.consultantName = ``;
+		this.branchName = ``;
+		this.branchCode = ``;
+		this.clientInBranch = null;
 
-        this.logger = Logger.getInstance();
+		this.logger = Logger.getInstance();
 
-        this.eventAggregator = EventAggregator.getInstance();
-        this.horizonRouter = HorizonRouter.getInstance();
-        this.horizonStore = HorizonStore.getInstance();
-        this._telemetry = HorizonTelemetry.instance;
+		this.eventAggregator = EventAggregator.getInstance();
+		this.horizonRouter = HorizonRouter.getInstance();
+		this.horizonStore = HorizonStore.getInstance();
+		this._telemetry = HorizonTelemetry.instance;
 
-        this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
-        this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
-    }
+		this.callHandleService = new CallHandleService(() => this._toggleBusyFlag(), (ex) => this._handleSearchClientException(ex));
+		this.incidentService = new IncidentManagementService(() => this._toggleBusyFlag(), (ex) => this._handleAddNonClientException(ex));
+	}
 
-    // ----------
-    // PROPERTIES
-    // ----------
+	// ----------
+	// PROPERTIES
+	// ----------
 
 	/**
 	 * @property {Object} incomingCallDetails Incoming Caller Information (see models/IncomingCallDetails)
@@ -205,49 +205,49 @@ export class SearchCaller extends Component {
 	 * @static
 	 * @memberof SearchCaller
 	 */
-    static get properties() {
-        return {
-            incomingCallDetails: { type: Object },
-            incidentDetails: { type: Object },
-            isBusy: { attribute: false },
-            renderMode: { attribute: false },
-            clientType: { attribute: false },
-            alertBannerMessage: { attribute: false },
-            identificationMethods: { attribute: false },
-            cpNumber: { type: String, attribute: false },
-            consultantName: { type: String, attribute: false },
-            branchName: { type: String, attribute: false },
-            branchCode: { type: String, attribute: false }
-        };
-    }
+	static get properties() {
+		return {
+			incomingCallDetails: { type: Object },
+			incidentDetails: { type: Object },
+			isBusy: { attribute: false },
+			renderMode: { attribute: false },
+			clientType: { attribute: false },
+			alertBannerMessage: { attribute: false },
+			identificationMethods: { attribute: false },
+			cpNumber: { type: String, attribute: false },
+			consultantName: { type: String, attribute: false },
+			branchName: { type: String, attribute: false },
+			branchCode: { type: String, attribute: false }
+		};
+	}
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-    connectedCallback() {
-        super.connectedCallback();
-        this._loadSearchOptions();
-        this.renderMode = RENDER_MODE.SEARCH_CALLER;
+	connectedCallback() {
+		super.connectedCallback();
+		this._loadSearchOptions();
+		this.renderMode = RENDER_MODE.SEARCH_CALLER;
 
-        this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
-            "screen": TelemetryScreen.SEARCH_CLIENT
-        });
-    }
+		this._telemetry.startSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
+	}
 
-    disconnectedCallback() {
-        super.disconnectedCallback();
+	disconnectedCallback() {
+		super.disconnectedCallback();
 
-        this._telemetry.endSpan(IDCallerEvents.SEARCH_CLIENT, {
-            "screen": TelemetryScreen.SEARCH_CLIENT
-        });
-    }
+		this._telemetry.endSpan(IDCallerEvents.SEARCH_CLIENT, {
+			"screen": TelemetryScreen.SEARCH_CLIENT
+		});
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-    _clientTypeChanged(e) {
+	_clientTypeChanged(e) {
 		if (e.detail.new) {
 			if (e.target.id === `capitecClient`) {
 				this.clientType = CLIENT_TYPE.CAPITEC_CLIENT;
@@ -269,14 +269,14 @@ export class SearchCaller extends Component {
 		this._clearErrors(e);
 	}
 
-    _valueChanged(e) {
-        this[e.currentTarget.id] = e.detail.new;
-        this._clearErrors(e);
-    }
+	_valueChanged(e) {
+		this[e.currentTarget.id] = e.detail.new;
+		this._clearErrors(e);
+	}
 
-    _onKeyPress(e) {
-        this._clearErrors(e);
-    }
+	_onKeyPress(e) {
+		this._clearErrors(e);
+	}
 
 	async _getConsultant(e) {
 		this._clearErrors(e);
@@ -295,403 +295,403 @@ export class SearchCaller extends Component {
 		this.cpNumber = cpNumber;
 	}
 
-    async _onSearchClient() {
+	async _onSearchClient() {
 
-        this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-            "screen": TelemetryScreen.SEARCH_CLIENT,
-            "next-screen": TelemetryScreen.CONFIRM_CALLER,
-            "id-method": this.searchType.value,
-            "id-data": this.searchValue
-        });
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.CONFIRM_CALLER,
+			"id-method": this.searchType.value,
+			"id-data": this.searchValue
+		});
 
-        if (this._validateFields()) {
-            const searchClient = {
-                incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-                incidentNo: this.incidentDetails.incidentReferenceNumber,
-                agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-                ivrOption: this.incomingCallDetails.ivrOption.value,
-                identificationMethod: this.searchType.key,
-                searchValue: this.searchValue
-            };
+		if (this._validateFields()) {
+			const searchClient = {
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+				incidentNo: this.incidentDetails.incidentReferenceNumber,
+				agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+				ivrOption: this.incomingCallDetails.ivrOption.value,
+				identificationMethod: this.searchType.key,
+				searchValue: this.searchValue
+			};
 
-            const returnValue = await this.callHandleService.searchCaller(searchClient);
-            const identifiedClient = returnValue.result;
+			const returnValue = await this.callHandleService.searchCaller(searchClient);
+			const identifiedClient = returnValue.result;
 
-            if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
-                this._raiseOnClientIdentified(identifiedClient);
-            } else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
-                const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
-                this.alertBannerMessage = errMessages.ALERT_BANNER;
-                this.errMessage.searchValue = errMessages.FIELD_ERROR;
-            } else if (this.incidentDetails.incidentReferenceNumber === null) {
-                this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-            } else {
-                this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-            }
-        }
-    }
+			if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+				this._raiseOnClientIdentified(identifiedClient);
+			} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
+				const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+				this.alertBannerMessage = errMessages.ALERT_BANNER;
+				this.errMessage.searchValue = errMessages.FIELD_ERROR;
+			} else if (this.incidentDetails.incidentReferenceNumber === null) {
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+			}
+		}
+	}
 
 
-    async _searchBranch() {
-        this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-            "screen": TelemetryScreen.SEARCH_CLIENT,
-            "next-screen": TelemetryScreen.CONFIRM_CALLER,
-            "id-method": this.searchType.value,
-            "id-data": this.searchValue
-        });
+	async _searchBranch() {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.CONFIRM_CALLER,
+			"id-method": this.searchType.value,
+			"id-data": this.searchValue
+		});
 
-        if (this._validateBranchFields() && this._validateFields()) {
-            if (this.clientInBranch === null) {
-                this.errMessage.inBranch = `Please choose an option`;
-                this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
-            } else {
-                const searchClient = {
-                    incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                    voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
-                    incidentNo: this.incidentDetails.incidentReferenceNumber,
-                    agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
-                    ivrOption: this.incomingCallDetails.ivrOption.value,
-                    identificationMethod: this.searchType.key,
-                    searchValue: this.searchValue
-                };
+		if (this._validateBranchFields() && this._validateFields()) {
+			if (this.clientInBranch === null) {
+				this.errMessage.inBranch = `Please choose an option`;
+				this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			} else {
+				const searchClient = {
+					incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+					voiceReferenceNumber: this.incomingCallDetails.voiceReferenceNumber,
+					incidentNo: this.incidentDetails.incidentReferenceNumber,
+					agentTelephoneNumber: this.incomingCallDetails.agentTelephoneNumber,
+					ivrOption: this.incomingCallDetails.ivrOption.value,
+					identificationMethod: this.searchType.key,
+					searchValue: this.searchValue
+				};
 
-                const returnValue = await this.callHandleService.searchCaller(searchClient);
-                const identifiedClient = returnValue.result;
+				const returnValue = await this.callHandleService.searchCaller(searchClient);
+				const identifiedClient = returnValue.result;
 
-                if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
-                    this._raiseOnBranchIdentified(identifiedClient);
-                } else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
-                    const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
-                    this.alertBannerMessage = errMessages.ALERT_BANNER;
-                    this.errMessage.searchValue = errMessages.FIELD_ERROR;
-                } else if (this.incidentDetails.incidentReferenceNumber === null) {
-                    this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-                } else {
-                    this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-                }
-            }
-        }
-    }
+				if (returnValue.succeeded && identifiedClient && identifiedClient.callerInformation) {
+					this._raiseOnBranchIdentified(identifiedClient);
+				} else if (returnValue.succeeded && !(identifiedClient && identifiedClient.callerInformation)) {
+					const errMessages = ERROR_MESSAGES.NOT_FOUND[this.searchType.key];
+					this.alertBannerMessage = errMessages.ALERT_BANNER;
+					this.errMessage.searchValue = errMessages.FIELD_ERROR;
+				} else if (this.incidentDetails.incidentReferenceNumber === null) {
+					this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+				} else {
+					this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				}
+			}
+		}
+	}
 
-    _needChanged(e) {
-        this.incomingCallDetails.ivrOptionCode = e.detail.new;
-        this.incomingCallDetails.ivrOption.value = e.detail.new;
+	_needChanged(e) {
+		this.incomingCallDetails.ivrOptionCode = e.detail.new;
+		this.incomingCallDetails.ivrOption.value = e.detail.new;
 
-        this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
-        this.horizonStore.setIncidentDetails(this.incidentDetails);
+		this.incidentDetails.currentNeed = this.incomingCallDetails.ivrOptionCode;
+		this.horizonStore.setIncidentDetails(this.incidentDetails);
 
-        // Stop Card has it's own specialized search dialog. We raise this 
-        // event to give the caller the change to switch to that dialog.
-        // Switching to the dialog is not handled in this component.
-        if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
-            this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
-                detail: {
-                    incomingCallDetails: this.incomingCallDetails,
-                    incidentDetails: this.incidentDetails
-                }
-            }));
-        }
-    }
+		// Stop Card has it's own specialized search dialog. We raise this 
+		// event to give the caller the change to switch to that dialog.
+		// Switching to the dialog is not handled in this component.
+		if (this.incomingCallDetails.ivrOption.value === `StopCard`) {
+			this.dispatchEvent(new CustomEvent(`stop-card-need-selected`, {
+				detail: {
+					incomingCallDetails: this.incomingCallDetails,
+					incidentDetails: this.incidentDetails
+				}
+			}));
+		}
+	}
 
-    async _onContinue() {
+	async _onContinue() {
 
-        this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
-            "screen": TelemetryScreen.SEARCH_CLIENT,
-            "next-screen": TelemetryScreen.PRODUCT_INFO
-        });
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_SEARCH_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.PRODUCT_INFO
+		});
 
-        if (this._validateNonClientFields()) {
-            const callerDetails = new CallerDetails();
+		if (this._validateNonClientFields()) {
+			const callerDetails = new CallerDetails();
 
-            callerDetails.idNumber = ``;
-            callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
-            callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
-            callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
-            callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
-            callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
-            callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
-            callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
-            callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
-            callerDetails.nonClientIDNumber = ``;
-            callerDetails.nonClientRelationship = ``;
+			callerDetails.idNumber = ``;
+			callerDetails.incomingTelephoneNumber = this.incomingCallDetails.incomingTelephoneNumber;
+			callerDetails.voiceReferenceNumber = this.incomingCallDetails.voiceReferenceNumber;
+			callerDetails.ivrOptionCode = this.incomingCallDetails.ivrOptionCode;
+			callerDetails.incidentReferenceNumber = this.incidentDetails.incidentReferenceNumber;
+			callerDetails.incidentRecId = this.incidentDetails.incidentRecId;
+			callerDetails.agentTelephoneNumber = this.incomingCallDetails.agentTelephoneNumber;
+			callerDetails.nonClientFullName = `${this.nameValue} ${this.surNameValue}`;
+			callerDetails.nonClientCellPhone = `${this.cellPhoneNumberValue}`;
+			callerDetails.nonClientIDNumber = ``;
+			callerDetails.nonClientRelationship = ``;
 
-            const nonClientDetails = {
-                ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-                incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
-                firstName: this.nameValue,
-                surname: this.surNameValue,
-                cellPhone: this.cellPhoneNumberValue
-            };
+			const nonClientDetails = {
+				ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+				incomingTelephoneNumber: this.incomingCallDetails.incomingTelephoneNumber,
+				firstName: this.nameValue,
+				surname: this.surNameValue,
+				cellPhone: this.cellPhoneNumberValue
+			};
 
-            const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
+			const returnValue = await this.incidentService.updateIncidentNonClientDetails(this.incidentDetails.incidentRecId, nonClientDetails);
 
-            if (returnValue.succeeded) {
-                this.dispatchEvent(new CustomEvent(`non-client-captured`, {
-                    detail: {
-                        incomingCallDetails: this.incomingCallDetails,
-                        incidentDetails: this.incidentDetails,
-                        nonClient: {
-                            firstName: this.nameValue,
-                            surname: this.surNameValue,
-                            cellphone: this.cellPhoneNumberValue
-                        },
-                        isBranchConsultant: false
-                    }
-                }));
-            } else if (this.incomingCallDetails.incidentRecId === null) {
-                this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
-            } else {
-                this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
-                this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
-            }
-        }
-    }
+			if (returnValue.succeeded) {
+				this.dispatchEvent(new CustomEvent(`non-client-captured`, {
+					detail: {
+						incomingCallDetails: this.incomingCallDetails,
+						incidentDetails: this.incidentDetails,
+						nonClient: {
+							firstName: this.nameValue,
+							surname: this.surNameValue,
+							cellphone: this.cellPhoneNumberValue
+						},
+						isBranchConsultant: false
+					}
+				}));
+			} else if (this.incomingCallDetails.incidentRecId === null) {
+				this.alertBannerMessage = ERROR_MESSAGES.STRACK_ERROR;
+			} else {
+				this.alertBannerMessage = ERROR_MESSAGES.SYSTEM_ERROR;
+				this.logger.log(`error`, `Unable to update non-client details on incident due to a system error`, `_onContinue`, returnValue.correlationId);
+			}
+		}
+	}
 
-    _onEndCall() {
-        this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_END_CALL_CLICK, {
-            "screen": TelemetryScreen.SEARCH_CLIENT,
-            "next-screen": TelemetryScreen.END_CALL
-        });
+	_onEndCall() {
+		this._telemetry.logEvent(IDCallerEvents.SEARCH_CLIENT_END_CALL_CLICK, {
+			"screen": TelemetryScreen.SEARCH_CLIENT,
+			"next-screen": TelemetryScreen.END_CALL
+		});
 
-        this.renderMode = RENDER_MODE.END_CALL;
-    }
+		this.renderMode = RENDER_MODE.END_CALL;
+	}
 
-    // ---------------
-    // PRIVATE METHODS
-    // ---------------
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
 
-    async _loadSearchOptions() {
-        const clientInfo = {
-            "incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
-            "voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
-            "ivrOptionCode": this.incomingCallDetails.ivrOption.value,
-            "incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
-            "agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
-        };
+	async _loadSearchOptions() {
+		const clientInfo = {
+			"incomingTelephoneNumber": this.incomingCallDetails.incomingTelephoneNumber,
+			"voiceReferenceNumber": this.incomingCallDetails.voiceReferenceNumber,
+			"ivrOptionCode": this.incomingCallDetails.ivrOption.value,
+			"incidentReferenceNumber": this.incidentDetails.incidentReferenceNumber,
+			"agentTelephoneNumber": this.incomingCallDetails.agentTelephoneNumber
+		};
 
-        const returnValue = await this.callHandleService.searchOptions(clientInfo);
-        const options = returnValue.result;
+		const returnValue = await this.callHandleService.searchOptions(clientInfo);
+		const options = returnValue.result;
 
-        if (returnValue.succeeded) {
-            this.identificationMethodsList = options.identificationMethods;
-            if (this.identificationMethodsList !== undefined) {
-                this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
-            }
-        } else {
-            this.horizonRouter.navigateToSystemError();
-        }
-    }
+		if (returnValue.succeeded) {
+			this.identificationMethodsList = options.identificationMethods;
+			if (this.identificationMethodsList !== undefined) {
+				this.identificationMethods = this.extractIdentificationMethods(this.identificationMethodsList);
+			}
+		} else {
+			this.horizonRouter.navigateToSystemError();
+		}
+	}
 
-    extractIdentificationMethods(identificationMethods) {
+	extractIdentificationMethods(identificationMethods) {
 
-        identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
+		identificationMethods.possibleValues = identificationMethods.possibleValues.map(identificationMethod => {
 
-            Object.assign(identificationMethod, identificationMethod.value);
-            delete identificationMethod.value;
-            return identificationMethod;
-        });
-        return identificationMethods;
-    }
+			Object.assign(identificationMethod, identificationMethod.value);
+			delete identificationMethod.value;
+			return identificationMethod;
+		});
+		return identificationMethods;
+	}
 
-    _validateNonClientFields() {
-        // Trimming/ removing empty spaces around non client details
-        this.nameValue = this.nameValue.trim();
-        this.surNameValue = this.surNameValue.trim();
+	_validateNonClientFields() {
+		// Trimming/ removing empty spaces around non client details
+		this.nameValue = this.nameValue.trim();
+		this.surNameValue = this.surNameValue.trim();
 
-        const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
-        if (isRequiredFieldsEmpty) {
-            this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
-            return false;
-        }
+		const isRequiredFieldsEmpty = this._isRequiredNonClientFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBannerMessage = ERROR_MESSAGES.NONCLIENT_REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
 
-        if (this.nameValue || this.surNameValue) {
+		if (this.nameValue || this.surNameValue) {
 
-            if (!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue)) {
-                this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
-            } else {
-                this.errMessage.nameValue = ``;
-            };
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.nameValue.PATTERN, `g`).test(this.nameValue)) {
+				this.errMessage.nameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.nameValue = ``;
+			};
 
-            if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) {
-                this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
-            } else {
-                this.errMessage.surNameValue = ``;
-            }
+			if (!RegExp(NONCLIENT_REGEX_PATTERN.surNameValue.PATTERN, `g`).test(this.surNameValue)) {
+				this.errMessage.surNameValue = NONCLIENT_REGEX_PATTERN.CHARACTER_ERROR;
+			} else {
+				this.errMessage.surNameValue = ``;
+			}
 
-            if (!isNullorEmpty(this.errMessage.nameValue) || !isNullorEmpty(this.errMessage.surNameValue)) {
-                this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
-                return false;
-            }
-        }
+			if (!isNullorEmpty(this.errMessage.nameValue) || !isNullorEmpty(this.errMessage.surNameValue)) {
+				this.alertBannerMessage = NONCLIENT_REGEX_PATTERN.ALERT_BANNER_CHARACTER_ERROR;
+				return false;
+			}
+		}
 
-        if (this.cellPhoneNumberValue) {
-            // Handled value length and should start with 0
-            for (const item of NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue) {
-                if (!RegExp(item.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
-                    this.errMessage.cellPhoneNumberValue = item.FIELD_ERROR;
-                    this.alertBannerMessage = item.ALERT_BANNER;
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
+		if (this.cellPhoneNumberValue) {
+			// Handled value length and should start with 0
+			for (const item of NONCLIENT_REGEX_PATTERN.cellPhoneNumberValue) {
+				if (!RegExp(item.PATTERN, `g`).test(this.cellPhoneNumberValue)) {
+					this.errMessage.cellPhoneNumberValue = item.FIELD_ERROR;
+					this.alertBannerMessage = item.ALERT_BANNER;
+					return false;
+				}
+			}
+		}
+		return true;
+	}
 
-    _validateBranchFields() {
-        const isRequiredFieldsEmpty = this._isRequiredBranchFieldsEmpty();
-        if (isRequiredFieldsEmpty) {
-            this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
-            return false;
-        }
+	_validateBranchFields() {
+		const isRequiredFieldsEmpty = this._isRequiredBranchFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
 
-        if (this.cpNumber && this.branchName) {
-            if (!RegExp(BRANCH_REGEX_PATTERN.cpNumber.PATTERN, `g`).test(this.cpNumber)) {
-                this.errMessage.cpNumber = BRANCH_REGEX_PATTERN.cpNumber.FIELD_ERROR;
-                this.alertBannerMessage = BRANCH_REGEX_PATTERN.cpNumber.ALERT_BANNER;
-                return false;
-            }
-            if (this.branchName === `null-null`) {
-                this.errMessage.branchName = `Invalid branch code`;
-                this.alertBannerMessage = ERROR_MESSAGES.INVALID_BRANCH;
-                return false;
-            }
-            if (!RegExp(BRANCH_REGEX_PATTERN.branchName.PATTERN, `g`).test(this.branchCode)) {
-                this.errMessage.branchName = BRANCH_REGEX_PATTERN.branchName.FIELD_ERROR;
-                this.alertBannerMessage = BRANCH_REGEX_PATTERN.branchName.ALERT_BANNER;
-                return false;
-            }
-        }
-        return true;
-    }
+		if (this.cpNumber && this.branchName) {
+			if (!RegExp(BRANCH_REGEX_PATTERN.cpNumber.PATTERN, `g`).test(this.cpNumber)) {
+				this.errMessage.cpNumber = BRANCH_REGEX_PATTERN.cpNumber.FIELD_ERROR;
+				this.alertBannerMessage = BRANCH_REGEX_PATTERN.cpNumber.ALERT_BANNER;
+				return false;
+			}
+			if (this.branchName === `null-null`) {
+				this.errMessage.branchName = `Invalid branch code`;
+				this.alertBannerMessage = ERROR_MESSAGES.INVALID_BRANCH;
+				return false;
+			}
+			if (!RegExp(BRANCH_REGEX_PATTERN.branchName.PATTERN, `g`).test(this.branchCode)) {
+				this.errMessage.branchName = BRANCH_REGEX_PATTERN.branchName.FIELD_ERROR;
+				this.alertBannerMessage = BRANCH_REGEX_PATTERN.branchName.ALERT_BANNER;
+				return false;
+			}
+		}
+		return true;
+	}
 
-    _validateFields() {
+	_validateFields() {
 
-        const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
-        if (isRequiredFieldsEmpty) {
-            this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
-            return false;
-        }
+		const isRequiredFieldsEmpty = this._isRequiredFieldsEmpty();
+		if (isRequiredFieldsEmpty) {
+			this.alertBannerMessage = ERROR_MESSAGES.REQUIRED_FIELDS_EMPTY;
+			return false;
+		}
 
-        const regexValidation = REGEX_PATTERNS[this.searchType.key];
-        const REGEX_PATTERN = regexValidation.PATTERN;
+		const regexValidation = REGEX_PATTERNS[this.searchType.key];
+		const REGEX_PATTERN = regexValidation.PATTERN;
 
-        if (!RegExp(REGEX_PATTERN, `g`).test(this.searchValue)) {
-            this.errMessage.searchValue = regexValidation.FIELD_ERROR;
-            this.alertBannerMessage = regexValidation.ALERT_BANNER;
-            return false;
-        }
+		if (!RegExp(REGEX_PATTERN, `g`).test(this.searchValue)) {
+			this.errMessage.searchValue = regexValidation.FIELD_ERROR;
+			this.alertBannerMessage = regexValidation.ALERT_BANNER;
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    _isRequiredNonClientFieldsEmpty() {
-        this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : ``;
-        this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : ``;
+	_isRequiredNonClientFieldsEmpty() {
+		this.errMessage.nameValue = isNullorEmpty(this.nameValue) ? NONCLIENT_REGEX_PATTERN.nameValue.FIELD_ERROR : ``;
+		this.errMessage.surNameValue = isNullorEmpty(this.surNameValue) ? NONCLIENT_REGEX_PATTERN.surNameValue.FIELD_ERROR : ``;
 
-        return this.errMessage.nameValue || this.errMessage.surNameValue;
-    }
+		return this.errMessage.nameValue || this.errMessage.surNameValue;
+	}
 
-    _isRequiredFieldsEmpty() {
-        this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? `This is a required field` : ``;
-        this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? `Choose an Identification Method` : ``;
+	_isRequiredFieldsEmpty() {
+		this.errMessage.searchValue = isNullorEmpty(this.searchValue) ? `This is a required field` : ``;
+		this.errMessage.searchType = isNullorEmpty(this.searchType.key) ? `Choose an Identification Method` : ``;
 
-        return this.errMessage.searchValue || this.errMessage.searchType;
-    }
+		return this.errMessage.searchValue || this.errMessage.searchType;
+	}
 
-    _isRequiredBranchFieldsEmpty() {
-        this.errMessage.cpNumber = isNullorEmpty(this.cpNumber) ? `This is a required field` : ``;
-        this.errMessage.branchName = isNullorEmpty(this.branchName) ? `Invalid branch name` : ``;
-        this.errMessage.consultantName = isNullorEmpty(this.consultantName) ? `Consultant not found` : ``;
+	_isRequiredBranchFieldsEmpty() {
+		this.errMessage.cpNumber = isNullorEmpty(this.cpNumber) ? `This is a required field` : ``;
+		this.errMessage.branchName = isNullorEmpty(this.branchName) ? `Invalid branch name` : ``;
+		this.errMessage.consultantName = isNullorEmpty(this.consultantName) ? `Consultant not found` : ``;
 
-        return this.errMessage.cpNumber || this.errMessage.branchName || this.errMessage.consultantName;
-    }
+		return this.errMessage.cpNumber || this.errMessage.branchName || this.errMessage.consultantName;
+	}
 
-    _clearErrors(e) {
-        this.errMessage[e.currentTarget.id] = ``;
-        this.errMessage.nameValue = ``;
-        this.errMessage.surNameValue = ``;
-        this.errMessage.cpNumber = ``;
-        this.errMessage.searchType = ``;
-        this.errMessage.searchValue = ``;
-        this.errMessage.inBranch = ``;
-        this.errMessage.consultantName = ``;
-        this.errMessage.branchName = ``;
-        this.alertBannerMessage = ``;
-    }
+	_clearErrors(e) {
+		this.errMessage[e.currentTarget.id] = ``;
+		this.errMessage.nameValue = ``;
+		this.errMessage.surNameValue = ``;
+		this.errMessage.cpNumber = ``;
+		this.errMessage.searchType = ``;
+		this.errMessage.searchValue = ``;
+		this.errMessage.inBranch = ``;
+		this.errMessage.consultantName = ``;
+		this.errMessage.branchName = ``;
+		this.alertBannerMessage = ``;
+	}
 
-    _toggleBusyFlag() {
-        this.isBusy = !this.isBusy;
-    }
+	_toggleBusyFlag() {
+		this.isBusy = !this.isBusy;
+	}
 
-    _handleAddNonClientException(exception) {
-        // We stay on the search dialog and display an error if their is a CS  call failure
-        return true;
-    }
+	_handleAddNonClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
+		return true;
+	}
 
-    _handleSearchClientException(exception) {
-        // We stay on the search dialog and display an error if their is a CS  call failure
-        return true;
-    }
+	_handleSearchClientException(exception) {
+		// We stay on the search dialog and display an error if their is a CS  call failure
+		return true;
+	}
 
-    _raiseOnClientIdentified(identifiedClient) {
-        const confirmedCaller = {
-            cifNumber: identifiedClient.callerInformation.cifNumber.value,
-            birthdate: identifiedClient.callerInformation.birthdate.value,
-            languagePreference: identifiedClient.callerInformation.languagePreference.value,
-            livesIn: identifiedClient.callerInformation.livesIn.value,
-            name: identifiedClient.callerInformation.name.value,
-            southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
-            isBranchConsultant: false
-        };
+	_raiseOnClientIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			isBranchConsultant: false
+		};
 
-        this.dispatchEvent(new CustomEvent(`client-identified`, {
-            detail: {
-                incomingCallDetails: this.incomingCallDetails,
-                confirmedCaller: confirmedCaller,
-                incidentDetails: this.incidentDetails,
-                isBranchConsultant: false
-            }
-        }));
-    };
+		this.dispatchEvent(new CustomEvent(`client-identified`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller,
+				incidentDetails: this.incidentDetails,
+				isBranchConsultant: false
+			}
+		}));
+	};
 
-    async _raiseOnBranchIdentified(identifiedClient) {
-        const confirmedCaller = {
-            cifNumber: identifiedClient.callerInformation.cifNumber.value,
-            birthdate: identifiedClient.callerInformation.birthdate.value,
-            languagePreference: identifiedClient.callerInformation.languagePreference.value,
-            livesIn: identifiedClient.callerInformation.livesIn.value,
-            name: identifiedClient.callerInformation.name.value,
-            southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
-            verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
-            isBranchConsultant: true,
-            isClientPresent: this.clientInBranch
-        };
+	async _raiseOnBranchIdentified(identifiedClient) {
+		const confirmedCaller = {
+			cifNumber: identifiedClient.callerInformation.cifNumber.value,
+			birthdate: identifiedClient.callerInformation.birthdate.value,
+			languagePreference: identifiedClient.callerInformation.languagePreference.value,
+			livesIn: identifiedClient.callerInformation.livesIn.value,
+			name: identifiedClient.callerInformation.name.value,
+			southAfricanIDNumber: identifiedClient.callerInformation.southAfricanIDNumber.value,
+			verifiedTelephoneNumber: identifiedClient.callerInformation.verifiedTelephoneNumber.value,
+			isBranchConsultant: true,
+			isClientPresent: this.clientInBranch
+		};
 
-        await this._updateIncidentBranchDetails(this.branchCode);
+		await this._updateIncidentBranchDetails(this.branchCode);
 
-        this.dispatchEvent(new CustomEvent(`branch-captured`, {
-            detail: {
-                incomingCallDetails: this.incomingCallDetails,
-                confirmedCaller: confirmedCaller,
-                incidentDetails: this.incidentDetails,
-                isBranchConsultant: true,
-                isClientPresent: this.clientInBranch
-            }
-        }));
-    }
+		this.dispatchEvent(new CustomEvent(`branch-captured`, {
+			detail: {
+				incomingCallDetails: this.incomingCallDetails,
+				confirmedCaller: confirmedCaller,
+				incidentDetails: this.incidentDetails,
+				isBranchConsultant: true,
+				isClientPresent: this.clientInBranch
+			}
+		}));
+	}
 
-    async _updateIncidentBranchDetails(branchCode) {
-        // on confirm click, update incident details to be branch incident and not client incident
-        const incidentRecID = this.incidentDetails.incidentRecId;
-        const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode);
-        if (!returnValue.succeeded) {
-            this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
-            return false;
-        }
-        return true;
-    }
+	async _updateIncidentBranchDetails(branchCode) {
+		// on confirm click, update incident details to be branch incident and not client incident
+		const incidentRecID = this.incidentDetails.incidentRecId;
+		const returnValue = await this.incidentService.UpdateIncidentBranchDetailsRequest(incidentRecID, branchCode);
+		if (!returnValue.succeeded) {
+			this.logger.log(`error`, ``, `_updateIncidentBranchDetails`);
+			return false;
+		}
+		return true;
+	}
 
 	async _getConsultantDetails(cpNumber) {
 		const returnValue = await this.incidentService.GetConsultantInformation(cpNumber);
@@ -702,21 +702,21 @@ export class SearchCaller extends Component {
 		return null;
 	}
 
-    // ---------
-    // RENDERING
-    // ---------
+	// ---------
+	// RENDERING
+	// ---------
 
-    static get styles() {
-        return [
-            super.styles,
-            css`
+	static get styles() {
+		return [
+			super.styles,
+			css`
 				div[slot="body"]{
 					width: 690px;
 				}
 				capitec-content-box{
 					--theme-container-padding-top: 24px;
 					--theme-container-padding-bottom: 0px;
-                }
+				}
 				.client-type-label{
 					height: 24px;
 					width: 91px;
@@ -761,7 +761,7 @@ export class SearchCaller extends Component {
 					height: 72px;
 					margin-top: 8px;
 				}
-                .branch-field-row{
+				.branch-field-row{
 					height: 72px;
 					margin-top: 8px;
 				}
@@ -789,13 +789,13 @@ export class SearchCaller extends Component {
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
 				}`
-        ];
-    }
+		];
+	}
 
-    _webTemplate() {
-        switch (this.renderMode) {
-            case RENDER_MODE.SEARCH_CALLER:
-                return html`
+	_webTemplate() {
+		switch (this.renderMode) {
+			case RENDER_MODE.SEARCH_CALLER:
+				return html`
 					<horizon-caller-dialog
 						data-automation-id="search-caller-dialog"
 						.incomingCallDetails="${this.incomingCallDetails}"
@@ -818,20 +818,20 @@ export class SearchCaller extends Component {
 							${this._renderFooter()}
 						</div>
 					</horizon-caller-dialog>`;
-            case RENDER_MODE.END_CALL:
-                return html`${this._renderEndCallModal()}`;
-            default:
-        }
-    }
+			case RENDER_MODE.END_CALL:
+				return html`${this._renderEndCallModal()}`;
+			default:
+		}
+	}
 
-    _renderLoadingIndicator() {
+	_renderLoadingIndicator() {
 		return this.isBusy 
 			? html`<capitec-loading-indicator></capitec-loading-indicator>`
 			: html``;
-    }
+	}
 
-    _renderClientType() {
-        return html`
+	_renderClientType() {
+		return html`
 			<capitec-label 
 				class="client-type-label" 
 				label="Client Type">
@@ -852,7 +852,8 @@ export class SearchCaller extends Component {
 						@value-changed="${(e) => this._clientTypeChanged(e)}" row="1"
 						column="2">
 					</capitec-radio>
-                    <capitec-radio 
+					<capitec-radio 
+					    style="display:none;"
 						id="branch" 
 						data-automation-id="search-caller-branch"
 						label="Branch" 
@@ -861,16 +862,16 @@ export class SearchCaller extends Component {
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>`;
-    }
+	}
 
-    _renderCapitecClient() {
-        if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
-            return html`${this._renderClientFields()}`;
-        }
-    }
+	_renderCapitecClient() {
+		if (this.clientType === CLIENT_TYPE.CAPITEC_CLIENT) {
+			return html`${this._renderClientFields()}`;
+		}
+	}
 
-    _renderClientFields() {
-            return html`
+	_renderClientFields() {
+			return html`
 					<capitec-label 
 						class="search-label ${this.alertBannerMessage ? `reset-margin-bottom` : ``}"
 						label="Search existing client">
@@ -904,11 +905,11 @@ export class SearchCaller extends Component {
 							</capitec-text-field>
 						</div>
 					</capitec-group>`;
-    }
+	}
 
-    _renderNonClientFields() {
-        if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
-            return html`
+	_renderNonClientFields() {
+		if (this.clientType === CLIENT_TYPE.NON_CLIENT) {
+			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
 					<capitec-label
 						id="id-label-enter-details"
@@ -952,51 +953,51 @@ export class SearchCaller extends Component {
 						</capitec-text-field>
 					</div>
 				</capitec-group>`;
-        }
-        return html``;
-    }
+		}
+		return html``;
+	}
 
-    _renderBranchFields() {
-        if (this.clientType === CLIENT_TYPE.BRANCH) {
-            return html`
+	_renderBranchFields() {
+		if (this.clientType === CLIENT_TYPE.BRANCH) {
+			return html`
 				<capitec-group layout="vertical" gap="none" halign="stretch" valign="top" class="nonClient-fields-group">
 					<div class="branch-field-row">
 						<capitec-text-field
 							id="cpNumber"
 							data-automation-id="search-caller-branch-consultant-cpnumber"
 							label="CP Number"
-                            type="numeric"
-                            maxlength="6"
-                            error="${this.errMessage.cpNumber}"
+							type="numeric"
+							maxlength="6"
+							error="${this.errMessage.cpNumber}"
 							.value="${this.cpNumber}"
-                            @key-input="${(e) => this._getConsultant(e)}">
+							@key-input="${(e) => this._getConsultant(e)}">
 						</capitec-text-field>
 					</div>
-                                 <!--Branch name and consultant name to auto populate -->
+								 <!--Branch name and consultant name to auto populate -->
 					<div class="branch-field-row">
-                        <capitec-text-field
-                            id="consultantName"
+						<capitec-text-field
+							id="consultantName"
 							data-automation-id="search-caller-branch-consultant-name"
-                            label="Consultant name"
-                            .value="${this.consultantName}"
-                            error=${this.errMessage.consultantName}
-                            disabled>
-                        </capitec-text-field>
-                    </div>
+							label="Consultant name"
+							.value="${this.consultantName}"
+							error=${this.errMessage.consultantName}
+							disabled>
+						</capitec-text-field>
+					</div>
 					<div class="branch-field-row" style="margin-bottom: -10px;">
 						<capitec-text-field
 							id="branchName"
 							data-automation-id="search-caller-branch-name"
 							label="Branch name"
 							.value="${this.branchName}"
-                            error=${this.errMessage.branchName}
-                            disabled>
+							error=${this.errMessage.branchName}
+							disabled>
 						</capitec-text-field>
 					</div>
-                    ${this._renderClientFields()}
-                </capitec-group>                            
+					${this._renderClientFields()}
+				</capitec-group>                            
 
-                ${this._renderError()}
+				${this._renderError()}
 
 			<capitec-radio-group>
 				<capitec-group layout="grid" rows="auto" columns="auto" gap="none">
@@ -1016,41 +1017,41 @@ export class SearchCaller extends Component {
 					</capitec-radio>
 				</capitec-group>
 			</capitec-radio-group>
-                    `;
-        }
-        return html``;
-    }
+					`;
+		}
+		return html``;
+	}
 
-    _renderError() {
-        if (this.errMessage.inBranch) {
-            return html`
-                <div>
-                    <capitec-alert-banner 
+	_renderError() {
+		if (this.errMessage.inBranch) {
+			return html`
+				<div>
+					<capitec-alert-banner 
 						data-automation-id="search-caller-in-branch-alert"
 						type="unsuccessful-red" 
 						label="Please choose an option">
 					</capitec-alert-banner>
-                </div>
-            `;
-        }
-        return html``;
-    }
+				</div>
+			`;
+		}
+		return html``;
+	}
 
-    _renderAlertBanner() {
-        if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
-            return html`
+	_renderAlertBanner() {
+		if (!isNullorEmpty(this.alertBannerMessage) && !this.errMessage.inBranch) {
+			return html`
 				<capitec-alert-banner 
 					data-automation-id="search-caller-alert-message"
 					type="unsuccessful-red" 
 					label="${this.alertBannerMessage}">
 				</capitec-alert-banner>
 			`;
-        }
-        return html``;
-    }
+		}
+		return html``;
+	}
 
-    _renderFooter() {
-        return html`
+	_renderFooter() {
+		return html`
 			<capitec-group layout="horizontal" gap="clear" halign="right" valign="center">
 				<capitec-button
 					data-automation-id="search-caller-search-client"
@@ -1068,7 +1069,7 @@ export class SearchCaller extends Component {
 					?hidden=${this.clientType !== CLIENT_TYPE.NON_CLIENT}
 					tabindex="6">
 				</capitec-button>
-                <capitec-button
+				<capitec-button
 					data-automation-id="search-caller-search-branch"
 					type="primary"
 					@click="${(e) => this._searchBranch(e)}"
@@ -1077,17 +1078,17 @@ export class SearchCaller extends Component {
 					tabindex="7">
 				</capitec-button>
 			</capitec-group>`;
-    }
+	}
 
-    _renderEndCallModal() {
-        return html`
+	_renderEndCallModal() {
+		return html`
 			<horizon-end-call-session 
 				.incomingCallDetails="${this.incomingCallDetails}"
 				.incidentDetails="${this.incidentDetails}"
 				endCallContext="ConfirmClient"
 				@cancel="${() => this.renderMode = RENDER_MODE.SEARCH_CALLER}">
 			</horizon-end-call-session>`;
-    }
+	}
 }
 
 window.customElements.define(`horizon-search-caller`, SearchCaller);
