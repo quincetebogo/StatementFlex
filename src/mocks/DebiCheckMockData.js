@@ -10,86 +10,86 @@ export const mockMandates = {
 		{
 			"mandateId": 0,
 			"registerId": 0,
-			"amount": 656.00,
+			"amount": 65600,
 			"collectionDate": {
 				"day": "1",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 656,
+			"maxCollectionAmount": 65600,
 			"mandateName": "DISCLIFE 5130111776-21",
-			"mandateStatus": "Pending"
+			"mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 1,
 			"registerId": 1,
-			"amount": 5656.00,
+			"amount": 565600,
 			"collectionDate": {
 				"day": "23",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 5656.00,
+			"maxCollectionAmount": 565600,
 			"mandateName": "DISCLIFE 5130111776-21",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "ACTIVE"
 		},
 		{
 			"mandateId": 2,
 			"registerId": 2,
-			"amount": 299.00,
+			"amount": 29900,
 			"collectionDate": {
 				"day": "11",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 299.00,
+			"maxCollectionAmount": 29900,
 			"mandateName": "TELKOMMOB15922277090232",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 3,
 			"registerId": 3,
-			"amount": 1299.00,
+			"amount": 129900,
 			"collectionDate": {
 				"day": "22",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 1299.00,
+			"maxCollectionAmount": 129900,
 			"mandateName": "VODACOM 0340833372 1000",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "INACTIVE"
 		},
 		{
 			"mandateId": 4,
 			"registerId": 4,
-			"amount": 3450.00,
+			"amount": 345000,
 			"collectionDate": {
 				"day": "1",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 3450.00,
+			"maxCollectionAmount": 345000,
 			"mandateName": "BMWFINANCE 989800101333",
-			"mandateStatus": "Accepted"
+			"mandateStatus": "SUSPENDED"
 		},
 		{
 			"mandateId": 5,
 			"registerId": 5,
-			"amount": 1200.00,
+			"amount": 120000,
 			"collectionDate": {
 				"day": "30",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 1200.00,
+			"maxCollectionAmount": 120000,
 			"mandateName": "FNBRVLLOAN4000069539246",
-			"mandateStatus": "Expired"
+            "mandateStatus": "PENDING"
 		},
 		{
 			"mandateId": 6,
 			"registerId": 6,
-			"amount": 90.00,
+			"amount": 9000,
 			"collectionDate": {
 				"day": "8",
 				"frequency": "Month"
 			},
-			"maxCollectionAmount": 1200.00,
+			"maxCollectionAmount": 120000,
 			"mandateName": "MTN",
-			"mandateStatus": "Declined"
+            "mandateStatus": "PENDING"
 		}
 	]
 };
@@ -99,7 +99,7 @@ export const mandateInfo = [
 		mandateId: 0,
 		registerId: 0,
 		mandateInfo: {
-			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
+			"firstCollectionDate": "2021-02-09T17:05:32.909Z",
 			"tracking": "Yes",
 			"contractReference": "12345678010",
 			"collectorContact": "021 101 0810",
@@ -112,7 +112,7 @@ export const mandateInfo = [
 		mandateId: 1,
 		registerId: 1,
 		mandateInfo: {
-			"firstCollectionDate": "2021-02-08T17:05:32.909Z",
+			"firstCollectionDate": "2021-02-10T17:05:32.909Z",
 			"tracking": "No",
 			"contractReference": "6586854658",
 			"collectorContact": "021 101 0810",

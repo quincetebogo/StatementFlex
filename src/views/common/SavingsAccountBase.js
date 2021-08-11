@@ -6,9 +6,11 @@ import { SavingsAccountService } from 'app/services/SavingsAccountService';
 import { ViewBase } from 'app/views/common/ViewBase';
 import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { html } from 'platform/elements';
+import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/savingsAccount/DebiCheckMandates';
 import 'app/components/dialogs/common/StatementsDialog';
+import 'app/components/dialogs/quickTransactions/ApproveDebiCheckMandate';
 
 /**
  * A sub-base class of viewbase for Favourites & Savings account landing pages 
@@ -33,16 +35,22 @@ export class SavingsAccountBase extends ViewBase {
 	// --------------
 
 	constructor() {
-		super();
+        super();
 
-		this.navigationContext = NavigationContext.getInstance();
+		this.debiCheckDetails = {};
+		this.clientProducts = null;
+        this.debiCheckMandates = [];
+        this.incomingCallDetails = {};
+        this.incidentRecId = ``;
+
+        this.navigationContext = NavigationContext.getInstance();
+        this.horizonStore = HorizonStore.getInstance();
+
 
 		this.savingsAccountService = new SavingsAccountService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 		this.quickTransactionService = new QuickTransactionsService(() => super._toggleBusyFlag(), ex => this._errorHandler(ex));
 
-		this.debiCheckDetails = {};
-		this.clientProducts = null;
-		this.debiCheckMandates = {};
+
 	}
 
 	// --------------
@@ -54,7 +62,10 @@ export class SavingsAccountBase extends ViewBase {
 	// -------------------
 
 	connectedCallback() {
-		super.connectedCallback();
+        super.connectedCallback();
+        this.incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+        this.incidentDetails = this.horizonStore.getIncidentDetails();
+        this.incidentRecId = this.incidentDetails.incidentRecId;
 	}
 
 	disconnectedCallback() {
@@ -111,16 +122,21 @@ export class SavingsAccountBase extends ViewBase {
 		} else if (event.detail.action === `approve`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 				"screen": TelemetryScreen.DEBICHECK,
-				"next-screen": TelemetryScreen.DEBICHECK
+				"next-screen": TelemetryScreen.APPROVE_DEBICHECK
 			});
 
-			const screenDetails = this.horizonStore.getScreenDetails();
-			screenDetails.mandateId = event.detail.mandateId;
-			this.horizonStore.setScreenDetails(screenDetails);
 
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `debi-check`);
+            this.mandateInfo = event.detail.mandateInfo;
 
-			this.horizonRouter.navigateToDebiCheckSuccess();
+            const returnValue = await this.savingsAccountService.debiCheckDetails(this.callerInformation.cifNumber, event.detail.mandateInfo.mandateId, event.detail.mandateInfo.registerId);
+
+            if (returnValue.succeeded && returnValue.result) {
+                this.debiCheckDetails = returnValue.result;
+                this.renderMode = RENDER_MODE.DEBI_CHECK_APPROVE;
+            } else {
+                this.horizonRouter.navigateToSystemError();
+            }
+
 		} else if (event.detail.action === `viewInfo`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 				"screen": TelemetryScreen.DEBICHECK,
@@ -149,6 +165,34 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+    }
+
+    //TODO: remove comment when enpoint is avail
+    async _approveDebiCheckMandate(event) {
+        //Hasn't been promoted to dev yet...'
+        //const request = {
+        //    incidentRecId: this.incidentRecId,
+        //    ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+        //    needAction: 'DEBI_CHECK_APPROVE',
+        //    incidentCategorization: null
+        //};
+        //const returnValue = await this.incidentManagementService.classifyIncident(request);
+
+        //if (!returnValue.succeeded) {
+        //    this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_approveDebiCheckMandate`, returnValue.correlationId);
+        //}
+
+
+
+        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK,
+            "next-screen": TelemetryScreen.DEBICHECK_OUTCOME
+		});
+
+
+		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
 	_closeViewMandateInfo() {
@@ -163,6 +207,15 @@ export class SavingsAccountBase extends ViewBase {
 	_cancelDeclineMandate() {
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
+			"next-screen": TelemetryScreen.DEBICHECK
+		});
+
+		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+    }
+
+    _cancelApproveMandate() {
+        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
+            "screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
@@ -244,6 +297,7 @@ export class SavingsAccountBase extends ViewBase {
 			${this._renderStatementsModal()}
 			${this._renderDebiCheckMandates()}
 			${this._renderDebiCheckDeclineMandate()}
+			${this._renderDebiCheckApproveMandate()}
 			${this._renderDebiCheckViewMandateInfo()}
 
 			${super._webTemplate()}
@@ -252,7 +306,8 @@ export class SavingsAccountBase extends ViewBase {
 
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-				this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+            this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+            this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE ||
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
@@ -283,6 +338,18 @@ export class SavingsAccountBase extends ViewBase {
 					@cancel="${() => this._cancelDeclineMandate()}"
 					@decline="${(event) => this._declineDebiCheckMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
+			: html``;
+    }
+
+    _renderDebiCheckApproveMandate() {
+		return this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE 
+			? html`
+				<horizon-approve-debicheck-mandate
+					.mandateInfo="${this.mandateInfo}"
+					.debiCheckDetails=${this.debiCheckDetails}
+					@cancel="${() => this._cancelApproveMandate()}"
+					@approve="${(event) => this._approveDebiCheckMandate(event)}">
+				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
 

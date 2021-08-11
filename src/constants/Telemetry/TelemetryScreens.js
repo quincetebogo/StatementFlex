@@ -25,6 +25,7 @@
 	DEBICHECK: `DebiCheck Mandates`,
 	VIEWINFO: `DebiCheck View Info`,
 	DECLINE_DEBICHECK: `Decline Debi Check`,
+	APPROVE_DEBICHECK: `Approve Debi Check`,
 	DEBICHECK_OUTCOME: `DebiCheck Outcome`,
 
 	UPDATE_CARD_LIMITS: `Update Card Limits`,
