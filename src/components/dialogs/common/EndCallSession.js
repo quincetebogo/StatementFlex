@@ -69,7 +69,7 @@ export class EndCallSession extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} incidentDetails Incident details
-	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient, UnverifiedLandingPage, VerifiedLandingPage || NonClientLandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
 	 * @static

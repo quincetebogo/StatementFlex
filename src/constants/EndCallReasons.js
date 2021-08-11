@@ -82,7 +82,44 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		}
 	],
-	LandingPage: [
+	UnverifiedLandingPage: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: NEED_INCOMPLETE,
+			value: `Need incomplete - bad connection`,
+			mapping: `telephony-disconnected`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: `general-product-enquiry`
+		}
+	],
+	VerifiedLandingPage: [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -122,11 +159,38 @@ export const END_CALL_REASON = Object.freeze({
 			key: PRODUCT_ENQUIRY,
 			value: `Product enquiry`,
 			mapping: `general-product-enquiry`
+		}
+	],
+	NonClientLandingPage: [
+		{
+			key: NEED_FULFILLED,
+			value: `Need fulfilled`,
+			mapping: `general-product-enquiry`
 		},
 		{
-			key: FAILED_VERIFICATION,
-			value: `Client failed verification`,
-			mapping: `failed-verification`
+			key: NEED_ASSIGNED,
+			value: `Need assigned`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: NEED_HANDED_OFF,
+			value: `Need handed off`,
+			mapping: `general-product-enquiry`
+		},
+		{
+			key: LANGUAGE_TRANSFER,
+			value: `Language transfer`,
+			mapping: `language-transfer`
+		},
+		{
+			key: CALL_TRANSFERED,
+			value: `Call transferred`,
+			mapping: `call-transfer`
+		},
+		{
+			key: PRODUCT_ENQUIRY,
+			value: `Product enquiry`,
+			mapping: `general-product-enquiry`
 		}
 	],
 	TransactionHistory: [
