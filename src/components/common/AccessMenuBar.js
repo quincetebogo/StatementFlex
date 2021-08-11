@@ -6,9 +6,9 @@ import { ValueAddedService } from 'app/services/ValueAddedService';
 
 import 'platform/components';
 import 'app/components/dialogs/AccessChannelError';
-import 'app/components/dialogs/ValueAddedServices/ValueAddedServices';
-import 'app/components/dialogs/ValueAddedServices/ValueAddedServicesUnavailable';
-import 'app/components/dialogs/ValueAddedServices/VASNoClientData';
+import 'app/components/dialogs/valueAddedServices/ValueAddedServices';
+import 'app/components/dialogs/valueAddedServices/ValueAddedServicesUnavailable';
+import 'app/components/dialogs/valueAddedServices/VASNoClientData';
 
 /**
  * The AccessMenuBar is the right hand menu bar area in Horizon. This component currently houses

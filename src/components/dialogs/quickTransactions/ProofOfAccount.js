@@ -3,9 +3,9 @@ import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetrySe
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { NavigationContext } from 'platform/core';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 const ACCOUNT_TYPE = `PRIMARY_SAVINGS`;
 const EMAIL_REG_EXP = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
