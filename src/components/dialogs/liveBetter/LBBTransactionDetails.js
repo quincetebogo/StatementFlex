@@ -76,13 +76,15 @@ export class LinkedTransactionDetails extends Component {
 
 				/* Styles to display background color of header as a gradient*/
 				.header-gradient {
-					height: 64px;
 					width: 572px;
 					border-radius: 4px 4px 0px 0px;
 					position: absolute;
-					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 					left: -551px;
-					top: -42px;
+					top: -44px;					
+					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+					--theme-label-title-font-size: 18px;
+					--theme-titlebar-padding: 20px 16px;
+					--theme-label-font-family: 'Hind Vadodara semibold';
 				}
 
 				.header-gradient > capitec-label {
@@ -91,7 +93,7 @@ export class LinkedTransactionDetails extends Component {
 					--theme-label-default-font-size: 18px;
 					--theme-label-font-color: #ffffff;
 					letter-spacing: 0;
-					--theme-label-font-family: Hind Vadodara SemiBold;
+					--theme-label-font-family: 'Hind Vadodara SemiBold';
 				}
 
 				/* Transaction details Styles */
@@ -100,10 +102,11 @@ export class LinkedTransactionDetails extends Component {
 					height: 453px; 
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 8px;
+					--theme-layout-gap-spacing: 0px;
 				}
 
 				.details-horizontal {
-					margin-Top: 9px;
+					--theme-layout-gap-spacing: 9px;
 				}
 
 				horizon-label {
@@ -157,9 +160,8 @@ export class LinkedTransactionDetails extends Component {
 				type="free" 
 				data-automation-id="linked-transaction-details">
 					<div slot="header">
-						<capitec-group class="header-gradient">
-							<capitec-label label="Transaction Details"></capitec-label>
-						</capitec-group>
+						<capitec-title-bar type="primary" label="Transaction Details" class="header-gradient">
+						</capitec-title-bar>
 					</div>
 					<div slot="body">
 						 ${this._renderDetails()}
@@ -176,10 +178,11 @@ export class LinkedTransactionDetails extends Component {
 		<capitec-content-box
 			class="details-vertical" 
 			layout="vertical" 
-			gap="none" 
+			gap="clear" 
 			halign="left" 
 			valign="top">
 				<capitec-group 
+				class="details-horizontal"
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
@@ -193,7 +196,6 @@ export class LinkedTransactionDetails extends Component {
 				</capitec-group>
 
 				<capitec-group 
-					class="details-horizontal" 
 					layout="horizontal"
 					gap="none" 
 					halign="left" 
@@ -218,6 +220,7 @@ export class LinkedTransactionDetails extends Component {
 				</capitec-group>
 
 				<capitec-group 
+					class="details-horizontal"
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
@@ -237,7 +240,6 @@ export class LinkedTransactionDetails extends Component {
 				</capitec-group>
 
 				<capitec-group 
-					class="details-horizontal" 
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
