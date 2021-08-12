@@ -1,51 +1,14 @@
-import { Component, css, html, unsafeCSS } from 'platform/elements';
-import { EXPANDER_LABEL, STATUS_TAG, TABLE_EXPANDER_CELL } from 'app/css/TransactionHistory';
+import { Component, css, html } from 'platform/elements';
+import { FILTER_BY, RENDER_CHIPS, RENDER_MODE, TRANSACTION_HISTORY, TRANSACTION_STATUS_LIST } from 'app/constants/TransactionHistory';
 import { formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { DateTime } from 'luxon';
 import { SavingsAccountService } from 'app/services/SavingsAccountService';
 
-const RENDER_MODE = {
-    MAIN_PAGE: 0,
-    CALENDAR: 1
-};
-
-const FILTER_BY = {
-    ALL: `ALL`,
-    TEXT: `TEXT`,
-    DATE: `DATE`,
-    STATUS: `STATUS`
-};
-
-const RENDER_CHIPS = {
-    TEXT: ``,
-    DATE: ``,
-    STATUS: ``
-};
-
-const TRANSACTION_STATUS_LIST = [
-	`Fee`,
-    `Financial`,
-    `Non Financial`,
-    `Processing`,
-    `Reversed`
-
-];
-
-// ninety days in milliseconds
-const NINETY_DAYS = 7777000000;
-
-const TRANSACTION_HISTORY = {
-    ACCOUNT_TYPE: `PRIMARY_SAVINGS`,
-    END_DATE: new Date().toISOString().substr(0, 10),
-    START_DATE: new Date(`January 01, 2000`).toISOString().substr(0, 10),
-    MAX_RESULTS: 50,
-    MONEY_TYPE: `BOTH`
-};
-
 const today = new Date();
 
 /**
- * Transaction History screen is to display the list of transactions of a client.
+ * Transaction History, common component to display list of transactions happened in client's'
+ * account (Savng account/ LBB).
  *
  * Events Raised
  * -------------
@@ -58,87 +21,113 @@ const today = new Date();
 
 export class TransactionHistory extends Component {
 
-    // --------------
-    // INITIALISATION
-    // --------------
+	// --------------
+	// INITIALISATION
+	// --------------
 
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.transactionHistory = null;
-        this.accountDetails = null;
-        this.callerInformation = null;
+		this.transactionHistory = null;
+		this.accountDetails = null;
+		this.cifNumber = null;
 
-        this.isBusy = false;
+		this.isBusy = false;
 
-        // private properites
-        this.renderMode = RENDER_MODE.MAIN_PAGE;
-        this.showLoadMore = true;
+		// private properites
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+		this.showLoadMore = true;
 
-        this.startDate = ``;
-        this.endDate = ``;
-        this.errorMessage = ``;
-        this.calendarError = ``;
+		this.startDate = ``;
+		this.endDate = ``;
+		this.errorMessage = ``;
+		this.calendarError = ``;
 
-        this.filteredData = [];
-        this.rawTableData = [];
-        this.searchTextLabel = `Search for amount or transaction name`;
-        this.statuslabel = `Transaction status`;
+		this.filteredData = [];
+		this.rawTableData = [];
+		this.searchTextLabel = `Search for amount or transaction name`;
+		this.statuslabel = `Transaction status`;
+		this.accountNumber = ``;
 
-        this.startTransactionDate = null; /* new Date("January 01, 2000"); */
-        this.endTransactionDate = null; /* new Date(); */
+		this.startTransactionDate = null; /* new Date("January 01, 2000"); */
+		this.endTransactionDate = null; /* new Date(); */
 
-        this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
-    }
+		this.savingsAccountService = new SavingsAccountService(() => this._toggleBusyFlag(), ex => this._errorHandler(ex));
+	}
 
-    // --------------
-    // PROPERTIES
-    // --------------
+	// --------------
+	// PROPERTIES
+	// --------------
 
 	/**
-	 * @property {Object} transactionHistory Has list of client's transactions
+	 * Callback function to render columns in table used by {@link TransactionHistory}.
+	 * 
+	 * @callback RenderTableColumns
+	 * @returns {string} capitec-table-columns list html response
+	 */
+
+	/**
+	 * Callback for rendering transaction details used by {@link TransactionHistory}.
+	 * 
+	 * @callback RenderTranactionDetails
+	 * @param {Object} [item] Current item for which transaction details to be rendered
+	 * 
+	 * @returns {string} Transaction details response, expander content
+	 */
+
+	/**
+	 * @property {Object} transactionHistory - Object holds transaction data
+	 * @property {Object} accountDetails - Account details (Account number, balance, etc..)
+	 * @property {string} cifNumber - Client's cif number
+	 * @property {Object} renderTableColumns - Callback function to render account sepecific columns
+	 * @property {Object} renderTransactionDetails - Callback function to render account sepecific transaction information
+	 * 
 	 * 
 	 * @readonly
 	 * @static
 	 * @memberof TransactionHistory
 	 */
 
-    static get properties() {
-        return {
-            transactionHistory: { type: Object },
-            accountDetails: { type: Object },
-            callerInformation: { type: Object },
+	static get properties() {
+		return {
+			transactionHistory: { type: Object },
+			accountDetails: { type: Object },
+			cifNumber: { type: Object },
+			type: { type: String },
 
-            filteredData: { attribute: false },
-            renderMode: { attribute: false },
-            isBusy: { attribute: false },
-            startDate: { type: String, attribute: false },
-            endDate: { type: String, attribute: false },
-            searchTextLabel: { attribute: false },
-            statuslabel: { attribute: false }
-        };
-    }
+			renderTableColumns: { type: Object },
+			renderTransactionDetails: { type: Object },
 
-    // -------------------
-    // LIFECYCLE OVERRIDES
-    // -------------------
+			filteredData: { attribute: false },
+			renderMode: { attribute: false },
+			isBusy: { attribute: false },
+			startDate: { type: String, attribute: false },
+			endDate: { type: String, attribute: false },
+			searchTextLabel: { attribute: false },
+			statuslabel: { attribute: false }
+		};
+	}
 
-    connectedCallback() {
-        super.connectedCallback();
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
 
-        this.rawTableData = this.transactionHistory;
-        this.transactionHistory = this._initialize(this.transactionHistory);
-        this.filteredData = this.transactionHistory;
+	connectedCallback() {
+		super.connectedCallback();
 
-    }
+		this.rawTableData = this.transactionHistory;
+		this.transactionHistory = this._initialize(this.transactionHistory);
+		this.filteredData = this.transactionHistory;
+		this.accountNumber = this.accountDetails[`Account number`];
+	}
 
-    // --------------
-    // EVENT HANDLERS
-    // --------------
+	// --------------
+	// EVENT HANDLERS
+	// --------------
 
-    _back() {
-        this.dispatchEvent(new CustomEvent(`back`, {}));
-    }
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
 
     _searchTextChange(event) {
         RENDER_CHIPS[FILTER_BY.TEXT] = event.detail.new;
@@ -233,8 +222,8 @@ export class TransactionHistory extends Component {
 
     async _populateTransactions() {
         const transactionHistoryRequest = {
-            cifNumber: this.callerInformation.cifNumber,
-            accountNumber: this.accountDetails.accountNumber,
+            cifNumber: this.cifNumber,
+            accountNumber: this.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: this.startTransactionDate.toLocaleString().slice(0, 10),
             endDate: this.endTransactionDate.toLocaleString().slice(0, 10),
@@ -358,8 +347,8 @@ export class TransactionHistory extends Component {
 		const endDate = this.endTransactionDate && this.endTransactionDate.toLocaleString().slice(0, 10);
 
         const transactionHistoryRequest = {
-            cifNumber: this.callerInformation.cifNumber,
-            accountNumber: this.accountDetails.accountNumber,
+            cifNumber: this.cifNumber,
+            accountNumber: this.accountNumber,
             accountType: TRANSACTION_HISTORY.ACCOUNT_TYPE,
             startDate: startDate || TRANSACTION_HISTORY.START_DATE,
             endDate: endDate || TRANSACTION_HISTORY.END_DATE,
@@ -451,7 +440,14 @@ export class TransactionHistory extends Component {
 					border-bottom: 0px;
 					border-radius: 4px 4px 0 0;
 					padding: 11px 24px 11px 15px;
+
+					--theme-label-font-color: #FFFFFF;
+				}
+				.transact {
 					background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				.lbb {
+					background: no-repeat url("../../images/common/lbb_gradient.svg");
 				}
 				.transaction-history-title > img {
 					width: 26px;
@@ -608,8 +604,8 @@ export class TransactionHistory extends Component {
         return this._webTemplate();
     }
 
-    _webTemplate() {
-        return html`
+	_webTemplate() {
+		return html`
 			<capitec-card class="transaction-card">
 				<capitec-group layout="vertical" gap="line" halign="left" valign="top">
 					${this._renderTitleBar()}
@@ -640,29 +636,29 @@ export class TransactionHistory extends Component {
 			</capitec-card>
 			${this._renderLoadingIndicator()}
 		`;
-    }
+	}
 
-    _renderAlertBanner() {
-        if (this.errorMessage) {
-            return html`
+	_renderAlertBanner() {
+		if (this.errorMessage) {
+			return html`
 				<capitec-alert-banner
 					type="unsuccessful-red"
 					data-automation-id="transaction-history-alert-banner">
 						<p><b>Notify:</b> ${this.errorMessage}</p>
 				</capitec-alert-banner>`;
-        }
-        return html``;
-    }
+		}
+		return html``;
+	}
 
-    _renderLoadingIndicator() {
-        return this.isBusy
-            ? html`<capitec-loading-indicator></capitec-loading-indicator>`
-            : html``;
-    }
+	_renderLoadingIndicator() {
+		return this.isBusy
+			? html`<capitec-loading-indicator></capitec-loading-indicator>`
+			: html``;
+	}
 
-    _renderTitleBar() {
-        return html`
-			<capitec-title-bar class="transaction-history-title" type="transact">
+	_renderTitleBar() {
+		return html`
+			<capitec-title-bar class="transaction-history-title ${this.type}" type="default">
 				<img
 					src="/images/insure/left-arrow.svg"
 					@click="${() => this._back()}"
@@ -673,47 +669,33 @@ export class TransactionHistory extends Component {
 				</capitec-label>
 			</capitec-title-bar>
 		`;
-    }
+	}
 
-    _renderAccountDetailsBar() {
-        return html`
-			<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-				<horizon-label
-					label="Account number"
-					value="${this.accountDetails.accountNumber}"
-					data-automation-id="transaction-history-acc-number">
-				</horizon-label>
-				<horizon-label
-					label="Balance"
-					value="${formatCurrency(this.accountDetails.balance)}"
-					data-automation-id="transaction-history-acc-bal">
-				</horizon-label>
-				<horizon-label
-					label="Available balance"
-					value="${formatCurrency(this.accountDetails.availableBalance)}"
-					data-automation-id="transaction-history-available-bal">
-				</horizon-label>
-				<horizon-label
-					label="Pending amount"
-					value="${formatCurrency(this.accountDetails.pendingAmount)}"
-					data-automation-id="transaction-history-pending-amount">
-				</horizon-label>
-				<horizon-label
-					label="Interest"
-					value="${this.accountDetails.interest}%"
-					data-automation-id="transaction-history-acc-interest">
-				</horizon-label>
-				<horizon-label
-					label="Status"
-					value="${this.accountDetails.status}"
-					data-automation-id="transaction-history-acc-status">
-				</horizon-label>
+	_renderAccountDetailsBar() {
+		const accDetails = Object.entries(this.accountDetails);
+		return html`
+			<capitec-group
+				class= "actionbar-header ${this.type}"
+				layout="horizontal"
+				gap="none"
+				halign="left"
+				valign="center">
+					${accDetails.map(item => {
+						const [key, value] = item;
+						return html`
+							<horizon-label
+								label="${key}"
+								value="${value}"
+								data-automation-id="transaction-history-${key.toLowerCase().split(``).join(`-`)}">
+							</horizon-label>
+						`;
+					})}
 			</capitec-group>
 		`;
-    }
+	}
 
-    _renderActionBar() {
-        return html`
+	_renderActionBar() {
+		return html`
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear" class="transaction-action-bar">
 				<capitec-text-field 
 					label=${this.searchTextLabel}
@@ -726,21 +708,21 @@ export class TransactionHistory extends Component {
 					value="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					data-automation-id="transaction-history-text-filter">
 				</capitec-text-field>
-                 <capitec-date-time-picker
-                    id="calendarRange"
-                    label = "Choose a date (up to 90 days)"
-                    startDate='${this.startDate}'
-                    endDate='${this.endDate}'
-                    maxDate="${new Date().toString()}"
-	                type="range"
-	                mode="date"
-	                inputType="calendar"
-	                outputType="string"
-	                .predefinedRanges="${this.getPredefinedDateRanges()}"
-                    @apply-clicked="${(e) => this._dateChanged(e)}"
+				<capitec-date-time-picker
+					id="calendarRange"
+					label = "Choose a date (up to 90 days)"
+					startDate='${this.startDate}'
+					endDate='${this.endDate}'
+					maxDate="${new Date().toString()}"
+					type="range"
+					mode="date"
+					inputType="calendar"
+					outputType="string"
+					.predefinedRanges="${this.getPredefinedDateRanges()}"
+					@apply-clicked="${(e) => this._dateChanged(e)}"
 					data-automation-id="transaction-history-date-filter">
-                </capitec-date-time-picker>
-            <capitec-select
+				</capitec-date-time-picker>
+				<capitec-select
 					label="${RENDER_CHIPS[FILTER_BY.STATUS] !== `` ? `` : this.statuslabel}" 
 					class="transaction-status-select"
 					.items="${TRANSACTION_STATUS_LIST}"
@@ -752,11 +734,11 @@ export class TransactionHistory extends Component {
 				</capitec-select>
 			</capitec-group>
 		`;
-    }
+	}
 
-    _renderFilterBar() {
-        if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.STATUS] !== ``) {
-            return html`
+	_renderFilterBar() {
+		if (RENDER_CHIPS[FILTER_BY.TEXT] !== `` || RENDER_CHIPS[FILTER_BY.DATE] !== `` || RENDER_CHIPS[FILTER_BY.STATUS] !== ``) {
+			return html`
 				<capitec-action-bar
 					class="filter-bar"
 					data-automation-id="transaction-history-active-filters">
@@ -772,175 +754,58 @@ export class TransactionHistory extends Component {
 						</capitec-button>
 				</capitec-action-bar>
 			`;
-        }
-    }
+		}
+	}
 
-    _renderTextChip() {
-        if (RENDER_CHIPS[FILTER_BY.TEXT]) {
-            return html`
+	_renderTextChip() {
+		if (RENDER_CHIPS[FILTER_BY.TEXT]) {
+			return html`
 				<capitec-chip
 					label="${RENDER_CHIPS[FILTER_BY.TEXT]}"
 					@remove="${() => this._closeChip(FILTER_BY.TEXT)}"
 					closable>
 				</capitec-chip>
 			`;
-        }
-    }
+		}
+	}
 
-    _renderDateChip() {
-        if (RENDER_CHIPS[FILTER_BY.DATE]) {
-            return html`
+	_renderDateChip() {
+		if (RENDER_CHIPS[FILTER_BY.DATE]) {
+			return html`
 				<capitec-chip
 					label="${RENDER_CHIPS[FILTER_BY.DATE]}"
 					@remove="${() => this._closeChip(FILTER_BY.DATE)}"
 					closable>
 				</capitec-chip>
 			`;
-        }
-    }
+		}
+	}
 
-    _renderStatusChip() {
-        if (RENDER_CHIPS[FILTER_BY.STATUS]) {
-            return html`
+	_renderStatusChip() {
+		if (RENDER_CHIPS[FILTER_BY.STATUS]) {
+			return html`
 				<capitec-chip
 					label="${RENDER_CHIPS[FILTER_BY.STATUS]}"
 					@remove="${() => this._closeChip(FILTER_BY.STATUS)}"
 					closable>
 				</capitec-chip>
 			`;
-        }
-    }
+		}
+	}
 
-    _renderTransactionHistory() {
-        return html`
+	_renderTransactionHistory() {
+		return html`
 			<capitec-table
 				.items = "${this.filteredData}"
 				groupField="groupByItem"
 				displayMode="Full"
-				expandable="right"
 				?fixed = "${true}"
-				.expandRenderer="${(item) => this._renderExpander(item)}"
+				.expandRenderer="${(item) => this.renderTransactionDetails(item)}"
 				data-automation-id="transaction-history-table">
-					<capitec-table-column label="Transaction Date" field="transactionDate" type="date" size="156px;"></capitec-table-column>
-					<capitec-table-column label="Description" field="description" size="410px;"></capitec-table-column>
-					<capitec-table-column label="Transaction Status" field="transactionStatus" size="144px;"
-					.renderer="${(item, fieldName, value) => this._renderTransactionStatus(value)}">
-					</capitec-table-column>
-					<capitec-table-column label="Amount" field="formatedAmount" size="158px;" type="currency"></capitec-table-column>
-					<capitec-table-column label="Balance" field="formatedBalance" size="130px;" type="currency" align ="right"></capitec-table-column>
+					${this.renderTableColumns()}
 			</capitec-table>
 		`;
 	}
-
-	_renderTransactionStatus(value) {
-		return value === `Processed`
-			? html``
-			: html`
-				<div style="${unsafeCSS(STATUS_TAG.tagContainer)} ${unsafeCSS(STATUS_TAG.tagType)}">
-					<div style="${unsafeCSS(STATUS_TAG.tagLabel).toString()}">${value}</div>
-				</div>`;
-    }
-
-    _renderExpander(item) {
-        return html`
-			<capitec-label
-				style = "${unsafeCSS(EXPANDER_LABEL).toString()}"
-				label="Statement description: ${item.description}"
-				data-automation-id="transaction-history-item-description">
-			</capitec-label>
-	
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction type"
-					value = "${item.transactionType ? item.transactionType : `-`}"
-					data-automation-id="transaction-history-item-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transfer account"
-					value = "${item.transferAccount ? item.transferAccount : `-`}"
-					data-automation-id="transaction-history-item-transfer-account">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Posting date" 
-					value = "${this._formatDate(item.postingDate)}"
-					data-automation-id="transaction-history-item-posting-date">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Processed date"
-					value = "${this._formatDate(item.processDate)}"
-					data-automation-id="transaction-history-item-processed-date">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Transaction code"
-					value = "${item.transactionCode ? item.transactionCode : `-`}"
-					data-automation-id="transaction-history-item-code">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card number"
-					value = "${item.cardNumber ? item.cardNumber : `-`}"
-					data-automation-id="transaction-history-item-card-number">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Card authentication type"
-					value = "${item.cardAuthType ? item.cardAuthType : `-`}"
-					data-automation-id="transaction-history-item-card-auth-type">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Journal number"
-					value = "${item.journalNumber ? item.journalNumber : `-`}"
-					data-automation-id="transaction-history-item-journal-number">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Includes Vat"
-					value = "${item.includesVat ? `Yes` : `No`}"
-					data-automation-id="transaction-history-item-includes-vat">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="External terminal ID"
-					value = "${item.externalTerminalId ? item.externalTerminalId : `-`}"
-					data-automation-id="transaction-history-item-terminalID">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Cash back"
-					value = "${item.cashback ? item.cashback : `-`}"
-					data-automation-id="transaction-history-item-cashback">
-				</horizon-label>
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.expanderColumns)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Branch" 
-					value = "${item.branch ? item.branch : `-`}"
-					data-automation-id="transaction-history-item-branch">
-				</horizon-label>
-			</capitec-group>
-
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<horizon-label
-					style="${unsafeCSS(TABLE_EXPANDER_CELL.firstcolumn)} ${unsafeCSS(TABLE_EXPANDER_CELL.expanderCell)}" 
-					label="Teller"
-					value = "${item.teller ? item.teller : `-`}"
-					data-automation-id="transaction-history-item-teller">
-				</horizon-label>
-			</capitec-group>
-		`;
-    }
-
 }
 
 customElements.define(`horizon-transaction-history`, TransactionHistory);
