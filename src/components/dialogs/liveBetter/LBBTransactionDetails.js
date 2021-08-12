@@ -89,7 +89,6 @@ export class LinkedTransactionDetails extends Component {
 					line-height: 64px;
 					padding-left: 16px;
 					--theme-label-default-font-size: 18px;
-					--theme-label-default-font-weight: 600;
 					--theme-label-font-color: #ffffff;
 					letter-spacing: 0;
 					--theme-label-font-family: Hind Vadodara SemiBold;
@@ -98,8 +97,9 @@ export class LinkedTransactionDetails extends Component {
 				/* Transaction details Styles */
 				.details-vertical {
 					width: 572px;
-					height: 453px;
-					padding: 8px 16px 16px 0px;
+					height: 453px; 
+					--theme-container-padding-left: 0px;
+					--theme-container-padding-top: 8px;
 				}
 
 				.details-horizontal {
@@ -173,7 +173,7 @@ export class LinkedTransactionDetails extends Component {
 
 	_renderDetails() {
 		return html`
-		<capitec-group 
+		<capitec-content-box
 			class="details-vertical" 
 			layout="vertical" 
 			gap="none" 
@@ -260,7 +260,7 @@ export class LinkedTransactionDetails extends Component {
 							value="${this.transactionDetails.longDescription}">
 						</horizon-label>
 				</capitec-group>
-		</capitec-group>
+		</capitec-content-box>
 		`;
 	}
 
