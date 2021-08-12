@@ -1,10 +1,10 @@
 import { Configuration, EventAggregator, Logger, NavigationContext, Security, SecurityContext } from 'platform/core';
 import { HORIZON_VIEW_SET, HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { NewCallEvent } from 'app/models//NewCallEvent';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { validate } from 'app/utils/channelServiceUtilities';
 
 /**

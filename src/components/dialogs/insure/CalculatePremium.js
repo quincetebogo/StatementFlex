@@ -1,6 +1,6 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator } from 'platform/EventAggregator';
-import { HttpStatusError } from 'platform/errors/HttpStatusError';
+import { HttpStatusError } from 'platform/core/errors/HttpStatusError';
 
 import { InsureService } from 'app/services/InsureService';
 
