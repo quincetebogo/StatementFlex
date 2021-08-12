@@ -35,7 +35,8 @@ const HORIZON_ROUTES = Object.freeze({
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
+	LIVE_BETTER: `/liveBetter`
 });
 
 /**
@@ -221,7 +222,7 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToProductInfo(`Credit`);
+		const credit = () => this.navigateToLiveBetter();
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
@@ -269,6 +270,10 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
+	navigateToLiveBetter() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
 
 	_productLandingPagesActive() {
@@ -640,5 +645,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL,
 		load: () => import(`../views/tapToPay/TapToPayUnsuccessful`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-live-better`,
+		title: `LiveBetter`,
+		icon: null,
+		path: HORIZON_ROUTES.LIVE_BETTER,
+		load: () => import(`../views/liveBetter/LiveBetter`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
