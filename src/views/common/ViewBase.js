@@ -56,7 +56,7 @@ export class ViewBase extends View {
 		this.incidentDetails = this.horizonStore.getIncidentDetails();
 		this.isReassigned = this.horizonStore.getIsIncidentReassigned();
 		this.isBusy = false;
-		this.endCallContext = ``;
+		this.endCallContext = `LandingPage`;
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 		this.showEndCall = false;
 		this.showAddCallerDetails = false;
@@ -234,17 +234,7 @@ export class ViewBase extends View {
 			"screen": screenName
 		});
 	}
-
-	_getEndCallContext() {
-		if (this.callerInformation.verificationStatus === `unverified`) {
-			this.endCallContext = `UnverifiedLandingPage`;
-		} else if (this.callerInformation.verificationStatus === `verified`) {
-			this.endCallContext = `VerifiedLandingPage`;
-		} else { 
-			this.endCallContext = `NonClientLandingPage`; 
-		}
-		return this.endCallContext;
-	}
+	
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -315,7 +305,7 @@ export class ViewBase extends View {
 					.incidentDetails="${this.incidentDetails}"
 					.incomingCallDetails="${this.incomingCallDetails}"
 					.isReassigned="${this.isReassigned}"
-					.endCallContext="${this._getEndCallContext()}"
+					endCallContext="${this.endCallContext}"
 					@cancel="${() => this._cancelEndCallClick()}">
 				</horizon-end-call-session>`
 			: html``;

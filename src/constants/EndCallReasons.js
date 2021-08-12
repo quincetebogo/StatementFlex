@@ -82,7 +82,8 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		}
 	],
-	UnverifiedLandingPage: [
+	LandingPage: {
+	"unverified": [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -119,7 +120,7 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		}
 	],
-	VerifiedLandingPage: [
+	"verified": [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -161,7 +162,7 @@ export const END_CALL_REASON = Object.freeze({
 			mapping: `general-product-enquiry`
 		}
 	],
-	NonClientLandingPage: [
+	"non-client": [
 		{
 			key: NEED_FULFILLED,
 			value: `Need fulfilled`,
@@ -192,7 +193,8 @@ export const END_CALL_REASON = Object.freeze({
 			value: `Product enquiry`,
 			mapping: `general-product-enquiry`
 		}
-	],
+	]
+	},
 	TransactionHistory: [
 		{
 			key: NEED_FULFILLED,
@@ -208,11 +210,6 @@ export const END_CALL_REASON = Object.freeze({
 			key: NEED_HANDED_OFF,
 			value: `Need handed off`,
 			mapping: `transaction-history`
-		},
-		{
-			key: LANGUAGE_TRANSFER,
-			value: `Language transfer`,
-			mapping: `language-transfer`
 		},
 		{
 			key: CALL_TRANSFERED,

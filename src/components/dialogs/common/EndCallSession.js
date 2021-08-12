@@ -69,7 +69,7 @@ export class EndCallSession extends Component {
 	/**
 	 * @property {Object} incomingCallDetails Incoming call information
 	 * @property {Object} incidentDetails Incident details
-	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient, UnverifiedLandingPage, VerifiedLandingPage || NonClientLandingPage
+	 * @property {String} endCallContext Determines the options presented. Value is ConfirmClient, VerifyClient or LandingPage
 	 * @property {Boolean} isReassigned Flag to indicate of the incident has been assigned or not (Unused by v1.0 of the channel service)
 	 * @readonly
 	 * @static
@@ -98,9 +98,9 @@ export class EndCallSession extends Component {
 			"screen": TelemetryScreen.END_CALL
 		});
 
-		//Making end call reasons context sensitive 
-
-		this.endCallReasons = END_CALL_REASON[this.endCallContext];
+		// Making end call reasons context sensitive 
+		const callerInformation = this.horizonStore.getCallerInformation();
+		this.endCallReasons = END_CALL_REASON[this.endCallContext][callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
 		this.incomingCallDetails.isReassigned = isNullorEmpty(this.isReassigned) ? false : this.isReassigned; 
