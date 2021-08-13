@@ -90,7 +90,7 @@ export class AutomaticSavingsFailure extends ViewBase {
 			<horizon-error-screen
 				data-automation-id="automatic-savings-failure-screen"
 				id="id-error-toast"
-				image="/images/automatic-savings.svg"
+				image="/images/liveBetterSavings/automatic-savings.svg"
 				header="Automatic savings update unsuccessful" 
 				left="Done"
 				right="Assign"

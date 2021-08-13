@@ -36,6 +36,7 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
+	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
 	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`
 });
 
@@ -274,6 +275,10 @@ export class HorizonRouter {
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+	}
+
+	navigateToAutomaticSavingsSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS}`);
 	}
 
 	navigateToAutomaticSavingsFailure() {
@@ -652,6 +657,14 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED,
 		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-automatic-savings-success`,
+		title: `AutomaticSavingsSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
+		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsSuccess`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	}
 ];

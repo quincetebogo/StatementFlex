@@ -53,6 +53,7 @@ export const relatedOptions = {
 		]
 	},
 	'automatic-savings' : {
+		Success : [`statements`],
 		Failure : [`statements`]
 	}
 };
