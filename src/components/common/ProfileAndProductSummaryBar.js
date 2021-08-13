@@ -33,6 +33,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.subtitle = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
@@ -40,6 +41,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.detail = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
