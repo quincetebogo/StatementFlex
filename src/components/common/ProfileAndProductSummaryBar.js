@@ -136,6 +136,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 
 		if (state && state.leftBarButtonConfig) {
+			console.log(state.leftBarButtonConfig)
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;

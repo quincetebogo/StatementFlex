@@ -343,10 +343,12 @@ export class Favourites extends SavingsAccountBase {
             this.landingPageInfo = {
                 savingsAccountProductDescription: ``,
                 savingsPlanProductDescription: ``,
+				liveBetterProductDescription: ``,
                 insureProductDescription: ``,
                 creditProductDescription: ``,
                 savingsAccountProductAmount: ``,
                 savingsPlanProductAmount: ``,
+				liveBetterProductAmount: ``,
                 insureProductAmount: ``,
                 creditProductAmount: ``,
                 pendingMandateCount: 0
@@ -366,6 +368,7 @@ export class Favourites extends SavingsAccountBase {
         if (this.landingPageInfo) {
             subtitle = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: `Available balance`,
                 savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
                 insure: this.landingPageInfo.insureProductDescription,
                 credit: this.landingPageInfo.creditProductDescription
@@ -373,6 +376,7 @@ export class Favourites extends SavingsAccountBase {
 
             detail = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: `R 0.00`,
                 savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
                 insure: this.landingPageInfo.insureProductAmount,
                 credit: this.landingPageInfo.creditProductAmount
