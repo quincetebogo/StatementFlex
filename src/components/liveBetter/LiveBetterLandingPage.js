@@ -5,7 +5,7 @@ import 'app/components/common/OptionButton';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Live Better landig screen component
+ * Live Better landig screen component - verified view
  *
  * Events Raised
  * -------------
@@ -62,8 +62,8 @@ export class LiveBetterLandingPage extends Component {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
 	}
 
-	_accountSavingsEnquiry(productEnquiry) {
-		this.dispatchEvent(new CustomEvent(`savings-enquiry`, { detail: { enquiry: productEnquiry } }));
+	_liveBetterEnquiry(productEnquiry) {
+		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
 	}
 
 	// --------------
@@ -86,18 +86,20 @@ export class LiveBetterLandingPage extends Component {
 					width: 100%;
 					height: auto;
 				}
+
 				/* Title Bar styles */
 				capitec-title-bar {
-					--theme-type-primary-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+					--theme-type-primary-background: url(../../images/Lbb-1.png);
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
 					--theme-label-title-font-weight: 600;
 				}
+
 				/* Main view styles */
 				capitec-content-box {
 					width: auto;
-					height: 666px;
+					height: 708px;
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 19px;
@@ -112,6 +114,7 @@ export class LiveBetterLandingPage extends Component {
 
 					--theme-card-min-height: 64px;
 				}
+
 				/* Account Details Bar Styles */
 				.account-details-bar {
 					display: flex;
@@ -121,6 +124,7 @@ export class LiveBetterLandingPage extends Component {
 					position: absolute;
 					border-radius:4px;
 					--theme-expander-border: 0px;
+					--theme-expander-header-padding: 0px 36px;
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 0px;
@@ -134,20 +138,26 @@ export class LiveBetterLandingPage extends Component {
 				.account-details-bar > capitec-group {
 					width: 984px;
 					z-index: 10;
-					padding: 12px 16px;
+					padding: 0px 16px;
 				}
 				.actionbar-header > capitec-icon {
 					--theme-icon-size-medium: 24px;
 				}
+				.vertical-line{
+                    height: 48px;
+                    width: 1px;
+                    background-color: #E1E1E1;
+                }
 				.actionbar-header > horizon-label {
-					width: 156px;
+					width: 158px;
 					height: 100%;
 					font-weight: 300;
 					justify-content: left;
-					padding: 0px 0px 0px 16px;
+					padding: 12px 0px 12px 16px;
 					--horizon-label-text-height: 20px;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-line-height: 20px;
+					--horizon-label-text-color: #3A3A3A;
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-line-height: 20px;
@@ -156,7 +166,6 @@ export class LiveBetterLandingPage extends Component {
 				.actionbar-header > horizon-label[label="Account number"] {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
-					border-right: 1px solid #dfdfdf;
 				}
 				.actionbar-header > horizon-label[label="Interest"] {
 					width: 120px;
@@ -164,13 +173,36 @@ export class LiveBetterLandingPage extends Component {
 				.actionbar-header > horizon-label[label="Status"] {
 					--horizon-label-value-color: #70AF00;
 				}
+				.toggle-group {	
+					width: 158px;
+					padding: 12px 0px 12px 16px;
+				}
+				.toggle-group > capitec-toggle {
+					--theme-label-font-color: #3A3A3A;
+					--theme-label-font-size: 16px;
+					--theme-label-font-weight: 600;
+					--theme-toggle-label-spacing: 6px;
+					--theme-toggle-track-inset: 1px;
+				}
+				}
+				.toggle-group > capitec-label {
+					--theme-label-default-font-size: 14px;
+					--theme-label-font-family: Hind Vadodara;
+					--theme-label-font-color: #3A3A3A;
+				}
+				.expander-content {	
+					border-left: 1px solid #E1E1E1;
+					border-bottom: 1px solid #E1E1E1;
+					border-right: 1px solid #E1E1E1;
+					border-radius: 0px 0px 4px 4px;
+				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
 					--theme-titlebar-padding: 0px 0px 0px 16px;
 					--theme-type-default-background: rgb(244, 244, 244);
 					--theme-label-title-font-size: 15px;
 					--theme-label-title-font-weight: 600;
-					--theme-type-default-font-color: #545D60;
+					--theme-type-default-font-color: #3A3A3A;
 					--theme-label-title-font-size: 14px;
 					--theme-titlebar-shadow: 0px;
 
@@ -198,17 +230,7 @@ export class LiveBetterLandingPage extends Component {
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
-				}
-				.label-text {
-					--horizon-option-btn-text-margin-top: 10px;
-				}
-				.expander-content {					
-					border-left: 1px solid #E1E1E1;
-					border-bottom: 1px solid #E1E1E1;
-					border-right: 1px solid #E1E1E1;
-					border-radius: 0px 0px 4px 4px;
-				}
-				
+				}				
 			`
 		];
 	}
@@ -251,22 +273,29 @@ export class LiveBetterLandingPage extends Component {
 						label="Account number"
 						value="${this.landingPageInfo.accountNumber}">
 					</horizon-label>
+
+					<div class="vertical-line"></div>
+
 					<horizon-label
 						label="Available balance"
 						value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
 					</horizon-label>
-					<horizon-label
-						label="Round-up"
-						value="${formatCurrency(this.landingPageInfo.accountPendingAmount)}">
-					</horizon-label>
-					<horizon-label
-						label="Interest Sweep"
-						value="${this.landingPageInfo.interestRatePercentage}">
-					</horizon-label>
+
+					<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
+						<capitec-label label="Round-up"></capitec-label>
+						<capitec-toggle label="${formatCurrency(this.landingPageInfo.roundUpAmount)}" checked></capitec-toggle>
+					</capitec-group>
+
+					<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
+						<capitec-label label="Interest Sweep"></capitec-label>
+						<capitec-toggle label="${this.landingPageInfo.interestSweep}" checked></capitec-toggle>
+					</capitec-group>
+
 					<horizon-label
 						label="Interest rate"
 						value="${this.landingPageInfo.interestRatePercentage}">
 					</horizon-label>
+
 					<horizon-label
 						label="Status"
 						value="${this.landingPageInfo.accountStatus}">
@@ -298,7 +327,7 @@ export class LiveBetterLandingPage extends Component {
 					<horizon-option-button 
 						class="button-margin"
 						label="Automatic Savings" 
-						icon="system/more-action"
+						img-src="/images/automatic-savings.svg"
 						@click="${() => this._optionSelectedClick(`automatic-savings`)}">
 					</horizon-option-button>
 				</capitec-group>
@@ -312,7 +341,7 @@ export class LiveBetterLandingPage extends Component {
 
 				<capitec-title-bar
 					type="default"
-					label="Explore Saving Account"
+					label="Explore Live Better"
 					class="other-options">
 				</capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -320,12 +349,12 @@ export class LiveBetterLandingPage extends Component {
 							class="button-margin"
 							label="Product enquiry"
 							icon="system/info-action"
-							@click="${() => this._accountSavingsEnquiry(`product-enquiry`)}">
+							@click="${() => this._liveBetterEnquiry(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button 
 							class="button-margin"
 							label="Partner Benefits"
-							icon="system/info-action"
+							icon="system/client-insights-action"
 							@click="">
 					</horizon-option-button>
 				</capitec-group>

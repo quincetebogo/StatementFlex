@@ -1,5 +1,33 @@
 import { Component, css, html } from 'platform/elements';
 
+const PAGE_INFO = {
+	transact: {
+		header: `More info to come`,
+		icon: `transact-white`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+	},
+	save: {
+		header: `More info to come`,
+		icon: `save-white`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+	},
+	insure: {
+		header: `More info to come`,
+		icon: `insure-white`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+	},
+	credit: {
+		header: `More info to come`,
+		icon: `credit-white`,
+		details: `Want to know the benefits and fees visit the Capitec website for all info and more`,
+	},
+	liveBetter: {
+		header: `More to come soon`,
+		icon: `save-white`,
+		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`,
+	}
+};
+
 /**
  * This is a temporary component for opening product information pages on CNET. The component will later
  * be replaced by Horizon built product information pages and/or product landing pages.
@@ -41,6 +69,21 @@ export class CnetProductInfo extends Component {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 12px 16px;
 				}
+				.transact {
+					--theme-type-primary-background: linear-gradient(135deg, #126D9B 0%, #0985C5 54.69%, #298EA7 100%);
+				}
+				.save {
+					--theme-type-primary-background: linear-gradient(135deg, #002A3F 0%, #00537D 52.97%, #024D73 100%);
+				}
+				.credit {
+					--theme-type-primary-background: linear-gradient(90deg, #B62825 0%, #E61414 100%);
+				}
+				.insure {
+					--theme-type-primary-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
+				}
+				.liveBetter {
+					--theme-type-primary-background: url(../../images/Lbb-1.png);
+				}
 				#id-more-info {
 					margin: 43px auto 8px auto;
 					color: #3A3A3A;
@@ -51,6 +94,8 @@ export class CnetProductInfo extends Component {
 					color: #3A3A3A;
 					font-size: 15px;
 					line-height: 20px;
+					text-align: center;
+					max-width: 684px;
 					margin-bottom: 32px;
 				}
 				.benefits-button {
@@ -80,10 +125,11 @@ export class CnetProductInfo extends Component {
 			<capitec-card class="product-info">
 			<capitec-title-bar
 				data-automation-id="cnet-product-info-title-bar"
-				type="${this.viewType}">
+				class="${this.viewType}"
+				type="primary">
 					<capitec-icon
 						size="medium"
-						icon="product/${this.viewType}-white">
+						icon="product/${PAGE_INFO[this.viewType].icon}">
 					</capitec-icon>
 					<capitec-label
 						data-automation-id="cnet-product-info-title"
@@ -101,11 +147,11 @@ export class CnetProductInfo extends Component {
 						<img src="images/landingPageImages/marketing.svg"/>
 						<capitec-label
 							id="id-more-info"
-							label="More info to come">
+							label="${PAGE_INFO[this.viewType].header}">
 						</capitec-label>
 						<capitec-label
 							class="insights-subtitle"
-							label="Want to know the benefits and fees visit the Capitec website for all info and more">
+							label="${PAGE_INFO[this.viewType].details}">
 						</capitec-label>
 						<capitec-button
 							data-automation-id="cnet-product-info-view-benefits"
