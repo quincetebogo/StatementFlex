@@ -4,8 +4,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/inputs/Select';
 import 'platform/components/popups/AlertBanner';
