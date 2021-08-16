@@ -88,7 +88,7 @@ export class HorizonEmailInput extends Component {
 				email: email,
 				confirmEmail: confirm
 			}
-		}))
+		}));
 	}
 
 	_validateEmailAddress() {
@@ -145,7 +145,7 @@ export class HorizonEmailInput extends Component {
 	}
 
 	static get styles() {
-		return[
+		return [
 			super.styles,
 			css`
 			.emailLabel[type="subtitle"] {
@@ -154,9 +154,8 @@ export class HorizonEmailInput extends Component {
 				--theme-label-subtitle-font-size: 18px;
 				--theme-label-subtitle-font-weight: 600;
 				--theme-layout-gap-spacing: 16px;
-			}
-			`
-		]
+			}`
+		];
 	}
 
 	_mobileTemplate() {
