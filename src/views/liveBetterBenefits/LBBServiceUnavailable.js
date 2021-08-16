@@ -1,14 +1,15 @@
 import { css, html } from 'platform/elements';
+import { Configuration, EventAggregator } from 'platform/core';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/common/ErrorScreen';
+import 'app/components/common/ServiceCallErrorScreen';
 import 'app/components/common/RelatedOptions';
 
 /**
- * Proof of Account send failure Screen that can be displayed when channel service calls fail. 
+ * Live Better Benefits failure Screen that can be displayed when channel service is unavailable. 
  *
  * @export
  * @class LBBServiceUnavailable
@@ -23,11 +24,12 @@ import 'app/components/common/RelatedOptions';
 
 	constructor() {
 		super();
+		
+		this._eventAggregator = EventAggregator.getInstance();
 
-		this.mailId = ``;
-		this.acNumber = ``;
+		this._configuration = Configuration.getInstance();
 
-		this._telemetry = HorizonTelemetry.instance;
+		this._telemetry = HorizonTelemetry.instance; 
 	}
 
 	
@@ -44,45 +46,25 @@ import 'app/components/common/RelatedOptions';
 
 		this.screenDetails = this.horizonStore.getScreenDetails();
 
-		this.mailId = this.screenDetails && this.screenDetails.emailAddress;
-		this.acNumber = this.screenDetails && this.screenDetails.accountNumber;
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.FAILED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
 	}
 
 	disconnectedCallback() {
 		super.disconnectedCallback();
-
-		this._telemetry.endSpan(QuickTransactionEvents.PROOF_OF_ACCOUNT, {
-			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME
-		});
+		//Telemetry to be fully implemented when the CS call & Navigation for LBB is done 
+		this._telemetry.endSpan(QuickTransactionEvents.LIVE_BETTER_BENEFITS, {
+			"screen": TelemetryScreen.LIVE_BETTER_BENEFITS_UNAVAILABLE
+		}); 
 	}
 
 	// --------------
 	// EVENT HANDLERS
 	// --------------
 
-	_doneClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_DONE, {
-			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
-		this.horizonStore.clearReturnScreen();
-		this.horizonRouter.navigateToQuickTransactionFavourites();
-	}
-
-	_assignClick() {
-		this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME_HANDOFF, {
-			"screen": TelemetryScreen.PROOF_OF_ACCOUNT_OUTCOME,
-			"next-screen": TelemetryScreen.FAVOURITES
-		});
-
-		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.ASSIGNED;
-		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		this.horizonRouter.navigateToStrack(this.incidentDetails.incidentRecId);
-		this.horizonStore.clearReturnScreen();
+	async _findBranchClick() {
+		const branchLocatorUrl = await this._configuration.getSetting(`otherSystemsURL.branch-locator`);
+		window.open(`${branchLocatorUrl}`);
 	}
 
 	// ---------
@@ -93,8 +75,8 @@ import 'app/components/common/RelatedOptions';
 		return [
 			super.styles,
 			css`
-				horizon-error-screen {
-					--horizon-error-screen-height:768px;
+			horizon-service-call-error-screen {
+					--horizon-service-call-error-screen:768px;
 				}
 				#id-error-msg {
 					width: auto;
@@ -102,6 +84,7 @@ import 'app/components/common/RelatedOptions';
                     color:#3A3A3A;
                     margin-bottom:35px;
 				}
+				
 			`
 		];
 	}
@@ -112,40 +95,31 @@ import 'app/components/common/RelatedOptions';
 
 	_webTemplate() {
 		return html`
-			${this._renderProofOfAccountFailure()}
-			${this._renderRelatedOptions()}
-
+			${this._renderLBBServiceUnavailable()}
 			${super._webTemplate()}
 		`;
 	}
 
-	_renderProofOfAccountFailure() {
+	_renderLBBServiceUnavailable() {
 		return html`
-			<horizon-error-screen
-				data-automation-id="proof-of-account-failure-screen"
+			<horizon-service-call-error-screen
+				data-automation-id="lbb-service-unavailable-screen"
 				image="/images/insure/assign-pay-arrears.svg"
-				header="Proof of account not sent" 
-				left="Done"
-				right="Assign"
-				toast="Proof of account not sent"
-				@left-click=${() => this._doneClick()}
-				@right-click=${() => this._assignClick()}>
+				header="Live Better currently unavailable" 
+				right="Find a Branch"
+				bannerDetail= "Notify client: Live Better is currently unavailable"
+				displayToast = "${this.displayToast}"
+				@right-click=${() => this._findBranchClick()}>
 				<section id="id-error-msg" slot="detail">
-					Your proof of account document for account <b>${this.acNumber}</b> was not emailed to <b>${this.mailId}</b>
+					<p>We are experiencing technical difficulties.<br>
+					We are sorry for the inconvenience and aim to have it resolved soon.</p>
+					<p><b>For any urgent matters, please visit a branch</b></p>
 				</section>
-			</horizon-error-screen>
+				
+			</horizon-service-call-error-screen>
 		`;
+		
 	}
-
-	_renderRelatedOptions() {
-		return html`
-			<horizon-related-options
-			data-automation-id="proof-of-account-failure-related-options"
-				context = "Failure">
-			</horizon-related-options>
-		`;
-	}
-
 }
 
 customElements.define(`horizon-lbb-service-unavailable`, LBBServiceUnavailable);
