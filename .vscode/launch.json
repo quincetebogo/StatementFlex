@@ -9,7 +9,10 @@
 			"port": 9222,
 			"request": "attach",
 			"type": "pwa-msedge",
-			"webRoot": "${workspaceFolder}"
+			"webRoot": "${workspaceFolder}",
+			"env": {
+				"PATH": "${workspaceFolder}/ocwp/1.5.0/node;${env:PATH}"
+			}
 		},
 		{
 			"name": "Launch Edge",
@@ -21,7 +24,7 @@
 			"sourceMaps": true,
 			"trace": true,
 			"env": {
-				"PATH": "${workspaceFolder}/ocwp/1.4.1/node;${env:PATH}"
+				"PATH": "${workspaceFolder}/ocwp/1.5.0/node;${env:PATH}"
 			}
 		}
 	]

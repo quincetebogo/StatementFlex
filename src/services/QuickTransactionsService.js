@@ -35,6 +35,16 @@ export class QuickTransactionsService extends ServiceBase {
 		return this.wrapCall(this.channelService.viewStatement(statement), `viewStatement`, errorHandler, autoRetries);
 	}
 
+	viewTaxCertificate(taxCertificate, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		return this.wrapCall(this.channelService.viewTaxCertificate(taxCertificate), `viewTaxCertificate`, errorHandler, autoRetries);
+	}
+
+	async sendTaxCertificate(clientInfo, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+		
+		return this.wrapCall(this.channelService.sendTaxCertificate(clientInfo), `sendTaxCertificate`, errorHandler, autoRetries);
+	}
+
 	cardLimitsLanding(cifNumber, incidentRecId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.cardLimitsLanding(cifNumber, incidentRecId), `cardLimitsLanding`, errorHandler, autoRetries);
 	}

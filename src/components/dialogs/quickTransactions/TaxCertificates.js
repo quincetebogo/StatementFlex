@@ -174,12 +174,24 @@ export class TaxCertificate extends Component {
 			this._updateScreenDetails();
 
 			const clientInfo = {
-				"cifNumber": this.callerInformation.cifNumber,
-				"accountNumber": this.landingPageInfo.accountNumber,
-				"accountOpenedDate": this._formatDate(this.landingPageInfo.accountOpenedDate),
+				"cif": this.callerInformation.cifNumber,
 				"emailAddress": this.idEmailAddress,
-				"accountType": ACCOUNT_TYPE
+				"documentIds": [
+							`${this.clientDetails.iT3BTaxCertificates.documentId}`,
+							 `${this.clientDetails.iT3BTaxCertificates.documentId}`
+							],
+  				"messageParameters": {
+   				"title": this.clientDetails.title,
+				"surname": this.clientDetails.surname
+				},
+				"attachments": [
+				{
+					"name": this.clientDetails.name,
+					"data": this.clientDetails.contentData
+				}
+				]
 			};
+			
 			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
 
 			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
@@ -372,12 +384,25 @@ export class TaxCertificate extends Component {
 		});
 		
 		const taxCertificate = {
-			"cifNumber": this.callerInformation.cifNumber,
-			"accountYear": `2020`,
-			"certificateType": `IT3(s)`
+			"cif": this.callerInformation.cifNumber,
+			"iT3BTaxCertificates": [
+			  {
+				"year": this.clientDetails.iT3BTaxCertificates.year,
+				"documentId": this.clientDetails.iT3BTaxCertificates.documentId,
+				"accountNumber": this.clientDetails.iT3BTaxCertificates.accountNumber,
+				"payload": this.clientDetails.iT3BTaxCertificates.payload
+			  }
+			],
+			"iT3STaxCertificates": [
+			  {
+				"year": this.clientDetails.iT3STaxCertificates.year,
+				"documentId": this.clientDetails.iT3STaxCertificates.documentId,
+				"accountNumber": this.clientDetails.iT3STaxCertificates.accountNumber
+			  }
+			]
 		};
 
-		const returnValue = await this.quickTransactionService.viewStatement(taxCertificate, () => this._createIncidentOnError());
+		const returnValue = await this.quickTransactionService.viewTaxCertificate(taxCertificate, () => this._createIncidentOnError());
 		if (returnValue.succeeded) {
 			this.renderMode = RENDER_MODE.PDF;
 			// render the PDF
