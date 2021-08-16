@@ -99,7 +99,7 @@ export class EndCallSession extends Component {
 		});
 
 		// Making end call reasons context sensitive 
-		const callerInformation = this.horizonStore.getCallerInformation();
+		const callerInformation = this.horizonStore.getCallerInformation() || {};
 		this.endCallReasons = END_CALL_REASON[this.endCallContext][callerInformation.verificationStatus] || END_CALL_REASON[this.endCallContext];
 		
 		// TODO: Evaluate why isRessagined is added to incomingCallDetails
