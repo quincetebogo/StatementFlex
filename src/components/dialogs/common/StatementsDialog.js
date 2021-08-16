@@ -186,7 +186,9 @@ export class StatementsDialog extends Component {
 			fromDate: { attribute: false },
 			toDate: { attribute: false },
 			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false }
+			errorMessage: { attribute: false },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false }
 		};
 	}
 
@@ -210,14 +212,14 @@ export class StatementsDialog extends Component {
 	// --------------
 
 	_onEmailValueChange(e) {
-		console.log(e.detail)
 		this.email = e.detail.email;
 		this.confirmEmail = e.detail.confirmEmail;
 	}
 
 	_validEmailAddressCheck(e) {
-		console.log(e.detail)
-		this.errorMessage = e.detail;
+		this.errorMessage = e.detail.errorMessage;
+		this.mailClientError.email = e.detail.emailError
+		this.mailClientError.confirmEmail = e.detail.confirmEmailError
 	}
 
 	async _cancel() {
@@ -1079,7 +1081,9 @@ export class StatementsDialog extends Component {
 				@value-changed="${(e) => this._onEmailValueChange(e)}"
 				@on-email-validation="${(e) => this._validEmailAddressCheck(e)}"
 				.labelOne="${this.emailLabel}"
-				.labelTwo="${this.confirmEmailLabel}">
+				.labelTwo="${this.confirmEmailLabel}"
+				.emailError="${this.mailClientError.email}"
+				.confirmEmailError="${this.mailClientError.confirmEmail}">
 				</horizon-email-input>
 			
 			<capitec-label

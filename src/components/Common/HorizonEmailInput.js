@@ -51,7 +51,9 @@ export class HorizonEmailInput extends Component {
 			email: { type: String },
 			confirmEmail: { type: String },
 			labelOne: { type: String },
-			labelTwo: { type: String }
+			labelTwo: { type: String },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false }
 		 };
 	}
 
@@ -92,9 +94,12 @@ export class HorizonEmailInput extends Component {
 	}
 
 	_validateEmailAddress() {
-
 			this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-				detail: this.errorMessage
+				detail: {
+					errorMessage: this.errorMessage,
+					emailError: this.mailClientError.email,
+					confirmEmailError: this.mailClientError.confirmEmail
+				}
 			}))
 		
 	}
@@ -115,10 +120,10 @@ export class HorizonEmailInput extends Component {
 	}
 
 	_inputEmail(e) {
-		if (e.detail.new !== e.detail.old) {
-			this.mailClientError.email = "";
-			this.mailClientError.confirmEmail = "";
-		}
+		this._validateEmailAddress();
+		this.errorMessage = ``;
+		this.mailClientError.email = ``;
+		this.mailClientError.confirmEmail = ``;
 	}
 
 
@@ -179,7 +184,7 @@ export class HorizonEmailInput extends Component {
 			<capitec-label
 				class="emailLabel"
 				type="subtitle"
-				label="Enter email address">
+				label="${this.labelOne}">
 			</capitec-label>
 
 			<capitec-text-field
@@ -190,7 +195,7 @@ export class HorizonEmailInput extends Component {
 				onpaste="return false"
 				oncut="return false"
 				value="${this.email}"
-				error="${this.mailClientError.email}"
+				error="${this.emailError}"
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
@@ -199,7 +204,7 @@ export class HorizonEmailInput extends Component {
 				style="padding-top:8px"
 				class="emailLabel"
 				type="subtitle"
-				label="Confirm email address">
+				label="${this.labelTwo}">
 			</capitec-label>
 
 			<capitec-text-field
@@ -210,7 +215,7 @@ export class HorizonEmailInput extends Component {
 				onpaste="return false"
 				oncut="return false"
 				value="${this.confirmEmail}"
-				error="${this.mailClientError.confirmEmail}"
+				error="${this.confirmEmailError}"
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
