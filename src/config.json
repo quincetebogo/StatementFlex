@@ -61,7 +61,10 @@
 		"language-transfer": "LANGUAGE_TRANSFER",
 		"call-transfer": "CALL_TRANSFER",
 		"general-product-enquiry": "GENERAL_PRODUCT_ENQUIRY",
-		"failed-verification": "FAILED_VERIFICATION"
+		"failed-verification": "FAILED_VERIFICATION",
+		"debi-check-approve": "DEBI_CHECK_APPROVE",
+		"debi-check-decline": "DEBI_CHECK_DECLINE",
+		"debi-check-viewInfo": "DEBI_CHECK"
 	},
 	"mock": {
 		"enabled": true,
@@ -139,6 +142,14 @@
 			"positiveCase": true
 		},
 		"viewStatements": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"declineDebiCheck": {
+			"enabled": true,
+			"positiveCase": true
+		},
+		"approveDebiCheck": {
 			"enabled": true,
 			"positiveCase": true
 		}

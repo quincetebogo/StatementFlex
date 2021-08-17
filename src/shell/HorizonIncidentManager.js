@@ -137,7 +137,7 @@ export class HorizonIncidentManager {
 	 * @param {boolean} classify - Flag (True/ False) to indicate, does incident needs to be classified
 	 * @returns {void}
 	 */
-	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify) {
+	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization = null, classify = true) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
@@ -289,8 +289,8 @@ export class HorizonIncidentManager {
 
 		this.checkIncidentStatus = false;
 
-		incidentDetails.incidentReferenceNumber = subsequentIncident.incidentNumber;
-		incidentDetails.incidentRecId = subsequentIncident.incidentRecId;
+		incidentDetails.incidentReferenceNumber = returnValue.result.incidentNumber;
+		incidentDetails.incidentRecId = returnValue.result.incidentRecId;
 		this.horizonStore.setIncidentDetails(incidentDetails);
 
 		/**

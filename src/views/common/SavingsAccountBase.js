@@ -160,8 +160,7 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _viewMandate(event) {
-		await super.createAndClassifySubsIncident();
-
+		
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.VIEWINFO
@@ -178,46 +177,33 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _confirmDeclineMandate(event) {
-		await super.createAndClassifySubsIncident();
 
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
-		this.mandateId = event.detail.mandateId;
+		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, event.detail.mandateId, null);
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		if (returnValue.succeeded) {
+			// Wire up to outcome screen
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		}
 	}
 
-	// TODO: remove comment when enpoint is avail
 	async _confirmApproveMandate(event) {
-		//Hasn't been promoted to dev yet...'
-		//const request = {
-		//    incidentRecId: this.incidentRecId,
-		//    ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-		//    needAction: 'DEBI_CHECK_APPROVE',
-		//    incidentCategorization: null
-		//};
-		//const returnValue = await this.incidentManagementService.classifyIncident(request);
-
-		//if (!returnValue.succeeded) {
-		//    this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_approveDebiCheckMandate`, returnValue.correlationId);
-		//}
-
-		await super.createAndClassifySubsIncident();
-
+	
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
 			"screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
+		const returnValue = await this.savingsAccountService.debiCheckApprove();
 
-		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		if (returnValue.succeeded) {
+			// Wire up to outcome screen
+			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
+		}
 	}
 
 	_closeViewMandateInfo() {
@@ -226,6 +212,7 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
+		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
@@ -252,7 +239,9 @@ export class SavingsAccountBase extends ViewBase {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
+
 		this._setIncidentDone();
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	// ---------------
@@ -290,8 +279,6 @@ export class SavingsAccountBase extends ViewBase {
 	_setIncidentDone() {
 		this.incidentDetails.needStatus = super.HORIZON_NEED_STATUS.COMPLETED;
 		this.horizonStore.setIncidentDetails(this.incidentDetails);
-
-		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
 	_performReturnToScreen() {

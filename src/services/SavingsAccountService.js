@@ -1,4 +1,5 @@
 import { DEFAULT_AUTO_RETRIES, ServiceBase } from 'app/services/ServiceBase';
+import { HorizonIncidentManager } from 'app/shell/HorizonIncidentManager';
 
 /**
  * Channel Service Methods for Savings Account
@@ -41,7 +42,9 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckDetails(cifNumber, mandateId, registerId, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.debiCheckDetails(cifNumber, mandateId, registerId), `debiCheckDetails`, errorHandler, autoRetries);
 	}
 
@@ -55,7 +58,9 @@ export class SavingsAccountService extends ServiceBase {
 	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
 	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
 	 */
-	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+	async debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
 		return this.wrapCall(this.channelService.debiCheckDecline(cifNumber, mandateReferenceNumber, debtorAccountNumber), `debiCheckDecline`, errorHandler, autoRetries);
 	}
 	
@@ -83,5 +88,18 @@ export class SavingsAccountService extends ServiceBase {
 	 */
  	savingsAccountLanding (cifNumber, nationalIDNumber, getGenericData, errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
 		return this.wrapCall(this.channelService.savingsAccountLanding(cifNumber, nationalIDNumber, getGenericData), `savingsAccountLanding`, errorHandler, autoRetries);
+	}
+
+	/**
+	 * Approves debi-check mandate
+	 *
+	 * @param {errorHandlerCallback} [errorHandler=null]  An optional error handler 
+	 * @param {Number} [autoRetries] The number of times the call should be retried if it fails
+	 * @returns {Promise<ReturnValue>} An object containing a success flag and the result of the channel service call
+	 */
+	 async debiCheckApprove (errorHandler = null, autoRetries = DEFAULT_AUTO_RETRIES) {
+		await HorizonIncidentManager.getInstance().createAndClassifySubsIncident(this._toggleBusyFlag);
+
+		return this.wrapCall(this.channelService.debiCheckApprove(), `debiCheckApprove`, errorHandler, autoRetries);
 	}
 }

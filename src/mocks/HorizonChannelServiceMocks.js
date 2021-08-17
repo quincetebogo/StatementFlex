@@ -221,7 +221,21 @@ export class HorizonChannelServiceMocks {
 
 	viewStatements() {
 		if (this._mocking.viewStatements.positiveCase) {
-			return this.viewStatementsMock.PDF;
+			return true;
+		}
+		return null;
+	}
+
+	declineDebiCheck() {
+		if (this._mocking.declineDebiCheck.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	approveDebiCheck() {
+		if (this._mocking.approveDebiCheck.positiveCase) {
+			return true;
 		}
 		return null;
 	}
