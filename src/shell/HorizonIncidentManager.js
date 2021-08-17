@@ -48,11 +48,11 @@ export class HorizonIncidentManager {
 		View.prototype.HORIZON_NEED_STATUS = HORIZON_NEED_STATUS;
 		
 		Component.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		Component.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization);
+		Component.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
 		Component.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
 
 		View.prototype._inicidentManager_ = (clientNeed, toggleBusyFlag) => this._handleMultipleNeed(clientNeed, toggleBusyFlag);
-		View.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization);
+		View.prototype.createAndClassifySubsIncident = (toggleBusyFlag, incidentCategorization = null, classify = true) => this.createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify);
 		View.prototype.closeIncident = (options, toggleBusyFlag) => this.closeIncident(options, toggleBusyFlag);
 	}
 
@@ -134,12 +134,10 @@ export class HorizonIncidentManager {
 	 * 
 	 * @param {Function} toggleBusyFlag - Toggle busy flag function
 	 * @param {object} incidentCategorization - Category, Subcategory & issue details
+	 * @param {boolean} classify - Flag (True/ False) to indicate, does incident needs to be classified
 	 * @returns {void}
 	 */
-	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization) {
-		const callerInfo = this.horizonStore.getCallerInformation();
-		const callDetails = this.horizonStore.getIncomingCallDetails();
-		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+	 async createAndClassifySubsIncident(toggleBusyFlag, incidentCategorization, classify) {
 		const incidentDetails = this.horizonStore.getIncidentDetails();
 
 		this.incidentService._toggleBusyFlag = toggleBusyFlag;
@@ -153,44 +151,17 @@ export class HorizonIncidentManager {
 			return;
 		} else if (!incidentDetails.primaryIncidentRecID || incidentDetails.incidentReferenceNumber !== `0`) {
 			this.checkIncidentStatus = true;
-			// Classifying the subsequent incident, cause we know the need now
-			await this._classifyIncident(incidentCategorization);
-
-			return;
-		}
-
-		const createSubsequentIncidentRequest = {
-			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
-			VDN: incomingCallDetails.VDN,
-			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
-			primaryIncidentRecID: incidentDetails.primaryIncidentRecID
-		};
-
-		const returnValue = await this.incidentService.createIncident(createSubsequentIncidentRequest);
-		const subsequentIncident = returnValue.result;
-
-		if (!returnValue.succeeded || !subsequentIncident) {
-			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `_createSubsequentIncident`, returnValue.correlationId);
-			return;
-		}
-		
-		this.checkIncidentStatus = false;
-
-		incidentDetails.incidentReferenceNumber = subsequentIncident.incidentNumber;
-		incidentDetails.incidentRecId = subsequentIncident.incidentRecId;
-		this.horizonStore.setIncidentDetails(incidentDetails);
-		
-		/**
-		 * Updating client or non-client details based on the flow
-		 */
-		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
-			await this._updateSubsequentNeedClientDetails(callDetails, callerInfo);
 		} else {
-			await this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
+			const subsequentIncident = await this._createSubsIncident();
+
+			if (!subsequentIncident) {
+				return;
+			}
 		}
 
-		// Classifying the subsequent incident, cause we know the need now
-		await this._classifyIncident(incidentCategorization);
+		if (classify) {
+			await this._classifyIncident(incidentCategorization);
+		}
 	}
 
 	/**
@@ -293,6 +264,44 @@ export class HorizonIncidentManager {
 			this.logger.log(`error`, `Failed to get incident status.`, `_incidentStatus`, returnValue.correlationId);
 			return null;
 		}
+		return returnValue.result;
+	}
+
+	async _createSubsIncident() {
+		const callerInfo = this.horizonStore.getCallerInformation();
+		const callDetails = this.horizonStore.getIncomingCallDetails();
+		const incomingCallDetails = this.horizonStore.getIncomingCallDetails();
+		const incidentDetails = this.horizonStore.getIncidentDetails();
+
+		const createIncidentRequest = {
+			incomingTelephoneNumber: incomingCallDetails.incomingTelephoneNumber,
+			VDN: incomingCallDetails.VDN,
+			voiceReferenceNumber: incomingCallDetails.voiceReferenceNumber,
+			primaryIncidentRecID: incidentDetails.primaryIncidentRecID
+		};
+
+		const returnValue = await this.incidentService.createIncident(createIncidentRequest);
+
+		if (!returnValue.succeeded || !returnValue.result) {
+			this.logger.log(`error`, `Failed to create incident. The call will be handled without incident data being tracked.`, `HorizonIncidentManager._createSubsIncident`, returnValue.correlationId);
+			return null;
+		}
+
+		this.checkIncidentStatus = false;
+
+		incidentDetails.incidentReferenceNumber = subsequentIncident.incidentNumber;
+		incidentDetails.incidentRecId = subsequentIncident.incidentRecId;
+		this.horizonStore.setIncidentDetails(incidentDetails);
+
+		/**
+		 * Updating client or non-client details based on the flow
+		 */
+		if (callerInfo.is3rdParty || !callerInfo.isNonClient) {
+			await this._updateSubsequentNeedClientDetails(callDetails, callerInfo);
+		} else {
+			await this._updateSubsequentNeedNonClientDetails(callDetails, callerInfo);
+		}
+
 		return returnValue.result;
 	}
 

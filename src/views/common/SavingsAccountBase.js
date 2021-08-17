@@ -86,7 +86,7 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		
 		if (returnValue.succeeded) {
-			await super.createAndClassifySubsIncident();
+			await super.createAndClassifySubsIncident(null, false);
 			
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
@@ -127,7 +127,7 @@ export class SavingsAccountBase extends ViewBase {
 			await super._inicidentManager_(action, () => this._toggleBusyFlag());
 			this._refreshIncidentDetails();
 			
-			return mandateActions[action]();
+			return mandateActions[action](event);
 		}
 	}
 
@@ -160,6 +160,8 @@ export class SavingsAccountBase extends ViewBase {
 	}
 
 	async _viewMandate(event) {
+		await super.createAndClassifySubsIncident();
+
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_VIEW_MANDATE, {
 			"screen": TelemetryScreen.DEBICHECK,
 			"next-screen": TelemetryScreen.VIEWINFO
@@ -175,7 +177,9 @@ export class SavingsAccountBase extends ViewBase {
 		}
 	}
 
-	async _declineDebiCheckMandate(event) {
+	async _confirmDeclineMandate(event) {
+		await super.createAndClassifySubsIncident();
+
 		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CONFIRM, {
 			"screen": TelemetryScreen.DECLINE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
@@ -186,28 +190,28 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-    }
+	}
 
-    // TODO: remove comment when enpoint is avail
-    async _approveDebiCheckMandate(event) {
-        //Hasn't been promoted to dev yet...'
-        //const request = {
-        //    incidentRecId: this.incidentRecId,
-        //    ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
-        //    needAction: 'DEBI_CHECK_APPROVE',
-        //    incidentCategorization: null
-        //};
-        //const returnValue = await this.incidentManagementService.classifyIncident(request);
+	// TODO: remove comment when enpoint is avail
+	async _confirmApproveMandate(event) {
+		//Hasn't been promoted to dev yet...'
+		//const request = {
+		//    incidentRecId: this.incidentRecId,
+		//    ivrOptionCode: this.incomingCallDetails.ivrOptionCode,
+		//    needAction: 'DEBI_CHECK_APPROVE',
+		//    incidentCategorization: null
+		//};
+		//const returnValue = await this.incidentManagementService.classifyIncident(request);
 
-        //if (!returnValue.succeeded) {
-        //    this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_approveDebiCheckMandate`, returnValue.correlationId);
-        //}
+		//if (!returnValue.succeeded) {
+		//    this.logger.log(`error`, `Failed to classify incident. Agent may have to manually categorize at STrack.`, `_approveDebiCheckMandate`, returnValue.correlationId);
+		//}
 
+		await super.createAndClassifySubsIncident();
 
-
-        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
-            "screen": TelemetryScreen.APPROVE_DEBICHECK,
-            "next-screen": TelemetryScreen.DEBICHECK_OUTCOME
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
+			"screen": TelemetryScreen.APPROVE_DEBICHECK,
+			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
 
@@ -232,11 +236,11 @@ export class SavingsAccountBase extends ViewBase {
 		});
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-    }
+	}
 
-    _cancelApproveMandate() {
-        this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
-            "screen": TelemetryScreen.APPROVE_DEBICHECK,
+	_cancelApproveMandate() {
+		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
+			"screen": TelemetryScreen.APPROVE_DEBICHECK,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
@@ -259,7 +263,6 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonRouter.navigateToSystemError();
 		return true;
 	}
-
 
 	async _getClientProducts() {
 		const request = {
@@ -327,8 +330,8 @@ export class SavingsAccountBase extends ViewBase {
 
 	_renderDebiCheckMandates() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_PAGE ||
-            this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
-            this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE ||
+				this.renderMode === RENDER_MODE.DEBI_CHECK_DECLINE ||
+				this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE ||
 				this.renderMode === RENDER_MODE.DEBI_CHECK_VIEW_INFO
 			? html`
 				<debi-check-mandates
@@ -346,8 +349,8 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-viewinfo-debicheck
 					.debiCheckDetails=${this.debiCheckDetails}
-					@viewed="${() => this._closeViewMandateInfo()}"
-				></horizon-viewinfo-debicheck>`
+					@viewed="${() => this._closeViewMandateInfo()}">
+				</horizon-viewinfo-debicheck>`
 			: html``;
 	}
 
@@ -357,19 +360,19 @@ export class SavingsAccountBase extends ViewBase {
 				<horizon-decline-debicheck-mandate
 					mandateId=${this.mandateId}
 					@cancel="${() => this._cancelDeclineMandate()}"
-					@decline="${(event) => this._declineDebiCheckMandate(event)}">
+					@decline="${(event) => this._confirmDeclineMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
 			: html``;
-    }
+	}
 
-    _renderDebiCheckApproveMandate() {
+	_renderDebiCheckApproveMandate() {
 		return this.renderMode === RENDER_MODE.DEBI_CHECK_APPROVE 
 			? html`
 				<horizon-approve-debicheck-mandate
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
 					@cancel="${() => this._cancelApproveMandate()}"
-					@approve="${(event) => this._approveDebiCheckMandate(event)}">
+					@approve="${(event) => this._confirmApproveMandate(event)}">
 				</horizon-approve-debicheck-mandate>`
 			: html``;
 	}
