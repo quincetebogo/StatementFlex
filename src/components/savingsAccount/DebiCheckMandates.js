@@ -152,7 +152,7 @@ export class DebiCheckMandates extends Component {
 
 	_decline(mandateId) {
 		// TODO: Add mandate data to the event
-		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId } }));
+		this.dispatchEvent(new CustomEvent(`action`, { detail: { action: `decline`, mandateId: mandateId, "registerId": registerId } }));
 	}
 
 	_approve(mandateInfo) {

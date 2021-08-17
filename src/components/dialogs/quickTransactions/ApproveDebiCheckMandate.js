@@ -6,16 +6,20 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import { HorizonStore } from 'app/store/HorizonStore';
 
 import 'app/components/dialogs/common/DiscardChanges';
+import { mandateInfo } from '../../../mocks/DebiCheckMockData';
 
 const MESSAGE = `Confirm the following information to approve the DebiCheck mandate.`;
 const WARNING_MESSAGE = ` DebiCheck will not be approved and will result in expired mandates.`;
 
 const ORANGE = "#D4781C";
+const NO = 0;
+const YES = 1;
+const UNANSWERED = 2;
 const QUESTIONS = [
-    { color: "black", accepted: 2 },
-    { color: "black", accepted: 2 },
-    { color: "black", accepted: 2 },
-    { color: "black", accepted: 2 }
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED },
+    { color: "black", accepted: UNANSWERED }
 ];
 
 export class ApproveDebiCheckMandate extends Component {
@@ -117,15 +121,13 @@ export class ApproveDebiCheckMandate extends Component {
     // --------------
 
     _cancelClick() {
-        QUESTIONS.forEach(key => {
-            if (key.accepted !== 2) {
-                this.showDiscardChangesModal = true;
-                return false;
-            }
-        });
 
-        this._clearAll();
-        this.dispatchEvent(new CustomEvent(`cancel`));
+        this.showDiscardChangesModal = QUESTIONS.some(question => { return question.accepted !== UNANSWERED });
+
+        if (!this.showDiscardChangesModal) {
+            this._clearAll();
+            this.dispatchEvent(new CustomEvent(`cancel`));
+        }       
     }
 
     _cancelDiscardModal() {
@@ -137,23 +139,22 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _approveClick() {
+        this.mandateId = this.mandateInfo.mandateId;
         this.dispatchEvent(new CustomEvent(`approve`, {
             detail: { mandateId: this.mandateId }
         }));
     }
 
     _checkAccepted() {
-        for (var key = 0; key < QUESTIONS.length; key++) {
-            if (key.accepted == 2) {
+        for (let i = 0; i < QUESTIONS.length; i++) {
+            if (QUESTIONS[i].accepted == UNANSWERED) {
+                return true;
+            } else if (QUESTIONS[i].accepted == NO) {
                 return true;
             }
-            if (key.accepted == 0) {
-                this.alertType = 'warning';
-                return true;
-            }
-            if (!this.approve) {
-                return true;
-            }
+        }
+        if (!this.approve) {
+            return true;
         }
         return false;
     }
@@ -161,7 +162,7 @@ export class ApproveDebiCheckMandate extends Component {
     _checkWarning() {
         let returnVal = false;
         QUESTIONS.forEach(key => {
-            if (key.accepted == 0) {
+            if (key.accepted == NO) {
                 returnVal = true;
             }
         });
@@ -170,7 +171,7 @@ export class ApproveDebiCheckMandate extends Component {
 
     _collapseExpander() {
         for (var i = 0; i < 3; i++) {
-            if (QUESTIONS[i].accepted !== 1) {
+            if (QUESTIONS[i].accepted !== YES) {
                 return true;
             }
         }
@@ -182,16 +183,14 @@ export class ApproveDebiCheckMandate extends Component {
             return;
         }
         this.alertType = 'info';
-        if (val == 1) {
+        if (val == YES) {
             QUESTIONS[row].color = "black";
-            QUESTIONS[row].accepted = 1;
-        } else if (val == 0) {
+            QUESTIONS[row].accepted = YES;
+        } else if (val == NO) {
             QUESTIONS[row].color = ORANGE;
-            QUESTIONS[row].accepted = 0;
+            QUESTIONS[row].accepted = NO;
         }
         this.requestUpdate();
-
-
     }
 
     _toggleAgreementsAccept(e) {
@@ -200,9 +199,9 @@ export class ApproveDebiCheckMandate extends Component {
     }
 
     _clearAll() {
-        QUESTIONS.forEach(key => {
-            key.color = 'black';
-            key.accepted = 2;
+        QUESTIONS.forEach(question => {
+            question.color = 'black';
+            question.accepted = UNANSWERED;
         });
     }
 
@@ -478,12 +477,12 @@ export class ApproveDebiCheckMandate extends Component {
 						<capitec-radio
 							class="radio-btn-yes"
 							label="Yes"
-							@value-change="${(e) => this._agree(e, row, 1)}">
+							@value-change="${(e) => this._agree(e, row, YES)}">
 						</capitec-radio>
 						<capitec-radio
 							class="radio-btn-no"
 							label="No"
-							@value-change="${(e) => this._agree(e, row, 0)}">
+							@value-change="${(e) => this._agree(e, row, NO)}">
 						</capitec-radio>
 					</capitec-group>
 				</capitec-radio-group>
