@@ -87,7 +87,7 @@ export class HorizonStatusBar extends Component {
 			.status-bar{
 				--theme-statusbar-min-height: 59px;
 				margin:0px;
-				width: 1716px;
+				width: calc(var(--horizon-screen-width, 1920px) - var(--horizon-status-bar-icon-group, 240px));
 			}
 
 			.status-bar-icon{
@@ -98,9 +98,10 @@ export class HorizonStatusBar extends Component {
 				align-content: center;
 			}
 			
-			.status-bar-icon-group{
-				width: 204px;
-			}
+			.status-bar-icon-group {
+				--horizon-status-bar-icon-group: 240px;
+				width: var(--horizon-status-bar-icon-group);
+			 }
 		}`
 	];
 }
