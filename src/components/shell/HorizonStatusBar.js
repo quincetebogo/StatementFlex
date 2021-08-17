@@ -60,7 +60,7 @@ export class HorizonStatusBar extends Component {
 			super.styles,
 			css`
 			img{
-				margin-left: 14px;
+				margin-left: 18px;
 			}
 		
 			.icon-caption{
@@ -101,6 +101,7 @@ export class HorizonStatusBar extends Component {
 			.status-bar-icon-group {
 				--horizon-status-bar-icon-group: 240px;
 				width: var(--horizon-status-bar-icon-group);
+				margin-right: 81px;
 			 }
 		}`
 	];
