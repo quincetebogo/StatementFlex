@@ -12,22 +12,22 @@ const INPUT_TYPES = {
  * ```
  *
  * ```html
- *	<horizon-expander 
- *		label="Client Insights"
- *		icon="system/access"
- *		inputType="checkbox"
- *		expandButtonAlignment="right | left"
- *		layout="vertical"
- *		halign="stretch"
- *		valign="top"
- *		gap="clear"
- *		wrap=false
- *		noPadding=false
- *		expanded=false
- *		disabled=false>
- *			<capitec-label slot="custom-header" label="No Records Found"></capitec-label>
- *			<capitec-label slot="content" label="No Records Found"></capitec-label>
- *	</horizon-expander>
+ * <horizon-expander 
+	* label="Client Insights"
+	* icon="system/access"
+	* inputType="checkbox"
+	* expandButtonAlignment="right | left"
+	* layout="vertical"
+	* halign="stretch"
+	* valign="top"
+	* gap="clear"
+	* wrap=false
+	* noPadding=false
+	* expanded=false
+	* disabled=false>
+	* <capitec-label slot="custom-header" label="No Records Found"></capitec-label>
+	* <capitec-label slot="content" label="No Records Found"></capitec-label>
+ * </horizon-expander>
  * ```
  *
  */
@@ -84,7 +84,7 @@ export class Expander extends Component {
 	 * @property {String} [expandButtonAlignment="right"] - Sets in which direction the expander's arrow should be position relative to the title, either:
 	 *    - 'right' - Meaning that the expander button is placed to the right of the title
 	 *    - 'left' - Meaning that the expander button is placed to the left of the title
-	 * 	  -  Only either of the label or slot='custom-header' can be used for an instance
+	 *    -  Only either of the label or slot='custom-header' can be used for an instance
 	 */
     static get properties() {
         return {
@@ -249,6 +249,7 @@ export class Expander extends Component {
 	/**
 	 * Collapse all the other expanders except the current target expander in the component when given expand as an event.
 	 */
+
 	expanderGroupMode(component) {
 		component.shadowRoot.querySelectorAll(`horizon-expander`).forEach((item) => {
 			item.expanded = false;
@@ -261,7 +262,8 @@ export class Expander extends Component {
 	 * @fires value-change When the check-box value is changed.
 	 * @returns {void}
 	 */
-	change(e) {
+
+	 _onValueChange(e) {
 
 		this.dispatchEvent(new CustomEvent(`value-change`, {
 			detail: {

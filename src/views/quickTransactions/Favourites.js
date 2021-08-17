@@ -484,7 +484,7 @@ export class Favourites extends SavingsAccountBase {
 
 		this._telemetry.startSpan(QuickTransactionEvents.TAX_CERTIFICATE, {
 			"screen": TelemetryScreen.TAX_CERTIFICATE
-		})
+		});
 
 		this.renderMode = RENDER_MODE.TAX_CERTIFICATE;
 	}
@@ -726,6 +726,7 @@ export class Favourites extends SavingsAccountBase {
 			<horizon-tax-certificate
 				.cards="${this.cards}"
 				.callerInformation="${this.callerInformation}"
+				clientTaxInformation="${this.clientTaxInformation}"
 				@cancel="${() => this._backToLandingPage()}">
 			</horizon-tax-certificate>
 		`
