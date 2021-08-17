@@ -117,7 +117,8 @@ export class SavingsAccountBase extends ViewBase {
 				"next-screen": TelemetryScreen.DECLINE_DEBICHECK
 			});
 
-			this.mandateId = event.detail.mandateId;
+            this.mandateId = event.detail.mandateId;
+            this.registerId = event.detail.registerId;
 			this.renderMode = RENDER_MODE.DEBI_CHECK_DECLINE;
 		} else if (event.detail.action === `approve`) {
 			this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE, {
@@ -160,10 +161,11 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
-		this.mandateId = event.detail.mandateId;
+        this.mandateId = event.detail.mandateId;
 
-		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
-
+		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
+        //this._confirmAgreement();
+        this._authenticateMandate(this.mandateId, false);
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
     }
 
@@ -189,6 +191,8 @@ export class SavingsAccountBase extends ViewBase {
             "next-screen": TelemetryScreen.DEBICHECK_OUTCOME
 		});
 
+        this._confirmAgreement();
+        this._authenticateMandate(event.detail.mandateId, true);
 
 		//const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, mandateReferenceNumber, debtorAccountNumber);
 
@@ -251,7 +255,54 @@ export class SavingsAccountBase extends ViewBase {
 			return returnValue.result.savingsProducts;
 		}
 		return [];
-	}
+    }
+
+    _confirmAgreement() {
+                //const mandateInfo = {
+        //     cifNumber :  cifNumber ,
+        //     mandateRef :  mandateRef ,
+        //     title :  title ,
+        //     firstName :  firstName ,
+        //     surname :  surname ,
+        //     middleName :  middleName ,
+        //     identificationNumber :  identificationNumber,
+        //     residentialAddress :  residentialAddress ,
+        //     postalAddress :  string ,
+        //     cellphone : 0,
+        //     homeNumber : 0,
+        //     workNumber : 0,
+        //     savingsAccountNumber : 0,
+        //     branchCode : 0,
+        //     cardNumber :  string ,
+        //     documentId :  string ,
+        //     contractReference :  string ,
+        //     instalmentAmount : 0,
+        //     frequency :  string ,
+        //     firstCollectionDate :  string ,
+        //     collectionDayFrequencyWording :  string ,
+        //     ultimateDebtorName :  string ,
+        //    debitAccountName: string,
+        //    accountConfirmation: true,
+        //    instalmentConfirmation: true,
+        //    permissionToDebit: true,
+        //    termsAndConditionsConfirmation: true,
+        //    authenticationId: string
+        //};
+
+        //const returnValue = await this.savingsAccountService.debiCheckConfirmAgreement(mandateInfo);
+
+        //if (returnValue.succeeded) {
+        //    return true;
+        //}
+        //return false;
+    }
+
+    _authenticateMandate(mandateID, accepted) {
+
+        //const returnValue = await this.savingsAccountService.debiCheckAuthenticate(this.callerInformation.cifNumber, mandateRef, debtorAccount, accepted);
+
+    }
+
 
 	_backToLandingPage() {
 		
