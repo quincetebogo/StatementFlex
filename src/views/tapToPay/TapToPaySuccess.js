@@ -1,6 +1,6 @@
 import { css, html } from 'platform/elements';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/common/SuccessScreen';

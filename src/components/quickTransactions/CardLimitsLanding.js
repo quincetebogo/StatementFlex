@@ -1,8 +1,8 @@
 import { Component, css, html } from 'platform/elements';
 import { formatCurrency, getMonthName } from 'app/utils/channelServiceUtilities';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'app/components/common/HorizonExpander';
 import 'app/components/common/CardArt';
