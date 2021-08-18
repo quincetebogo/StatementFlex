@@ -8,6 +8,7 @@
  export const LandingPageEvents = {
 	PRODUCT_BUTTON_FAVOURITES: `call.product.favourites`,
 	PRODUCT_BUTTON_SavingsAccount: `call.product.savings-account`,
+	PRODUCT_BUTTON_LiveBetter: `call.product.live-better`,
 	PRODUCT_BUTTON_SavingsPlan: `call.product.savings-plan`,
 	PRODUCT_BUTTON_Insure: `call.product.insure`,
 	PRODUCT_BUTTON_Credit: `call.product.credit`,

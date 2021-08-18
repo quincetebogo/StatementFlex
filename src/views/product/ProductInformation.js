@@ -24,6 +24,11 @@ const CONFIG = {
 		type: `credit`,
 		header: `Credit`,
 		product: `credit-product-info`
+	},
+	LiveBetter: {
+		type: `liveBetter`,
+		header: `Live Better Savings Account`,
+		product: `live-better-product-info`
 	}
 };
 
@@ -85,8 +90,16 @@ export class ProductInformation extends ViewBase {
 	// ---------
 
 	async _viewBenefits() {
-		const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
-		window.open(`${globalOneUrl}${this._config.type}/`);
+		let productUrl = '';
+
+		if(this._config.type === `liveBetter`){
+			productUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
+		} else {
+			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.global-one`);
+			productUrl = `${globalOneUrl}${this._config.type}`;
+		}
+		
+		window.open(`${productUrl}/`);
 
 		await super.createAndClassifySubsIncident();
 		
