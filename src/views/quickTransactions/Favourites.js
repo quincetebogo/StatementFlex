@@ -333,25 +333,27 @@ export class Favourites extends SavingsAccountBase {
 
 			const returnValue = await this.quickTransactionService.favouritesLanding(landingRequest);
 
-			if (returnValue.succeeded) {
-				this.isLoading = false;
-				this.landingPageInfo = returnValue.result;
-			}
-		} else {
-			// minimal object for the Favourites landing page component
-			this.isLoading = false;
-			this.landingPageInfo = {
-				savingsAccountProductDescription: ``,
-				savingsPlanProductDescription: ``,
-				insureProductDescription: ``,
-				creditProductDescription: ``,
-				savingsAccountProductAmount: ``,
-				savingsPlanProductAmount: ``,
-				insureProductAmount: ``,
-				creditProductAmount: ``,
-				pendingMandateCount: 0
-			};
-		}
+            if (returnValue.succeeded) {
+                this.isLoading = false;
+                this.landingPageInfo = returnValue.result;
+            }
+        } else {
+            // minimal object for the Favourites landing page component
+            this.isLoading = false;
+            this.landingPageInfo = {
+                savingsAccountProductDescription: ``,
+                savingsPlanProductDescription: ``,
+				liveBetterProductDescription: ``,
+                insureProductDescription: ``,
+                creditProductDescription: ``,
+                savingsAccountProductAmount: ``,
+                savingsPlanProductAmount: ``,
+				liveBetterProductAmount: ``,
+                insureProductAmount: ``,
+                creditProductAmount: ``,
+                pendingMandateCount: 0
+            };
+        }
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		// Now we can update the information on the product buttons
@@ -363,21 +365,23 @@ export class Favourites extends SavingsAccountBase {
 		let subtitle = null;
 		let detail = null;
 
-		if (this.landingPageInfo) {
-			subtitle = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
-				insure: this.landingPageInfo.insureProductDescription,
-				credit: this.landingPageInfo.creditProductDescription
-			};
+        if (this.landingPageInfo) {
+            subtitle = {
+                savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
+                savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
+                insure: this.landingPageInfo.insureProductDescription,
+                credit: this.landingPageInfo.creditProductDescription
+            };
 
-			detail = {
-				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
-				insure: this.landingPageInfo.insureProductAmount,
-				credit: this.landingPageInfo.creditProductAmount
-			};
-		}
+            detail = {
+                savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
+                savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
+                insure: this.landingPageInfo.insureProductAmount,
+                credit: this.landingPageInfo.creditProductAmount
+            };
+        }
 
 		this.horizonStore.setCallerInformation(this.callerInformation);
 

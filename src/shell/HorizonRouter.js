@@ -16,6 +16,7 @@ const HORIZON_ROUTES = Object.freeze({
 	// SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
+	PRODUCT_LIVE_BETTER: `/product/live-better`,
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
@@ -35,7 +36,8 @@ const HORIZON_ROUTES = Object.freeze({
     PROOF_OF_ACCOUNT_SUCCESS: `/success/proof-of-account`,
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
-	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`
+	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
+	LIVE_BETTER: `/liveBetter`
 });
 
 /**
@@ -146,6 +148,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
 	}
 
+	navigateToLiveBetterProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
+	}
+
 	navigateToStopCard() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
@@ -223,6 +229,7 @@ export class HorizonRouter {
 		const savings = () => this.navigateToSavingsAccount();
 		const credit = () => this.navigateToProductInfo(`Credit`);
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -232,6 +239,7 @@ export class HorizonRouter {
 			SavingsAccount: savings,
 			Credit: credit,
 			SavingsPlan: savingsPlan,
+			LiveBetter: liveBetterSavings,
 			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
@@ -269,6 +277,10 @@ export class HorizonRouter {
 
 	navigateToTapToPaySuccess() {
 		this.router.navigateByPath(`${HORIZON_ROUTES.TAP_TO_PAY_SUCCESSFUL}`);
+	}
+
+	navigateToLiveBetter() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.LIVE_BETTER}`);
 	}
 
 	_productLandingPagesActive() {
@@ -462,6 +474,15 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},
 	{
+		name: `horizon-live-better-product`,
+		title: `LiveBetterProductView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_LIVE_BETTER,
+		load: () => import(`../views/product/LiveBetterProduct`),
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+	},
+	{
 		name: `horizon-stop-card-landing-page`,
 		title: `Favourites`,
 		icon: null,
@@ -640,5 +661,13 @@ export default horizonRoutes = [
 		path: HORIZON_ROUTES.TAP_TO_PAY_UNSUCCESSFUL,
 		load: () => import(`../views/tapToPay/TapToPayUnsuccessful`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-live-better`,
+		title: `LiveBetter`,
+		icon: null,
+		path: HORIZON_ROUTES.LIVE_BETTER,
+		load: () => import(`../views/liveBetter/LiveBetter`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
 	}
 ];
