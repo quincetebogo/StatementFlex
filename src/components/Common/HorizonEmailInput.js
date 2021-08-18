@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 
@@ -33,9 +32,6 @@ export class HorizonEmailInput extends Component {
 			email: ``,
 			confirmEmail: ``
 		};
-
-		this.logger = Logger.getInstance();
-
 	}
 
     // ----------
@@ -45,7 +41,6 @@ export class HorizonEmailInput extends Component {
 	/**
 	* Registry of all properties defined by the component.
 	**/
-
 	 static get properties() {
 		 return {
 			email: { type: String },
@@ -61,18 +56,6 @@ export class HorizonEmailInput extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
-		// Ensure the component is setup correctly.
-		super.connectedCallback();
-
-		// Telemetry
-	}
-
-	disconnectedCallback() {
-		// Ensure the component is cleaned up correctly.
-		super.disconnectedCallback();
-    }
-	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -94,29 +77,30 @@ export class HorizonEmailInput extends Component {
 	}
 
 	_validateEmailAddress() {
-			this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-				detail: {
-					errorMessage: this.errorMessage,
-					emailError: this.mailClientError.email,
-					confirmEmailError: this.mailClientError.confirmEmail
-				}
-			}))
-		
+		this.dispatchEvent(new CustomEvent(`validation-update`, {
+			detail: {
+				errorMessage: this.errorMessage,
+				emailError: this.mailClientError.email,
+				confirmEmailError: this.mailClientError.confirmEmail
+			}
+		}));
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-
 	_confirmEmailMatch() {
-
-		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			if (this.email === this.confirmEmail) {
-				this._emailValueChange(this.email, this.confirmEmail);
-				return true;
-			}
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			return false;
 		}
+
+		if (this.email === this.confirmEmail) {
+			this._emailValueChange(this.email, this.confirmEmail);
+			return true;
+		}
+
+		return false;
 	}
 
 	_inputEmail(e) {
@@ -126,9 +110,7 @@ export class HorizonEmailInput extends Component {
 		this.mailClientError.confirmEmail = ``;
 	}
 
-
 	_emailFormatCheck(e) {
-		
 		this[e.currentTarget.id] = e.detail.new;
 
 		if (e.detail.new.length > 0) {
@@ -141,11 +123,13 @@ export class HorizonEmailInput extends Component {
 				this.mailClientError[e.currentTarget.id] = ``;
 			}
 		}
+
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError.email = `Emails don't match`;
 			this.mailClientError.confirmEmail = `Emails don't match`;
 		}
+
 		this._validateEmailAddress();
 	}
 
@@ -223,8 +207,6 @@ export class HorizonEmailInput extends Component {
 			<hr class="seperator">
 		`;
 	}
-
-	
 };
 
 window.customElements.define(`horizon-email-input`, HorizonEmailInput);
