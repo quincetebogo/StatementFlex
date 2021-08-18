@@ -1,16 +1,17 @@
 import { css, html } from 'platform/elements';
-import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CallHandleService } from 'app/services/CallHandleService';
 import { CallerInformation } from 'app/models/CallerInformation';
 import { Configuration } from 'platform/core';
 import { DesktopAgentService } from 'app/services/DesktopAgentService';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { HorizonViewManager } from 'app/shell/HorizonViewManager';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
 import { IncidentDetails } from 'app/models/IncidentDetails';
 import { IncomingCallDetails } from 'app/models/IncomingCallDetails';
 import { InitialiseService } from 'app/services/InitialiseService';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { ViewBase } from 'app/views/common/ViewBase.js';
 
 import 'platform/components/buttons/Button';

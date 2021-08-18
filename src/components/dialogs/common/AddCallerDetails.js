@@ -4,8 +4,8 @@ import { EventAggregator } from 'platform/EventAggregator';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { IDCallerEvents } from 'app/constants/Telemetry/Events/IdentifyCaller';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { IDCallerEvents } from 'app/constants/telemetry/events/IdentifyCaller';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
