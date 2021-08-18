@@ -3,7 +3,7 @@ import { Configuration } from 'platform/core';
 import { RENDER_MODE } from 'app/views/common/RenderModes';
 import { ViewBase } from 'app/views/common/ViewBase';
 
-import 'app/components/liveBetter/LiveBetterLandingPage';
+import 'app/components/liveBetter/LiveBetterVerifiedPage';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
 
 /**
@@ -81,7 +81,15 @@ export class LiveBetter extends ViewBase {
 	// EVENT HANDLERS
 	// --------------
 
-	// N/A
+	async _clientVerified(event) {
+		super._clientVerified(event);
+
+		// re-initialise the page when the verification status changes
+		// verificationStatus is on the this.callerInformation object
+		await this._initialise();
+
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
 
 	// --------------
 	// PUBLIC METHODS
@@ -97,7 +105,9 @@ export class LiveBetter extends ViewBase {
 
 		this.verificationStatus = this.callerInformation.verificationStatus;
 		
-		if (this.callerInformation.verificationStatus === `verified`) {
+		if (this.callerInformation.verificationStatus !== `non-client`) {
+			
+			// Live better landing page service call should come here - Data is mocked as below temporarily
 			this.landingPageInfo = {
 				accountNumber: '1928247288',
 				accountAvailableBalance: 20567.23, 
@@ -105,21 +115,25 @@ export class LiveBetter extends ViewBase {
 				interestSweep: 'On',
 				interestRatePercentage: '5.5%',
 				accountStatus: 'Active',
+				savingsAccountProductDescription: ``,
+                savingsPlanProductDescription: ``,
+				liveBetterProductDescription: ``,
+                insureProductDescription: ``,
+                creditProductDescription: ``,
+                savingsAccountProductAmount: ``,
+                savingsPlanProductAmount: ``,
+				liveBetterProductAmount: ``,
+                insureProductAmount: ``,
+                creditProductAmount: ``
 			};
-
-			// Live better landing page service call should come here
 			
+			// Now we can update the information on the product buttons
+			this._updateLeftBar();
 
-				// Now we can update the information on the product buttons
-				// TODO: update the leftBr once CS is implemented
-				// this._updateLeftBar();
-				this.endCallContext=`LandingPage`;
-				this.renderMode = RENDER_MODE.MAIN_PAGE;
+			this.endCallContext=`LandingPage`;
+			this.renderMode = RENDER_MODE.MAIN_PAGE;
 				
-		} else if (this.callerInformation.verificationStatus === `unverified`) {
-			this.renderMode = RENDER_MODE.LIVE_BETTER_UNVERIFIED;
 		}
-
 		this.loading = false;
 	}
 
@@ -130,6 +144,7 @@ export class LiveBetter extends ViewBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -137,11 +152,14 @@ export class LiveBetter extends ViewBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount
 			};
 		}
+		
+		this.horizonStore.setCallerInformation(this.callerInformation);
 
 		const state = {
 			leftBarButtonConfig: {
@@ -154,11 +172,7 @@ export class LiveBetter extends ViewBase {
 		this.horizonStore.saveState(state);
 	}
 
-	_errorHandler(exception) {
-		this.horizonRouter.navigateToSystemError();
-	}
-
-	async _productEnquiry(event, type) {
+	async _productEnquiry(event) {
 		if (event.detail.enquiry === `product-enquiry`) {
 			const globalOneUrl = await this.configuration.getSetting(`otherSystemsURL.live-better`);
 			window.open(`${globalOneUrl}`);
@@ -194,33 +208,48 @@ export class LiveBetter extends ViewBase {
 
 	_webTemplate() {
 		return html`
-			${this._renderLiveBetterVerifiedLandingPage()}			
-			${this._renderLiveBetterUnverifiedLandingPage()}
 			${super._webTemplate()}
+			${this._renderLandingPage()}
 		`;
 	}
 
-	_renderLiveBetterVerifiedLandingPage() {
-		return !this.loading && this.renderMode === RENDER_MODE.MAIN_PAGE
+	_renderLandingPage() {
+		switch (this.renderMode) {
+			case RENDER_MODE.MAIN_PAGE:
+			case RENDER_MODE.VERIFY_NOW:
+				return !this.loading 
+					? html`
+						${this._renderLiveBetterVerifiedLandingPage()}
+						${this._renderLiveBetterUnverifiedLandingPage()}`
+					: html``;
+			default:
+				return html``;
+		}
+	}
+
+	_renderLiveBetterVerifiedLandingPage() { 
+
+		return this.verificationStatus === `verified` 
 			? html`
-				<horizon-live-better-landing-page
+				<horizon-live-better-verified-page
 					class="liveBetter"
 					.landingPageInfo = "${this.landingPageInfo}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
-					@savings-enquiry="${(event) => this._productEnquiry(event, `liveBetter`)}">
-				</horizon-live-better-landing-page>`
+					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
+				</horizon-live-better-verified-page>`
 			: html``;
-	}
+		}
 
 	_renderLiveBetterUnverifiedLandingPage() {
-		return !this.loading && this.renderMode === RENDER_MODE.LIVE_BETTER_UNVERIFIED
+		return this.verificationStatus === `unverified`
 			? html`
 				<horizon-live-better-unverified-page
-					class="liveBetter">
+					class="liveBetter"
+					@verify-now= "${() => this._verifyClick()}"
+					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
 				</horizon-live-better-unverified-page>`
 			: html``;
 	}
-
 
 }
 

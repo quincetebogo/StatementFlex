@@ -368,7 +368,7 @@ export class Favourites extends SavingsAccountBase {
         if (this.landingPageInfo) {
             subtitle = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: `Available balance`,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductDescription,
                 savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
                 insure: this.landingPageInfo.insureProductDescription,
                 credit: this.landingPageInfo.creditProductDescription
@@ -376,7 +376,7 @@ export class Favourites extends SavingsAccountBase {
 
             detail = {
                 savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: `R 0.00`,
+				liveBetterSavings: this.landingPageInfo.liveBetterProductAmount,
                 savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
                 insure: this.landingPageInfo.insureProductAmount,
                 credit: this.landingPageInfo.creditProductAmount

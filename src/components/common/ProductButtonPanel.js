@@ -133,9 +133,9 @@ export class ProductButtonPanel extends Component {
 				subtitle="${this.subtitle.liveBetterSavings ? this.subtitle.liveBetterSavings : DEFAULT_SUBTITLE.LIVE_BETTER_SAVINGS}"
 				detail="${this.detail.liveBetterSavings ? this.detail.liveBetterSavings : ``}"
 				icon="product/live-better"
-				@click="${() => this._productButtonClick(`LiveBetterSavings`)}"
-				?selected="${this.selectedButton === `LiveBetterSavings`}"
-				data-automation-id="product-button-panel-live-better-savings">
+				@click="${() => this._productButtonClick(`LiveBetter`)}"
+				?selected="${this.selectedButton === `LiveBetter`}"
+				data-automation-id="product-button-panel-live-better">
 			</horizon-product-tile>
 			<horizon-product-tile 
 				class="product-button"

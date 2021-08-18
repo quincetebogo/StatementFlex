@@ -150,7 +150,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 		if (this.landingPageInfo) {
 			subtitle = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductDescription,
-				liveBetterSavings: `Available balance`,
+				liveBetterSavings: `Supercharge your savings`,
 				savingsPlan: this.landingPageInfo.savingsPlanProductDescription,
 				insure: this.landingPageInfo.insureProductDescription,
 				credit: this.landingPageInfo.creditProductDescription
@@ -158,7 +158,7 @@ export class SavingsAccountLandingPage extends SavingsAccountBase {
 
 			detail = {
 				savingsAccount: this.landingPageInfo.savingsAccountProductAmount,
-				liveBetterSavings: `R 0.00`,
+				liveBetterSavings: ``,
 				savingsPlan: this.landingPageInfo.savingsPlanProductAmount,
 				insure: this.landingPageInfo.insureProductAmount,
 				credit: this.landingPageInfo.creditProductAmount

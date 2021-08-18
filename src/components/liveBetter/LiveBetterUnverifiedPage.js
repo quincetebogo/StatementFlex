@@ -1,26 +1,78 @@
 import { Component, css, html } from 'platform/elements';
 
 /**
- * Live Better landing screen - un-verified view
+ * Live Better landing screen component - un-verified view
  *
+ * Events Raised
+ * -------------
+ * 
+ * verify-now
+ * livebetter-enquiry
+ * 
  * @export
- * @class CnetProductInfo
+ * @class LiveBetterUnverifiedPage
  * @extends {Component}
  */
 export class LiveBetterUnverifiedPage extends Component {
+
+	// --------------
+	// INITIALISATION
+	// --------------
 
 	constructor() {
 		super();
 	}
 
+	// -------------------
+	// LIFECYCLE OVERRIDES
+	// -------------------
+
+	connectedCallback() {
+		super.connectedCallback();
+	}
+
+	// --------------
+	// PROPERTIES
+	// --------------
+
+	/*
+	 * @readonly
+	 * @static
+	 * @memberof LiveBetterUnverifiedPage
+	 */
+	
 	static get properties() {
 		return {
 		};
 	}
 
+	// --------------
+	// EVENT HANDLERS
+	// --------------
+
 	_verifyNow() {
 		this.dispatchEvent(new CustomEvent(`verify-now`, {}));
 	}
+
+	_liveBetterEnquiry(productEnquiry) {
+		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
+	}
+
+	// --------------
+	// PUBLIC METHODS
+	// --------------
+	
+	// N/A
+	
+	// ---------------
+	// PRIVATE METHODS
+	// ---------------
+	
+	// N/A
+	
+	// ---------
+	// RENDERING
+	// ---------
 
 	static get styles() {
 		return [
@@ -28,20 +80,23 @@ export class LiveBetterUnverifiedPage extends Component {
 			css`
 				.product-info{
 					width: 100%;
-					height: 918px;
+					height: 888px;
 				}
 				.content{
 					width: 100%;
-					height: 709px;
+					height: 679px;
 				}
 				capitec-title-bar {
 					--theme-titlebar-shadow: 0px;
 					--theme-titlebar-padding: 12px 16px;
-					--theme-type-primary-background: url(../../images/Lbb-1.png);
+					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x64.png);
 				}
-				
+				capitec-group > img {
+					height: 182px;
+					width: 252px;
+				}
 				#id-more-info {
-					margin: 43px auto 8px auto;
+					margin: 32px auto 23px auto;
 					color: #3A3A3A;
 					font-size: 24px;
 					font-weight: 600;
@@ -116,10 +171,7 @@ export class LiveBetterUnverifiedPage extends Component {
 				<capitec-title-bar
 					data-automation-id=""
 					type="primary">
-						<capitec-icon
-							size="medium"
-							icon="product/transact-white">
-						</capitec-icon>
+						<img src='/images/liveBetter/liveBetter-white.svg'/>
 						<capitec-label
 							data-automation-id=""
 							label="Live Better Savings Account"

@@ -23,7 +23,7 @@ const PAGE_INFO = {
 	},
 	liveBetter: {
 		header: `More to come soon`,
-		icon: `save-white`,
+		icon: `/images/liveBetter/liveBetter-white.svg`,
 		details: `Visit capitecbank.co.za for more info on our Live Better benefits partners, automatic savings tools and other easy ways to grow your Live Better savings account.`,
 	}
 };
@@ -82,7 +82,7 @@ export class CnetProductInfo extends Component {
 					--theme-type-primary-background: linear-gradient(315deg, #70838C 0%, #667F8C 47.52%, #41525B 100%);
 				}
 				.liveBetter {
-					--theme-type-primary-background: url(../../images/Lbb-1.png);
+					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x64.png);
 				}
 				#id-more-info {
 					margin: 43px auto 8px auto;
@@ -127,10 +127,7 @@ export class CnetProductInfo extends Component {
 				data-automation-id="cnet-product-info-title-bar"
 				class="${this.viewType}"
 				type="primary">
-					<capitec-icon
-						size="medium"
-						icon="product/${PAGE_INFO[this.viewType].icon}">
-					</capitec-icon>
+					${this._renderIcon()}
 					<capitec-label
 						data-automation-id="cnet-product-info-title"
 						label="${this.viewHeader}"
@@ -163,6 +160,19 @@ export class CnetProductInfo extends Component {
 				</capitec-content-box>
 			</capitec-group>
 		</capitec-card>`;
+	}
+
+	_renderIcon() {
+		return this.viewType === `liveBetter` 
+			? html`
+				<img src="${PAGE_INFO[this.viewType].icon}"/>`
+			: html`
+				<capitec-icon
+					size="medium"
+					icon="product/${PAGE_INFO[this.viewType].icon}">
+				</capitec-icon>`
+			;
+
 	}
 }
 window.customElements.define(`horizon-cnet-product-info`, CnetProductInfo);

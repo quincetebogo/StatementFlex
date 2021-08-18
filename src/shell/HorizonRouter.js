@@ -16,6 +16,7 @@ const HORIZON_ROUTES = Object.freeze({
 	// SAVINGS_PLAN_PRODUCT_TAX_FREE_PAGE: `/product/savings-plan/tax-free`,
 	PRODUCT_INSURE: `/product/insure`,
 	PRODUCT_CREDIT: `/product/credit`,
+	PRODUCT_LIVE_BETTER: `/product/live-better`,
 	CARD_STOP_PAGE: `/card-stop`,
 	CARD_STOP_SUCCESS_PAGE: `/card-stop/success`,
 	CARD_STOP_FAILURE_PAGE: `/card-stop/failed`,
@@ -147,6 +148,10 @@ export class HorizonRouter {
 		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_CREDIT);
 	}
 
+	navigateToLiveBetterProduct() {
+		this.router.navigateByPath(HORIZON_ROUTES.PRODUCT_LIVE_BETTER);
+	}
+
 	navigateToStopCard() {
 		this.router.navigateByPath(HORIZON_ROUTES.CARD_STOP_PAGE);
 	}
@@ -222,8 +227,9 @@ export class HorizonRouter {
 		// const insure = hasInsuranceProducts ? () => this.navigateToInsureExistingClient() : () => this.navigateToInsureProspectiveClient();
 		const insure = () => this.navigateToProductInfo(`Insure`);
 		const savings = () => this.navigateToSavingsAccount();
-		const credit = () => this.navigateToLiveBetter();
+		const credit = () => this.navigateToProductInfo(`Credit`);
 		const savingsPlan = () => this.navigateToProductInfo(`SavingsPlan`);
+		const liveBetterSavings = () => this.navigateToLiveBetter();
 		const productEnquiry = () => this.navigateToProductInfo(`SavingsAccount`);
 
 		const landingPageFunc = {
@@ -233,6 +239,7 @@ export class HorizonRouter {
 			SavingsAccount: savings,
 			Credit: credit,
 			SavingsPlan: savingsPlan,
+			LiveBetter: liveBetterSavings,
 			ProductEnquiry: productEnquiry
 		}[ivrOption]();
 	};
@@ -463,6 +470,15 @@ export default horizonRoutes = [
 		icon: null,
 		path: HORIZON_ROUTES.PRODUCT_CREDIT,
 		load: () => import(`../views/product/CreditProduct`),
+		guard: () => HorizonRouter._guard(`productPage`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
+	},
+	{
+		name: `horizon-live-better-product`,
+		title: `LiveBetterProductView`,
+		icon: null,
+		path: HORIZON_ROUTES.PRODUCT_LIVE_BETTER,
+		load: () => import(`../views/product/LiveBetterProduct`),
 		guard: () => HorizonRouter._guard(`productPage`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.LANDING_PAGES)
 	},

@@ -11,12 +11,13 @@ import 'app/components/common/HorizonLabel';
  * -------------
  * 
  * option-click
+ * livebetter-enquiry
  * 
  * @export
- * @class LiveBetterLandingPage
+ * @class LiveBetterVerifiedPage
  * @extends {Component}
  */
-export class LiveBetterLandingPage extends Component {
+export class LiveBetterVerifiedPage extends Component {
 	
 	// --------------
 	// INITIALISATION
@@ -26,6 +27,7 @@ export class LiveBetterLandingPage extends Component {
 		super();
 
 		this.landingPageInfo = null;
+		this.expanded = true;
 	}
 
 	// -------------------
@@ -42,22 +44,23 @@ export class LiveBetterLandingPage extends Component {
 
 	/**
 	 *
-	 * @property {Object} landingPageInfo Data for the Live Better Landing Page display
+	 * @property {Object} landingPageInfo Data for the Live Better verified landing Page display
 	 *
 	 * @readonly
 	 * @static
-	 * @memberof LiveBetterLandingPage
+	 * @memberof LiveBetterVerifiedPage
 	 */
 	static get properties() {
 		return {
-			landingPageInfo: { type: Object }
+			landingPageInfo: { type: Object },
+			expanded: { type: Boolean }
 		};
 	}
 	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
-	
+
 	_optionSelectedClick(selectedOption) {
 		this.dispatchEvent(new CustomEvent(`option-click`, { detail: { option: selectedOption } }));
 	}
@@ -66,13 +69,21 @@ export class LiveBetterLandingPage extends Component {
 		this.dispatchEvent(new CustomEvent(`livebetter-enquiry`, { detail: { enquiry: productEnquiry } }));
 	}
 
+	_toggleExpander() {
+		this.expanded = !this.expanded
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 	
+	// N/A
+	
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+	
+	// N/A
 	
 	// ---------
 	// RENDERING
@@ -84,12 +95,13 @@ export class LiveBetterLandingPage extends Component {
 			css`
 				.card {
 					width: 100%;
-					height: auto;
+					height: 888px;
 				}
 
 				/* Title Bar styles */
 				capitec-title-bar {
-					--theme-type-primary-background: url(../../images/Lbb-1.png);
+					--theme-titlebar-padding: 12px 16px;
+					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x64.png);
 				}
 				capitec-title-bar > capitec-label {
 					--theme-label-title-font-size: 24px;
@@ -99,7 +111,7 @@ export class LiveBetterLandingPage extends Component {
 				/* Main view styles */
 				capitec-content-box {
 					width: auto;
-					height: 708px;
+					height: 678px;
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 19px;
@@ -107,11 +119,7 @@ export class LiveBetterLandingPage extends Component {
 					--theme-container-padding-bottom: 0px;
 				}
 				capitec-content-box > capitec-card {
-					border: 1px solid #E1E1E1;
-					border-radius: 4px;
-					background-color: #FFFFFF;
-					box-shadow: 0 6px 10px 0.25px rgba(0,0,0,0.07);
-
+					border: 0px;
 					--theme-card-min-height: 64px;
 				}
 
@@ -123,6 +131,8 @@ export class LiveBetterLandingPage extends Component {
 				.account-details-bar > capitec-expander {
 					position: absolute;
 					border-radius:4px;
+					border: 1px solid #E1E1E1;
+					--theme-expander-width: 1032px;
 					--theme-expander-border: 0px;
 					--theme-expander-header-padding: 0px 36px;
 					--theme-container-padding-right: 0px;
@@ -130,24 +140,24 @@ export class LiveBetterLandingPage extends Component {
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
 					--theme-expander-header-height: 64px;
-					--theme-expander-height: 210px;
-					--theme-expander-indicator-width: 11.5px;
-                    --theme-expander-indicator-height: 6.5px;
+					--theme-expander-height: 211px;
+					--theme-expander-indicator-width: 0px;
+					--theme-expander-indicator-height: 0px;
+					--theme-system-hover-color: #FFFFFF;
 					box-shadow:0 3px 6px 0.25px rgba(0,0,0,0.08);
 				}
+				.transform-icon {
+					transform: rotate(180deg);
+				}
 				.account-details-bar > capitec-group {
-					width: 984px;
+					width: auto;
+					height: 64px;
 					z-index: 10;
 					padding: 0px 16px;
 				}
 				.actionbar-header > capitec-icon {
 					--theme-icon-size-medium: 24px;
 				}
-				.vertical-line{
-                    height: 48px;
-                    width: 1px;
-                    background-color: #E1E1E1;
-                }
 				.actionbar-header > horizon-label {
 					width: 158px;
 					height: 100%;
@@ -167,11 +177,14 @@ export class LiveBetterLandingPage extends Component {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
 				}
-				.actionbar-header > horizon-label[label="Interest"] {
-					width: 120px;
-				}
 				.actionbar-header > horizon-label[label="Status"] {
+					width: 142px;
 					--horizon-label-value-color: #70AF00;
+				}
+				.vertical-line{
+					height: 48px;
+					width: 1px;
+					background-color: #E1E1E1;
 				}
 				.toggle-group {	
 					width: 158px;
@@ -189,12 +202,6 @@ export class LiveBetterLandingPage extends Component {
 					--theme-label-default-font-size: 14px;
 					--theme-label-font-family: Hind Vadodara;
 					--theme-label-font-color: #3A3A3A;
-				}
-				.expander-content {	
-					border-left: 1px solid #E1E1E1;
-					border-bottom: 1px solid #E1E1E1;
-					border-right: 1px solid #E1E1E1;
-					border-radius: 0px 0px 4px 4px;
 				}
 				capitec-group > capitec-title-bar {
 					--theme-titlebar-min-height: 32px;
@@ -230,7 +237,20 @@ export class LiveBetterLandingPage extends Component {
 					padding: 0px;
 					--horizon-option-btn-icon-height: 26px;
 					--horizon-option-btn-icon-width: 26px;
-				}				
+				}			
+				.icon-chevron {
+					height: 48px;
+					width: 48px;
+					margin-top: 4px;
+					border-radius: 4px;
+					cursor: pointer;
+				}
+				.icon-chevron:hover {
+					background-color: rgba(0,157,224,0.1);
+				}
+				.icon-chevron > capitec-icon {
+					--theme-icon-size-default: 8px;	
+				}
 			`
 		];
 	}
@@ -244,7 +264,7 @@ export class LiveBetterLandingPage extends Component {
 			<capitec-card class="card">
 
 				<capitec-title-bar type="primary">
-					<capitec-icon size="default" icon="product/transact-white">
+					<img src='/images/liveBetter/liveBetter-white.svg'/>
 					</capitec-icon>
 					<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
 				</capitec-title-bar>
@@ -264,7 +284,7 @@ export class LiveBetterLandingPage extends Component {
 	_renderAccountDetailsBar() {
 		return html`
 			<div class="account-details-bar">
-				<capitec-expander label="" ?expanded="${true}">
+				<capitec-expander label="" ?expanded="${this.expanded}">
 					${this._renderOptions()}
 				</capitec-expander>
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
@@ -300,6 +320,10 @@ export class LiveBetterLandingPage extends Component {
 						label="Status"
 						value="${this.landingPageInfo.accountStatus}">
 					</horizon-label>
+					
+					<capitec-group class="icon-chevron" @click="${() => this._toggleExpander()}" layout="vertical" gap="none" halign="center" valign="center">
+						<capitec-icon class="${this.expanded ? 'transform-icon' : ''}" icon="system/chevron-down-action"></capitec-icon>
+					</capitec-group>
 				</capitec-group>
 			</div>
 		`;
@@ -308,7 +332,7 @@ export class LiveBetterLandingPage extends Component {
 	_renderOptions() {
 		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
-			<capitec-group class= "expander-content" layout="vertical" gap="none" halign="left" valign="center">
+			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 
 				<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
@@ -327,7 +351,7 @@ export class LiveBetterLandingPage extends Component {
 					<horizon-option-button 
 						class="button-margin"
 						label="Automatic Savings" 
-						img-src="/images/automatic-savings.svg"
+						img-src="/images/liveBetter/automatic-savings.svg"
 						@click="${() => this._optionSelectedClick(`automatic-savings`)}">
 					</horizon-option-button>
 				</capitec-group>
@@ -363,4 +387,4 @@ export class LiveBetterLandingPage extends Component {
 	}
 }
 
-customElements.define(`horizon-live-better-landing-page`, LiveBetterLandingPage);
+customElements.define(`horizon-live-better-verified-page`, LiveBetterVerifiedPage);
