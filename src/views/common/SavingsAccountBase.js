@@ -86,8 +86,6 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckMandates(this.callerInformation.cifNumber);
 		
 		if (returnValue.succeeded) {
-			await super.createAndClassifySubsIncident(null, false);
-			
 			// eslint-disable-next-line no-extra-parens
 			this.debiCheckMandates = (returnValue.result && returnValue.result.mandateSummaryList) || [];
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
@@ -112,9 +110,9 @@ export class SavingsAccountBase extends ViewBase {
 
 	async _mandateActionClick (event) {
 		
-		const declineAction = (event) => this._declineMandate(event);
-		const approveAction = (event) => this._approveMandate(event);
-		const viewAction = (event) => this._viewMandate(event);
+		const declineAction = (evt) => this._declineMandate(evt);
+		const approveAction = (evt) => this._approveMandate(evt);
+		const viewAction = (evt) => this._viewMandate(evt);
 
 		const mandateActions = {
 			'debi-check-approve': approveAction,
@@ -186,7 +184,7 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckDecline(this.callerInformation.cifNumber, event.detail.mandateId, null);
 
 		if (returnValue.succeeded) {
-			// Wire up to outcome screen
+			// TODO: Wire up to outcome screen
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		}
 	}
@@ -201,7 +199,7 @@ export class SavingsAccountBase extends ViewBase {
 		const returnValue = await this.savingsAccountService.debiCheckApprove();
 
 		if (returnValue.succeeded) {
-			// Wire up to outcome screen
+			// TODO: Wire up to outcome screen
 			this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 		}
 	}
@@ -216,20 +214,14 @@ export class SavingsAccountBase extends ViewBase {
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
 
-	_cancelDeclineMandate() {
-		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, {
-			"screen": TelemetryScreen.DECLINE_DEBICHECK,
+	async _cancelMandateAction(eventName, currScreen) {
+		this._telemetry.logEvent(eventName, {
+			"screen": currScreen,
 			"next-screen": TelemetryScreen.DEBICHECK
 		});
 
-		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
-	}
-
-	_cancelApproveMandate() {
-		this._telemetry.logEvent(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, {
-			"screen": TelemetryScreen.APPROVE_DEBICHECK,
-			"next-screen": TelemetryScreen.DEBICHECK
-		});
+		await super._inicidentManager_(`debi-check-viewInfo`, () => this._toggleBusyFlag());
+		this._refreshIncidentDetails();
 
 		this.renderMode = RENDER_MODE.DEBI_CHECK_PAGE;
 	}
@@ -240,7 +232,6 @@ export class SavingsAccountBase extends ViewBase {
 			"next-screen": TelemetryScreen.FAVOURITES
 		});
 
-		this._setIncidentDone();
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -291,6 +282,18 @@ export class SavingsAccountBase extends ViewBase {
 		this.horizonStore.clearReturnScreen();
 	}
 
+	async _unloadDebiCheck(eventName, screenName) {
+
+		/**
+		 * Debi check mandates are viewed but view/approve/decline is not selected.
+		 * Navigating away will still be considered as viewed and classified.
+		 */
+		await super.classifyIncident(() => this._toggleBusyFlag());
+
+		this._setIncidentDone();
+		this._telemetryEndSpan(eventName, screenName);
+	}
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -326,7 +329,7 @@ export class SavingsAccountBase extends ViewBase {
 					@action="${(event) => this._mandateActionClick(event)}"
 					@back="${() => this._exitDebiCheck()}"
 					@loading="${() => this._telemetryStartSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}"
-					@unloading="${() => this._telemetryEndSpan(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}">
+					@unloading="${() => this._unloadDebiCheck(QuickTransactionEvents.DEBICHECK, TelemetryScreen.DEBICHECK)}">
 				</debi-check-mandates>`
 			: html``;
 	}
@@ -346,7 +349,7 @@ export class SavingsAccountBase extends ViewBase {
 			? html`
 				<horizon-decline-debicheck-mandate
 					mandateId=${this.mandateId}
-					@cancel="${() => this._cancelDeclineMandate()}"
+					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_DECLINE_MANDATE_CANCEL, TelemetryScreen.DECLINE_DEBICHECK)}"
 					@decline="${(event) => this._confirmDeclineMandate(event)}">
 				</horizon-decline-debicheck-mandate>`
 			: html``;
@@ -358,7 +361,7 @@ export class SavingsAccountBase extends ViewBase {
 				<horizon-approve-debicheck-mandate
 					.mandateInfo="${this.mandateInfo}"
 					.debiCheckDetails=${this.debiCheckDetails}
-					@cancel="${() => this._cancelApproveMandate()}"
+					@cancel="${() => this._cancelMandateAction(QuickTransactionEvents.DEBICHECK_APPROVE_MANDATE_CANCECL, TelemetryScreen.APPROVE_DEBICHECK)}"
 					@approve="${(event) => this._confirmApproveMandate(event)}">
 				</horizon-approve-debicheck-mandate>`
 			: html``;

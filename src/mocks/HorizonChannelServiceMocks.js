@@ -221,7 +221,7 @@ export class HorizonChannelServiceMocks {
 
 	viewStatements() {
 		if (this._mocking.viewStatements.positiveCase) {
-			return true;
+			return this.viewStatementsMock.PDF;
 		}
 		return null;
 	}
