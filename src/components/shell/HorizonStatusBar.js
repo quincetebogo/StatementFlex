@@ -101,7 +101,7 @@ export class HorizonStatusBar extends Component {
 			.status-bar-icon-group {
 				--horizon-status-bar-icon-group: 240px;
 				width: var(--horizon-status-bar-icon-group);
-				margin-right: 100px;
+				margin-right: var(--horizon-status-bar-icon-group-right-margin, 80px);
 			 }
 		}`
 	];
