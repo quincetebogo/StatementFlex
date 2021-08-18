@@ -1,16 +1,16 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { base64ToBlobUrl, calculateDays, formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
-import 'app/components/Common/HorizonEmailInput';
+import 'app/components/common/HorizonEmailInput';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -186,7 +186,9 @@ export class StatementsDialog extends Component {
 			fromDate: { attribute: false },
 			toDate: { attribute: false },
 			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false }
+			errorMessage: { attribute: false },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false }
 		};
 	}
 
@@ -200,8 +202,8 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.startSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 	}
 
 	
@@ -210,38 +212,27 @@ export class StatementsDialog extends Component {
 	// --------------
 
 	_onEmailValueChange(e) {
-		this.dispatchEvent(new CustomEvent(`value-changed`, {
-			detail: {
-				email: e.detail.email,
-				confirmEmail: e.detail.confirm
-			}
-		}));
-
 		this.email = e.detail.email;
-		this.confirmEmail = e.detail.confirm;
+		this.confirmEmail = e.detail.confirmEmail;
 	}
 
 	_validEmailAddressCheck(e) {
-		this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-			detail: e.detail
-		}));
-
 		this.errorMessage = e.detail.errorMessage;
-		this.mailClientError.email = this.errorMessage;
-		this.mailClientError.confirmEmail = this.errorMessage;
+		this.mailClientError.email = e.detail.emailError;
+		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
 	}
 
 	async _cancel() {
 
 		// Telemetry
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_CANCEL, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
 		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
@@ -268,8 +259,8 @@ export class StatementsDialog extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 
 
 	}
@@ -278,8 +269,8 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 
 		this.errorMessage = ``;
 		this.currentStep--;
@@ -290,9 +281,9 @@ export class StatementsDialog extends Component {
 		// Telemetry 
 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "accountType": type
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"accountType": type
+		});
 
 		this.accType = type;
 		this.accPlanNumber = ``;
@@ -304,9 +295,9 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PLAN, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "account-id": plan.accountNumber
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"account-id": plan.accountNumber
+		});
 
 		this.accPlanType = plan.accountName;
 		this.accPlanNumber = plan.accountNumber;
@@ -325,9 +316,9 @@ export class StatementsDialog extends Component {
 
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PERIOD, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "period-selected": this.periodSelected
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"period-selected": this.periodSelected
+		});
 	}
 
 	_customDateRangeSelected() {
@@ -434,7 +425,7 @@ export class StatementsDialog extends Component {
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
 			"screen": TelemetryScreen.STATEMENTS,
-            "next-screen": TelemetryScreen.STATEMENTS_OUTCOME
+			"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
 		} else {
@@ -479,7 +470,7 @@ export class StatementsDialog extends Component {
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_ACCOUNT_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
-            "account-type": this.accType,
+			"account-type": this.accType,
 			"account-plan-name": this.accPlanType ? this.accPlanType : null
 		});
 		
@@ -502,18 +493,18 @@ export class StatementsDialog extends Component {
 
 		
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_DATE_RANGE, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "startDate": this.fromDate,
+			"screen": TelemetryScreen.STATEMENTS,
+			"startDate": this.fromDate,
 			"endDate": this.toDate
-        });
+		});
 		
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_PERIOD_NEXT, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"period": this.periodSelected ? this.periodSelected : null,
 			"start-date": this.fromDate ? this.fromDate : null,
 			"end-date": this.toDate ? this.toDate : null
-        });
+		});
 	
 		return true;
 	}
@@ -824,7 +815,7 @@ export class StatementsDialog extends Component {
 		];
 	};
 
-    _webTemplate() {
+	_webTemplate() {
 		return html`
 			<bb-stepper-modal
 				data-automation-id="statements-dialog"
@@ -1047,13 +1038,13 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderCustomDateRange() {
-        if (this._customDateRange) {
+		if (this._customDateRange) {
 			return html`
 				<capitec-card
 					class="custom-date-card">
 						<capitec-group
 							layout="horizontal">
-							    ${this._renderCalendar()}
+								${this._renderCalendar()}
 						</capitec-group>
 				</capitec-card>
 			`;
@@ -1087,10 +1078,12 @@ export class StatementsDialog extends Component {
 		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-				@value-changed="${(e) => this._onEmailValueChange(e)}"
-				@on-email-validation="${(e) => this._validEmailAddressCheck(e)}"
-				.labelOne="${this.emailLabel}"
-				.labelTwo="${this.confirmEmailLabel}">
+					@value-changed="${(e) => this._onEmailValueChange(e)}"
+					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
+					.labelOne="${this.emailLabel}"
+					.labelTwo="${this.confirmEmailLabel}"
+					.emailError="${this.mailClientError.email}"
+					.confirmEmailError="${this.mailClientError.confirmEmail}">
 				</horizon-email-input>
 			
 			<capitec-label
