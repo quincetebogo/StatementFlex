@@ -261,21 +261,24 @@ export class LiveBetterVerifiedPage extends Component {
 
 	_webTemplate() {
 		return html`
-			<capitec-card class="card">
+			<capitec-card 
+				data-automation-id="live-better-verified-page"
+				class="card">
+					<capitec-title-bar 
+						data-automation-id="live-better-verified-title"
+						type="primary">
+							<img src='/images/liveBetter/liveBetter-white.svg'/>
+							</capitec-icon>
+							<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
+					</capitec-title-bar>
 
-				<capitec-title-bar type="primary">
-					<img src='/images/liveBetter/liveBetter-white.svg'/>
-					</capitec-icon>
-					<capitec-label label="Live Better Savings Account" type="Title"></capitec-label>
-				</capitec-title-bar>
+					<capitec-content-box>
+						<capitec-card>
+							${this._renderAccountDetailsBar()}
+						</capitec-card>
+					</capitec-content-box>
 
-				<capitec-content-box>
-					<capitec-card>
-						${this._renderAccountDetailsBar()}
-					</capitec-card>
-				</capitec-content-box>
-
-				${this._renderFooter()}
+					${this._renderFooter()}
 
 			</capitec-card>
 		`;
@@ -284,12 +287,23 @@ export class LiveBetterVerifiedPage extends Component {
 	_renderAccountDetailsBar() {
 		return html`
 			<div class="account-details-bar">
-				<capitec-expander label="" ?expanded="${this.expanded}">
-					${this._renderOptions()}
+				<capitec-expander 
+					data-automation-id="live-better-verified-expander"
+					label="" 
+					?expanded="${this.expanded}">
+						${this._renderOptions()}
 				</capitec-expander>
+
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
-					<capitec-icon class="account-info-icon" size="medium" icon="system/info-action"></capitec-icon>
+					<capitec-icon 
+						data-automation-id="live-better-verified-account-info"
+						class="account-info-icon" 
+						size="medium" 
+						icon="system/info-action">
+					</capitec-icon>
+
 					<horizon-label
+						data-automation-id="live-better-verified-account-number"
 						label="Account number"
 						value="${this.landingPageInfo.accountNumber}">
 					</horizon-label>
@@ -297,26 +311,41 @@ export class LiveBetterVerifiedPage extends Component {
 					<div class="vertical-line"></div>
 
 					<horizon-label
+						data-automation-id="live-better-verified-available-balance"
 						label="Available balance"
 						value="${formatCurrency(this.landingPageInfo.accountAvailableBalance)}">
 					</horizon-label>
 
-					<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
-						<capitec-label label="Round-up"></capitec-label>
-						<capitec-toggle label="${formatCurrency(this.landingPageInfo.roundUpAmount)}" checked></capitec-toggle>
+					<capitec-group 
+						data-automation-id="live-better-verified-round-up"
+						class="toggle-group" 
+						layout="vertical" 
+						gap="none" 
+						halign="left" 
+						valign="center">
+							<capitec-label label="Round-up"></capitec-label>
+							<capitec-toggle label="${formatCurrency(this.landingPageInfo.roundUpAmount)}" checked></capitec-toggle>
 					</capitec-group>
 
-					<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
-						<capitec-label label="Interest Sweep"></capitec-label>
-						<capitec-toggle label="${this.landingPageInfo.interestSweep}" checked></capitec-toggle>
+					<capitec-group 
+						data-automation-id="live-better-verified-interest-sweep"
+						class="toggle-group" 
+						layout="vertical" 
+						gap="none" 
+						halign="left" 
+						valign="center">
+							<capitec-label label="Interest Sweep"></capitec-label>
+							<capitec-toggle label="${this.landingPageInfo.interestSweep}" checked></capitec-toggle>
 					</capitec-group>
 
 					<horizon-label
+						data-automation-id="live-better-verified-interest-rate"
 						label="Interest rate"
 						value="${this.landingPageInfo.interestRatePercentage}">
 					</horizon-label>
 
 					<horizon-label
+						data-automation-id="live-better-verified-status"
 						label="Status"
 						value="${this.landingPageInfo.accountStatus}">
 					</horizon-label>
@@ -330,25 +359,27 @@ export class LiveBetterVerifiedPage extends Component {
 	}
 
 	_renderOptions() {
-		const pendingMandates = (this.landingPageInfo && this.landingPageInfo.pendingMandateCount) || ``;
 		return html`
 			<capitec-group layout="vertical" gap="none" halign="left" valign="center">
 
 				<capitec-title-bar type="default" label="Choose an option"></capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
+						data-automation-id="live-better-verified-transaction-history"
 						class="button-margin" 
 						label="Transaction History" 
 						icon="system/time-action"
 						@click="${() => this._optionSelectedClick(`transaction-history`)}">
 					</horizon-option-button>
 					<horizon-option-button 
+						data-automation-id="live-better-verified-statements"
 						class="button-margin" 
 						label="Statements" 
 						icon="system/documents-action"
 						@click="${() => this._optionSelectedClick(`statements`)}">
 					</horizon-option-button>
 					<horizon-option-button 
+						data-automation-id="live-better-verified-automatic-savings"
 						class="button-margin"
 						label="Automatic Savings" 
 						img-src="/images/liveBetter/automatic-savings.svg"
@@ -370,12 +401,14 @@ export class LiveBetterVerifiedPage extends Component {
 				</capitec-title-bar>
 				<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
 					<horizon-option-button 
+							data-automation-id="live-better-verified-product-enquiry"
 							class="button-margin"
 							label="Product enquiry"
 							icon="system/info-action"
 							@click="${() => this._liveBetterEnquiry(`product-enquiry`)}">
 					</horizon-option-button>
 					<horizon-option-button 
+							data-automation-id="live-better-verified-partner-benefits"
 							class="button-margin"
 							label="Partner Benefits"
 							icon="system/client-insights-action"

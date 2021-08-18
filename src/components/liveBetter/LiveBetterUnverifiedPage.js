@@ -78,7 +78,7 @@ export class LiveBetterUnverifiedPage extends Component {
 		return [
 			super.styles,
 			css`
-				.product-info{
+				.main-card{
 					width: 100%;
 					height: 888px;
 				}
@@ -95,13 +95,13 @@ export class LiveBetterUnverifiedPage extends Component {
 					height: 182px;
 					width: 252px;
 				}
-				#id-more-info {
+				.content-header {
 					margin: 32px auto 23px auto;
 					color: #3A3A3A;
 					font-size: 24px;
 					font-weight: 600;
 				}
-				.insights-subtitle{
+				.content-subtitle{
 					color: #3A3A3A;
 					font-size: 15px;
 					line-height: 20px;
@@ -109,7 +109,7 @@ export class LiveBetterUnverifiedPage extends Component {
 					max-width: 684px;
 					margin-bottom: 32px;
 				}
-				.benefits-button {
+				.verify-button {
 					height: 48px;
 					width: 146px;
 					--theme-button-primary-border-width: 0px;
@@ -134,7 +134,7 @@ export class LiveBetterUnverifiedPage extends Component {
 				
 				.options-group {
 					height: 80px; 
-					margin: 17px 0px 15px 0px;
+					margin: 16px 0px 15px 0px;
 					width: auto;
 				}
 				horizon-option-button {
@@ -167,57 +167,61 @@ export class LiveBetterUnverifiedPage extends Component {
 
 	_renderContent() {
 		return html`
-			<capitec-card class="product-info">
-				<capitec-title-bar
-					data-automation-id=""
-					type="primary">
-						<img src='/images/liveBetter/liveBetter-white.svg'/>
-						<capitec-label
-							data-automation-id=""
-							label="Live Better Savings Account"
-							type="title">
-						</capitec-label>
-				</capitec-title-bar>
-				
-				<capitec-group
-					class="content"
-					layout="vertical"
-					halign="center"
-					valign="center"
-					gap="none">
-						<img src="platform/illustrations/authenticate.svg">
-						<capitec-label
-							id="id-more-info"
-							label="Client not verified">
-						</capitec-label>
-						<capitec-label
-							class="insights-subtitle"
-							label="We need to verify your details before doing any transactions on your account.">
-						</capitec-label>
-						<capitec-button
-							data-automation-id="cnet-product-info-view-benefits"
-							class="benefits-button"
-							type="primary"
-							label="Verify Now"
-							@click="${() => this._verifyNow()}">
-						</capitec-button>
-				</capitec-group>
-				
-				<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
+			<capitec-card 
+				data-automation-id="live-better-unverified-page"
+				class="main-card">
 					<capitec-title-bar
-						type="default"
-						label="Explore Live Better"
-						class="other-options">
+						data-automation-id="live-better-unverified-title"
+						type="primary">
+							<img src='/images/liveBetter/liveBetter-white.svg'/>
+							<capitec-label
+								label="Live Better Savings Account"
+								type="title">
+							</capitec-label>
 					</capitec-title-bar>
-					<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
-						<horizon-option-button 
-								class="button-margin"
-								label="Product enquiry"
-								icon="system/info-action"
-								@click="${() => this._liveBetterEnquiry(`product-enquiry`)}">
-						</horizon-option-button>
+					
+					<capitec-group
+						class="content"
+						layout="vertical"
+						halign="center"
+						valign="center"
+						gap="none">
+							<img src="platform/illustrations/authenticate.svg">
+							<capitec-label
+								data-automation-id="live-better-unverified-header"
+								class="content-header"
+								label="Client not verified">
+							</capitec-label>
+							<capitec-label
+								data-automation-id="live-better-unverified-subtitle"
+								class="content-subtitle"
+								label="We need to verify your details before doing any transactions on your account.">
+							</capitec-label>
+							<capitec-button
+								data-automation-id="live-better-unverified-verify-now"
+								class="verify-button"
+								type="primary"
+								label="Verify Now"
+								@click="${() => this._verifyNow()}">
+							</capitec-button>
 					</capitec-group>
-				</capitec-group>
+					
+					<capitec-group class= "" layout="vertical" gap="none" halign="left" valign="center">
+						<capitec-title-bar
+							type="default"
+							label="Explore Live Better"
+							class="other-options">
+						</capitec-title-bar>
+						<capitec-group class="options-group" layout="horizontal" gap="none" H-Align="left">
+							<horizon-option-button 
+									data-automation-id="live-better-unverified-product-enquiry"
+									class="button-margin"
+									label="Product enquiry"
+									icon="system/info-action"
+									@click="${() => this._liveBetterEnquiry(`product-enquiry`)}">
+							</horizon-option-button>
+						</capitec-group>
+					</capitec-group>
 			</capitec-card>`;
 	}
 }
