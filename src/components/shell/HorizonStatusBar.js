@@ -72,6 +72,7 @@ export class HorizonStatusBar extends Component {
 				letter-spacing: 0;
 				line-height: 16px;
 				text-align: center;
+				margin-left: -5px;
 			}
 
 			.status-bar-group{
@@ -101,7 +102,7 @@ export class HorizonStatusBar extends Component {
 			.status-bar-icon-group {
 				--horizon-status-bar-icon-group: 240px;
 				width: var(--horizon-status-bar-icon-group);
-				margin-right: 100px;
+				margin-right: 104px;
 			 }
 		}`
 	];
