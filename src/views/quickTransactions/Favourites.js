@@ -97,25 +97,25 @@ export class Favourites extends SavingsAccountBase {
 		this._initialise();
 		this._performAction = async (option) => {
 
-			const stopCard = () => this._stopCard();
-			const debiCheck = () => this._debiCheck();
-			const updateCardLimits = () => this._updateCardLimits();
-			const tapToPay = () => this._tapToPay();
-			const statements = () => this._getStatements();
-			const taxCertificates = () => this._taxCertificates();
-			const proofOfAccount = () => this._proofOfAccount();
-			const searchOtherNeed = () => this._searchOtherNeed();
-			
-			const actions = {
-				'stop-card': stopCard,
-				'debi-check': debiCheck,
-				'update-card-limits': updateCardLimits,
-				'tap-to-pay': tapToPay,
-				'statements': statements,
-				'tax-certificate': taxCertificates,
-				'proof-of-account': proofOfAccount,
-				'search-other-need': searchOtherNeed
-			};
+            const stopCard = () => this._stopCard();
+            const debiCheck = () => this._debiCheck();
+            const updateCardLimits = () => this._updateCardLimits();
+            const tapToPay = () => this._tapToPay();
+            const statements = () => this._getStatements();
+            const taxCertificates = () => this._taxCertificates();
+            const proofOfAccount = () => this._proofOfAccount();
+            const searchOtherNeed = () => this._searchOtherNeed();
+            
+            const actions = {
+                'stop-card': stopCard,
+                'debi-check-viewInfo': debiCheck,
+                'update-card-limits': updateCardLimits,
+                'tap-to-pay': tapToPay,
+                'statements': statements,
+                'tax-certificate': taxCertificates,
+                'proof-of-account': proofOfAccount,
+                'search-other-need': searchOtherNeed
+            };
 
 			if (actions[option]) {
 				await super._inicidentManager_(option, () => this._toggleBusyFlag());

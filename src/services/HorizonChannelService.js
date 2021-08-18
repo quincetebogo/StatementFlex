@@ -506,9 +506,21 @@ export class HorizonChannelService extends Service {
 		return this._get(url, this._setToken(), `debiCheckDetails`);
 	}
 
-	debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+	async debiCheckDecline (cifNumber, mandateReferenceNumber, debtorAccountNumber) {
+		if (await this._mockEnabled(`declineDebiCheck`)) {
+			return this._mock.declineDebiCheck();
+		}
+
 		const url = `/clientcare-debicheck-${this._version}/client/${cifNumber}/mandate/${mandateReferenceNumber}/account/${debtorAccountNumber}/decline`;
 		return this._post(url, model, this._setToken(), `debiCheckDecline`);
+	}
+
+	async debiCheckApprove () {
+		if (await this._mockEnabled(`approveDebiCheck`)) {
+			return this._mock.approveDebiCheck();
+		}
+
+		return null;
 	}
 
 	// ---------

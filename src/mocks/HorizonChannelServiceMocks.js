@@ -225,4 +225,18 @@ export class HorizonChannelServiceMocks {
 		}
 		return null;
 	}
+
+	declineDebiCheck() {
+		if (this._mocking.declineDebiCheck.positiveCase) {
+			return true;
+		}
+		return null;
+	}
+
+	approveDebiCheck() {
+		if (this._mocking.approveDebiCheck.positiveCase) {
+			return true;
+		}
+		return null;
+	}
 }
