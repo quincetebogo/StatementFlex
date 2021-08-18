@@ -59,6 +59,10 @@ export class HorizonStatusBar extends Component {
 		return [
 			super.styles,
 			css`
+			:host {
+				--horizon-status-bar-icon-group-width: 240px;
+			}
+
 			img{
 				margin-left: 18px;
 			}
@@ -88,7 +92,7 @@ export class HorizonStatusBar extends Component {
 			.status-bar{
 				--theme-statusbar-min-height: 59px;
 				margin:0px;
-				width: calc(var(--horizon-screen-width, 1920px) - var(--horizon-status-bar-icon-group, 240px));
+				width: calc(var(--horizon-screen-width, 1920px) - var(--horizon-status-bar-icon-group-width));
 			}
 
 			.status-bar-icon{
@@ -100,8 +104,7 @@ export class HorizonStatusBar extends Component {
 			}
 			
 			.status-bar-icon-group {
-				--horizon-status-bar-icon-group: 240px;
-				width: var(--horizon-status-bar-icon-group);
+				width: var(--horizon-status-bar-icon-group-width);
 				margin-right: var(--horizon-status-bar-icon-group-right-margin, 80px);
 			 }
 		}`
