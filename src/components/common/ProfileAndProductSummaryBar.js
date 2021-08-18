@@ -33,6 +33,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.subtitle = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
@@ -40,6 +41,7 @@ export class ProfileAndProductSummaryBar extends Component {
 
 		this.detail = {
 			savingsAccount: ``,
+			liveBetterSavings: ``,
 			savingsPlan: ``,
 			insure: ``, 
 			credit: ``
@@ -134,6 +136,7 @@ export class ProfileAndProductSummaryBar extends Component {
 		}
 
 		if (state && state.leftBarButtonConfig) {
+			console.log(state.leftBarButtonConfig)
 			this.hasFavourites = state.leftBarButtonConfig.hasFavourites;
 			this.subtitle = state.leftBarButtonConfig.subtitle;
 			this.detail = state.leftBarButtonConfig.detail;
@@ -167,6 +170,10 @@ export class ProfileAndProductSummaryBar extends Component {
 		
 		// Note that when invoked from the agent's waiting for call landing page we will
 		// not have caller information
+		if(this.callerInformation && (this.callerInformation.verificationStatus === `unverified` && this.product === `LiveBetter`)) {
+			this.horizonRouter.navigateToLandingPage(this.product, false);
+			return;
+		}
 		if (this.callerInformation) {
 			if (this.callerInformation.verificationStatus === `verified`) {
 				this.horizonRouter.navigateToLandingPage(this.product, false);

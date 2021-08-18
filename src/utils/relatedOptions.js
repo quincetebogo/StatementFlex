@@ -51,6 +51,10 @@ export const relatedOptions = {
 			`tax-certificate`,
 			`proof-of-account`
 		]
+	},
+	'automatic-savings' : {
+		Success : [`statements`],
+		Failure : [`statements`]
 	}
 };
 
