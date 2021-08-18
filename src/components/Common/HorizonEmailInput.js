@@ -1,5 +1,4 @@
 import { Component, css, html } from 'platform/elements';
-import { Logger } from 'platform/core';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 
@@ -33,9 +32,6 @@ export class HorizonEmailInput extends Component {
 			email: ``,
 			confirmEmail: ``
 		};
-
-		this.logger = Logger.getInstance();
-
 	}
 
     // ----------
@@ -45,13 +41,14 @@ export class HorizonEmailInput extends Component {
 	/**
 	* Registry of all properties defined by the component.
 	**/
-
 	 static get properties() {
 		 return {
 			email: { type: String },
 			confirmEmail: { type: String },
 			labelOne: { type: String },
-			labelTwo: { type: String }
+			labelTwo: { type: String },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false }
 		 };
 	}
 
@@ -59,18 +56,6 @@ export class HorizonEmailInput extends Component {
 	// LIFECYCLE OVERRIDES
 	// -------------------
 
-	connectedCallback() {
-		// Ensure the component is setup correctly.
-		super.connectedCallback();
-
-		// Telemetry
-	}
-
-	disconnectedCallback() {
-		// Ensure the component is cleaned up correctly.
-		super.disconnectedCallback();
-    }
-	
 	// --------------
 	// EVENT HANDLERS
 	// --------------
@@ -92,41 +77,40 @@ export class HorizonEmailInput extends Component {
 	}
 
 	_validateEmailAddress() {
-
-			this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-				detail: {
-						errorMessage: this.errorMessage,
-						email: this.mailClientError.email,
-						confirmEmail: this.mailClientError.confirmEmail
-					}
-			}));
+		this.dispatchEvent(new CustomEvent(`validation-update`, {
+			detail: {
+				errorMessage: this.errorMessage,
+				emailError: this.mailClientError.email,
+				confirmEmailError: this.mailClientError.confirmEmail
+			}
+		}));
 	}
 
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
 
-
 	_confirmEmailMatch() {
-
-		if (!isNullorEmpty(this.email) && !isNullorEmpty(this.confirmEmail)) {
-			if (this.email === this.confirmEmail) {
-				this._emailValueChange(this.email, this.confirmEmail);
-				return true;
-			}
+		if (isNullorEmpty(this.email) || isNullorEmpty(this.confirmEmail)) {
+			return false;
 		}
+
+		if (this.email === this.confirmEmail) {
+			this._emailValueChange(this.email, this.confirmEmail);
+			return true;
+		}
+
+		return false;
 	}
 
 	_inputEmail(e) {
-		this.mailClientError[e.currentTarget.id] = ``;
+		this._validateEmailAddress();
+		this.errorMessage = ``;
 		this.mailClientError.email = ``;
 		this.mailClientError.confirmEmail = ``;
-		this.errorMessage = ``;
 	}
 
-
 	_emailFormatCheck(e) {
-		
 		this[e.currentTarget.id] = e.detail.new;
 
 		if (e.detail.new.length > 0) {
@@ -134,23 +118,19 @@ export class HorizonEmailInput extends Component {
 				this.errorMessage = `Invalid email format`;
 				this.mailClientError.email = `Invalid email format`;
 				this.mailClientError.confirmEmail = `Invalid email format`;
-				this._validateEmailAddress();
-				return;
-			} 
-
-			this.errorMessage = ``;
-			this.mailClientError[e.currentTarget.id] = ``;
-			this._validateEmailAddress();
+			} else {
+				this.errorMessage = ``;
+				this.mailClientError[e.currentTarget.id] = ``;
+			}
 		}
 
 		if (!this._confirmEmailMatch()) {
 			this.errorMessage = `Emails don't match`;
 			this.mailClientError.email = `Emails don't match`;
 			this.mailClientError.confirmEmail = `Emails don't match`;
-			this._validateEmailAddress();
 		}
 
-		this.requestUpdate();
+		this._validateEmailAddress();
 	}
 
 	static get styles() {
@@ -188,7 +168,7 @@ export class HorizonEmailInput extends Component {
 			<capitec-label
 				class="emailLabel"
 				type="subtitle"
-				label="Enter email address">
+				label="${this.labelOne}">
 			</capitec-label>
 
 			<capitec-text-field
@@ -199,7 +179,7 @@ export class HorizonEmailInput extends Component {
 				onpaste="return false"
 				oncut="return false"
 				value="${this.email}"
-				error="${this.mailClientError.email}"
+				error="${this.emailError}"
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
@@ -208,7 +188,7 @@ export class HorizonEmailInput extends Component {
 				style="padding-top:8px"
 				class="emailLabel"
 				type="subtitle"
-				label="Confirm email address">
+				label="${this.labelTwo}">
 			</capitec-label>
 
 			<capitec-text-field
@@ -219,7 +199,7 @@ export class HorizonEmailInput extends Component {
 				onpaste="return false"
 				oncut="return false"
 				value="${this.confirmEmail}"
-				error="${this.mailClientError.confirmEmail}"
+				error="${this.confirmEmailError}"
 				@value-changed="${(e) => this._emailFormatCheck(e)}"
 				@input="${(e) => this._inputEmail(e)}">
 			</capitec-text-field>
@@ -227,8 +207,6 @@ export class HorizonEmailInput extends Component {
 			<hr class="seperator">
 		`;
 	}
-
-	
 };
 
 window.customElements.define(`horizon-email-input`, HorizonEmailInput);
