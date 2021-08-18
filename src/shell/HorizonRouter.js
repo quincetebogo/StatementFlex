@@ -37,7 +37,9 @@ const HORIZON_ROUTES = Object.freeze({
 	PROOF_OF_ACCOUNT_FAILED: `/error/proof-of-account`,
 	TAP_TO_PAY_SUCCESSFUL: `/success/tap-to-pay`,
 	TAP_TO_PAY_UNSUCCESSFUL: `/error/tap-to-pay`,
-	LIVE_BETTER: `/liveBetter`
+	AUTOMATIC_SAVINGS_SUCCESS : `/success/automatic-savings`,
+	AUTOMATIC_SAVINGS_FAILED : `/error/automatic-savings`,
+  LIVE_BETTER: `/liveBetter`
 });
 
 /**
@@ -285,6 +287,14 @@ export class HorizonRouter {
 
 	_productLandingPagesActive() {
 		return this.horizonViewManager.getCurrentView() === HORIZON_VIEW_SET.LANDING_PAGES && this.navigationContext.current !== undefined;
+	}
+
+	navigateToAutomaticSavingsSuccess() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS}`);
+	}
+
+	navigateToAutomaticSavingsFailure() {
+		this.router.navigateByPath(`${HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED}`);
 	}
 
 	/**
@@ -663,11 +673,27 @@ export default horizonRoutes = [
 		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
 	},
 	{
+		name: `horizon-automatic-savings-failure`,
+		title: `AutomaticSavingsFailed`,
+		icon: null,
+		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_FAILED,
+		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsFailure`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
+		name: `horizon-automatic-savings-success`,
+		title: `AutomaticSavingsSuccessful`,
+		icon: null,
+		path: HORIZON_ROUTES.AUTOMATIC_SAVINGS_SUCCESS,
+		load: () => import(`../views/liveBetterSavingsAccount/AutomaticSavingsSuccess`),
+		onPreNavigate: () => HorizonRouter._preNavigate(`layout`, HORIZON_VIEW_SET.VERIFIED_PAGES)
+	},
+	{
 		name: `horizon-live-better`,
 		title: `LiveBetter`,
 		icon: null,
 		path: HORIZON_ROUTES.LIVE_BETTER,
 		load: () => import(`../views/liveBetter/LiveBetter`),
 		onPreNavigate: () => HorizonRouter._preNavigate(`layoutByVerifictionMode`)
-	}
+	}  
 ];
