@@ -1,15 +1,15 @@
 import { Component, css, html } from 'platform/elements';
 import { Configuration, Logger, SecurityContext } from 'platform/core';
-import { AcceptCallEvents } from 'app/constants/Telemetry/Events/AcceptCall';
+import { AcceptCallEvents } from 'app/constants/telemetry/events/AcceptCall';
 import { CALLERINFOBAR_CSS } from 'app/css/CallerInfoBar';
 import { END_CALL_REASON } from 'app/constants/EndCallReasons';
 import { EndCallCauseCode } from 'app/utils/endCallCauseCode';
-import { EndCallEvents } from 'app/constants/Telemetry/Events/EndCall';
+import { EndCallEvents } from 'app/constants/telemetry/events/EndCall';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
 import { IncidentManagementService } from 'app/services/IncidentManagementService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 import { isNullorEmpty } from 'app/utils/channelServiceUtilities';
 
 import 'platform/components/popups/Modal';
