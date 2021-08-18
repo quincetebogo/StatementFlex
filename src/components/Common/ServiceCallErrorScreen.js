@@ -216,7 +216,7 @@ export class ServiceCallErrorScreen extends Component {
 		return this.bannerDetail 
 		? html`
 			<capitec-alert-banner ?hidden="${!this.displayBanner}" class = "banner-top" type="unsuccessful-red" label="${this.bannerDetail}"></capitec-alert-banner>
-		` : html ``;
+		` : html``;
 	}
 }
 

@@ -67,15 +67,15 @@
 	"mock": {
 		"enabled": true,
     "acceptCall": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
     "identifyCaller": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
     "favouritesLanding": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
 		"cardLimitsLanding": {
