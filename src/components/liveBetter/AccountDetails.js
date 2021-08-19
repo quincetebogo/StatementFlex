@@ -161,7 +161,7 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-text-color: #ffffff;
 					--horizon-label-value-line-height: 47px;
     				--horizon-label-value-color: #ffffff;
-					padding: 6px 33px 6px 16px;
+					padding: 6px 33px 6px 7px;
 				}
 
 				.title-style {
