@@ -67,6 +67,13 @@ import 'app/components/common/HorizonLabel';
 		return [
 			super.styles,
 			css`
+
+				capitec-title-bar {
+					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x80.png);
+					height: 80px;
+					width: 1062px;
+				}
+
 				capitec-modal {
 					height: 581px;
 					--theme-modal-free-max-width: 572px;
@@ -94,7 +101,7 @@ import 'app/components/common/HorizonLabel';
 					--theme-label-font-family: 'Hind Vadodara semibold';
 				}
 
-				.header-gradient > capitec-label {
+				.header-gradient {
 					line-height: 64px;
 					padding-left: 16px;
 					--theme-label-default-font-size: 18px;
@@ -103,10 +110,10 @@ import 'app/components/common/HorizonLabel';
 					--theme-label-font-family: 'Hind Vadodara SemiBold';
 				}
 
-				/* Transaction details Styles */
+				/* Account details Styles */
 				.details-vertical {
-					width: 572px;
-					height: 453px; 
+					width: 989px;
+					height: 177px; 
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 8px;
 					--theme-layout-gap-spacing: 0px;
@@ -114,31 +121,61 @@ import 'app/components/common/HorizonLabel';
 
 				.details-horizontal {
 					--theme-layout-gap-spacing: 9px;
+					padding-left: 15px;
 				}
 
 				horizon-label {
 					height: 56px;
-					padding: 12px 16px 10px;
+					padding: 12px 8px 10px 16px;
 
 					--horizon-label-text-height: 12px;
 					--horizon-label-text-line-height: 12px;
-					--horizon-label-text-font-size: 12px;
+					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-color: #3A3A3A;
+					--horizon-label-text-font-weight: 600;
 
 					--horizon-label-value-height: 20px;
 					--horizon-label-value-line-height: 20px;
-					--horizon-label-value-font-size: 14px;
+					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
-
+					
+					--horizon-label-value-font-weight: 500;
 					--horizon-label-value-margin-top: 2px;
 				}
 
-				.col-1 {
-					width: 185px;
+				capitec-icon {
+					--theme-icon-size-medium: 24px;
 				}
 
-				.col-2 {
-					width: 134px;
+				capitec-label {
+					--theme-label-font-color: #3a3a3a;
+					--theme-label-title-font-size: 18px;
+					--theme-label-font-weight: 600;
+					margin-left: 16px;
+				}
+
+				.main-title {
+					--horizon-label-text-font-size: 24px;
+					--horizon-label-text-line-height: 26px;
+					--horizon-label-text-line-width: 168px;
+					--horizon-label-text-color: #ffffff;
+					--horizon-label-value-line-height: 47px;
+    				--horizon-label-value-color: #ffffff;
+					padding: 6px 33px 6px 16px;
+				}
+
+				.title-style {
+					margin-left: 8px;
+					--theme-label-title-font-size: 18px;
+					--theme-label-title-font-weight: 600;
+					--horizon-label-text-line-height: 32px;
+					--horizon-label-text-line-width: 168px;
+					--horizon-label-value-line-height: 47px;
+				}
+
+				.col-1 {
+					width: 192px;
+					height: 50px;
 				}
 
 				/* Footer */
@@ -154,6 +191,54 @@ import 'app/components/common/HorizonLabel';
 					--theme-button-font-weight: 600;
 					--theme-button-line-height: 20px;
 				}
+
+				.alert-banner {
+					--theme-alert-banner-height: 48px;
+					--theme-alert-banner-width: 1032px;
+					--theme-alert-banner-font-weight: 600;
+					--theme-alert-banner-info-background-color: #DAF2F4;
+					--theme-layout-gap-spacing: 8px;
+					--theme-alert-banner-info-font-color: #3A3A3A;
+					--theme-alert-banner-icon-margin-right: 12px;
+					--theme-alert-banner-icon-margin-left: 16px;
+				}
+
+				.alert-banner-paragraph {
+					display: inline-block;
+					font-weight: 400;
+					color: #3A3A3A;
+				}
+
+				capitec-alert-banner-label {
+					color: #3A3A3A;
+				}
+
+				.toggle-group {
+					width: 192px;
+					height: 42px;
+                    padding: 24px 8px 10px 44px;
+                }
+
+				.toggle-group {
+                    --theme-label-font-color: #3A3A3A;
+                    --theme-label-font-size: 16px;
+                    --theme-label-font-weight: 600;
+                    --theme-toggle-label-spacing: 2px;
+                    --theme-toggle-track-inset: 1px;
+					padding-left: 15px;
+                }
+
+				.toggle-label {
+					margin-left: 0px;
+				}
+
+				.left-arrow {
+					padding: 4px 0px 24px 0px;
+				}
+
+				.card {
+					height: 888px;
+				}
 			`
 		];
 	}
@@ -165,26 +250,31 @@ import 'app/components/common/HorizonLabel';
 	_webTemplate() {
 		return html`
 			<capitec-card class="card">
-
 				<capitec-title-bar type="primary">
 					<img
 					src="/images/insure/left-arrow.svg"
 					@click="${() => this._back()}"
-					data-automation-id="" />
-					<horizon-label 
+					data-automation-id="live-better-account-details-left-arrow"
+					class="left-arrow"/>
+					<horizon-label
+						class="main-title"
 						label="Account Details"
 						value="1633824509">
 					</horizon-label>
 				</capitec-title-bar>
 
 				<capitec-content-box>
-					<capitec-card>
-						${this._renderAccountDetails()}
-						${this._renderAutomaticSavings()}
-					</capitec-card>
+				<capitec-alert-banner 
+					type="info" 
+					class="alert-banner"
+					label="Notify Client:">
+						<p class="alert-banner-paragraph">
+							You can only fund this account with Benefits Partner cash backs and Capitec cash backs
+						</p>
+				</capitec-alert-banner>
+					${this._renderAccountDetails()}
+					${this._renderAutomaticSavings()}
 				</capitec-content-box>
-
-				${this._renderFooter()}
 
 			</capitec-card>
 		`;
@@ -198,45 +288,46 @@ import 'app/components/common/HorizonLabel';
 			gap="clear" 
 			halign="left" 
 			valign="top">
-			<capitec-title-bar class="transaction-history-title" type="transact">
-				<capitec-icon size="default" icon=""></capitec-icon>
-				<capitec-label 
-					label="Account Details"
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+				<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
+				<capitec-label
+					label="Account details"
+					class="title-style"
 					type="title">
 				</capitec-label>
-			</capitec-title-bar>
+			</capitec-group>
 				<capitec-group 
-				class="details-horizontal"
+					class="details-horizontal"
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
 					valign="top">
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-account-number"
 							class="col-1" 
-							label="Account Number" 
+							label="Account number" 
 							value="1633824509">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-available-balance"
 							class="col-1" 
-							label="Available Balance" 
+							label="Available balance" 
 							value="R150.00">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-interest-rate"
 							class="col-1" 
-							label="Interest Rate" 
+							label="Interest rate" 
 							value="3.25%">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-interest-in-june"
 							class="col-1" 
 							label="Interest earned in June" 
 							value="R12.50">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-interest-in-may"
 							class="col-1" 
 							label="Interest earned in May" 
 							value="R15.50">
@@ -244,24 +335,26 @@ import 'app/components/common/HorizonLabel';
 				</capitec-group>
 
 				<capitec-group 
+					class="details-horizontal"
 					layout="horizontal"
 					gap="none" 
 					halign="left" 
 					valign="center">
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-interest-tax-year"
 							class="col-1" 
 							label="Interest tax year" 
 							value="R340.00">
 						</horizon-label>	
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-date-opened"
 							class="col-1" 
 							label="Date opened" 
 							value="12 May 2021">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+						class="col-1"
+							data-automation-id="live-better-account-details-status"
 							label="Status" 
 							value="Active">
 						</horizon-label>			
@@ -278,53 +371,50 @@ import 'app/components/common/HorizonLabel';
 			gap="clear" 
 			halign="left" 
 			valign="top">
-			<capitec-title-bar class="transaction-history-title" type="transact">
-				<capitec-icon size="default" icon=""></capitec-icon>
+			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
+			<capitec-image src="/images/liveBetter/AutomaticSavings.svg"></capitec-image>
 				<capitec-label 
-					label="Automatic Savings"
-					type="title">
+					label="Automatic savings"
+					type="title"
+					class="title-style">
 				</capitec-label>
-			</capitec-title-bar>
+			</capitec-group>
 				<capitec-group 
 				class="details-horizontal"
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
 					valign="top">
-						<horizon-label
-							data-automation-id=""
-							class="col-1" 
-							label="Round-up"
-							value="R5.00">
-						</horizon-label>
-						<capitec-toggle></capitec-toggle>
+						<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
+							<capitec-label label="Round-up" class="toggle-label"></capitec-label>
+							<capitec-toggle label="R5.00" checked></capitec-toggle>
+						</capitec-group>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-last-update-round-up"
 							class="col-1" 
 							label="Last update" 
 							value="12 May 2021">
 						</horizon-label>
 						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-round-up-accounts"
 							class="col-1" 
 							label="Round-up account(s)" 
 							value="Savings Account">
 						</horizon-label>						
 				</capitec-group>
 
-				<capitec-group 
+				<capitec-group
+				class="details-horizontal"
 					layout="horizontal"
 					gap="none" 
 					halign="left" 
 					valign="center">
+						<capitec-group class="toggle-group" layout="vertical" gap="none" halign="left" valign="center">
+							<capitec-label label="Interest Sweep" class="toggle-label"></capitec-label>
+							<capitec-toggle label="On" checked></capitec-toggle>
+						</capitec-group>
 						<horizon-label 
-							data-automation-id=""
-							class="col-1" 
-							label="Interest Sweep" 
-							value="On">
-						</horizon-label>	
-						<horizon-label 
-							data-automation-id=""
+							data-automation-id="live-better-account-details-last-update-interest-sweep"
 							class="col-1" 
 							label="Last update" 
 							value="12 May 2021">
@@ -334,3 +424,5 @@ import 'app/components/common/HorizonLabel';
 		`;
 	}
  }
+
+ customElements.define(`horizon-live-better-account-details`, AccountDetails);
