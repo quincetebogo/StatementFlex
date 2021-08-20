@@ -107,7 +107,7 @@ import 'app/components/common/RelatedOptions';
 				image="/images/insure/assign-pay-arrears.svg"
 				header="Live Better currently unavailable" 
 				right="Find a Branch"
-				bannerDetail= "Notify client: Live Better is currently unavailable"
+				bannerDetail= "Live Better is currently unavailable"
 				displayToast = "${this.displayToast}"
 				@right-click=${() => this._findBranchClick()}>
 				<section id="id-error-msg" slot="detail">
