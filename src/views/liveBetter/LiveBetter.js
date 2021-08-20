@@ -5,6 +5,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/liveBetter/LiveBetterVerifiedPage';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
+import 'app/components/dialogs/liveBetter/ManageAutomaticSavings';
 
 /**
  * Live Better View
@@ -96,6 +97,9 @@ export class LiveBetter extends ViewBase {
 	// --------------
 
 	// N/A
+	_automaticSavings() {
+		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
+	}
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -210,6 +214,7 @@ export class LiveBetter extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderAutomaticSavings()}
 		`;
 	}
 
@@ -217,6 +222,7 @@ export class LiveBetter extends ViewBase {
 		switch (this.renderMode) {
 			case RENDER_MODE.MAIN_PAGE:
 			case RENDER_MODE.VERIFY_NOW:
+			case RENDER_MODE.AUTOMATIC_SAVINGS:
 				return !this.loading 
 					? html`
 						${this._renderLiveBetterVerifiedLandingPage()}
@@ -249,6 +255,14 @@ export class LiveBetter extends ViewBase {
 					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
 				</horizon-live-better-unverified-page>`
 			: html``;
+	}
+
+	_renderAutomaticSavings() {
+		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS ?
+		 html`
+		<horizon-manage-automatic-savings>
+		</horizon-manage-automatic-savings>`
+		: html``;
 	}
 
 }

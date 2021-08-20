@@ -59,11 +59,11 @@
 	"mock": {
 		"enabled": true,
     "acceptCall": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
     "identifyCaller": {
-      "enabled": false,
+      "enabled": true,
       "positiveCase": true
     },
 		"favouritesLanding": {
