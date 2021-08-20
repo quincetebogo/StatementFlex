@@ -122,6 +122,28 @@ export class ManageAutomaticSavings extends Component {
 					--theme-modal-footer-padding: 0px 0px 0px 0px;
 				}
 
+				/* Styles to display background color of header as a gradient*/
+				.header-gradient {
+					width: 874px;
+					height: 64px;
+					border-radius: 4px 4px 0px 0px;
+					position: absolute;
+					left: -852px;
+					top: -44px;					
+					background: url(../../images/liveBetter/LBB_bg_64px.png);
+					--theme-label-title-font-size: 18px;
+					--theme-titlebar-padding: 20px 16px;
+					--theme-label-font-family: 'Hind Vadodara semibold';
+				}
+
+				.header-gradient > capitec-label {
+					line-height: 64px;
+					padding-left: 16px;
+					--theme-label-default-font-size: 18px;
+					--theme-label-font-color: #ffffff;
+					letter-spacing: 0;
+					--theme-label-font-family: 'Hind Vadodara SemiBold';
+				}
 				capitec-alert-banner[type="info"] {
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-height: 48px;
@@ -266,10 +288,11 @@ export class ManageAutomaticSavings extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
-					<capitec-title-bar type="primary">
-						<capitec-label class="header-label" label="Manage Automatic Savings"></capitec-label>
+					<capitec-title-bar type="primary" label="" class="header-gradient">
+						<img src="../../images/liveBetter/round-up.svg"/>
+						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
-				</div>	
+				</div>
 				<div slot="body">
 					<capitec-content-box class="main-container">
 					${this._renderAlertBanner()}
