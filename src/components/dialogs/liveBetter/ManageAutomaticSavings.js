@@ -304,9 +304,9 @@ export class ManageAutomaticSavings extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
-					<capitec-title-bar type="primary" class="header-gradient">
+					<capitec-title-bar data-automation-id="manage-automatic-savings-image" type="primary" class="header-gradient">
 						<img src="../../images/liveBetter/round-up.svg"/>
-						<capitec-label label="Manage Automatic Savings"></capitec-label>
+						<capitec-label  label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
 				</div>
 				<div slot="body">
@@ -333,7 +333,7 @@ export class ManageAutomaticSavings extends Component {
 
 	_renderAlertBanner() {
 		return html`
-			<capitec-alert-banner class="alert-banner" type="info">
+			<capitec-alert-banner data-automation-id="manage-automatic-savings-alert-banner" class="alert-banner" type="info">
 				<strong>Notify client:</strong>
 				<p class="alert-banner-paragraph">Your Round-up and Interest Sweep values will always be transferred from your main savings account</p>
 			</capitec-alert-banner>
@@ -352,7 +352,7 @@ export class ManageAutomaticSavings extends Component {
 						label="${this.roundUpActive ? 'On': 'Off'}"
 						type="default">
 					</capitec-label>
-				<capitec-toggle id="id-toggle" checked>
+				<capitec-toggle data-automation-id="manage-automatic-savings-toggle" id="id-toggle" checked>
 				</capitec-toggle>
 			</capitec-group>
 
@@ -369,7 +369,7 @@ export class ManageAutomaticSavings extends Component {
 					class="other-options">
 				</capitec-title-bar>
 
-				<capitec-radio-group class="round-up-amount">
+				<capitec-radio-group data-automation-id="manage-automatic-savings-radio-amount" class="round-up-amount">
 					<capitec-radio label="R2.00" checked></capitec-radio>
 					<capitec-radio label="R5.00"></capitec-radio>
 					<capitec-radio label="R10.00"></capitec-radio>
@@ -387,7 +387,7 @@ export class ManageAutomaticSavings extends Component {
 					label="Active round-up accounts"
 					class="other-options">
 				</capitec-title-bar>
-				<capitec-check-group class="round-up-account">
+				<capitec-check-group data-automation-id="manage-automatic-savings-check-account" class="round-up-account">
 					<capitec-check label="Main Savings account"></capitec-check>
 					<capitec-check label="My new Car"></capitec-check>
 					<capitec-check label="Credit card"></capitec-check>
@@ -409,7 +409,7 @@ export class ManageAutomaticSavings extends Component {
 						label="${this.roundUpActive ? 'On': 'Off'}"
 						type="default">
 					</capitec-label>
-				<capitec-toggle id="id-toggle" checked>
+				<capitec-toggle data-automation-id="manage-automatic-savings-toggle" id="id-toggle" checked>
 				</capitec-toggle>
 		</capitec-group>
 		`;
