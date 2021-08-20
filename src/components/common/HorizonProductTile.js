@@ -224,6 +224,15 @@ export class HorizonProductTile extends Component {
 					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
 				}
 
+				.tile.live-better:hover {
+					border: var(--theme-product-tile-hover-live-better-border, 1px solid #1629DA);
+					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
+				}
+				.tile.live-better:focus, .tile.live-better.selected{
+					border: var(--theme-product-tile-focus-live-better-border, 2px solid #1629DA);
+					box-shadow: var(--theme-product-tile-focus-shadow, 0 3px 6px 0 rgba(0,0,0,0.15));
+				}
+
 				.tile.insure:hover {
 					border: var(--theme-product-tile-hover-insure-border, 1px solid #5D737E);
 					box-shadow: var(--theme-product-tile-hover-shadow, 0 1px 3px 0 rgba(0,0,0,0.25), 0 2px 4px 0 rgba(0,0,0,0.15));
@@ -268,6 +277,10 @@ export class HorizonProductTile extends Component {
 					background-color: var(--theme-product-tile-insure-colour, #5D737E);
 				}
 
+				 .product.live-better {
+				 	background-color: var(--theme-product-tile-live-better-colour, #FFFFFF);
+				 }
+
 				.heading {
 					margin-left: var(--theme-product-tile-heading-margin-left, 20px);
 					margin-top: var(--theme-product-tile-heading-margin-top, 8px);
@@ -308,6 +321,10 @@ export class HorizonProductTile extends Component {
 
 				.title.insure {
 					color: var(--theme-product-tile-insure-colour, #5D737E);
+				}
+
+				.title.live-better {
+					color: var(--theme-product-tile-live-better-colour, #1629DA);
 				}
 
 				.subtitle {
@@ -481,6 +498,14 @@ export class HorizonProductTile extends Component {
 					${this._renderRadioIcon()}
 				</div>
 			`;
+		}
+
+		if (this.type === `live-better`) {
+			return html`
+				<div class="product ${this.type ? this.type : `transact`}">
+					<img alt="liveBetter" src="images/Mask.png" style="object-fit: fill">
+				</div>
+			`
 		}
 
 		return html`
