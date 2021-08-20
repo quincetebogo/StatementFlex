@@ -61,11 +61,6 @@ export class ManageAutomaticSavings extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		this.radioButtonsAvailable = [
-			{ "key": `0`, "value": `R2.00` },
-			{ "key": `1`, "value": `R5.00` },
-			{ "key": `2`, "value": `R10.00` }
-		];
 
 	}
 
@@ -138,7 +133,7 @@ export class ManageAutomaticSavings extends Component {
 
 				.header-gradient > capitec-label {
 					line-height: 64px;
-					padding-left: 16px;
+					padding-left: 12px;
 					--theme-label-default-font-size: 18px;
 					--theme-label-font-color: #ffffff;
 					letter-spacing: 0;
@@ -233,14 +228,9 @@ export class ManageAutomaticSavings extends Component {
 					margin-left:16px;
 				}
 
-				#id-radio-round-up-amount{
+				.round-up-accounts{
 					margin-left:16px;
-					
-				}
-
-				#id-check-accounts{
-					margin-left:16px;
-					margin-bottom:23px;
+					padding:16px;
 				}
 				
 				#id-toggle{
@@ -261,6 +251,11 @@ export class ManageAutomaticSavings extends Component {
 					--theme-card-min-width: 840px;
     				--theme-card-min-height: 394px;
 				}
+
+				#id-check-round-up-accounts{
+					height:143px;
+				}
+
 				.other-options {
 					--theme-titlebar-min-height: 32px;
 					--theme-titlebar-padding: 0px 0px 0px 16px;
@@ -288,7 +283,7 @@ export class ManageAutomaticSavings extends Component {
 		return html`
 			<capitec-modal type="free" header-align="left">
 				<div slot="header">
-					<capitec-title-bar type="primary" label="" class="header-gradient">
+					<capitec-title-bar type="primary" class="header-gradient">
 						<img src="../../images/liveBetter/round-up.svg"/>
 						<capitec-label label="Manage Automatic Savings"></capitec-label>
 					</capitec-title-bar>
@@ -353,8 +348,8 @@ export class ManageAutomaticSavings extends Component {
 					class="other-options">
 				</capitec-title-bar>
 
-				<capitec-radio-group>
-					<capitec-radio label="R2.00"></capitec-radio>
+				<capitec-radio-group class="round-up-accounts">
+					<capitec-radio label="R2.00" checked></capitec-radio>
 					<capitec-radio label="R5.00"></capitec-radio>
 					<capitec-radio label="R10.00"></capitec-radio>
 				</capitec-radio-group>
@@ -371,8 +366,7 @@ export class ManageAutomaticSavings extends Component {
 					label="Active round-up accounts"
 					class="other-options">
 				</capitec-title-bar>
-
-				<capitec-check-group>
+				<capitec-check-group class="round-up-accounts">
 					<capitec-check label="Main Savings account"></capitec-check>
 					<capitec-check label="My new Car"></capitec-check>
 					<capitec-check label="Credit card"></capitec-check>
