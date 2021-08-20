@@ -176,6 +176,7 @@ import 'app/components/common/HorizonLabel';
 				.col-1 {
 					width: 192px;
 					height: 50px;
+					--horizon-label-text-font-weight: 0;
 				}
 
 				/* Footer */
