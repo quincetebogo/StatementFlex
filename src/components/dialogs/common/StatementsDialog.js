@@ -1,12 +1,12 @@
 import { Component, css, html } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
-import { base64ToBlobUrl, calculateDays, formatCurrency, getMonthName, isNullorEmpty } from 'app/utils/channelServiceUtilities';
+import { base64ToBlobUrl, calculateDays, formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
 import { HorizonStore } from 'app/store/HorizonStore';
 import { HorizonTelemetry } from 'app/services/HorizonTelemetryService';
-import { QuickTransactionEvents } from 'app/constants/Telemetry/Events/QuickTransactions';
+import { QuickTransactionEvents } from 'app/constants/telemetry/events/QuickTransactions';
 import { QuickTransactionsService } from 'app/services/QuickTransactionsService';
-import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
+import { TelemetryScreen } from 'app/constants/telemetry/TelemetryScreens';
 
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
@@ -208,7 +208,9 @@ export class StatementsDialog extends Component {
 			fromDate: { attribute: false },
 			toDate: { attribute: false },
 			_customDateRange: { attribute: false },
-			errorMessage: { attribute: false }
+			errorMessage: { attribute: false },
+			emailError: { attribute: false },
+			confirmEmailError: { attribute: false }
 		};
 	}
 
@@ -232,25 +234,14 @@ export class StatementsDialog extends Component {
 	// --------------
 
 	_onEmailValueChange(e) {
-		this.dispatchEvent(new CustomEvent(`value-changed`, {
-			detail: {
-				email: e.detail.email,
-				confirmEmail: e.detail.confirm
-			}
-		}));
-
 		this.email = e.detail.email;
-		this.confirmEmail = e.detail.confirm;
+		this.confirmEmail = e.detail.confirmEmail;
 	}
 
 	_validEmailAddressCheck(e) {
-		this.dispatchEvent(new CustomEvent(`on-email-validation`, {
-			detail: e.detail
-		}));
-
 		this.errorMessage = e.detail.errorMessage;
-		this.mailClientError.email = this.errorMessage;
-		this.mailClientError.confirmEmail = this.errorMessage;
+		this.mailClientError.email = e.detail.emailError;
+		this.mailClientError.confirmEmail = e.detail.confirmEmailError;
 	}
 
 	async _cancel() {
@@ -1176,10 +1167,12 @@ export class StatementsDialog extends Component {
 		if (this.currentStep === 2 && this.renderMode === RENDER_MODE.EMAIL) {
 			return html`
 				<horizon-email-input
-				@value-changed="${(e) => this._onEmailValueChange(e)}"
-				@on-email-validation="${(e) => this._validEmailAddressCheck(e)}"
-				.labelOne="${this.emailLabel}"
-				.labelTwo="${this.confirmEmailLabel}">
+					@value-changed="${(e) => this._onEmailValueChange(e)}"
+					@validation-update="${(e) => this._validEmailAddressCheck(e)}"
+					.labelOne="${this.emailLabel}"
+					.labelTwo="${this.confirmEmailLabel}"
+					.emailError="${this.mailClientError.email}"
+					.confirmEmailError="${this.mailClientError.confirmEmail}">
 				</horizon-email-input>
 			
 			<capitec-label
