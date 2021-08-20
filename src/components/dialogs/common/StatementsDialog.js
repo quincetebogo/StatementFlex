@@ -1,4 +1,4 @@
-import { Component, css, html } from 'platform/elements';
+import { Component, css, html, unsafeCSS } from 'platform/elements';
 import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { base64ToBlobUrl, calculateDays, formatCurrency, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -31,12 +31,12 @@ const STATEMENTS_STEPS = [
 ];
 
 const TYPE = [
-	{ icon: `product/transact`, label: `Savings Account`, type: `transact`},
-	{ icon: `product/save`, label: `Future Savings`, type: `save`},
-	{ icon: `product/save`, label: `Education`, type: `save`},
-	{ customIcon: `../../../images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb`},
-	{ icon: `product/credit`, label: `Credit Card`, type: `credit`},
-	{ icon: `product/credit`, label: `Access Facility`, type: `credit`}
+	{ icon: `product/transact`, label: `Savings Account`, type: `transact` },
+	{ icon: `product/save`, label: `Future Savings`, type: `save` },
+	{ icon: `product/save`, label: `Education`, type: `save` },
+	{ customIcon: `../../../images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb` },
+	{ icon: `product/credit`, label: `Credit Card`, type: `credit` },
+	{ icon: `product/credit`, label: `Access Facility`, type: `credit` }
 ];
 
 const CLASS_NAMES = {
@@ -195,7 +195,7 @@ export class StatementsDialog extends Component {
 		return {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
-			selectedOption : { type: Array },
+			selectedOption: { type: Array },
 
 			isBusy: { attribute: false },
 			currentStep: { attribute: false },
@@ -660,6 +660,7 @@ export class StatementsDialog extends Component {
 					--theme-wizard-modal-lg-max-width:960px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
+					--theme-modal-body-box-shadow: none;
 					border-bottom-left-radius: 0px;
 					border-bottom-right-radius: 0px;
 				}
@@ -822,27 +823,20 @@ export class StatementsDialog extends Component {
 					margin-top:16px;
 					--theme-date-time-picker-host-min-width:696px;
 				}
-				.chooseText{
-					padding-top:8px;
-				}
-				.header-background-savings-account {
+				/* HEADER STYLES */
+				.transact {
 					--theme-modal-header-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
 				}
-				.header-background-future-savings {
+				.save {
 					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
 				}
-				.header-background-education {
-					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
-				}
-				.header-background-live-better {
+				.lbb {
 					--theme-modal-header-background: url('../../images/liveBetter/live-better-background.png');
 				}
-				.header-background-credit-card {
+				.credit {
 					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
 				}
-				.header-background-access-facility {
-					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
-				}
+				/* HEADER STYLES */
 
 				horizon-select-icon {
 					width: 344px;
@@ -858,7 +852,7 @@ export class StatementsDialog extends Component {
 	_webTemplate() {
 		return html`
 			<bb-stepper-modal
-				class="header-background-${CLASS_NAMES[this.selectedOption]}"
+				class="${this.selectedOption.type}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${STATEMENTS_STEPS}"
@@ -906,7 +900,7 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>`;
 		}
 
-		if (this.selectedOption === `Access Facility`) {
+		if (this.selectedOption.label === `Access Facility`) {
 			return html`
 				<capitec-alert-banner
 					type="warning">
@@ -939,28 +933,25 @@ export class StatementsDialog extends Component {
 				</capitec-label>
 
 				<horizon-select-icon
-						label="Choose account"
-						.items="${TYPE}"
-						value="${this.selectedOption.label}"
-						.displayRenderer="${(e) => this._renderOptions(e)}"
-						@value-changed="${(e) => this.selectedOption = e.detail.new.label}"> 
+					label="Choose account"
+					.items="${TYPE}"
+					value="${this.selectedOption}"
+					.displayRenderer="${(e) => this._renderOptions(e)}"
+					@value-changed="${(e) => this.selectedOption = e.detail.new}"> 
 				</horizon-select-icon>
 			`;
 		}
 	}
 
 	_renderOptions(e) {
+		const iconClass = `width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;`;
+
 		return html`
 			<capitec-group style="padding: 0px" layout="horizontal">
 				${e.icon 
-					? html`
-						<capitec-icon 
-								style="width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;" 
-								size="medium" 
-								icon="${e.icon || e.customIcon}">
-						</capitec-icon>`
-					: html`<img style="width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;" src="${e.customIcon}"/>`}
-
+			? html`<capitec-icon style="${unsafeCSS(iconClass)}" size="medium" icon="${e.icon}"></capitec-icon>`
+			: html`<img style="${unsafeCSS(iconClass)}" src="${e.customIcon}"/>`
+				}
 				<capitec-label label="${e.label}"></capitec-label>
 			</capitec-group>
 		`;
