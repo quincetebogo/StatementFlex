@@ -11,6 +11,7 @@ import { TelemetryScreen } from 'app/constants/Telemetry/TelemetryScreens';
 import 'platform/components/popups/Modal';
 import 'app/components/common/StepperModal';
 import 'app/components/Common/HorizonEmailInput';
+import 'app/components/common/HorizonSelectIcon';
 
 const RENDER_MODE = Object.freeze({
 	EMAIL: 0,
@@ -28,6 +29,24 @@ const STATEMENTS_STEPS = [
 		title: `Specify Email and View Documents`
 	}
 ];
+
+const TYPE = [
+	{ icon: `product/transact`, label: `Savings Account`, type: `transact`},
+	{ icon: `product/save`, label: `Future Savings`, type: `save`},
+	{ icon: `product/save`, label: `Education`, type: `save`},
+	{ customIcon: `../../../images/liveBetter/live-better-icon.png`, label: `Live Better savings account`, type: `lbb`},
+	{ icon: `product/credit`, label: `Credit Card`, type: `credit`},
+	{ icon: `product/credit`, label: `Access Facility`, type: `credit`}
+];
+
+const CLASS_NAMES = {
+	"Savings Account": `savings-account`,
+	"Future Savings": `future-savings`,
+	"Education": `education`,
+	"Live Better savings account": `live-better`,
+	"Credit Card": `credit-card`,
+	"Access Facility": `access-facility`
+};
 
 const ACCOUNT_TYPE = {
 	PRIMARY_SAVINGS: 300,
@@ -96,7 +115,8 @@ const TIME_PERIOD = {
 const NOTIFICATION_MESSAGE = {
 	APP: ` Did you know you can email statements from the app for free?`,
 	FEE: ` A fee will be charged for email statements`,
-	NO_FEE: ` A fee won't be charged for a fixed term savings statement`
+	NO_FEE: ` A fee won't be charged for a fixed term savings statement`,
+	FLEXIBLE_SAVINGS_FEE: `A fee will be charged for flexible saving account statements.`
 };
 
 const EMAIL_REGEX = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9])+$/;
@@ -157,6 +177,7 @@ export class StatementsDialog extends Component {
 		this.encodedPDF = ``;
 		this.today = new Date().toISOString();
 		this.productSelected = {};
+		this.selectedOption = [];
 
 		this.eventAggregator = EventAggregator.getInstance();
 		this.horizonRouter = HorizonRouter.getInstance();
@@ -174,6 +195,7 @@ export class StatementsDialog extends Component {
 		return {
 			callerInformation: { type: Object },
 			clientProducts: { type: Array },
+			selectedOption : { type: Array },
 
 			isBusy: { attribute: false },
 			currentStep: { attribute: false },
@@ -200,8 +222,8 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.startSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 	}
 
 	
@@ -235,13 +257,13 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_CANCEL, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
 		this._telemetry.endSpan(QuickTransactionEvents.STATEMENTS, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"nextScreen": TelemetryScreen.FAVOURITES
-        });
+		});
 
 		this.dispatchEvent(new CustomEvent(`cancel`, {}));
 	}
@@ -268,8 +290,8 @@ export class StatementsDialog extends Component {
 		this.renderMode = RENDER_MODE.EMAIL;
 		
 		this._telemetry.logEvent(QuickTransactionEvents.SELECT_STATEMENTS_CLOSE_PDF, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 
 
 	}
@@ -278,8 +300,8 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_BACK, {
-            "screen": TelemetryScreen.STATEMENTS
-        });
+			"screen": TelemetryScreen.STATEMENTS
+		});
 
 		this.errorMessage = ``;
 		this.currentStep--;
@@ -290,9 +312,9 @@ export class StatementsDialog extends Component {
 		// Telemetry 
 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_ACCOUNT, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "accountType": type
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"accountType": type
+		});
 
 		this.accType = type;
 		this.accPlanNumber = ``;
@@ -304,9 +326,9 @@ export class StatementsDialog extends Component {
 
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PLAN, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "account-id": plan.accountNumber
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"account-id": plan.accountNumber
+		});
 
 		this.accPlanType = plan.accountName;
 		this.accPlanNumber = plan.accountNumber;
@@ -325,9 +347,9 @@ export class StatementsDialog extends Component {
 
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_PERIOD, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "period-selected": this.periodSelected
-        });
+			"screen": TelemetryScreen.STATEMENTS,
+			"period-selected": this.periodSelected
+		});
 	}
 
 	_customDateRangeSelected() {
@@ -434,7 +456,7 @@ export class StatementsDialog extends Component {
 		// Telemetry
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SEND, {
 			"screen": TelemetryScreen.STATEMENTS,
-            "next-screen": TelemetryScreen.STATEMENTS_OUTCOME
+			"next-screen": TelemetryScreen.STATEMENTS_OUTCOME
 		});
 
 		} else {
@@ -479,7 +501,7 @@ export class StatementsDialog extends Component {
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_ACCOUNT_NEXT, {
 			"screen": TelemetryScreen.STATEMENTS,
-            "account-type": this.accType,
+			"account-type": this.accType,
 			"account-plan-name": this.accPlanType ? this.accPlanType : null
 		});
 		
@@ -502,18 +524,18 @@ export class StatementsDialog extends Component {
 
 		
 		await this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_SELECT_DATE_RANGE, {
-            "screen": TelemetryScreen.STATEMENTS,
-            "startDate": this.fromDate,
+			"screen": TelemetryScreen.STATEMENTS,
+			"startDate": this.fromDate,
 			"endDate": this.toDate
-        });
+		});
 		
 		// Telemetry 
 		this._telemetry.logEvent(QuickTransactionEvents.STATEMENTS_PERIOD_NEXT, {
-            "screen": TelemetryScreen.STATEMENTS,
+			"screen": TelemetryScreen.STATEMENTS,
 			"period": this.periodSelected ? this.periodSelected : null,
 			"start-date": this.fromDate ? this.fromDate : null,
 			"end-date": this.toDate ? this.toDate : null
-        });
+		});
 	
 		return true;
 	}
@@ -628,13 +650,13 @@ export class StatementsDialog extends Component {
 		return [
 			super.styles,
 			css`
-				bb-stepper-modal  {              
+				bb-stepper-modal {
 					--theme-modal-header-height: 64px;
 					--theme-modal-header-font-size: 18px;
 					--theme-modal-header-padding-left: 16px;
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-stepper-inner-step-container-width: 324px;
+					--theme-modal-header-color: #FFFFFF;
+					--theme-modal-header-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+					--theme-stepper-inner-step-container-width: 320px;
 					--theme-stepper-step-title-font-style: Hind Vadodara SemiBold;
 					--theme-stepper-step-title-font-size: 15px;
 					--theme-stepper-step-title-max-width: 328px;
@@ -642,11 +664,13 @@ export class StatementsDialog extends Component {
 					--theme-container-padding-right: 0px;
 					--theme-container-padding-top: 0px;
 					--theme-container-padding-bottom: 0px;
-					--theme-wizard-modal-max-width: 976px;
+					--theme-wizard-modal-max-width: 960px;
 					--theme-wizard-modal-max-height: 930px;
-					--theme-wizard-modal-lg-max-width:976px;
+					--theme-wizard-modal-lg-max-width:960px;
 					--theme-wizard-modal-header-padding: 18.5px 16px;
 					--theme-modal-footer-padding: 0px;
+					border-bottom-left-radius: 0px;
+					border-bottom-right-radius: 0px;
 				}
 				div[slot="step"] {
 					height: 100%;
@@ -656,13 +680,6 @@ export class StatementsDialog extends Component {
 				}
 				.margin-top {
 					margin-top: var(--horizon-statement-generic-margin-top, 24px);
-				}
-				capitec-modal {
-					--theme-modal-header-color: #3A3A3A;
-					--theme-modal-header-background-color: #F7F7F7;
-					--theme-modal-header-padding-top: 20px;
-					--theme-modal-header-padding-bottom: 20px;
-					--theme-modal-footer-padding: 0px;
 				}
 				.main-cb {
 					height: 100%;
@@ -680,12 +697,16 @@ export class StatementsDialog extends Component {
 					--theme-alert-banner-unsuccessful-red-background-color: #F7E2E1;
 					--theme-layout-gap-spacing: 15px;
 				}
+				.main-cb > capitec-alert-banner[type="warning"] {
+					--theme-alert-banner-warning-font-color: #3A3A3A;
+				}
+
 				.main-cb > capitec-label[type="subtitle"] {
 					line-height: 24px;
 
 					--theme-label-subtitle-font-size: 18px;
 					--theme-label-subtitle-font-weight: 600;
-					--theme-layout-gap-spacing: 16px;
+					--theme-layout-gap-spacing: 18px;
 				}
 				horizon-product-tile {
 					--theme-product-tile--height: 64px;
@@ -760,19 +781,12 @@ export class StatementsDialog extends Component {
 					font-weight: normal;
 					color: #3A3A3A;
 				}
-				capitec-icon {
-					width: 26px;
-					height: 26px;
-					margin-bottom: 3px;
-					margin-top: 3px;
 
-					--theme-icon-size-small: 26px;
-				}
 				capitec-group > .calendar:first-child {
 					--theme-layout-gap-spacing: 0px;
 				}
 				.footer {
-					width: var(--horizon-statements-modal-footer-width, 975px);
+					width: var(--horizon-statements-modal-footer-width, 960px);
 					
 					--theme-container-padding-left: 16px;
 					--theme-container-padding-top: 16px;
@@ -820,13 +834,40 @@ export class StatementsDialog extends Component {
 				.chooseText{
 					padding-top:8px;
 				}
+				.header-background-savings-account {
+					--theme-modal-header-background: linear-gradient(90deg, #0084D5 0%, #009DE0 100%);
+				}
+				.header-background-future-savings {
+					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
+				}
+				.header-background-education {
+					--theme-modal-header-background: linear-gradient(90deg, #003354 0%, #00486D 100%);
+				}
+				.header-background-live-better {
+					--theme-modal-header-background: url('../../images/liveBetter/live-better-background.png');
+				}
+				.header-background-credit-card {
+					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
+				}
+				.header-background-access-facility {
+					--theme-modal-header-background: linear-gradient(90deg, #C83C37 0%, #E61414 100%);
+				}
+
+				horizon-select-icon {
+					width: 344px;
+
+					--theme-select-options-max-height: 304px;
+					--theme-input-icon-margin-left: 16px;
+					--theme-icon-size-small: 24px;
+				}
 			`
 		];
 	};
 
-    _webTemplate() {
+	_webTemplate() {
 		return html`
 			<bb-stepper-modal
+				class="header-background-${CLASS_NAMES[this.selectedOption]}"
 				data-automation-id="statements-dialog"
 				.header="${this._getHeaderTitle()}"
 				.steps="${STATEMENTS_STEPS}"
@@ -856,7 +897,7 @@ export class StatementsDialog extends Component {
 						gap="clear"
 						?noScroll="${false}">
 							${this._renderAlertBanner()}
-							${this._renderAccountSelection()}
+							${this._renderSelectAccount()}
 							${this._renderChoosePeriod()}
 							${this._renderEmailClient()}
 					</capitec-content-box>
@@ -874,6 +915,15 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>`;
 		}
 
+		if (this.selectedOption === `Access Facility`) {
+			return html`
+				<capitec-alert-banner
+					type="warning">
+						<p><b>Notify client:</b> ${NOTIFICATION_MESSAGE.FLEXIBLE_SAVINGS_FEE}</p>
+				</capitec-alert-banner>
+			`;
+		}
+
 		if (this.notifyClient && isNullorEmpty(this.errorMessage)) {
 			return html`
 				<capitec-alert-banner
@@ -885,8 +935,47 @@ export class StatementsDialog extends Component {
 				</capitec-alert-banner>
 			`;
 		}
+
 		return html``;
 	}
+
+	_renderSelectAccount() {
+		if (this.currentStep === 0) {
+			return html`
+				<capitec-label
+					type="subtitle"
+					label="Choose an Account">
+				</capitec-label>
+
+				<horizon-select-icon
+						label="Choose account"
+						.items="${TYPE}"
+						value="${this.selectedOption.label}"
+						.displayRenderer="${(e) => this._renderOptions(e)}"
+						@value-changed="${(e) => this.selectedOption = e.detail.new.label}"> 
+				</horizon-select-icon>
+			`;
+		}
+	}
+
+	_renderOptions(e) {
+		return html`
+			<capitec-group style="padding: 0px" layout="horizontal">
+				${e.icon 
+					? html`
+						<capitec-icon 
+								style="width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;" 
+								size="medium" 
+								icon="${e.icon || e.customIcon}">
+						</capitec-icon>`
+					: html`<img style="width: 24px; height: 24px; margin: 0px 8px 0px 0px; --theme-icon-size-small: 24px;" src="${e.customIcon}"/>`}
+
+				<capitec-label label="${e.label}"></capitec-label>
+			</capitec-group>
+		`;
+	}
+
+	// TODO: Navigation to be wired up once channel service has been implemented according to the new designs.
 
 	_renderAccountSelection() {
 		if (this.currentStep === 0) {
@@ -1047,13 +1136,13 @@ export class StatementsDialog extends Component {
 	}
 
 	_renderCustomDateRange() {
-        if (this._customDateRange) {
+		if (this._customDateRange) {
 			return html`
 				<capitec-card
 					class="custom-date-card">
 						<capitec-group
 							layout="horizontal">
-							    ${this._renderCalendar()}
+								${this._renderCalendar()}
 						</capitec-group>
 				</capitec-card>
 			`;
