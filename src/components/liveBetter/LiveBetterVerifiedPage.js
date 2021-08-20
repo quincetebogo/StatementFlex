@@ -161,6 +161,7 @@ export class LiveBetterVerifiedPage extends Component {
 				}
 				.actionbar-header > capitec-icon {
 					--theme-icon-size-medium: 24px;
+					cursor: pointer;
 				}
 				.actionbar-header > horizon-label {
 					width: 158px;
@@ -302,9 +303,9 @@ export class LiveBetterVerifiedPage extends Component {
 				<capitec-group class= "actionbar-header" layout="horizontal" gap="none" halign="left" valign="center">
 					<capitec-icon 
 						data-automation-id="live-better-verified-account-info"
-						class="account-info-icon" 
 						size="medium" 
-						icon="system/info-action">
+						icon="system/info-action"
+						@click="${() => this._accountDetails()}">
 					</capitec-icon>
 
 					<horizon-label

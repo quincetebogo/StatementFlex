@@ -81,7 +81,6 @@ export class HorizonLabel extends Component {
 					font-size: var(--horizon-label-text-font-size, 14px);
 					letter-spacing: 0;
 					line-height: var(--horizon-label-text-line-height, 21px);
-					font-weight: var(--horizon-label-text-font-weight, 0);
 				}
 
 				.label-value{
@@ -95,7 +94,6 @@ export class HorizonLabel extends Component {
 					font-weight: 600;
 					letter-spacing: 0;
 					line-height: var(--horizon-label-value-line-height, 27px);
-					font-weight: var(--horizon-label-value-font-weight, 0);
 				}`
 		];
 	}

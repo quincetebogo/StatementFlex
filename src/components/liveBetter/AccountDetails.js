@@ -2,12 +2,12 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Account Details View
+ * Account details screen for Live better flow
  *
  * Events Raised
  * -------------
  * 
- * option-click
+ * back
  * 
  * @export
  * @class AccountDetails
@@ -23,6 +23,7 @@ import 'app/components/common/HorizonLabel';
 	constructor() {
 		super();
 
+		// TO DO: Account details to be passed from landing screen once CS call is implemented.
 		this.accountDetails = null;
 	}
 
