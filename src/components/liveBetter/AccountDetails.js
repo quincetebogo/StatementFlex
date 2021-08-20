@@ -2,7 +2,7 @@ import { Component, css, html } from 'platform/elements';
 import 'app/components/common/HorizonLabel';
 
 /**
- * Savings Account View REMEMBER TO UPDATE
+ * Account Details View
  *
  * Events Raised
  * -------------
@@ -10,7 +10,7 @@ import 'app/components/common/HorizonLabel';
  * option-click
  * 
  * @export
- * @class SavingsAccount
+ * @class AccountDetails
  * @extends {Component}
  */
 
@@ -113,8 +113,6 @@ import 'app/components/common/HorizonLabel';
 					font-weight: 400;
 					color: #3A3A3A;
 				}
-
-				/* Account details Styles */
 				
 				.sub-header {
 					height: 24px;
@@ -235,19 +233,25 @@ import 'app/components/common/HorizonLabel';
 				</capitec-title-bar>
 
 				<capitec-content-box>
-					<capitec-alert-banner 
-						type="info" 
-						class="alert-banner"
-						label="Notify Client:">
-							<p class="alert-banner-paragraph">
-								You can only fund this account with Benefits Partner cash backs and Capitec cash backs
-							</p>
-					</capitec-alert-banner>
+					${this._renderAlertBanner()}
 					${this._renderAccountDetails()}
 					${this._renderAutomaticSavings()}
 				</capitec-content-box>
 
 			</capitec-card>
+		`;
+	}
+
+	_renderAlertBanner(){
+		return html `
+			<capitec-alert-banner 
+				type="info" 
+				class="alert-banner"
+				label="Notify Client:">
+					<p class="alert-banner-paragraph">
+						You can only fund this account with Benefits Partner cash backs and Capitec cash backs
+					</p>
+			</capitec-alert-banner>
 		`;
 	}
 
