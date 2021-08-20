@@ -113,7 +113,8 @@ import 'app/components/common/HorizonLabel';
 				/* Account details Styles */
 				.details-vertical {
 					width: 989px;
-					height: 177px; 
+					height: 198px;
+
 					--theme-container-padding-left: 0px;
 					--theme-container-padding-top: 8px;
 					--theme-layout-gap-spacing: 0px;
@@ -126,7 +127,7 @@ import 'app/components/common/HorizonLabel';
 
 				horizon-label {
 					height: 56px;
-					padding: 12px 8px 10px 16px;
+					padding: 16px 8px 10px 16px;
 
 					--horizon-label-text-height: 12px;
 					--horizon-label-text-line-height: 12px;
@@ -139,7 +140,7 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-font-size: 16px;
 					--horizon-label-value-color: #3A3A3A;
 					
-					--horizon-label-value-font-weight: 500;
+					--horizon-label-value-font-weight: 600;
 					--horizon-label-value-margin-top: 2px;
 				}
 
@@ -166,6 +167,8 @@ import 'app/components/common/HorizonLabel';
 
 				.title-style {
 					margin-left: 8px;
+					padding-bottom:8px;
+
 					--theme-label-title-font-size: 18px;
 					--theme-label-title-font-weight: 600;
 					--horizon-label-text-line-height: 32px;
@@ -175,7 +178,9 @@ import 'app/components/common/HorizonLabel';
 
 				.col-1 {
 					width: 192px;
-					height: 50px;
+					height: 64px;
+					padding-left: 18px;
+
 					--horizon-label-text-font-weight: 0;
 				}
 
@@ -213,20 +218,17 @@ import 'app/components/common/HorizonLabel';
 				capitec-alert-banner-label {
 					color: #3A3A3A;
 				}
-
+				
 				.toggle-group {
 					width: 192px;
-					height: 42px;
-                    padding: 24px 8px 10px 44px;
-                }
+					height: 64px;
 
-				.toggle-group {
                     --theme-label-font-color: #3A3A3A;
                     --theme-label-font-size: 16px;
                     --theme-label-font-weight: 600;
                     --theme-toggle-label-spacing: 2px;
                     --theme-toggle-track-inset: 1px;
-					padding-left: 15px;
+					padding-left: 18px;
                 }
 
 				.toggle-label {
