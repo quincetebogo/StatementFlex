@@ -1,5 +1,5 @@
 import { Component, css, html } from 'platform/elements';
-import { EventAggregator, NavigationContext } from 'platform/core';
+import { EventAggregator, Logger, NavigationContext } from 'platform/core';
 import { HorizonTelemetry, OutcomeScreen } from 'app/services/HorizonTelemetryService';
 import { base64ToBlobUrl, isNullorEmpty } from 'app/utils/channelServiceUtilities';
 import { HorizonRouter } from 'app/shell/HorizonRouter';
@@ -62,6 +62,7 @@ export class TaxCertificate extends Component {
 		this.currentStep = 0;
 		this.renderMode = RENDER_MODE.EMAIL;
 		this.encodedPDF = ``;
+		this.logger = Logger.getInstance();
 		this.navigationContext = NavigationContext.getInstance();
 		this.selectedCertType = null;
 		this.selectedCertificates = {
@@ -193,19 +194,23 @@ export class TaxCertificate extends Component {
 				]
 			};
 			
-			const returnValue = await this.quickTransactionService.sendProofOfAccount(clientInfo);
+			const returnValue = await this.quickTransactionService.sendTaxCertificate(clientInfo);
 
-			this._telemetry.logEvent(QuickTransactionEvents.PROOF_OF_ACCOUNT_OUTCOME, {
-				"screen": TelemetryScreen.PROOF_OF_ACCOUNT,
+			this._telemetry.logEvent(QuickTransactionEvents.TAX_CERTIFICATE_SELECT_SEND, {
+				"screen": TelemetryScreen.TAX_CERTIFICATE,
 				"next-screen": returnValue.succeeded ? OutcomeScreen.SUCCESS : OutcomeScreen.FAIL
 			});
-			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `proof-of-account`);
+			this.horizonStore.setReturnScreen(this.navigationContext.current.route, `tax-certificate`);
 
 			if (returnValue.succeeded) {
-				this.horizonRouter.navigateToProofOfAccountSuccess();
+				this.horizonRouter.navigateToTaxCertificateSuccessful();
+			} else if (!returnValue.succeeded) {
+				this.horizonRouter.navigateToTaxCertificateUnsuccessful();
 			} else {
-				this.horizonRouter.navigateToProofOfAccountFailed();
+				this.logger.log(`error`, `Failed to load Tax Certificate`, `_taxCertificate`, returnValue.correlationId);
+				this.HorizonRouter.navigateToTaxCertificateUnavailable();
 			}
+
 		}
 	}
 
@@ -721,7 +726,7 @@ export class TaxCertificate extends Component {
 						class="main-cb"
 						layout="vertical"
 						gap="clear"
-						?noScroll="${false}">
+						?noScroll="${true}">
 							${this._renderAlertBanner()}
 							${this._renderChooseCertificate()}
 							${this._renderCertificateTypes()}

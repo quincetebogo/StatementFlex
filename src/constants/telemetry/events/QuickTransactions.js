@@ -113,13 +113,14 @@ export const QuickTransactionEvents = {
 	// It can be done when we implement those feature
 
 	// Tax certificate
-	TAX_CERTIFICATE : `call.fulfill-need.tax-certificate`,
+	TAX_CERTIFICATE: `call.fulfill-need.tax-certificate`,
 	TAX_CERTIFICATE_POP_UP: `call.fulfill-need.tax-certificate.pop-up`,
 	TAX_CERTIFICATE_POP_UP_BACK: `call.fulfill-need.tax-certificate.pop-up.back`,
 	TAX_CERTIFICATE_POP_UP_NEXT: `call.fulfill-need.tax-certificate.pop-up.next`,
 	TAX_CERTIFICATE_POP_UP_CANCEL: `call.fulfill-need.tax-certificate.pop-up.cancel`,
 	TAX_CERTIFICATE_POP_UP_VIEW_DOCUMENT: `call.fulfill-need.tax-certificate.pop-up.certificate-clicked`,
 	TAX_CERTIFICATE_POP_UP_VIEW_PDF: `call.fulfill-need.tax-certificate.view-certificate`,
-	TAX_CERTIFICATE_POP_UP_CLOSE_PDF: `call.fulfill-need.tax-certificate.view-certificate.close`
+	TAX_CERTIFICATE_POP_UP_CLOSE_PDF: `call.fulfill-need.tax-certificate.view-certificate.close`,
+	TAX_CERTIFICATE_SELECT_SEND: `call.fulfill-need.tax-certificate.pop-up.send`
 	
  };
