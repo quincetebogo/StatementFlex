@@ -40,7 +40,7 @@ import 'app/components/common/HorizonLabel';
 
 	/**
 	 *
-	 * @property {Object} accountDetails Data for the Savings Account Landing Page display
+	 * @property {Object} accountDetails Data for the Account details screen from Live Better
 	 *
 	 * @readonly
 	 * @static
@@ -52,14 +52,26 @@ import 'app/components/common/HorizonLabel';
 		};
 	}
 
+	//---------------
 	// EVENT HANDLERS
 	// --------------
+
+	_back() {
+		this.dispatchEvent(new CustomEvent(`back`, {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
+
+	// N/A
+
 	// ---------------
 	// PRIVATE METHODS
 	// ---------------
+
+	// N/A
+
 	// ---------
 	// RENDERING
 	// ---------
@@ -67,7 +79,6 @@ import 'app/components/common/HorizonLabel';
 		return [
 			super.styles,
 			css`
-
 				capitec-title-bar {
 					--theme-type-primary-background: url(../../images/liveBetter/LBB_bg-1092x80.png);
 					height: 80px;
@@ -112,24 +123,24 @@ import 'app/components/common/HorizonLabel';
 
 				/* Account details Styles */
 				.details-vertical {
-					width: 989px;
-					height: 198px;
-
+					width: 993px;
+					height: 160px;
+					margin-bottom: 34px;
+					--theme-container-padding-bottom: 0px;
+					--theme-container-padding-top: 0px;
 					--theme-container-padding-left: 0px;
-					--theme-container-padding-top: 8px;
 					--theme-layout-gap-spacing: 0px;
 				}
 
 				.details-horizontal {
-					--theme-layout-gap-spacing: 9px;
 					padding-left: 15px;
 				}
 
 				horizon-label {
 					height: 56px;
-					padding: 16px 8px 10px 16px;
+					padding: 12px 8px 12px 16px;
 
-					--horizon-label-text-height: 12px;
+					--horizon-label-text-height: 20px;
 					--horizon-label-text-line-height: 12px;
 					--horizon-label-text-font-size: 14px;
 					--horizon-label-text-color: #3A3A3A;
@@ -141,7 +152,6 @@ import 'app/components/common/HorizonLabel';
 					--horizon-label-value-color: #3A3A3A;
 					
 					--horizon-label-value-font-weight: 600;
-					--horizon-label-value-margin-top: 2px;
 				}
 
 				capitec-icon {
@@ -203,7 +213,7 @@ import 'app/components/common/HorizonLabel';
 					--theme-alert-banner-width: 1032px;
 					--theme-alert-banner-font-weight: 600;
 					--theme-alert-banner-info-background-color: #DAF2F4;
-					--theme-layout-gap-spacing: 8px;
+					--theme-layout-gap-spacing: 16px;
 					--theme-alert-banner-info-font-color: #3A3A3A;
 					--theme-alert-banner-icon-margin-right: 12px;
 					--theme-alert-banner-icon-margin-left: 16px;
@@ -221,7 +231,7 @@ import 'app/components/common/HorizonLabel';
 				
 				.toggle-group {
 					width: 192px;
-					height: 64px;
+					height: 60px;
 
                     --theme-label-font-color: #3A3A3A;
                     --theme-label-font-size: 16px;
@@ -242,6 +252,10 @@ import 'app/components/common/HorizonLabel';
 				.card {
 					height: 888px;
 				}
+				.sub-header {
+					height: 24px;
+					margin-bottom: 8px;
+				}
 			`
 		];
 	}
@@ -253,28 +267,29 @@ import 'app/components/common/HorizonLabel';
 	_webTemplate() {
 		return html`
 			<capitec-card class="card">
-				<capitec-title-bar type="primary">
-					<img
-					src="/images/insure/left-arrow.svg"
-					@click="${() => this._back()}"
-					data-automation-id="live-better-account-details-left-arrow"
-					class="left-arrow"/>
-					<horizon-label
-						class="main-title"
-						label="Account Details"
-						value="1633824509">
-					</horizon-label>
+				<capitec-title-bar 
+					data-automation-id="live-better-account-details-title"
+					type="primary">
+						<img
+						src="/images/insure/left-arrow.svg"
+						@click="${() => this._back()}"
+						class="left-arrow"/>
+						<horizon-label
+							class="main-title"
+							label="Account Details"
+							value="1633824509">
+						</horizon-label>
 				</capitec-title-bar>
 
 				<capitec-content-box>
-				<capitec-alert-banner 
-					type="info" 
-					class="alert-banner"
-					label="Notify Client:">
-						<p class="alert-banner-paragraph">
-							You can only fund this account with Benefits Partner cash backs and Capitec cash backs
-						</p>
-				</capitec-alert-banner>
+					<capitec-alert-banner 
+						type="info" 
+						class="alert-banner"
+						label="Notify Client:">
+							<p class="alert-banner-paragraph">
+								You can only fund this account with Benefits Partner cash backs and Capitec cash backs
+							</p>
+					</capitec-alert-banner>
 					${this._renderAccountDetails()}
 					${this._renderAutomaticSavings()}
 				</capitec-content-box>
@@ -291,14 +306,14 @@ import 'app/components/common/HorizonLabel';
 			gap="clear" 
 			halign="left" 
 			valign="top">
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-				<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
-				<capitec-label
-					label="Account details"
-					class="title-style"
-					type="title">
-				</capitec-label>
-			</capitec-group>
+				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
+					<capitec-image src="/images/liveBetter/AccountDetails.svg"></capitec-image>
+					<capitec-label
+						label="Account details"
+						class="title-style"
+						type="title">
+					</capitec-label>
+				</capitec-group>
 				<capitec-group 
 					class="details-horizontal"
 					layout="horizontal" 
@@ -360,8 +375,8 @@ import 'app/components/common/HorizonLabel';
 							data-automation-id="live-better-account-details-status"
 							label="Status" 
 							value="Active">
-						</horizon-label>			
-				</capitec-group>				
+						</horizon-label>
+				</capitec-group>
 		</capitec-content-box>
 		`;
 	}
@@ -374,16 +389,16 @@ import 'app/components/common/HorizonLabel';
 			gap="clear" 
 			halign="left" 
 			valign="top">
-			<capitec-group layout="horizontal" gap="clear" halign="left" valign="center">
-			<capitec-image src="/images/liveBetter/AutomaticSavings.svg"></capitec-image>
-				<capitec-label 
-					label="Automatic savings"
-					type="title"
-					class="title-style">
-				</capitec-label>
-			</capitec-group>
+				<capitec-group class="sub-header" layout="horizontal" gap="clear" halign="left" valign="center">
+					<capitec-image src="/images/liveBetter/AutomaticSavings.svg"></capitec-image>
+						<capitec-label 
+							label="Automatic savings"
+							type="title"
+							class="title-style">
+						</capitec-label>
+				</capitec-group>
 				<capitec-group 
-				class="details-horizontal"
+					class="details-horizontal"
 					layout="horizontal" 
 					gap="none" 
 					halign="left" 
@@ -403,11 +418,11 @@ import 'app/components/common/HorizonLabel';
 							class="col-1" 
 							label="Round-up account(s)" 
 							value="Savings Account">
-						</horizon-label>						
+						</horizon-label>
 				</capitec-group>
 
 				<capitec-group
-				class="details-horizontal"
+					class="details-horizontal"
 					layout="horizontal"
 					gap="none" 
 					halign="left" 
@@ -421,8 +436,8 @@ import 'app/components/common/HorizonLabel';
 							class="col-1" 
 							label="Last update" 
 							value="12 May 2021">
-						</horizon-label>			
-				</capitec-group>				
+						</horizon-label>
+				</capitec-group>
 		</capitec-content-box>
 		`;
 	}
