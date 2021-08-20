@@ -19,11 +19,7 @@ export class ServiceCallErrorScreen extends Component {
 		this.header = ``;
 		this.left = ``;
 		this.right = ``;
-		this.toast = ``;
-		this.displayToast = true;
 		this.image = null;
-		this.subDetail = ``;
-		this.secondaryToast = ``;
 		this.bannerDetail = ``;
 		this.displayBanner = true;
 	}
@@ -34,7 +30,6 @@ export class ServiceCallErrorScreen extends Component {
 
 	connectedCallback() {
 		super.connectedCallback();
-		window.setTimeout(() => this._closeToast(), 3000);
 	}
 
 	// ----------
@@ -45,10 +40,6 @@ export class ServiceCallErrorScreen extends Component {
 	* @property {String} header The heading for the error screen
 	* @property {String} left The text for the left hand buttoon
 	* @property {String} right The text for the right hand button
-	* @property {String} [toast] The text for the tost message
-	* @property {String} [displayToast=true] Enables/Disables the toast message
-	* @property {String} [subDetail] Sub detail
-	* @property {String} [secondaryToast] Secondary toast details
 	* @readonly
 	* @static
 	* @memberof ErrorScreen
@@ -58,11 +49,7 @@ export class ServiceCallErrorScreen extends Component {
 			header: { type: String },
 			left: { type: String },
 			right: { type: String },
-			toast: { type: String },
-			displayToast: { type: Boolean },
 			image: { type: String },
-			subDetail: { type: String },
-			secondaryToast: { type: String },
 			bannerDetail: { type : String },
 			displayBanner: { type: Boolean}
 		};
@@ -82,21 +69,15 @@ export class ServiceCallErrorScreen extends Component {
 					height: 100%;
 				}
 				.card {
-					height: var(--horizon-service-call-error-screen-height, 768px);
+					height: var(--horizon-service-call-error-screen-height, 918px);
 					width: var(--horizon-center-panel-width, 1064px);
-				}
-				#id-verify-unsuccessful {
-					height: 32px;
-					width: 312px;
-					margin: 0px auto 0px auto;
-					margin-top:51px;
-					width: 100%;
 				}
 				.card > capitec-group[layout="vertical"] {
 					height: var(--horizon-service-call-error-screen-size, 750px);
 				}
 				#id-unsuccessful-img {
           			width: auto;
+					margin-top: -50px;
 				}
 				#id-verify-unsuccessful {
 					height: 32px;
@@ -125,19 +106,6 @@ export class ServiceCallErrorScreen extends Component {
 					--theme-button-padding-top: 13px;
 					--theme-button-padding-bottom: 13px;
 				}
-				#button-left {
-					margin-right: 16px;
-				}
-
-				.center-button {
-					--theme-button-font-size: 16px;
-					--theme-button-font-weight: 600;
-					--theme-button-padding-left: 22px;
-					--theme-button-padding-top: 12.5px;
-					--theme-button-padding-bottom: 12.5px;
-					--theme-button-padding-right: 22px;
-				}
-				
 				slot[name=detail]::slotted(*){
 					height: 26px;
 					color: #545D60;
@@ -147,26 +115,13 @@ export class ServiceCallErrorScreen extends Component {
 					line-height: 24px;
 					text-align: center;
 				}
-				slot[name=sub-detail] {
-					height: 24px;
-					width: 543px;
-					color: #3E4547;
-					font-family: "Hind Vadodara";
-					font-size: 16px;
-					letter-spacing: 0;
-					line-height: 24px;
-					text-align: center;
-				}
 				.banner-top {
 					padding: 16px;
+					--theme-alert-banner-unsuccessful-red-font-color: #3A3A3A;
+
 				}
 			`
 		];
-	}
-
-
-	_closeToast() {
-		this.displayToast = false;
 	}
 
 	_leftClick() {
@@ -188,7 +143,7 @@ export class ServiceCallErrorScreen extends Component {
 
 				<capitec-group
 					layout="vertical"
-					gap="none"
+					gap="clear"
 					halign="center"
 					valign="center">
 					<img id="id-unsuccessful-img" src="${this.image}" />
@@ -215,7 +170,7 @@ export class ServiceCallErrorScreen extends Component {
 	_renderBanner() {
 		return this.bannerDetail 
 		? html`
-			<capitec-alert-banner ?hidden="${!this.displayBanner}" class = "banner-top" type="unsuccessful-red" label="${this.bannerDetail}"></capitec-alert-banner>
+			<capitec-alert-banner ?hidden="${!this.displayBanner}" class = "banner-top" type="unsuccessful-red"><b>Notify Client: </b>${this.bannerDetail}</capitec-alert-banner>
 		` : html ``;
 	}
 }
