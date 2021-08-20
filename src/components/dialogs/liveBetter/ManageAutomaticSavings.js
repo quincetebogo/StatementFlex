@@ -105,7 +105,7 @@ export class ManageAutomaticSavings extends Component {
 				capitec-modal {
 					width:872px;
 					height:850px;
-					--theme-modal-free-max-width: 872px;
+					--theme-modal-free-max-width: 873px;
 					--theme-modal-body-box-shadow: 0px;
 
 					--theme-modal-header-padding-top: 20px;
@@ -204,7 +204,6 @@ export class ManageAutomaticSavings extends Component {
 				}
 
 				.header-label {
-					margin-top:14px;
 					height: 20px;
 					width: 318px;
 					color: #3A3A3A;
@@ -228,18 +227,21 @@ export class ManageAutomaticSavings extends Component {
 					margin-left:16px;
 				}
 
-				.round-up-accounts{
-					margin-left:16px;
-					padding:16px;
+				.round-up-amount{
+					padding: 8px 16px 15px 16px;
+					--theme-buttonbar-item-gap: 16px;
 				}
-				
-				#id-toggle{
-					margin-top:14px;
+				.round-up-account{
+					padding: 8px 16px 15px 16px;
 				}
-
-				#id-toggle-label{
-					margin-top: 10px;
-    				margin-right: 14px;
+				.round-up-account > capitec-check { */
+					height: 40px;
+					padding: 8px 0px;
+				}
+				#id-toggle-label {
+					--theme-layout-gap-spacing: 0px;
+					--theme-label-default-font-size: 15px;
+					--theme-label-font-color: #3A3A3A;
 				}
 
 				#id-interest-sweep{
@@ -257,19 +259,38 @@ export class ManageAutomaticSavings extends Component {
 				}
 
 				.other-options {
+					height: 32px;
 					--theme-titlebar-min-height: 32px;
+					--theme-layout-gap-spacing: 0px;
 					--theme-titlebar-padding: 0px 0px 0px 16px;
 					--theme-type-default-background: rgb(244, 244, 244);
-					--theme-label-title-font-size: 15px;
 					--theme-label-title-font-weight: 600;
 					--theme-type-default-font-color: #3A3A3A;
 					--theme-label-title-font-size: 14px;
 					--theme-titlebar-shadow: 0px;
-
-					border-top: 1px solid #E1E1E1;
-						border-bottom: 1px solid #E1E1E1;
+					border-top: 1px solid rgb(225, 225, 225);
+					border-bottom: 1px solid rgb(225, 225, 225);
 					}
+				.card-header {
+					height: 48px;
+					padding: 15px;
+				}
+				div[slot="footer"] {
+					width: auto;
+					padding: 7px 16px 8px 0px;
+				}
 
+				capitec-button {
+					height: 48px;
+					--theme-button-font-weight: 600;
+					--theme-button-line-height: 20px;
+				}
+				#button-update {
+					width: 101px;
+				}
+				#button-cancel {
+					width: 96px;
+				}
 				
 			`
 		];
@@ -321,7 +342,7 @@ export class ManageAutomaticSavings extends Component {
 
 	_renderRoundUpSaveToggle(){
 		return html`
-		<capitec-group gap="clear" H-Align="left" V-Align="center" layout="horizontal">
+		<capitec-group class="card-header" gap="clear" halign="left" valign="center" layout="horizontal">
 			<img src='/images/liveBetter/round-up.svg'/>
 			<capitec-label class="header-label" type="title" label="Round-up. Save a little every time you spend"></capitec-label>
 			<capitec-spacer></capitec-spacer>
@@ -348,7 +369,7 @@ export class ManageAutomaticSavings extends Component {
 					class="other-options">
 				</capitec-title-bar>
 
-				<capitec-radio-group class="round-up-accounts">
+				<capitec-radio-group class="round-up-amount">
 					<capitec-radio label="R2.00" checked></capitec-radio>
 					<capitec-radio label="R5.00"></capitec-radio>
 					<capitec-radio label="R10.00"></capitec-radio>
@@ -366,7 +387,7 @@ export class ManageAutomaticSavings extends Component {
 					label="Active round-up accounts"
 					class="other-options">
 				</capitec-title-bar>
-				<capitec-check-group class="round-up-accounts">
+				<capitec-check-group class="round-up-account">
 					<capitec-check label="Main Savings account"></capitec-check>
 					<capitec-check label="My new Car"></capitec-check>
 					<capitec-check label="Credit card"></capitec-check>
@@ -378,7 +399,7 @@ export class ManageAutomaticSavings extends Component {
 
 	_renderInterestSweep(){
 		return html`
-		<capitec-group gap="clear" H-Align="left" V-Align="center" layout="horizontal">
+		<capitec-group class="card-header" gap="clear" halign="left" valign="center" layout="horizontal">
 			<img src='/images/liveBetter/interest-sweep.svg'/>
 			<capitec-label class="header-label" type="title" label="Intrest Sweep. SuperCharge your interest"></capitec-label>
 			<capitec-spacer></capitec-spacer>
@@ -424,12 +445,14 @@ export class ManageAutomaticSavings extends Component {
 			<capitec-group layout="horizontal" halign="left" valign="center" gap="clear">
 
 				<capitec-button
+					id="button-cancel"
 					data-automation-id="manage-automatic-savings-cancel"
 					label="Cancel"
 					@click="${() => this._cancel()}">
 				</capitec-button>
 
 				<capitec-button
+					id="button-update"
 					data-automation-id="manage-automatic-savings-update"
 					type="primary" 
 					label="Update">

@@ -92,14 +92,19 @@ export class LiveBetter extends ViewBase {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
+	_automaticSavings() {
+		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
+	}
+	
+	_backToLBBLandingScreen() {
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
 
-	// N/A
-	_automaticSavings() {
-		this.renderMode = RENDER_MODE.AUTOMATIC_SAVINGS;
-	}
+
 	
 	// ---------------
 	// PRIVATE METHODS
@@ -260,7 +265,8 @@ export class LiveBetter extends ViewBase {
 	_renderAutomaticSavings() {
 		return this.renderMode === RENDER_MODE.AUTOMATIC_SAVINGS ?
 		 html`
-		<horizon-manage-automatic-savings>
+		<horizon-manage-automatic-savings
+		@cancel = "${() => this._backToLBBLandingScreen()}">
 		</horizon-manage-automatic-savings>`
 		: html``;
 	}
