@@ -233,7 +233,7 @@ import 'app/components/common/HorizonLabel';
 				}
 
 				.left-arrow {
-					padding: 4px 0px 24px 0px;
+					padding: 4px 0px 20px 0px;
 				}
 
 				.card {
