@@ -13,7 +13,7 @@
 		"strack": "http://strack8qa-clientaccess.int.capinet/HEAT/?Scope=SelfService&CommandId=Open&Tab=Incident%23&ItemId=$incidentRecId&frameless=false",
 		"global-one": "https://www.capitecbank.co.za/global-one/"
 	},
-	"VDN":"7253",
+	"VDN":"7250",
 	"LogRequestResponseModels" : false,
 	"ivrMapping": [
 		{
@@ -21,16 +21,8 @@
 			"primaryNeed": "StopCard"
 		},
 		{
-			"option": "7253",
+			"option": "7250",
 			"primaryNeed": "Transact"
-		},
-		{
-			"option": "8251",
-			"primaryNeed": "ProductEnquiry"
-		},
-		{
-			"option": "8252",
-			"primaryNeed": "ProductEnquiry"
 		}
 	],
 	"ivrActionMapping": {
@@ -43,7 +35,7 @@
 		"tax-certificate": "TAX_CERTIFICATE",
 		"transaction-history": "TRANSACTION_HISTORY",
 		"savings-product-info": "PRODUCT_ENQUIRY_SAVINGS",
-		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS",
+		"savings-plan-info": "PRODUCT_ENQUIRY_SAVINGS_PLAN",
 		"insure-product-info": "PRODUCT_ENQUIRY_INSURE",
 		"credit-product-info": "PRODUCT_ENQUIRY_CREDIT",
 		"credit-card-statements": "STATEMENTS_CC",
