@@ -415,30 +415,6 @@ export class ManageAutomaticSavings extends Component {
 		`;
 	}
 
-	_renderRoundUpAndAccountAlert(){
-		return this.roundupAccountActive
-		? html`
-			<capitec-alert-banner 
-						data-automation-id="manage-automatic-savings-round-up-account-alert"
-						type="warning">
-						<strong>Notify:</strong>
-				<p class="alert-message">You must choose a Round-up amount and account</p>
-			</capitec-alert-banner>`
-		: html``;
-	}
-
-	_renderRoundUpAlert(){
-		return this.roundUpCheck
-		? html`
-			<capitec-alert-banner 
-						data-automation-id="manage-automatic-savings-round-up-alert"
-						type="warning">
-						<strong>Notify:</strong>
-				<p class="alert-message">You must choose an option to switch Round-up on.</p>
-			</capitec-alert-banner>`
-		: html``;
-	}
-
 
 	_renderFooter() {
 		return html`
