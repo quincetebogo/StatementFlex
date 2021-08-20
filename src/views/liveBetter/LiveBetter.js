@@ -5,6 +5,7 @@ import { ViewBase } from 'app/views/common/ViewBase';
 
 import 'app/components/liveBetter/LiveBetterVerifiedPage';
 import 'app/components/liveBetter/LiveBetterUnverifiedPage';
+import 'app/components/liveBetter/AccountDetails';
 
 /**
  * Live Better View
@@ -88,6 +89,14 @@ export class LiveBetter extends ViewBase {
 		// verificationStatus is on the this.callerInformation object
 		await this._initialise();
 
+		this.renderMode = RENDER_MODE.MAIN_PAGE;
+	}
+
+	_accountDetails() {
+		this.renderMode = RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS;
+	}
+
+	_backFromAccountDetails() {
 		this.renderMode = RENDER_MODE.MAIN_PAGE;
 	}
 
@@ -210,6 +219,7 @@ export class LiveBetter extends ViewBase {
 		return html`
 			${super._webTemplate()}
 			${this._renderLandingPage()}
+			${this._renderAccountDetails()}
 		`;
 	}
 
@@ -234,6 +244,7 @@ export class LiveBetter extends ViewBase {
 				<horizon-live-better-verified-page
 					class="liveBetter"
 					.landingPageInfo = "${this.landingPageInfo}"
+					@account-details="${() => this._accountDetails()}"
 					@option-click="${(event) => this._optionClick(event.detail.option)}"
 					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
 				</horizon-live-better-verified-page>`
@@ -249,6 +260,15 @@ export class LiveBetter extends ViewBase {
 					@livebetter-enquiry="${(event) => this._productEnquiry(event)}">
 				</horizon-live-better-unverified-page>`
 			: html``;
+	}
+
+	_renderAccountDetails() {
+		return this.renderMode === RENDER_MODE.LIVE_BETTER_ACCOUNT_DETAILS 
+			? html`
+				<horizon-live-better-account-details
+				@back= "${() => this._backFromAccountDetails()}">
+				</horizon-live-better-account-details>`
+			: html``;	
 	}
 
 }

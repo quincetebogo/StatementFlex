@@ -93,7 +93,8 @@ import 'app/components/common/HorizonLabel';
 				}
 				
 				.left-arrow {
-					padding-bottom: 26px
+					padding-bottom: 26px;
+					cursor: pointer;
 				}
 
 				.alert-banner {

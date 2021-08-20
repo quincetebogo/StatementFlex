@@ -73,6 +73,10 @@ export class LiveBetterVerifiedPage extends Component {
 		this.expanded = !this.expanded
 	}
 
+	_accountDetails() {
+		this.dispatchEvent(new CustomEvent(`account-details`, {}));
+	}
+
 	// --------------
 	// PUBLIC METHODS
 	// --------------
@@ -176,6 +180,7 @@ export class LiveBetterVerifiedPage extends Component {
 				.actionbar-header > horizon-label[label="Account number"] {
 					width: 150px;
 					--horizon-label-value-color: #009DE0;
+					cursor: pointer;
 				}
 				.actionbar-header > horizon-label[label="Status"] {
 					width: 142px;
@@ -305,6 +310,7 @@ export class LiveBetterVerifiedPage extends Component {
 					<horizon-label
 						data-automation-id="live-better-verified-account-number"
 						label="Account number"
+						@click="${() => this._accountDetails()}"
 						value="${this.landingPageInfo.accountNumber}">
 					</horizon-label>
 
